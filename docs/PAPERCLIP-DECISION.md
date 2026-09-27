@@ -51,10 +51,17 @@ This is intentionally a control-plane improvement rather than a Paperclip
 dependency. It prevents a common autonomous-agent failure mode: treating a
 status label, comment, or stale process as proof that work is still covered.
 
+The executive store now also has a backward-compatible goal hierarchy and
+work lineage contract: `/api/executive/goals` stores nested goals, while work
+items can reference `goal_id` and `parent_work_id`. The store rejects goal and
+work cycles, missing parents, and cross-goal child work. Existing work remains
+valid because these references are optional during migration; new material
+implementation work can adopt them incrementally.
+
 ## Adopt next, in priority order
 
-1. Give every material executive work item a durable goal/parent reference and
-   require a short “why this matters” chain before it can enter implementation.
+1. Require a durable goal/parent reference for material new implementation
+   work, now that the backward-compatible goal/lineage API exists.
 2. Promote work products (report, diff, preview, measurement, or decision
    record) to a typed evidence contract rather than free-form completion text.
 3. Extend the new liveness audit into the hourly heartbeat and dashboard with

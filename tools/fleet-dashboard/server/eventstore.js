@@ -153,6 +153,23 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_actions_time ON executive_actions(started_at DESC);
     CREATE INDEX IF NOT EXISTS executive_actions_actor ON executive_actions(actor, started_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_goals (
+      goal_id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      statement TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      owner TEXT NOT NULL DEFAULT 'ceo',
+      parent_goal_id TEXT,
+      target_at TEXT,
+      evidence_json TEXT NOT NULL DEFAULT '[]',
+      created_by TEXT NOT NULL DEFAULT 'system',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT,
+      outcome TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_goals_parent ON executive_goals(parent_goal_id, status);
+    CREATE INDEX IF NOT EXISTS executive_goals_status ON executive_goals(status, updated_at DESC);
     CREATE TABLE IF NOT EXISTS executive_work_items (
       work_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -263,6 +280,8 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'heartbeat_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'retry_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'goal_id', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'parent_work_id', 'TEXT');
   ensureColumn(db, 'executive_notifications', 'delivery_status', "TEXT NOT NULL DEFAULT 'pending'");
   ensureColumn(db, 'executive_notifications', 'delivery_attempts', 'INTEGER NOT NULL DEFAULT 0');
   ensureColumn(db, 'executive_notifications', 'last_error', 'TEXT');
@@ -1383,12 +1402,165 @@ function open(root, { file } = {}) {
     'owner',
   ]);
 
+  const GOAL_STATUSES = new Set(['active', 'achieved', 'paused', 'cancelled']);
+
+  function decodeExecutiveGoal(row) {
+    return row ? { ...row, evidence: safeJson(row.evidence_json), evidence_json: undefined } : null;
+  }
+
+  function getExecutiveGoal(id) {
+    const row = db.prepare('SELECT * FROM executive_goals WHERE goal_id=?').get(String(id));
+    return decodeExecutiveGoal(row);
+  }
+
+  function listExecutiveGoals({ status, owner, parent_goal_id, limit = 500 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    if (owner) {
+      clauses.push('owner=?');
+      args.push(String(owner));
+    }
+    if (parent_goal_id) {
+      clauses.push('parent_goal_id=?');
+      args.push(String(parent_goal_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM executive_goals${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 500, 1000)))
+      .map(decodeExecutiveGoal);
+  }
+
+  function assertGoalParentDoesNotCycle(goalId, parentGoalId) {
+    let current = parentGoalId ? getExecutiveGoal(parentGoalId) : null;
+    const seen = new Set();
+    while (current) {
+      if (current.goal_id === goalId) throw httpErr(409, 'goal hierarchy would create a cycle');
+      if (seen.has(current.goal_id)) throw httpErr(409, 'goal hierarchy contains a cycle');
+      seen.add(current.goal_id);
+      current = current.parent_goal_id ? getExecutiveGoal(current.parent_goal_id) : null;
+    }
+  }
+
+  function createExecutiveGoal(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const row = {
+      goal_id: input.goal_id || crypto.randomUUID(),
+      title: String(input.title || '').trim(),
+      statement: String(input.statement || '').trim(),
+      status: String(input.status || 'active').trim(),
+      owner: String(input.owner || 'ceo').trim(),
+      parent_goal_id: input.parent_goal_id ? String(input.parent_goal_id).trim() : null,
+      target_at: input.target_at || null,
+      evidence: Array.isArray(input.evidence) ? input.evidence.slice(0, 20) : [],
+      created_by: String(input.created_by || 'system').trim(),
+      created_at: now,
+      updated_at: now,
+      closed_at: input.closed_at || null,
+      outcome: input.outcome ? String(input.outcome).trim() : null,
+    };
+    if (!row.title) throw httpErr(400, 'goal title is required');
+    if (!row.statement) throw httpErr(400, 'goal statement is required');
+    if (!GOAL_STATUSES.has(row.status)) throw httpErr(400, 'invalid goal status');
+    if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid goal owner');
+    if (row.parent_goal_id && !getExecutiveGoal(row.parent_goal_id))
+      throw httpErr(404, 'parent goal not found');
+    assertGoalParentDoesNotCycle(row.goal_id, row.parent_goal_id);
+    db.prepare(
+      `INSERT INTO executive_goals (goal_id,title,statement,status,owner,parent_goal_id,target_at,evidence_json,created_by,created_at,updated_at,closed_at,outcome)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      row.goal_id,
+      row.title,
+      row.statement,
+      row.status,
+      row.owner,
+      row.parent_goal_id,
+      row.target_at,
+      JSON.stringify(row.evidence),
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.closed_at,
+      row.outcome
+    );
+    return row;
+  }
+
+  function updateExecutiveGoal(id, patch = {}) {
+    const current = getExecutiveGoal(id);
+    if (!current) throw httpErr(404, 'executive goal not found');
+    if (
+      patch.expected_updated_at &&
+      String(patch.expected_updated_at) !== String(current.updated_at)
+    )
+      throw httpErr(409, 'goal changed; refresh before updating it');
+    const next = { ...current, ...patch, goal_id: current.goal_id };
+    next.title = String(next.title || '').trim();
+    next.statement = String(next.statement || '').trim();
+    next.status = String(next.status || '').trim();
+    next.owner = String(next.owner || '').trim();
+    next.parent_goal_id = next.parent_goal_id ? String(next.parent_goal_id).trim() : null;
+    if (!next.title || !next.statement) throw httpErr(400, 'goal title and statement are required');
+    if (!GOAL_STATUSES.has(next.status)) throw httpErr(400, 'invalid goal status');
+    if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid goal owner');
+    if (next.parent_goal_id && !getExecutiveGoal(next.parent_goal_id))
+      throw httpErr(404, 'parent goal not found');
+    assertGoalParentDoesNotCycle(next.goal_id, next.parent_goal_id);
+    const now = new Date().toISOString();
+    const closedAt = ['achieved', 'cancelled'].includes(next.status) ? next.closed_at || now : null;
+    const result = db
+      .prepare(
+        `UPDATE executive_goals SET title=?,statement=?,status=?,owner=?,parent_goal_id=?,target_at=?,evidence_json=?,updated_at=?,closed_at=?,outcome=? WHERE goal_id=? AND updated_at=?`
+      )
+      .run(
+        next.title,
+        next.statement,
+        next.status,
+        next.owner,
+        next.parent_goal_id,
+        next.target_at || null,
+        JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
+        now,
+        closedAt,
+        next.outcome || null,
+        current.goal_id,
+        current.updated_at
+      );
+    if (!result.changes) throw httpErr(409, 'goal changed; refresh before updating it');
+    return getExecutiveGoal(current.goal_id);
+  }
+
   function decodeExecutiveWorkItem(row) {
     return {
       ...row,
       evidence: safeJson(row.evidence_json),
       evidence_json: undefined,
     };
+  }
+
+  function assertWorkLineage(input, currentId = null) {
+    if (input.goal_id && !getExecutiveGoal(input.goal_id)) throw httpErr(404, 'goal not found');
+    if (!input.parent_work_id) return;
+    if (String(input.parent_work_id) === String(currentId || input.work_id))
+      throw httpErr(409, 'work item cannot be its own parent');
+    const parent = getExecutiveWorkItem(input.parent_work_id);
+    if (!parent) throw httpErr(404, 'parent work item not found');
+    if (input.goal_id && parent.goal_id && String(input.goal_id) !== String(parent.goal_id))
+      throw httpErr(409, 'parent work item belongs to a different goal');
+    const seen = new Set([String(currentId || input.work_id)]);
+    let cursor = parent;
+    while (cursor) {
+      if (seen.has(String(cursor.work_id)))
+        throw httpErr(409, 'work hierarchy would create a cycle');
+      seen.add(String(cursor.work_id));
+      cursor = cursor.parent_work_id ? getExecutiveWorkItem(cursor.parent_work_id) : null;
+    }
   }
 
   function createExecutiveWorkItem(input = {}) {
@@ -1403,6 +1575,8 @@ function open(root, { file } = {}) {
       source_type: input.source_type ? String(input.source_type).trim() : null,
       source_id: input.source_id ? String(input.source_id).trim() : null,
       site: input.site ? String(input.site).trim() : null,
+      goal_id: input.goal_id ? String(input.goal_id).trim() : null,
+      parent_work_id: input.parent_work_id ? String(input.parent_work_id).trim() : null,
       summary: String(input.summary || '').trim(),
       next_action: String(input.next_action || '').trim(),
       waiting_on: input.waiting_on ? String(input.waiting_on).trim() : null,
@@ -1430,10 +1604,11 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_STATUSES.has(row.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(row.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
+    assertWorkLineage(row);
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -1444,6 +1619,8 @@ function open(root, { file } = {}) {
       row.source_type,
       row.source_id,
       row.site,
+      row.goal_id,
+      row.parent_work_id,
       row.summary,
       row.next_action,
       row.waiting_on,
@@ -1473,6 +1650,8 @@ function open(root, { file } = {}) {
     status,
     owner,
     kind,
+    goal_id,
+    parent_work_id,
     priority,
     site,
     source_type,
@@ -1491,6 +1670,14 @@ function open(root, { file } = {}) {
     if (kind) {
       clauses.push('kind = ?');
       args.push(String(kind));
+    }
+    if (goal_id) {
+      clauses.push('goal_id = ?');
+      args.push(String(goal_id));
+    }
+    if (parent_work_id) {
+      clauses.push('parent_work_id = ?');
+      args.push(String(parent_work_id));
     }
     if (priority) {
       clauses.push('priority = ?');
@@ -1547,6 +1734,9 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(next.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(next.owner)) throw httpErr(400, 'invalid work item owner');
+    next.goal_id = next.goal_id ? String(next.goal_id).trim() : null;
+    next.parent_work_id = next.parent_work_id ? String(next.parent_work_id).trim() : null;
+    assertWorkLineage(next, current.work_id);
     if (next.status === 'done' && current.status !== 'done') {
       const hasEvidence =
         Array.isArray(next.evidence) &&
@@ -1590,7 +1780,7 @@ function open(root, { file } = {}) {
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
     const result = db
       .prepare(
-        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
+        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,goal_id=?,parent_work_id=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
       )
       .run(
         next.title,
@@ -1601,6 +1791,8 @@ function open(root, { file } = {}) {
         next.source_type || null,
         next.source_id || null,
         next.site || null,
+        next.goal_id || null,
+        next.parent_work_id || null,
         String(next.summary || ''),
         String(next.next_action || ''),
         next.waiting_on || null,
@@ -1877,6 +2069,10 @@ function open(root, { file } = {}) {
     getExecutiveAction,
     finishExecutiveAction,
     updateExecutiveAction,
+    createExecutiveGoal,
+    listExecutiveGoals,
+    getExecutiveGoal,
+    updateExecutiveGoal,
     createExecutiveWorkItem,
     listExecutiveWorkItems,
     getExecutiveWorkItem,

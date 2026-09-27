@@ -24,6 +24,10 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   evidence gaps. Roles may create or update bounded cases in their autonomous
   plan; owner attention is reserved for actual decisions, approvals, or
   escalations.
+- `GET/POST/PATCH /api/executive/goals` — the durable goal hierarchy. Work
+  items may carry `goal_id` and `parent_work_id`, so material work can retain
+  its “why” chain without replacing the fleet-specific proposal and release
+  gates. Parent cycles and cross-goal lineage are rejected.
 - `GET/POST/PATCH /api/executive/knowledge` — the provenance-aware Knowledge
   Shelf and role learning queue. Sources retain publisher, jurisdiction, date,
   license, relevance, and lifecycle status; they are educational inputs, not

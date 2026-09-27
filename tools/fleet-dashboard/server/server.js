@@ -4263,6 +4263,39 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/goals', (req, res) => {
+    try {
+      res.json({ goals: events.listExecutiveGoals(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/goals/:id', (req, res) => {
+    try {
+      const goal = events.getExecutiveGoal(req.params.id);
+      if (!goal) return res.status(404).json({ error: 'executive goal not found' });
+      res.json({
+        goal,
+        work_items: events.listExecutiveWorkItems({ goal_id: goal.goal_id, limit: 1000 }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/goals', (req, res) => {
+    try {
+      res.status(201).json({ goal: events.createExecutiveGoal(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/goals/:id', (req, res) => {
+    try {
+      res.json({ goal: events.updateExecutiveGoal(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/liveness', (req, res) => {
     try {
       res.json(executiveLiveness.audit(events));
