@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:48:09.855Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:04:03.672Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, unsupported financial claims, and public launch. Revenue is limited to the dated aggregate record; site economics, ROI, margin, payback, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private launch gates unchanged and external outreach unsent. Continue only existing read-only rights, privacy, data-flow, accuracy, attribution, measurement, and security evidence; do not access credentials, modify configuration or permissions, deploy, expand alerts, or authorize rights-dependent monetization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. Preserve the 2026-09-21 aggregate commission as unattributed and reconcile existing period-aligned cost records only. Do not infer site performance, ROI, margin, payback, forecasts, budget capacity, or causal lift from aggregate revenue, traffic, rankings, conversions, technical metrics, or AI usage.",
+        "summary": "Reject new production work, requeues, experiments, telemetry, dependencies, spending, monetization expansion, public launch, and unsupported financial claims. Continue only existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Preserve the three evidence-backed opportunities as deferred backlog. Revenue is limited to 2026-09-21: $4.92 aggregate commission, not site-attributable; ROI, margin, payback, budget exposure, and causal lift remain unknown. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

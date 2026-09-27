@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:48:09.854Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:04:03.671Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the deferred opportunities for deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com, but create no change requests or requeues this cycle. Existing failures, validation, rollback, deduplication, and measurement gates remain unresolved.",
+        "summary": "Technical disposition: approve containment-only execution. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, or monetization changes. Retain the three evidence-backed opportunities as deferred backlog only. Continue existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Existing failures, validation, rollback, deduplication, isolation, and measurement gates remain unresolved; no new queue action is safely eligible this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new change requests, requeues, experiments, telemetry, dependencies, deployments, spend, or monetization expansion are technically supportable this cycle. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Preserve the three evidence-backed opportunities as deferred backlog. Continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
+        "summary": "Maintain financial containment. Continue existing period-aligned reconciliation only; preserve aggregate provider revenue as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget exposure, and causal lift. Operating metrics must not be presented as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: existing work is isolated by scope and reversible only where it remains within current repair, validation, rollback, deduplication, and measurement controls. Missing fleet-doctor and operations evidence prevents security-sensitive releases and public exposure clearance; it does not authorize new production work. Continue bounded read-only security evidence using authorized metadata and retained artifacts only. Do not access credentials or private containers, modify permissions or configuration, add dependencies, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Measurement disposition: continue the existing reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed; site-attributed commission remains $0 without implying zero site performance. Reconcile retained period-aligned cost records and preserve unknowns. Do not infer ROI, margin, payback, cost-to-learn, forecasts, budget capacity, or causal lift from traffic, rankings, conversions, technical scores, AI usage, or aggregate affiliate data.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Launch and isolation gate: keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, alert expansion, rights-dependent monetization, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

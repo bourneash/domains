@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:36:27.828Z",
+  "generated_at": "2026-09-27T11:04:03.670Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve three reversible control-plane product specifications, with no site edits or production queue entries during containment. Evidence shows 187 approved proposals lack execution requests, 9 implementation requests failed with 47 open repair follow-ups, and 28 deployed improvements await measurement while only 2 are proven. Prioritize approval-to-execution reconciliation, failure-aware repair-or-close states, and measurement-readiness gates. Continue existing repair, reconciliation, and legal/security evidence work; preserve all site opportunities as deferred backlog.",
+        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty; continue existing failure repair-or-close, measurement/attribution reconciliation, and bounded read-only legal/security evidence. Retain deferred opportunities for deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com without creating proposals, change requests, experiments, telemetry, dependencies, spend, deployments, or monetization work. Evidence remains insufficient for revenue or causal-lift claims; keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
