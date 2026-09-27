@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T22:24:52.510Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:02:04.064Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed rodhat.com production SEO change. The current authoritative disposition is containment-only: 47 failure follow-ups remain open, 28 improvements await measurement, operations and security sweeps are unavailable, attribution is incomplete, and only 2 outcomes are proven. Continue only existing repair-or-close, deterministic validation, rollback, measurement and attribution reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed; keep revenue, ROI, margin, payback, causal lift, and production readiness unknown. Keep private launch gates, parked dispositions, and external outreach unchanged. Owner concern: any permission request requires human-counsel review and explicit authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the already-authorized evidence and containment work only. Do not create duplicate assessments, telemetry, proposals, change requests, experiments, dependencies, deployments, spending, or outreach.",
+        "summary": "Reject the three queued production change requests. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 improvements await measurement, operations and security sweeps are unavailable, and only 2 outcomes are proven. Preserve aggregate commission as unattributed and keep revenue, ROI, margin, payback, causal lift, and production readiness unknown. Continue only existing repair-or-close, attribution reconciliation, measurement, and bounded legal/security evidence work; retain the packets as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       }
