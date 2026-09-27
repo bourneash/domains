@@ -636,7 +636,13 @@ async function devLogs(site, n) {
 async function validate(site) {
   const checks = [
     ['diff', 'git diff --check'],
-    ['tests', 'if [ -f site/package.json ]; then cd site; fi; npm test --if-present'],
+    // Keep test runners inside the worker's process budget. Vitest and Jest
+    // both accept these flags, and this prevents a large default worker pool
+    // from turning a valid change into spawn EAGAIN under container limits.
+    [
+      'tests',
+      'if [ -f site/package.json ]; then cd site; fi; npm test --if-present -- --maxWorkers=1 --minWorkers=1',
+    ],
     ['build', 'if [ -f site/package.json ]; then cd site; fi; npm run build'],
   ];
   const results = {};
