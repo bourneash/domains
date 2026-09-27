@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T18:33:56.507Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T18:48:04.135Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve the single-period $4.92 aggregate commission as unattributed; site economics, margin, ROI, payback, and causal lift remain unknown. Continue only existing repair-or-close, attribution and cost reconciliation, and bounded legal/security evidence work. Keep private and parked dispositions unchanged and external outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: four legal launch tasks remain open, security and operations sweeps are unavailable, compliance evidence is technical-only, attribution is incomplete, and 28 improvements await measurement. Authorize any external permission request only after human-counsel review; otherwise keep it unsent.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve the single-period $4.92 aggregate commission as unattributed; financial and causal outcomes remain unknown. Continue only existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, measurement, and bounded legal/security evidence work. Keep private and parked dispositions unchanged; keep external outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

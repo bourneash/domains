@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T18:33:56.506Z",
+  "generated_at": "2026-09-27T18:48:04.133Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment-only execution. No new CRO proposal, change request, research request, experiment, telemetry, dependency, deployment, spend, monetization change, or requeue is queue-eligible this cycle. Preserve SEO, UX, accessibility, performance, content, affiliate, audience, search, GitHub, and CRO-lab opportunities as deferred backlog. Continue existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, measurement, and bounded legal/security evidence work. Use existing recorded telemetry only; retain financial and causal outcomes as unknown.",
+        "summary": "Recommendation: retain containment-only execution. Preserve SEO, UX, accessibility, performance, content, affiliate, monetization, audience, search, GitHub, and CRO-lab opportunities as deferred backlog. Create no new proposals, work items, change requests, research requests, experiments, telemetry, dependencies, deployments, spend, monetization changes, or requeues this cycle. Continue existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, measurement, and bounded legal/security evidence work. Reassess after the 47 open failure follow-ups, 28 pending measurements, unavailable operations/security sweeps, and incomplete attribution are resolved. Use existing recorded telemetry only; retain financial and causal outcomes as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
