@@ -3,11 +3,15 @@
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
 const scorecard = require('../fleet-dashboard/server/executive-scorecard');
+const liveness = require('../fleet-dashboard/server/executive-liveness');
 
-function summary(score) {
+function summary(score, live = { stranded_count: 0, stranded: [] }) {
   return [
     `Hourly executive heartbeat: ${score.status}.`,
     `${score.outcomes.proven} proven, ${score.outcomes.pending_measurement} awaiting measurement, ${score.execution.delivered_requests} delivered request(s).`,
+    live.stranded_count
+      ? `Liveness: ${live.stranded_count} stranded work item(s) require explicit recovery.`
+      : 'Liveness: no stranded executive work detected.',
     score.attention.length
       ? `Attention: ${score.attention.join('; ')}.`
       : 'No blocked delivery signals.',
@@ -27,6 +31,8 @@ function run({ root, now = new Date(), windowDays = 30 } = {}) {
   });
   try {
     const current = scorecard.buildScorecard(store, { now, windowDays });
+    const live = liveness.audit(store, { now });
+    const heartbeat = { ...current, liveness: live };
     const prior = store.list({ event_type: 'executive.heartbeat', limit: 1 })[0];
     const priorStatus = prior?.payload?.status || null;
     const event = store.record({
@@ -34,18 +40,18 @@ function run({ root, now = new Date(), windowDays = 30 } = {}) {
       source: 'executive-heartbeat',
       entity_type: 'executive-scorecard',
       entity_id: 'fleet',
-      payload: current,
+      payload: heartbeat,
     });
     // Only message on a state change or when there is a new attention signal;
     // the durable scorecard/event remains available every hour without inbox spam.
-    const attentionSignature = current.attention.join('|');
-    const priorAttention = prior?.payload?.attention?.join('|') || '';
+    const attentionSignature = `${current.attention.join('|')}|${(live.stranded || []).map(item => item.recovery_key).join('|')}`;
+    const priorAttention = `${prior?.payload?.attention?.join('|') || ''}|${(prior?.payload?.liveness?.stranded || []).map(item => item.recovery_key).join('|')}`;
     let message = null;
     if (!prior || priorStatus !== current.status || attentionSignature !== priorAttention) {
       message = executive.message(store, {
         actor: 'system',
-        body: summary(current),
-        metadata: { kind: 'executive-heartbeat', scorecard: current },
+        body: summary(current, live),
+        metadata: { kind: 'executive-heartbeat', scorecard: current, liveness: live },
       });
     }
     executive.finishAction(store, audit.action_id, {
@@ -53,10 +59,11 @@ function run({ root, now = new Date(), windowDays = 30 } = {}) {
       result: {
         event_id: event.event_id,
         scorecard: current,
+        liveness: live,
         message_id: message?.message_id || null,
       },
     });
-    return { scorecard: current, message, event };
+    return { scorecard: current, liveness: live, message, event };
   } catch (error) {
     executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
     throw error;

@@ -1,5 +1,6 @@
 'use strict';
 const workflowEngine = require('./workflow-engine');
+const executiveLiveness = require('./executive-liveness');
 
 function syncWorkflowNotifications(store, workflow) {
   if (!store.createExecutiveNotification) return [];
@@ -28,6 +29,7 @@ function snapshot(store, { limit = 500 } = {}) {
     ...proposals.map(item => ({ ...item, source: 'proposal', id: item.proposal_id })),
   ];
   const workflow = workflowEngine.evaluate({ items: boardItems, links });
+  const liveness = executiveLiveness.audit(store);
   const diagnostics = [
     ...workflow.alerts.map(alert => ({
       ...alert,
@@ -44,6 +46,16 @@ function snapshot(store, { limit = 500 } = {}) {
         waiting_on: item.waiting_on || null,
         next_action: item.next_action || 'No next action recorded.',
       })),
+    ...liveness.stranded.map(item => ({
+      source: 'work-item',
+      id: item.work_id,
+      title: item.title,
+      status: item.status,
+      waiting_on: item.reason,
+      next_action: item.next_action,
+      recovery_key: item.recovery_key,
+      severity: 'high',
+    })),
     ...requests
       .filter(request => ['queued', 'review', 'reviewing', 'failed'].includes(request.status))
       .map(request => ({
@@ -69,6 +81,7 @@ function snapshot(store, { limit = 500 } = {}) {
     events: store.list({ limit }),
     links,
     workflow,
+    liveness,
     diagnostics,
     settings: {
       change_queue: store.getChangeQueueSettings(),

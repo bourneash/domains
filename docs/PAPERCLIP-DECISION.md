@@ -58,15 +58,18 @@ work cycles, missing parents, and cross-goal child work. Existing work remains
 valid because these references are optional during migration; new material
 implementation work can adopt them incrementally.
 
+The liveness audit is now part of the hourly heartbeat and workflow-board
+snapshot. A newly stranded item changes the heartbeat attention signature and
+produces one owner-facing update; repeated unchanged liveness state is quiet.
+The audit remains read-only and recovery remains an explicit operator action.
+
 ## Adopt next, in priority order
 
 1. Require a durable goal/parent reference for material new implementation
    work, now that the backward-compatible goal/lineage API exists.
 2. Promote work products (report, diff, preview, measurement, or decision
    record) to a typed evidence contract rather than free-form completion text.
-3. Extend the new liveness audit into the hourly heartbeat and dashboard with
-   deduplicated owner notifications; keep recovery explicit and bounded.
-4. Define a small adapter contract only if a second trusted execution runtime
+3. Define a small adapter contract only if a second trusted execution runtime
    is actually needed. Do not import Paperclip wholesale or add a generic
    plugin surface before there is an in-scope use case.
 

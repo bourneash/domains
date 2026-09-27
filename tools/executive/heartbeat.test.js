@@ -23,3 +23,20 @@ test('heartbeat records every check but avoids repeating an unchanged inbox mess
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('heartbeat carries liveness and re-notifies when a stranded item appears', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'executive-heartbeat-live-'));
+  try {
+    const first = heartbeat.run({ root, now: new Date('2026-09-22T01:00:00.000Z') });
+    assert.equal(first.liveness.stranded_count, 0);
+    const store = eventstore.open(root);
+    store.createExecutiveWorkItem({ title: 'Stranded heartbeat work', status: 'waiting' });
+    store.close();
+    const second = heartbeat.run({ root, now: new Date('2026-09-22T02:00:00.000Z') });
+    assert.equal(second.liveness.stranded_count, 1);
+    assert.match(second.message.body, /Liveness: 1 stranded/);
+    assert.equal(second.message.metadata.liveness.stranded_count, 1);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
