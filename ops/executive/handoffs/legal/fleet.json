@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:33:06.026Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T03:48:55.954Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, vendor/DPA obligations, and future affiliate or advertising use. Exact decision: keep the gated product private. Evidence: official API documentation establishes access mechanics only; current public terms do not establish rights to store, transform, cache, publicly display, alert on, or monetize returned data. Fleet compliance is technical baseline only: 37 pass, 16 fail, 6 unknown. Analytics and revenue attribution remain yellow; $4.92 aggregate commission is unattributed and site-attributed commission is $0. Do not claim certification, ROI, or site-attributed revenue.",
+        "summary": "Risk disposition: blocked for public beta or full launch; conditional for ordinary reversible growth; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, vendor/DPA obligations, and future affiliate or advertising use. Exact decision: keep SearchWoot private. Evidence: Woot API documentation confirms access mechanics but not rights to store, transform, cache, display, alert on, or monetize returned data; current terms restrict the proposed reuse. Compliance is technical baseline only: 37 pass, 16 fail, 6 unknown. Security, accuracy/freshness, measurement, attribution, and owner gates remain incomplete. Do not claim certification, ROI, or site-attributed revenue.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -23,21 +23,14 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review dispositions: Woot API deal and price-history data is counsel_required and launch-blocked; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and hosting data are evidence_needed. No legal data-use item is clear or conditionally launchable on current evidence.",
+        "summary": "Data-use review: Woot API deal and price-history data is counsel_required and launch-blocked. Missing current written permission or API agreement, field-level provenance and rights, permitted storage/caching/display/alerts, attribution, freshness, correction, takedown, trademark/image/price limits, and affiliate or advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed; produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed; capture existing consent, withdrawal, GA4 property, data-sharing, retention, and jurisdiction evidence without enabling tracking. Operational logs and hosting data are evidence_needed; produce a read-only operator/vendor inventory covering log fields, retention, access, DPA coverage, incidents, and request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance and data-quality triage: incomplete telemetry is not a general launch blocker. Permit ordinary reversible growth only where existing consent, cookie and analytics disclosures, affiliate disclosures, claims, data provenance, copyright/trademark boundaries, and platform-policy constraints are preserved. Do not expand tracking, monetization, regulated or age-sensitive use, or unsupported claims on failed or unknown site evidence. Preserve aggregate revenue as unattributed and do not treat missing analytics as zero.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private-site decision: keep SearchWoot private. No public exposure, alert expansion, rights-dependent monetization, deployment, configuration or credential change, external outreach, or spend is authorized. The prepared permission request remains unsent pending human-counsel review and explicit owner authorization. Continue only bounded read-only evidence work and internal draft preparation.",
+        "summary": "Fleet compliance, analytics, data quality, site, revenue, and launch evidence support containment-only execution. Ordinary reversible growth may continue only where site-specific consent, privacy/cookie disclosure, terms, affiliate disclosure, claims, provenance/rights, copyright/trademark, and platform-policy boundaries are evidenced. Do not add tracking, expand monetization, publish unsupported claims, or treat missing telemetry as zero. Revenue remains limited to one aggregate day with $4.92 unattributed commission and $0 site-attributed commission; ROI and margin remain unknown. Analytics has 39 configured sites with noted permission failures; data quality is yellow for analytics and aggregate revenue attribution.",
         "requested_action": null,
         "proposal_id": null
       }

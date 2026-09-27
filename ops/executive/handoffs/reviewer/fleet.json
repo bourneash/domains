@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:33:06.026Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T03:48:55.954Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, duplicate telemetry, spend, monetization expansion, external outreach, and unsupported financial or readiness claims. Revenue attribution, aligned costs, causal outcomes, operational controls, and launch gates remain incomplete; keep the prepared permission request unsent pending human-counsel review and explicit authorization.",
+        "summary": "Approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Reject new production work, requeues, experiments, duplicate telemetry, discretionary spend, monetization expansion, external outreach, and unsupported financial or security-readiness claims. Keep the gated product private.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner message: Revenue evidence is limited to 2026-09-21: $4.92 aggregate commission and $0 site-attributed commission. Conflicting AI-cost records, absent period-aligned costs, open failure follow-ups, measurement backlog, and incomplete legal/security gates leave ROI, margin, causal lift, and budget exposure unknown. Keep the prepared permission request unsent unless human counsel reviews it and the owner authorizes outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing work only: reconcile attribution and AI-cost records, complete deployed-change measurement, maintain failed-work repair-or-close containment, and continue bounded read-only legal/security evidence capture. Do not create new proposals, research requests, change requests, dependencies, telemetry, or production work this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "402d2c46-7bae-4b4f-a5d0-147bde75384b",
+        "summary": "Defer as backlog; existing execution, measurement, failure, security, and queue-capacity gates remain open.",
+        "requested_action": "declined",
+        "proposal_id": "402d2c46-7bae-4b4f-a5d0-147bde75384b"
       }
     ]
   }
