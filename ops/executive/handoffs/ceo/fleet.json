@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:21:25.797Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:36:27.829Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve all three CRO items as deferred backlog, with no new production work this cycle. Evidence: deeppenetrations.com has 91 impressions, position 2.8, 0 clicks for “liquid wrench”; broadwayshowgirls.com has 61 impressions, position 2, 0 clicks for “priya raghunathan”; americastrikes.com has mobile performance 64, LCP 4,789ms, and TBT 700ms. These are SEO/technical signals, not revenue or causal-lift evidence. Queue eligibility is false with 47 failure follow-ups, 28 improvements awaiting measurement, and only 2 proven outcomes. Continue repair-or-close, measurement reconciliation, and legal/security evidence. Owner decision remains: authorize the prepared Woot permission request after counsel review or keep it unsent.",
+        "summary": "Recommendation: preserve all three CRO control-plane specifications as deferred backlog, but do not create proposals or implementation requests during containment. Evidence: 187 approved proposals lack execution, 9 implementation requests failed with 47 repair follow-ups open, 28 improvements await measurement, and only 2 are proven. Unknown: expected reduction in backlog and engineering effort are not yet calculable. Smallest next step: complete existing repair-or-close, measurement reconciliation, and legal/security evidence; then prototype the highest-value workflow. Owner decision: keep the current containment-only disposition or authorize a bounded control-plane prototype.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: retain the approval-to-execution reconciliation, failure-aware queue lifecycle, and measurement-readiness gate as evidence-backed deferred work. Do not create duplicate proposals, site changes, requeues, telemetry, dependencies, spend, or deployments until containment gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

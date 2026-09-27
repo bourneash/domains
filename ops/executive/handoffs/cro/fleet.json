@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:21:25.797Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:36:27.829Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. No new site change requests, experiments, telemetry, dependencies, spend, or monetization expansion are supported because queue eligibility is false, 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Retain the evidence-backed site backlog for later review: deeppenetrations.com has 91 impressions at position 2.8 with 0 clicks for “liquid wrench”; broadwayshowgirls.com has 61 impressions at position 2 with 0 clicks for “priya raghunathan”; and americastrikes.com has mobile performance 64 with LCP 4789ms and TBT 700ms. These are prioritization signals, not revenue or causal-lift claims. Continue existing repair-or-close, measurement reconciliation, and bounded legal/security evidence work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve the three evidence-backed opportunities and attribution guardrail for later review. Do not claim revenue, conversion lift, or ROI from current impressions, rankings, performance scores, or aggregate affiliate data. The Amazon window is 2026-09-21: $4.92 aggregate commission, $0 site-attributed; attribution and cost windows remain insufficient for financial conclusions.",
+        "summary": "Recommendation: approve three reversible control-plane product specifications, with no site edits or production queue entries during containment. Evidence shows 187 approved proposals lack execution requests, 9 implementation requests failed with 47 open repair follow-ups, and 28 deployed improvements await measurement while only 2 are proven. Prioritize approval-to-execution reconciliation, failure-aware repair-or-close states, and measurement-readiness gates. Continue existing repair, reconciliation, and legal/security evidence work; preserve all site opportunities as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       }

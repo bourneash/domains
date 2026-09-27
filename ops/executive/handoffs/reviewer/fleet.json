@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:21:25.798Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:36:27.830Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, and unsupported financial claims. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent.",
+        "summary": "Reject the proposed control-plane specifications, production work, requeues, new telemetry, dependencies, spend, monetization expansion, and unsupported financial claims this cycle. The authoritative candidate list is empty; 47 repair follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Revenue is limited to one dated aggregate window, with no site-attributed commission or supported ROI. Continue existing repair-or-close, attribution reconciliation, and bounded legal/security evidence only. Keep public launch gates unchanged and external outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the three workflow concepts as deferred backlog only. Do not create duplicate proposals or implementation requests. Preserve aggregate revenue as unattributed; treat traffic, rankings, conversions, technical scores, and AI usage as operating metrics rather than financial returns. Existing security evidence work may continue read-only using authorized metadata and retained artifacts.",
         "requested_action": null,
         "proposal_id": null
       }

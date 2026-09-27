@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:21:25.797Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:36:27.829Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and continue only the existing period-aligned measurement and attribution reconciliation. Revenue support is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not assignable to sites; site-attributed commission is $0, which does not prove zero site performance. Do not authorize spend, billing changes, monetization expansion, forecasts, or unsupported revenue claims.",
+        "summary": "Recommendation: maintain financial containment. Do not authorize a control-plane prototype, spend, new commitments, or production work this cycle. The three workflow concepts may remain deferred, but their financial benefit and engineering cost are not calculable from the brief. Evidence is limited to 282 approved proposals, 187 without execution requests, 9 failed implementation requests, 47 open repair follow-ups, 28 improvements awaiting measurement, and 2 proven outcomes. These are operational metrics, not financial returns. Revenue supports only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $0 is site-attributed, and the aggregate row cannot be assigned to sites. AI usage reports $973.3548129 across 5,439 calls from 2026-09-01 through 2026-09-27, while retained cost records conflict. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure remain unknown. Continue existing reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable. Reasons: revenue covers only 2026-09-21; the $4.92 commission is aggregate and unattributed; AI usage reports $973.3548129 across 5,439 calls from 2026-09-01 through 2026-09-27 but retained cost records conflict; infrastructure, domain, labor, marketing, and approved-budget records are absent or incomplete; and no experiment has a defined incremental cost and learning outcome. Minimum measurement: one identical reporting window reconciling provider revenue, tracking IDs, AI, infrastructure, domain, labor, marketing, and approved-budget records, plus baseline, incremental cost, and result for each learning activity.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Treat impressions, clicks, rankings, sessions, conversions, ordered items without attributable commission, technical scores, and AI call counts as operating or prioritization metrics—not financial returns. Preserve the deferred SEO and performance backlog, but do not infer revenue upside or causal lift. Continue existing reconciliation only; do not create duplicate telemetry, spend, requeues, experiments, or monetization work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. Preserve the dated aggregate commission as unattributed and continue existing reconciliation only. Do not infer ROI, margin, payback, forecasts, budget capacity, or site performance.",
+        "summary": "Minimum measurement before approving financial expansion: reconcile one identical reporting window for provider revenue and tracking IDs, AI cost, infrastructure, domains, labor, marketing, and approved budgets; preserve aggregate revenue separately from site-attributed revenue; and record baseline, incremental cost, and defined learning result for each workflow or experiment. Until then, do not treat impressions, clicks, rankings, sessions, conversions, ordered items without attributable commission, technical scores, or AI call counts as financial returns.",
         "requested_action": null,
         "proposal_id": null
       }

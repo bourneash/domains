@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:21:25.797Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:36:27.829Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com opportunities as deferred backlog only. Reject requeues or new change requests until failure ownership, isolated validation, rollback, deduplication, and measurement capacity are documented. Technical baselines remain observational and do not establish financial upside.",
+        "summary": "CTO review: approve containment-only disposition. Retain the three control-plane specifications as deferred backlog; do not create change requests, requeues, deployments, dependencies, telemetry, spend, or site edits. The concepts are technically feasible and reversible, but implementation must wait until existing failure repair-or-close, isolation, validation, rollback, deduplication, measurement, and financial-containment gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Queue eligibility remains false; do not create or requeue site changes, experiments, telemetry, dependencies, spend, deployments, or monetization work. Preserve the three evidence-backed opportunities as deferred backlog only: deeppenetrations.com liquid-wrench search result, broadwayshowgirls.com priya-raghunathan search result, and americastrikes.com mobile performance baseline. Continue existing repair-or-close, measurement reconciliation, and bounded read-only legal/security evidence work.",
+        "summary": "The safest future implementation order is: failure-aware queue lifecycle first, approval-to-execution reconciliation second, measurement-readiness gating third. Each must run in an isolated control-plane worktree with fixture-only tests, no production credentials, no site-repository writes, no external calls, and explicit rollback. Existing records are the only permitted evidence source until a separately approved measurement design exists.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain financial containment. Preserve the 2026-09-21 aggregate commission as unattributed and continue existing period-aligned reconciliation only. Do not infer ROI, margin, payback, cost-to-learn, forecasts, budget capacity, or site performance from aggregate revenue, technical metrics, or AI usage.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure and security-sensitive releases remain blocked until the documented gates and owner authorization are complete.",
+        "summary": "Queue eligibility remains false this cycle. Existing evidence shows 47 open failure follow-ups, 9 failed implementation requests, 28 deployed improvements awaiting measurement, and only 2 proven outcomes. Preserve the deferred opportunities and continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence.",
         "requested_action": null,
         "proposal_id": null
       }
