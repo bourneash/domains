@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:04:40.336Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:21:25.798Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, and unsupported financial claims. Continue only existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Revenue is limited to the dated aggregate record; site economics, ROI, margin, payback, and budget exposure remain unknown. Keep private launch gates unchanged and external outreach unsent. Owner concern: authorize the prepared permission request only after human-counsel review, otherwise keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing failure repair-or-close, measurement and attribution reconciliation, and bounded read-only legal/security evidence only. Preserve all SEO, UX, accessibility, performance, content, affiliate, and repository opportunities as deferred backlog until ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are evidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. Preserve aggregate provider commission as unattributed and reconcile existing period-aligned cost records only. Do not infer ROI, margin, payback, forecasts, spend capacity, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security and legal evidence work. Keep private launch gates unchanged; do not access credentials, modify permissions or configuration, add dependencies, deploy, expand alerts, or conduct external outreach pending required evidence, counsel review, and owner authorization.",
+        "summary": "Preserve containment-only execution. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, and unsupported financial claims. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep private launch gates unchanged and external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

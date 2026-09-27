@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:04:40.335Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:21:25.797Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the CRO proposals as deferred backlog, but reject new implementation and requeue activity until failure ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented. The CRO evidence remains useful: search-position and impression opportunities, affiliate comparison validation, and the shadcn/ui component concept. No change_request is safe this cycle because queue eligibility is false and existing repair work is open.",
+        "summary": "Handoff: retain the deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com opportunities as deferred backlog only. Reject requeues or new change requests until failure ownership, isolated validation, rollback, deduplication, and measurement capacity are documented. Technical baselines remain observational and do not establish financial upside.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Preserve the evidence-backed SEO, UX, accessibility, performance, content, attribution, affiliate, and repository opportunities as deferred backlog. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, deployments, and unsupported claims until ownership, root cause, isolation, deterministic validation, rollback, deduplication, and measurement capacity are evidenced.",
+        "summary": "CTO review: approve containment-only execution. Queue eligibility remains false; do not create or requeue site changes, experiments, telemetry, dependencies, spend, deployments, or monetization work. Preserve the three evidence-backed opportunities as deferred backlog only: deeppenetrations.com liquid-wrench search result, broadwayshowgirls.com priya-raghunathan search result, and americastrikes.com mobile performance baseline. Continue existing repair-or-close, measurement reconciliation, and bounded read-only legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate provider commission as unattributed, reconcile retained period-aligned cost records, and do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
+        "summary": "Maintain financial containment. Preserve the 2026-09-21 aggregate commission as unattributed and continue existing period-aligned reconciliation only. Do not infer ROI, margin, payback, cost-to-learn, forecasts, budget capacity, or site performance from aggregate revenue, technical metrics, or AI usage.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded read-only security and legal evidence work. Keep private launch gates unchanged and external outreach unsent. Public exposure, security-sensitive releases, credentials, permissions, configuration, dependencies, deployments, alert expansion, and rights-dependent monetization remain blocked pending the required evidence, counsel review, and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The candidate plan is technically safe only as a containment plan. No new change_request or requeue is supported this cycle because the authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Reconsider queue entry after existing repair-or-close, validation, rollback, deduplication, measurement, and security gates are complete.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure and security-sensitive releases remain blocked until the documented gates and owner authorization are complete.",
         "requested_action": null,
         "proposal_id": null
       }
