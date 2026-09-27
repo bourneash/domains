@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T19:48:27.388Z",
-  "summary": "legal checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T20:03:25.046Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and retain parked dispositions. Rights, privacy, security, accuracy, attribution, and measurement gates remain incomplete; external outreach stays unsent pending human-counsel review. Continue the existing consolidated evidence bundle and field-level rights matrix.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Risk disposition: blocked for public launch, public beta, public data display, alert expansion, affiliate or advertising expansion, and external outreach. Exact decision: keep searchwoot.com private; retain complicated.work and deadlymaracas.com parked; keep outreach unsent; continue bounded read-only evidence work. Evidence: upstream API access is documented, but rights to store, derive, display, cache, alert on, or monetize data are not established; all four legal tasks remain open; accuracy, freshness, security, attribution, measurement, and owner gates remain incomplete. Technical compliance is not certification: 37 pass, 16 fail, and 6 unknown. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment. Ordinary reversible growth is conditional only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved.",
+        "summary": "Risk disposition: blocked for public launch, public beta, public data display, alert expansion, rights-dependent affiliate or advertising expansion, and external outreach. Recommendation: maintain containment-only execution; keep the gated product private, retain parked sites, and continue bounded read-only legal/security evidence work. Evidence: 0 of 4 launch-readiness legal tasks are closed; upstream API access is documented but storage, derivatives, display, caching, alerts, and monetization rights are not; accuracy, freshness, security, attribution, measurement, and owner gates remain incomplete. Technical compliance is only a baseline: 37 pass, 16 fail, and 6 unknown. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment. Ordinary reversible growth remains conditional only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -30,21 +23,21 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is counsel_required. Missing current written permission or API agreement, field-level provenance and rights, permitted storage/caching/display/derivative/alert use, attribution, freshness, correction, takedown, trademark/image/price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed pending data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior; smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed pending deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment; smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data are evidence_needed pending log-field inventory, retention/access controls, vendor/DPA review, incident handling, and data-request procedures; smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
+        "summary": "Data-use review: Woot API deal and price-history data is counsel_required. Missing evidence: current written permission or API agreement; field-level provenance and rights; permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed. Missing evidence: data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed. Missing evidence: deployed consent and withdrawal behavior, GA4 property and data-sharing settings, retention settings, and jurisdictional treatment. Smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data are evidence_needed. Missing evidence: log-field inventory, retention and access controls, vendor/DPA review, incident handling, and data-request procedures. Smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Private-site decision: retain complicated.work and deadlymaracas.com parked. Their scaffold or parked state, missing analytics, and unreachable compliance evidence do not support public launch or monetization. Next evidence action for each site: complete a timestamped checklist covering reachability, content, disclosures, consent and cookies, privacy and terms, analytics, monetization, claims, provenance, copyright/trademark, platform policy, and age-sensitive concerns where applicable, then record exactly one disposition: retain parked or bounded launch. Do not expose or monetize before completion.",
+        "summary": "Fleet compliance and data-quality disposition: conditional for ordinary reversible growth on sites with site-specific evidence; evidence_needed or blocked for public, rights-dependent, regulated, age-sensitive, or monetization-expanding launches. Do not block ordinary growth solely because telemetry is incomplete. Do not treat unavailable analytics as zero: source permissions or collector errors remain yellow, revenue covers 2026-09-21 only, and $4.92 aggregate commission is not site-attributable. For the two unreachable scaffold/parked sites, retain parked status. Next evidence action for each is a timestamped private-site checklist covering reachability, content, disclosures, consent/cookies, privacy, terms, analytics, monetization, claims, provenance, copyright/trademark, platform policy, and age-sensitive concerns, followed by exactly one decision: retain parked or bounded launch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance and data-quality disposition: conditional for ordinary reversible growth on sites with existing evidence; evidence_needed or blocked for public or rights-dependent launches. Compliance is a technical baseline only, with 37 pass, 16 fail, and 6 unknown; failures and unknowns require site-specific evidence or remediation. Analytics is generally configured and healthy where reported, but source permissions or collector errors remain yellow; incomplete telemetry alone is not a blocker. Revenue covers 2026-09-21 only: $4.92 aggregate commission is not site-attributable, so revenue, ROI, margin, payback, and causal claims remain unsupported. Do not create new proposals, telemetry, monetization, deployments, spend, or queue work this cycle.",
+        "summary": "No go-live proposal is supported. Preserve the private launch gate, keep external permission outreach unsent pending human-counsel review and owner authorization, and authorize no rights-dependent monetization, public display, alert expansion, deployment, credential change, configuration change, new telemetry, or spend. Continue only the existing repair-or-close, measurement reconciliation, attribution-boundary, and bounded legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       }
