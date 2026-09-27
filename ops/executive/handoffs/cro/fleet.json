@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:18:57.614Z",
+  "generated_at": "2026-09-27T00:33:06.025Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment-only execution for managed sites. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create new proposals, experiments, change requests, telemetry, spend, dependencies, or monetization expansion this cycle. Preserve deferred site opportunities until queue capacity, validation, rollback, security, and owner gates are clear. Keep unsupported revenue, causal, and performance claims unknown.",
+        "summary": "Recommend containment-only execution this cycle. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create proposals, change requests, experiments, telemetry, spend, requeues, or monetization expansion. Existing candidate work is occupied or blocked; financial and causal outcomes remain unknown. Keep deferred product concepts unqueued until capacity, validation, rollback, security, license, and attribution gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

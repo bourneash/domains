@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T00:18:57.615Z",
+  "generated_at": "2026-09-27T00:33:06.025Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and retain only existing scoped work. Revenue evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage for 2026-09-01 through 2026-09-26 is recorded as $966.82985915 across 5,417 calls, conflicting with a prior record of $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, hosting/domain/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, requeues, or new production work. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work only. Minimum finance artifact: reconcile AI records; assemble a period-aligned ledger for revenue, AI, hosting, domains, labor, marketing, experiments, and other operating costs; reconcile site/content identifiers to attributable commission; isolate incremental outcomes; and record owner-approved monthly spend and revenue limits before any financial return claim.",
+        "summary": "Recommendation: maintain financial containment. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26, conflicting with a prior record of $963.5690377 and 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing costs are absent, incremental outcomes are not isolated, and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Do not authorize discretionary spend, commitments, monetization expansion, forecasts, requeues, or new production work. Continue existing source-dated measurement and reconciliation only. Minimum finance measurement is one reconciled ledger covering hosting, domains, labor, marketing, experiments, and AI costs aligned to the revenue window; resolve the conflicting AI records; map site/content identifiers to attributable commission; isolate incremental outcomes; and record owner-approved spending and revenue limits before reporting margin, ROI, payback, or cost-to-learn. Clicks, impressions, sessions, conversions, technical scores, ordered items, and shipped items are not financial return without attributable commission and aligned costs.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain containment-only execution. Clicks, impressions, sessions, conversions, technical scores, ordered items, and shipped items are not financial return without attributable commission and period-aligned costs. Preserve deferred opportunities without queueing them. Keep unsupported revenue, margin, ROI, causal-lift, cost-to-learn, infrastructure-efficiency, and budget-headroom claims unknown.",
+        "summary": "Retain containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create duplicate finance requests or telemetry; use the existing reconciliation workstream and preserve unknown margin, ROI, payback, cost-to-learn, infrastructure cost, and budget exposure.",
         "requested_action": null,
         "proposal_id": null
       }
