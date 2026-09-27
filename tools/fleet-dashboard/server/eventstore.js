@@ -2514,6 +2514,54 @@ function open(root, { file } = {}) {
     };
   }
 
+  function reserveBudgetBatch(reservations = []) {
+    if (!Array.isArray(reservations) || !reservations.length)
+      return { allowed: true, policies: [] };
+    const normalized = reservations.map(item => ({
+      scope_type: String(item.scope_type || '').trim(),
+      scope_id: String(item.scope_id || '').trim(),
+      period: String(item.period || 'month').trim(),
+      amount_usd: Number(item.amount_usd || 0),
+    }));
+    if (
+      normalized.some(
+        item =>
+          !item.scope_type ||
+          !item.scope_id ||
+          !Number.isFinite(item.amount_usd) ||
+          item.amount_usd < 0
+      )
+    )
+      throw httpErr(400, 'invalid budget reservation batch');
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const policies = [];
+      for (const item of normalized) {
+        const policy = db
+          .prepare('SELECT * FROM budget_policies WHERE scope_type=? AND scope_id=? AND period=?')
+          .get(item.scope_type, item.scope_id, item.period);
+        if (!policy || policy.status !== 'active') continue;
+        const result = db
+          .prepare(
+            `UPDATE budget_policies SET spent_usd=spent_usd+?,updated_at=? WHERE policy_id=? AND status='active' AND (hard_stop=0 OR spent_usd+? <= limit_usd)`
+          )
+          .run(item.amount_usd, new Date().toISOString(), policy.policy_id, item.amount_usd);
+        if (!result.changes)
+          throw httpErr(409, `budget exceeded for ${item.scope_type}:${item.scope_id}`);
+        policies.push(
+          db.prepare('SELECT * FROM budget_policies WHERE policy_id=?').get(policy.policy_id)
+        );
+      }
+      db.exec('COMMIT');
+      return { allowed: true, policies: policies.map(decodeBudget) };
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+
   function createAgentRoutine(input = {}) {
     if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
     const now = new Date().toISOString();
@@ -3129,6 +3177,7 @@ function open(root, { file } = {}) {
     getBudgetPolicy,
     listBudgetPolicies,
     reserveBudget,
+    reserveBudgetBatch,
     createAgentRoutine,
     listAgentRoutines,
     touchAgentRoutine,

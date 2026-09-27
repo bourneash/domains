@@ -218,6 +218,24 @@ test('agent registry, resumable runs, artifacts, and hard-stop budgets are durab
     store.getBudgetPolicy({ scope_type: 'agent', scope_id: ceo.agent_id, period: 'run' }).spent_usd,
     0.75
   );
+  store.upsertBudgetPolicy({
+    scope_type: 'fleet',
+    scope_id: 'domains',
+    period: 'run',
+    limit_usd: 1,
+  });
+  assert.throws(
+    () =>
+      store.reserveBudgetBatch([
+        { scope_type: 'agent', scope_id: ceo.agent_id, period: 'run', amount_usd: 0.1 },
+        { scope_type: 'fleet', scope_id: 'domains', period: 'run', amount_usd: 1.1 },
+      ]),
+    /budget exceeded/
+  );
+  assert.equal(
+    store.getBudgetPolicy({ scope_type: 'agent', scope_id: ceo.agent_id, period: 'run' }).spent_usd,
+    0.75
+  );
 
   const run = store.createAgentRun({
     agent_id: ceo.agent_id,
