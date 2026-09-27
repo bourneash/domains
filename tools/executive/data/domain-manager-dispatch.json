@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-27T03:16:00.469Z",
+  "updated_at": "2026-09-27T03:17:04.934Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -230926,6 +230926,22 @@
       "lease_until": null,
       "last_error": "(node:464115) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:464286) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
       "claimed_at": "2026-09-27T03:14:01.303Z"
+    },
+    {
+      "job_id": "617b292b-097b-4903-a2d6-e346b5c7df09",
+      "fingerprint": "1cf814944294bcdf9b7a982f06d34515513b8b75f0e2b2d5a50c550a56df0157",
+      "site": "pokererotic.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:17:00.177Z",
+      "next_attempt_at": "2026-09-27T09:17:04.884Z",
+      "lease_until": null,
+      "last_error": "(node:466184) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:466402) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-27T03:17:00.404Z"
     }
   ]
 }
