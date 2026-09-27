@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:10:00.499Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-27T08:47:42.639Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "8b90d529-ba6e-483d-a11f-691344e5f6fc",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 6,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Assess deadlymaracas.com parked-site readiness and next disposition",
+        "summary": "deadlymaracas.com is a scaffold parked for 124 days with analytics not configured. The latest compliance check could not reach the site, so audience, traffic, conversion, monetization, SEO, operational health, and compliance details remain unknown unless directly evidenced.",
+        "requested_action": "Produce a timestamped read-only assessment of deadlymaracas.com covering observable site and content status, parking or launch readiness, analytics and monetization readiness, compliance and health evidence, backlog options, and explicit unknowns. Recommend exactly one next disposition: retain parked status or prepare a bounded launch-readiness step, based only on available evidence. Do not deploy, modify production, request duplicate telemetry, change credentials or configuration, spend money, or claim unavailable outcomes.",
+        "proposal_id": "6b0f4535-416c-4b9e-b87c-bf9de7b6c199"
+      }
+    ]
   }
 }
