@@ -3646,6 +3646,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return res.status(409).json({ error: 'only active productivity pilots can be seeded' });
       const seeded = [];
       const skipped = [];
+      const readiness = productivityProgram.queueReadiness(events, pilot.treatment_sites);
+      const blockedSites = new Map(
+        readiness.blocked_sites.map(item => [item.site, item])
+      );
       const existing = new Set(
         events
           .listChangeRequests({ limit: 1000 })
@@ -3653,8 +3657,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           .filter(Boolean)
       );
       for (const spec of productivityProgram.treatmentBatch(pilot)) {
+        const blocked = blockedSites.get(String(spec.site).toLowerCase());
+        if (blocked) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: 'site is not queue-ready',
+            detail: blocked.reason,
+            measurement_due: blocked.measurement_due || null,
+          });
+          continue;
+        }
         if (existing.has(spec.action_key)) {
-          skipped.push(spec.action_key);
+          skipped.push({ action_key: spec.action_key, reason: 'already seeded' });
           continue;
         }
         const request = changequeue.create(
@@ -3674,7 +3689,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         seeded.push(request);
         existing.add(spec.action_key);
       }
-      res.status(201).json({ pilot, seeded, skipped });
+      res.status(201).json({ pilot, readiness, seeded, skipped });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
