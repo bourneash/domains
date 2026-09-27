@@ -2,37 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:18:06.561Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:35:26.708Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the deferred SEO, UX, performance, content, attribution, and repository backlog. Continue only existing failure repair-or-close, measurement reconciliation, and bounded read-only security evidence. The CRO plan’s proposed new capabilities and execution are rejected this cycle because queue eligibility is false and existing controls remain incomplete.",
+        "summary": "CTO disposition: approve containment-only execution. Preserve the evidence-backed CRO, SEO, UX, performance, content, attribution, monetization, and repository opportunities as deferred backlog only. Do not create new production work, requeue failures, add experiments, telemetry, dependencies, deployments, spend, monetization expansion, or unsupported claims. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve SEO, UX, accessibility, performance, content, monetization, attribution, and repository opportunities as deferred backlog. Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported outcome claims until ownership, root cause, isolation, deterministic validation, rollback, deduplication, measurement capacity, security, attribution, and financial gates are satisfied.",
+        "summary": "The proposed fleet capabilities are not ready for implementation. They require new control-plane changes, isolation review, deterministic validation, rollback, deduplication, ownership, and measurement capacity that are not currently evidenced. Retain them as deferred design backlog; do not route them to the existing queue this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue the existing rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work. No public exposure, alert expansion, credential or configuration changes, dependency additions, deployment, spending, or external outreach is authorized without the required human-counsel and owner decisions.",
+        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile conflicting AI-cost records using period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain financial containment. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. AI-cost records are conflicting and period-misaligned. Do not infer revenue, ROI, margin, payback, cost-to-learn, forecasts, or spend capacity. Continue the existing reconciliation only.",
+        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve private launch gates and continue bounded read-only security evidence only. Missing fleet-doctor and operations results do not establish clearance; do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or requeue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-opportunity-backlog-2026-09-27",
+        "summary": "Retain the cited opportunities as deferred backlog only. The requested backlog-recording work is duplicative of existing intelligence and does not justify a new proposal or queue item. Do not create production work, requeues, experiments, telemetry, dependencies, spending, or unsupported causal claims.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-opportunity-backlog-2026-09-27"
       }
     ]
   }

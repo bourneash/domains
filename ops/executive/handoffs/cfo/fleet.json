@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:18:06.561Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:35:26.707Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Supported revenue is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, not site-attributable. AI cost is $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, with conflicting retained cost records. Contribution margin, ROI, payback, cost-to-learn, and budget exposure are not calculable. Authorize no spend or monetization expansion.",
+        "summary": "CFO recommendation: maintain financial containment and continue only the existing period-aligned reconciliation. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. AI usage reports $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with retained records of $966.82985915 across 5,417 calls through 2026-09-26 and $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned; AI costs are unreconciled; infrastructure, domain, labor, marketing, and approved-budget records are absent or incomplete; and no incremental learning outcome is defined. Minimum measurement: one reconciled period-aligned ledger containing attributable revenue, AI/infrastructure/domain/marketing/labor costs, approved budget and commitments, plus a defined incremental learning outcome and its attributable cost. Authorize no spend, forecast, commitment, requeue, monetization expansion, or unsupported revenue claim. Treat clicks, impressions, sessions, conversions, performance scores, AI calls, and aggregate orders as operating signals—not financial returns—until reconciled.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and continue only existing reconciliation. Supported revenue covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not site-attributable; site-attributed commission is $0, which does not prove zero site performance. AI usage reports $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with retained records of $966.82985915 across 5,417 calls through 2026-09-26 and $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, AI costs are unreconciled, infrastructure/domain/labor/marketing costs and approved budgets are absent or incomplete, and no incremental learning outcome is defined. Authorize no spend, forecast, commitment, requeue, monetization expansion, or new production work. Continue only the existing period-aligned reconciliation. Minimum measurements: reconciled period-aligned site/content revenue; AI, infrastructure, domain, marketing, and allocated labor costs; approved budget limits; and a defined incremental learning outcome with attributable cost. Treat clicks, impressions, sessions, conversions, technical scores, and AI call counts as non-financial unless linked to attributable revenue or documented cost savings.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue claims should remain limited to the dated 2026-09-21 Amazon record. Do not present the $4.92 aggregate commission as site revenue, and do not infer margin or ROI from the 28 ordered items, 6 shipped items, or 6,219 clicks. Continue existing attribution reconciliation and preserve unknowns as unknowns.",
+        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed, reconcile conflicting AI-cost records, and add period-aligned operating-cost and budget records only where already available. Do not create duplicate telemetry requests or infer contribution margin, ROI, payback, cost-to-learn, forecasts, or spend capacity from incomplete records.",
         "requested_action": null,
         "proposal_id": null
       }
