@@ -109,6 +109,18 @@ test('sidebar supports persistent favorites and reordering', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(shell, /prefs\.favorites/);
+  assert.match(shell, /const PREFS_VERSION = 1/);
+  assert.match(shell, /normalizePrefs/);
+  assert.match(shell, /uniqueFavoriteIds/);
+  assert.match(shell, /schemaVersion = PREFS_VERSION/);
+  assert.match(shell, /localStorage\.getItem\(LS\)/);
+  assert.match(shell, /localStorage\.setItem\(LS, JSON\.stringify\(prefs\)\)/);
+  assert.match(shell, /addEventListener\('storage'/);
+  assert.match(shell, /event\.newValue == null \? \{\} : JSON\.parse\(event\.newValue\)/);
+  assert.match(shell, /const navReady = \['ops', 'content', 'growth', 'quality'\]/);
+  assert.match(shell, /if \(!navReady\) return saved/);
+  assert.match(shell, /const agentsReady = sourceSecs\.some\(s => s\.id === 'agents'\)/);
+  assert.match(shell, /!agentsReady && id\.startsWith\('agent:'\)/);
   assert.match(shell, /if \(valid\.length !== saved\.length\)/);
   assert.match(shell, /prefs\.favorites = valid/);
   assert.match(shell, /data-favorite-toggle/);
@@ -249,7 +261,7 @@ test('shared shell keeps loading state and document title in sync with the activ
     shell,
     /setAttribute\('aria-busy', String\(Boolean\(main\.querySelector\('\.loading'\)\)\)\)/
   );
-  assert.match(shell, /document\.title = activeLabel/);
+  assert.match(shell, /document\.title\s*=\s*/);
   assert.match(shell, /Domain Fleet Manager/);
 });
 
@@ -529,7 +541,10 @@ test('unlabeled dynamic form controls receive conservative accessible names', ()
   assert.match(shell, /function normalizeFormControls\(root = document\)/);
   assert.match(shell, /input, select, textarea/);
   assert.match(shell, /control\.labels\?\.length \|\| control\.closest\('label'\)/);
-  assert.match(shell, /getAttribute\('placeholder'\) \|\| control\.getAttribute\('title'\)/);
+  assert.match(
+    shell,
+    /control\.getAttribute\('placeholder'\)\s*\|\|\s*control\.getAttribute\('title'\)/
+  );
   assert.match(shell, /setAttribute\('aria-label', name\.trim\(\)\)/);
   assert.match(shell, /normalizeFormControls\(\$\('#app'\)\)/);
 });

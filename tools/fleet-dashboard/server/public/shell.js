@@ -1065,26 +1065,75 @@
   globalThis.fleetNavIcon = icon;
   globalThis.fleetAgentIcon = agentIcon;
 
-  const prefs = (() => {
+  const PREFS_VERSION = 1;
+  const isPrefsObject = value => value && typeof value === 'object' && !Array.isArray(value);
+  const uniqueFavoriteIds = value => [
+    ...new Set(
+      (Array.isArray(value) ? value : []).filter(id => typeof id === 'string' && id.length > 0)
+    ),
+  ];
+  const normalizePrefs = value => {
+    const next = isPrefsObject(value) ? { ...value } : {};
+    next.schemaVersion = PREFS_VERSION;
+    next.favorites = uniqueFavoriteIds(next.favorites);
+    return next;
+  };
+  const readPrefs = raw => {
     try {
-      return JSON.parse(localStorage.getItem(LS)) || {};
+      return normalizePrefs(raw == null ? JSON.parse(localStorage.getItem(LS)) : raw);
     } catch {
-      return {};
+      return normalizePrefs({});
     }
-  })();
+  };
+  const prefs = readPrefs();
+  const replacePrefs = next => {
+    Object.keys(prefs).forEach(key => delete prefs[key]);
+    Object.assign(prefs, normalizePrefs(next));
+  };
   const save = () => {
     try {
+      prefs.schemaVersion = PREFS_VERSION;
+      prefs.favorites = uniqueFavoriteIds(prefs.favorites);
       localStorage.setItem(LS, JSON.stringify(prefs));
     } catch {}
   };
+  addEventListener('storage', event => {
+    if (event.key !== LS) return;
+    let next = {};
+    try {
+      next = event.newValue == null ? {} : JSON.parse(event.newValue);
+    } catch {}
+    replacePrefs(next);
+    sig = '';
+    build();
+  });
 
   const favoriteId = it => (it.role ? `agent:${it.role}` : `view:${it.key}`);
   const favoriteOrder = () => {
-    const known = new Set(
-      sections().flatMap(s => [...(s.root ? [s.root] : []), ...s.items].map(favoriteId))
+    const sourceSecs = sections();
+    const rawSaved = Array.isArray(prefs.favorites) ? prefs.favorites : [];
+    const saved = uniqueFavoriteIds(rawSaved);
+    if (saved.length !== rawSaved.length) {
+      prefs.favorites = saved;
+      save();
+    }
+    // app.js boots asynchronously. shell.js runs immediately after the
+    // script tag, so the first pass can happen while the grouped menus are
+    // still empty. Do not interpret that temporary DOM shape as proof that
+    // saved favorites are stale; otherwise the first build erases them from
+    // localStorage before app.js has populated the navigation.
+    const navReady = ['ops', 'content', 'growth', 'quality'].every(id =>
+      sourceSecs.some(s => s.id === id && s.items.length)
     );
-    const saved = Array.isArray(prefs.favorites) ? prefs.favorites : [];
-    const valid = saved.filter(id => known.has(id));
+    if (!navReady) return saved;
+    const agentsReady = sourceSecs.some(s => s.id === 'agents');
+    const known = new Set(
+      sourceSecs.flatMap(s => [...(s.root ? [s.root] : []), ...s.items].map(favoriteId))
+    );
+    // Agent entries are API-driven and the Agents menu is absent when that
+    // request fails. Preserve those IDs until the menu has hydrated; a
+    // transient API failure must not destroy a user's saved agent favorites.
+    const valid = saved.filter(id => known.has(id) || (!agentsReady && id.startsWith('agent:')));
     if (valid.length !== saved.length) {
       prefs.favorites = valid;
       save();
@@ -1093,7 +1142,7 @@
   };
   const favoriteLabel = id =>
     sections()
-      .flatMap(s => s.items)
+      .flatMap(s => [...(s.root ? [s.root] : []), ...s.items])
       .find(item => favoriteId(item) === id)?.label || 'Favorite';
   const restoreFavoriteFocus = (id, message) => {
     requestAnimationFrame(() => {
