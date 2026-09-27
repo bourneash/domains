@@ -1087,6 +1087,17 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
   // mergePassPlans preserves the earlier CEO/CTO/CRO proposals while the
   // reviewer contributes messages and proposal_reviews.
   if (String(defaultActor || '') === 'reviewer') plan.proposals = [];
+  for (const item of plan.change_requests) {
+    // Providers sometimes use the natural-language names from the brief
+    // instead of the compact queue schema. These aliases remain subject to
+    // the same site, role, category, priority, and delivery validation below.
+    if (!item.site && (item.domain || item.site_id || defaultSite))
+      item.site = item.domain || item.site_id || defaultSite;
+    if (!item.title && (item.name || item.subject)) item.title = item.name || item.subject;
+    if (!item.body && (item.summary || item.description || item.recommendation))
+      item.body = item.summary || item.description || item.recommendation;
+    if (!item.category && (item.type || item.kind)) item.category = item.type || item.kind;
+  }
   for (const item of plan.proposals) {
     // Domain-manager passes are already scoped to one managed site. Preserve
     // that scope when the model omits the repetitive implementation wrapper;
@@ -1646,13 +1657,17 @@ function validatePlan(plan) {
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('knowledge item references an excluded site');
   }
-  for (const item of plan.change_requests) {
+  for (const [index, item] of plan.change_requests.entries()) {
+    const missing = [];
+    if (!String(item.site || '').trim()) missing.push('site');
+    if (!String(item.title || '').trim()) missing.push('title');
+    if (!String(item.body || '').trim()) missing.push('body');
     if (
-      !String(item.site || '').trim() ||
-      !String(item.title || '').trim() ||
-      !String(item.body || '').trim()
+      missing.length
     )
-      throw new Error('invalid change request in provider plan');
+      throw new Error(
+        `invalid change request in provider plan at index ${index} (missing=${missing.join(',')})`
+      );
     if (String(item.priority || 'medium') === 'high')
       throw new Error('executive provider cannot queue high-priority work');
     if (EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))

@@ -846,6 +846,26 @@ test('accepts provider natural-language message field aliases inside the closed 
   assert.equal(plan.messages[0].body, 'Recommendation: inspect the site backlog.');
 });
 
+test('normalizes natural-language change-request aliases before validation', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      change_requests: [
+        {
+          domain: 'example.com',
+          name: 'Refresh organic title',
+          summary: 'Update the title and measure search impressions.',
+          type: 'seo',
+          priority: 'low',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.change_requests[0].site, 'example.com');
+  assert.equal(plan.change_requests[0].title, 'Refresh organic title');
+  assert.equal(plan.change_requests[0].body, 'Update the title and measure search impressions.');
+  assert.equal(plan.change_requests[0].category, 'seo');
+});
+
 test('normalizes growth and affiliate change-request categories before queue application', () => {
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'affiliate' }).category, 'marketing');
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'growth' }).category, 'marketing');
