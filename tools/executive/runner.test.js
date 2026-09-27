@@ -853,6 +853,10 @@ test('normalizes growth and affiliate change-request categories before queue app
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'unsupported' }).category, 'other');
 });
 
+test('preserves direct work as a durable owner gap when a site has no installed roles', () => {
+  assert.equal(runner.installedSiteRoles('/tmp/does-not-exist', 'gate03.com').length, 0);
+});
+
 test('defaults blank provider message types to update', () => {
   const plan = runner.parseOutput(
     JSON.stringify({

@@ -3198,6 +3198,48 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       const item = normalizeDirectChangeRequest(rawItem);
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
+      const site = String(item.site).trim().toLowerCase();
+      const directImplementation = String(item.delivery_mode || 'direct') !== 'report_only';
+      const installedRoles = site === 'fleet' ? [] : installedSiteRoles(root, site);
+      if (site !== 'fleet' && directImplementation && installedRoles.length === 0) {
+        const workId = `site-owner-gap:${site}`;
+        const existingGap = store.getExecutiveWorkItem(workId);
+        const gap = {
+          work_id: workId,
+          title: `Install an execution owner for ${site}`,
+          kind: 'implementation',
+          status: 'blocked',
+          priority: 'high',
+          owner: 'site-factory',
+          site,
+          summary: `The requested ${item.category} work cannot run because ${site} has no installed ops/roles owner.`,
+          next_action: `Install and verify the site role required for ${item.category}, then re-evaluate the blocked request.`,
+          waiting_on: 'site-factory',
+          evidence: [
+            {
+              type: 'artifact',
+              label: 'installed role inventory',
+              note: `No files found under sites/${site}/ops/roles/`,
+            },
+          ],
+          created_by: 'executive-tick',
+          source_type: 'executive-tick',
+        };
+        const workItem = existingGap
+          ? store.updateExecutiveWorkItem(existingGap.work_id, gap)
+          : store.createExecutiveWorkItem(gap);
+        created.work_items.push(workItem);
+        created.created_refs.work_items.push({
+          work_id: workItem.work_id,
+          operation: existingGap ? 'updated' : 'created',
+        });
+        created.skipped_change_requests.push({
+          site,
+          title: item.title,
+          reason: `no installed owner for direct ${item.category} work; durable site-factory blocker created`,
+        });
+        continue;
+      }
       if (queuedCount >= queueLimit || activeSites.has(item.site)) {
         created.skipped_change_requests.push({
           site: item.site,
@@ -3435,6 +3477,7 @@ module.exports = {
   discoverSites,
   executiveSites,
   executiveTarget,
+  installedSiteRoles,
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,
