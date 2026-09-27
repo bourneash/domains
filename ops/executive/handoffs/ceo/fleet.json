@@ -2,44 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:36:31.477Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T22:05:22.100Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, operations and security sweeps are unavailable, and only 2 outcomes are proven. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; margin, ROI, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement reconciliation, and bounded legal/security evidence work. Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, and external outreach. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
+        "summary": "Recommendation: preserve and route the three bounded UX changes for 0xroulette.com, amputeenews.com, and girlpain.com. They are reversible, medium-priority homepage/navigation work compatible with the owner’s execution-first strategy and existing telemetry boundaries. Baselines and lift remain unknown until measured; the smallest next step is preview, deterministic validation, and existing-telemetry comparison after deployment. No new spend, tracking, dependencies, or external destinations are included.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain SEO, UX, content, affiliate, repository, and site-factory opportunities as deferred backlog. The authoritative actionability scorecard reports zero queue-eligible candidates, so no new change request is safe this cycle. Complete existing failure repair, deterministic validation, rollback, deduplication, measurement, and attribution work before reconsidering execution.",
+        "summary": "Handoff: implement the scoped UX requests below through the normal isolated review queue. Preserve existing consent, disclosures, analytics, attribution, destinations, and rollback boundaries; do not duplicate active site work.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
-        "summary": "Useful SEO/content-discovery lead, but no prototype or adoption work is justified while 47 failure follow-ups remain open, 28 improvements await measurement, and the CTO has preserved containment-only execution.",
-        "requested_action": "declined",
-        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
-        "summary": "Useful UX lead with MIT evidence and bounded lab checks, but adoption requires a fleet-specific prototype, security review, measurement plan, and owner-approved implementation; none is queue-ready this cycle.",
-        "requested_action": "declined",
-        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
-        "summary": "Mermaid has plausible SEO/content use, but the lab could not perform native checks without dependency installation; preserve as deferred research only.",
-        "requested_action": "declined",
-        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
       }
     ]
   }
