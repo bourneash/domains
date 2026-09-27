@@ -118,7 +118,7 @@ async function containerLogs(container, runner = defaultRunner, tail = 200) {
 // is the stale-image drift the shared-image migration exists to remove.
 //
 // To actually rebuild the shared image itself (all sites at once):
-//     tools/fleet-images/bin/fleet-image-build cron --roll
+//     tools/fleet-images/bin/fleet-image-build all --roll
 function rebuildCron(cwd, onData, opts = {}) {
   const { spawn } = require('node:child_process');
   const timeoutMs = opts.timeoutMs ?? 600_000;
@@ -128,7 +128,7 @@ function rebuildCron(cwd, onData, opts = {}) {
       [
         '-lc',
         'echo "[fleet] recreating cron from the current shared image (fleet-site-cron:latest)"; ' +
-          'echo "[fleet] to rebuild the image itself: tools/fleet-images/bin/fleet-image-build cron --roll"; ' +
+          'echo "[fleet] to rebuild the image itself: tools/fleet-images/bin/fleet-image-build all --roll"; ' +
           'docker compose up -d --force-recreate cron',
       ],
       { cwd }

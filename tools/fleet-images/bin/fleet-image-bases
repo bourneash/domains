@@ -95,7 +95,7 @@ if [[ "$MODE" == "update" ]]; then
   if (( drift )); then
     say "Bases updated. Now rebuild — smoke gates the promotion, so a bad base cannot reach :latest:"
     say "    tools/fleet-images/bin/fleet-image-build all --version <next>"
-    say "    tools/fleet-images/bin/fleet-image-build cron --roll"
+    say "    tools/fleet-images/bin/fleet-image-build all --roll"
   else
     say "Nothing to update."
   fi

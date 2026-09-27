@@ -90,6 +90,6 @@ NOTIFY ":warning: *Fleet shared-image drift detected* — \`fleet-doctor\` is fa
 ${summary}
 $(printf '%s' "$failures" | head -12)
 \`\`\`
-Run \`tools/fleet-images/bin/fleet-doctor\` for the full report. Most drift is fixed by \`tools/fleet-images/bin/fleet-image-build cron --roll\`." "danger"
+Run \`tools/fleet-images/bin/fleet-doctor\` for the full report. Most drift is fixed by \`tools/fleet-images/bin/fleet-image-build all --roll\`." "danger"
 
 exit 0

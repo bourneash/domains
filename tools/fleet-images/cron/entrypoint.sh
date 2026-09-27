@@ -117,7 +117,7 @@ else
         # every job on the site, including the watchdog that would have
         # reported the problem.
         STAMP "WARNING: ${WORKER_IMAGE} is missing or stale and this container cannot build it — shared images are built centrally."
-        STAMP "WARNING: fix on the HOST with: tools/fleet-images/bin/fleet-image-build worker"
+        STAMP "WARNING: fix on the HOST with: tools/fleet-images/bin/fleet-image-build all"
         STAMP "WARNING: starting the scheduler anyway so watchdog/monitor jobs keep running; role invocations will fail until the image exists."
     fi
 fi

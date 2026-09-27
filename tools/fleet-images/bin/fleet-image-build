@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# fleet-image-build [cron|worker|all] [--version X] [--no-cache] [--roll] [--sites a,b]
+# fleet-image-build [all|cron|worker] [--version X] [--no-cache] [--roll] [--sites a,b] [--allow-partial]
 #
 # Build, tag and (optionally) roll the fleet's SHARED site images.
+# Normal releases are coordinated: both images are built and smoke-tested
+# before either :latest tag is promoted. Use --allow-partial only for an
+# explicitly isolated emergency/debug operation.
 #
 # There are exactly two of them:
 #   fleet-site-cron:latest    the legacy/rollback supercronic scheduler
@@ -43,6 +46,7 @@ ONLY_SITES=""
 # Escape hatch. Exists for debugging a build whose smoke failure is the thing
 # you are investigating — not for shipping past a red gate.
 SKIP_SMOKE=0
+ALLOW_PARTIAL=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -51,6 +55,7 @@ while [[ $# -gt 0 ]]; do
     --roll)     ROLL=1 ;;
     --sites)    shift; ONLY_SITES="${1:-}" ;;
     --skip-smoke) SKIP_SMOKE=1 ;;
+    --allow-partial) ALLOW_PARTIAL=1 ;;
     -h|--help)  sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $1" >&2; exit 1 ;;
   esac
@@ -59,8 +64,18 @@ done
 
 case "$TARGET" in
   cron|worker|all) ;;
-  *) echo "usage: fleet-image-build [cron|worker|all] [--version X] [--no-cache] [--roll] [--sites a,b]" >&2; exit 1 ;;
+  *) echo "usage: fleet-image-build [all|cron|worker] [--version X] [--no-cache] [--roll] [--sites a,b] [--allow-partial]" >&2; exit 1 ;;
 esac
+
+if [[ "$TARGET" != all && "$ALLOW_PARTIAL" -eq 0 ]]; then
+  printf '\033[31m[fleet-image-build]\033[0m refusing partial shared-image release (%s); build both images together, or pass --allow-partial for an emergency/debug operation\n' "$TARGET" >&2
+  exit 1
+fi
+
+if (( SKIP_SMOKE && !ALLOW_PARTIAL )); then
+  printf '\033[31m[fleet-image-build]\033[0m --skip-smoke requires --allow-partial; unverified images may not enter a coordinated release\n' >&2
+  exit 1
+fi
 
 if [[ -z "$VERSION" ]]; then
   VERSION="$(tr -d '[:space:]' < "$VERSION_FILE" 2>/dev/null || true)"
@@ -71,8 +86,15 @@ say()  { printf '\033[1m[fleet-image-build]\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m[fleet-image-build]\033[0m %s\n' "$*" >&2; }
 die()  { printf '\033[31m[fleet-image-build]\033[0m %s\n' "$*" >&2; exit 1; }
 
-# Build -> SMOKE -> promote. The :latest tag is moved ONLY after the new image
-# passes fleet-image-smoke.
+# Shared tags are fleet-wide mutable state. Serialize builders so two cron
+# jobs (or a self-heal plus a human release) cannot interleave promotions.
+BUILD_LOCK="${FLEET_IMAGE_BUILD_LOCK:-/tmp/fleet-image-build.lock}"
+exec 8>"$BUILD_LOCK"
+BUILD_LOCK_TIMEOUT="${FLEET_IMAGE_BUILD_LOCK_TIMEOUT:-900}"
+flock -w "$BUILD_LOCK_TIMEOUT" 8 || die "another fleet image build is still running after ${BUILD_LOCK_TIMEOUT}s (lock: ${BUILD_LOCK})"
+
+# Build -> SMOKE -> verify both -> promote. In a normal release neither
+# :latest tag moves if either image fails.
 #
 # This ordering is the whole point. Tagging :latest at build time (the original
 # behaviour) meant a broken image became the fleet's current image the instant
@@ -81,8 +103,8 @@ die()  { printf '\033[31m[fleet-image-build]\033[0m %s\n' "$*" >&2; exit 1; }
 # story, and a presence-guard that never matched — every one of which the smoke
 # suite now catches in about fifteen seconds.
 #
-# On failure the previous :latest is left exactly where it was, so the fleet
-# keeps running the last image known to work.
+# On failure the previous :latest tags are left exactly where they were, so the
+# fleet keeps running the last pair known to work.
 build_one() {
   local kind="$1"
   local ctx="${IMAGES_DIR}/${kind}"
@@ -103,19 +125,48 @@ build_one() {
   [[ "$ver" == "$VERSION" ]] || die "${image}:${VERSION} label is '${ver}' — build did not stamp correctly"
 
   if (( SKIP_SMOKE )); then
-    warn "--skip-smoke: promoting ${image}:${VERSION} to :latest WITHOUT verification"
+    warn "--skip-smoke: staging ${image}:${VERSION} WITHOUT smoke verification"
   else
     say "smoke-testing ${image}:${VERSION} before promoting it to :latest"
     if ! "${HERE}/fleet-image-smoke" "${kind}" --tag "${VERSION}"; then
-      die "${image}:${VERSION} FAILED smoke — :latest NOT moved, the fleet keeps running the previous image. Fix and rebuild, or inspect with: docker run --rm -it --entrypoint bash ${image}:${VERSION}"
+      die "${image}:${VERSION} FAILED smoke — :latest NOT moved, the fleet keeps running the previous image pair. Fix and rebuild, or inspect with: docker run --rm -it --entrypoint bash ${image}:${VERSION}"
     fi
   fi
 
-  docker tag "${image}:${VERSION}" "${image}:latest" || die "could not promote ${image}:${VERSION} to :latest"
+  say "✓ staged ${image}:${VERSION} (version ${ver})"
+}
 
-  local id
-  id="$(docker image inspect --format '{{.Id}}' "${image}:latest")"
-  say "✓ promoted ${image}:latest = ${id:7:12} (version ${ver})"
+promote_pair() {
+  local old_cron old_worker cron_id worker_id
+  old_cron="$(docker image inspect --format '{{.Id}}' fleet-site-cron:latest 2>/dev/null || true)"
+  old_worker="$(docker image inspect --format '{{.Id}}' fleet-site-worker:latest 2>/dev/null || true)"
+
+  docker tag "fleet-site-cron:${VERSION}" fleet-site-cron:latest ||
+    die "could not promote fleet-site-cron:${VERSION}; no :latest tags were changed"
+  if ! docker tag "fleet-site-worker:${VERSION}" fleet-site-worker:latest; then
+    [[ -n "$old_cron" ]] && docker tag "$old_cron" fleet-site-cron:latest >/dev/null 2>&1 || true
+    die "could not promote fleet-site-worker:${VERSION}; restored the previous cron tag"
+  fi
+
+  cron_id="$(docker image inspect --format '{{.Id}}' fleet-site-cron:latest 2>/dev/null || true)"
+  worker_id="$(docker image inspect --format '{{.Id}}' fleet-site-worker:latest 2>/dev/null || true)"
+  if [[ -z "$cron_id" || -z "$worker_id" ]] ||
+     [[ "$(docker image inspect --format '{{index .Config.Labels \"org.domains.fleet.version\"}}' fleet-site-cron:latest 2>/dev/null || true)" != "$VERSION" ]] ||
+     [[ "$(docker image inspect --format '{{index .Config.Labels \"org.domains.fleet.version\"}}' fleet-site-worker:latest 2>/dev/null || true)" != "$VERSION" ]]; then
+    [[ -n "$old_cron" ]] && docker tag "$old_cron" fleet-site-cron:latest >/dev/null 2>&1 || true
+    [[ -n "$old_worker" ]] && docker tag "$old_worker" fleet-site-worker:latest >/dev/null 2>&1 || true
+    die "promoted image labels failed final pair verification; restored previous tags where possible"
+  fi
+  say "✓ promoted fleet-site-cron:latest = ${cron_id:7:12} (version ${VERSION})"
+  say "✓ promoted fleet-site-worker:latest = ${worker_id:7:12} (version ${VERSION})"
+}
+
+verify_staged_pair() {
+  local cron_v worker_v
+  cron_v="$(docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "fleet-site-cron:${VERSION}" 2>/dev/null || true)"
+  worker_v="$(docker image inspect --format '{{index .Config.Labels "org.domains.fleet.version"}}' "fleet-site-worker:${VERSION}" 2>/dev/null || true)"
+  [[ "$cron_v" == "$VERSION" && "$worker_v" == "$VERSION" ]] ||
+    die "staged image labels do not agree with VERSION=${VERSION} (cron=${cron_v:-missing} worker=${worker_v:-missing}); no :latest tags were promoted"
 }
 
 # ── which sites are on the shared images ────────────────────────────────────
@@ -175,8 +226,21 @@ roll_sites() {
   (( failed == 0 ))
 }
 
-[[ "$TARGET" == "cron"   || "$TARGET" == "all" ]] && build_one cron
-[[ "$TARGET" == "worker" || "$TARGET" == "all" ]] && build_one worker
+if [[ "$TARGET" == all ]]; then
+  # Stage both first. A failed build or smoke test leaves the promoted pair
+  # untouched.
+  build_one cron
+  build_one worker
+  verify_staged_pair
+  promote_pair
+else
+  build_one "$TARGET"
+  # Explicit partial mode is retained only for emergency/debug operations.
+  local_image="fleet-site-${TARGET}"
+  docker tag "${local_image}:${VERSION}" "${local_image}:latest" ||
+    die "could not promote ${local_image}:${VERSION} to :latest"
+  say "✓ promoted ${local_image}:latest (partial release; version ${VERSION})"
+fi
 
 if (( ROLL )); then
   say "rolling released-site legacy cron containers onto the current image..."

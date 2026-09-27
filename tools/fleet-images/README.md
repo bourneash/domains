@@ -60,8 +60,8 @@ tools/fleet-images/
 ```bash
 # Change something in a shared image, then roll the fleet onto it:
 vim tools/fleet-images/worker/Dockerfile
-tools/fleet-images/bin/fleet-image-build worker --version 1.1.0
-tools/fleet-images/bin/fleet-image-build cron --roll        # roll released-site legacy cron containers
+tools/fleet-images/bin/fleet-image-build all --version 1.1.0
+tools/fleet-images/bin/fleet-image-build all --roll        # roll released-site legacy cron containers
 tools/fleet-images/bin/fleet-doctor                          # must be 0 failed
 
 # Reschedule an adopted site through the centralized scheduler:
@@ -78,13 +78,19 @@ tools/fleet-images/bin/fleet-doctor <site>
 
 ## Two things guard every change
 
-**The smoke gate.** `fleet-image-build` builds the version tag, runs
-`fleet-image-smoke` against it, and only then moves `:latest`. A failing image
-leaves `:latest` exactly where it was, so the fleet keeps running the last
-image known to work. Every regression this migration shipped — a missing venv
+**The smoke gate.** `fleet-image-build` stages both version tags, runs
+`fleet-image-smoke` against both, verifies their labels agree, and only then
+moves either `:latest` tag. A failing image leaves the currently promoted pair
+exactly where it was, so the fleet keeps running the last image pair known to
+work. Every regression this migration shipped — a missing venv
 path, no Playwright browser story, a presence-guard that never matched, a root
 user — is now caught in ~15 seconds instead of in production. `--skip-smoke`
 exists for debugging a failing build, not for shipping past a red gate.
+
+Normal releases must use `fleet-image-build all`; single-image promotion is
+blocked unless `--allow-partial` is supplied explicitly for an emergency or
+debug operation. Builds are serialized with a host lock, and a failed second
+tag promotion rolls back the first tag where possible.
 
 **Digest-pinned bases.** Both Dockerfiles pin `FROM ... @sha256:...`, so a
 rebuild months from now cannot silently produce a different image. The cost is

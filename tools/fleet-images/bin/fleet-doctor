@@ -191,7 +191,7 @@ check_site() {
       ok "running the current ${CRON_IMAGE}"
     else
       bad "running an OLDER image than ${CRON_IMAGE}"
-      note "roll it: tools/fleet-images/bin/fleet-image-build cron --roll --sites ${site}"
+      note "roll it: tools/fleet-images/bin/fleet-image-build all --roll --sites ${site}"
     fi
 
     # Scheduling ZERO jobs normally means the container is up and doing

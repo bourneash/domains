@@ -23,7 +23,7 @@
 # site root, immediately before `docker compose run worker`. It re-checks on
 # EVERY invocation (cheap: one `docker image inspect`) and rebuilds centrally
 # — once, lock-guarded — if the image is gone, instead of failing per-job
-# until a human runs `fleet-image-build worker` by hand.
+# until a human runs `fleet-image-build all` by hand.
 #
 # Usage: fleet-worker-ensure   (run with cwd = the site root)
 # Exit 0: image present (already, or after a successful rebuild).
@@ -115,10 +115,10 @@ if docker image inspect "$IMG" >/dev/null 2>&1; then
   exit 0
 fi
 
-if "${HERE}/fleet-image-build" worker; then
+if "${HERE}/fleet-image-build" all; then
   STAMP "rebuilt ${IMG} — proceeding"
   exit 0
 else
-  STAMP "FATAL: fleet-image-build worker failed — this role invocation will fail"
+  STAMP "FATAL: fleet-image-build all failed — this role invocation will fail"
   exit 1
 fi
