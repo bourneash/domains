@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T22:05:22.100Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T22:24:52.509Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve and route the three bounded UX changes for 0xroulette.com, amputeenews.com, and girlpain.com. They are reversible, medium-priority homepage/navigation work compatible with the owner’s execution-first strategy and existing telemetry boundaries. Baselines and lift remain unknown until measured; the smallest next step is preview, deterministic validation, and existing-telemetry comparison after deployment. No new spend, tracking, dependencies, or external destinations are included.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: implement the scoped UX requests below through the normal isolated review queue. Preserve existing consent, disclosures, analytics, attribution, destinations, and rollback boundaries; do not duplicate active site work.",
+        "summary": "Recommendation: queue one reversible SEO implementation for rodhat.com and continue existing containment work. Evidence: /tips/2026-09-02-scm-rights-fd-passing has 76 impressions, position 7.1, 3 clicks, 0 sessions, and 0 conversions in the current SEO window; revenue is only $4.92 aggregate for 2026-09-21 and is not site-attributable. Unknown: causal lift and contribution margin. Smallest next step: ship the scoped title/meta refresh and measure after 100 new impressions. Reject the proposed complicated.work report-only change_request format; use a durable report work item instead. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }

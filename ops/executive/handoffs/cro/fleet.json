@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T21:36:31.477Z",
+  "generated_at": "2026-09-27T22:24:52.509Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: preserve containment-only execution this cycle. The brief supports valuable deferred opportunities across SEO, UX, accessibility, performance, content, and monetization surfaces, but no new site proposal or work item is queue-ready. Evidence includes 47 open failure follow-ups, 28 deployed improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and only 2 proven outcomes. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep financial outcomes, causal lift, and revenue impact unknown; retain deferred opportunities for reconsideration after gates clear.",
+        "summary": "Recommendation: preserve containment-only execution this cycle. Retain the following evidence-backed opportunities as deferred backlog, not executable proposals: (1) rodhat.com /tips/2026-09-02-scm-rights-fd-passing CTR refresh; evidence 76 impressions, position 7.1, 3 clicks, 0 sessions, 0 conversions; metric organic CTR and sessions; learn after 100 new impressions; prototype title/meta copy only. (2) deeppenetrations.com /reviews/liquid-wrench affiliate CTR repair; evidence 95 impressions, position 2.8, 0 clicks; metric clicks and affiliate outbound clicks; learn after 100 new impressions; prototype title/snippet and above-fold CTA copy. (3) allthingsmasonic.com affiliate conversion-path refinement; evidence 61 affiliate clicks and 3 existing conversions, but no site-attributed commission; metric outbound CTR and attributable orders; learn over 14 days; prototype one comparison block using existing links. (4) shadcn-ui/ui for reusable accessible CTA primitives; MIT license and three bounded lab checks passed, but dependency installation, maintenance fit, security review, and Astro/Cloudflare compatibility remain unverified; metric CTA engagement and build impact; learn in one disposable static prototype; smallest prototype is one manually copied component with no package adoption. (5) microsoft/markitdown for source-to-markdown content workflow; MIT license and eight bounded checks passed, but content-rights, dependency, maintenance, and production integration risks remain unverified; metric editor time or validated content-quality delta; learn in one isolated fixture; smallest prototype is converting one owned document without publishing. (6) mermaid-js/mermaid for explanatory SEO diagrams; MIT license and purpose fit supported, but sanitization, bundle weight, accessibility, maintenance, and dependency risks remain unverified; metric engagement or indexed-page performance; learn with one manually authored isolated SVG artifact; smallest prototype is a static diagram with no runtime dependency. Do not create proposals, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach until existing failure repair, deterministic validation, rollback, measurement, attribution, and security gates clear. Revenue, ROI, margin, payback, causal lift, and cost-to-learn remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommendation: preserve containment-only execution this cycle. Deferred opportunities include SEO CTR/internal linking, affiliate-path repair, UX/accessibility improvements, performance remediation, content-depth work, and bounded repository prototypes. They are not queue-ready while 47 failure follow-ups remain open, 28 improvements await measurement, operations/security sweeps are unavailable, attribution is incomplete, and only 2 outcomes are proven. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep revenue impact, causal lift, ROI, margin, payback, and cost-to-learn unknown; reconsider the deferred backlog only after the existing gates clear.",
+        "summary": "CRO handoff: the current candidate plan correctly retains only existing bounded assessment work. Keep complicated.work, deadlymaracas.com, and elevatorfriends.com assessments report-only, preserve explicit unknowns, and do not infer audience, revenue, conversion, compliance, readiness, or product-market fit. Existing CRO repository research remains discovery evidence only; no adoption recommendation is retained.",
         "requested_action": null,
         "proposal_id": null
       }
