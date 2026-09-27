@@ -1,4 +1,7 @@
-FROM domain-developer:latest
+# The base is local-only in this fleet. run-sandbox records its immutable image
+# ID in the source fingerprint and resulting image labels before every build.
+ARG EXECUTIVE_BASE_IMAGE=domain-developer:latest
+FROM ${EXECUTIVE_BASE_IMAGE}
 
 # The model image contains the runner code, but runtime receives no repository
 # mount. It only sees /input/brief.json and can write /output/plan.json.
@@ -15,6 +18,7 @@ COPY --chown=dev:dev tools/fleet-dashboard/server/roles.js /app/tools/fleet-dash
 COPY --chown=dev:dev tools/fleet-dashboard/server/sites.js /app/tools/fleet-dashboard/server/sites.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/git.js /app/tools/fleet-dashboard/server/git.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/deployhealth.js /app/tools/fleet-dashboard/server/deployhealth.js
+COPY --chown=dev:dev tools/fleet-dashboard/server/cloudflarebuilds.js /app/tools/fleet-dashboard/server/cloudflarebuilds.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/execution.js /app/tools/fleet-dashboard/server/execution.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/cron/parse.js /app/tools/fleet-dashboard/server/cron/parse.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/cron/runinfo.js /app/tools/fleet-dashboard/server/cron/runinfo.js

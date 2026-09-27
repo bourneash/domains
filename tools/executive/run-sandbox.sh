@@ -29,7 +29,11 @@ fi
 # The model image is intentionally isolated from the checkout, so it must be
 # rebuilt when its copied source changes. A plain "image exists" check leaves
 # the production model running stale validation and policy code indefinitely.
+docker image inspect domain-developer:latest >/dev/null
+BASE_IMAGE_ID="$(docker image inspect --format '{{.Id}}' domain-developer:latest)"
 SOURCE_DIGEST="$({
+  printf 'base-image-id=%s\n' "$BASE_IMAGE_ID"
+  sha256sum "$ROOT/.dockerignore"
   find "$ROOT/tools/executive" -type f ! -path '*/data/*' ! -path '*/logs/*' -print | sort | while IFS= read -r file; do sha256sum "$file"; done
   for file in \
     "$ROOT/tools/fleet-dashboard/server/eventstore.js" \
@@ -44,6 +48,7 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/sites.js" \
     "$ROOT/tools/fleet-dashboard/server/git.js" \
     "$ROOT/tools/fleet-dashboard/server/deployhealth.js" \
+    "$ROOT/tools/fleet-dashboard/server/cloudflarebuilds.js" \
     "$ROOT/tools/fleet-dashboard/server/execution.js" \
     "$ROOT/tools/fleet-dashboard/server/cron/parse.js" \
     "$ROOT/tools/fleet-dashboard/server/cron/runinfo.js"; do
@@ -53,7 +58,9 @@ SOURCE_DIGEST="$({
 CURRENT_DIGEST="$(docker image inspect --format "{{index .Config.Labels \"$IMAGE_SOURCE_LABEL\"}}" "$IMAGE" 2>/dev/null || true)"
 if [[ "$CURRENT_DIGEST" != "$SOURCE_DIGEST" ]]; then
   echo "building $IMAGE from current executive source ($SOURCE_DIGEST)" >&2
-  docker build --label "$IMAGE_SOURCE_LABEL=$SOURCE_DIGEST" \
+  docker build --build-arg "EXECUTIVE_BASE_IMAGE=domain-developer:latest" \
+    --label "$IMAGE_SOURCE_LABEL=$SOURCE_DIGEST" \
+    --label "com.bourneash.executive.base-image-id=$BASE_IMAGE_ID" \
     -f "$ROOT/tools/executive/Dockerfile" -t "$IMAGE" "$ROOT"
 fi
 
@@ -141,11 +148,25 @@ fs.writeFileSync(
 NODE
 }
 
+# Fail before provider authentication or model execution if the image's local
+# runtime graph is incomplete. This catches missing allowlisted modules with a
+# deterministic diagnostic instead of a generic model exit status.
+set +e
+IMPORT_OUTPUT=$(docker "${container_args[@]}" node -e "require('/app/tools/executive/model-runner.js')" 2>&1)
+IMPORT_STATUS=$?
+set -e
+if [[ "$IMPORT_STATUS" -ne 0 ]]; then
+  IMPORT_DETAIL="${IMPORT_OUTPUT//$'\n'/ }"
+  IMPORT_DETAIL="${IMPORT_DETAIL:0:240}"
+  write_provider_failure "executive_image_preflight_failed: model runner imports failed (status ${IMPORT_STATUS}; ${IMPORT_DETAIL})"
+  MODEL_STATUS=79
+fi
+
 # Validate the same OAuth credential from inside the same image/mount boundary
 # used for the real model run. `codex login status` is local and non-billing: it
 # confirms that the isolated process can discover the ChatGPT login without
 # exposing or modifying the host credential.
-if [[ "$EXECUTIVE_PROVIDER" == "chatgpt" ]]; then
+if [[ "${MODEL_STATUS:-0}" -eq 0 && "$EXECUTIVE_PROVIDER" == "chatgpt" ]]; then
   set +e
   PREFLIGHT_OUTPUT=$(timeout -s TERM -k 5 30s docker "${container_args[@]}" codex login status 2>&1)
   PREFLIGHT_STATUS=$?
@@ -247,17 +268,36 @@ fi
 if [[ "$MODEL_STATUS" -ne 0 ]]; then
   FAILURE_DIR="$ROOT/tools/executive/data/failures"
   mkdir -m 700 -p "$FAILURE_DIR"
+  FAILURE_STAMP="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  DIAGNOSTIC_LOG="$FAILURE_DIR/failure-$FAILURE_STAMP.log"
+  if [[ -s "$RUN_DIR/model.log" ]]; then
+    # Keep only bounded startup/runtime diagnostics and redact common secret
+    # forms before retaining them outside the transient exchange directory.
+    tail -c 12000 "$RUN_DIR/model.log" \
+      | sed -E 's/(Authorization:[[:space:]]*Bearer[[:space:]]+)[^[:space:]]+/\1<redacted>/Ig; s/(["'"']?(token|access_token|refresh_token|api[_-]?key|secret|password)["'"']?[[:space:]]*[:=][[:space:]]*["'"']?)[^,"'"'"'[:space:]}]+/\1<redacted>/Ig' \
+      >"$DIAGNOSTIC_LOG"
+    chmod 600 "$DIAGNOSTIC_LOG"
+  else
+    rm -f "$DIAGNOSTIC_LOG"
+    DIAGNOSTIC_LOG=""
+  fi
   if [[ -s "$RUN_DIR/output/failure.json" ]]; then
-    cp "$RUN_DIR/output/failure.json" "$FAILURE_DIR/failure-$(date -u +%Y%m%dT%H%M%SZ)-$$.json"
+    cp "$RUN_DIR/output/failure.json" "$FAILURE_DIR/failure-$FAILURE_STAMP.json"
+  else
+    write_provider_failure "isolated executive model exited with status $MODEL_STATUS"
+    cp "$RUN_DIR/output/failure.json" "$FAILURE_DIR/failure-$FAILURE_STAMP.json"
   fi
   # The trusted host records a failed tick even when the isolated provider
   # exits before it can produce a plan. This preserves the historical failure
   # without allowing partial or malformed model output into applyPlan().
-  node - "$ROOT" "$MODEL_STATUS" "$RUN_DIR/output/failure.json" <<'NODE'
+  node - "$ROOT" "$MODEL_STATUS" "$RUN_DIR/output/failure.json" "$DIAGNOSTIC_LOG" "$IMAGE" "$SOURCE_DIGEST" <<'NODE'
 const fs = require('node:fs');
 const root = process.argv[2];
 const exitCode = Number(process.argv[3]);
 const failureFile = process.argv[4];
+const diagnosticLog = process.argv[5] || null;
+const image = process.argv[6];
+const sourceDigest = process.argv[7];
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
 const store = eventstore.open(root);
@@ -283,6 +323,9 @@ try {
       passes_completed: Array.isArray(details.passes_completed) ? details.passes_completed.length : 0,
       estimated_total_tokens: Number(details.usage?.estimated_total_tokens || 0),
       failure_artifact: fs.existsSync(failureFile) ? failureFile : null,
+      diagnostic_log: diagnosticLog && fs.existsSync(diagnosticLog) ? diagnosticLog : null,
+      image,
+      source_digest: sourceDigest,
     },
   });
 } finally {

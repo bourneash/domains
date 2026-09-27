@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-27T03:18:00.551Z",
+  "updated_at": "2026-09-27T04:11:00.730Z",
   "jobs": [
     {
       "job_id": "07a6b424-902e-46ed-832d-580ac45df8b7",
@@ -230942,6 +230942,190 @@
       "lease_until": null,
       "last_error": "(node:466184) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:466402) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
       "claimed_at": "2026-09-27T03:17:00.404Z"
+    },
+    {
+      "job_id": "5b69a36a-9ad6-43e7-a792-1c107ac24837",
+      "fingerprint": "3b05a49f04859dfc5f6691bf1808f513ecbef74b48a80cbe19093d2a9e11de4e",
+      "site": "reviewtattoo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:19:00.226Z",
+      "next_attempt_at": "2026-09-27T09:19:10.644Z",
+      "lease_until": null,
+      "last_error": "(node:468104) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:468245) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "claimed_at": "2026-09-27T03:19:00.457Z"
+    },
+    {
+      "job_id": "b5c608f3-866d-48b8-8750-6b8611e429d9",
+      "fingerprint": "c43d7a0de5ecbfbf4579e23cd9107f40f107987c22a3984342f3dc69eb7b64c9",
+      "site": "rodhat.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:25:00.149Z",
+      "next_attempt_at": "2026-09-27T09:25:10.510Z",
+      "lease_until": null,
+      "last_error": "building domains-executive-runner:latest from current executive source (63568c8352d5abf8fb17c4aa5d4fde99a5a3147ae047abda0cd9c6046a41e943)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\nCOPY failed: file not found in build context or excluded by .dockerignore: stat tools/fleet-dashboard/server/cloudflarebuilds.js: file does not exist\n",
+      "claimed_at": "2026-09-27T03:25:00.483Z"
+    },
+    {
+      "job_id": "6ef72b75-4e9c-4124-ae30-f8a564ee13cd",
+      "fingerprint": "545086b84b5a6fa1a8b66445b1a6ffcfb5d06245b3d105fd079cc05b52966400",
+      "site": "shoppinkflamingo.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:27:00.176Z",
+      "next_attempt_at": "2026-09-27T03:27:00.176Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:27:00.590Z",
+      "completed_at": "2026-09-27T03:27:24.400Z"
+    },
+    {
+      "job_id": "7d0c810c-d315-4d50-8adc-2507c1c3d8f0",
+      "fingerprint": "3aa6b30a396b448608b3384e06796c07ce0af31e3e032a7b1c5538e762556c19",
+      "site": "sinderella.org",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:28:00.176Z",
+      "next_attempt_at": "2026-09-27T03:28:00.176Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:28:00.433Z",
+      "completed_at": "2026-09-27T03:28:18.120Z"
+    },
+    {
+      "job_id": "97c68332-bf0f-4872-bde8-96d6f1fb6374",
+      "fingerprint": "dde7aed3a611957d20baf78e8730b708d153f82c55f9da6c46b8c251656eaad3",
+      "site": "unsupervisedmedia.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "queued",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:33:00.179Z",
+      "next_attempt_at": "2026-09-27T09:33:12.183Z",
+      "lease_until": null,
+      "last_error": "building domains-executive-runner:latest from current executive source (48583cb8d135ddaf32dc1ca037fb5fb454cca22ee2b296f1c3a280dd36a8333c)\nDEPRECATED: The legacy builder is deprecated and will be removed in a future release.\n            Install the buildx component to build images with BuildKit:\n            https://docs.docker.com/go/buildx/\n\n/home/jesse/projects/domains/tools/executive/run-sandbox.sh: line 161: syntax error near unexpected token `('\n",
+      "claimed_at": "2026-09-27T03:33:00.528Z"
+    },
+    {
+      "job_id": "d2957f45-6c91-485d-b580-5d3d993b8c86",
+      "fingerprint": "f4b2567e5e20ac81c33636cad842f2ed90f479ed94cc6b282de2f1b6741f4f2e",
+      "site": "wetpages.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:40:00.159Z",
+      "next_attempt_at": "2026-09-27T03:40:00.159Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:40:00.431Z",
+      "completed_at": "2026-09-27T03:40:21.522Z"
+    },
+    {
+      "job_id": "ad1bef4f-1543-4bd8-bed8-3792f967cb67",
+      "fingerprint": "fe6baca31bb981a4fdff4f4054d1eaa05aedd7c9405d837675fe6ff52851f0f3",
+      "site": "amputeenews.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:44:00.157Z",
+      "next_attempt_at": "2026-09-27T03:44:00.157Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:44:00.375Z",
+      "completed_at": "2026-09-27T03:44:16.629Z"
+    },
+    {
+      "job_id": "e5b9daa7-c20f-43ee-80be-9b1b3270c970",
+      "fingerprint": "5f183d7391dbf4ce41a6318a7ba85a67cac9ff8fb86f6c534b5ac7adaab0bb80",
+      "site": "rc-9.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:49:00.142Z",
+      "next_attempt_at": "2026-09-27T03:49:00.142Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:49:00.495Z",
+      "completed_at": "2026-09-27T03:49:14.266Z"
+    },
+    {
+      "job_id": "60877f5b-f2ed-41e1-822f-94c66b3056ce",
+      "fingerprint": "71ef498ab24b457b8edcf7fbf226933a57b90adc223715cab1dfdc8ca8943f87",
+      "site": "saveusfarms.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:50:00.189Z",
+      "next_attempt_at": "2026-09-27T03:50:00.189Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:50:00.399Z",
+      "completed_at": "2026-09-27T03:50:12.900Z"
+    },
+    {
+      "job_id": "39b43769-eea4-46a7-854b-f4bdf1bc5b24",
+      "fingerprint": "b71e392c9eeca76627c5e2f90aa8302fd3200de43906ef62c60aebec9b7e6a18",
+      "site": "shoptopless.com",
+      "reasons": [
+        "routine_fleet_review"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:51:00.159Z",
+      "next_attempt_at": "2026-09-27T03:51:00.159Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:51:00.773Z",
+      "completed_at": "2026-09-27T03:51:15.729Z"
+    },
+    {
+      "job_id": "a34e6266-70de-4587-8cb8-60ee542032e9",
+      "fingerprint": "18b68cb3ab30c837f9141d3c8f3b4d1c28bef7588b1b57ef397a449ccb62933e",
+      "site": "totaljerks.com",
+      "reasons": [
+        "high_priority_seo_actions"
+      ],
+      "report_id": "c137bcbd-23a8-4efc-9eee-24f4150612cc",
+      "status": "completed",
+      "attempts": 1,
+      "requested_at": "2026-09-27T03:52:00.147Z",
+      "next_attempt_at": "2026-09-27T03:52:00.147Z",
+      "lease_until": null,
+      "last_error": null,
+      "claimed_at": "2026-09-27T03:52:00.430Z",
+      "completed_at": "2026-09-27T03:52:20.888Z"
     }
   ]
 }

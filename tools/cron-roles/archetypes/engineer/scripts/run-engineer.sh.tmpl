@@ -249,6 +249,7 @@ if ! flock -w 900 8; then
 fi
 
 # ---- 3b. Work pass ({{MODEL}}) ----
+CHECKPOINT_TURN=$((MAX_TURNS - 8))
 ISSUES_TEXT="(none)"; [[ -s "${ISSUES_FILE:-/dev/null}" ]] && ISSUES_TEXT="$(cat "$ISSUES_FILE")"
 QUEUE_LIST="${QUEUE_TASKS:-}"
 
@@ -324,7 +325,7 @@ ${RESUME_CONTEXT:-No prior interrupted-pass artifact was found.}
    override this generic instruction and the role contract where they conflict.
    A documented no-provider outcome is a valid completion for backlink baseline tasks;
    do not emit an owner escalation for optional provider access after closing that task.
-3. After edits, run \`cd site && npm run build\` — it MUST pass. If it fails, REVERT your
+3. After edits, run 'cd site && npm run build' — it MUST pass. If it fails, REVERT your
    change (don't leave the tree broken) and escalate it instead.
 4. Do NOT git commit or git push — the wrapper handles build-gating, commit, and push.
 5. Do NOT touch legal/disclosure pages, _headers CSP, or add runtime/third-party JS.

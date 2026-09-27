@@ -113,6 +113,33 @@ grep -q 'RESUME_CONTEXT' "$engineer_template" \
   || fail "engineer template does not tell retries where to resume"
 grep -q 'TASK_BUDGET_BUFFER=10' "$engineer_template" \
   || fail "engineer template uses unbuffered task estimates"
+grep -q 'CHECKPOINT_TURN=\$((MAX_TURNS - 8))' "$engineer_template" \
+  || fail "engineer template does not precompute the turn checkpoint"
+
+# Prompt prose is embedded in a double-quoted shell assignment. Backticks and
+# command/arithmetic substitutions inside that block are executable shell
+# syntax, not inert model instructions. Keep prompt construction fail-closed.
+engineer_scripts=("$ROOT"/sites/*/ops/scripts/run-engineer.sh)
+for script in "${engineer_scripts[@]}"; do
+  bash -n "$script" || fail "engineer wrapper syntax error: $script"
+  grep -q '^PROMPT="' "$script" || continue
+  grep -q 'CHECKPOINT_TURN=\$((MAX_TURNS - 8))' "$script" \
+    || fail "engineer wrapper does not precompute the turn checkpoint: $script"
+  awk '
+    /^PROMPT="/ { in_prompt = 1; found_prompt = 1; next }
+    in_prompt && /"$/ { in_prompt = 0; next }
+    in_prompt {
+      if ($0 ~ /(^|[^\\])`/ || $0 ~ /\$\(\(/ || $0 ~ /\$\(/) {
+        print "unsafe shell syntax in prompt at line " NR > "/dev/stderr"
+        unsafe = 1
+      }
+    }
+    END {
+      if (!found_prompt || in_prompt) exit 2
+      if (unsafe) exit 1
+    }
+  ' "$script" || fail "engineer prompt contains executable shell syntax: $script"
+done
 
 # Any wrapper using the stderr-preserving implementation must carry the same
 # result gate. This catches partial template stamps without forcing legacy
