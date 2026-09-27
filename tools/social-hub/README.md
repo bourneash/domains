@@ -211,7 +211,9 @@ Posts carry the article's cover automatically on platforms that support it.
 The image is read from the site checkout first (`site/public/...`), falling
 back to HTTP, resized under the ~950KB blob ceiling, and captioned with the
 article title as alt text. A missing or oversized image costs the post its
-picture, never its publication. `SOCIAL_HUB_NO_MEDIA=1` disables attachments.
+picture, never its publication. Sites listed in `media.require_image_sites` fail
+closed and retry instead of publishing text-only when generation also fails.
+`SOCIAL_HUB_NO_MEDIA=1` disables attachments.
 
 ## Engagement
 

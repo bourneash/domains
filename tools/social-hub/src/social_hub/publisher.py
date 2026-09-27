@@ -25,6 +25,17 @@ def _site_post_log(site: str) -> Path:
     return site_root(site) / "ops" / "social" / "post-log.jsonl"
 
 
+class MediaRequiredError(AdapterError):
+    """The site's visual publishing contract could not be satisfied."""
+
+    def __init__(self, site: str, source_id: str | None = None):
+        ref = f" for {source_id}" if source_id else ""
+        super().__init__(
+            f"{site}: image required{ref}, but no source or generated image was available",
+            retryable=True,
+        )
+
+
 def mirror_to_site_log(post: dict) -> None:
     """Append to the site's own post log. Best-effort: a read-only or missing
     site checkout must not fail a publish that already happened remotely."""
@@ -165,6 +176,16 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
         if generated:
             images.append(generated)
 
+    required_sites = set(cfg.get("media.require_image_sites", []) or [])
+    require_image = bool(cfg.get("media.require_image")) or cfg.site in required_sites
+    if (
+        require_image
+        and post["kind"] != "reply"
+        and capabilities(post["platform"]).media
+        and not images
+    ):
+        raise MediaRequiredError(cfg.site, post.get("source_id"))
+
     return Outgoing(
         body=post["body"],
         link="" if post["kind"] == "reply" else link,
@@ -212,8 +233,8 @@ def publish_post(post_id: int, *, cfg: SiteConfig | None = None, claim: bool = T
         )
         return {"ok": False, "error": "missing creds"}
 
-    out = build_outgoing(post, cfg)
     try:
+        out = build_outgoing(post, cfg)
         ref = adapter.reply(out) if post["kind"] == "reply" else adapter.publish(out)
     except AdapterError as exc:
         if post.get("channel_id"):

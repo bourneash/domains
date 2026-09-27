@@ -79,6 +79,23 @@ def test_publish_generates_a_cover_when_enabled(synced, monkeypatch):
     assert outgoing.images[0].alt == "generated cover"
 
 
+def test_required_image_contract_fails_closed_when_generation_fails(synced, monkeypatch):
+    from social_hub.platforms.base import AdapterError
+
+    cfg = load_site_config("alpha.com")
+    cfg.data["media"] = {"require_image_sites": ["alpha.com"]}
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+    post_id = queue.list_posts(site="alpha.com", status="draft")[0]["id"]
+    post = queue.get(post_id)
+
+    monkeypatch.setattr(media, "load_image", lambda *_args: None)
+    monkeypatch.setattr(publisher, "_generate_missing_image", lambda *_args: None)
+
+    with pytest.raises(AdapterError, match="image required"):
+        publisher.build_outgoing(post, cfg)
+
+
 def test_missing_image_uses_media_gen_client(monkeypatch):
     calls = {}
 

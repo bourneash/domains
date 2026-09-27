@@ -70,6 +70,24 @@ defaults:
     medium: organic_social
     campaign: always_on
 
+  # These sites have opted into generated covers, so publishing must fail
+  # closed if both a source image and the generator are unavailable. A
+  # text-only post defeats the visual contract those sites opted into.
+  media:
+    require_image_sites:
+      - 0daynews.com
+      - aliencouncil.com
+      - amputeenews.com
+      - americastrikes.com
+      - eastcoastrappers.com
+      - fishhooklabs.com
+      - oventoheaven.com
+      - reviewtattoo.com
+      - rodhat.com
+      - saveusfarms.com
+      - sinderella.org
+      - totaljerks.com
+
   readiness:
     # These APIs require explicit account/app setup. Registry status alone is
     # not proof that writes work, so a live verify canary is mandatory.
