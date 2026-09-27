@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:33:01.055Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T04:49:07.842Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, duplicate telemetry, spend, dependencies, monetization expansion, external outreach, and unsupported revenue or causal-lift claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Owner concern: keep the prepared permission request unsent unless human counsel reviews it and the owner explicitly authorizes outreach.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, readiness, spend, monetization, telemetry, dependency, requeue, deployment, and external-outreach claims. Continue only existing reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue evidence is limited to 2026-09-21: $4.92 aggregate commission and $0 site-attributed commission. Conflicting AI-cost records and missing period-aligned operating costs block ROI, margin, payback, forecasts, and budget claims. Keep aggregate revenue unattributed and continue the existing reconciliation only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private. The prepared permission request remains unsent unless human counsel reviews it and the owner explicitly authorizes outreach. Do not expand public exposure, monetization, alerts, configuration, credentials, or production scope.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: queue capacity is occupied, 46 failure follow-ups remain open, 32 deployed improvements await measurement, and only 1 outcome is proven. Deferred SEO, performance, accessibility, conversion, attribution, and repository concepts should remain unqueued until evidence and execution gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
