@@ -122,4 +122,69 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
       .artifacts.length,
     1
   );
+
+  const routine = await request(server, 'POST', '/api/agent-routines', {
+    agent_id: agent.agent_id,
+    name: 'e2e-heartbeat',
+    schedule: '60',
+    next_due_at: '2026-01-01T00:00:00.000Z',
+  });
+  assert.equal(routine.status, 201);
+  const evaluation = await request(server, 'POST', '/api/agent-evals', {
+    agent_id: agent.agent_id,
+    dimension: 'quality',
+    score: 95,
+    feedback: 'end-to-end verified',
+  });
+  assert.equal(evaluation.status, 201);
+  const grant = await request(server, 'POST', '/api/agent-tools', {
+    agent_id: agent.agent_id,
+    tool_name: 'read:intelligence',
+    scope: { sites: ['example.com'] },
+  });
+  assert.equal(grant.status, 201);
+  assert.equal(
+    (
+      await request(
+        server,
+        'GET',
+        `/api/agent-tools/check?agent_id=${agent.agent_id}&tool_name=read%3Aintelligence`
+      )
+    ).body.allowed,
+    true
+  );
+  const workspace = await request(server, 'POST', '/api/agent-workspaces', {
+    agent_id: agent.agent_id,
+    path: '/tmp/runtime-e2e-workspace',
+    mode: 'isolated',
+  });
+  assert.equal(workspace.status, 201);
+  assert.equal(
+    (
+      await request(
+        server,
+        'POST',
+        `/api/agent-workspaces/${workspace.body.workspace.workspace_id}/close`
+      )
+    ).body.workspace.status,
+    'closed'
+  );
+  const work = await request(server, 'POST', '/api/executive/work-items', {
+    title: 'Claimable work',
+    owner: 'cto',
+  });
+  assert.equal(
+    (
+      await request(
+        server,
+        'POST',
+        `/api/executive/work-items/${work.body.work_item.work_id}/claim`,
+        {
+          lease_owner: 'agent:runtime-ceo',
+        }
+      )
+    ).status,
+    200
+  );
+  assert.equal((await request(server, 'POST', '/api/agent-heartbeat/tick', {})).status, 200);
 });

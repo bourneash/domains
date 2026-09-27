@@ -70,6 +70,7 @@ const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
 const executiveCalendar = require('./executive-calendar');
 const agentRuntime = require('../../executive/agent-runtime');
+const agentHeartbeat = require('../../executive/agent-heartbeat');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -4350,6 +4351,48 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.post('/api/executive/work-items/:id/claim', (req, res) => {
+    try {
+      const workItem = events.claimExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body?.lease_seconds
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item is already claimed or unavailable' });
+      res.json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/heartbeat', (req, res) => {
+    try {
+      const workItem = events.heartbeatExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body?.lease_seconds
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item lease is not owned by this worker' });
+      res.json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/release', (req, res) => {
+    try {
+      const workItem = events.releaseExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body || {}
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item lease is not owned by this worker' });
+      res.json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/knowledge', (req, res) => {
     try {
       res.json({ knowledge: events.listExecutiveKnowledge(req.query) });
@@ -4410,7 +4453,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.post('/api/agent-runs', (req, res) => {
     try {
-      res.status(201).json({ run: events.createAgentRun(req.body || {}) });
+      const started = agentRuntime.beginRun(events, req.body || {});
+      res.status(started.reused ? 200 : 201).json(started);
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4496,6 +4540,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/agent-watchdogs/audit', (req, res) => {
     try {
       res.json(events.auditAgentWatchdogs());
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-heartbeat/tick', (req, res) => {
+    try {
+      res.json(agentHeartbeat.tick(events));
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }

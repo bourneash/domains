@@ -70,6 +70,15 @@ function beginRun(store, input = {}) {
   const idempotencyKey = input.idempotency_key || `run:${agent.agent_id}:${runId}`;
   const existing = store.getAgentRunByIdempotency(idempotencyKey);
   if (existing) return { run: existing, reused: true };
+  if (Number(input.reserve_usd || 0) > 0) {
+    const reservation = store.reserveBudget({
+      scope_type: 'agent',
+      scope_id: agent.agent_id,
+      period: input.budget_period || 'month',
+      amount_usd: input.reserve_usd,
+    });
+    if (!reservation.allowed) throw new Error(`agent budget exceeded for ${agent.slug}`);
+  }
   const run = store.createAgentRun({
     ...input,
     run_id: runId,
