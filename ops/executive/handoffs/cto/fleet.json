@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:36:27.829Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:48:09.854Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only disposition. Retain the three control-plane specifications as deferred backlog; do not create change requests, requeues, deployments, dependencies, telemetry, spend, or site edits. The concepts are technically feasible and reversible, but implementation must wait until existing failure repair-or-close, isolation, validation, rollback, deduplication, measurement, and financial-containment gates are complete.",
+        "summary": "Handoff: preserve the deferred opportunities for deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com, but create no change requests or requeues this cycle. Existing failures, validation, rollback, deduplication, and measurement gates remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The safest future implementation order is: failure-aware queue lifecycle first, approval-to-execution reconciliation second, measurement-readiness gating third. Each must run in an isolated control-plane worktree with fixture-only tests, no production credentials, no site-repository writes, no external calls, and explicit rollback. Existing records are the only permitted evidence source until a separately approved measurement design exists.",
+        "summary": "CTO review: approve containment-only execution. No new change requests, requeues, experiments, telemetry, dependencies, deployments, spend, or monetization expansion are technically supportable this cycle. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Preserve the three evidence-backed opportunities as deferred backlog. Continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged and external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Queue eligibility remains false this cycle. Existing evidence shows 47 open failure follow-ups, 9 failed implementation requests, 28 deployed improvements awaiting measurement, and only 2 proven outcomes. Preserve the deferred opportunities and continue only existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence.",
+        "summary": "Technical disposition: existing work is isolated by scope and reversible only where it remains within current repair, validation, rollback, deduplication, and measurement controls. Missing fleet-doctor and operations evidence prevents security-sensitive releases and public exposure clearance; it does not authorize new production work. Continue bounded read-only security evidence using authorized metadata and retained artifacts only. Do not access credentials or private containers, modify permissions or configuration, add dependencies, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Measurement disposition: continue the existing reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed; site-attributed commission remains $0 without implying zero site performance. Reconcile retained period-aligned cost records and preserve unknowns. Do not infer ROI, margin, payback, cost-to-learn, forecasts, budget capacity, or causal lift from traffic, rankings, conversions, technical scores, AI usage, or aggregate affiliate data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Launch and isolation gate: keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, alert expansion, rights-dependent monetization, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

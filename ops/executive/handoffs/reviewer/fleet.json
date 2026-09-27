@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T10:36:27.830Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T10:48:09.855Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed control-plane specifications, production work, requeues, new telemetry, dependencies, spend, monetization expansion, and unsupported financial claims this cycle. The authoritative candidate list is empty; 47 repair follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Revenue is limited to one dated aggregate window, with no site-attributed commission or supported ROI. Continue existing repair-or-close, attribution reconciliation, and bounded legal/security evidence only. Keep public launch gates unchanged and external outreach unsent.",
+        "summary": "Approve containment-only execution. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry changes, dependencies, spending, monetization expansion, unsupported financial claims, and public launch. Revenue is limited to the dated aggregate record; site economics, ROI, margin, payback, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the three workflow concepts as deferred backlog only. Do not create duplicate proposals or implementation requests. Preserve aggregate revenue as unattributed; treat traffic, rankings, conversions, technical scores, and AI usage as operating metrics rather than financial returns. Existing security evidence work may continue read-only using authorized metadata and retained artifacts.",
+        "summary": "Keep private launch gates unchanged and external outreach unsent. Continue only existing read-only rights, privacy, data-flow, accuracy, attribution, measurement, and security evidence; do not access credentials, modify configuration or permissions, deploy, expand alerts, or authorize rights-dependent monetization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain financial containment. Preserve the 2026-09-21 aggregate commission as unattributed and reconcile existing period-aligned cost records only. Do not infer site performance, ROI, margin, payback, forecasts, budget capacity, or causal lift from aggregate revenue, traffic, rankings, conversions, technical metrics, or AI usage.",
         "requested_action": null,
         "proposal_id": null
       }
