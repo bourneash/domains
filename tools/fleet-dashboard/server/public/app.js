@@ -13397,6 +13397,10 @@ function mountExecutiveWorkspaceNav(active) {
         'Command center',
         'A calm starting point for decisions, alerts, and the next most important action.',
       ],
+      dashboard: [
+        'Dashboard',
+        'A full-width view of executive runs, durable follow-through, decisions, and fleet operations.',
+      ],
       conversation: [
         'Conversation',
         'Read the team’s messages, requests, responses, and operator-visible background work in one threaded workspace.',
@@ -13429,6 +13433,7 @@ function mountExecutiveWorkspaceNav(active) {
     if (description) description.textContent = copy[1];
   }
   const items = [
+    ['dashboard', 'Dashboard', 'Executive overview'],
     ['overview', 'Command center', 'Decisions at a glance'],
     ['conversation', 'Conversation', 'Messages & transcript'],
     ['runs', 'Runs', 'Live execution history'],
@@ -13465,6 +13470,7 @@ function applyExecutiveWorkspace(page) {
   const secondary = shell.querySelector('.ex-secondary');
   const layout = shell.querySelector('.ex-layout');
   const run = shell.querySelector('.ex-run-panel');
+  const followThrough = shell.querySelector('.ex-followthrough');
   const attention = shell.querySelector('.ex-attention');
   const compose = shell.querySelector('.ex-compose');
   const cases = shell.querySelector('.ex-cases');
@@ -13485,6 +13491,7 @@ function applyExecutiveWorkspace(page) {
   };
   [
     run,
+    followThrough,
     attention,
     compose,
     cases,
@@ -13497,7 +13504,16 @@ function applyExecutiveWorkspace(page) {
     decisions,
   ].forEach(show);
   show(layout);
-  if (page === 'overview') {
+  if (page === 'dashboard') {
+    hide(compose);
+    hide(cases);
+    hide(requests);
+    hide(transcript);
+    hide(recent);
+    hide(strategy);
+    hide(performance);
+    hide(decisions);
+  } else if (page === 'overview') {
     hide(compose);
     hide(cases);
     hide(requests);
@@ -14198,7 +14214,7 @@ async function renderExecutive() {
     <section class="ex-layout">
       <div class="ex-primary">
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div>${runDetailPanel}</section>
-        <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
+        <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
         ${casePanel}

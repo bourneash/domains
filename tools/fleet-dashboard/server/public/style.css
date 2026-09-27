@@ -219,7 +219,7 @@ body[data-view="agent"] main:has(.ex-shell[data-workspace="conversation"]) { max
 .ex-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, .85fr); gap: 14px; align-items: start; }
 .ex-primary, .ex-secondary { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .ex-panel { padding: 18px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
-.ex-workspace-nav { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin: 0 0 16px; padding: 6px; background: rgba(255,255,255,.035); border: 1px solid var(--border); border-radius: 14px; position: sticky; top: 8px; z-index: 4; backdrop-filter: blur(12px); }
+.ex-workspace-nav { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; margin: 0 0 16px; padding: 6px; background: rgba(255,255,255,.035); border: 1px solid var(--border); border-radius: 14px; position: sticky; top: 8px; z-index: 4; backdrop-filter: blur(12px); }
 .ex-workspace-tab { appearance: none; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--muted); text-align: left; padding: 10px 11px; cursor: pointer; min-width: 0; }
 .ex-workspace-tab span, .ex-workspace-tab small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ex-workspace-tab span { color: var(--text); font-weight: 700; font-size: 12px; }
@@ -231,6 +231,9 @@ body[data-view="agent"] main:has(.ex-shell[data-workspace="conversation"]) { max
 .ex-shell > .ex-details-label { margin-top: 22px; }
 .ex-shell > .ex-layout:has(.ex-primary.ex-workspace-hidden) { display: block; }
 .ex-shell > .ex-layout:has(.ex-primary.ex-workspace-hidden) .ex-secondary { max-width: none; }
+.ex-shell[data-workspace="dashboard"] > .ex-layout { grid-template-columns: minmax(0, 1fr); }
+.ex-shell[data-workspace="dashboard"] .ex-primary,
+.ex-shell[data-workspace="dashboard"] .ex-secondary { width: 100%; }
 .ex-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
 .ex-panel h3 { margin: 3px 0 0; font-size: 16px; }
 .ex-panel h4 { margin: 0 0 10px; font-size: 13px; }
