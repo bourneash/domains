@@ -8,6 +8,14 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const heartbeat = require(`${root}/tools/executive/heartbeat`);
+const agentHeartbeat = require(`${root}/tools/executive/agent-heartbeat`);
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const result = heartbeat.run({ root });
-process.stdout.write(JSON.stringify(result.scorecard) + '\n');
+const store = eventstore.open(root);
+try {
+  const runtime = agentHeartbeat.tick(store);
+  process.stdout.write(JSON.stringify({ scorecard: result.scorecard, runtime }) + '\n');
+} finally {
+  store.close();
+}
 NODE
