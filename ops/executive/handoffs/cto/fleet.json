@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T19:32:57.350Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T19:48:27.388Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create proposals, change requests, research requests, experiments, telemetry, dependencies, deployments, spend, requeues, monetization changes, or external outreach. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
+        "summary": "Handoff: retain SEO, UX, accessibility, performance, content, monetization, and CRO opportunities as deferred backlog. Continue only existing isolated repair, deterministic validation, rollback, deduplication, attribution reconciliation, and measurement work. Do not requeue or create new production work until failure ownership and validation evidence are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve containment-only execution. Deferred opportunities remain technically feasible but are not queue-ready. Continue only existing repair-or-close, isolated deterministic validation, rollback, deduplication, period-aligned attribution reconciliation, measurement, and bounded read-only legal/security evidence work. Do not create proposals, change requests, research requests, experiments, telemetry, dependencies, deployments, spending, monetization changes, requeues, or external outreach. Preserve private launch gates, parked dispositions, existing measurement boundaries, and unknown financial or causal outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

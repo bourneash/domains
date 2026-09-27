@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T19:32:57.350Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T19:48:27.389Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve the single-period $4.92 aggregate commission as unattributed; site economics and causal lift remain unknown. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep private and parked dispositions unchanged; keep external outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: attribution covers one period and includes aggregate commission that cannot be assigned to a site. Operations and security sweeps are unavailable, 47 failure follow-ups remain open, and 28 improvements await measurement. Authorize any external permission request only after human-counsel review and explicit owner approval; otherwise keep it unsent.",
+        "summary": "Approve containment-only execution. Reject new proposals, queue work, requeues, experiments, telemetry, deployments, spending, monetization changes, and unsupported financial or causal claims. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Preserve the single-period $4.92 aggregate commission as unattributed; ROI, margin, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Keep private and parked dispositions unchanged, and keep external outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }
