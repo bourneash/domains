@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:04:03.671Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:18:22.290Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain three evidence-backed opportunities as deferred backlog only. deeppenetrations.com: improve the /reviews/liquid-wrench search result; evidence is 95 impressions, position 2.8, 0 clicks. Smallest reversible prototype is a title/meta/onsite-intent alignment patch with rollback; metric is GSC clicks/CTR, learning window 14 days or 100 new impressions. broadwayshowgirls.com: improve the Priya Raghunathan writer result; evidence is 64 impressions, position 2, 0 clicks. Prototype is a reversible title/meta and internal-link refinement; metric is clicks/CTR. americastrikes.com: diagnose mobile performance; evidence is performance 65, LCP 4861ms, TBT 492ms. Prototype is an isolated asset/rendering diagnosis with no dependency or production change; metric is lab LCP/TBT. These are prioritization signals, not revenue, ROI, or causal-lift evidence. GitHub candidates remain research-only: shadcn-ui/ui and microsoft/markitdown passed bounded lab checks, both MIT, but require prototype, security review, maintenance review, and owner-approved implementation; mermaid-js/mermaid is MIT but had no safe native checks. Do not create proposals, change requests, experiments, telemetry, dependencies, spend, deployments, credentials, domains, or monetization work during containment. Continue existing repair-or-close, measurement reconciliation, and legal/security evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain three evidence-backed opportunities as deferred backlog only. deeppenetrations.com: improve the /reviews/liquid-wrench search result; evidence is 95 impressions, position 2.8, 0 clicks. Smallest reversible prototype is a title/meta/onsite-intent alignment patch with rollback; metric is GSC clicks/CTR, learning window 14 days or 100 new impressions. broadwayshowgirls.com: improve the Priya Raghunathan writer result; evidence is 64 impressions, position 2, 0 clicks. Prototype is a reversible title/meta and internal-link refinement; metric is clicks/CTR. americastrikes.com: diagnose mobile performance; evidence is performance 65, LCP 4861ms, TBT 492ms. Prototype is an isolated asset/rendering diagnosis with no dependency or production change; metric is lab LCP/TBT. These are prioritization signals, not revenue, ROI, or causal-lift evidence. GitHub candidates remain research-only.",
+        "summary": "Handoff: retain four evidence-backed opportunities as deferred backlog only; do not create proposals, change requests, experiments, telemetry, dependencies, spend, deployments, or monetization work this cycle. 1) deeppenetrations.com /reviews/liquid-wrench: 95 impressions, position 2.8, 0 clicks. Prototype: reversible title/meta and onsite-intent alignment patch. Metric: GSC clicks and CTR. Learn: 14 days or 100 new impressions. 2) broadwayshowgirls.com /writers/priya-raghunathan: 64 impressions, position 2, 0 clicks. Prototype: reversible title/meta and internal-link refinement. Metric: clicks and CTR. Learn: 14 days or 100 new impressions. 3) americastrikes.com: mobile performance 65, LCP 4861ms, TBT 492ms. Prototype: isolated asset/rendering diagnosis with no dependency or production change. Metric: lab LCP/TBT. Learn: one bounded diagnosis cycle. 4) Fleet content normalization using microsoft/markitdown (MIT; 187237 stars; lab supported, 8/8 checks passed): prototype fixture-only conversion of a small representative document set to Markdown, with provenance and diff review. Metric: valid structured output and editor time saved; learn: one lab run. Risks: MIT is favorable, but dependency/security review, parser correctness, prompt/content provenance, maintenance fit, and production integration remain unverified; do not install or adopt yet. shadcn-ui/ui (MIT; 124671 stars; lab supported, 3/3 checks passed) remains a UX research candidate for accessible CTA primitives, with prototype-only component extraction and bundle/accessibility review. mermaid-js/mermaid (MIT; 90443 stars; lab supported but no native checks) remains a content-visualization candidate; prototype only a manually authored isolated SVG and review sanitization, accessibility, page weight, and maintenance before adoption. These are prioritization and learning signals, not revenue, ROI, conversion-lift, or causal-impact evidence. Preserve the affiliate attribution guardrail: the dated aggregate commission remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

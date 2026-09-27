@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:04:03.672Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:18:22.292Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, requeues, experiments, telemetry, dependencies, spending, monetization expansion, public launch, and unsupported financial claims. Continue only existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Preserve the three evidence-backed opportunities as deferred backlog. Revenue is limited to 2026-09-21: $4.92 aggregate commission, not site-attributable; ROI, margin, payback, budget exposure, and causal lift remain unknown. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization, and public-launch claims. Preserve the three evidence-backed opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Keep private launch gates and external outreach restrictions unchanged. Owner decision remains whether to authorize the prepared permission request after counsel review or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain as deferred backlog only: deeppenetrations.com liquid-wrench CTR refinement; broadwayshowgirls.com Priya Raghunathan CTR refinement; and americastrikes.com mobile-performance diagnosis. Their metrics support prioritization only, not financial outcomes or execution authorization. Reject the unsupported fleet-normalization item.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain financial containment. Preserve the dated aggregate commission as unattributed and continue existing reconciliation only. Do not infer site economics, ROI, margin, payback, forecasts, budget capacity, or causal lift from aggregate revenue or operating metrics.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only legal and security evidence work using authorized metadata and retained artifacts. Do not request duplicate telemetry, access credentials, modify permissions or configuration, add dependencies, deploy, expand alerts, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

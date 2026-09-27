@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:04:03.671Z",
+  "generated_at": "2026-09-27T11:18:22.291Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: approve containment-only execution. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, or monetization changes. Retain the three evidence-backed opportunities as deferred backlog only. Continue existing repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Existing failures, validation, rollback, deduplication, isolation, and measurement gates remain unresolved; no new queue action is safely eligible this cycle.",
+        "summary": "Handoff: retain the three CRO opportunities as deferred prioritization evidence, not execution authorization. Existing failure, validation, rollback, deduplication, and measurement gates prevent safe new queue work this cycle. Continue only existing repair-or-close and read-only evidence work; do not requeue or deploy.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain financial containment. Continue existing period-aligned reconciliation only; preserve aggregate provider revenue as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget exposure, and causal lift. Operating metrics must not be presented as financial returns.",
+        "summary": "Approve containment-only execution. No new queue work, requeues, experiments, telemetry, dependencies, deployments, spend, or monetization changes are technically supportable this cycle. Retain the three evidence-backed opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Preserve private launch gates and external outreach restrictions. Do not treat operating metrics or aggregate revenue as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
+        "summary": "The proposed SEO and performance opportunities are feasible and reversible in isolation, but cannot safely enter the existing queue until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only the already-authorized repair, reconciliation, and read-only evidence work.",
         "requested_action": null,
         "proposal_id": null
       }
