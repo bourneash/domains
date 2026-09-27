@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T03:48:55.954Z",
+  "generated_at": "2026-09-27T04:03:43.343Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Continue existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create or queue new production work, requeue failures, add telemetry or dependencies, change configuration, spend, expand monetization, conduct external outreach, or adopt external components. Preserve failed-work isolation and private launch gates until lineage, validation, rollback, security, rights, accuracy, attribution, measurement, and owner gates are complete. Keep unsupported revenue, ROI, margin, causal lift, performance, and operational outcomes unknown.",
+        "summary": "Recommendation: approve containment-only execution. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Do not create or queue new production work, requeue failures, add telemetry or dependencies, change configuration, spend, expand monetization, conduct external outreach, or adopt external components. Preserve failed-work isolation until lineage, ownership, root cause, focused validation, rollback, deduplication, and explicit disposition are documented. Keep private launch gates unchanged pending rights, privacy, security, accuracy, attribution, measurement, and owner decisions.",
         "requested_action": null,
         "proposal_id": null
       }

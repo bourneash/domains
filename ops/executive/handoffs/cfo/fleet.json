@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T03:48:55.954Z",
+  "generated_at": "2026-09-27T04:03:43.343Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution and reject new spend, commitments, forecasts, monetization expansion, requeues, and production work. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage for 2026-09-01 through 2026-09-26 is $966.82985915 across 5,417 calls, conflicting with a prior $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned hosting/domain/labor/marketing/experiment costs are absent, incremental outcomes are not isolated, and monthly limits are blank. Continue existing reconciliation, measurement, and failed-work review only. Minimum measurement is a reconciled AI-cost record, period-aligned cost ledger, site/content-level commission mapping, incremental outcome baseline, and owner-approved monthly limits. Do not treat clicks, impressions, sessions, conversions, ordered items, shipped items, or technical scores as financial return.",
+        "summary": "Recommendation: maintain financial containment. Revenue is supported only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is $966.82985915 across 5,417 calls for 2026-09-01 through 2026-09-26, conflicting with a prior record of $963.5690377 and 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned domain/infrastructure/labor/marketing costs are absent, incremental outcomes are not isolated, and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, requeues, or new production work. Continue existing reconciliation and evidence work only. Minimum finance measurement: reconcile the AI-cost records, produce a period-aligned ledger for hosting, domains, labor, marketing, experiments, and other operating costs, define owner-approved monthly limits, and map attributable commission to site/content identifiers before reporting margin, ROI, payback, or cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       }
