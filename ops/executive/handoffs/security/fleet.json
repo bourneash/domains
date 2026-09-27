@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:19:05.446Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:33:34.355Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; authentication boundaries, least privilege, secrets handling, runtime isolation, release approvals and provenance, dependency and supply-chain controls, data exposure, monitoring, incident response, TLS coverage, and security.txt/disclosure readiness remain unverified. TLS reports no certificates expiring within 30 days, but this does not establish complete TLS posture. Compliance is a technical baseline only: 35 pass, 14 fail, 10 unknown. Retained worker and reviewer failures are containment signals, not evidence of compromise. Risk severity is high for public exposure and security-sensitive release, medium for bounded reversible growth. Exact decision: continue existing read-only security evidence work and failure containment; permit only reversible growth that preserves existing consent, disclosures, data handling, provenance, and claims boundaries. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, add dependencies, expand public exposure, or conduct external outreach.",
+        "summary": "Recommendation: retain the evidence-needed fleet disposition. Fleet-doctor and operations sweeps have no results, so authentication, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure controls remain unverified. Permit only bounded read-only evidence work and preserve private launch gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: continue the existing bounded read-only evidence matrix only. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications for access boundaries, secrets, runtime isolation, release controls, dependency provenance, TLS, data flows, monitoring, incident readiness, and disclosure readiness. Do not create duplicate telemetry requests or new production work.",
+        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Concrete evidence: fleet-doctor and operations deploy, uptime, and error sweeps have no results. Authentication boundaries, least privilege, secrets handling, container isolation, release provenance and approvals, dependency and supply-chain controls, data exposure, monitoring, incident response, complete TLS posture, and security.txt/disclosure readiness remain unverified. No certificates are reported expiring within 30 days, but this does not establish complete TLS coverage. Compliance is a technical baseline only: 35 pass, 14 fail, 10 unknown. Retained worker and reviewer failures are containment signals, not evidence of compromise. Risk severity is high for public exposure and security-sensitive releases, medium for bounded reversible growth. Exact decision: maintain private launch gates, continue bounded read-only evidence work and existing failure containment, and permit only reversible growth that preserves current consent, disclosures, data boundaries, and claims limits. Do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, add dependencies, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix and failed-work containment only. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications for authentication and access boundaries, secrets, runtime isolation, release and deployment provenance, dependency controls, TLS, data flows, monitoring, incidents, and disclosure readiness. Do not create duplicate telemetry requests or new production work.",
         "requested_action": null,
         "proposal_id": null
       }

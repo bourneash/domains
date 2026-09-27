@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:19:05.446Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:33:34.355Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, requeues, experiments, duplicate telemetry, spend, dependencies, monetization expansion, unsupported revenue claims, and external outreach. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. Keep the gated product private; the prepared permission request remains unsent pending human-counsel review and explicit owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, readiness, spend, telemetry, requeue, deployment, monetization, and external-outreach claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work. Keep the gated product private pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing finance reconciliation only. Keep the $4.92 aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, forecast, or spend decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate and existing read-only checklist. Attach the consolidated evidence bundle and rights matrix; do not send outreach or change production, credentials, configuration, or monetization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. Review existing failures and measurements without requeueing, deploying, adding telemetry or dependencies, or creating new production work.",
+        "summary": "Owner concern: revenue evidence covers 2026-09-21 only, with $4.92 aggregate commission and $0 site-attributed commission; conflicting AI-cost records and missing period-aligned costs block ROI, margin, forecasts, and spend decisions. Queue capacity and validation are constrained, with 46 failure follow-ups, 32 improvements awaiting measurement, and only 1 proven outcome. Keep the prepared permission request unsent unless counsel reviews it and the owner explicitly authorizes outreach.",
         "requested_action": null,
         "proposal_id": null
       }
