@@ -24,29 +24,48 @@ let STATE = {
 let AGENT_HEALTH = null;
 let ACCESS_LEVEL = 'operator';
 const EXEC_RUN = { poller: null };
-const EXEC_RUN_UI = { q: '', status: 'all', sort: 'started_at', dir: -1, page: 1, pageSize: 25 };
+const EXEC_RUN_UI = {
+  q: '',
+  status: 'all',
+  sort: 'started_at',
+  dir: -1,
+  page: 1,
+  pageSize: 25,
+  selected: null,
+};
 const EXEC_INBOX = { browserNotified: false };
 const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
+const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
 
 function notifyExecutiveBrowser(notifications = []) {
   if (EXEC_INBOX.browserNotified || !notifications.length || !('Notification' in window)) return;
   EXEC_INBOX.browserNotified = true;
-  const unseen = notifications.filter(
-    item => !localStorage.getItem(`fd-executive-notification:${item.notification_id}`)
-  );
-  if (!unseen.length) return;
-  unseen
-    .slice(0, 3)
-    .forEach(item =>
-      localStorage.setItem(`fd-executive-notification:${item.notification_id}`, '1')
+  let unseen;
+  try {
+    unseen = notifications.filter(
+      item => !localStorage.getItem(`fd-executive-notification:${item.notification_id}`)
     );
+    unseen
+      .slice(0, 3)
+      .forEach(item =>
+        localStorage.setItem(`fd-executive-notification:${item.notification_id}`, '1')
+      );
+  } catch {
+    unseen = notifications;
+  }
+  if (!unseen.length) return;
   if (Notification.permission === 'granted') {
-    new Notification(unseen.length === 1 ? unseen[0].title : `${unseen.length} executive updates`, {
-      body:
-        unseen.length === 1
-          ? unseen[0].body
-          : 'Open the Executive page to review the latest responses.',
-    });
+    try {
+      new Notification(
+        unseen.length === 1 ? unseen[0].title : `${unseen.length} executive updates`,
+        {
+          body:
+            unseen.length === 1
+              ? unseen[0].body
+              : 'Open the Executive page to review the latest responses.',
+        }
+      );
+    } catch {}
   }
 }
 
@@ -125,10 +144,37 @@ function dotLegend(st, txt) {
 function applyFleetFilter() {
   const input = $('#fleet-filter');
   const q = ((input && input.value) || '').trim().toLowerCase();
-  $$('[data-fleet-row]').forEach(el => {
+  const clear = $('#fleet-filter-clear');
+  if (clear) clear.hidden = !q;
+  const rows = $$('[data-fleet-row]');
+  rows.forEach(el => {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  const count = $('#fleet-filter-count');
+  if (count) {
+    const visible = rows.filter(row => !row.classList.contains('fleet-hidden')).length;
+    count.textContent = q
+      ? `${visible}/${rows.length} rows`
+      : rows.length
+        ? `${rows.length} rows`
+        : '';
+    count.setAttribute(
+      'aria-label',
+      q ? `${visible} of ${rows.length} matching rows` : 'All rows shown'
+    );
+  }
+}
+
+function clearFleetFilter() {
+  const input = $('#fleet-filter');
+  if (!input) return;
+  input.value = '';
+  try {
+    localStorage.removeItem('fd.fleet-filter');
+  } catch {}
+  applyFleetFilter();
+  input.focus();
 }
 
 // Any URL that reaches an href must be proven http(s) first. Stored profile
@@ -144,26 +190,38 @@ function safeHref(u) {
   }
 }
 
+const API_TIMEOUT_MS = 60000;
 async function api(method, url, body) {
   const opt = { method, headers: {} };
+  const controller = typeof AbortController === 'function' ? new AbortController() : null;
+  const timeout = setTimeout(() => controller?.abort(), API_TIMEOUT_MS);
+  if (controller) opt.signal = controller.signal;
   if (body !== undefined) {
     opt.headers['content-type'] = 'application/json';
     opt.body = JSON.stringify(body);
   }
-  const r = await fetch(url, opt);
-  if (r.status === 401) {
-    showLogin();
-    throw new Error('authentication required');
-  }
-  const txt = await r.text();
-  let data;
   try {
-    data = txt ? JSON.parse(txt) : null;
-  } catch {
-    data = txt;
+    const r = await fetch(url, opt);
+    if (r.status === 401) {
+      showLogin();
+      throw new Error('authentication required');
+    }
+    const txt = await r.text();
+    let data;
+    try {
+      data = txt ? JSON.parse(txt) : null;
+    } catch {
+      data = txt;
+    }
+    if (!r.ok) throw new Error((data && data.error) || `HTTP ${r.status}`);
+    return data;
+  } catch (e) {
+    if (e?.name === 'AbortError')
+      throw new Error(`Request timed out after ${API_TIMEOUT_MS / 1000}s`);
+    throw e;
+  } finally {
+    clearTimeout(timeout);
   }
-  if (!r.ok) throw new Error((data && data.error) || `HTTP ${r.status}`);
-  return data;
 }
 
 // Optional panels must never hold an entire view hostage. Keep the primary
@@ -204,13 +262,35 @@ async function submitLogin(e) {
 
 function toast(msg, kind = 'ok') {
   const t = $('#toast');
-  t.textContent = msg;
-  t.className = `toast show ${kind}`;
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => {
-    t.className = 'toast';
-  }, 3200);
+  if (!t) return;
+  toast._queue ||= [];
+  const item = { msg: String(msg ?? ''), kind: kind === 'err' || kind === 'error' ? 'err' : 'ok' };
+  const tail = toast._queue[toast._queue.length - 1];
+  if (toast._active && tail?.msg === item.msg && tail?.kind === item.kind) return;
+  toast._queue.push(item);
+  toast._queue = toast._queue.slice(-5);
+  toast._next();
 }
+toast._next = function () {
+  const t = $('#toast');
+  if (!t || toast._active || !toast._queue?.length) return;
+  const item = toast._queue.shift();
+  const message = $('#toast-message', t) || t;
+  message.textContent = item.msg;
+  t.className = `toast show ${item.kind}`;
+  toast._active = true;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(toast._dismiss, 3200);
+};
+toast._dismiss = function () {
+  const t = $('#toast');
+  if (!t) return;
+  clearTimeout(toast._t);
+  toast._active = false;
+  t.className = 'toast';
+  toast._next();
+};
+globalThis.fleetToast = toast;
 
 function applyAccessLevel(level) {
   ACCESS_LEVEL = level === 'viewer' ? 'viewer' : 'operator';
@@ -229,7 +309,31 @@ function applyAccessLevel(level) {
 
 function stamp() {
   $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString();
+  $$('.fd-stale-banner').forEach(banner => banner.remove());
 }
+
+// Keep the last usable page visible during background refresh failures. A
+// transient API outage should not erase filters, expanded rows, or an active
+// operator workflow; the next successful render removes this notice via stamp().
+function renderViewError(target, message) {
+  if (!target) return;
+  const text = String(message || 'The view could not be refreshed.');
+  if (!FRESH && target.firstElementChild) {
+    target.querySelector('.fd-stale-banner')?.remove();
+    const banner = document.createElement('div');
+    banner.className = 'fd-stale-banner';
+    banner.setAttribute('role', 'alert');
+    banner.innerHTML = `<strong>Showing the last successful data</strong><span>${esc(text)}</span><button class="btn sm" type="button" data-fd-stale-retry>Try again</button>`;
+    banner.querySelector('[data-fd-stale-retry]').addEventListener('click', () => {
+      if (typeof globalThis.fleetRetryView === 'function') globalThis.fleetRetryView();
+    });
+    target.prepend(banner);
+    toast('Refresh failed; showing the last successful data', 'err');
+    return;
+  }
+  target.innerHTML = `<div class="error-box">${esc(text)}</div>`;
+}
+globalThis.fleetRenderViewError = renderViewError;
 
 /* Shared reading-density preference. The dashboard has many dense operational
  * views, so this belongs to the shell rather than any one renderer. */
@@ -430,12 +534,12 @@ async function renderEngineers() {
       api('GET', '/api/agents/engineer/health').catch(() => null),
     ]);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Audit failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Audit failed: ${e.message}`);
     return;
   }
   const histBy = Object.fromEntries(hist.map(h => [h.site, h]));
   const healthBy = Object.fromEntries(
-    (healthData?.rows || []).map(h => [`${h.site}:${h.role || role}`, h])
+    (healthData?.rows || []).map(h => [`${h.site}:${h.role || 'engineer'}`, h])
   );
 
   const eng = rows.filter(r => r.engineer);
@@ -457,7 +561,7 @@ async function renderEngineers() {
   const body = rows
     .map(r => {
       const h = histBy[r.site];
-      const ah = healthBy[r.site];
+      const ah = healthBy[`${r.site}:engineer`];
       const cf =
         r.cf == null
           ? '<span class="muted">—</span>'
@@ -485,7 +589,7 @@ async function renderEngineers() {
           pauseBtn +
           tasksBtn +
           (ah
-            ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="${esc(role)}">Expand</button>`
+            ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="engineer">Expand</button>`
             : '') +
           ` <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
         : tasksBtn;
@@ -752,9 +856,12 @@ async function rebuildCronForSite(site) {
 
 async function removeRoleEnrollment(site, role, btn) {
   if (
-    !confirm(
-      `Remove ${role} from ${site}?\n\nThis unschedules the role and clears its pause flag. The role prompt is retained for recovery. The cron container will be rebuilt.`
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Remove role enrollment',
+      message: `Remove ${role} from ${site}? This unschedules the role and clears its pause flag; the prompt is retained for recovery and the cron container will be rebuilt.`,
+      confirmLabel: 'Remove enrollment',
+      danger: true,
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -787,9 +894,11 @@ async function bulkAgentHealthAction(role, action) {
   const verb = action === 'pause' ? 'Pause' : 'Rerun';
   const scope = action === 'pause' ? 'current issues' : 'historical failures';
   if (
-    !confirm(
-      `${verb} ${scope} for ${role} on ${rows.length} site(s)?\n\n${rows.map(row => row.site).join(', ')}`
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: `${verb} ${role} health actions`,
+      message: `${verb} ${scope} for ${role} on ${rows.length} site(s)? ${rows.map(row => row.site).join(', ')}`,
+      confirmLabel: `${verb} sites`,
+    }))
   )
     return;
   const failed = [];
@@ -844,7 +953,7 @@ async function renderGitHygiene() {
   try {
     b = await api('GET', '/api/git/hygiene');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Hygiene board failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Hygiene board failed: ${e.message}`);
     return;
   }
 
@@ -951,8 +1060,15 @@ async function renderGitHygiene() {
     renderGitHygiene();
   };
   $('#gh-audit').addEventListener('click', () => sweepBtn(false));
-  $('#gh-sweep').addEventListener('click', () => {
-    if (confirm('Sweep the whole fleet: commit, ignore and push everything policy recognises?'))
+  $('#gh-sweep').addEventListener('click', async () => {
+    if (
+      await globalThis.fleetConfirm?.({
+        title: 'Sweep Git hygiene fleet-wide',
+        message:
+          'Commit, ignore, and push everything recognized by the hygiene policy across the whole fleet?',
+        confirmLabel: 'Sweep fleet',
+      })
+    )
       sweepBtn(true);
   });
 
@@ -966,16 +1082,25 @@ async function renderGitHygiene() {
       if (remember) {
         // The rule is only as good as its glob — let the operator widen
         // "ops/tasks/hold/x.md" into "ops/tasks/**" before it is written.
-        glob = prompt(
-          'Rule pattern (glob). Widen it to cover the whole class, e.g. ops/tasks/**',
-          item.path
-        );
+        glob = await globalThis.fleetTextPrompt?.({
+          title: 'Remember Git hygiene rule',
+          label: 'Rule pattern (glob)',
+          placeholder: item.path,
+          required: true,
+          submitLabel: 'Use this rule',
+        });
         if (!glob) return;
       }
-      const scope =
-        remember && confirm('Apply this rule to the WHOLE fleet? (Cancel = this site only)')
+      const scope = remember
+        ? (await globalThis.fleetConfirm?.({
+            title: 'Choose rule scope',
+            message:
+              'Apply this remembered rule to the whole fleet? Canceling keeps it limited to this site.',
+            confirmLabel: 'Apply fleet-wide',
+          }))
           ? 'fleet'
-          : 'site';
+          : 'site'
+        : 'site';
       btn.disabled = true;
       try {
         await api('POST', '/api/git/hygiene/resolve', {
@@ -1008,8 +1133,15 @@ async function renderGitHygiene() {
     }
   };
   $('#gh-ignore-sync').addEventListener('click', () => syncBtn(false));
-  $('#gh-ignore-sync-apply').addEventListener('click', () => {
-    if (confirm('Write the fleet-managed .gitignore block into every site repo?')) syncBtn(true);
+  $('#gh-ignore-sync-apply').addEventListener('click', async () => {
+    if (
+      await globalThis.fleetConfirm?.({
+        title: 'Adopt managed ignore rules',
+        message: 'Write the fleet-managed .gitignore block into every site repository?',
+        confirmLabel: 'Adopt ignore block',
+      })
+    )
+      syncBtn(true);
   });
 
   applyFleetFilter();
@@ -1023,7 +1155,7 @@ async function renderGit() {
   try {
     rows = await api('GET', '/api/git');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Git scan failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Git scan failed: ${e.message}`);
     return;
   }
 
@@ -1122,7 +1254,7 @@ async function renderTaskBudget() {
   try {
     sites = await api('GET', '/api/task-budget');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Task-budget audit failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Task-budget audit failed: ${e.message}`);
     return;
   }
 
@@ -1203,7 +1335,7 @@ async function renderAIInventory() {
   try {
     data = await api('GET', '/api/ai-inventory');
   } catch (e) {
-    app.innerHTML = `<div class="empty">AI inventory failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `AI inventory failed: ${e.message}`);
     return;
   }
 
@@ -1532,7 +1664,7 @@ async function renderAIUsage() {
   try {
     data = await api('GET', `/api/ai-usage${params.size ? `?${params}` : ''}`);
   } catch (e) {
-    app.innerHTML = `<div class="empty">AI usage aggregation failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `AI usage aggregation failed: ${e.message}`);
     return;
   }
 
@@ -1862,23 +1994,47 @@ async function renderDeployHealth() {
   try {
     d = await api('GET', '/api/deploy-health');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Deploy health failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Deploy health failed: ${e.message}`);
     return;
   }
 
   const sites = Object.values(d.sites || {}).sort((a, b) => a.slug.localeCompare(b.slug));
-  const live = sites.filter(s => s.live === true).length;
-  const behind = sites.filter(s => s.live === false).length;
-  const unknown = sites.length - live - behind;
+  const counts = sites.reduce((out, site) => {
+    const key =
+      site.status || (site.live === true ? 'live' : site.live === false ? 'behind' : 'unknown');
+    out[key] = (out[key] || 0) + 1;
+    return out;
+  }, {});
+  const live = counts.live || 0;
+  const opsOnly = counts['ops-only'] || 0;
+  const deploying = counts.deploying || 0;
+  const behind = counts.behind || 0;
+  const failed = counts.failed || 0;
+  const unknown = counts.unknown || 0;
 
   const body = sites
     .map(s => {
-      const badge =
-        s.live === true
-          ? '<span class="badge b-green">live</span>'
-          : s.live === false
-            ? '<span class="badge b-red">behind</span>'
-            : '<span class="badge b-gray">unknown</span>';
+      const status =
+        s.status || (s.live === true ? 'live' : s.live === false ? 'behind' : 'unknown');
+      const badgeClass =
+        {
+          live: 'b-green',
+          'ops-only': 'b-blue',
+          deploying: 'b-yellow',
+          behind: 'b-yellow',
+          failed: 'b-red',
+          unknown: 'b-gray',
+        }[status] || 'b-gray';
+      const badgeLabel =
+        {
+          live: 'live',
+          'ops-only': 'ops-only',
+          deploying: 'deploying',
+          behind: 'site changes pending',
+          failed: 'build failed',
+          unknown: 'unknown',
+        }[status] || status;
+      const badge = `<span class="badge ${badgeClass}">${badgeLabel}</span>`;
       const deployedAt = s.deployedAt ? new Date(s.deployedAt * 1000).toLocaleString() : '—';
       return `<tr data-fleet-row data-site="${esc(s.slug)}">
       <td class="site">${siteLink(s.slug)}</td>
@@ -1886,23 +2042,23 @@ async function renderDeployHealth() {
       <td>${badge}</td>
       <td class="mono">${s.version != null ? esc(String(s.version)) : '—'}</td>
       <td class="mono muted">${esc(deployedAt)}</td>
-      <td>${s.error ? `<span class="flag">${esc(s.error)}</span>` : ''}</td>
+      <td>${esc(s.reason || s.error || '—')}</td>
     </tr>`;
     })
     .join('');
 
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Deploys</h2><span class="muted">Cloudflare deploy health — does the live Worker match the latest commit?</span></div>
+    <div class="page-head"><h2 class="page-title">Deploys</h2><span class="muted">Production status is based on the latest deployable site commit; ops-only commits do not count as deploy failures.</span></div>
     <div class="task-toolbar">
-      <strong>${sites.length} sites</strong>
-      <span class="muted">${dotLegend('fresh', live + ' live')} · ${dotLegend('overdue', behind + ' behind')} · ${dotLegend('paused', unknown + ' unknown')} · last swept ${esc(swept)}</span>
+    <strong>${sites.length} sites</strong>
+      <span class="muted">${dotLegend('fresh', live + ' live')} · <span class="deploy-summary ops">${opsOnly} ops-only</span> · <span class="deploy-summary pending">${deploying + behind} pending</span> · <span class="deploy-summary failed">${failed} failed</span> · ${unknown} unknown · last swept ${esc(swept)}</span>
     </div>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
     </table></div>
-    <p class="muted" style="margin-top:12px"><b>live</b> = the newest Worker version was deployed at/after the site's HEAD commit time. <b>behind</b> = pushed but Cloudflare hasn't shipped the latest commit yet (pending build or a failed one). <b>unknown</b> = no CF credentials, or the poller hasn't checked this site yet. Refreshed every 5 minutes in the background.</p>`;
+    <p class="muted" style="margin-top:12px"><b>live</b> = the latest deployable <code>site/</code> commit is serving. <b>ops-only</b> = newer operational files do not affect production. <b>deploying</b>/<b>site changes pending</b> = production may need a build, but failure is not confirmed. <b>build failed</b> = Cloudflare reported a failed build. <b>unknown</b> = telemetry is unavailable. Refreshed every 5 minutes in the background.</p>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -1986,7 +2142,7 @@ async function renderCloudflareBuilds() {
   try {
     data = await api('GET', `/api/cloudflare-builds?days=${CF_BUILDS.days}&limit=300`);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Cloudflare Builds telemetry failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Cloudflare Builds telemetry failed: ${e.message}`);
     return;
   }
   const summary = data.summary || {};
@@ -2114,7 +2270,7 @@ async function renderHealth() {
   try {
     d = await api('GET', '/api/gatus');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Health check data failed to load: ${esc(e.message)}</div>`;
+    renderViewError(app, `Health check data failed to load: ${e.message}`);
     return;
   }
 
@@ -2264,7 +2420,7 @@ async function renderErrors() {
   try {
     d = await api('GET', '/api/errors');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Error scan failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Error scan failed: ${e.message}`);
     return;
   }
 
@@ -2471,7 +2627,7 @@ async function renderActivity() {
   try {
     data = await api('GET', '/api/actions?limit=300');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Action log read failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Action log read failed: ${e.message}`);
     return;
   }
 
@@ -2597,7 +2753,7 @@ async function renderDevSandbox() {
   try {
     d = await api('GET', '/api/devsandbox/sites');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Dev sandbox list failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Dev sandbox list failed: ${e.message}`);
     return;
   }
   DS.sites = d.sites || [];
@@ -2696,7 +2852,12 @@ function wireDevSandboxRows() {
 async function dsAction(site, act, btn) {
   if (
     act === 'remove' &&
-    !confirm(`Remove the dev sandbox for ${site}? (site code untouched, claude state kept)`)
+    !(await globalThis.fleetConfirm?.({
+      title: 'Remove dev sandbox',
+      message: `Remove the dev sandbox for ${site}? Site code and Claude state are untouched.`,
+      confirmLabel: 'Remove sandbox',
+      danger: true,
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -2779,7 +2940,15 @@ async function dsShowStats() {
 }
 
 async function dsStopAll() {
-  if (!confirm('Stop every running dev sandbox?')) return;
+  if (
+    !(await globalThis.fleetConfirm?.({
+      title: 'Stop all dev sandboxes',
+      message: 'Stop every running dev sandbox?',
+      confirmLabel: 'Stop all',
+      danger: true,
+    }))
+  )
+    return;
   try {
     const r = await api('POST', '/api/devsandbox/stop-all');
     if (r.errors && r.errors.length)
@@ -2793,9 +2962,13 @@ async function dsStopAll() {
 
 async function dsRemoveStopped() {
   if (
-    !confirm(
-      'Remove every non-running dev sandbox container? (site code and claude state are untouched)'
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Remove stopped sandboxes',
+      message:
+        'Remove every non-running dev sandbox container? Site code and Claude state are untouched.',
+      confirmLabel: 'Remove stopped',
+      danger: true,
+    }))
   )
     return;
   try {
@@ -2831,7 +3004,15 @@ async function dsCleanOrphans() {
   ]
     .filter(Boolean)
     .join('\n');
-  if (!confirm(msg + '\n\nProceed?')) return;
+  if (
+    !(await globalThis.fleetConfirm?.({
+      title: 'Clean sandbox orphans',
+      message: msg,
+      confirmLabel: 'Clean orphans',
+      danger: true,
+    }))
+  )
+    return;
   try {
     const r = await api('POST', '/api/devsandbox/orphans/cleanup');
     if (r.errors && r.errors.length)
@@ -2859,7 +3040,7 @@ async function renderSiteFacts() {
   try {
     d = await api('GET', '/api/sitefacts');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Site facts failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Site facts failed: ${e.message}`);
     return;
   }
 
@@ -2877,7 +3058,7 @@ async function renderSiteFacts() {
         .join('');
       const open = SF.open.has(row.site);
       return `<tr data-fleet-row data-site="${esc(row.site)}">
-      <td class="site"><a href="#" class="sf-open" data-site="${esc(row.site)}">${esc(row.site)}</a></td>
+      <td class="site"><button type="button" class="table-link sf-open" data-site="${esc(row.site)}">${esc(row.site)}</button></td>
       ${cells}
     </tr>
     <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="sf:${esc(row.site)}" data-rk="sf:${esc(row.site)}"><td colspan="${d.families.length + 1}">
@@ -3007,7 +3188,15 @@ async function sfSetManual(site, panelEl) {
   }
 }
 async function sfDeleteManual(site, key) {
-  if (!confirm(`Delete manual.${key} for ${site}?`)) return;
+  if (
+    !(await globalThis.fleetConfirm?.({
+      title: 'Delete site fact',
+      message: `Delete manual.${key} for ${site}?`,
+      confirmLabel: 'Delete fact',
+      danger: true,
+    }))
+  )
+    return;
   try {
     await api(
       'DELETE',
@@ -3212,7 +3401,15 @@ function renderGitBranches(slug, body, b) {
 
 async function deleteGitBranch(slug, body, btn) {
   const branch = btn.dataset.branch;
-  if (!confirm(`Delete merged branch "${branch}" on ${slug}?`)) return;
+  if (
+    !(await globalThis.fleetConfirm?.({
+      title: 'Delete merged branch',
+      message: `Delete merged branch "${branch}" on ${slug}?`,
+      confirmLabel: 'Delete branch',
+      danger: true,
+    }))
+  )
+    return;
   gdBusy(btn, true);
   try {
     await api(
@@ -3322,9 +3519,11 @@ async function gitCommit(slug, box, btn) {
 
 async function gitIgnore(slug, box, p, btn) {
   if (
-    !confirm(
-      `Add "${p}" to ${slug}'s .gitignore and commit the .gitignore?\n\nIf the file is currently tracked it will also be removed from the index (git rm --cached) in the same commit.`
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Ignore Git path',
+      message: `Add "${p}" to ${slug}'s .gitignore and commit it? A tracked file will also be removed from the index.`,
+      confirmLabel: 'Ignore path',
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -3368,9 +3567,11 @@ async function gitPull(slug, box, btn) {
 async function pushAllSites() {
   const btn = $('#push-all');
   if (
-    !confirm(
-      'Push every site that is ahead of origin?\n\nEach pushed site deploys on push. Runs sequentially.'
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Push all sites',
+      message: 'Push every site that is ahead of origin? Each pushed site deploys on push.',
+      confirmLabel: 'Push all sites',
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -3394,9 +3595,12 @@ async function pushAllSites() {
 async function pullAllSites() {
   const btn = $('#pull-all');
   if (
-    !confirm(
-      'Pull every site that is behind origin?\n\nSkips any repo with uncommitted changes. Runs sequentially.'
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Pull all sites',
+      message:
+        'Pull every site that is behind origin? Repositories with uncommitted changes are skipped.',
+      confirmLabel: 'Pull all sites',
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -3427,7 +3631,7 @@ async function renderGitStashes(slug) {
   try {
     list = await api('GET', `/api/git/${encodeURIComponent(slug)}/stashes`);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Failed to load stashes: ${esc(e.message)}</div>`;
+    renderViewError(app, `Failed to load stashes: ${e.message}`);
     return;
   }
 
@@ -3483,7 +3687,15 @@ async function toggleStashDiff(slug, index) {
 }
 
 async function dropStashUI(slug, index) {
-  if (!confirm('Drop this stash? This cannot be undone.')) return;
+  if (
+    !(await globalThis.fleetConfirm?.({
+      title: 'Drop Git stash',
+      message: 'Drop this stash? This cannot be undone.',
+      confirmLabel: 'Drop stash',
+      danger: true,
+    }))
+  )
+    return;
   try {
     await api('DELETE', `/api/git/${encodeURIComponent(slug)}/stashes/${index}`);
     toast('Stash dropped');
@@ -3582,7 +3794,7 @@ async function renderControl() {
   try {
     data = await api('GET', '/api/roles');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Roles read failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Roles read failed: ${e.message}`);
     return;
   }
   ROLEMATRIX = data;
@@ -3610,8 +3822,9 @@ async function renderControl() {
       <b>Health</b> is the share of a site's non-paused roles that are fresh.
       Bespoke per-site roles are grouped under <b>other</b>.
       The <b>deployer</b> column reflects deploy health (main vs origin):
-      ${dotLegend('fresh', 'in sync — live via push-to-deploy')} ·
-      ${dotLegend('overdue', 'unpushed commits not deployed')}.</p>
+      ${dotLegend('fresh', 'live or ops-only changes')} ·
+      ${dotLegend('stale', 'deploying or site changes pending')} ·
+      ${dotLegend('overdue', 'confirmed build failure')}.</p>
     </details>
     <div id="parked-inventory"></div>`;
 
@@ -3806,12 +4019,11 @@ async function renderRetention() {
   try {
     d = await api('GET', '/api/retention');
   } catch (e) {
-    app.innerHTML = `<p class="r-overdue">Could not load retention policy: ${esc(String(e))}</p>`;
+    renderViewError(app, `Could not load retention policy: ${e}`);
     return;
   }
   if (!d.ok) {
-    app.innerHTML = `<div class="page-head"><h2 class="page-title">Retention</h2></div>
-      <p class="r-overdue">${esc(d.error || 'policy unreadable')}</p>`;
+    renderViewError(app, d.error || 'Policy unreadable.');
     return;
   }
 
@@ -3890,7 +4102,7 @@ async function renderDoctor() {
   try {
     d = await api('GET', '/api/fleet-doctor');
   } catch (e) {
-    app.innerHTML += `<p class="r-overdue">Could not reach /api/fleet-doctor: ${esc(String(e))}</p>`;
+    renderViewError(app, `Could not reach /api/fleet-doctor: ${String(e)}`);
     return;
   }
 
@@ -4040,7 +4252,12 @@ async function bulkToggleRole(role, act) {
     return;
   }
   const verb = act === 'pause' ? 'Pause' : 'Resume';
-  if (!confirm(`${verb} ${role} across ${sites.length} site(s)?`)) return;
+  const approved = await globalThis.fleetConfirm?.({
+    title: `${verb} ${role}`,
+    message: `${verb} ${role} across ${sites.length} site(s)?`,
+    confirmLabel: `${verb} sites`,
+  });
+  if (!approved) return;
   const btn = $(`.rcol-bulk[data-role="${CSS.escape(role)}"]`);
   gdBusy(btn, true);
   toast(`${verb === 'Pause' ? 'Pausing' : 'Resuming'} ${role} on ${sites.length} site(s)…`);
@@ -4084,7 +4301,11 @@ function roleDot(site, role, c) {
     else if (d.branch && d.branch !== 'main' && d.branch !== 'master')
       health = `on ${d.branch} (not main)`;
     else if (!d.pushed) health = 'no repo';
-    else if (b && b.ok && b.live === false) health = 'pushed — CF build behind (pending/failed)';
+    else if (b && b.status === 'failed') health = `build failed${b.reason ? ` — ${b.reason}` : ''}`;
+    else if (b && b.status === 'deploying') health = 'deploying — site commit pushed, not live yet';
+    else if (b && b.status === 'behind')
+      health = 'site changes pending — latest deployable commit is not live';
+    else if (b && b.status === 'ops-only') health = 'ops-only changes — production unaffected';
     else if (b && b.ok && b.live) health = `live — CF v${b.version}`;
     else if (b && b.error) health = `in sync (CF check: ${b.error})`;
     else health = 'in sync — deployed';
@@ -4141,7 +4362,7 @@ async function openRole(site, role) {
   const op = $('#role-openpage');
   if (op)
     op.addEventListener('click', () => {
-      closeModal();
+      if (!closeModal()) return;
       go('agent', role);
     });
   const rn = $('#role-run');
@@ -4209,8 +4430,7 @@ async function renderProductManager(role) {
       apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
     ]);
   } catch (e) {
-    app.innerHTML = `${breadcrumb(role)}<div class="error-box">${esc(e.message)}</div>`;
-    wireCrumbs();
+    renderViewError(app, e.message);
     return;
   }
   const allMessages = messages.messages || [];
@@ -4281,8 +4501,7 @@ async function renderGenericAgent(role) {
       api('GET', `/api/agents/${encodeURIComponent(role)}/health`).catch(() => null),
     ]);
   } catch (e) {
-    app.innerHTML = `${breadcrumb(role)}<div class="empty">${esc(e.message)}</div>`;
-    wireCrumbs();
+    renderViewError(app, e.message);
     return;
   }
   ROLEMATRIX = data;
@@ -4480,7 +4699,7 @@ async function renderContainers() {
   try {
     rows = await api('GET', '/api/containers');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Container list failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Container list failed: ${e.message}`);
     return;
   }
 
@@ -4560,9 +4779,12 @@ async function renderContainers() {
 
 async function restartAllCrons() {
   if (
-    !confirm(
-      'Restart all RELEASED-site legacy schedulers?\n\nQuick bounce — re-runs legacy site cron containers and picks up crontab / role-flag changes. Adopted sites are managed in Ops → Scheduler; fleet-cron itself is excluded. Takes ~15s.'
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Restart legacy schedulers',
+      message:
+        'Restart all released-site legacy schedulers? Adopted sites are managed in Ops → Scheduler; fleet-cron is excluded.',
+      confirmLabel: 'Restart schedulers',
+    }))
   )
     return;
   const btn = $('#restart-crons');
@@ -4690,7 +4912,15 @@ function reloadContainers() {
 }
 
 async function containerAction(id, act, name, btn) {
-  if (act === 'stop' && !confirm(`Stop ${name}? That pauses everything this container runs.`))
+  if (
+    act === 'stop' &&
+    !(await globalThis.fleetConfirm?.({
+      title: 'Stop container',
+      message: `Stop ${name}? That pauses everything this container runs.`,
+      confirmLabel: 'Stop container',
+      danger: true,
+    }))
+  )
     return;
   gdBusy(btn, true);
   try {
@@ -4705,9 +4935,11 @@ async function containerAction(id, act, name, btn) {
 
 async function bounceCron(slug, name, btn) {
   if (
-    !confirm(
-      `Rebuild and recreate the cron container for ${slug}?\n\nThis rebuilds the image (can take a minute or two) then force-recreates the container.`
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Rebuild cron container',
+      message: `Rebuild and recreate the cron container for ${slug}? This rebuilds the image and force-recreates the container.`,
+      confirmLabel: 'Rebuild container',
+    }))
   )
     return;
   gdBusy(btn, true);
@@ -4832,7 +5064,7 @@ async function loadBoard() {
   try {
     data = await api('GET', `/api/tasks/${encodeURIComponent(STATE.taskSite)}`);
   } catch (e) {
-    content.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError(content, e.message);
     return;
   }
   content.innerHTML = `<div class="board">${COLS.map(col => {
@@ -4901,7 +5133,7 @@ async function loadFleet() {
   try {
     TASK.all = await api('GET', '/api/tasks');
   } catch (e) {
-    content.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError(content, e.message);
     return;
   }
   renderFleet();
@@ -5226,7 +5458,7 @@ async function saveTask({ mode, site, origColumn, file }) {
       `Created task on ${ok}/${sites.length} site(s)${failed.length ? ' · failed: ' + failed.join('; ') : ''}`,
       failed.length ? 'err' : 'ok'
     );
-    closeModal();
+    closeModal(true);
     if (TASK.mode === 'board') loadBoard();
     else loadFleet();
     return;
@@ -5251,7 +5483,7 @@ async function saveTask({ mode, site, origColumn, file }) {
         );
       toast('Task saved');
     }
-    closeModal();
+    closeModal(true);
     if (TASK.mode === 'board') loadBoard();
     else loadFleet();
   } catch (e) {
@@ -5261,9 +5493,12 @@ async function saveTask({ mode, site, origColumn, file }) {
 
 async function deleteTask(site, column, file) {
   if (
-    !confirm(
-      `Delete task "${file}"?\n\nIt's moved to ops/tasks/.trash/ (recoverable), not permanently removed.`
-    )
+    !(await globalThis.fleetConfirm?.({
+      title: 'Move task to trash',
+      message: `Move task "${file}" to ops/tasks/.trash/? It is recoverable and will not be permanently removed.`,
+      confirmLabel: 'Move to trash',
+      danger: true,
+    }))
   )
     return;
   try {
@@ -5272,7 +5507,7 @@ async function deleteTask(site, column, file) {
       `/api/tasks/${encodeURIComponent(site)}/${encodeURIComponent(column)}/${encodeURIComponent(file)}`
     );
     toast('Task moved to trash');
-    closeModal();
+    closeModal(true);
     if (TASK.mode === 'board') loadBoard();
     else loadFleet();
   } catch (e) {
@@ -5280,10 +5515,149 @@ async function deleteTask(site, column, file) {
   }
 }
 
-function closeModal() {
-  $('#modal').classList.add('hidden');
-  ROLE_OPEN = null;
+let MODAL_FORM_BASELINE = null;
+let MODAL_TEXT_CANCEL = null;
+
+function modalFormSnapshot() {
+  const modal = $('#modal');
+  if (!modal || modal.classList.contains('hidden')) return [];
+  return [...modal.querySelectorAll('input, select, textarea')]
+    .filter(el => !['password', 'file'].includes((el.type || '').toLowerCase()))
+    .map((el, index) => ({
+      key: el.id || el.name || `${el.tagName.toLowerCase()}:${index}`,
+      type: el.type || el.tagName.toLowerCase(),
+      value:
+        el.tagName === 'SELECT' && el.multiple
+          ? [...el.selectedOptions].map(option => option.value)
+          : el.value,
+      checked: el.type === 'checkbox' || el.type === 'radio' ? el.checked : undefined,
+    }));
 }
+
+function modalFormIsDirty() {
+  if (!MODAL_FORM_BASELINE) return false;
+  return JSON.stringify(modalFormSnapshot()) !== JSON.stringify(MODAL_FORM_BASELINE);
+}
+
+function watchModalFormState() {
+  const modal = $('#modal');
+  const body = $('#modal-body');
+  if (!modal || !body || typeof MutationObserver === 'undefined') return;
+  const capture = () => {
+    if (modal.classList.contains('hidden')) {
+      MODAL_FORM_BASELINE = null;
+      return;
+    }
+    MODAL_FORM_BASELINE = modalFormSnapshot();
+  };
+  new MutationObserver(capture).observe(modal, {
+    attributes: true,
+    attributeFilter: ['class'],
+    childList: true,
+    subtree: true,
+  });
+  capture();
+}
+
+function closeModal(force = false) {
+  if (!force && modalFormIsDirty()) {
+    const modal = $('#modal');
+    const title = $('#modal-title');
+    const body = $('#modal-body');
+    const previousTitle = title?.textContent || '';
+    const previousBody = body?.innerHTML || '';
+    const previousBaseline = MODAL_FORM_BASELINE;
+    const previousRole = ROLE_OPEN;
+    const confirmation = globalThis.fleetConfirm?.({
+      title: 'Discard unsaved changes?',
+      message: 'The changes in this editor have not been saved. Discard them and close the editor?',
+      confirmLabel: 'Discard changes',
+      danger: true,
+    });
+    confirmation?.then(approved => {
+      if (approved) closeModal(true);
+      else {
+        if (title) title.textContent = previousTitle;
+        if (body) body.innerHTML = previousBody;
+        if (modal) modal.classList.remove('hidden');
+        MODAL_FORM_BASELINE = previousBaseline;
+        ROLE_OPEN = previousRole;
+        requestAnimationFrame(() => {
+          body?.querySelector('input, select, textarea, button')?.focus?.();
+        });
+      }
+    });
+    return false;
+  }
+  const cancelTextRequest = MODAL_TEXT_CANCEL;
+  MODAL_TEXT_CANCEL = null;
+  $('#modal').classList.add('hidden');
+  MODAL_FORM_BASELINE = null;
+  ROLE_OPEN = null;
+  cancelTextRequest?.();
+  return true;
+}
+// Shell-level navigation (saved views, rail affordances) can use the same
+// dirty-editor guard as in-app route buttons without coupling shell.js to the
+// modal implementation.
+globalThis.fleetBeforeNavigate = () => closeModal();
+
+function requestModalText({
+  title,
+  label,
+  placeholder = '',
+  required = false,
+  submitLabel = 'Continue',
+}) {
+  return new Promise(resolve => {
+    const modal = $('#modal');
+    $('#modal-title').textContent = title;
+    $('#modal-body').innerHTML =
+      `<div class="field"><label for="modal-text-entry">${esc(label)}</label><textarea id="modal-text-entry" rows="6" placeholder="${esc(placeholder)}"></textarea></div><div class="modal-actions"><button class="btn" id="modal-text-cancel" type="button">Cancel</button><button class="btn primary" id="modal-text-submit" type="button">${esc(submitLabel)}</button></div>`;
+    modal.classList.remove('hidden');
+    const input = $('#modal-text-entry');
+    const finish = value => {
+      MODAL_TEXT_CANCEL = null;
+      closeModal(true);
+      resolve(value);
+    };
+    MODAL_TEXT_CANCEL = () => resolve(null);
+    $('#modal-text-cancel').onclick = () => finish(null);
+    $('#modal-text-submit').onclick = () => {
+      const value = input.value.trim();
+      if (required && !value) {
+        input.setCustomValidity('Enter a value to continue.');
+        input.reportValidity?.();
+        input.focus();
+        return;
+      }
+      finish(value);
+    };
+    input.addEventListener('input', () => input.setCustomValidity(''));
+    input.focus();
+  });
+}
+globalThis.fleetTextPrompt = requestModalText;
+
+function requestModalConfirm({ title, message, confirmLabel = 'Confirm', danger = false }) {
+  return new Promise(resolve => {
+    const modal = $('#modal');
+    $('#modal-title').textContent = title;
+    $('#modal-body').innerHTML =
+      `<p class="modal-confirm-message">${esc(message)}</p><div class="modal-actions"><button class="btn" id="modal-confirm-cancel" type="button">Cancel</button><button class="btn ${danger ? 'danger' : 'primary'}" id="modal-confirm-submit" type="button">${esc(confirmLabel)}</button></div>`;
+    modal.classList.remove('hidden');
+    const finish = value => {
+      MODAL_TEXT_CANCEL = null;
+      closeModal(true);
+      resolve(value);
+    };
+    MODAL_TEXT_CANCEL = () => resolve(false);
+    $('#modal-confirm-cancel').onclick = () => finish(false);
+    $('#modal-confirm-submit').onclick = () => finish(true);
+    $('#modal-confirm-submit').focus();
+  });
+}
+globalThis.fleetConfirm = requestModalConfirm;
 
 /* ===================== CRON ===================== */
 // Crontab-line control plane, folded in from the retired cron-manager tool.
@@ -5327,7 +5701,7 @@ async function renderCron() {
   try {
     systems = await api('GET', '/api/cron/systems');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Cron read failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Cron read failed: ${e.message}`);
     return;
   }
 
@@ -5542,13 +5916,26 @@ function cmCloseEditor() {
   CM.editing = null;
 }
 
-function cmEditJob(tr) {
+async function cmCloseEditorSafely() {
+  const row = $('.cm-editor-row');
+  if (!row) {
+    cmCloseEditor();
+    return true;
+  }
+  if (!(await closeInlineDraft(row, 'cron schedule draft'))) return false;
+  row.remove();
+  CM.editing = null;
+  return true;
+}
+
+async function cmEditJob(tr) {
   const next = tr.nextElementSibling;
   if (next && next.classList.contains('cm-editor-row')) {
-    cmCloseEditor();
+    await cmCloseEditorSafely();
     return;
   }
-  cmCloseEditor();
+  if (!(await cmCloseEditorSafely())) return;
+  if (!(await cmCloseAddJobSafely())) return;
   const slug = tr.dataset.slug;
   const e = cmEntry(slug, tr.dataset.line);
   if (!e) return;
@@ -5567,6 +5954,7 @@ function cmEditJob(tr) {
     <div class="cm-ed-actions"><button class="btn sm primary cm-ed-save" disabled>Save</button><button class="btn sm cm-ed-cancel">Cancel</button></div>
   </div></td>`;
   tr.after(row);
+  openInlineDraft(row);
 
   const input = $('.cm-cron', row);
   const verdict = $('.cm-ed-verdict', row);
@@ -5608,7 +5996,12 @@ function cmEditJob(tr) {
       check();
     })
   );
-  $('.cm-ed-cancel', row).addEventListener('click', cmCloseEditor);
+  $('.cm-ed-cancel', row).addEventListener('click', async () => {
+    if (await closeInlineDraft(row, 'cron schedule draft')) {
+      row.remove();
+      CM.editing = null;
+    }
+  });
   save.addEventListener('click', async () => {
     if (!valid) return;
     save.disabled = true;
@@ -5629,9 +6022,20 @@ function cmCloseAddJob() {
   $$('.cm-addjob-row').forEach(r => r.remove());
 }
 
-function cmOpenAddJob(slug) {
-  cmCloseEditor();
-  cmCloseAddJob();
+async function cmCloseAddJobSafely() {
+  const row = $('.cm-addjob-row');
+  if (!row) {
+    cmCloseAddJob();
+    return true;
+  }
+  if (!(await closeInlineDraft(row, 'cron job draft'))) return false;
+  row.remove();
+  return true;
+}
+
+async function cmOpenAddJob(slug) {
+  if (!(await cmCloseEditorSafely())) return;
+  if (!(await cmCloseAddJobSafely())) return;
   const sys = CM.bySlug.get(slug);
   const head = $(`.cm-head[data-slug="${CSS.escape(slug)}"]`);
   const card = head ? head.closest('.cm-card') : null;
@@ -5662,6 +6066,7 @@ function cmOpenAddJob(slug) {
     <div class="cm-ed-actions"><button class="btn sm primary cm-aj-save" disabled>Add</button><button class="btn sm cm-aj-cancel">Cancel</button></div>
   </div></td>`;
   tbody.appendChild(row);
+  openInlineDraft(row);
 
   const kindSel = $('.cm-aj-kind', row);
   const roleInp = $('.cm-aj-role', row);
@@ -5727,7 +6132,7 @@ function cmOpenAddJob(slug) {
       check();
     })
   );
-  $('.cm-aj-cancel', row).addEventListener('click', cmCloseAddJob);
+  $('.cm-aj-cancel', row).addEventListener('click', () => cmCloseAddJobSafely());
   save.addEventListener('click', async () => {
     if (!valid) return;
     const command = currentCommand();
@@ -5782,7 +6187,13 @@ async function cmToggleJob(slug, line) {
 async function cmRemoveJob(slug, line) {
   const e = cmEntry(slug, line);
   if (!e) return;
-  if (!confirm(`Remove this line from ${slug}'s crontab?\n\n${e.rawLine}`)) return;
+  const approved = await globalThis.fleetConfirm?.({
+    title: `Remove cron line from ${slug}`,
+    message: `${e.rawLine}\n\nThis removes the line from the on-disk crontab. Rebuild is required to apply it.`,
+    confirmLabel: 'Remove cron line',
+    danger: true,
+  });
+  if (!approved) return;
   await cmPostCrontab(slug, {
     action: 'remove',
     lineIndex: e.lineIndex,
@@ -5839,12 +6250,12 @@ async function cmRunJob(slug, role, btn) {
 
 /* ---- rebuild (streamed) ---- */
 async function cmDoRebuild(slug, btn) {
-  if (
-    !confirm(
-      `Rebuild and restart ${slug}'s cron container?\n\nBuilds the image then recreates the container (can take a minute).`
-    )
-  )
-    return;
+  const approved = await globalThis.fleetConfirm?.({
+    title: `Rebuild ${slug}'s cron container`,
+    message: 'Builds the image and recreates the container. This can take a minute.',
+    confirmLabel: 'Rebuild container',
+  });
+  if (!approved) return;
   const orig = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Rebuilding…';
@@ -5945,12 +6356,14 @@ function cmCloseDiff() {
 }
 
 async function cmDoRevert(slug) {
-  if (
-    !confirm(
-      `Overwrite ${slug}'s crontab.docker with the version baked into the running container?\n\nYour on-disk changes will be discarded.`
-    )
-  )
-    return;
+  const approved = await globalThis.fleetConfirm?.({
+    title: `Revert ${slug}'s crontab`,
+    message:
+      'Overwrite the on-disk crontab with the version baked into the running container. Your on-disk changes will be discarded.',
+    confirmLabel: 'Revert crontab',
+    danger: true,
+  });
+  if (!approved) return;
   try {
     await api('POST', `/api/cron/systems/${encodeURIComponent(slug)}/revert`);
     cmCloseDiff();
@@ -6399,7 +6812,7 @@ async function renderCompliance() {
       api('GET', '/api/compliance/history?limit=18'),
     ]);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Compliance scan failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Compliance scan failed: ${e.message}`);
     return;
   }
 
@@ -6739,7 +7152,7 @@ async function renderSeoIntelligence() {
     api('GET', '/api/web-vitals').catch(() => null),
   ]);
   if (!data || data.error) {
-    app.innerHTML = `<div class="error-box">${esc((data && data.error) || 'SEO intelligence unavailable')}</div>`;
+    renderViewError(app, (data && data.error) || 'SEO intelligence unavailable');
     return;
   }
 
@@ -6985,11 +7398,11 @@ async function renderBacklinks() {
   try {
     data = await api('GET', '/api/backlinks');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    renderViewError(app, e.message);
     return;
   }
   if (!data || data.error) {
-    app.innerHTML = `<div class="error-box">${esc(data?.error || 'backlink audit unavailable')}</div>`;
+    renderViewError(app, data?.error || 'backlink audit unavailable');
     return;
   }
   const rows = (data.sites || []).filter(
@@ -7290,7 +7703,7 @@ async function renderLint() {
   try {
     d = await api('GET', '/api/lint');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Lint sweep failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Lint sweep failed: ${e.message}`);
     return;
   }
 
@@ -7331,7 +7744,7 @@ async function renderLint() {
         .map(f => `<li class="mono muted">${esc(f)}</li>`)
         .join('');
       return `<tr data-fleet-row data-site="${esc(row.site)}">
-      <td class="site"><a href="#" class="lint-open" data-site="${esc(row.site)}">${esc(row.site)}</a></td>
+      <td class="site"><button type="button" class="table-link lint-open" data-site="${esc(row.site)}">${esc(row.site)}</button></td>
       <td>${lintStatusBadge(row.status)}</td>
       <td class="mono">${(row.parse_errors || []).length}</td>
       <td class="mono muted">${(row.unformatted || []).length}</td>
@@ -7695,7 +8108,7 @@ async function loadGuideBoard() {
       api('GET', `/api/guide-queue/${encodeURIComponent(GUIDE.site)}/config`),
     ]);
   } catch (e) {
-    content.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError(content, e.message);
     return;
   }
   GUIDE.data = data;
@@ -7832,7 +8245,7 @@ async function openGuideModal(status, file) {
         { notes: $('#f-guide-notes').value }
       );
       toast('notes saved');
-      closeModal();
+      closeModal(true);
       loadGuideBoard();
     } catch (e) {
       toast(e.message, 'err');
@@ -7841,13 +8254,13 @@ async function openGuideModal(status, file) {
   const acceptBtn = $('#f-guide-accept');
   if (acceptBtn)
     acceptBtn.onclick = async () => {
-      closeModal();
+      if (!closeModal()) return;
       await moveGuide(status, file, 'accept');
     };
   const rejectBtn = $('#f-guide-reject');
   if (rejectBtn)
     rejectBtn.onclick = async () => {
-      closeModal();
+      if (!closeModal()) return;
       await moveGuide(status, file, 'reject');
     };
 }
@@ -7881,7 +8294,7 @@ function openGuideIdeaModal() {
         source: 'human',
       });
       toast('idea added');
-      closeModal();
+      closeModal(true);
       loadGuideBoard();
     } catch (e) {
       toast(e.message, 'err');
@@ -7919,7 +8332,7 @@ async function renderDomains() {
   try {
     d = await api('GET', '/api/domains');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Domains failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Domains failed: ${e.message}`);
     return;
   }
   DOM.commands = d.commands || [];
@@ -7962,7 +8375,7 @@ async function renderDomains() {
             ? fmtAge((Date.now() - new Date(j.startedAt)) / 1000) + '…'
             : '—';
       return `<tr data-fleet-row data-site="${esc(j.domain)}">
-        <td class="site"><a href="#" class="dom-open" data-id="${esc(j.id)}">${esc(j.domain)}</a></td>
+        <td class="site"><button type="button" class="table-link dom-open" data-id="${esc(j.id)}">${esc(j.domain)}</button></td>
         <td class="mono">${esc(j.command)}${j.flags && j.flags.length ? ` <span class="muted">${esc(j.flags.join(' '))}</span>` : ''}</td>
         <td>${domJobBadge(j.status)}${j.status === 'running' ? ' <span class="live-tag">live</span>' : ''}</td>
         <td class="mono muted">${esc(dur)}</td>
@@ -8075,10 +8488,14 @@ function wireDomains() {
 
 // Offboard is the one irreversible action in this tab, so it costs a typed
 // confirmation — not a yes/no anyone can click through by reflex.
-function domOffboard(domain) {
-  const typed = prompt(
-    `Offboard ${domain}?\n\nThis archives the GitHub repo, detaches apex + www from the Worker, deletes the Worker script, removes the CF email rules, and drops the local submodule.\n\nType the domain to confirm:`
-  );
+async function domOffboard(domain) {
+  const typed = await globalThis.fleetTextPrompt?.({
+    title: `Offboard ${domain}`,
+    label: `Type the exact domain to confirm. This archives the GitHub repo, detaches apex + www from the Worker, deletes the Worker script, removes the CF email rules, and drops the local submodule.`,
+    placeholder: domain,
+    required: true,
+    submitLabel: 'Offboard domain',
+  });
   if (typed === null) return;
   if (typed.trim().toLowerCase() !== domain.toLowerCase()) {
     toast('Confirmation did not match — nothing queued', 'err');
@@ -8369,7 +8786,7 @@ async function renderSocial() {
   try {
     data = await api('GET', '/api/social');
   } catch (e) {
-    app.innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError(app, `Social account registry failed: ${e.message}`);
     return;
   }
   SOC.data = data;
@@ -9042,7 +9459,7 @@ async function socAccountModal(accountId, seed = {}) {
         });
       }
       toast('saved');
-      closeModal();
+      closeModal(true);
       FRESH = false;
       renderSocial();
     } catch (e) {
@@ -9052,12 +9469,17 @@ async function socAccountModal(accountId, seed = {}) {
   const del = $('#f-soc-delete');
   if (del)
     del.onclick = async () => {
-      if (!confirm(`Delete the ${a.platform} row for ${a.site}? The history log keeps the record.`))
-        return;
+      const approved = await globalThis.fleetConfirm?.({
+        title: `Delete ${a.platform} account`,
+        message: `Delete the account row for ${a.site}? The history log keeps the record.`,
+        confirmLabel: 'Delete account',
+        danger: true,
+      });
+      if (!approved) return;
       try {
         await api('DELETE', `/api/social/accounts/${encodeURIComponent(a.id)}`);
         toast('deleted');
-        closeModal();
+        closeModal(true);
         FRESH = false;
         renderSocial();
       } catch (e) {
@@ -9106,7 +9528,7 @@ function socPersonaModal(personaId) {
       if (p) await api('PUT', `/api/social/personas/${encodeURIComponent(p.id)}`, payload);
       else await api('POST', '/api/social/personas', { ...payload, site: $('#f-per-site').value });
       toast('saved');
-      closeModal();
+      closeModal(true);
       FRESH = false;
       renderSocial();
     } catch (e) {
@@ -9119,7 +9541,7 @@ function socPersonaModal(personaId) {
       try {
         await api('DELETE', `/api/social/personas/${encodeURIComponent(p.id)}`);
         toast('deleted');
-        closeModal();
+        closeModal(true);
         FRESH = false;
         renderSocial();
       } catch (e) {
@@ -9361,6 +9783,100 @@ function shActions(p) {
   return [];
 }
 
+function shLocalDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function openSocialPostEditor({ id, btn, mode }) {
+  const row = btn.closest('[data-sh-post]');
+  const modal = $('#modal');
+  const title = $('#modal-title');
+  const bodyEl = $('#modal-body');
+  if (!row || !modal || !title || !bodyEl) return;
+  const currentBody = row.querySelector('.sh-trunc')?.getAttribute('title') || '';
+  const currentWhen = row.dataset.when || '';
+  const isEdit = mode === 'edit';
+  title.textContent = isEdit ? `Edit post · ${id}` : `Reschedule post · ${id}`;
+  bodyEl.innerHTML = isEdit
+    ? `<div class="field"><label for="sh-editor-body">Post body</label><textarea id="sh-editor-body" rows="9" maxlength="5000" class="cm-input" spellcheck="true">${esc(currentBody)}</textarea><span class="muted">Keep the message concise for the selected platform.</span></div>`
+    : `<div class="field"><label for="sh-editor-when">New send time</label><input id="sh-editor-when" class="cm-input" type="datetime-local" value="${esc(shLocalDateTime(currentWhen))}" /><span class="muted">Displayed in your local time and saved as UTC.</span></div>`;
+  bodyEl.insertAdjacentHTML(
+    'beforeend',
+    `<div class="modal-foot"><button class="btn" id="sh-editor-cancel" type="button">Cancel</button><button class="btn primary" id="sh-editor-save" type="button">${isEdit ? 'Save changes' : 'Reschedule'}</button></div>`
+  );
+  modal.classList.remove('hidden');
+  $('#sh-editor-cancel').onclick = closeModal;
+  $('#sh-editor-save').onclick = async () => {
+    const save = $('#sh-editor-save');
+    const payload = {};
+    if (isEdit) {
+      payload.body = $('#sh-editor-body').value.trim();
+      if (!payload.body) {
+        toast('Post body is required', 'err');
+        $('#sh-editor-body').focus();
+        return;
+      }
+    } else {
+      const value = $('#sh-editor-when').value;
+      if (!value) {
+        toast('Choose a send time', 'err');
+        $('#sh-editor-when').focus();
+        return;
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        toast('Choose a valid send time', 'err');
+        return;
+      }
+      payload.scheduled_at = date.toISOString();
+    }
+    save.disabled = true;
+    try {
+      await api('PATCH', `/api/socialhub/posts/${encodeURIComponent(id)}`, payload);
+      toast(isEdit ? `Post ${id} updated` : `Post ${id} rescheduled`);
+      closeModal(true);
+      renderSocialHub();
+    } catch (e) {
+      toast(e.message, 'err');
+      save.disabled = false;
+    }
+  };
+  (isEdit ? $('#sh-editor-body') : $('#sh-editor-when'))?.focus();
+}
+
+function openSocialPostFeedback({ id, btn, act }) {
+  const modal = $('#modal');
+  const title = $('#modal-title');
+  const bodyEl = $('#modal-body');
+  if (!modal || !title || !bodyEl) return;
+  const verb = act === 'deny' ? 'Deny' : 'Reject';
+  title.textContent = `${verb} post · ${id}`;
+  bodyEl.innerHTML = `<div class="field"><label for="sh-feedback-category">Feedback category</label><select id="sh-feedback-category" class="cm-input"><option value="other">Other</option><option value="wrong_voice">Wrong voice</option><option value="weak_hook">Weak hook</option><option value="unsupported_claim">Unsupported claim</option><option value="too_promotional">Too promotional</option><option value="platform_mismatch">Platform mismatch</option><option value="unsafe_or_private">Unsafe or private</option></select></div><div class="field"><label for="sh-feedback-reason">Reason <span class="muted">(optional)</span></label><textarea id="sh-feedback-reason" class="cm-input" rows="5" maxlength="2000" placeholder="What should change before this post is reviewed again?"></textarea></div><div class="modal-foot"><button class="btn" id="sh-feedback-cancel" type="button">Cancel</button><button class="btn danger" id="sh-feedback-save" type="button">${verb} post</button></div>`;
+  modal.classList.remove('hidden');
+  $('#sh-feedback-cancel').onclick = closeModal;
+  $('#sh-feedback-save').onclick = async () => {
+    const save = $('#sh-feedback-save');
+    save.disabled = true;
+    try {
+      await api('POST', `/api/socialhub/posts/${encodeURIComponent(id)}/reject`, {
+        reason: $('#sh-feedback-reason').value.trim(),
+        category: $('#sh-feedback-category').value,
+      });
+      toast(`Post ${id} ${act === 'deny' ? 'denied' : 'rejected'}`);
+      closeModal(true);
+      renderSocialHub();
+    } catch (e) {
+      toast(e.message, 'err');
+      save.disabled = false;
+    }
+  };
+  $('#sh-feedback-reason').focus();
+}
+
 // One post as a table row — fixed columns instead of free-flowing badges, so
 // nothing stretches unpredictably across the page.
 function shPostRow(p) {
@@ -9460,49 +9976,54 @@ async function shPostAction(btn) {
   btn.disabled = true;
   try {
     if (act === 'reject' || act === 'deny') {
-      if (act === 'deny' && !confirm('Deny this post and remove it from the upcoming calendar?')) {
+      if (
+        act === 'deny' &&
+        !(await globalThis.fleetConfirm?.({
+          title: 'Deny social post',
+          message: 'Deny this post and remove it from the upcoming calendar?',
+          confirmLabel: 'Deny post',
+          danger: true,
+        }))
+      ) {
         btn.disabled = false;
         return;
       }
-      const reason = prompt(`${act === 'deny' ? 'Deny' : 'Reject'} reason (optional):`) || '';
-      const category =
-        prompt(
-          'Feedback category: wrong_voice, weak_hook, unsupported_claim, too_promotional, platform_mismatch, unsafe_or_private, or other',
-          'other'
-        ) || 'other';
-      await api('POST', `/api/socialhub/posts/${id}/reject`, { reason, category });
-      toast(`Post ${id} ${act === 'deny' ? 'denied' : 'rejected'}`);
+      openSocialPostFeedback({ id, btn, act });
+      btn.disabled = false;
+      return;
     } else if (act === 'approve') {
       const res = await api('POST', `/api/socialhub/posts/${id}/approve`);
       toast(`Post ${id} scheduled for ${res.scheduled_at || 'the next slot'}`);
     } else if (act === 'edit') {
-      const post = btn.closest('[data-sh-post]');
-      const trunc = post ? post.querySelector('.sh-trunc') : null;
-      const current = trunc ? trunc.title || trunc.textContent : '';
-      const body = prompt('Edit post body:', current);
-      if (body == null) {
-        btn.disabled = false;
-        return;
-      }
-      await api('PATCH', `/api/socialhub/posts/${id}`, { body });
-      toast(`Post ${id} updated`);
+      openSocialPostEditor({ id, btn, mode: 'edit' });
+      btn.disabled = false;
+      return;
     } else if (act === 'reschedule') {
-      const when = prompt('New send time (ISO 8601, UTC — e.g. 2026-08-27T14:00:00Z):');
-      if (!when) {
-        btn.disabled = false;
-        return;
-      }
-      await api('PATCH', `/api/socialhub/posts/${id}`, { scheduled_at: when });
-      toast(`Post ${id} rescheduled`);
+      openSocialPostEditor({ id, btn, mode: 'reschedule' });
+      btn.disabled = false;
+      return;
     } else if (act === 'publish') {
-      if (!confirm('Publish this post now, bypassing its scheduled time?')) {
+      if (
+        !(await globalThis.fleetConfirm?.({
+          title: 'Publish social post now',
+          message: 'Publish this post immediately, bypassing its scheduled time?',
+          confirmLabel: 'Publish now',
+        }))
+      ) {
         btn.disabled = false;
         return;
       }
       await api('POST', `/api/socialhub/posts/${id}/publish`);
       toast(`Post ${id} published`);
     } else if (act === 'cancel') {
-      if (!confirm('Cancel this post?')) {
+      if (
+        !(await globalThis.fleetConfirm?.({
+          title: 'Cancel social post',
+          message: 'Cancel this scheduled post?',
+          confirmLabel: 'Cancel post',
+          danger: true,
+        }))
+      ) {
         btn.disabled = false;
         return;
       }
@@ -9524,7 +10045,7 @@ async function renderSocialHub() {
   try {
     overview = await api('GET', '/api/socialhub');
   } catch (e) {
-    app.innerHTML = `<div class="empty">Social Hub proxy failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Social Hub proxy failed: ${e.message}`);
     return;
   }
 
@@ -9696,7 +10217,7 @@ function shComposerModal() {
         scheduled_at: when ? when.toISOString() : undefined,
       });
       toast(schedule ? 'Post scheduled' : 'Draft saved');
-      closeModal();
+      closeModal(true);
       FRESH = false;
       renderSocialHub();
     } catch (e) {
@@ -9951,6 +10472,15 @@ function shRenderOversight(data) {
   );
 }
 
+// A panel refresh should not blank a useful table while its request is in
+// flight. Preserve the prior panel body for soft refreshes; a tab switch has
+// no matching panel and therefore still gets the explicit loading state.
+function shPreviousPanel(selector, loading) {
+  if (FRESH) return loading;
+  const previous = $(selector)?.innerHTML;
+  return previous || loading;
+}
+
 async function shRenderQueue() {
   const body = $('#sh-body');
   body.innerHTML = `
@@ -9970,7 +10500,7 @@ async function shRenderQueue() {
       <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-search" class="cm-input" type="search" placeholder="Search post body…" value="${esc(SH.queueSearch)}" autocomplete="off"></label>
       <span id="sh-queue-count" class="muted" style="margin-left:auto"></span>
     </div>
-    <div id="sh-queue-list" class="loading">Loading…</div>`;
+    <div id="sh-queue-list" class="loading">${shPreviousPanel('#sh-queue-list', 'Loading…')}</div>`;
 
   $('#sh-f-site').addEventListener('change', e => {
     SH.site = e.target.value;
@@ -10020,7 +10550,7 @@ async function shRenderQueue() {
       `/api/socialhub/posts?status=${SH.status}&kind=${SH.kind}&site=${encodeURIComponent(SH.site)}&platform=${encodeURIComponent(platform)}&limit=${publicOnly ? 500 : 100}`
     );
   } catch (e) {
-    $('#sh-queue-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#sh-queue-list'), `Social queue failed: ${e.message}`);
     return;
   }
   var posts = (data.posts || [])
@@ -10170,7 +10700,7 @@ async function shRenderCalendar() {
       </select>
       <span id="sh-calendar-count" class="muted" style="margin-left:auto"></span>
     </div>
-    <div id="sh-calendar-list" class="loading">Loading upcoming schedule…</div>`;
+    <div id="sh-calendar-list" class="loading">${shPreviousPanel('#sh-calendar-list', 'Loading upcoming schedule…')}</div>`;
 
   $('#sh-cal-site').addEventListener('change', e => {
     SH.site = e.target.value;
@@ -10188,7 +10718,7 @@ async function shRenderCalendar() {
       `/api/socialhub/calendar?site=${encodeURIComponent(SH.site)}&days=${SH.calendarDays}`
     );
   } catch (e) {
-    $('#sh-calendar-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#sh-calendar-list'), `Social calendar failed: ${e.message}`);
     return;
   }
   const posts = (data.posts || []).filter(p => p.scheduled_at);
@@ -10347,7 +10877,7 @@ async function shRenderInbox() {
       <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-isearch" class="cm-input" type="search" placeholder="Search mention text…" value="${esc(SH.inboxSearch)}" autocomplete="off"></label>
       <span id="sh-inbox-count" class="muted" style="margin-left:auto"></span>
     </div>
-    <div id="sh-inbox-list" class="loading">Loading…</div>`;
+    <div id="sh-inbox-list" class="loading">${shPreviousPanel('#sh-inbox-list', 'Loading…')}</div>`;
 
   $('#sh-f-isite').addEventListener('change', e => {
     SH.site = e.target.value;
@@ -10374,7 +10904,7 @@ async function shRenderInbox() {
       `/api/socialhub/inbox?status=${encodeURIComponent(SH.inboxStatus)}&site=${encodeURIComponent(SH.site)}`
     );
   } catch (e) {
-    $('#sh-inbox-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#sh-inbox-list'), `Social inbox failed: ${e.message}`);
     return;
   }
   var mentions = data.mentions || [];
@@ -10451,7 +10981,7 @@ async function shRenderChannels() {
       <select id="sh-f-csite" class="cm-input">${shSiteOptions(SH.site)}</select>
       <span id="sh-channels-count" class="muted" style="margin-left:auto"></span>
     </div>
-    <div id="sh-channels-list" class="loading">Loading…</div>`;
+    <div id="sh-channels-list" class="loading">${shPreviousPanel('#sh-channels-list', 'Loading…')}</div>`;
   $('#sh-f-csite').addEventListener('change', e => {
     SH.site = e.target.value;
     shRenderChannels();
@@ -10462,7 +10992,7 @@ async function shRenderChannels() {
   try {
     data = await api('GET', `/api/socialhub/channels?site=${encodeURIComponent(SH.site)}`);
   } catch (e) {
-    $('#sh-channels-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#sh-channels-list'), `Social channels failed: ${e.message}`);
     return;
   }
   // Registry enrichment is optional; the Hub inventory must remain visible
@@ -10617,7 +11147,7 @@ async function shRenderEvents() {
       <label class="compliance-search-wrap"><span class="muted">Search</span><input id="sh-f-esearch" class="cm-input" type="search" placeholder="Search event message…" value="${esc(SH.eventsSearch)}" autocomplete="off"></label>
       <span id="sh-events-count" class="muted" style="margin-left:auto"></span>
     </div>
-    <div id="sh-events-list" class="loading">Loading…</div>`;
+    <div id="sh-events-list" class="loading">${shPreviousPanel('#sh-events-list', 'Loading…')}</div>`;
   $('#sh-f-esite').addEventListener('change', e => {
     SH.site = e.target.value;
     shRenderEvents();
@@ -10636,7 +11166,7 @@ async function shRenderEvents() {
   try {
     data = await api('GET', `/api/socialhub/events?site=${encodeURIComponent(SH.site)}&limit=150`);
   } catch (e) {
-    $('#sh-events-list').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#sh-events-list'), `Social events failed: ${e.message}`);
     return;
   }
   var events = data.events || [];
@@ -10814,7 +11344,7 @@ function hashFor(view, agent, agentPage) {
 // FRESH = false → an in-place soft refresh: no loading flash, and each view
 // restores scroll + expanded rows from UISNAP after it repaints.
 let FRESH = true;
-let UISNAP = { open: {}, html: {}, details: [], scroll: 0, focus: null };
+let UISNAP = { open: {}, html: {}, details: [], fields: [], scroll: 0, focus: null };
 let SOFT_RENDER_BUSY = false;
 let SOFT_RENDER_QUEUED = false;
 
@@ -10835,12 +11365,33 @@ function captureUI() {
     active && active !== document.body
       ? { id: active.id || '', name: active.getAttribute('name') || '', tag: active.tagName }
       : null;
+  const fields = [];
+  $$('input, select, textarea').forEach((el, index) => {
+    const type = (el.getAttribute('type') || '').toLowerCase();
+    // Never retain credentials or file handles in an in-memory refresh
+    // snapshot. All other visible controls are operator workspace state.
+    if (type === 'password' || type === 'file') return;
+    fields.push({
+      id: el.id || '',
+      name: el.getAttribute('name') || '',
+      tag: el.tagName.toLowerCase(),
+      index,
+      type,
+      value: el.value,
+      checked: type === 'checkbox' || type === 'radio' ? el.checked : undefined,
+      selected:
+        el.tagName === 'SELECT' && el.multiple
+          ? Array.from(el.selectedOptions).map(o => o.value)
+          : undefined,
+    });
+  });
   return {
     open,
     html,
     // A number of views use native details without a data-rk key. Their
     // position in the rendered view is stable, so preserve those too.
     details: $$('details').map(el => el.open),
+    fields,
     scroll: window.scrollY,
     focus,
   };
@@ -10860,6 +11411,27 @@ function applyUISnap() {
   if (Array.isArray(s.details)) {
     $$('details').forEach((el, i) => {
       if (i < s.details.length) el.open = s.details[i];
+    });
+  }
+  if (Array.isArray(s.fields)) {
+    s.fields.forEach(saved => {
+      const candidates = saved.id
+        ? [document.getElementById(saved.id)].filter(Boolean)
+        : saved.name
+          ? $$(`${saved.tag}[name="${CSS.escape(saved.name)}"]`)
+          : [];
+      const target = saved.id
+        ? candidates[0]
+        : candidates[Math.min(saved.index || 0, candidates.length - 1)];
+      if (!target) return;
+      if (saved.type === 'checkbox' || saved.type === 'radio')
+        target.checked = Boolean(saved.checked);
+      else if (target.tagName === 'SELECT' && target.multiple && Array.isArray(saved.selected)) {
+        Array.from(target.options).forEach(option => {
+          option.selected = saved.selected.includes(option.value);
+        });
+      } else if (saved.type !== 'password' && saved.type !== 'file')
+        target.value = saved.value ?? '';
     });
   }
   if (typeof s.scroll === 'number') window.scrollTo({ top: s.scroll, left: 0, behavior: 'auto' });
@@ -10949,7 +11521,7 @@ async function renderPriorities() {
   try {
     data = await api('GET', '/api/priorities');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    renderViewError(app, e.message);
     return;
   }
   const coverage = data.coverage || {};
@@ -11084,7 +11656,7 @@ async function renderImprovements() {
   try {
     data = await api('GET', '/api/improvements');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    renderViewError(app, e.message);
     return;
   }
   const all = data.runs || [];
@@ -11146,15 +11718,31 @@ async function renderImprovements() {
       }
       const payload = { state };
       if (state === 'review') {
-        payload.preview_url = prompt('Preview URL (optional):', '') || null;
+        payload.preview_url =
+          (await globalThis.fleetTextPrompt?.({
+            title: 'Preview URL',
+            label: 'Optional preview URL',
+            placeholder: 'https://preview.example.com',
+            submitLabel: 'Continue',
+          })) || null;
       }
       if (state === 'deployed') {
-        const deployment = prompt('Deployment ID or production commit SHA:');
+        const deployment = await globalThis.fleetTextPrompt?.({
+          title: 'Record deployment',
+          label: 'Deployment ID or production commit SHA',
+          required: true,
+          submitLabel: 'Record deployment',
+        });
         if (!deployment) return;
         payload.deployment_id = deployment;
       }
       if (['proven', 'regressed', 'inconclusive'].includes(state)) {
-        const notes = prompt('Measured outcome and supporting metric change:');
+        const notes = await globalThis.fleetTextPrompt?.({
+          title: 'Record measured outcome',
+          label: 'Measured outcome and supporting metric change',
+          required: true,
+          submitLabel: 'Record outcome',
+        });
         if (!notes) return;
         payload.outcome = { measured_at: new Date().toISOString(), notes };
       }
@@ -11228,7 +11816,12 @@ async function renderImprovements() {
   );
   $$('.improvement-commit').forEach(button =>
     button.addEventListener('click', async () => {
-      const message = prompt('Commit message for the reviewed worktree changes:');
+      const message = await globalThis.fleetTextPrompt?.({
+        title: 'Commit reviewed changes',
+        label: 'Commit message for the reviewed worktree changes',
+        required: true,
+        submitLabel: 'Commit changes',
+      });
       if (!message) return;
       button.disabled = true;
       try {
@@ -11245,9 +11838,13 @@ async function renderImprovements() {
   );
   $$('.improvement-deploy').forEach(button =>
     button.addEventListener('click', async () => {
-      const confirmTitle = prompt(
-        `Type the exact improvement title to approve production deployment:\n\n${button.dataset.title}`
-      );
+      const confirmTitle = await globalThis.fleetTextPrompt?.({
+        title: 'Approve production deployment',
+        label: `Type the exact improvement title: ${button.dataset.title}`,
+        placeholder: button.dataset.title,
+        required: true,
+        submitLabel: 'Approve deployment',
+      });
       if (confirmTitle !== button.dataset.title)
         return toast('Deployment confirmation did not match', 'err');
       button.disabled = true;
@@ -11265,9 +11862,13 @@ async function renderImprovements() {
   );
   $$('.improvement-rollback').forEach(button =>
     button.addEventListener('click', async () => {
-      const confirmTitle = prompt(
-        `This creates and pushes a production revert. Type the exact title to continue:\n\n${button.dataset.title}`
-      );
+      const confirmTitle = await globalThis.fleetTextPrompt?.({
+        title: 'Approve production rollback',
+        label: `This creates and pushes a production revert. Type the exact title: ${button.dataset.title}`,
+        placeholder: button.dataset.title,
+        required: true,
+        submitLabel: 'Approve rollback',
+      });
       if (confirmTitle !== button.dataset.title)
         return toast('Rollback confirmation did not match', 'err');
       button.disabled = true;
@@ -11335,6 +11936,21 @@ function cqAge(value) {
   return `${Math.floor(hours / 24)}d ${hours % 24}h`;
 }
 
+function cqAgeTone(value, status) {
+  if (['claimed', 'running', 'reviewing', 'review'].includes(status)) return 'working';
+  const ms = Date.now() - new Date(value || 0).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return '';
+  return ms >= 60 * 60 * 1000 ? 'old' : ms >= 15 * 60 * 1000 ? 'aging' : '';
+}
+
+function cqWorkLabel(r) {
+  if (r.work?.active)
+    return r.work.state === 'claimed' ? 'Claimed · starting' : `Working · ${r.work.state}`;
+  if (r.status === 'queued')
+    return r.queue_block?.blocked ? 'Waiting · blocked' : 'Waiting · eligible';
+  return r.status === 'review' ? 'Waiting · review' : `Finished · ${r.status}`;
+}
+
 function cqStatusClass(status) {
   if (['deployed', 'verified', 'committed'].includes(status)) return 'b-green';
   if (['failed', 'cancelled'].includes(status)) return 'b-red';
@@ -11375,7 +11991,17 @@ function cqBlocker(r) {
   const next = r.queue_block.next_check_at
     ? ` · Recheck ${fmtDate(r.queue_block.next_check_at)}`
     : '';
-  return `<div class="cq-blocker"><span class="badge ${r.queue_block.escalated ? 'b-red' : 'b-yellow'}">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${reasons ? ` · Also: ${esc(reasons)}` : ''}${escalation}${next}</small></span></div>`;
+  const due =
+    r.queue_block.primary.code === 'measurement_window' && r.measurement_window?.due_at
+      ? ` · Ends ${fmtDate(r.measurement_window.due_at)}`
+      : '';
+  const override =
+    r.queue_block.primary.code === 'measurement_window' && !r.measurement_override
+      ? `<button class="btn sm cq-override-measurement" data-id="${esc(r.request_id)}" title="Start this request before the measurement window ends">Override window</button>`
+      : r.measurement_override
+        ? '<span class="badge b-blue">override enabled</span>'
+        : '';
+  return `<div class="cq-blocker"><span class="badge ${r.queue_block.escalated ? 'b-red' : 'b-yellow'}">blocked</span><span><b>${esc(r.queue_block.primary.label)}</b><small>${esc(r.queue_block.primary.detail)}${due}${reasons ? ` · Also: ${esc(reasons)}` : ''}${escalation}${next}</small></span>${override}</div>`;
 }
 
 function cqActionButtons(r) {
@@ -11393,7 +12019,9 @@ function cqActionButtons(r) {
 }
 
 function cqRequestRow(r, settings, compact = false) {
-  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b>${cqSiteContext(r)}<div class="muted">${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span>${cqBlocker(r)}<div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')} · ${cqAge(r.updated_at || r.created_at)} old</div></td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
+  const ageBase = r.created_at || r.updated_at;
+  const activeWork = r.work?.active;
+  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b>${cqSiteContext(r)}<div class="muted">${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div><div class="cq-age-line"><time datetime="${esc(r.created_at || '')}">Added ${esc(fmtDate(r.created_at))}</time><span class="cq-age ${cqAgeTone(ageBase, r.status)}" data-cq-age="${esc(ageBase || '')}">${esc(cqAge(ageBase))} old</span></div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span>${activeWork ? `<div class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</div>` : ''}${cqBlocker(r)}<div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')}</div>${activeWork ? `<div class="cq-worker-meta">worker ${esc(r.work.worker || 'dashboard')} · heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</div>` : ''}</td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
 }
 
 function cqExceptionProfile(r) {
@@ -11429,7 +12057,7 @@ async function renderChangeQueue({ background = false } = {}) {
   try {
     data = await api('GET', '/api/change-requests');
   } catch (e) {
-    if (!background) app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    if (!background) renderViewError(app, e.message);
     CHANGE_QUEUE_RENDERING = false;
     return;
   }
@@ -11439,6 +12067,7 @@ async function renderChangeQueue({ background = false } = {}) {
   const active = requests.filter(r =>
     ['claimed', 'running', 'reviewing', 'review'].includes(r.status)
   );
+  const working = requests.filter(r => r.work?.active);
   // Only surface recoverable exceptions here. Cancelled requests are historical
   // outcomes, not active interventions; failed requests have a direct retry path.
   const attention = requests.filter(r => r.status === 'failed');
@@ -11561,9 +12190,16 @@ async function renderChangeQueue({ background = false } = {}) {
   ];
   if (!CHANGE_QUEUE_NEXT_PICKUP_AT || CHANGE_QUEUE_NEXT_PICKUP_AT < Date.now())
     CHANGE_QUEUE_NEXT_PICKUP_AT = Date.now() + Number(data.settings.interval_minutes || 30) * 60000;
+  const workingCards = working
+    .map(
+      r =>
+        `<article class="cq-working-card"><div class="cq-working-card-head"><span class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</span><span class="cq-age working" data-cq-age="${esc(r.work.since || r.created_at || '')}">${esc(cqAge(r.work.since || r.created_at))}</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · worker ${esc(r.work.worker || 'dashboard')}</div><div class="cq-working-card-foot"><span>Started ${esc(fmtDate(r.work.since || r.created_at))}</span><span>Heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</span><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">View work</button></div></article>`
+    )
+    .join('');
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button class="btn primary" id="cq-new">New change request</button></div></div>
     <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><div class="cq-command-stat"><span>Blocked</span><strong>${blocked}</strong><small>${data.queue_metrics?.oldest_blocked_at ? `oldest ${cqAge(data.queue_metrics.oldest_blocked_at)}` : 'none'}</small></div><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></section>
-    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked</strong><small>Open a queued row to see whether capacity, another run, or a measurement window is holding it.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
+    <section class="card cq-working-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">LIVE WORK</div><h3>Currently being worked</h3><p class="muted">Claimed, running, and reviewing requests with their worker and heartbeat.</p></div><span class="cq-live-count ${working.length ? 'is-working' : ''}"><i></i>${working.length ? `${working.length} active` : 'Nothing active'}</span></div><div class="cq-working-list">${workingCards || '<div class="cq-no-work"><strong>No request is being worked right now.</strong><span>The queue is idle or waiting for eligible work.</span></div>'}</div></section>
+    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked — not failed</strong><small>These requests have no error; capacity, another run, or a measurement window is holding them. Open a queued row for the exact reason.</small></div></div>` : ''}${attention.length ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${attention.length} request${attention.length === 1 ? '' : 's'} actually failed</strong><small>Failed work is separate from blocked queue work. Open the failed view to see the recorded reason and retry path.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
     <section class="card cq-register"><div class="cq-register-head"><div><div class="cq-eyebrow">WORK REGISTER</div><h3>All change requests</h3><p>Search the full history when you need context. The focus lane above is reserved for decisions.</p></div><span class="muted">${filteredRequests.length} matching · ${pageLabel}</span></div><div class="cq-register-toolbar"><div class="cq-filter-group"><input id="cq-search" class="cm-input" placeholder="Search title, site, role…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input" title="Filter by state"><option value="all">All states</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input" title="Filter by site"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input" title="Filter by priority"><option value="all" ${CHANGE_QUEUE_FILTER.priority === 'all' ? 'selected' : ''}>All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-owner-filter" class="cm-input" title="Filter by owner"><option value="all">All owners</option>${owners.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_OWNER === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input" title="Filter by provider"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="cq-sort-group"><label class="cq-filter-label" for="cq-sort">Sort</label><select id="cq-sort" class="cm-input"><option value="created_at" ${CHANGE_QUEUE_SORT === 'created_at' ? 'selected' : ''}>Recent activity</option><option value="priority" ${CHANGE_QUEUE_SORT === 'priority' ? 'selected' : ''}>Priority</option><option value="status" ${CHANGE_QUEUE_SORT === 'status' ? 'selected' : ''}>State</option><option value="site" ${CHANGE_QUEUE_SORT === 'site' ? 'selected' : ''}>Site</option><option value="owner" ${CHANGE_QUEUE_SORT === 'owner' ? 'selected' : ''}>Owner</option><option value="provider" ${CHANGE_QUEUE_SORT === 'provider' ? 'selected' : ''}>Provider</option></select><button class="btn sm" id="cq-sort-dir" title="Toggle sort direction">${CHANGE_QUEUE_SORT_DIR === 'asc' ? '↑ Ascending' : '↓ Descending'}</button></div></div><div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Request</th><th>State / next action</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div><div class="cq-pagination"><label class="muted">Rows <select id="cq-page-size" class="cm-input"><option ${CHANGE_QUEUE_PAGE_SIZE === 10 ? 'selected' : ''}>10</option><option ${CHANGE_QUEUE_PAGE_SIZE === 25 ? 'selected' : ''}>25</option><option ${CHANGE_QUEUE_PAGE_SIZE === 50 ? 'selected' : ''}>50</option></select></label><span class="muted">${pageLabel}</span><button class="btn sm" id="cq-page-prev" ${CHANGE_QUEUE_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="cq-page-next" ${CHANGE_QUEUE_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div></section><div id="cq-detail-panel"></div>`;
   if (CHANGE_QUEUE_CLOCK) clearInterval(CHANGE_QUEUE_CLOCK);
   const updatePickupClock = () => {
@@ -11577,6 +12213,11 @@ async function renderChangeQueue({ background = false } = {}) {
         ? `${mins}m ${String(secs).padStart(2, '0')}s`
         : 'due now'
       : 'paused';
+    $$('[data-cq-age]').forEach(el => {
+      const value = el.dataset.cqAge;
+      if (!value) return;
+      el.textContent = `${cqAge(value)}${el.classList.contains('cq-age') ? ' old' : ''}`;
+    });
   };
   updatePickupClock();
   CHANGE_QUEUE_CLOCK = setInterval(updatePickupClock, 1000);
@@ -11716,6 +12357,32 @@ async function renderChangeQueue({ background = false } = {}) {
             {}
           );
           toast('Queue locks re-evaluated');
+          softRender();
+        } catch (e) {
+          b.disabled = false;
+          toast(e.message, 'err');
+        }
+      })
+  );
+  $$('.cq-override-measurement').forEach(
+    b =>
+      (b.onclick = async () => {
+        const approved = await globalThis.fleetConfirm?.({
+          title: 'Override measurement window',
+          message:
+            "Allow this request to start before the measurement window ends? This may contaminate the existing experiment's measurement.",
+          confirmLabel: 'Override window',
+          danger: true,
+        });
+        if (!approved) return;
+        b.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/change-requests/${encodeURIComponent(b.dataset.id)}/override-measurement`,
+            { reason: 'operator requested measurement-window override' }
+          );
+          toast('Measurement-window override enabled; pickup started');
           softRender();
         } catch (e) {
           b.disabled = false;
@@ -11891,7 +12558,7 @@ async function renderChangeQueueDetail(id) {
       }
     });
   } catch (e) {
-    panel.innerHTML = `<section class="card error-box">${esc(e.message)}</section>`;
+    renderViewError(panel, `Unable to load queue actions: ${e.message}`);
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     toast(`Unable to load queue actions: ${e.message}`, 'err');
   }
@@ -11924,7 +12591,7 @@ function showChangeRequestEditForm(request, data) {
         delivery_mode: $('#cq-edit-delivery').value,
         auto_review: $('#cq-edit-auto-review').checked,
       });
-      closeModal();
+      closeModal(true);
       toast('Request updated');
       softRender();
     } catch (e) {
@@ -11965,7 +12632,7 @@ function showChangeRequestForm(siteOptions, data) {
         auto_review: $('#cq-auto-review').checked,
         voice_transcript: $('#cq-transcript').value || null,
       });
-      closeModal();
+      closeModal(true);
       toast('Change request queued');
       softRender();
     } catch (e) {
@@ -12021,8 +12688,43 @@ const WORK_BOARD_COLUMNS = [
   ['blocked', 'Blocked'],
   ['done', 'Done'],
 ];
-const WORK_BOARD_INCLUDE = new Set(),
-  WORK_BOARD_EXCLUDE = new Set();
+const WORK_BOARD_FILTER_KEY = 'fd.work-board.filters';
+const WORK_BOARD_COLUMN_KEYS = new Set(WORK_BOARD_COLUMNS.map(([key]) => key));
+function readWorkBoardFilters() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(WORK_BOARD_FILTER_KEY) || '{}');
+    const valid = value =>
+      Array.isArray(value) ? value.filter(key => WORK_BOARD_COLUMN_KEYS.has(key)) : [];
+    return { include: new Set(valid(saved.include)), exclude: new Set(valid(saved.exclude)) };
+  } catch {
+    return { include: new Set(), exclude: new Set() };
+  }
+}
+const WORK_BOARD_FILTERS = readWorkBoardFilters();
+const WORK_BOARD_INCLUDE = WORK_BOARD_FILTERS.include,
+  WORK_BOARD_EXCLUDE = WORK_BOARD_FILTERS.exclude;
+function saveWorkBoardFilters() {
+  try {
+    localStorage.setItem(
+      WORK_BOARD_FILTER_KEY,
+      JSON.stringify({ include: [...WORK_BOARD_INCLUDE], exclude: [...WORK_BOARD_EXCLUDE] })
+    );
+  } catch {}
+}
+function toggleWorkBoardFilter(kind, key) {
+  const target = kind === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE;
+  const other = kind === 'include' ? WORK_BOARD_EXCLUDE : WORK_BOARD_INCLUDE;
+  if (target.has(key)) target.delete(key);
+  else {
+    target.add(key);
+    other.delete(key);
+  }
+  saveWorkBoardFilters();
+}
+function clearWorkBoardFilter(kind) {
+  (kind === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear();
+  saveWorkBoardFilters();
+}
 function wbCol(item) {
   if (item.source === 'work-item')
     return item.status === 'open'
@@ -12078,168 +12780,6 @@ function wbItems(data) {
       owner: x.created_by,
     })),
   ];
-}
-function wbGate(item) {
-  const waiting = item.waiting_on ? `waiting on ${item.waiting_on} · ` : '';
-  return item.source === 'request'
-    ? `${item.auto_review === false ? 'manual' : 'automatic'} review · ${item.delivery_mode || 'direct'}`
-    : item.source === 'proposal'
-      ? `${waiting}owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`
-      : `${waiting}${item.next_action || 'PM triage pending'}`;
-}
-function wbCard(item) {
-  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span></div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded.')}</p><div class="wb-gate">◆ ${esc(wbGate(item))}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`;
-}
-async function renderWorkflowBoard() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
-  try {
-    const data = await api('GET', '/api/workflow-board'),
-      all = wbItems(data),
-      items = all.filter(wbVisible),
-      counts = WORK_BOARD_COLUMNS.map(([key]) => items.filter(x => wbCol(x) === key).length);
-    const filters = WORK_BOARD_COLUMNS.map(
-      ([key, label]) =>
-        `<button class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}">${label}</button>`
-    ).join('');
-    const hidden = WORK_BOARD_COLUMNS.map(
-      ([key, label]) =>
-        `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`
-    ).join('');
-    const activity = (data.actions || [])
-      .slice(0, 10)
-      .map(
-        x =>
-          `<div class="wb-activity"><span class="badge ${x.status === 'failed' ? 'b-red' : 'b-green'}">${esc(x.status)}</span><div><strong>${esc(x.summary)}</strong><small>${esc(x.actor)} · ${esc(fmtDate(x.started_at))}</small></div></div>`
-      )
-      .join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Connected backlog, agents, approval gates, dependencies, and delivery evidence.</div></div><button class="btn primary" id="wb-new">＋ Add backlog work</button></div><section class="wb-summary">${[
-      ['visible work', items.length],
-      ['in progress', counts[2]],
-      ['approval gates', counts[3]],
-      ['blocked', counts[4]],
-    ]
-      .map(x => `<div><strong>${x[1]}</strong><span>${x[0]}</span></div>`)
-      .join(
-        ''
-      )}</section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filters}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${hidden}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes. Open a card to inspect its lifecycle and dependencies.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
-      ([key, label], i) =>
-        `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[i]} item${counts[i] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
-          items
-            .filter(x => wbCol(x) === key)
-            .map(wbCard)
-            .join('') || '<div class="wb-empty">No matching work</div>'
-        }</div></div>`
-    ).join(
-      ''
-    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div></div>${activity || '<div class="muted">No recent actions.</div>'}</aside></div>`;
-    const graphRows = (data.workflow?.edges || [])
-      .slice(0, 40)
-      .map(edge => {
-        const from = data.workflow.nodes?.[edge.from]?.title || edge.from;
-        const to = data.workflow.nodes?.[edge.to]?.title || edge.to;
-        return `<div class="wb-graph-row"><span>${esc(from)}</span><b>blocks</b><span>${esc(to)}</span></div>`;
-      })
-      .join('');
-    const graph = document.createElement('details');
-    graph.className = 'wb-gates wb-graph';
-    graph.innerHTML = `<summary>Dependency graph (${(data.workflow?.edges || []).length})</summary>${graphRows || '<p>No dependency edges recorded.</p>'}<p class="muted">Critical path: ${(data.workflow?.critical_path || []).map(key => esc(data.workflow.nodes?.[key]?.title || key)).join(' → ') || 'none'}</p>`;
-    app.querySelector('.wb-activity-panel')?.appendChild(graph);
-    $('#wb-new').onclick = () => showWorkflowBacklogForm();
-    $$('[data-wb-include]').forEach(
-      b =>
-        (b.onclick = () => {
-          const k = b.dataset.wbInclude;
-          WORK_BOARD_INCLUDE.has(k) ? WORK_BOARD_INCLUDE.delete(k) : WORK_BOARD_INCLUDE.add(k);
-          renderWorkflowBoard();
-        })
-    );
-    $$('[data-wb-exclude]').forEach(
-      b =>
-        (b.onclick = () => {
-          const k = b.dataset.wbExclude;
-          WORK_BOARD_EXCLUDE.has(k) ? WORK_BOARD_EXCLUDE.delete(k) : WORK_BOARD_EXCLUDE.add(k);
-          renderWorkflowBoard();
-        })
-    );
-    $$('[data-wb-clear]').forEach(
-      b =>
-        (b.onclick = () => {
-          (b.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear();
-          renderWorkflowBoard();
-        })
-    );
-    $$('.wb-open').forEach(
-      b => (b.onclick = () => openWorkflowItem(b.dataset.wbSource, b.dataset.wbId, data))
-    );
-    $$('.wb-card').forEach(card =>
-      card.addEventListener('dragstart', e =>
-        e.dataTransfer.setData(
-          'text/plain',
-          JSON.stringify({ source: card.dataset.wbSource, id: card.dataset.wbId })
-        )
-      )
-    );
-    $$('.wb-column').forEach(col => {
-      col.addEventListener('dragover', e => e.preventDefault());
-      col.addEventListener('drop', async e => {
-        e.preventDefault();
-        const x = JSON.parse(e.dataTransfer.getData('text/plain') || '{}');
-        try {
-          await wbMove(x, col.dataset.wbDrop, data);
-          renderWorkflowBoard();
-        } catch (err) {
-          toast(err.message, 'err');
-        }
-      });
-    });
-    if (!FRESH) applyUISnap();
-    stamp();
-  } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
-  }
-}
-async function wbMove(item, column, data) {
-  if (item.source === 'work-item')
-    return api('PATCH', `/api/executive/work-items/${encodeURIComponent(item.id)}`, {
-      status: {
-        backlog: 'open',
-        ready: 'open',
-        active: 'in_progress',
-        approval: 'waiting',
-        blocked: 'blocked',
-        done: 'done',
-      }[column],
-    });
-  const r = (data.requests || []).find(x => x.request_id === item.id);
-  if (item.source === 'request' && column === 'active' && r.status === 'queued')
-    return api('POST', `/api/change-requests/${encodeURIComponent(item.id)}/pickup`, {});
-  throw new Error('Use the source queue to move this gated item');
-}
-function showWorkflowBacklogForm() {
-  const modal = $('#modal');
-  $('#modal-title').textContent = 'Add backlog work';
-  $('#modal-body').innerHTML =
-    `<div class="field"><label>Title</label><input id="wb-title"></div><div class="field-row"><div class="field"><label>Kind</label><select id="wb-kind"><option>implementation</option><option>research</option><option>decision</option><option>incident</option></select></div><div class="field"><label>Priority</label><select id="wb-priority"><option>urgent</option><option>high</option><option selected>normal</option><option>low</option></select></div><div class="field"><label>Owner</label><select id="wb-owner"><option>project-manager</option><option>domain-manager</option><option>engineer</option><option>principal-engineer</option><option>ceo</option><option>cto</option></select></div></div><div class="field"><label>Site</label><input id="wb-site" placeholder="optional"></div><div class="field"><label>Brief</label><textarea id="wb-summary" rows="4"></textarea></div><div class="field"><label>Next action / acceptance criteria</label><textarea id="wb-next" rows="4"></textarea></div><div class="modal-actions"><button class="btn" id="wb-cancel">Cancel</button><button class="btn primary" id="wb-save">Add to backlog</button></div>`;
-  modal.classList.remove('hidden');
-  $('#wb-cancel').onclick = closeModal;
-  $('#wb-save').onclick = async () => {
-    try {
-      await api('POST', '/api/executive/work-items', {
-        title: $('#wb-title').value,
-        kind: $('#wb-kind').value,
-        priority: $('#wb-priority').value,
-        owner: $('#wb-owner').value,
-        site: $('#wb-site').value || null,
-        summary: $('#wb-summary').value,
-        next_action: $('#wb-next').value,
-        created_by: 'owner',
-      });
-      closeModal();
-      renderWorkflowBoard();
-    } catch (e) {
-      toast(e.message, 'err');
-    }
-  };
 }
 async function openWorkflowItem(source, id, data) {
   const item = wbItems(data).find(x => x.source === source && x.id === id);
@@ -12433,7 +12973,7 @@ async function renderWorkflowBoard() {
       ([key, label]) =>
         `<button class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}">${label}</button>`
     ).join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[2]}</strong><span>in progress</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Hidden lanes are excluded from the board; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[2]}</strong><span>in progress</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button class="btn sm" data-wb-clear="exclude">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Filters are remembered on this device; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
       ([key, label], index) =>
         `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
           items
@@ -12449,9 +12989,7 @@ async function renderWorkflowBoard() {
       button =>
         (button.onclick = () => {
           const key = button.dataset.wbInclude;
-          WORK_BOARD_INCLUDE.has(key)
-            ? WORK_BOARD_INCLUDE.delete(key)
-            : WORK_BOARD_INCLUDE.add(key);
+          toggleWorkBoardFilter('include', key);
           renderWorkflowBoard();
         })
     );
@@ -12459,16 +12997,14 @@ async function renderWorkflowBoard() {
       button =>
         (button.onclick = () => {
           const key = button.dataset.wbExclude;
-          WORK_BOARD_EXCLUDE.has(key)
-            ? WORK_BOARD_EXCLUDE.delete(key)
-            : WORK_BOARD_EXCLUDE.add(key);
+          toggleWorkBoardFilter('exclude', key);
           renderWorkflowBoard();
         })
     );
     $$('[data-wb-clear]').forEach(
       button =>
         (button.onclick = () => {
-          (button.dataset.wbClear === 'include' ? WORK_BOARD_INCLUDE : WORK_BOARD_EXCLUDE).clear();
+          clearWorkBoardFilter(button.dataset.wbClear);
           renderWorkflowBoard();
         })
     );
@@ -12507,7 +13043,7 @@ async function renderWorkflowBoard() {
     if (!FRESH) applyUISnap();
     stamp();
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    renderViewError(app, e.message);
   }
 }
 
@@ -12532,7 +13068,7 @@ function showWorkflowBacklogForm() {
         next_action: $('#wb-next').value,
         created_by: 'owner',
       });
-      closeModal();
+      closeModal(true);
       toast('Added to backlog');
       renderWorkflowBoard();
     } catch (e) {
@@ -12560,10 +13096,15 @@ async function moveWorkflowItem(source, id, column, data) {
       expected_updated_at: (data.work_items || []).find(row => row.work_id === id)?.updated_at,
     };
     if (status === 'done') {
-      const outcome = window.prompt('Record the outcome or evidence for this completed work:');
-      if (!outcome || !outcome.trim())
-        throw new Error('Completion cancelled: outcome or evidence is required');
-      patch.outcome = outcome.trim();
+      const outcome = await requestModalText({
+        title: 'Complete work item',
+        label: 'Outcome or evidence',
+        placeholder: 'What was delivered, verified, or learned?',
+        required: true,
+        submitLabel: 'Complete work',
+      });
+      if (!outcome) throw new Error('Completion cancelled: outcome or evidence is required');
+      patch.outcome = outcome;
     }
     return api('PATCH', `/api/executive/work-items/${encodeURIComponent(id)}`, patch);
   }
@@ -12579,23 +13120,13 @@ async function moveWorkflowItem(source, id, column, data) {
   throw new Error('This transition must use its approval-aware action');
 }
 
-function openWorkflowItemLegacy(source, id, data) {
-  const item = workBoardItems(data).find(row => row.source === source && row.id === id);
-  if (!item) return;
-  $('#modal-title').textContent = item.title;
-  $('#modal-body').innerHTML =
-    `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(item.source_label)}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || item.assigned_role || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Next action / gate</h4><pre>${esc(item.next_action || item.requested_action || item.body || 'No next action recorded')}</pre><p class="muted">Updated ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</p></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
-  $('#modal').classList.remove('hidden');
-  $('#wb-detail-close').onclick = closeModal;
-}
-
 async function renderDataQuality() {
   if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
   let data;
   try {
     data = await api('GET', '/api/data-quality');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">${esc(e.message)}</div>`;
+    renderViewError(app, e.message);
     return;
   }
   const rows = (data.contracts || [])
@@ -12631,7 +13162,7 @@ async function renderAutomation() {
   try {
     data = await api('GET', `/api/automation/${encodeURIComponent(AUTO_SITE)}`);
   } catch (e) {
-    $('#auto-body').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    renderViewError($('#auto-body'), e.message);
     if (!FRESH) applyUISnap();
     return;
   }
@@ -12935,6 +13466,7 @@ function applyExecutiveWorkspace(page) {
   const run = shell.querySelector('.ex-run-panel');
   const attention = shell.querySelector('.ex-attention');
   const compose = shell.querySelector('.ex-compose');
+  const cases = shell.querySelector('.ex-cases');
   const requests = shell.querySelector('.ex-requests');
   const transcript = shell.querySelector('.ex-transcript-panel');
   const recent = [...shell.querySelectorAll('.ex-disclosure')].find(el =>
@@ -12954,6 +13486,7 @@ function applyExecutiveWorkspace(page) {
     run,
     attention,
     compose,
+    cases,
     requests,
     transcript,
     recent,
@@ -12965,6 +13498,7 @@ function applyExecutiveWorkspace(page) {
   show(layout);
   if (page === 'overview') {
     hide(compose);
+    hide(cases);
     hide(requests);
     hide(transcript);
     hide(recent);
@@ -12973,6 +13507,7 @@ function applyExecutiveWorkspace(page) {
     hide(decisions);
   } else if (page === 'conversation') {
     hide(run);
+    hide(cases);
     hide(attention);
     hide(secondary);
     hide(transcript);
@@ -12997,6 +13532,7 @@ function applyExecutiveWorkspace(page) {
     hide(attention);
     hide(compose);
     hide(requests);
+    hide(cases);
     hide(transcript);
     hide(recent);
     hide(secondary);
@@ -13042,7 +13578,7 @@ async function renderExecutiveSetup() {
         apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
       ]);
   } catch (e) {
-    app.innerHTML = `<div class="error-box">Executive setup failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Executive setup failed: ${e.message}`);
     return;
   }
   const s = settings.settings || {};
@@ -13140,13 +13676,27 @@ async function renderExecutiveSetup() {
       button.disabled = false;
     }
   };
-  const decide = (button, status) => {
-    const note = window.prompt(
-      status === 'feedback'
-        ? 'Feedback for the executive team:'
-        : `${status === 'approved' ? 'Approval' : 'Decline'} note (optional):`,
-      ''
-    );
+  const decide = async (button, status) => {
+    const note = await requestModalText({
+      title:
+        status === 'feedback'
+          ? 'Request changes'
+          : `${status === 'approved' ? 'Approve' : 'Decline'} proposal`,
+      label:
+        status === 'feedback'
+          ? 'Feedback for the executive team'
+          : `${status === 'approved' ? 'Approval' : 'Decline'} note (optional)`,
+      placeholder:
+        status === 'feedback'
+          ? 'What needs to change before this can move forward?'
+          : 'Capture the rationale, guardrails, owner, or next step.',
+      submitLabel:
+        status === 'feedback'
+          ? 'Send feedback'
+          : status === 'approved'
+            ? 'Approve proposal'
+            : 'Decline proposal',
+    });
     if (note === null) return;
     button.disabled = true;
     api('POST', `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`, {
@@ -13189,7 +13739,9 @@ async function renderExecutive() {
     managerQueue,
     principalQueue,
     croLabRuns,
-    runStatus;
+    runStatus,
+    cases,
+    calendar;
   try {
     [
       messages,
@@ -13208,6 +13760,7 @@ async function renderExecutive() {
       principalQueue,
       croLabRuns,
       runStatus,
+      cases,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
       apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
@@ -13225,9 +13778,11 @@ async function renderExecutive() {
       api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
       apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
       apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+      apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+      apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
     ]);
   } catch (e) {
-    app.innerHTML = `<div class="error-box">Executive control plane failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
   }
   const allOwnerRequests = inbox.requests || requests.work_items || [];
@@ -13259,13 +13814,16 @@ async function renderExecutive() {
     EXEC_INBOX_UI.page * EXEC_INBOX_UI.pageSize
   );
   notifyExecutiveBrowser(unreadNotifications);
-  const notificationRows = unreadNotifications
-    .slice(0, 5)
+  const visibleNotifications = unreadNotifications.slice(0, 5);
+  const notificationRows = visibleNotifications
     .map(
       notification =>
-        `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><div><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="btn sm ex-notification-read" type="button">Mark read</button></article>`
+        `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><span class="ex-notification-icon" aria-hidden="true">!</span><div class="ex-notification-content"><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="ex-notification-read" type="button" aria-label="Dismiss notification" title="Dismiss notification">×</button></article>`
     )
     .join('');
+  const notificationGroup = notificationRows
+    ? `<details class="ex-notification-group"><summary><span class="ex-notification-summary-icon" aria-hidden="true">●</span><span><b>Notifications</b><small>${visibleNotifications.length} notice${visibleNotifications.length === 1 ? '' : 's'} being shown</small></span><span class="ex-chevron">›</span></summary><div class="ex-notifications">${notificationRows}</div></details>`
+    : '';
   const messageRows = (messages.messages || [])
     .slice()
     .reverse()
@@ -13360,9 +13918,65 @@ async function renderExecutive() {
           request.lifecycle_state === 'closed'
             ? '<span class="muted">Closed request</span>'
             : `<button class="btn sm ex-request-ack" data-id="${esc(request.work_id)}" ${request.lifecycle_state !== 'submitted' ? 'disabled' : ''}>Acknowledge</button><button class="btn sm ex-request-close" data-id="${esc(request.work_id)}">Close request</button>`;
-        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">No response yet. The request remains in the executive queue.</p>'}<div class="ex-thread-heading"><b>Thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div><details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
+        const replyComposer =
+          request.lifecycle_state === 'closed'
+            ? ''
+            : `<div class="ex-work-reply"><div class="ex-thread-heading"><b>Continue this thread</b><span class="muted">The executive team will see this on its next run.</span></div><textarea class="cm-input ex-work-reply-body" data-id="${esc(request.work_id)}" rows="4" placeholder="Reply with clarification, a decision, or the next direction…"></textarea><div class="task-toolbar"><span class="muted">Your reply stays attached to this work item.</span><button class="btn sm primary ex-work-reply-send" data-id="${esc(request.work_id)}" type="button">Send reply</button></div></div>`;
+        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">No response yet. The request remains in the executive queue.</p>'}<div class="ex-thread-heading"><b>Thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div>${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
       })()
     : '<div class="ex-request-detail ex-empty">Select a request to inspect its full thread.</div>';
+  const allCases = cases?.cases || [];
+  const filteredCases = allCases.filter(item => {
+    const haystack =
+      `${item.title} ${item.site || ''} ${item.owner || ''} ${item.state?.label || ''} ${item.state?.detail || ''}`.toLowerCase();
+    return (
+      (EXEC_CASE_UI.state === 'all' || item.state?.key === EXEC_CASE_UI.state) &&
+      (!EXEC_CASE_UI.q || haystack.includes(EXEC_CASE_UI.q.toLowerCase()))
+    );
+  });
+  const selectedCaseId = filteredCases.some(item => item.case_id === EXEC_CASE_UI.selected)
+    ? EXEC_CASE_UI.selected
+    : filteredCases[0]?.case_id || null;
+  EXEC_CASE_UI.selected = selectedCaseId;
+  const selectedCase = selectedCaseId
+    ? await apiOptional('GET', `/api/cases/${encodeURIComponent(selectedCaseId)}`, null)
+    : null;
+  const caseRows = filteredCases
+    .map(
+      item =>
+        `<button type="button" class="ex-case-list-item ${item.case_id === selectedCaseId ? 'selected' : ''}" data-case-id="${esc(item.case_id)}"><span class="ex-case-list-top"><b>${esc(item.title)}</b>${workItemBadge(item.priority, 'priority')}</span><span class="ex-case-list-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || 'unassigned')} · <span class="badge b-${esc(item.state?.tone || 'blue')}">${esc(item.state?.label || 'Open')}</span></span><span class="ex-case-list-summary">${esc(item.state?.detail || item.next_action || 'No next action recorded.')}</span></button>`
+    )
+    .join('');
+  const caseRecord = selectedCase?.case || null;
+  const caseTimeline = (caseRecord?.timeline || [])
+    .slice(-80)
+    .reverse()
+    .map(
+      row =>
+        `<div class="ex-case-timeline-row"><div class="ex-case-timeline-head"><b>${esc(row.label)}</b><span>${esc(fmtDate(row.at))}</span></div><div>${esc(row.body || 'Recorded activity')}</div><small>${esc(row.actor || 'system')}</small></div>`
+    )
+    .join('');
+  const caseRequests = (caseRecord?.requests || [])
+    .map(
+      request =>
+        `<div class="ex-case-linked-row"><b>${esc(request.title || request.request_id)}</b><span class="badge b-${request.status === 'failed' ? 'red' : request.status === 'queued' ? 'blue' : 'green'}">${esc(request.status || 'unknown')}</span><small>${esc(request.site || '')} · ${esc(fmtDate(request.updated_at || request.created_at))}</small></div>`
+    )
+    .join('');
+  const caseRuns = (caseRecord?.runs || [])
+    .map(
+      run =>
+        `<div class="ex-case-linked-row"><b>${esc(run.title || run.run_id)}</b><span class="badge b-${run.state === 'failed' ? 'red' : ['measuring', 'review'].includes(run.state) ? 'purple' : 'blue'}">${esc(run.state || 'unknown')}</span><small>${esc(fmtDate(run.updated_at || run.created_at))}</small></div>`
+    )
+    .join('');
+  const caseOutcome = caseRecord?.outcome
+    ? typeof caseRecord.outcome === 'string'
+      ? caseRecord.outcome
+      : JSON.stringify(caseRecord.outcome, null, 2)
+    : '';
+  const caseDetail = caseRecord
+    ? `<article class="ex-case-detail"><div class="ex-case-detail-head"><div><div class="ex-eyebrow">UNIFIED CASE</div><h3>${esc(caseRecord.title)}</h3><p class="muted">${esc(caseRecord.site || 'fleet')} · case ${esc(caseRecord.case_id.slice(0, 20))}</p></div><span class="badge b-${esc(caseRecord.state?.tone || 'blue')}">${esc(caseRecord.state?.label || 'Open')}</span></div><div class="ex-case-facts"><div><span>Owner</span><b>${esc(caseRecord.owner || 'unassigned')}</b></div><div><span>Waiting on</span><b>${esc(caseRecord.waiting_on || '—')}</b></div><div><span>Next action</span><b>${esc(caseRecord.next_action || '—')}</b></div><div><span>Due</span><b>${caseRecord.due_at ? esc(fmtDate(caseRecord.due_at)) : '—'}</b></div></div><div class="ex-case-summary">${esc(caseRecord.work?.summary || 'No case summary recorded.')}</div><div class="ex-case-links"><span class="muted">Linked work ${esc(caseRecord.links.work_id?.slice(0, 12) || '—')}</span><span class="muted">${caseRecord.links.request_ids.length} request${caseRecord.links.request_ids.length === 1 ? '' : 's'}</span><span class="muted">${caseRecord.links.run_ids.length} run${caseRecord.links.run_ids.length === 1 ? '' : 's'}</span></div><div class="ex-case-linked-grid"><div><h4>Assigned work / delivery requests</h4><div class="ex-case-linked-list">${caseRequests || '<div class="ex-empty">No delivery request linked yet.</div>'}</div></div><div><h4>Agent runs / measurements</h4><div class="ex-case-linked-list">${caseRuns || '<div class="ex-empty">No agent run linked yet.</div>'}</div></div></div>${caseOutcome ? `<div class="ex-case-outcome"><h4>Latest outcome</h4><pre>${esc(caseOutcome)}</pre></div>` : ''}<div class="task-toolbar ex-case-actions">${caseRecord.links.request_ids[0] ? `<button class="btn sm" type="button" data-case-open-queue="${esc(caseRecord.links.request_ids[0])}">Open delivery queue</button>` : ''}${caseRecord.links.work_id ? `<button class="btn sm" type="button" data-case-open-thread="${esc(caseRecord.links.work_id)}">Open conversation</button>` : ''}<button class="btn sm" type="button" id="ex-case-close">Close dossier</button></div><h4>Full case timeline and conversation</h4><div class="ex-case-timeline">${caseTimeline || '<div class="ex-empty">No timeline activity recorded yet.</div>'}</div></article>`
+    : '<div class="ex-empty">Select a case to inspect its full lifecycle.</div>';
+  const casePanel = `<section class="ex-panel ex-cases"><div class="ex-panel-head"><div><div class="ex-eyebrow">END-TO-END CASES</div><h3>Unified work lifecycle</h3><p class="muted">One case links the thread, owner, work item, queue request, agent run, review, deployment, measurement, and outcome.</p></div><span class="badge b-blue">${filteredCases.length} shown · ${allCases.length} total</span></div><div class="ex-case-toolbar"><input id="ex-case-search" class="cm-input" placeholder="Search cases…" value="${esc(EXEC_CASE_UI.q)}"><select id="ex-case-state" class="cm-input"><option value="all" ${EXEC_CASE_UI.state === 'all' ? 'selected' : ''}>All states</option>${['waiting', 'queued', 'working', 'blocked', 'failed', 'measuring', 'completed'].map(value => `<option value="${value}" ${EXEC_CASE_UI.state === value ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></div><div class="ex-case-split"><div class="ex-case-list">${caseRows || '<div class="ex-empty">No cases match this view.</div>'}</div><div class="ex-case-detail-pane">${caseDetail}</div></div></section>`;
   const isCROHandoff = p => ['researcher', 'cro'].includes(String(p.created_by));
   const proposalRows = (proposals.proposals || [])
     .map(p => {
@@ -13430,6 +14044,10 @@ async function renderExecutive() {
   const activeRun = runStatus?.active;
   const latestRun = runStatus?.latest;
   const runQueue = runStatus?.queue || [];
+  const selectedRunId = EXEC_RUN_UI.selected || latestRun?.action_id || null;
+  const runDetail = selectedRunId
+    ? await apiOptional('GET', `/api/executive/run/${encodeURIComponent(selectedRunId)}`, null)
+    : null;
   const runResult = latestRun?.result?.tick_result || latestRun?.result || {};
   const runCounts = runResult?.counts || runResult?.created_counts || {};
   const runFailureReason =
@@ -13519,7 +14137,7 @@ async function renderExecutive() {
         run.status === 'failed'
           ? ` <button class="btn sm ex-run-clear" data-id="${esc(run.action_id)}" type="button">Clear</button>`
           : '';
-      return `<tr><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}${clear}</td><td class="muted">${esc(run.action_id.slice(0, 8))}</td></tr>`;
+      return `<tr class="${run.action_id === selectedRunId ? 'ex-run-selected' : ''}"><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}${clear}</td><td class="muted"><button class="btn sm ex-run-view" data-id="${esc(run.action_id)}" type="button">View log</button><div>${esc(run.action_id.slice(0, 8))}</div></td></tr>`;
     })
     .join('');
   const runSortButton = (key, label) => {
@@ -13529,6 +14147,23 @@ async function renderExecutive() {
   };
   const failedRunCount = runQueue.filter(run => run.status === 'failed').length;
   const runQueueToolbar = `<div class="ex-run-queue-toolbar"><input id="ex-run-filter" class="cm-input" placeholder="Filter runs…" value="${esc(EXEC_RUN_UI.q)}"><select id="ex-run-status" class="cm-input"><option value="all" ${EXEC_RUN_UI.status === 'all' ? 'selected' : ''}>All statuses</option><option value="running" ${EXEC_RUN_UI.status === 'running' ? 'selected' : ''}>Running</option><option value="completed" ${EXEC_RUN_UI.status === 'completed' ? 'selected' : ''}>Completed</option><option value="failed" ${EXEC_RUN_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select><label class="muted">Rows <select id="ex-run-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${EXEC_RUN_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>${failedRunCount ? '<button class="btn sm danger" id="ex-run-clear-failed" type="button">Clear failed</button>' : ''}</div>`;
+  const detailTranscript = (
+    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
+  )
+    .map(
+      item =>
+        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type)} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
+    )
+    .join('');
+  const detailItems = (runDetail?.action_items || [])
+    .map(
+      item =>
+        `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner)}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
+    )
+    .join('');
+  const runDetailPanel = runDetail
+    ? `<section class="ex-run-detail"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h3>${esc(runDetail.run?.source || (runDetail.run?.target_type === 'manual-executive-run' ? 'manual' : 'scheduled'))} run · ${esc(fmtDate(runDetail.run?.started_at))}</h3><p class="muted">${esc(runDetail.transcript?.length || 0)} model transcript entries · ${esc(runDetail.conversation?.length || 0)} executive messages · ${esc(runDetail.action_items?.length || 0)} action items</p></div><button class="btn sm" id="ex-run-log-close" type="button">Close</button></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${detailTranscript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail.action_log?.length || 0)})</summary><pre>${esc((runDetail.action_log || []).map(action => `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`).join('\n') || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${detailItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div></section>`
+    : '';
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
@@ -13546,15 +14181,27 @@ async function renderExecutive() {
     Number(managerQueueSummary.queued || 0) + Number(principalQueueSummary.queued || 0);
   const stat = (value, label, tone = '') =>
     `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
+  const calendarEvents = calendar?.events || calendar?.calendar?.events || [];
+  const calendarBadge = state =>
+    `<span class="badge ${state === 'completed' ? 'b-green' : state === 'overdue' ? 'b-red' : state === 'picked_up' ? 'b-blue' : state === 'failed' ? 'b-red' : 'b-yellow'}">${esc(state)}</span>`;
+  const calendarRows = calendarEvents
+    .slice(0, 30)
+    .map(
+      e =>
+        `<tr><td><b>${esc(e.title)}</b><div class="muted">${esc(e.owner || 'ceo')}${e.site ? ` · ${esc(e.site)}` : ''}</div></td><td>${esc(fmtDate(e.at))}</td><td>${calendarBadge(e.state)}</td><td>${e.state === 'overdue' || e.state === 'scheduled' ? `<button class="btn sm ex-calendar-pick" data-id="${esc(e.id)}">Pick up</button>` : ''}${e.state === 'picked_up' ? `<button class="btn sm ex-calendar-complete" data-id="${esc(e.id)}">Complete</button>` : ''}</td></tr>`
+    )
+    .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh">↻ Refresh</button></div></header>
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
-        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Recent activity</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
+        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div>${runDetailPanel}</section>
+        <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INPUT</div><h3>Send direction</h3></div><span class="muted">Tracked by the executive team</span></div><textarea id="ex-message" class="cm-input" rows="2" placeholder="What should the executive team know or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Your request will appear below with a status and response thread.</span><button class="btn primary" id="ex-send">Send request</button></div></section>
-        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationRows ? `<div class="ex-notifications">${notificationRows}</div>` : ''}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
+        ${casePanel}
+        <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationGroup}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
         <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue">${transcriptMessages.length} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}</div></section>
       </div>
@@ -13578,6 +14225,38 @@ async function renderExecutive() {
       `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
     );
   $('#ex-refresh').onclick = () => softRender();
+  $('#ex-case-search').oninput = event => {
+    EXEC_CASE_UI.q = event.target.value.trim();
+    EXEC_CASE_UI.selected = null;
+    softRender();
+  };
+  $('#ex-case-state').onchange = event => {
+    EXEC_CASE_UI.state = event.target.value;
+    EXEC_CASE_UI.selected = null;
+    softRender();
+  };
+  $$('.ex-case-list-item').forEach(button => {
+    button.onclick = () => {
+      EXEC_CASE_UI.selected = button.dataset.caseId;
+      softRender();
+    };
+  });
+  $('#ex-case-close')?.addEventListener('click', () => {
+    EXEC_CASE_UI.selected = null;
+    softRender();
+  });
+  $$('[data-case-open-thread]').forEach(button => {
+    button.onclick = () => {
+      EXEC_INBOX_UI.selected = button.dataset.caseOpenThread;
+      go('agent', 'executive', 'conversation');
+    };
+  });
+  $$('[data-case-open-queue]').forEach(button => {
+    button.onclick = () => {
+      CHANGE_QUEUE_DETAIL = button.dataset.caseOpenQueue;
+      go('change-queue');
+    };
+  });
   $('#ex-inbox-search').oninput = event => {
     EXEC_INBOX_UI.q = event.target.value.trim();
     EXEC_INBOX_UI.page = 1;
@@ -13650,17 +14329,48 @@ async function renderExecutive() {
   });
   $$('.ex-request-close').forEach(button => {
     button.onclick = async () => {
-      const outcome = window.prompt('Outcome / resolution note required to close this request:');
-      if (!outcome?.trim()) return;
+      const outcome = await requestModalText({
+        title: 'Close executive request',
+        label: 'Outcome or resolution note',
+        placeholder: 'What was resolved, decided, or handed off?',
+        required: true,
+        submitLabel: 'Close request',
+      });
+      if (!outcome) return;
       try {
         await api(
           'POST',
           `/api/executive/requests/${encodeURIComponent(button.dataset.id)}/transition`,
-          { lifecycle_state: 'closed', outcome: outcome.trim() }
+          { lifecycle_state: 'closed', outcome }
         );
         toast('Request closed');
         softRender();
       } catch (e) {
+        toast(e.message, 'err');
+      }
+    };
+  });
+  $$('.ex-work-reply-send').forEach(button => {
+    button.onclick = async () => {
+      const body = $(
+        `.ex-work-reply-body[data-id="${CSS.escape(button.dataset.id)}"]`
+      )?.value.trim();
+      if (!body) return toast('Write a reply first', 'err');
+      const request = allOwnerRequests.find(item => item.work_id === button.dataset.id);
+      const thread = request ? requestThread(request) : [];
+      button.disabled = true;
+      try {
+        await api('POST', '/api/executive/messages', {
+          actor: 'owner',
+          body,
+          work_id: button.dataset.id,
+          reply_to: thread.at(-1)?.message_id || null,
+          message_type: 'update',
+        });
+        toast('Reply added; the executive team will see it on its next run');
+        softRender();
+      } catch (e) {
+        button.disabled = false;
         toast(e.message, 'err');
       }
     };
@@ -13688,6 +14398,18 @@ async function renderExecutive() {
     EXEC_RUN_UI.page += 1;
     softRender();
   };
+  $$('.ex-run-view').forEach(button => {
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      EXEC_RUN_UI.selected = button.dataset.id;
+      softRender();
+    });
+  });
+  $('#ex-run-log-close')?.addEventListener('click', () => {
+    EXEC_RUN_UI.selected = null;
+    softRender();
+  });
   $$('.ex-run-sort').forEach(
     button =>
       (button.onclick = () => {
@@ -13747,6 +14469,60 @@ async function renderExecutive() {
       button.textContent = '▶ Run executive team';
     }
   };
+  $$('.ex-calendar-pick').forEach(
+    b =>
+      (b.onclick = async () => {
+        await api('POST', `/api/executive/calendar/${encodeURIComponent(b.dataset.id)}/picked_up`, {
+          actor: 'owner',
+        });
+        toast('Event picked up');
+        softRender();
+      })
+  );
+  $$('.ex-calendar-complete').forEach(
+    b =>
+      (b.onclick = async () => {
+        await api('POST', `/api/executive/calendar/${encodeURIComponent(b.dataset.id)}/completed`, {
+          followup_required: true,
+        });
+        toast('Event completed — review follow-ups');
+        softRender();
+      })
+  );
+  $('#ex-calendar-new')?.addEventListener('click', async () => {
+    const title = await globalThis.fleetTextPrompt?.({
+      title: 'Schedule executive event',
+      label: 'Event title',
+      required: true,
+      submitLabel: 'Next',
+    });
+    if (!title) return;
+    const when = await globalThis.fleetTextPrompt?.({
+      title: 'Schedule executive event',
+      label: 'ISO date/time (for example 2026-10-01T14:00:00-04:00)',
+      required: true,
+      submitLabel: 'Schedule',
+    });
+    if (!when) return;
+    const repeat = await globalThis.fleetTextPrompt?.({
+      title: 'Schedule executive event',
+      label: 'Repeat interval (optional, e.g. 2 hours or 1 day)',
+      submitLabel: 'Schedule',
+    });
+    const recurrence = repeat?.trim() ? { kind: 'interval', value: repeat.trim() } : null;
+    api('POST', '/api/executive/calendar', {
+      title,
+      at: when,
+      recurrence,
+      action: { type: 'reminder' },
+      followup_required: true,
+    })
+      .then(() => {
+        toast('Calendar event scheduled');
+        softRender();
+      })
+      .catch(e => toast(e.message, 'err'));
+  });
   if (activeRun) pollExecutiveRun();
   $('#ex-run-cro-lab').onclick = async () => {
     const button = $('#ex-run-cro-lab');
@@ -13856,7 +14632,7 @@ async function renderExecutive() {
           `/api/executive/proposals/${encodeURIComponent(button.dataset.id)}/decision`,
           { status, decision_note: note, decided_by: 'owner' }
         );
-        closeModal();
+        closeModal(true);
         toast(isFeedback ? 'Reply sent; proposal returned for revision' : `Proposal ${status}`);
         softRender();
       } catch (e) {
@@ -13922,6 +14698,41 @@ function workItemBadge(value, type = 'status') {
   return `<span class="badge ${classes[value] || 'b-gray'}">${esc(String(value || '').replace('_', ' '))}</span>`;
 }
 
+function inlineDraftSnapshot(panel) {
+  return [...panel.querySelectorAll('input, select, textarea')].map(el => ({
+    value: el.value,
+    checked: el.checked,
+    selected: el.tagName === 'SELECT' ? [...el.selectedOptions].map(option => option.value) : null,
+  }));
+}
+
+function openInlineDraft(panel) {
+  panel.dataset.fdDraftBaseline = JSON.stringify(inlineDraftSnapshot(panel));
+  panel.classList.remove('hidden');
+}
+
+async function closeInlineDraft(panel, label) {
+  if (!panel || panel.classList.contains('hidden')) return true;
+  const baseline = panel.dataset.fdDraftBaseline || '';
+  const dirty = baseline
+    ? JSON.stringify(inlineDraftSnapshot(panel)) !== baseline
+    : [...panel.querySelectorAll('input:not([type="hidden"]), textarea')].some(el =>
+        el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value.trim()
+      );
+  if (dirty) {
+    const approved = await globalThis.fleetConfirm?.({
+      title: `Discard ${label}?`,
+      message: `This ${label} has unsaved content. Discard it and close the editor?`,
+      confirmLabel: 'Discard draft',
+      danger: true,
+    });
+    if (!approved) return false;
+  }
+  panel.classList.add('hidden');
+  delete panel.dataset.fdDraftBaseline;
+  return true;
+}
+
 async function renderWorkbench() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive workbench…</div>';
@@ -13929,7 +14740,7 @@ async function renderWorkbench() {
   try {
     data = await api('GET', '/api/executive/work-items?limit=300');
   } catch (e) {
-    app.innerHTML = `<div class="error-box">Workbench failed to load: ${esc(e.message)}</div>`;
+    renderViewError(app, `Workbench failed to load: ${e.message}`);
     return;
   }
   const all = data.work_items || [];
@@ -13960,8 +14771,12 @@ async function renderWorkbench() {
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
     <section class="wb-toolbar"><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
     <section class="wb-list">${rows || '<div class="empty">No workbench cases match this view.</div>'}</section></div>`;
-  $('#wb-new-toggle').onclick = () => $('#wb-new').classList.toggle('hidden');
-  $('#wb-new-close').onclick = () => $('#wb-new').classList.add('hidden');
+  $('#wb-new-toggle').onclick = async () => {
+    const panel = $('#wb-new');
+    if (panel.classList.contains('hidden')) openInlineDraft(panel);
+    else await closeInlineDraft(panel, 'workbench case draft');
+  };
+  $('#wb-new-close').onclick = () => closeInlineDraft($('#wb-new'), 'workbench case draft');
   $('#wb-filter-status').onchange = e => {
     WORKBENCH_UI.status = [...e.target.selectedOptions].map(option => option.value).join(',');
     softRender();
@@ -14099,8 +14914,12 @@ function renderKnowledge() {
       <section class="kn-kpis"><div><b>${all.filter(i => ['queued', 'in_progress'].includes(i.status)).length}</b><span>learning queue</span></div><div><b>${all.filter(i => i.status === 'complete').length}</b><span>completed</span></div><div><b>${all.filter(i => i.audience === 'legal').length}</b><span>legal resources</span></div><div><b>${all.length}</b><span>catalogued</span></div></section>
       <section class="card kn-new hidden" id="kn-new"><div class="page-head"><div><h3>Add a source</h3><p class="muted">Record enough provenance that a role can judge whether it is worth its time.</p></div><button class="icon-btn" id="kn-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="kn-title" class="cm-input" placeholder="e.g. FTC Endorsement Guides"></label><label>Type<select id="kn-type" class="cm-input">${options(['official', 'book', 'course', 'checklist', 'paper', 'reference'], 'official', 'Choose type')}</select></label><label>Audience<select id="kn-audience-new" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], 'all', 'Choose audience')}</select></label><label>URL<input id="kn-url" class="cm-input" type="url" placeholder="https://…"></label><label>Publisher<input id="kn-publisher" class="cm-input" placeholder="Publisher or institution"></label><label>Jurisdiction<input id="kn-jurisdiction" class="cm-input" placeholder="US / EU / general"></label><label>License<input id="kn-license" class="cm-input" placeholder="Public / CC BY / paid / verify"></label></div><label>Why it matters<textarea id="kn-summary" class="cm-input" rows="2" placeholder="What decision or capability does this support?"></textarea><div class="task-toolbar"><span class="muted">Sources can be queued for a role without interrupting the human owner.</span><button class="btn primary" id="kn-create">Add source</button></div></section>
       <section class="kn-toolbar"><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><span class="muted">${visible.length} of ${all.length} sources shown</span></section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
-      $('#kn-new-toggle').onclick = () => $('#kn-new').classList.toggle('hidden');
-      $('#kn-new-close').onclick = () => $('#kn-new').classList.add('hidden');
+      $('#kn-new-toggle').onclick = async () => {
+        const panel = $('#kn-new');
+        if (panel.classList.contains('hidden')) openInlineDraft(panel);
+        else await closeInlineDraft(panel, 'knowledge source draft');
+      };
+      $('#kn-new-close').onclick = () => closeInlineDraft($('#kn-new'), 'knowledge source draft');
       $('#kn-filter-status').onchange = e => {
         KNOWLEDGE_UI.status = e.target.value;
         softRender();
@@ -14177,7 +14996,7 @@ function renderKnowledge() {
       stamp();
     })
     .catch(e => {
-      app.innerHTML = `<div class="error-box">Knowledge shelf failed to load: ${esc(e.message)}</div>`;
+      renderViewError(app, `Knowledge shelf failed to load: ${e.message}`);
     });
 }
 
@@ -14264,12 +15083,12 @@ async function renderSiteDetail() {
     </div>
     <section class="site-kpis" aria-label="${esc(site)} summary">
       <div class="site-kpi"><span>Role health</span><strong>${rolePct == null ? '—' : `${rolePct}%`}</strong><small>${healthyRoles}/${roleCells.length || 0} installed roles fresh</small></div>
-      <div class="site-kpi"><span>Deploy</span><strong>${deploySite.live === true ? 'Live' : deploySite.live === false ? 'Behind' : '—'}</strong><small>${esc(deploySite.deployedAt ? new Date(deploySite.deployedAt * 1000).toLocaleString() : 'No deploy evidence')}</small></div>
+      <div class="site-kpi"><span>Deploy</span><strong>${esc({ live: 'Live', 'ops-only': 'Live · ops-only', deploying: 'Deploying', behind: 'Site changes pending', failed: 'Build failed', unknown: 'Unknown' }[deploySite.status] || (deploySite.live === true ? 'Live' : deploySite.live === false ? 'Site changes pending' : '—'))}</strong><small>${esc(deploySite.reason || (deploySite.deployedAt ? new Date(deploySite.deployedAt * 1000).toLocaleString() : 'No deploy evidence'))}</small></div>
       <div class="site-kpi"><span>Open work</span><strong>${taskCount}</strong><small>tasks across this site queue</small></div>
       <div class="site-kpi${activeErrors.length ? ' is-risk' : ''}"><span>Errors · 24h</span><strong>${activeErrors.length}</strong><small>${activeErrors.length ? 'Requires investigation' : 'No active container errors'}</small></div>
     </section>
     <section class="site-command-grid">
-      <article class="card site-panel"><div class="site-panel-head"><div><h3>Runtime posture</h3><p class="muted">Current evidence from role liveness, deploy health, and synthetic monitoring.</p></div>${siteStatusBadge(runtimeOk, 'Operational', 'Degraded')}</div><dl class="site-facts"><div><dt>Engineer pulse</dt><dd>${esc(fleetRow.pulse || fleetRow.status || 'Unknown')}</dd></div><div><dt>Live check</dt><dd>${gatusSite.failing == null ? 'Unknown' : gatusSite.failing === 0 ? 'Passing' : `${gatusSite.failing} failing`}</dd></div><div><dt>Cloudflare</dt><dd>${siteStatusBadge(deploySite.live, 'In sync', 'Behind')}</dd></div><div><dt>Git</dt><dd>${esc(git.branch || git.currentBranch || 'Branch unknown')} · ${git.dirty ? 'uncommitted changes' : 'clean'}</dd></div></dl></article>
+      <article class="card site-panel"><div class="site-panel-head"><div><h3>Runtime posture</h3><p class="muted">Current evidence from role liveness, deploy health, and synthetic monitoring.</p></div>${siteStatusBadge(runtimeOk, 'Operational', 'Degraded')}</div><dl class="site-facts"><div><dt>Engineer pulse</dt><dd>${esc(fleetRow.pulse || fleetRow.status || 'Unknown')}</dd></div><div><dt>Live check</dt><dd>${gatusSite.failing == null ? 'Unknown' : gatusSite.failing === 0 ? 'Passing' : `${gatusSite.failing} failing`}</dd></div><div><dt>Cloudflare</dt><dd>${esc({ live: 'Live', 'ops-only': 'Live · ops-only', deploying: 'Deploying', behind: 'Site changes pending', failed: 'Build failed', unknown: 'Unknown' }[deploySite.status] || 'Unknown')}</dd></div><div><dt>Git</dt><dd>${esc(git.branch || git.currentBranch || 'Branch unknown')} · ${git.dirty ? 'uncommitted changes' : 'clean'}</dd></div></dl></article>
       <article class="card site-panel"><div class="site-panel-head"><div><h3>Immediate actions</h3><p class="muted">Safe shortcuts into the existing operational surfaces.</p></div></div><div class="site-action-list"><button class="btn" id="site-open-tasks" type="button">Open task board <span>→</span></button><button class="btn" id="site-open-git" type="button">Inspect Git status <span>→</span></button><button class="btn" id="site-open-errors" type="button">Review errors${activeErrors.length ? ` <span class="badge b-red">${activeErrors.length}</span>` : ''} <span>→</span></button></div></article>
     </section>
     <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Installed roles</h3><p class="muted">The role matrix is the source of truth for scheduled ownership on this site.</p></div><span class="muted">${roleCells.length} roles</span></div><table><thead><tr><th>Role</th><th>Status</th><th>Last run</th><th>Control</th></tr></thead><tbody>${roleRows}</tbody></table></section>
@@ -14502,7 +15321,19 @@ function softRender() {
     });
 }
 
+// Shared recovery hook for shell-level error affordances. Keep retrying the
+// current route in place so an operator does not lose the active filter,
+// navigation context, or URL when a single API read fails.
+globalThis.fleetRetryView = () => {
+  FRESH = false;
+  softRender();
+};
+
 function go(view, agent, agentPage) {
+  // Route changes must respect the same unsaved-editor guard as modal close
+  // buttons. If the operator cancels the discard prompt, keep the current URL,
+  // editor, and workspace intact.
+  if (!closeModal()) return false;
   STATE.view = view;
   STATE.agent = agent || null;
   STATE.agentPage = agentPage || null;
@@ -14511,6 +15342,7 @@ function go(view, agent, agentPage) {
   if (location.hash !== `#${hash}`) location.hash = hash; // shareable + back-button
   FRESH = true;
   render();
+  return true;
 }
 
 /* ---- agents dropdown ---- */
@@ -14594,10 +15426,14 @@ let autoTimer = null,
   nextAt = 0;
 
 function autoCfg() {
-  return {
-    on: localStorage.getItem('fd.auto') !== '0', // default ON
-    interval: parseInt(localStorage.getItem('fd.interval') || '15000', 10) || 15000,
-  };
+  try {
+    return {
+      on: localStorage.getItem('fd.auto') !== '0', // default ON
+      interval: parseInt(localStorage.getItem('fd.interval') || '15000', 10) || 15000,
+    };
+  } catch {
+    return { on: true, interval: 15000 };
+  }
 }
 function applyAutoUI() {
   const { on, interval } = autoCfg();
@@ -14645,6 +15481,7 @@ function scheduleAuto() {
   updateCountdown();
 }
 function refreshTick() {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
   if (document.hidden) return; // tab not visible
   if (!$('#modal').classList.contains('hidden')) return; // editing a task
   const ae = document.activeElement; // mid-typing (e.g. commit msg)
@@ -14794,28 +15631,61 @@ async function boot() {
   $('#refresh').addEventListener('click', softRender);
   $('#density-toggle').addEventListener('click', toggleDensity);
   const ff = $('#fleet-filter');
-  if (ff) ff.addEventListener('input', applyFleetFilter);
+  if (ff) {
+    try {
+      ff.value = localStorage.getItem('fd.fleet-filter') || '';
+    } catch {}
+    ff.addEventListener('input', () => {
+      try {
+        localStorage.setItem('fd.fleet-filter', ff.value);
+      } catch {}
+      applyFleetFilter();
+    });
+    ff.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && ff.value) {
+        e.stopPropagation();
+        clearFleetFilter();
+      }
+    });
+    $('#fleet-filter-clear')?.addEventListener('click', clearFleetFilter);
+    applyFleetFilter();
+  }
   $('#auto-on').addEventListener('change', e => {
-    localStorage.setItem('fd.auto', e.target.checked ? '1' : '0');
+    try {
+      localStorage.setItem('fd.auto', e.target.checked ? '1' : '0');
+    } catch {}
     scheduleAuto();
   });
   $('#auto-int').addEventListener('change', e => {
-    localStorage.setItem('fd.interval', e.target.value);
+    try {
+      localStorage.setItem('fd.interval', e.target.value);
+    } catch {}
     scheduleAuto();
   });
   $('#modal-close').addEventListener('click', closeModal);
   $('#modal').addEventListener('click', e => {
     if (e.target.id === 'modal') closeModal();
   });
-  $('#update-pill').addEventListener('click', () => location.reload());
+  watchModalFormState();
+  $('#toast-close')?.addEventListener('click', toast._dismiss);
+  $('#update-pill').addEventListener('click', async () => {
+    const approved = await globalThis.fleetConfirm?.({
+      title: 'Reload dashboard?',
+      message:
+        'A newer dashboard build is available. Reload now? Unsaved editor content and the current workspace position may be lost.',
+      confirmLabel: 'Reload now',
+    });
+    if (approved === false) return;
+    location.reload();
+  });
   cmWireModals();
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
       cmCloseLogs();
       cmCloseDiff();
-      cmCloseEditor();
-      cmCloseAddJob();
+      cmCloseEditorSafely();
+      cmCloseAddJobSafely();
     }
   });
   document.addEventListener('visibilitychange', () => {
@@ -14886,7 +15756,7 @@ async function renderGuardrails() {
       api('GET', '/api/sites'),
     ]);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Guardrails failed to load: ${esc(e.message)}</div>`;
+    renderViewError(app, `Guardrails failed to load: ${e.message}`);
     return;
   }
   GR_CONFIG = cfg;
@@ -15155,7 +16025,7 @@ async function renderAIOptimizer() {
   try {
     data = await api('GET', '/api/ai-optimizer');
   } catch (e) {
-    app.innerHTML = `<div class="empty">AI optimizer queue failed: ${esc(e.message)}</div>`;
+    renderViewError(app, `AI optimizer queue failed: ${e.message}`);
     return data;
   }
   const s = data.summary || { counts: {} };
@@ -15236,9 +16106,11 @@ async function renderAIOptimizer() {
       const job = b.dataset.aioptRun;
       if (
         job === 'implement' &&
-        !confirm(
-          'Run the implementer now? It will apply the oldest approved ticket to its canary site and push.'
-        )
+        !(await globalThis.fleetConfirm?.({
+          title: 'Run implementer now',
+          message: 'Apply the oldest approved ticket to its canary site and push the result?',
+          confirmLabel: 'Run implementer',
+        }))
       )
         return;
       b.disabled = true;
@@ -15252,7 +16124,7 @@ async function renderAIOptimizer() {
         AIOPT.optimistic[job] = Date.now();
         await renderAIOptimizer();
       } catch (e) {
-        alert(`Run failed: ${e.message}`);
+        toast(`Run failed: ${e.message}`, 'err');
         b.disabled = false;
         b.textContent = '▶ Run now';
       }
@@ -15268,9 +16140,12 @@ async function renderAIOptimizer() {
       if (
         enabled &&
         job === 'implement' &&
-        !confirm(
-          'Resume the implementer? Approved tickets will start being applied on the next tick (:11/:31/:51).'
-        )
+        !(await globalThis.fleetConfirm?.({
+          title: 'Resume implementer',
+          message:
+            'Approved tickets will start being applied on the next scheduled tick (:11/:31/:51).',
+          confirmLabel: 'Resume implementer',
+        }))
       )
         return;
       b.disabled = true;
@@ -15278,7 +16153,7 @@ async function renderAIOptimizer() {
         await api('PUT', `/api/ai-optimizer/toggle/${encodeURIComponent(job)}`, { enabled });
         await renderAIOptimizer();
       } catch (e) {
-        alert(`Toggle failed: ${e.message}`);
+        toast(`Toggle failed: ${e.message}`, 'err');
         b.disabled = false;
       }
     })
@@ -15291,12 +16166,23 @@ async function renderAIOptimizer() {
       // finding class from being re-filed — so make the reason mandatory.
       let note = '';
       if (to === 'rejected') {
-        note = prompt(
-          'Why reject? (recorded on the ticket; suppresses this finding from being re-filed)'
-        );
+        note = await globalThis.fleetTextPrompt?.({
+          title: 'Reject AI finding',
+          label: 'Reason for rejection',
+          placeholder:
+            'This is recorded on the ticket and suppresses this finding from being re-filed.',
+          required: true,
+          submitLabel: 'Reject finding',
+        });
         if (note === null) return;
       } else if (to === 'applied') {
-        note = prompt('Commit hash (optional):') || '';
+        note =
+          (await globalThis.fleetTextPrompt?.({
+            title: 'Record applied commit',
+            label: 'Commit hash (optional)',
+            placeholder: 'abc1234',
+            submitLabel: 'Record commit',
+          })) || '';
       }
       b.disabled = true;
       try {
@@ -15311,7 +16197,7 @@ async function renderAIOptimizer() {
         );
         await renderAIOptimizer();
       } catch (e) {
-        alert(`Move failed: ${e.message}`);
+        toast(`Move failed: ${e.message}`, 'err');
         b.disabled = false;
       }
     })
