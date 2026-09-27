@@ -60,3 +60,40 @@ test('stores goal and work ancestry and rejects cycles', () => {
   );
   db.close();
 });
+
+test('normalizes legacy evidence and enforces typed work products', () => {
+  const db = store();
+  const legacy = db.createExecutiveWorkItem({
+    title: 'Keep a legacy source readable',
+    kind: 'evidence',
+    owner: 'ceo',
+    evidence: [{ label: 'old report', note: 'historical evidence' }],
+  });
+  assert.equal(legacy.evidence[0].type, 'source');
+  assert.equal(legacy.evidence_contract, 'executive-evidence/v1');
+
+  const typed = db.createExecutiveWorkItem({
+    title: 'Record a measured result',
+    kind: 'evidence',
+    owner: 'cto',
+    evidence: [{ type: 'measurement', label: 'conversion rate', detail: '2.1%' }],
+  });
+  assert.equal(typed.evidence[0].type, 'measurement');
+  assert.throws(
+    () =>
+      db.createExecutiveWorkItem({
+        title: 'Reject unknown evidence',
+        kind: 'evidence',
+        owner: 'cto',
+        evidence: [{ type: 'guess', note: 'not inspectable' }],
+      }),
+    /invalid evidence type/
+  );
+  const done = db.updateExecutiveWorkItem(typed.work_id, {
+    status: 'done',
+    evidence: [{ type: 'test', label: 'unit test', note: 'passed' }],
+  });
+  assert.equal(done.status, 'done');
+  assert.equal(done.evidence[0].type, 'test');
+  db.close();
+});

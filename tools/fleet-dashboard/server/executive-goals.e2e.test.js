@@ -56,9 +56,12 @@ test('HTTP goal hierarchy and work lineage survive a real API round trip', async
     kind: 'evidence',
     owner: 'cto',
     goal_id: goal.goal_id,
+    evidence: [{ type: 'test', label: 'goal API E2E', note: 'round trip passed' }],
   });
   assert.equal(workResponse.status, 201);
   assert.equal(workResponse.body.work_item.goal_id, goal.goal_id);
+  assert.equal(workResponse.body.work_item.evidence_contract, 'executive-evidence/v1');
+  assert.equal(workResponse.body.work_item.evidence[0].type, 'test');
 
   const detail = await request(server, 'GET', `/api/executive/goals/${goal.goal_id}`);
   assert.equal(detail.status, 200);

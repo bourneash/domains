@@ -63,13 +63,18 @@ snapshot. A newly stranded item changes the heartbeat attention signature and
 produces one owner-facing update; repeated unchanged liveness state is quiet.
 The audit remains read-only and recovery remains an explicit operator action.
 
+Work-item evidence is now exposed as the backward-compatible
+`executive-evidence/v1` contract. New entries are typed as source, artifact,
+test, measurement, decision, diff, or preview; legacy `{label,note,url}`
+entries remain readable and normalize to `source`. This makes completion
+inspectable without forcing a destructive migration of existing executive
+history.
+
 ## Adopt next, in priority order
 
 1. Require a durable goal/parent reference for material new implementation
    work, now that the backward-compatible goal/lineage API exists.
-2. Promote work products (report, diff, preview, measurement, or decision
-   record) to a typed evidence contract rather than free-form completion text.
-3. Define a small adapter contract only if a second trusted execution runtime
+2. Define a small adapter contract only if a second trusted execution runtime
    is actually needed. Do not import Paperclip wholesale or add a generic
    plugin surface before there is an in-scope use case.
 

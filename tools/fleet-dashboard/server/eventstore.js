@@ -11,6 +11,15 @@ const { DatabaseSync } = require('node:sqlite');
 const workflowEngine = require('./workflow-engine');
 
 const TYPES = /^[a-z][a-z0-9_.-]{1,79}$/;
+const EXECUTIVE_EVIDENCE_TYPES = new Set([
+  'source',
+  'artifact',
+  'test',
+  'measurement',
+  'decision',
+  'diff',
+  'preview',
+]);
 
 function open(root, { file } = {}) {
   const dbFile = file || path.join(root, 'tools', 'fleet-dashboard', 'data', 'fleet-events.sqlite');
@@ -1539,9 +1548,47 @@ function open(root, { file } = {}) {
   function decodeExecutiveWorkItem(row) {
     return {
       ...row,
-      evidence: safeJson(row.evidence_json),
+      evidence: normalizeExecutiveEvidence(safeJson(row.evidence_json)),
+      evidence_contract: 'executive-evidence/v1',
       evidence_json: undefined,
     };
+  }
+
+  // Evidence was historically an untyped list of {label,note,url} objects.
+  // Keep those records readable while giving new work products an explicit
+  // type that downstream reviewers can reason about.
+  function normalizeExecutiveEvidence(value, { strict = false } = {}) {
+    if (!Array.isArray(value)) return [];
+    const normalized = [];
+    for (const entry of value.slice(0, 20)) {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+        if (strict) throw httpErr(400, 'evidence entries must be objects');
+        continue;
+      }
+      const type = String(entry.type || 'source')
+        .trim()
+        .toLowerCase();
+      const label = entry.label === undefined ? undefined : String(entry.label).trim();
+      const note = entry.note === undefined ? undefined : String(entry.note).trim();
+      const url = entry.url === undefined ? undefined : String(entry.url).trim();
+      const detail = entry.detail === undefined ? undefined : String(entry.detail).trim();
+      const artifact = entry.artifact === undefined ? undefined : String(entry.artifact).trim();
+      if (!EXECUTIVE_EVIDENCE_TYPES.has(type)) {
+        if (strict) throw httpErr(400, `invalid evidence type: ${type}`);
+        continue;
+      }
+      if (![label, note, url, detail, artifact].some(Boolean)) {
+        if (strict) throw httpErr(400, 'evidence requires label, note, url, detail, or artifact');
+        continue;
+      }
+      const item = { ...entry, type };
+      for (const [key, field] of Object.entries({ label, note, url, detail, artifact })) {
+        if (field === undefined) delete item[key];
+        else item[key] = field;
+      }
+      normalized.push(item);
+    }
+    return normalized;
   }
 
   function assertWorkLineage(input, currentId = null) {
@@ -1581,7 +1628,8 @@ function open(root, { file } = {}) {
       next_action: String(input.next_action || '').trim(),
       waiting_on: input.waiting_on ? String(input.waiting_on).trim() : null,
       due_at: input.due_at ? String(input.due_at).trim() : null,
-      evidence: Array.isArray(input.evidence) ? input.evidence.slice(0, 20) : [],
+      evidence: normalizeExecutiveEvidence(input.evidence, { strict: true }),
+      evidence_contract: 'executive-evidence/v1',
       created_by: String(input.created_by || 'system').trim(),
       created_at: now,
       updated_at: now,
@@ -1729,6 +1777,7 @@ function open(root, { file } = {}) {
     next.priority = String(next.priority || '').trim();
     next.owner = String(next.owner || '').trim();
     next.lifecycle_state = String(next.lifecycle_state || 'open').trim();
+    next.evidence = normalizeExecutiveEvidence(next.evidence, { strict: true });
     if (!next.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(next.kind)) throw httpErr(400, 'invalid work item kind');
     if (!WORK_ITEM_STATUSES.has(next.status)) throw httpErr(400, 'invalid work item status');
@@ -1738,9 +1787,7 @@ function open(root, { file } = {}) {
     next.parent_work_id = next.parent_work_id ? String(next.parent_work_id).trim() : null;
     assertWorkLineage(next, current.work_id);
     if (next.status === 'done' && current.status !== 'done') {
-      const hasEvidence =
-        Array.isArray(next.evidence) &&
-        next.evidence.some(entry => entry && (entry.note || entry.url || entry.label));
+      const hasEvidence = Array.isArray(next.evidence) && next.evidence.length > 0;
       if (
         !hasEvidence &&
         !String(next.outcome || '').trim() &&
@@ -1797,7 +1844,7 @@ function open(root, { file } = {}) {
         String(next.next_action || ''),
         next.waiting_on || null,
         next.due_at || null,
-        JSON.stringify(Array.isArray(next.evidence) ? next.evidence.slice(0, 20) : []),
+        JSON.stringify(next.evidence),
         now,
         resolved,
         next.resolution_note || null,

@@ -28,6 +28,10 @@ The first slice lives in the Fleet Dashboard event store and exposes:
   items may carry `goal_id` and `parent_work_id`, so material work can retain
   its “why” chain without replacing the fleet-specific proposal and release
   gates. Parent cycles and cross-goal lineage are rejected.
+- Work-item evidence is returned with `evidence_contract: "executive-evidence/v1"`.
+  Entries are typed as `source`, `artifact`, `test`, `measurement`, `decision`,
+  `diff`, or `preview`, with a descriptive `label`, `note`, `url`, `detail`, or
+  `artifact`. Legacy untyped entries remain readable and normalize to `source`.
 - `GET/POST/PATCH /api/executive/knowledge` — the provenance-aware Knowledge
   Shelf and role learning queue. Sources retain publisher, jurisdiction, date,
   license, relevance, and lifecycle status; they are educational inputs, not
