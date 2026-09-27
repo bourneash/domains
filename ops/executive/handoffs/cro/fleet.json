@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:33:57.977Z",
+  "generated_at": "2026-09-27T11:48:46.792Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve containment-only execution and retain three deferred opportunities. deeppenetrations.com: refine the /reviews/liquid-wrench title, meta description, and onsite intent alignment; evidence is 95 impressions, position 2.8, and 0 clicks. Metric: GSC clicks/CTR; learning window: 14 days or 100 new impressions; rollback: restore prior metadata. broadwayshowgirls.com: refine the Priya Raghunathan writer-result title, meta description, and contextual internal links; evidence is 64 impressions, position 2, and 0 clicks. Metric and learning window are the same; rollback is metadata/link restoration. americastrikes.com: perform an isolated mobile asset, rendering, and JavaScript diagnosis; evidence is performance 65, LCP 4861ms, and TBT 492ms. Metric: lab LCP/TBT; prototype has no production change and can be discarded. These are operating and prioritization signals, not revenue, ROI, margin, or causal-lift evidence. GitHub candidates remain research-only: mermaid-js/mermaid had MIT licensing and no safe native checks; shadcn-ui/ui had MIT licensing and three bounded checks passed; microsoft/markitdown had MIT licensing and eight bounded checks passed. No dependency adoption, new experiment, telemetry, spend, deployment, or change request is supported while failure, validation, rollback, deduplication, measurement, legal, and security gates remain unresolved.",
+        "summary": "CRO handoff: preserve containment-only execution. Retain three evidence-backed opportunities as deferred backlog: deeppenetrations.com liquid-wrench result refinement (95 impressions, position 2.8, 0 clicks; reversible title/meta alignment; measure GSC clicks and CTR over 14 days or 100 new impressions); broadwayshowgirls.com Priya Raghunathan result refinement (64 impressions, position 2, 0 clicks; reversible title/meta and internal-link refinement; measure clicks and CTR); americastrikes.com mobile-performance diagnosis (performance 65, LCP 4861ms, TBT 492ms; isolated asset/rendering diagnosis without production change; measure lab LCP and TBT). These are prioritization signals only, not revenue or causal-lift evidence. Do not create new production work, experiments, telemetry, dependencies, spend, monetization changes, or unsupported claims. Continue existing failure repair-or-close, attribution reconciliation, and bounded legal/security evidence work. Keep the gated product private and external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

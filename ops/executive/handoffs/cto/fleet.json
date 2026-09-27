@@ -2,51 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T11:33:57.978Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T11:48:46.793Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: approve containment-only execution. The three SEO/performance opportunities are feasible and reversible in isolation, but cannot safely enter the existing queue until failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue only existing repair, reconciliation, and bounded read-only legal/security evidence work. Keep private launch gates unchanged; do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach.",
+        "summary": "Technical disposition: approve containment-only execution. The three SEO/performance opportunities are technically feasible and reversible in isolation, but remain deferred because failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are unresolved. Continue only existing repair, attribution reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Keep the gated product private pending counsel and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain existing measurement and attribution reconciliation only. Preserve the dated aggregate commission as unattributed, reconcile period-aligned cost records, and retain unknown ROI, margin, payback, cost-to-learn, budget capacity, and causal lift. Do not treat impressions, clicks, rankings, sessions, conversions, technical scores, ordered items, or AI usage as financial returns.",
+        "summary": "Retain the three CRO opportunities as deferred backlog only: deeppenetrations.com liquid-wrench result refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Their evidence supports prioritization, not revenue, ROI, margin, or causal-lift claims. Reconsider queue entry only after existing containment controls and site-specific measurement readiness are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue only existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
+        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate provider commission as unattributed and retain unknown ROI, margin, payback, cost-to-learn, budget exposure, and causal lift. Do not treat operating metrics or conflicting AI-cost records as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8",
-        "summary": "No new research or dependency adoption is justified while containment gates remain open. Preserve the bounded lab evidence for later review.",
-        "requested_action": "declined",
-        "proposal_id": "348c6e2d-bc17-4247-b8ea-9ee1e7265ff8"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bedd1b83-2563-4f17-b193-c1250fcd9935",
-        "summary": "The candidate is plausible, but prototype, security, isolation, measurement, and owner-approved implementation gates are incomplete. Defer.",
-        "requested_action": "declined",
-        "proposal_id": "bedd1b83-2563-4f17-b193-c1250fcd9935"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6",
-        "summary": "The bounded lab evidence is sufficient for now; defer further research or adoption until execution and measurement controls improve.",
-        "requested_action": "declined",
-        "proposal_id": "aa9da968-6af3-41d7-bac6-1f6e0dcf7bf6"
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public exposure, rights-dependent monetization, alert expansion, credentials, permissions, configuration, dependencies, and security-sensitive releases remain blocked pending required evidence, counsel review, and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
