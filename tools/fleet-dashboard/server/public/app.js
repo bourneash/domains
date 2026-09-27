@@ -13460,6 +13460,7 @@ function mountExecutiveWorkspaceNav(active) {
 function applyExecutiveWorkspace(page) {
   const shell = document.querySelector('.ex-shell');
   if (!shell || page === 'setup') return;
+  shell.dataset.workspace = page;
   const primary = shell.querySelector('.ex-primary');
   const secondary = shell.querySelector('.ex-secondary');
   const layout = shell.querySelector('.ex-layout');
