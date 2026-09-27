@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T20:48:16.314Z",
+  "generated_at": "2026-09-27T21:15:04.876Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new production work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and unsupported financial claims. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed, private launch gates, parked dispositions, and unknown ROI, margin, payback, cost-to-learn, and causal lift. Any external permission request requires human-counsel review and explicit owner authorization; otherwise keep it unsent.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve aggregate commission as unattributed; continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates, parked dispositions, and external outreach unchanged. Owner concern: any permission request requires human-counsel review and explicit authorization.",
         "requested_action": null,
         "proposal_id": null
       }
