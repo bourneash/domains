@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:02:04.064Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:22:15.977Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, public beta, public data display, alert expansion, rights-dependent affiliate or advertising expansion, and external outreach. Exact decision: keep searchwoot.com private; retain complicated.work and deadlymaracas.com parked; keep outreach unsent; continue only bounded read-only evidence work. Evidence: upstream API access is documented, but rights to store, derive, cache, display, alert on, or monetize returned data are not established. All four legal tasks remain open; accuracy, freshness, security, attribution, measurement, and owner gates are incomplete. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment. Ordinary reversible growth remains conditional where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved.",
+        "summary": "Risk disposition: blocked for public launch, public beta, public data display, alert expansion, rights-dependent affiliate or advertising use, and external outreach. Exact decision: keep searchwoot.com private; retain complicated.work and deadlymaracas.com parked; continue only bounded read-only evidence work. Evidence: upstream API access is documented, but rights to store, transform, cache, display, alert on, or monetize returned data are not established. All four launch-readiness legal tasks remain open. Accuracy/freshness, security, attribution, measurement, and owner gates are incomplete. Technical compliance is a baseline only: 34 pass, 14 fail, and 11 unknown. Human counsel is required for upstream rights and jurisdiction-specific privacy treatment. Ordinary reversible growth is conditional only when existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed and 4 remain open: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. No task is closable on current evidence. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed and 4 remain open: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. No task is closable on current evidence. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage/caching/display/derivatives/alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot API deal and price-history data is counsel_required; missing written permission or API agreement, field-level rights, permitted storage/caching/display/derivative/alert use, attribution, freshness, correction, takedown, trademark/image/price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed; missing data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed; missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment. Smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data are evidence_needed; missing log-field inventory, retention and access controls, vendor/DPA review, incident handling, and data-request procedures. Smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing consolidated read-only evidence bundle and field-level rights matrix. Do not create duplicate telemetry, deployment, monetization, external outreach, or new production work. Preserve aggregate revenue as unattributed and retain site revenue, ROI, margin, payback, causal lift, and contribution margin as unknown.",
+        "summary": "Compliance evidence is technical baseline only and is not certification. The latest compliance snapshot reports 34 pass, 14 fail, and 11 unknown, with open banner, consent, GA4, privacy, and terms findings. Data quality is yellow for analytics freshness/permissions and revenue attribution; failing sources must not be treated as zero. Analytics is configured for 39 sites, with recorded GSC permission errors on art-to-gogh.com, girlpain.com, and searchwoot.com. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate amount is not site-attributable. Do not claim site revenue, ROI, margin, payback, or causal lift. Continue only existing period-aligned reconciliation and bounded growth that does not add tracking, alter consent, expand affiliate disclosure obligations, reuse unverified content, or make unsupported claims.",
         "requested_action": null,
         "proposal_id": null
       }

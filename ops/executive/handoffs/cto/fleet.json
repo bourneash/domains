@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:02:04.063Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:22:15.977Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain deferred site-factory, SEO, UX, affiliate, and monetization packets as backlog. Do not create duplicate requests, deploy, add telemetry, spend, or claim conversion or revenue lift. Reconsider after existing failure repair, ownership, validation, rollback, deduplication, and measurement gates clear.",
+        "summary": "Approve containment-only execution. No new production work, requeues, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach are queue-ready this cycle. Retain existing UX work and evidence-backed SEO, UX, accessibility, performance, content, monetization, and site-factory opportunities as deferred backlog. Continue only the three approved bounded readiness assessments and existing repair, measurement, attribution, legal, and security work. Preserve explicit unknowns and existing private or parked gates; make no unsupported revenue, ROI, readiness, compliance, health, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve active site work and existing measurement. Do not dispatch deferred packets until queue eligibility, isolated validation, rollback, ownership, and existing telemetry boundaries are confirmed.",
+        "summary": "Continue only the three already-approved bounded readiness assessments and existing repair-or-close work. Use authoritative records, named sources, dated artifacts, deterministic validation, explicit unknowns, owner handoff, and exactly one disposition or next action per assessment. Do not create duplicate requests or modify production, credentials, configuration, telemetry, spending, dependencies, deployments, or outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Do not dispatch or create new change requests for howfishthink.com, gate03.com, or driveford.net. Retain them as deferred backlog. Continue only existing approved assessments, active repairs, deterministic validation, rollback, deduplication, measurement, attribution reconciliation, and bounded legal/security evidence work. Preserve existing telemetry boundaries and unknowns; do not deploy, add tracking, spend, or claim conversion or revenue lift.",
+        "summary": "Before any requeue or release, document ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, and an available measurement boundary. Continue existing repair-or-close items only; do not dispatch deferred site packets or create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the active 0xroulette.com accessibility and CTA repair only. Do not create duplicate work or dispatch deferred packets until ownership, root cause, isolated validation, rollback, deduplication, and measurement boundaries are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, accessibility, affiliate, monetization, and site-factory opportunities as deferred backlog. Existing operational and security sweeps are unavailable, 47 failure follow-ups remain open, and 28 improvements await measurement. Reconsider queue entry only after containment gates clear; use existing recorded telemetry only.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and do not retrieve credentials, access private containers, change permissions, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

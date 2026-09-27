@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:02:04.064Z",
+  "generated_at": "2026-09-27T23:22:15.978Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the three queued production change requests. The authoritative candidate list is empty; 47 failure follow-ups remain open, 28 improvements await measurement, operations and security sweeps are unavailable, and only 2 outcomes are proven. Preserve aggregate commission as unattributed and keep revenue, ROI, margin, payback, causal lift, and production readiness unknown. Continue only existing repair-or-close, attribution reconciliation, measurement, and bounded legal/security evidence work; retain the packets as deferred backlog.",
+        "summary": "Approve containment-only execution. Reject the duplicate security proposal and all new production, requeue, telemetry, spending, deployment, monetization, experiment, dependency, credential, permission, and external-outreach work. Continue only existing repair-or-close, attribution reconciliation, bounded security evidence, and the three already-approved readiness assessments. Preserve explicit unknowns and all private or parked gates. Revenue, ROI, margin, payback, readiness, compliance, health, and causal-lift claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }

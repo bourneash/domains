@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:02:04.064Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T23:22:15.977Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and retain fleet-tooling, affiliate, attribution, disclosure, and conversion opportunities as deferred backlog. Do not create duplicate work, telemetry, deployments, spend, or unsupported ROI claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution for managed sites and retain affiliate opportunities as deferred backlog. Preserve aggregate commission as unattributed; do not infer site revenue, ROI, margin, payback, or causal lift. Reconsider repairs only after ownership, isolated validation, rollback, deduplication, and existing-telemetry boundaries are confirmed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution and retain fleet-tooling, affiliate, attribution, disclosure, and conversion opportunities as deferred backlog. Existing evidence shows 47 failure follow-ups, 28 improvements awaiting measurement, incomplete attribution, unavailable operations sweeps, and no safe queue candidate. Preserve aggregate commission as unattributed; do not infer site revenue, ROI, margin, payback, or causal lift. Reconsider only after ownership, isolated validation, rollback, deduplication, and existing-telemetry boundaries are confirmed.",
+        "summary": "Retain these evidence-backed opportunities as deferred backlog only; do not create queue work this cycle. 1) saveusfarms.com: refresh the title/meta treatment for the article with 1,668 impressions, position 10.5, and 0 clicks; metric is organic CTR/clicks after 100 new impressions; smallest reversible prototype is metadata-only with rollback. 2) deeppenetrations.com: improve the /reviews/liquid-wrench search result, which has 95 impressions, position 2.8, and 0 clicks; metric is CTR/clicks after 100 new impressions; prototype is title/description copy only. 3) Fleet UX component pattern: prototype one accessible CTA/card pattern inspired by shadcn-ui/ui. The lab found MIT licensing, three of three bounded checks passed, and no dependency installation or production access; risks are dependency/supply-chain review, Astro/Cloudflare compatibility, bundle impact, and maintenance drift. Smallest prototype is a manually copied isolated component in one preview, with no package adoption. Mermaid remains research-only: MIT licensed and relevant to content diagrams, but native checks were unavailable and SVG sanitization/page weight require review. Markitdown is MIT licensed with eight of eight bounded checks passing, but introduces Python/runtime and document-parser security review; prototype only as an offline content transformation fixture. Expected learning is whether the isolated pattern or metadata change improves measurable search/CTA behavior without new tracking, spend, credentials, domains, or deployment. Financial return, causal lift, and revenue attribution remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
