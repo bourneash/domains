@@ -847,6 +847,10 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'labels_json', "TEXT NOT NULL DEFAULT '[]'");
   ensureColumn(db, 'agent_registry', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
   ensureColumn(db, 'agent_runs', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_goals', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_projects', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_plans', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_work_items', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
   ensureColumn(db, 'agent_workspaces', 'provider_id', 'TEXT');
   db.prepare(
     "UPDATE agent_registry SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
@@ -854,6 +858,15 @@ function open(root, { file } = {}) {
   db.prepare(
     "UPDATE agent_runs SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
   ).run();
+  for (const table of [
+    'executive_goals',
+    'executive_projects',
+    'executive_plans',
+    'executive_work_items',
+  ])
+    db.prepare(
+      `UPDATE ${table} SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id=''`
+    ).run();
   ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'goal_id', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'parent_work_id', 'TEXT');
@@ -2088,7 +2101,13 @@ function open(root, { file } = {}) {
     return decodeExecutiveGoal(row);
   }
 
-  function listExecutiveGoals({ status, owner, parent_goal_id, limit = 500 } = {}) {
+  function listExecutiveGoals({
+    status,
+    owner,
+    parent_goal_id,
+    organization_id,
+    limit = 500,
+  } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -2102,6 +2121,10 @@ function open(root, { file } = {}) {
     if (parent_goal_id) {
       clauses.push('parent_goal_id=?');
       args.push(String(parent_goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     return db
       .prepare(
@@ -2138,6 +2161,7 @@ function open(root, { file } = {}) {
       updated_at: now,
       closed_at: input.closed_at || null,
       outcome: input.outcome ? String(input.outcome).trim() : null,
+      organization_id: String(input.organization_id || 'fleet'),
     };
     if (!row.title) throw httpErr(400, 'goal title is required');
     if (!row.statement) throw httpErr(400, 'goal statement is required');
@@ -2147,8 +2171,8 @@ function open(root, { file } = {}) {
       throw httpErr(404, 'parent goal not found');
     assertGoalParentDoesNotCycle(row.goal_id, row.parent_goal_id);
     db.prepare(
-      `INSERT INTO executive_goals (goal_id,title,statement,status,owner,parent_goal_id,target_at,evidence_json,created_by,created_at,updated_at,closed_at,outcome)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO executive_goals (goal_id,title,statement,status,owner,parent_goal_id,target_at,evidence_json,created_by,created_at,updated_at,closed_at,outcome,organization_id)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.goal_id,
       row.title,
@@ -2162,7 +2186,8 @@ function open(root, { file } = {}) {
       row.created_at,
       row.updated_at,
       row.closed_at,
-      row.outcome
+      row.outcome,
+      row.organization_id
     );
     return row;
   }
@@ -2290,6 +2315,7 @@ function open(root, { file } = {}) {
       owner: String(input.owner || 'project-manager'),
       goal_id: input.goal_id || null,
       created_by: String(input.created_by || 'system'),
+      organization_id: String(input.organization_id || 'fleet'),
       created_at: now,
       updated_at: now,
       closed_at: null,
@@ -2297,7 +2323,7 @@ function open(root, { file } = {}) {
     if (!['active', 'paused', 'completed', 'cancelled'].includes(row.status))
       throw httpErr(400, 'invalid project status');
     db.prepare(
-      'INSERT INTO executive_projects (project_id,name,description,status,owner,goal_id,created_by,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
+      'INSERT INTO executive_projects (project_id,name,description,status,owner,goal_id,created_by,created_at,updated_at,closed_at,organization_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
     ).run(
       row.project_id,
       row.name,
@@ -2308,7 +2334,8 @@ function open(root, { file } = {}) {
       row.created_by,
       row.created_at,
       row.updated_at,
-      row.closed_at
+      row.closed_at,
+      row.organization_id
     );
     return row;
   }
@@ -2318,7 +2345,7 @@ function open(root, { file } = {}) {
       db.prepare('SELECT * FROM executive_projects WHERE project_id=?').get(String(id)) || null
     );
   }
-  function listExecutiveProjects({ status, goal_id, limit = 200 } = {}) {
+  function listExecutiveProjects({ status, goal_id, organization_id, limit = 200 } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -2328,6 +2355,10 @@ function open(root, { file } = {}) {
     if (goal_id) {
       clauses.push('goal_id=?');
       args.push(String(goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 500));
     return db
@@ -2376,11 +2407,12 @@ function open(root, { file } = {}) {
       current_version: 0,
       owner: String(input.owner || 'ceo'),
       created_by: String(input.created_by || 'system'),
+      organization_id: String(input.organization_id || 'fleet'),
       created_at: now,
       updated_at: now,
     };
     db.prepare(
-      'INSERT INTO executive_plans (plan_id,goal_id,title,status,current_version,owner,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)'
+      'INSERT INTO executive_plans (plan_id,goal_id,title,status,current_version,owner,created_by,created_at,updated_at,organization_id) VALUES (?,?,?,?,?,?,?,?,?,?)'
     ).run(
       row.plan_id,
       row.goal_id,
@@ -2390,14 +2422,15 @@ function open(root, { file } = {}) {
       row.owner,
       row.created_by,
       row.created_at,
-      row.updated_at
+      row.updated_at,
+      row.organization_id
     );
     return row;
   }
   function getExecutivePlan(id) {
     return db.prepare('SELECT * FROM executive_plans WHERE plan_id=?').get(String(id)) || null;
   }
-  function listExecutivePlans({ status, goal_id, limit = 200 } = {}) {
+  function listExecutivePlans({ status, goal_id, organization_id, limit = 200 } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -2407,6 +2440,10 @@ function open(root, { file } = {}) {
     if (goal_id) {
       clauses.push('goal_id=?');
       args.push(String(goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     return db
       .prepare(
@@ -2586,6 +2623,7 @@ function open(root, { file } = {}) {
       heartbeat_at: input.heartbeat_at || null,
       retry_at: input.retry_at || null,
       last_error: input.last_error ? String(input.last_error).trim() : null,
+      organization_id: String(input.organization_id || 'fleet'),
     };
     if (!row.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(row.kind)) throw httpErr(400, 'invalid work item kind');
@@ -2597,8 +2635,8 @@ function open(root, { file } = {}) {
     assertWorkLineage(row);
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,organization_id,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -2628,6 +2666,7 @@ function open(root, { file } = {}) {
       row.answered_at,
       row.closed_at,
       row.outcome,
+      row.organization_id,
       row.attempts,
       row.lease_owner,
       row.lease_expires_at,
@@ -2647,6 +2686,7 @@ function open(root, { file } = {}) {
     priority,
     site,
     source_type,
+    organization_id,
     limit = 200,
   } = {}) {
     const clauses = [],
@@ -2682,6 +2722,10 @@ function open(root, { file } = {}) {
     if (source_type) {
       clauses.push('source_type = ?');
       args.push(String(source_type));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
@@ -3091,6 +3135,8 @@ function open(root, { file } = {}) {
       throw httpErr(400, 'usage values cannot be negative');
     const budgetBlock = budgetBlockReason(run);
     if (budgetBlock && run.status !== 'cancelled') throw httpErr(409, budgetBlock);
+    const governanceBlock = governanceBlockReason(run);
+    if (governanceBlock && run.status === 'running') throw httpErr(409, governanceBlock);
     try {
       db.prepare(
         `INSERT INTO agent_runs
@@ -3555,6 +3601,29 @@ function open(root, { file } = {}) {
     return blocked
       ? `budget exceeded for ${blocked.scope_type}:${blocked.scope_id}:${blocked.period}`
       : null;
+  }
+
+  function governanceBlockReason(run) {
+    const policies = db
+      .prepare(
+        "SELECT * FROM execution_policies WHERE organization_id=? AND status='active' AND require_approval=1"
+      )
+      .all(String(run.organization_id || 'fleet'));
+    for (const policy of policies) {
+      const stages = safeJsonArray(policy.stages_json);
+      if (
+        stages.length &&
+        !stages.some(stage => ['run', 'execute', 'agent-run'].includes(String(stage)))
+      )
+        continue;
+      const approved = db
+        .prepare(
+          "SELECT 1 FROM governance_decisions WHERE organization_id=? AND entity_type='agent-run' AND entity_id=? AND decision='approved' ORDER BY created_at DESC LIMIT 1"
+        )
+        .get(String(run.organization_id || 'fleet'), String(run.run_id));
+      if (!approved) return `approval required by policy ${policy.name}`;
+    }
+    return null;
   }
 
   function enforceBudgetStops() {
@@ -4411,6 +4480,20 @@ function open(root, { file } = {}) {
       )
       .get(String(id), String(id));
     return row ? { ...row, capabilities: safeJsonArray(row.capabilities_json) } : null;
+  }
+  function getRuntimeProviderConfig(id) {
+    const row = db
+      .prepare(
+        'SELECT provider_id,slug,kind,capabilities_json,config_json,status FROM runtime_providers WHERE provider_id=? OR slug=?'
+      )
+      .get(String(id), String(id));
+    return row
+      ? {
+          ...row,
+          capabilities: safeJsonArray(row.capabilities_json),
+          config: safeJson(row.config_json),
+        }
+      : null;
   }
   function listRuntimeProviders({ status, limit = 200 } = {}) {
     const n = Math.max(1, Math.min(Number(limit) || 200, 500));
@@ -5437,6 +5520,25 @@ function open(root, { file } = {}) {
     const row = db.prepare('SELECT * FROM eval_runs WHERE eval_run_id=?').get(String(id));
     return row ? { ...row, scores: safeJson(row.scores_json) } : null;
   }
+  function updateEvalRun(id, patch = {}) {
+    const current = getEvalRun(id);
+    if (!current) throw httpErr(404, 'evaluation run not found');
+    const scores = patch.scores && typeof patch.scores === 'object' ? patch.scores : current.scores;
+    const status = String(patch.status || current.status);
+    if (!['queued', 'running', 'succeeded', 'failed'].includes(status))
+      throw httpErr(400, 'invalid evaluation run status');
+    db.prepare(
+      'UPDATE eval_runs SET status=?,scores_json=?,feedback=?,started_at=?,finished_at=? WHERE eval_run_id=?'
+    ).run(
+      status,
+      JSON.stringify(scores),
+      String(patch.feedback ?? current.feedback ?? ''),
+      patch.started_at ?? current.started_at,
+      patch.finished_at ?? current.finished_at,
+      current.eval_run_id
+    );
+    return getEvalRun(current.eval_run_id);
+  }
   function listEvalRuns({ suite_id, agent_id, limit = 200 } = {}) {
     const c = [],
       a = [];
@@ -5457,16 +5559,32 @@ function open(root, { file } = {}) {
   }
   function createObjectBlob(input = {}) {
     const now = new Date().toISOString();
+    const content = input.content_base64
+      ? Buffer.from(String(input.content_base64), 'base64')
+      : null;
+    if (content && content.byteLength > 20 * 1024 * 1024)
+      throw httpErr(413, 'object blob exceeds 20MB limit');
+    const blobId = input.blob_id || crypto.randomUUID();
+    let storageUri = String(input.storage_uri || '');
+    if (content) {
+      const objectDir = path.join(path.dirname(dbFile), 'objects');
+      fs.mkdirSync(objectDir, { recursive: true, mode: 0o700 });
+      const objectPath = path.join(objectDir, blobId);
+      fs.writeFileSync(objectPath, content, { mode: 0o600, flag: 'wx' });
+      storageUri = `file://${objectPath}`;
+    }
     const row = {
-      blob_id: input.blob_id || crypto.randomUUID(),
+      blob_id: blobId,
       organization_id:
         getOrganization(input.organization_id || 'fleet')?.organization_id || input.organization_id,
       owner_type: String(input.owner_type || 'artifact'),
       owner_id: String(input.owner_id || ''),
       content_type: String(input.content_type || 'application/octet-stream'),
-      storage_uri: String(input.storage_uri || ''),
-      sha256: input.sha256 || null,
-      byte_size: Number(input.byte_size) || 0,
+      storage_uri: storageUri,
+      sha256:
+        input.sha256 ||
+        (content ? crypto.createHash('sha256').update(content).digest('hex') : null),
+      byte_size: Number(input.byte_size) || content?.byteLength || 0,
       status: input.status || 'active',
       created_at: now,
     };
@@ -5487,6 +5605,9 @@ function open(root, { file } = {}) {
       now
     );
     return row;
+  }
+  function getObjectBlob(id) {
+    return db.prepare('SELECT * FROM object_blobs WHERE blob_id=?').get(String(id)) || null;
   }
   function listObjectBlobs({ organization_id, owner_type, owner_id, limit = 200 } = {}) {
     const c = [],
@@ -5708,8 +5829,10 @@ function open(root, { file } = {}) {
     listEvalSuites,
     createEvalRun,
     getEvalRun,
+    updateEvalRun,
     listEvalRuns,
     createObjectBlob,
+    getObjectBlob,
     listObjectBlobs,
     upsertRuntimeAdapter,
     getRuntimeAdapter,
@@ -5782,6 +5905,7 @@ function open(root, { file } = {}) {
     listAgentDelegations,
     upsertRuntimeProvider,
     getRuntimeProvider,
+    getRuntimeProviderConfig,
     listRuntimeProviders,
     enqueueRuntimePluginJob,
     getRuntimePluginJob,

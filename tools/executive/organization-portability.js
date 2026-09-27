@@ -8,6 +8,7 @@ function exportOrganization(store, organizationId) {
   const agents = store
     .listAgents({ organization_id: organization.organization_id, limit: 1000 })
     .map(agent => ({
+      source_agent_id: agent.agent_id,
       slug: agent.slug,
       name: agent.name,
       title: agent.title,
@@ -63,6 +64,10 @@ function exportOrganization(store, organizationId) {
         plan => !plan.organization_id || plan.organization_id === organization.organization_id
       ),
     issues: store.listAgentIssues({ organization_id: organization.organization_id, limit: 1000 }),
+    work_items: store.listExecutiveWorkItems({
+      organization_id: organization.organization_id,
+      limit: 1000,
+    }),
     routines: store
       .listAgentRoutines({ limit: 1000 })
       .filter(
@@ -105,19 +110,51 @@ function importOrganization(store, bundle) {
       status: member.status,
     });
   const agents = [];
+  const agentIdMap = new Map();
   for (const agent of Array.isArray(bundle.agents) ? bundle.agents : []) {
     let agentSlug = String(agent.slug || 'agent');
     let n = 1;
     while (store.getAgent(agentSlug)) agentSlug = `${agent.slug}-import-${n++}`;
-    agents.push(
-      store.createAgent({
-        ...agent,
-        slug: agentSlug,
-        organization_id: organization.organization_id,
-        status: agent.status === 'disabled' ? 'disabled' : 'active',
-      })
-    );
+    const createdAgent = store.createAgent({
+      ...agent,
+      agent_id: undefined,
+      slug: agentSlug,
+      organization_id: organization.organization_id,
+      status: agent.status === 'disabled' ? 'disabled' : 'active',
+    });
+    agents.push(createdAgent);
+    if (agent.source_agent_id) agentIdMap.set(agent.source_agent_id, createdAgent.agent_id);
   }
+  const goalIdMap = new Map();
+  for (const goal of Array.isArray(bundle.goals) ? bundle.goals : []) {
+    const createdGoal = store.createExecutiveGoal({
+      ...goal,
+      goal_id: undefined,
+      organization_id: organization.organization_id,
+      parent_goal_id: goalIdMap.get(goal.parent_goal_id) || null,
+      created_by: 'import',
+    });
+    goalIdMap.set(goal.goal_id, createdGoal.goal_id);
+  }
+  const projectIdMap = new Map();
+  for (const project of Array.isArray(bundle.projects) ? bundle.projects : []) {
+    const createdProject = store.createExecutiveProject({
+      ...project,
+      project_id: undefined,
+      organization_id: organization.organization_id,
+      goal_id: goalIdMap.get(project.goal_id) || null,
+      created_by: 'import',
+    });
+    projectIdMap.set(project.project_id, createdProject.project_id);
+  }
+  for (const plan of Array.isArray(bundle.plans) ? bundle.plans : [])
+    store.createExecutivePlan({
+      ...plan,
+      plan_id: undefined,
+      organization_id: organization.organization_id,
+      goal_id: goalIdMap.get(plan.goal_id) || null,
+      created_by: 'import',
+    });
   const issues = [];
   for (const issue of Array.isArray(bundle.issues) ? bundle.issues : []) {
     issues.push(
@@ -125,11 +162,24 @@ function importOrganization(store, bundle) {
         ...issue,
         issue_id: undefined,
         organization_id: organization.organization_id,
-        assignee_agent_id:
-          agents.find(agent => agent.slug === issue.assignee_agent_id)?.agent_id || null,
+        assignee_agent_id: agentIdMap.get(issue.assignee_agent_id) || null,
         created_by: issue.created_by || 'import',
         checkout_owner: undefined,
         checkout_expires_at: undefined,
+      })
+    );
+  }
+  const workItems = [];
+  for (const work of Array.isArray(bundle.work_items) ? bundle.work_items : []) {
+    workItems.push(
+      store.createExecutiveWorkItem({
+        ...work,
+        work_id: undefined,
+        organization_id: organization.organization_id,
+        goal_id: goalIdMap.get(work.goal_id) || null,
+        project_id: projectIdMap.get(work.project_id) || null,
+        parent_work_id: null,
+        created_by: 'import',
       })
     );
   }
@@ -156,6 +206,9 @@ function importOrganization(store, bundle) {
   return {
     organization,
     agents,
+    goals: [...goalIdMap.values()],
+    projects: [...projectIdMap.values()],
+    work_items: workItems,
     issues,
     policies,
     eval_suites: evalSuites,

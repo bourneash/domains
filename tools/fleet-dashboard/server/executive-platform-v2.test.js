@@ -11,6 +11,11 @@ const http = require('node:http');
 const { once } = require('node:events');
 const eventstore = require('./eventstore');
 const { createApp } = require('./server');
+const runtime = require('../../executive/agent-runtime');
+const dispatcher = require('../../executive/agent-dispatcher');
+const runtimeProvider = require('../../executive/runtime-provider');
+const runtimePlugin = require('../../executive/runtime-plugin');
+const evalRunner = require('../../executive/eval-runner');
 
 function fixture() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-platform-v2-'));
@@ -121,6 +126,42 @@ test('governance policies, evaluation suites/runs, and object metadata persist',
   store.close();
 });
 
+test('approval policies block live runs until an auditable decision exists', () => {
+  const { store } = fixture();
+  const org = store.createOrganization({ slug: 'approval-test', name: 'Approval Test' });
+  const agent = store.createAgent({
+    organization_id: org.organization_id,
+    slug: 'approval-agent',
+    name: 'Approval Agent',
+    title: 'Worker',
+    role: 'worker',
+    provider: 'test',
+    adapter: 'test',
+  });
+  store.upsertExecutionPolicy({
+    organization_id: org.organization_id,
+    name: 'Run approval',
+    stages: ['run'],
+  });
+  const runId = 'approval-run-1';
+  assert.throws(
+    () => store.createAgentRun({ run_id: runId, agent_id: agent.agent_id, status: 'running' }),
+    /approval required/
+  );
+  store.createGovernanceDecision({
+    organization_id: org.organization_id,
+    entity_type: 'agent-run',
+    entity_id: runId,
+    decision: 'approved',
+    actor_id: 'owner',
+  });
+  assert.equal(
+    store.createAgentRun({ run_id: runId, agent_id: agent.agent_id, status: 'running' }).status,
+    'running'
+  );
+  store.close();
+});
+
 test('budget enforcement covers agent scopes and cancels queued dispatches', () => {
   const { store } = fixture();
   const agent = store.createAgent({
@@ -147,6 +188,158 @@ test('budget enforcement covers agent scopes and cancels queued dispatches', () 
     true
   );
   assert.equal(store.getAgentDispatch(run.run_id).status, 'cancelled');
+  store.close();
+});
+
+test('external adapter workers receive signed run context and return usage', async () => {
+  const { store } = fixture();
+  const agent = store.createAgent({
+    slug: 'http-agent',
+    name: 'HTTP Agent',
+    title: 'Worker',
+    role: 'worker',
+    provider: 'test',
+    adapter: 'http-adapter',
+  });
+  store.upsertRuntimeAdapter({
+    slug: 'http-adapter',
+    kind: 'http',
+    endpoint: 'http://adapter.invalid/run',
+    status: 'online',
+  });
+  const started = runtime.beginRun(store, {
+    agent_id: agent.agent_id,
+    idempotency_key: 'http-run-1',
+  });
+  const previousFetch = global.fetch;
+  let received;
+  global.fetch = async (_url, options) => {
+    received = { options, body: JSON.parse(options.body) };
+    return {
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          result: { verified: true, input_tokens: 3, output_tokens: 5, cost_usd: 0.02 },
+        }),
+    };
+  };
+  try {
+    const processed = await dispatcher.processOne(store, { workerId: 'http-worker' });
+    assert.equal(processed.result.verified, true);
+    assert.equal(store.getAgentRun(started.run.run_id).total_tokens, 8);
+    assert.match(received.options.headers.authorization, /^Bearer [^.]+\.[^.]+\.[^.]+$/);
+    assert.equal(received.body.run.run_id, started.run.run_id);
+  } finally {
+    global.fetch = previousFetch;
+    store.close();
+  }
+});
+
+test('runtime providers provision and close isolated workspaces through the provider protocol', async () => {
+  const { store } = fixture();
+  const agent = store.createAgent({
+    slug: 'provider-agent',
+    name: 'Provider Agent',
+    title: 'Worker',
+    role: 'worker',
+    provider: 'test',
+    adapter: 'test',
+  });
+  const provider = store.upsertRuntimeProvider({
+    slug: 'sandbox-provider',
+    kind: 'container',
+    status: 'active',
+    config: { endpoint: 'http://provider.invalid' },
+  });
+  const previousFetch = global.fetch;
+  const calls = [];
+  global.fetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    return {
+      ok: true,
+      status: 200,
+      text: async () =>
+        JSON.stringify({
+          workspace_path: '/tmp/provider-workspace',
+          preview_url: 'https://preview.invalid/run',
+        }),
+    };
+  };
+  try {
+    const workspace = await runtimeProvider.provision(store, {
+      provider_id: provider.provider_id,
+      agent_id: agent.agent_id,
+      mode: 'isolated',
+    });
+    assert.equal(workspace.provider_id, provider.provider_id);
+    assert.equal(workspace.preview_url, 'https://preview.invalid/run');
+    await runtimeProvider.close(store, workspace.workspace_id);
+    assert.equal(calls.length, 2);
+    assert.match(calls[0].url, /\/v1\/workspaces$/);
+    assert.match(calls[1].url, /\/close$/);
+    store.close();
+  } finally {
+    global.fetch = previousFetch;
+  }
+});
+
+test('out-of-process plugins execute jobs and return structured results', async () => {
+  const { store } = fixture();
+  const plugin = store.upsertRuntimePlugin({
+    slug: 'http-plugin',
+    status: 'active',
+    manifest: {
+      name: 'HTTP Plugin',
+      worker_endpoint: 'http://plugin.invalid',
+      capabilities: ['knowledge.write'],
+      ui: { panel: 'knowledge' },
+    },
+  });
+  const job = store.enqueueRuntimePluginJob({ plugin_id: plugin.plugin_id, payload: { value: 7 } });
+  const previousFetch = global.fetch;
+  global.fetch = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ result: { accepted: body.job.payload.value === 7 } }),
+    };
+  };
+  try {
+    const processed = await runtimePlugin.processOne(store, { workerId: 'plugin-worker' });
+    assert.equal(processed.job.status, 'succeeded');
+    assert.equal(processed.result.accepted, true);
+    assert.equal(store.getRuntimePluginJob(job.job_id).status, 'succeeded');
+  } finally {
+    global.fetch = previousFetch;
+    store.close();
+  }
+});
+
+test('evaluation runner persists case scores, threshold, and feedback', async () => {
+  const { store } = fixture();
+  const agent = store.createAgent({
+    slug: 'eval-runner-agent',
+    name: 'Eval Runner',
+    title: 'Worker',
+    role: 'worker',
+    provider: 'test',
+    adapter: 'test',
+  });
+  const suite = store.createEvalSuite({
+    name: 'Regression suite',
+    cases: [{ input: 'a' }, { input: 'b' }],
+    threshold: 0.9,
+  });
+  const result = await evalRunner.run(store, {
+    suite_id: suite.suite_id,
+    agent_id: agent.agent_id,
+    results: [{ score: 1 }, { score: 0.75 }],
+  });
+  assert.equal(result.status, 'failed');
+  assert.equal(result.scores.average, 0.875);
+  assert.equal(result.scores.passed, false);
   store.close();
 });
 
@@ -177,9 +370,16 @@ test('platform APIs complete an authenticated issue, governance, eval, and stora
         res => {
           const chunks = [];
           res.on('data', chunk => chunks.push(chunk));
-          res.on('end', () =>
-            resolve({ status: res.statusCode, body: JSON.parse(Buffer.concat(chunks).toString()) })
-          );
+          res.on('end', () => {
+            const text = Buffer.concat(chunks).toString();
+            let body;
+            try {
+              body = JSON.parse(text);
+            } catch {
+              body = text;
+            }
+            resolve({ status: res.statusCode, body });
+          });
         }
       );
       req.on('error', reject);
@@ -302,22 +502,27 @@ test('platform APIs complete an authenticated issue, governance, eval, and stora
     ).body.run.suite_id,
     suite.suite_id
   );
-  assert.equal(
-    (
-      await request(
-        'POST',
-        '/api/object-blobs',
-        {
-          organization_id: org.organization_id,
-          owner_type: 'issue',
-          owner_id: issue.issue_id,
-          storage_uri: 's3://test/result.json',
-        },
-        authHeaders
-      )
-    ).status,
-    201
+  const blob = (
+    await request(
+      'POST',
+      '/api/object-blobs',
+      {
+        organization_id: org.organization_id,
+        owner_type: 'issue',
+        owner_id: issue.issue_id,
+        content_type: 'text/plain',
+        content_base64: Buffer.from('verified artifact').toString('base64'),
+      },
+      authHeaders
+    )
+  ).body.blob;
+  const content = await request(
+    'GET',
+    `/api/object-blobs/${blob.blob_id}/content`,
+    undefined,
+    authHeaders
   );
+  assert.equal(content.status, 200);
   const adapter = (
     await request(
       'POST',
