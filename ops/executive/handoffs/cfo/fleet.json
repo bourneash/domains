@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:19:18.326Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T17:33:19.813Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. The available revenue window is 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. Cost periods and AI-cost records are inconsistent, so margin, ROI, payback, cost-to-learn, and budget capacity are not calculable. Continue only existing attribution and cost reconciliation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain financial containment and approve no new spend, forecasts, commitments, monetization expansion, or unsupported revenue claims. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row is not site-attributable; site-attributed commission is reported as $0, which does not prove zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, AI-cost records conflict ($886.12 across 4,865 calls for 2026-09-01 through 2026-09-27 versus retained historical cost records), and infrastructure, domain, labor, marketing, approved-budget, experiment-cost, and defined learning-outcome records are incomplete. Continue only the existing attribution and cost reconciliation work. Minimum measurement: period-aligned attributable revenue by tracking ID and site/content; one reconciled AI-cost ledger; infrastructure, domain, labor, marketing, approved-budget, experiment-cost, and defined learning-outcome records. Do not treat impressions, rankings, clicks, sessions, conversions, ordered items, shipped items, performance scores, or AI usage as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain all SEO, UX, performance, content, affiliate, monetization, and repository opportunities as deferred backlog only. The 30-day scorecard generated 2026-09-27 reports 47 open failure follow-ups, 28 improvements awaiting measurement, and only 2 proven outcomes. These are execution and learning signals, not financial returns. Reconsider work only after failure ownership, root cause, deterministic validation, rollback, deduplication, and a defined cost-to-learn threshold are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private, retain parked-site dispositions, and keep external outreach unsent. Rights, privacy, security, accuracy, attribution, and measurement evidence remain incomplete; no financial case supports public exposure or rights-dependent monetization.",
+        "summary": "Recommendation: maintain financial containment and create no new work this cycle. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row is not site-attributable; site-attributed commission is reported as $0, which does not prove zero site performance. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align; AI-cost records require reconciliation, with the current snapshot reporting $886.12 across 4,865 calls for 2026-09-01 through 2026-09-27; and infrastructure, domain, labor, marketing, approved-budget, experiment-cost, and defined learning-outcome records are incomplete. Do not authorize spend, forecasts, commitments, monetization expansion, or revenue claims. Do not treat impressions, rankings, clicks, sessions, conversions, orders, shipped items, performance scores, or AI usage as financial returns. Continue only existing period-aligned attribution and cost reconciliation, repair-or-close, measurement, and bounded legal/security evidence work. Minimum measurement: period-aligned attributable revenue by tracking ID and site/content; one reconciled AI-cost ledger; infrastructure, domain, labor, marketing, approved-budget, experiment-cost, and defined learning-outcome records. Deferred opportunities remain backlog only and are not financial investments.",
         "requested_action": null,
         "proposal_id": null
       }
