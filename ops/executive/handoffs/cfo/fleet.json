@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T04:49:07.841Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:03:55.095Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Supported revenue exists only for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI spend for 2026-09-01 through 2026-09-26 is $966.82985915 across 5,417 calls, conflicting with a prior record of $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned; hosting, domains, labor, marketing, experiment, and other operating costs are absent; incremental outcomes are not isolated; and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Continue only the existing reconciliation workstream. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, requeues, new production work, or unsupported revenue claims. Minimum measurement is one reconciled AI-cost ledger, a period-aligned operating-cost ledger, canonical site/content attribution for commission, and isolated incremental outcomes linked to each intervention.",
+        "summary": "Recommendation: maintain financial containment. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI spend is $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with an earlier record of $966.82985915 across 5,417 calls through 2026-09-26. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned, period-aligned hosting, domains, labor, marketing, and other costs are absent, incremental outcomes are not isolated, and monthly spend and revenue limits are blank. Continue only existing finance reconciliation. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, requeues, or unsupported revenue claims. Minimum measurement is reconciliation of the AI records plus a period-aligned cost ledger and site/content-level revenue mapping before financial claims are made.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain financial containment. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with an earlier record of $966.82985915 across 5,417 calls through 2026-09-26. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost windows are misaligned, period-aligned costs are absent, incremental outcomes are not isolated, and monthly spend and revenue limits are blank. Continue only existing finance reconciliation. Do not authorize discretionary spend, commitments, forecasts, monetization expansion, or unsupported financial claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain financial containment. Supported revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. Current AI usage is $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27; an earlier record reports $966.82985915 across 5,417 calls through 2026-09-26. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure remain unknown. Continue only existing reconciliation; do not authorize discretionary spend, commitments, forecasts, monetization expansion, or unsupported financial claims.",
         "requested_action": null,
         "proposal_id": null
       }
