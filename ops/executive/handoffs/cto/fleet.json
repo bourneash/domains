@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T13:03:07.860Z",
+  "generated_at": "2026-09-27T13:18:17.394Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the three CRO opportunities as deferred backlog only—deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. No new implementation is queue-eligible until failure repair, validation, rollback, deduplication, isolation, and measurement evidence is complete.",
+        "summary": "Approve containment-only execution. Retain the three evidence-backed SEO and performance opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. They are technically feasible and reversible in isolation, but are not queue-eligible until existing failure repair-or-close, isolated validation, rollback, deduplication, ownership, and measurement gates are evidenced. Continue only existing repair, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Preserve unknown ROI, margin, cost-to-learn, causal lift, and operational-security status; keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Preserve the three SEO/performance opportunities as deferred backlog: liquid-wrench CTR refinement, Priya Raghunathan result refinement, and America Strikes mobile-performance diagnosis. They are technically feasible and reversible in isolation, but not queue-eligible until existing failure repair-or-close, isolated validation, rollback, deduplication, ownership, and measurement gates are evidenced. Continue only existing repair, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence work. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or external outreach. Preserve unknown revenue, ROI, margin, causal lift, and operational-security status; keep private launch gates unchanged.",
+        "summary": "Continue existing failure repair-or-close, validation, rollback, deduplication, isolation, ownership, and measurement work. The authoritative candidate list is empty, so no new implementation request is justified this cycle. Existing aggregate commission remains unattributed; do not treat traffic, rankings, clicks, sessions, conversions, performance scores, ordered items, or AI usage as financial returns.",
         "requested_action": null,
         "proposal_id": null
       }
