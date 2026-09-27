@@ -3584,6 +3584,47 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
     res.json({ pilot, snapshots: events.listProductivitySnapshots(pilot.pilot_id) });
   });
+  app.post('/api/productivity/pilots/:id/seed', (req, res) => {
+    try {
+      const pilot = events.getProductivityPilot(req.params.id);
+      if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+      if (pilot.status !== 'active')
+        return res.status(409).json({ error: 'only active productivity pilots can be seeded' });
+      const seeded = [];
+      const skipped = [];
+      const existing = new Set(
+        events
+          .listChangeRequests({ limit: 1000 })
+          .map(row => String(row.action_key || ''))
+          .filter(Boolean)
+      );
+      for (const spec of productivityProgram.treatmentBatch(pilot)) {
+        if (existing.has(spec.action_key)) {
+          skipped.push(spec.action_key);
+          continue;
+        }
+        const request = changequeue.create(
+          events,
+          {
+            ...spec,
+            provider: 'chatgpt',
+            priority: 'high',
+            delivery_mode: 'direct',
+            auto_review: true,
+            requested_by: 'delivery-lead',
+            max_turns: 20,
+          },
+          site => isKnownTarget(root, site),
+          site => installedSiteRoles(root, site)
+        );
+        seeded.push(request);
+        existing.add(spec.action_key);
+      }
+      res.status(201).json({ pilot, seeded, skipped });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/productivity/pilots/:id/evaluate', (req, res) => {
     try {
       const pilot = events.getProductivityPilot(req.params.id);

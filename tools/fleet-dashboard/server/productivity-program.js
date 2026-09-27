@@ -34,6 +34,30 @@ function laneFor(row) {
   return 'finish-sites';
 }
 
+function treatmentBatch(pilot) {
+  const sites = normalizeSites(pilot?.treatment_sites);
+  const pilotId = String(pilot?.pilot_id || pilot?.id || '').trim();
+  if (!pilotId) throw new Error('pilot_id is required to build a treatment batch');
+  return sites.flatMap(site => [
+    {
+      site,
+      lane: 'finish-sites',
+      action_key: `productivity-pilot:${pilotId}:design:${site}`,
+      title: 'Treatment pilot: ship one measurable design or UX improvement',
+      category: 'design',
+      body: 'Select the smallest high-confidence design, layout, accessibility, imagery, or CTA improvement supported by current evidence. Create a preview, record the before state, implement only the scoped change, validate deterministic checks, and report the after state. Include the success metric, measurement window, and rollback path. Do not claim a conversion lift before measurement.',
+    },
+    {
+      site,
+      lane: 'growth-revenue',
+      action_key: `productivity-pilot:${pilotId}:growth-revenue:${site}`,
+      title: 'Treatment pilot: repair one SEO or affiliate revenue path',
+      category: 'seo',
+      body: 'Use current SEO, analytics, and affiliate evidence to select one repair with a measurable target: crawlability, internal linking, search intent coverage, tracking attribution, or a broken affiliate path. Preserve disclosures and existing revenue paths, validate tracking before and after, and include a rollback path. Do not invent traffic, ranking, or revenue results.',
+    },
+  ]);
+}
+
 function emptyGroup() {
   return {
     sites: 0,
@@ -156,4 +180,4 @@ function evaluate(baseline, current) {
   };
 }
 
-module.exports = { LANES, normalizeSites, snapshot, evaluate, laneFor };
+module.exports = { LANES, normalizeSites, snapshot, evaluate, laneFor, treatmentBatch };

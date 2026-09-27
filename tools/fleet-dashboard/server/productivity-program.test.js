@@ -78,3 +78,22 @@ test('pilot evaluation requires measurable treatment lift and guardrails', () =>
   assert.equal(failing.passed, false);
   assert.ok(failing.reasons.length >= 2);
 });
+
+test('treatment batch creates one idempotent design and growth action per treatment site', () => {
+  const batch = productivity.treatmentBatch({
+    pilot_id: 'pilot-123',
+    treatment_sites: ['GreatAmericanLakes.com', 'allthingsmasonic.com'],
+  });
+  assert.equal(batch.length, 4);
+  assert.deepEqual(
+    batch.map(row => row.action_key),
+    [
+      'productivity-pilot:pilot-123:design:greatamericanlakes.com',
+      'productivity-pilot:pilot-123:growth-revenue:greatamericanlakes.com',
+      'productivity-pilot:pilot-123:design:allthingsmasonic.com',
+      'productivity-pilot:pilot-123:growth-revenue:allthingsmasonic.com',
+    ]
+  );
+  assert.equal(batch.filter(row => row.lane === 'finish-sites').length, 2);
+  assert.equal(batch.filter(row => row.lane === 'growth-revenue').length, 2);
+});
