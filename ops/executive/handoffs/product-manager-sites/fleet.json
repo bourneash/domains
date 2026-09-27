@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:48:32.194Z",
+  "generated_at": "2026-09-27T18:03:18.162Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. The portfolio has 47 open failure follow-ups, 28 improvements awaiting measurement, an empty queue-eligible candidate list, and only 2 proven outcomes. Retain SEO, UX, accessibility, performance, content, monetization, and cross-site capability opportunities as deferred backlog. Continue existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Create no new proposals, work items, change requests, experiments, telemetry, deployments, spend, or monetization changes this cycle.",
+        "summary": "Recommendation: preserve containment-only execution. Existing evidence supports a deferred portfolio backlog of SEO, UX, accessibility, performance, content, and monetization improvements, but not new proposals or queue work this cycle: 47 failure follow-ups remain open, 28 improvements await measurement, the candidate list is empty, operations/security sweeps are unavailable, and only 2 outcomes are proven. Prioritize existing repair-or-close, deterministic validation, rollback, deduplication, attribution reconciliation, and bounded legal/security evidence. Do not infer revenue or ROI: the available $4.92 commission is aggregate and unattributed. Reassess deferred site opportunities after measurement and execution controls are complete.",
         "requested_action": null,
         "proposal_id": null
       }

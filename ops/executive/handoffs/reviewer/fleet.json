@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T17:48:32.196Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T18:03:18.164Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, monetization, and external-outreach claims. Continue only existing repair-or-close, attribution reconciliation, and bounded legal/security evidence work. Preserve private and parked dispositions. Revenue remains limited to the 2026-09-21 $4.92 aggregate commission, which is not site-attributable; financial outcomes remain unknown.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, attribution and cost reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed, keep private launch gates and parked dispositions unchanged, and keep external outreach unsent. Owner concern: any permission request requires human-counsel review before authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: 47 failure follow-ups, 28 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and conflicting cost records prevent safe queue work or financial claims. Keep any permission request unsent until human-counsel review and explicit owner authorization.",
+        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, and repository opportunities as deferred backlog only. Existing failures, pending measurements, unavailable operations/security sweeps, and incomplete attribution do not support new queue work this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and retain parked-site dispositions. Continue existing read-only legal, accuracy, attribution, measurement, and security evidence work; do not authorize public exposure, rights-dependent monetization, credential or configuration changes, deployment, dependency additions, spending, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
