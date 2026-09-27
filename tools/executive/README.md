@@ -239,3 +239,25 @@ store, and exposed through Fleet Manager's Executive Leadership page and
 queue (two active workers, one new job every minute). Missing data is
 reported as unavailable rather than zero, and does not prevent a routine site
 review from being delivered.
+
+## Agent runtime contract
+
+`agent-runtime.js` provides the shared Paperclip-inspired runtime beneath the
+fleet-specific executive policy. It bootstraps registered leadership agents,
+tracks resumable sessions and usage-bearing runs, and attaches durable work
+products. The event store enforces agent status, idempotent run creation,
+per-agent budget reservations, scoped tool grants with explicit approval,
+isolated workspace records, atomic work-item leases, routine heartbeats,
+watchdog timeouts, and agent evaluations.
+
+The hourly `run-heartbeat.sh` dispatches due interval routines, audits stalled
+runs, and records an `agent.heartbeat.tick` event. The executive sandbox creates
+and finalizes a `fleet-ceo` run around each real model execution and attaches
+the non-secret usage ledger as an artifact. Runtime APIs are exposed under
+`/api/agents`, `/api/agent-runs`, `/api/agent-artifacts`, `/api/budgets`,
+`/api/agent-routines`, `/api/agent-watchdogs`, `/api/agent-evals`,
+`/api/agent-tools`, and `/api/agent-workspaces`.
+
+These runtime records do not bypass the fleet proposal, Legal/Security, change
+queue, GitHub → Cloudflare Builds, or measurement gates. They provide identity,
+execution, recovery, cost, and evidence contracts underneath those gates.
