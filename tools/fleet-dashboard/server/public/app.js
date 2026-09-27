@@ -14016,6 +14016,7 @@ async function renderExecutive() {
     runStatus,
     cases,
     calendar;
+  const conversationOnly = STATE.agentPage === 'conversation';
   try {
     [
       messages,
@@ -14035,25 +14036,46 @@ async function renderExecutive() {
       croLabRuns,
       runStatus,
       cases,
+      calendar,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
-      apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
+      conversationOnly
+        ? Promise.resolve({ messages: [], retention_days: 90 })
+        : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
       api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
       api('GET', '/api/executive/inbox?limit=50'),
-      api('GET', '/api/executive/proposals?limit=100'),
-      api('GET', '/api/executive/actions?limit=200'),
-      api('GET', '/api/executive/settings'),
-      api('GET', '/api/executive/brief'),
-      api('GET', '/api/revops/summary'),
-      api('GET', '/api/experiments'),
-      api('GET', '/api/campaigns/summary'),
-      api('GET', '/api/executive/reports?limit=20'),
-      api('GET', '/api/executive/domain-manager-queue'),
-      api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
-      apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-      apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
-      apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
-      apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
+      conversationOnly
+        ? Promise.resolve({ proposals: [] })
+        : api('GET', '/api/executive/proposals?limit=100'),
+      conversationOnly
+        ? Promise.resolve({ actions: [] })
+        : api('GET', '/api/executive/actions?limit=200'),
+      conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
+      conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
+      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
+      conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
+      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
+      conversationOnly
+        ? Promise.resolve({ reports: [] })
+        : api('GET', '/api/executive/reports?limit=20'),
+      conversationOnly
+        ? Promise.resolve({ queue: {} })
+        : api('GET', '/api/executive/domain-manager-queue'),
+      conversationOnly
+        ? Promise.resolve({ summary: {} })
+        : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+      conversationOnly
+        ? Promise.resolve({ runs: [] })
+        : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+      conversationOnly
+        ? Promise.resolve({ active: null, latest: null, runs: [] })
+        : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+      conversationOnly
+        ? Promise.resolve({ cases: [] })
+        : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+      conversationOnly
+        ? Promise.resolve({ events: [], calendar: { events: [] } })
+        : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
     ]);
   } catch (e) {
     renderViewError(app, `Executive control plane failed: ${e.message}`);

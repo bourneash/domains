@@ -116,6 +116,23 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(app, /Reply added; the executive team will see it on its next run/);
 });
 
+test('executive conversation route skips unrelated control-plane requests', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const conversationOnly = STATE\.agentPage === 'conversation'/);
+  assert.match(
+    app,
+    /conversationOnly\s*\? Promise\.resolve\(\{ messages: \[\], retention_days: 90 \}\)/
+  );
+  assert.match(
+    app,
+    /conversationOnly \? Promise\.resolve\(\{ proposals: \[\] \}\) : api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
+  );
+  assert.match(
+    app,
+    /conversationOnly \? Promise\.resolve\(\{ cases: \[\] \}\) : apiOptional\('GET', '\/api\/cases\?limit=300'/
+  );
+});
+
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
