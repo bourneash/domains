@@ -110,6 +110,7 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(app, /new Map\(\s*\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
   assert.match(app, /class="ex-request-list-summary"/);
   assert.match(app, /<b>Full thread<\/b>/);
+  assert.match(app, /const threadSection =\s*thread\.length > 1/);
   assert.doesNotMatch(app, /ex-request-response/);
   assert.match(app, /api\('POST', '\/api\/executive\/requests', \{ actor: 'owner', body \}\)/);
   assert.match(app, /class="btn sm primary ex-work-reply-send"/);

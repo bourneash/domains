@@ -14210,6 +14210,13 @@ async function renderExecutive() {
               `<div class="ex-thread-message ${message.actor === 'owner' ? 'owner' : 'agent'}"><div class="ex-thread-message-head"><b>${esc(executiveActorLabel(message.actor))}</b><span>${esc(fmtDate(message.created_at))}</span></div><div>${esc(message.body)}</div></div>`
           )
           .join('');
+        // The request summary already contains the initial owner message. A
+        // one-event thread would therefore render that same text a third time;
+        // reserve the full-thread section for actual back-and-forth history.
+        const threadSection =
+          thread.length > 1
+            ? `<div class="ex-thread-heading"><b>Full thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline}</div>`
+            : '';
         const linked = (request.links || [])
           .map(
             link =>
@@ -14230,7 +14237,7 @@ async function renderExecutive() {
           request.lifecycle_state === 'closed'
             ? ''
             : `<div class="ex-work-reply"><div class="ex-thread-heading"><b>Continue this thread</b><span class="muted">The executive team will see this on its next run.</span></div><textarea class="cm-input ex-work-reply-body" data-id="${esc(request.work_id)}" rows="4" placeholder="Reply with clarification, a decision, or the next direction…"></textarea><div class="task-toolbar"><span class="muted">Your reply stays attached to this work item.</span><button class="btn sm primary ex-work-reply-send" data-id="${esc(request.work_id)}" type="button">Send reply</button></div></div>`;
-        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div><div class="ex-thread-heading"><b>Full thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div>${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
+        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${threadSection}${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
       })()
     : '<div class="ex-request-detail ex-empty">Select a request to inspect its full thread.</div>';
   const allCases = cases?.cases || [];
