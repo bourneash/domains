@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:19:18.151Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T16:33:29.923Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and retain parked-site dispositions. Four legal launch tasks remain open; rights, privacy, security, accuracy, attribution, and measurement gates are incomplete. Continue the existing evidence bundle and rights matrix; do not send outreach or change launch states.",
+        "summary": "Recommendation: keep SearchWoot private and retain parked-site dispositions. Four legal launch tasks remain open; source rights, privacy, security, accuracy, attribution, and measurement gates are incomplete. Continue the existing evidence bundle and rights matrix; keep external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, public beta, alert expansion, rights-dependent monetization, affiliate expansion, and advertising. Conditional only for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep the gated product private, keep external outreach unsent, retain complicated.work and deadlymaracas.com parked, and continue bounded read-only evidence work only. Evidence: launch-readiness source rights are blocked; all four legal tasks remain open; security, accuracy, attribution, measurement, and owner gates are incomplete; fleet-doctor and operations sweeps have no results; compliance is a technical baseline with 37 pass, 15 fail, and 7 unknown; revenue covers 2026-09-21 only and includes $4.92 aggregate commission that is not site-attributable. Human counsel is required for upstream data rights, jurisdiction-specific privacy treatment, and any affiliate or advertising expansion. This is risk triage, not legal advice or certification.",
+        "summary": "Risk disposition: blocked for public launch, private-product exposure, rights-dependent monetization, affiliate expansion, advertising, and alert expansion. Conditional only for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep SearchWoot private; retain complicated.work and deadlymaracas.com parked; keep external outreach unsent; continue bounded read-only evidence work only. Evidence: Woot terms do not establish public/commercial reuse rights; compliance is technical-only with 37 passes, 15 failures, and 7 unknowns; security and operations sweeps have no results; analytics has source gaps; revenue covers 2026-09-21 only with $4.92 aggregate commission that is not site-attributable; accuracy, measurement, and owner gates remain incomplete. Human counsel is required for upstream data rights, jurisdiction-specific privacy treatment, and any affiliate or advertising use. Incomplete telemetry alone does not block ordinary growth on otherwise evidenced live sites.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -30,14 +30,7 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review dispositions: Woot API deal and price-history data is counsel_required and launch-blocked because rights to fetch, store, transform, display, cache, retain historical derivatives, send alerts, use trademarks, images, prices, and monetize are not established. User alert rules and sync results are evidence_needed because inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior are not evidenced. GA4 analytics is evidence_needed because deployed consent and withdrawal behavior, GA4 property and data-sharing settings, retention settings, and jurisdictional treatment are not evidenced. Operational logs and Cloudflare hosting data are evidence_needed because log fields, retention and access controls, vendor/DPA coverage, and incident/request procedures are not evidenced. No item is clear or conditionally launchable on current evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private-site decision: retain complicated.work and deadlymaracas.com parked. Their scaffold or parked state, missing analytics, and failed or unreachable compliance evidence do not support public launch or monetization. Analytics gaps alone do not block ordinary growth on otherwise evidenced live sites. For each private site, complete a timestamped checklist covering reachability, content, disclosures, consent and cookie behavior, privacy and terms, analytics, monetization, claims, provenance, copyright/trademark, platform policy, age-sensitive concerns where applicable, and an explicit retain-parked or bounded-launch decision. Next evidence action: complete those two site-specific checklists; do not expose or monetize before completion.",
+        "summary": "Data-use review: Woot API deal and price-history data is counsel_required and launch-blocked because rights to fetch, store, transform, display, cache, retain historical derivatives, alert, use trademarks/images/prices, or monetize are not established. User alert rules and sync results are evidence_needed because inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior are not evidenced. GA4 analytics is evidence_needed because deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment are not evidenced. Operational logs and Cloudflare hosting data are evidence_needed because log fields, retention/access controls, vendor/DPA coverage, and incident/request procedures are not evidenced. No item is clear or conditionally launchable on current evidence.",
         "requested_action": null,
         "proposal_id": null
       }

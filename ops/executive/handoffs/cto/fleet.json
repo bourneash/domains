@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:19:18.151Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T16:33:29.922Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new change requests and requeues this cycle. The CRO SEO, UX, performance, affiliate, and repository leads are useful but blocked by existing failure-containment requirements: documented ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness. Preserve them as deferred backlog; continue current repair-or-close work only.",
+        "summary": "Recommendation: retain CRO and SEO opportunities as deferred backlog; do not create or requeue implementation work this cycle. Existing failures require documented ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness first. Continue only existing repair-or-close and isolated validation work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new change requests, requeues, deployments, experiments, dependencies, telemetry, spending, or monetization changes are queue-eligible. Retain SEO, UX, performance, content, accessibility, affiliate, and repository opportunities as deferred backlog until ownership, root cause, deduplication, isolated deterministic validation, rollback, and measurement readiness are documented. Continue only existing repair-or-close, attribution reconciliation, and bounded legal/security evidence work.",
+        "summary": "Approve containment-only execution. No new proposal, change request, requeue, deployment, experiment, dependency, telemetry, spend, monetization change, or unsupported financial claim is queue-eligible this cycle. Retain evidence-backed opportunities as deferred backlog. Continue only existing failure repair-or-close, isolated validation, rollback, deduplication, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Preserve private launch gates, parked-site dispositions, and unsent external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical feasibility is not the blocker for the deferred opportunities; safe queue entry is. Existing failures and incomplete release evidence require isolated validation and rollback evidence before any implementation or requeue. Use existing recorded telemetry only and preserve all launch gates and parked-site dispositions.",
+        "summary": "Technical feasibility is not the blocker for the deferred opportunities; queue entry is blocked by unresolved failure ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness. Continue existing repair-or-close work and do not create duplicate implementation work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the private launch gate and unsent external outreach. Continue the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work only. No public exposure, rights-dependent monetization, alert expansion, credential or configuration change, dependency addition, or deployment is supported.",
+        "summary": "Maintain private launch gates and parked-site dispositions. Continue the existing consolidated rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work only. Keep external outreach unsent and authorize no public exposure, rights-dependent monetization, alert expansion, credential or configuration change, dependency addition, deployment, or spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Do not infer financial returns from operating metrics or conflicting cost records.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:19:18.150Z",
+  "generated_at": "2026-09-27T16:33:29.922Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO technical handoff: repository opportunities remain research leads, not adoption approvals. Before any implementation, require isolated fleet-specific prototypes, dependency and security review, accessibility checks, build-size comparison, deterministic tests, rollback notes, and owner-approved routing. The smallest safe next artifacts are a copied shadcn CTA fixture, a local MarkItDown document-diff fixture, and a manually authored sanitized Mermaid SVG; none should touch production or add dependencies this cycle.",
+        "summary": "Recommendation: preserve containment-only execution. Retain evidence-backed SEO, performance, UX, content-depth, internal-linking, affiliate-repair, and repository opportunities as deferred backlog. Do not create proposals, experiments, telemetry, dependencies, deployments, spend, monetization expansion, or requeues this cycle. Existing evidence shows 47 failure follow-ups, 28 improvements awaiting measurement, and only 2 proven outcomes; revenue covers one period with aggregate commission not attributable to individual sites. Reconsider the smallest reversible prototype only after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
         "requested_action": null,
         "proposal_id": null
       }
