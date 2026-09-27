@@ -55,7 +55,7 @@ test('productivity pilot API creates baseline and evaluates treatment output', a
     server,
     'POST',
     `/api/productivity/pilots/${created.body.pilot.pilot_id}/evaluate`,
-    {}
+    { to: created.body.pilot.end_at, final: true }
   );
   assert.equal(evaluated.status, 200, JSON.stringify(evaluated.body));
   assert.equal(evaluated.body.evaluation.guardrails.measurement_required, true);

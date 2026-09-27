@@ -3636,6 +3636,22 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         control_sites: pilot.control_sites,
       });
       const evaluation = productivityProgram.evaluate(pilot.baseline, current);
+      const requestedFinal = (req.body || {}).final === true;
+      const complete = requestedFinal || Date.now() >= Date.parse(pilot.end_at);
+      if (!complete) {
+        events.createProductivitySnapshot({
+          pilot_id: pilot.pilot_id,
+          phase: 'progress',
+          snapshot: current,
+        });
+        return res.status(202).json({
+          pilot,
+          current,
+          evaluation,
+          provisional: true,
+          next_evaluation_at: pilot.end_at,
+        });
+      }
       events.createProductivitySnapshot({
         pilot_id: pilot.pilot_id,
         phase: 'evaluation',
