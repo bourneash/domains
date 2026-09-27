@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:19:05.419Z",
+  "generated_at": "2026-09-27T07:48:53.598Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: preserve containment-only execution. The highest-leverage deferred opportunities are (1) close the execution/measurement loop, (2) add failure deduplication and repair-or-close controls, (3) improve task-role routing and capability parity, (4) expose fleet-wide operational readiness in one control-plane view, (5) add AI-cost visibility to prioritization, and (6) standardize reversible, evidence-gated site improvements. Current evidence does not support new queue work: 187 approved proposals lack execution requests, 47 failure follow-ups remain open, 32 deployed improvements await measurement, only 1 outcome is proven, operations/fleet-doctor results are unavailable, and financial attribution remains incomplete. Continue existing measurement, attribution reconciliation, failure repair-or-close, and bounded legal/security evidence work. Keep all new proposals, telemetry, experiments, dependencies, spend, requeues, deployments, and public launch changes deferred until existing gates clear.",
+        "summary": "Recommendation: preserve containment-only execution. The authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven. Continue existing measurement reconciliation, failure repair-or-close review, and bounded legal/security evidence work. Defer new product proposals, work items, requeues, telemetry, dependencies, spend, monetization expansion, and unsupported claims until the existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

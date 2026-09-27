@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:34:17.311Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T07:48:53.599Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence only. Do not requeue or deploy deferred opportunities until ownership, root cause, isolated validation, rollback, and deduplication evidence are documented.",
+        "summary": "Recommendation: continue only existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence. Reject the candidate plan’s new production work, requeues, experiments, telemetry, dependencies, and deployments because the authoritative candidate list is empty and 47 failure follow-ups remain open. Smallest next step: document ownership, root cause, isolated validation, rollback, and deduplication for retained failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failed-work repair-or-close, measurement reconciliation, and bounded security evidence only. Do not requeue or deploy deferred opportunities until ownership, root cause, isolated validation, rollback, and deduplication evidence are documented.",
+        "summary": "Approve containment-only execution. Continue only existing failed-work repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Do not create or requeue production work, experiments, telemetry, dependencies, spend, monetization changes, deployments, or external outreach. Keep the gated product private until rights, privacy, security, accuracy, attribution, measurement, and owner gates are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the deferred SEO, UX, performance, accessibility, content, affiliate, attribution, and repository opportunities. Reconsider queue entry only after retained failures are repaired or explicitly closed with documented ownership, root cause, isolated validation, rollback, deduplication, available measurement capacity, and satisfied security and attribution gates.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T07:34:17.312Z",
+  "generated_at": "2026-09-27T07:48:53.600Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spend, monetization expansion, and unsupported financial claims. Continue only existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence. Keep the gated product private and external outreach unsent pending counsel and owner authorization.",
+        "summary": "Approve containment-only execution. Continue existing failure repair-or-close review, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spending, monetization expansion, external outreach, and unsupported financial or causal claims. Keep the gated product private and prepared permission outreach unsent pending human-counsel review and explicit owner authorization. Owner concern: revenue covers one dated window, aggregate commission is not site-attributable, and conflicting cost records prevent ROI, margin, forecast, payback, and spend conclusions.",
         "requested_action": null,
         "proposal_id": null
       }
