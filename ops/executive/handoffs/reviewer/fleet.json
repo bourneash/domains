@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:02:57.198Z",
+  "generated_at": "2026-09-27T08:19:09.324Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: retain containment-only execution. Revenue evidence is limited to one dated aggregate window with no site-attributed commission; conflicting cost records and missing cost components block ROI, margin, forecasts, and spend decisions. Open failures, measurement work, and unevidenced security controls block new production work, requeues, experiments, dependencies, and monetization expansion. Keep the gated product private and external outreach unsent pending counsel review and explicit authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spending, and monetization claims. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization. Revenue remains limited to 2026-09-21 aggregate commission of $4.92, not site-attributable; financial outcomes remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only continuation of existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve deferred opportunities without requeueing or creating duplicate telemetry. No new production proposal is supportable this cycle.",
+        "summary": "Continue existing work only; do not create duplicate requests or requeue deferred opportunities until ownership, root cause, isolated validation, rollback, deduplication, measurement capacity, security evidence, attribution, and financial reconciliation are documented.",
         "requested_action": null,
         "proposal_id": null
       }

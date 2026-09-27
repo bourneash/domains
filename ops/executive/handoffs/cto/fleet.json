@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:02:57.198Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:19:09.323Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. The authoritative candidate list is empty and no new implementation is technically ready. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Preserve deferred SEO, UX, accessibility, performance, content, monetization, and capability opportunities. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spend, monetization changes, or unsupported claims. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
+        "summary": "Handoff: preserve deferred SEO, UX, accessibility, performance, content, attribution, and repository opportunities. Continue only existing failed-work repair-or-close, measurement reconciliation, and bounded read-only security evidence. Do not requeue or deploy until ownership, root cause, isolated validation, rollback, deduplication, and measurement capacity are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: existing queue work may continue only within its current isolated scope. Retained failures require documented ownership, root cause, smallest repair, deterministic validation, rollback, and deduplication before requeue. Measurement and attribution work must preserve unknowns, keep aggregate revenue unattributed, and avoid unsupported financial inference. Security evidence remains read-only; missing fleet-doctor and operations results do not establish clearance. No new queue item is created by this pass.",
+        "summary": "Approve containment-only execution. No new production work, requeues, experiments, dependencies, telemetry requests, spend, monetization expansion, or deployments are technically ready. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Preserve deferred opportunities until ownership, isolation, deterministic validation, rollback, deduplication, measurement capacity, security, attribution, and financial gates are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile conflicting cost records using existing evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend authorization from incomplete or misaligned records.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence and failed-work containment. Public exposure and security-sensitive releases remain blocked while authentication, secrets, isolation, release, dependency, monitoring, incident, TLS, and disclosure controls are unevidenced. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or requeue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement checklist pending human-counsel review and explicit owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
