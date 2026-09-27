@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:32:42.716Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:47:50.114Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, and unsupported financial claims. Preserve only existing failure repair-or-close, measurement and attribution reconciliation, and bounded read-only legal/security evidence. Keep the gated product private and external outreach unsent. Site-level ROI, margin, causal lift, and revenue forecasts remain unsupported because attribution is partial, revenue covers one dated window, and cost records conflict.",
+        "summary": "Independent reviewer disposition: approve containment-only execution. Continue existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spending, monetization expansion, external outreach, and unsupported revenue or ROI claims. Keep the gated product private and permission outreach unsent pending human-counsel review and explicit owner authorization. Aggregate commission remains unattributed; site economics and causal outcomes are unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: revenue evidence covers one dated window and includes unattributed aggregate commission; cost records conflict and required cost categories are incomplete, so ROI, margin, forecasts, payback, and spend decisions are unsupported. Operational and security sweeps are unavailable, 47 failure follow-ups remain open, and 28 deployed improvements await measurement. Preserve the smallest existing-work plan until reconciliation, repair-or-close evidence, and launch gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:32:42.715Z",
+  "generated_at": "2026-09-27T08:47:50.112Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain validated SEO, UX, accessibility, performance, content, attribution, repository, audience, and monetization opportunities as deferred CRO backlog. Continue only existing failure repair-or-close, measurement reconciliation, and bounded legal/security evidence work. Create no new proposals, work items, change requests, experiments, telemetry, dependencies, spend, deployments, requeues, or unsupported revenue claims.",
+        "summary": "CRO review: retain the evidence-backed SEO, UX, accessibility, performance, affiliate, audience, and repository opportunities as deferred backlog. Signals include 103 SEO actions across 39 sites, partial aggregate affiliate attribution, validated MIT repository candidates, and measurable search opportunities; however, the authoritative candidate list is empty, 47 failure follow-ups remain open, 28 improvements await measurement, and only 2 outcomes are proven. Continue existing failure repair-or-close, measurement/attribution reconciliation, and bounded read-only legal/security evidence work. Do not create new experiments, production work, dependencies, telemetry, spend, monetization expansion, or unsupported revenue claims. Reconsider the smallest reversible prototype only after ownership, isolated validation, rollback, deduplication, measurement capacity, security, and attribution gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

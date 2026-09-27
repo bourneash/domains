@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T08:32:42.715Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T08:47:50.113Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the evidence-backed SEO, UX, performance, content, attribution, and CRO opportunities as deferred backlog; do not create new production work this cycle. The authoritative candidate list is empty, 47 failure follow-ups remain open, 28 deployed improvements await measurement, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-27. Reject new requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported revenue claims. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI and margin are unknown. Keep SearchWoot private and external outreach unsent. Smallest next step: complete existing repair-or-close and measurement reconciliation. Owner decision: after human-counsel review, authorize the prepared Woot permission request or keep it unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Retain the CRO/SEO, UX, performance, attribution, and repository opportunities as deferred backlog; do not create new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, or unsupported claims. Evidence: 103 SEO actions across 39 sites, 47 failure follow-ups, 28 deployed improvements awaiting measurement, and 2 proven outcomes in the 30-day scorecard. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed; ROI and margin are unknown. SearchWoot remains private because rights and launch gates are incomplete. Smallest next step: finish existing repair-or-close, measurement reconciliation, and legal/security evidence work. Owner decision: after counsel review, authorize the prepared Woot permission request or keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewed the CRO/earlier plan: preserve its evidence-backed opportunities as deferred backlog, but reject its implied new execution this cycle because the authoritative candidate list is empty and containment controls remain active. Continue only existing failure repair, measurement/attribution reconciliation, and bounded legal/security evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewed and rejected unsupported financial expansion: aggregate commission remains unattributed, cost windows conflict, and contribution margin, ROI, payback, and cost-to-learn are not calculable. Continue the existing reconciliation only; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }
