@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T15:03:39.472Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T15:18:56.324Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence. Keep private launch gates and external outreach unchanged. Owner: authorize outreach only after human-counsel review; otherwise keep it unsent.",
+        "summary": "Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Create no new queue work. Continue only existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence. Keep private launch gates, parked-site dispositions, and external outreach unchanged. Revenue remains limited to the 2026-09-21 $4.92 aggregate commission, which is not site-attributable; financial outcomes remain unknown. Authorize the prepared permission request only after human-counsel review; otherwise keep it unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing SEO and performance opportunities as deferred backlog only. Do not queue or requeue until ownership, root cause, deduplication, isolated deterministic validation, rollback, and measurement readiness are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not create duplicate requests, access credentials, change permissions or configuration, add dependencies, deploy, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, and measurement evidence work; no launch or monetization expansion is supported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the existing period-aligned attribution and cost reconciliation. Keep aggregate commission unattributed and retain ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown. Approve no new spend, forecasts, commitments, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       }

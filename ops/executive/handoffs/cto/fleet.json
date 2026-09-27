@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T15:03:39.472Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T15:18:56.324Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. The candidate list is empty and no new implementation or requeue is safely queue-eligible. Continue only existing repair-or-close, isolated validation, rollback, deduplication, measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Preserve private launch gates and unsent outreach. Do not create duplicate telemetry, production work, experiments, dependencies, deployments, spending, or monetization changes. Reconsider deferred work only after documented ownership, root cause, deterministic validation, rollback, and explicit disposition.",
+        "summary": "Approve containment-only execution. No new queue work, proposals, experiments, telemetry requests, dependencies, deployments, spend, monetization changes, or requeues are technically queue-eligible this cycle. Continue only existing failure repair-or-close, deduplication, isolated validation, rollback, measurement and attribution reconciliation, and bounded read-only legal/security evidence work. Preserve the three deferred SEO/performance opportunities until ownership, root cause, deterministic validation, rollback, deduplication, and measurement gates are documented. Keep private launch gates and parked-site dispositions unchanged; retain unknown revenue, ROI, margin, payback, cost-to-learn, budget capacity, causal lift, and operational-security status. Use existing recorded telemetry only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The candidate plan is technically feasible as containment and evidence maintenance, but contains no safely queue-eligible implementation. Preserve the existing work items and deferred backlog only. Do not create duplicate telemetry or implementation requests. Reconsider queue entry only after documented failure ownership, root cause, isolated validation, rollback, deduplication, and measurement readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue failures, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, and measurement evidence work only. No public exposure or rights-dependent monetization is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T15:03:39.472Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T15:18:56.324Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, gated-product exposure, rights-dependent monetization, affiliate expansion, advertising, and alert expansion; conditional only for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep the gated product private, retain complicated.work and deadlymaracas.com parked, keep external outreach unsent, and continue only bounded read-only evidence work. Evidence: compliance baseline is technical only with 37 pass, 15 fail, and 7 unknown; source rights are not established; security and operations sweeps have no results; analytics has source gaps; revenue covers 2026-09-21 only with $4.92 aggregate commission that is not site-attributable; accuracy, measurement, and owner gates remain incomplete. Human counsel is required for upstream data rights, jurisdiction-specific privacy treatment, and any affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for public launch, gated-product exposure, rights-dependent monetization, affiliate expansion, advertising, and alert expansion; conditional for ordinary reversible growth that preserves existing consent, disclosures, affiliate disclosures, claims, provenance, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: keep searchwoot.com private, keep external outreach unsent, retain complicated.work and deadlymaracas.com parked, and authorize only existing bounded read-only evidence work. Evidence: compliance is a technical baseline with 37 pass, 15 fail, and 7 unknown; source rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete; fleet-doctor and operations sweeps have no results; available revenue covers 2026-09-21 only and includes $4.92 aggregate commission that is not site-attributable. This is risk triage, not legal advice or certification. Human counsel is required for upstream data rights, public display, historical derivatives, alerts, affiliate or advertising use, and jurisdiction-specific privacy treatment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are closed and 4 remain open. No task is closable on current evidence. Open tasks: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures. Do not send outreach, enable tracking, expand alerts, change the private gate, or expand monetization.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed and 4 remain open. No task is closable on current evidence. Open tasks are searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures. Do not send outreach, enable tracking, expand alerts, change the private gate, or expand monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is counsel_required and launch-blocked; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and Cloudflare hosting data are evidence_needed. No item is clear or conditionally launchable on current evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private-site decision: retain complicated.work and deadlymaracas.com parked. Their scaffold or parked state, missing analytics, and failed or unreachable compliance evidence do not support public launch or monetization. Analytics gaps alone do not block ordinary growth on otherwise evidenced live sites, but these private sites require timestamped site-specific checklists covering reachability, content, disclosures, consent and cookie behavior, privacy and terms, analytics, monetization, claims, provenance, copyright/trademark, platform policy, age-sensitive concerns where applicable, and an explicit retain-parked or bounded-launch decision.",
+        "summary": "Retain complicated.work and deadlymaracas.com parked. The scaffold or parked state, missing analytics, and failed or unreachable compliance evidence do not support public launch or monetization. Analytics gaps alone do not block ordinary growth on otherwise evidenced live sites, but these private sites require timestamped site-specific checklists covering reachability, content, disclosures, consent and cookie behavior, privacy and terms, analytics, monetization, claims, provenance, copyright/trademark, platform policy, age-sensitive concerns where applicable, and an explicit retain-parked or bounded-launch decision. Next evidence action: complete those checklists; do not expose or monetize before completion.",
         "requested_action": null,
         "proposal_id": null
       }

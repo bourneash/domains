@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T15:03:39.471Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T15:18:56.323Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, only 2 outcomes are proven, and the authoritative candidate list is empty. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; ROI, margin, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement reconciliation, and legal/security evidence work; keep SearchWoot private and outreach unsent. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
+        "summary": "Handoff: retain deferred SEO/performance opportunities for deeppenetrations.com, broadwayshowgirls.com, and americastrikes.com. Do not queue or requeue until failure ownership, root cause, deterministic validation, rollback, deduplication, and measurement gates are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue the existing bounded security evidence matrix using authorized metadata only. Preserve private launch gates and do not create duplicate requests or production work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: keep SearchWoot private and external outreach unsent. Continue the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, and measurement evidence work.",
         "requested_action": null,
         "proposal_id": null
       }
