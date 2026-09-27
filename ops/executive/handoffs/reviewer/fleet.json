@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:35:26.708Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:48:45.532Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spending, monetization expansion, and unsupported financial claims. Aggregate revenue remains unattributed; ROI, margin, causal lift, and budget exposure are unknown. Keep the gated product private and external outreach unsent pending human-counsel review and explicit owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization-expansion, and public-exposure claims. Continue only existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. Preserve deferred opportunities as backlog. Owner concern: revenue covers one dated aggregate window, site attribution is incomplete, AI costs conflict, telemetry is low-volume, and material security controls remain unevidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing measurement reconciliation, failure repair-or-close review, and bounded read-only security evidence. Preserve unknowns and do not create duplicate requests or production work.",
+        "summary": "Maintain financial containment. Preserve aggregate commission as unattributed and continue existing reconciliation only. Do not infer ROI, margin, payback, forecasts, budget capacity, or site performance.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and external outreach unsent. Continue only existing read-only rights, privacy, accuracy, attribution, measurement, and security evidence work pending counsel and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }

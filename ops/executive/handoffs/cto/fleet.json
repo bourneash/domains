@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T09:35:26.708Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-27T09:48:45.532Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Preserve the evidence-backed CRO, SEO, UX, performance, content, attribution, monetization, and repository opportunities as deferred backlog only. Do not create new production work, requeue failures, add experiments, telemetry, dependencies, deployments, spend, monetization expansion, or unsupported claims. Continue only existing failure repair-or-close, period-aligned measurement and attribution reconciliation, and bounded read-only legal/security evidence work.",
+        "summary": "Approve containment-only execution. Preserve the deferred SEO, UX, accessibility, performance, content, attribution, affiliate, and repository backlog. Continue only existing failure repair-or-close, period-aligned measurement reconciliation, and bounded read-only legal/security evidence. Reject new production work, requeues, experiments, telemetry, dependencies, spend, monetization expansion, deployments, and unsupported claims. Existing failures, limited measurement capacity, unevidenced security controls, partial attribution, and unreconciled costs prevent safe queue entry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed fleet capabilities are not ready for implementation. They require new control-plane changes, isolation review, deterministic validation, rollback, deduplication, ownership, and measurement capacity that are not currently evidenced. Retain them as deferred design backlog; do not route them to the existing queue this cycle.",
+        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile retained AI-cost records with period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing measurement and attribution reconciliation only. Preserve aggregate commission as unattributed and reconcile conflicting AI-cost records using period-aligned evidence. Do not infer ROI, margin, payback, cost-to-learn, forecasts, or spend capacity.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, incident, accuracy, attribution, and measurement evidence work pending human-counsel review and explicit owner authorization.",
+        "summary": "Keep SearchWoot private and external outreach unsent. Continue only the existing read-only rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -40,13 +33,6 @@
         "summary": "Preserve private launch gates and continue bounded read-only security evidence only. Missing fleet-doctor and operations results do not establish clearance; do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or requeue work.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-opportunity-backlog-2026-09-27",
-        "summary": "Retain the cited opportunities as deferred backlog only. The requested backlog-recording work is duplicative of existing intelligence and does not justify a new proposal or queue item. Do not create production work, requeues, experiments, telemetry, dependencies, spending, or unsupported causal claims.",
-        "requested_action": "declined",
-        "proposal_id": "cro-deferred-opportunity-backlog-2026-09-27"
       }
     ]
   }
