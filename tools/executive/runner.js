@@ -1603,7 +1603,11 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // Baseline-only or explicitly gated cohorts can remain report/research
   // work. Concrete SEO/content/design/engineering candidates must create
   // actual work for the engineer, not merely a recommendation.
-  if (!actionableCandidates.length) return true;
+  // A gated or already-busy portfolio still needs a durable checkpoint. A
+  // pass that emits only owner messages is otherwise indistinguishable from
+  // a no-op in the workbench and gives the team no measurable next action.
+  if (!actionableCandidates.length)
+    return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
   const candidateSites = new Set(
     actionableCandidates
       .map(item =>
@@ -2174,6 +2178,54 @@ function reportWorkRequestKey(prefix, workId) {
   return `${prefix}:${String(workId || '').trim()}`;
 }
 
+// Failure follow-ups are allowed to create one bounded diagnosis, but the
+// diagnosis itself must not become a new parent for another diagnosis. The
+// original request id changes at every repair/follow-through hop, so request
+// ids are not a sufficient lineage key here. Strip the generated wrapper
+// prefixes and compare the underlying site/title instead.
+function failureDiagnosisLineageKey(request = {}) {
+  let title = normalizeActionTitle(request.title);
+  const prefixes = [
+    'repair failed request',
+    'failure diagnosis',
+    'diagnose failed implementation',
+    'follow through',
+  ];
+  let changed = true;
+  while (changed && title) {
+    changed = false;
+    for (const prefix of prefixes) {
+      if (title === prefix) {
+        title = '';
+        changed = true;
+        break;
+      }
+      if (title.startsWith(`${prefix} `)) {
+        title = title.slice(prefix.length).trim();
+        changed = true;
+        break;
+      }
+    }
+  }
+  const site = String(request.site || '')
+    .trim()
+    .toLowerCase();
+  return site && title ? `${site}:${title}` : '';
+}
+
+function existingFailureDiagnosis(requests, currentRequest) {
+  const lineage = failureDiagnosisLineageKey(currentRequest);
+  if (!lineage) return null;
+  return (
+    requests.find(request => {
+      if (request === currentRequest) return false;
+      if (request.delivery_mode !== 'report_only') return false;
+      if (!String(request.action_key || '').startsWith('failure-diagnosis:')) return false;
+      return failureDiagnosisLineageKey(request) === lineage;
+    }) || null
+  );
+}
+
 function activeRequestStatuses() {
   return new Set(['queued', 'claimed', 'running', 'reviewing', 'review', 'committed']);
 }
@@ -2345,12 +2397,13 @@ function drainFailureDiagnostics(store, { root = ROOT, maxQueue = 3 } = {}) {
     if (!original || original.status !== 'failed') continue;
     const actionKey = reportWorkRequestKey('failure-diagnosis', original.request_id);
     const existing = requests.find(request => request.action_key === actionKey);
-    if (existing) {
-      if (existing.status === 'verified')
-        markReportWorkItem(store, item, existing, { completed: true });
-      else if (existing.status === 'failed')
-        markReportWorkItem(store, item, existing, { blocked: true });
-      else markReportWorkItem(store, item, existing);
+    const lineageExisting = existing || existingFailureDiagnosis(requests, original);
+    if (lineageExisting) {
+      if (lineageExisting.status === 'verified')
+        markReportWorkItem(store, item, lineageExisting, { completed: true });
+      else if (['failed', 'cancelled'].includes(lineageExisting.status))
+        markReportWorkItem(store, item, lineageExisting, { blocked: true });
+      else markReportWorkItem(store, item, lineageExisting);
       continue;
     }
     if (queued >= limit || activeSites.has(String(item.site).toLowerCase())) continue;
@@ -2455,7 +2508,36 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     plannedSites.add(site);
     if (selected.length >= 6) break;
   }
-  if (!selected.length) return basePlan;
+  if (!selected.length) {
+    const day = String(brief.generated_at || new Date().toISOString()).slice(0, 10);
+    const checkpointId = `executive-cycle-checkpoint:${day}`;
+    const existing = (brief.work_items || []).find(item => item.work_id === checkpointId);
+    if (basePlan.work_items.some(item => item.work_id === checkpointId)) return basePlan;
+    return {
+      ...basePlan,
+      work_items: [
+        ...basePlan.work_items,
+        {
+          work_id: checkpointId,
+          title: `Executive evidence checkpoint ${day}`,
+          kind: 'evidence',
+          status: 'in_progress',
+          priority: 'normal',
+          owner: 'ceo',
+          site: 'fleet',
+          summary:
+            'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
+          next_action:
+            'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
+          due_at: new Date(
+            Date.parse(brief.generated_at || Date.now()) + 24 * 60 * 60 * 1000
+          ).toISOString(),
+          evidence: existing?.evidence || [],
+          created_by: 'ceo',
+        },
+      ],
+    };
+  }
 
   const change_requests = [
     ...basePlan.change_requests,
@@ -2692,6 +2774,13 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     research: [],
     telemetry_satisfied: [],
     follow_through: [],
+    created_refs: {
+      work_items: [],
+      proposals: [],
+      change_requests: [],
+      research_requests: [],
+      messages: [],
+    },
   };
   for (const item of plan.work_items) {
     const existing = item.work_id ? store.getExecutiveWorkItem(item.work_id) : null;
@@ -2704,6 +2793,10 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       ? store.updateExecutiveWorkItem(existing.work_id, payload)
       : store.createExecutiveWorkItem(payload);
     created.work_items.push(workItem);
+    created.created_refs.work_items.push({
+      work_id: workItem.work_id,
+      operation: existing ? 'updated' : 'created',
+    });
     const audit = executive.action(store, {
       actor: payload.created_by,
       action_type: 'other',
@@ -2781,6 +2874,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     try {
       const message = executive.message(store, item);
       created.messages.push(message);
+      created.created_refs.messages.push(message.message_id);
       if (message.work_id && message.actor !== 'owner') {
         const workItem = store.getExecutiveWorkItem(message.work_id);
         if (workItem && workItem.source_type === 'owner-request' && workItem.status === 'waiting') {
@@ -3083,11 +3177,11 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
         ...(created
           ? {
               created_counts: Object.fromEntries(
-                Object.entries(created).map(([key, value]) => [
-                  key,
-                  Array.isArray(value) ? value.length : 0,
-                ])
+                Object.entries(created)
+                  .filter(([key]) => key !== 'created_refs')
+                  .map(([key, value]) => [key, Array.isArray(value) ? value.length : 0])
               ),
+              created_refs: created.created_refs,
             }
           : {}),
       },
@@ -3135,10 +3229,9 @@ async function main(argv = process.argv.slice(2)) {
       }
       const created = await applyPlan(store, plan, { allowQueue, root: ROOT });
       const createdCounts = Object.fromEntries(
-        Object.entries(created).map(([key, value]) => [
-          key,
-          Array.isArray(value) ? value.length : 0,
-        ])
+        Object.entries(created)
+          .filter(([key]) => key !== 'created_refs')
+          .map(([key, value]) => [key, Array.isArray(value) ? value.length : 0])
       );
       executive.finishAction(store, tickAction.action_id, {
         status: 'completed',
@@ -3150,6 +3243,7 @@ async function main(argv = process.argv.slice(2)) {
             Object.entries(plan).map(([key, value]) => [key, value.length])
           ),
           created_counts: createdCounts,
+          created_refs: created.created_refs,
         },
       });
       process.stdout.write(
@@ -3213,6 +3307,7 @@ module.exports = {
   reconcileApprovedProposalFollowThrough,
   drainApprovedProposalQueue,
   approvedWorkQueueBudgets,
+  failureDiagnosisLineageKey,
   drainDataQualityWork,
   drainFailureDiagnostics,
   applyPlan,

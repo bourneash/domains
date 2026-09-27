@@ -182,6 +182,15 @@ test('reserves queue capacity for approved implementation work', () => {
   });
 });
 
+test('uses stable lineage for chained automatic failure diagnoses', () => {
+  const key = runner.failureDiagnosisLineageKey({
+    site: 'arttogogh.com',
+    title:
+      'Repair failed request: Failure diagnosis: Follow through: Arttogogh orchestration failure diagnosis',
+  });
+  assert.equal(key, 'arttogogh.com:arttogogh orchestration failure diagnosis');
+});
+
 test('does not infer a task-routing key from a near-match', () => {
   const plan = {
     change_requests: [{ site: 'example.com', title: 'Route another content task' }],
