@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T15:49:31.132Z",
+  "generated_at": "2026-09-27T16:04:19.377Z",
   "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, telemetry, spending, monetization, and launch claims. Continue only existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates, parked-site dispositions, and external outreach unchanged. Owner: authorize any external permission request only after human-counsel review; otherwise keep it unsent.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Revenue is limited to the 2026-09-21 period: $4.92 aggregate commission, not site-attributable; financial outcomes remain unknown. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates, parked-site dispositions, and external outreach unchanged. Owner concern: authorize any external permission request only after human-counsel review; otherwise keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain evidence-backed SEO, performance, UX, monetization, and repository opportunities as deferred backlog only. Do not queue or requeue implementation work until ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness are documented.",
+        "summary": "Retain deferred SEO, performance, UX, content, affiliate, and repository opportunities without creating or requeueing work. Continue existing failure repair-or-close, deterministic validation, rollback, deduplication, and measurement review only. Reconsider queue entry after ownership, root cause, isolated validation, rollback, deduplication, and measurement readiness are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, or conduct external outreach.",
+        "summary": "Continue the existing read-only security evidence matrix from authorized metadata and retained artifacts only. Preserve private launch gates. Do not create duplicate requests, access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue failures, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown.",
+        "summary": "Continue only existing period-aligned attribution and cost reconciliation. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Approve no new spend, forecasts, commitments, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private, retain parked-site dispositions, and keep external outreach unsent. Continue only the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work.",
+        "summary": "Keep the gated product private, retain parked-site dispositions, and keep external outreach unsent. Continue only the existing rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work. Public launch and rights-dependent monetization remain blocked pending human-counsel and required gate decisions.",
         "requested_action": null,
         "proposal_id": null
       }
