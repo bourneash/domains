@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:33:29.922Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T16:50:02.151Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain CRO and SEO opportunities as deferred backlog; do not create or requeue implementation work this cycle. Existing failures require documented ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness first. Continue only existing repair-or-close and isolated validation work.",
+        "summary": "Approve containment-only execution. Retain both control-plane opportunities as deferred backlog; do not queue, requeue, deploy, add telemetry or dependencies, spend, expand monetization, or claim financial impact this cycle. Continue existing repair-or-close, deterministic validation, rollback, deduplication, measurement reconciliation, and bounded read-only legal/security evidence work. Reconsider only after ownership, root cause, isolation, validation, rollback, and measurement readiness are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new proposal, change request, requeue, deployment, experiment, dependency, telemetry, spend, monetization change, or unsupported financial claim is queue-eligible this cycle. Retain evidence-backed opportunities as deferred backlog. Continue only existing failure repair-or-close, isolated validation, rollback, deduplication, period-aligned attribution reconciliation, and bounded read-only legal/security evidence work. Preserve private launch gates, parked-site dispositions, and unsent external outreach.",
+        "summary": "Maintain financial containment. Preserve aggregate commission as unattributed and keep ROI, margin, payback, cost-to-learn, budget capacity, and causal lift unknown. Use existing recorded telemetry only; do not create duplicate measurement requests or infer returns from traffic, rankings, clicks, sessions, conversions, performance, ordered items, shipped items, or AI usage.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical feasibility is not the blocker for the deferred opportunities; queue entry is blocked by unresolved failure ownership, root cause, deduplication, deterministic validation, rollback, and measurement readiness. Continue existing repair-or-close work and do not create duplicate implementation work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain private launch gates and parked-site dispositions. Continue the existing consolidated rights, data-flow, consent, vendor, retention, accuracy, attribution, measurement, and security evidence work only. Keep external outreach unsent and authorize no public exposure, rights-dependent monetization, alert expansion, credential or configuration change, dependency addition, deployment, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned attribution and cost reconciliation only. Preserve aggregate commission as unattributed and retain revenue attribution, margin, ROI, payback, cost-to-learn, budget capacity, and causal lift as unknown. Do not infer financial returns from operating metrics or conflicting cost records.",
+        "summary": "Keep private launch gates and parked-site dispositions unchanged. Continue only the existing consolidated legal, accuracy, attribution, measurement, and security evidence work. Keep external outreach unsent and authorize no public exposure, rights-dependent monetization, alert expansion, credential or configuration changes, dependency additions, or deployment.",
         "requested_action": null,
         "proposal_id": null
       }

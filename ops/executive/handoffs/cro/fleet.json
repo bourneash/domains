@@ -2,15 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:33:29.922Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-27T16:50:02.150Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Retain evidence-backed SEO, performance, UX, content-depth, internal-linking, affiliate-repair, and repository opportunities as deferred backlog. Do not create proposals, experiments, telemetry, dependencies, deployments, spend, monetization expansion, or requeues this cycle. Existing evidence shows 47 failure follow-ups, 28 improvements awaiting measurement, and only 2 proven outcomes; revenue covers one period with aggregate commission not attributable to individual sites. Reconsider the smallest reversible prototype only after ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness are documented.",
+        "summary": "CRO review: retain two deferred control-plane product opportunities as CEO/CTO handoffs only. They address evidenced execution gaps: 33% approved-proposal execution, 192 approved proposals without execution, 47 open failure follow-ups, 28 improvements awaiting measurement, and 2 proven outcomes. No new queue work, deployment, telemetry, spend, dependency, or requeue is recommended this cycle. GitHub candidates remain deferred because current containment requires ownership, root cause, deterministic validation, rollback, deduplication, and measurement readiness before adoption.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO disposition: preserve both control-plane opportunities as deferred backlog, not rejected. No new proposal, telemetry, dependency, spend, deployment, or requeue is justified this cycle. Reassess after the existing containment and evidence work produces a clean prototype gate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Create a deduplicated, measurable fleet execution state machine",
+        "summary": "Create a read-only control-plane view linking approved proposals, change requests, failures, repair work, deployment verification, and measurement using existing records only.",
+        "requested_action": "Retain as deferred backlog. Prototype only after containment gates are satisfied; do not add telemetry, alter schedules, deploy, or requeue work in this cycle.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Create an operator-safe fleet health and release-gate cockpit",
+        "summary": "Present existing operations, compliance, security, analytics, attribution, AI-usage, and launch-readiness evidence in a read-only surface that distinguishes pass, fail, unknown, stale, blocked, and unavailable states.",
+        "requested_action": "Retain as deferred backlog. Prototype only after current containment controls are documented; do not create collectors, clear gates, change access, deploy, or introduce telemetry.",
         "proposal_id": null
       }
     ]
