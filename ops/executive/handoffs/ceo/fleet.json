@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-27T19:03:27.577Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-27T19:32:57.349Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the containment-only plan and defer new proposals, experiments, research, requeues, and production changes. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, the actionable candidate list is empty, and only 2 outcomes are proven in the 30-day scorecard dated 2026-09-27. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift are unknown. Reject unsupported revenue claims and unsafe new work. Smallest next step: complete existing repair-or-close, measurement reconciliation, and legal/security evidence work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain useful SEO, UX, accessibility, content, monetization, CRO-lab, and repository opportunities as deferred backlog only. Do not create duplicate proposals, change requests, experiments, telemetry, dependencies, deployments, spend, or requeues until failure ownership, root cause, validation, rollback, deduplication, and measurement readiness are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: keep SearchWoot private and retain complicated.work and deadlymaracas.com parked. Existing evidence does not support launch or monetization; four SearchWoot legal tasks remain open, security and operations sweeps are unavailable, and parked-site reachability and monetization evidence are incomplete. Continue the existing consolidated read-only evidence work; external outreach remains unsent.",
+        "summary": "Recommendation: preserve containment-only execution. Evidence: 47 failure follow-ups remain open, 28 improvements await measurement, the actionable candidate list is empty, operations/security sweeps are unavailable, and only 2 outcomes are proven. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift remain unknown. Continue existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work; reject new queue work, requeues, experiments, telemetry, spend, deployments, and monetization changes this cycle. Smallest next step: complete existing evidence and repair work. Owner decision: authorize the prepared Woot permission request only after human-counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }

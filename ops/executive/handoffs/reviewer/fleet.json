@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T19:03:27.578Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T19:32:57.350Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed, private launch gates, parked dispositions, and unsent outreach.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Preserve the single-period $4.92 aggregate commission as unattributed; site economics and causal lift remain unknown. Continue only existing repair-or-close, measurement/attribution reconciliation, and bounded legal/security evidence work. Keep private and parked dispositions unchanged; keep external outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: the available revenue covers one period only and includes $4.92 aggregate commission that is not site-attributable. Margin, ROI, payback, budget capacity, cost-to-learn, and causal lift remain unknown. Any external permission request requires human-counsel review and explicit owner authorization; otherwise keep it unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and retain parked-site dispositions. Continue the existing consolidated read-only legal, accuracy, attribution, measurement, and security evidence work. Do not authorize public exposure, rights-dependent monetization, alert expansion, credential or configuration changes, dependency additions, deployment, spending, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, research, and repository opportunities as deferred backlog only. No new proposal, change request, research request, experiment, telemetry, dependency, deployment, spending, or requeue is justified while failure follow-ups, pending measurements, unavailable operational/security sweeps, and incomplete attribution remain unresolved.",
+        "summary": "Owner concern: attribution covers one period and includes aggregate commission that cannot be assigned to a site. Operations and security sweeps are unavailable, 47 failure follow-ups remain open, and 28 improvements await measurement. Authorize any external permission request only after human-counsel review and explicit owner approval; otherwise keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
