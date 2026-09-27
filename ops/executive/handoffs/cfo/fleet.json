@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:33:34.355Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:48:55.421Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned. ROI, margin, payback, and budget exposure remain unknown. Continue existing reconciliation and authorize no spend or forecast.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain financial containment and authorize no discretionary spend, forecast, monetization expansion, or new production work. Supported revenue covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. The current AI snapshot reports $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with retained records of $966.82985915 across 5,417 calls through 2026-09-26 and $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable. Minimum evidence is one reconciled, period-aligned ledger covering revenue, AI, infrastructure, domains, labor, and marketing costs, plus site/page identifiers and incremental experiment outcomes; budget limits are also required because monthly spend, marketing, revenue-target, and revenue-floor fields are blank. Continue only the existing report-only reconciliation and keep aggregate revenue unattributed.",
+        "summary": "Recommendation: maintain financial containment. Supported revenue covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the aggregate row cannot be assigned without inventing attribution. AI usage is $973.3548129 across 5,439 calls for 2026-09-01 through 2026-09-27, conflicting with retained records of $966.82985915 across 5,417 calls through 2026-09-26 and $963.5690377 across 5,390 calls. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable: revenue and cost windows are misaligned; period-aligned infrastructure, domain, labor, and marketing costs are absent; incremental outcomes are not isolated; and monthly spend, marketing, revenue-target, and revenue-floor limits are blank. Minimum measurement: one reconciled period-aligned ledger by site and page/content identifier covering revenue, AI, infrastructure, domains, labor, and marketing costs, plus experiment exposure/control and incremental outcome records. Authorize only existing reconciliation; no discretionary spend, forecasts, commitments, monetization expansion, or unsupported revenue claims.",
         "requested_action": null,
         "proposal_id": null
       }

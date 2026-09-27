@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-27T05:33:34.355Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-27T05:48:55.421Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private. Woot API access is documented, but public/commercial reuse rights, data-flow evidence, privacy treatment, security controls, accuracy, attribution, and measurement gates remain incomplete. Continue the existing read-only launch checklist; keep the permission request unsent pending human-counsel review and owner authorization.",
+        "summary": "Risk disposition: blocked for the gated product's public beta or full launch; conditional for ordinary reversible fleet growth; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, vendor/DPA obligations, and future affiliate or advertising use. Exact decision: keep the gated product private. Evidence: current public source terms establish API access mechanics but not rights to store, transform, cache, publicly display, retain historical derivatives, send alerts, or monetize returned data. Compliance is only a technical baseline: 35 pass, 14 fail, 10 unknown, with open banner, consent, analytics, privacy, and terms findings. Analytics is configured for 39 sites but has source-permission errors. Revenue covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission. Do not claim certification, ROI, margin, causal lift, or site-attributed revenue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta or full launch; conditional for ordinary reversible fleet growth; counsel_required for upstream data rights, jurisdiction-specific privacy treatment, vendor/DPA obligations, and future affiliate or advertising use. Exact decision: keep the gated product private. Evidence: official API documentation establishes access mechanics only; current public terms do not establish rights to store, transform, cache, publicly display, retain historical derivatives, send alerts, or monetize returned data. Compliance is a technical baseline only: 35 pass, 14 fail, 10 unknown. Analytics is configured for 39 sites, with documented GSC permission failures; data quality is yellow for analytics and revenue attribution. Revenue evidence covers 2026-09-21 only: $4.92 aggregate commission and $0 site-attributed commission. Do not claim certification, ROI, margin, causal lift, or site-attributed revenue.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are closed. Partial evidence exists for official source documentation and terms, repository/configuration data-flow files, privacy and cookie pages, and draft terms; no task is closable. Open tasks remain source rights, alert-data retention and workflows, GA4 consent/configuration, and logs/vendors/incident handling. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering source fields, provenance, permitted storage/display/alerts, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures. Keep outreach unsent and preserve the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are closed. Partial evidence exists for official API documentation and terms, repository/configuration data-flow files, privacy and cookie pages, and draft terms; no task is closable. Open tasks remain source rights, alert-data retention and workflows, GA4 consent/configuration, and logs/vendors/incident handling. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering source fields, provenance, permitted storage/display/alerts, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures. Keep outreach unsent and preserve the private gate.",
+        "summary": "Data-use review: source deal and price-history data is counsel_required and launch-blocked; missing written permission or an API agreement, field-level provenance and rights, caching/display/alert limits, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed; missing data inventory, identifiers, retention, deletion, correction, access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed; missing deployed consent and withdrawal behavior, GA4 property and data-sharing settings, retention settings, and jurisdictional privacy review. Smallest next action: capture existing consent and GA4 configuration without enabling tracking. Operational logs and hosting data are evidence_needed; missing log-field inventory, retention/access controls, vendor/DPA review, incident handling, and data-request procedures. Smallest next action: produce a read-only operator and vendor inventory and identify counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot API deal and price-history data = counsel_required and launch-blocked; missing written permission or API agreement, field-level provenance and rights, caching/display/alert terms, attribution, freshness, correction, takedown, trademark/image/price limits, and affiliate or advertising terms. User alert rules and sync results = evidence_needed; missing data inventory, identifiers, retention, deletion, correction, access workflow, processor terms, notification consent, and unsubscribe behavior. GA4 analytics = evidence_needed; missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional review. Operational logs and hosting data = evidence_needed; missing log-field inventory, retention/access controls, vendor/DPA review, and incident/request procedures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue containment-only execution. Incomplete telemetry is not a general growth blocker, but ordinary reversible work remains conditional on preserving consent, cookie and analytics disclosure, affiliate disclosure, claims substantiation, data provenance and rights, copyright/trademark boundaries, platform-policy limits, and regulated or age-sensitive safeguards. Do not create new tracking, monetization expansion, rights-dependent content, unsupported claims, public exposure, or external outreach.",
+        "summary": "Ordinary reversible growth remains conditional, not generally blocked by incomplete telemetry. Retain only changes that preserve existing consent, cookie and analytics disclosure, affiliate disclosure, claims substantiation, data provenance and rights, copyright/trademark boundaries, platform-policy limits, and applicable regulated or age-sensitive safeguards. Do not add tracking, expand monetization, publish rights-dependent content, make unsupported claims, or expose the gated product.",
         "requested_action": null,
         "proposal_id": null
       }
