@@ -179,6 +179,69 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_goals_parent ON executive_goals(parent_goal_id, status);
     CREATE INDEX IF NOT EXISTS executive_goals_status ON executive_goals(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_projects (
+      project_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'active',
+      owner TEXT NOT NULL DEFAULT 'project-manager',
+      goal_id TEXT,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_projects_status ON executive_projects(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_plans (
+      plan_id TEXT PRIMARY KEY,
+      goal_id TEXT,
+      title TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      current_version INTEGER NOT NULL DEFAULT 0,
+      owner TEXT NOT NULL DEFAULT 'ceo',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS executive_plan_versions (
+      version_id TEXT PRIMARY KEY,
+      plan_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      body_json TEXT NOT NULL DEFAULT '{}',
+      change_summary TEXT NOT NULL DEFAULT '',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(plan_id, version)
+    );
+    CREATE TABLE IF NOT EXISTS executive_plan_approvals (
+      approval_id TEXT PRIMARY KEY,
+      plan_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      decision TEXT NOT NULL,
+      note TEXT NOT NULL DEFAULT '',
+      decided_by TEXT NOT NULL,
+      decided_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS executive_plans_status ON executive_plans(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS work_comments (
+      comment_id TEXT PRIMARY KEY,
+      work_id TEXT NOT NULL,
+      author TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS work_comments_work ON work_comments(work_id, created_at);
+    CREATE TABLE IF NOT EXISTS work_attachments (
+      attachment_id TEXT PRIMARY KEY,
+      work_id TEXT NOT NULL,
+      label TEXT NOT NULL,
+      uri TEXT NOT NULL,
+      sha256 TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS work_attachments_work ON work_attachments(work_id, created_at DESC);
     CREATE TABLE IF NOT EXISTS executive_work_items (
       work_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -254,8 +317,28 @@ function open(root, { file } = {}) {
       updated_at TEXT NOT NULL
     );
     INSERT OR IGNORE INTO executive_settings (id, updated_at) VALUES (1, datetime('now'));
+    CREATE TABLE IF NOT EXISTS organizations (
+      organization_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS organization_members (
+      membership_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      actor_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(organization_id, actor_id)
+    );
+    INSERT OR IGNORE INTO organizations (organization_id,slug,name,created_at,updated_at) VALUES ('fleet','fleet','Fleet',datetime('now'),datetime('now'));
     CREATE TABLE IF NOT EXISTS agent_registry (
       agent_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL DEFAULT 'fleet',
       slug TEXT NOT NULL UNIQUE,
       name TEXT NOT NULL,
       title TEXT NOT NULL,
@@ -302,6 +385,22 @@ function open(root, { file } = {}) {
     CREATE INDEX IF NOT EXISTS agent_runs_agent_time ON agent_runs(agent_id, started_at DESC);
     CREATE INDEX IF NOT EXISTS agent_runs_work_time ON agent_runs(work_id, started_at DESC);
     CREATE INDEX IF NOT EXISTS agent_runs_status ON agent_runs(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_dispatch_queue (
+      dispatch_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL UNIQUE,
+      agent_id TEXT NOT NULL,
+      adapter TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'queued',
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      available_at TEXT NOT NULL,
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      last_error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_dispatch_ready ON agent_dispatch_queue(status, available_at, updated_at);
     CREATE TABLE IF NOT EXISTS agent_artifacts (
       artifact_id TEXT PRIMARY KEY,
       run_id TEXT,
@@ -386,6 +485,18 @@ function open(root, { file } = {}) {
       UNIQUE(agent_id, tool_name)
     );
     CREATE INDEX IF NOT EXISTS agent_tool_grants_agent ON agent_tool_grants(agent_id, status);
+    CREATE TABLE IF NOT EXISTS agent_secrets (
+      secret_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      ciphertext TEXT NOT NULL,
+      nonce TEXT NOT NULL,
+      auth_tag TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_secrets_name ON agent_secrets(name);
     CREATE TABLE IF NOT EXISTS agent_workspaces (
       workspace_id TEXT PRIMARY KEY,
       agent_id TEXT NOT NULL,
@@ -435,6 +546,16 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'lease_expires_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'heartbeat_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'retry_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'project_id', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'labels_json', "TEXT NOT NULL DEFAULT '[]'");
+  ensureColumn(db, 'agent_registry', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'agent_runs', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  db.prepare(
+    "UPDATE agent_registry SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
+  ).run();
+  db.prepare(
+    "UPDATE agent_runs SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
+  ).run();
   ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'goal_id', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'parent_work_id', 'TEXT');
@@ -1562,6 +1683,102 @@ function open(root, { file } = {}) {
     'owner',
   ]);
 
+  function createOrganization(input = {}) {
+    const slug = String(input.slug || '').trim();
+    const name = String(input.name || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !name)
+      throw httpErr(400, 'valid organization slug and name are required');
+    const now = new Date().toISOString();
+    try {
+      db.prepare(
+        'INSERT INTO organizations (organization_id,slug,name,status,created_at,updated_at) VALUES (?,?,?,?,?,?)'
+      ).run(
+        input.organization_id || crypto.randomUUID(),
+        slug,
+        name,
+        input.status || 'active',
+        now,
+        now
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)))
+        throw httpErr(409, 'organization slug already exists');
+      throw error;
+    }
+    return db.prepare('SELECT * FROM organizations WHERE slug=?').get(slug);
+  }
+
+  function listOrganizations({ status, limit = 100 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 100, 500));
+    return status
+      ? db
+          .prepare('SELECT * FROM organizations WHERE status=? ORDER BY name LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM organizations ORDER BY name LIMIT ?').all(n);
+  }
+
+  function getOrganization(id) {
+    return (
+      db
+        .prepare('SELECT * FROM organizations WHERE organization_id=? OR slug=?')
+        .get(String(id), String(id)) || null
+    );
+  }
+
+  function upsertOrganizationMember(input = {}) {
+    const organization = getOrganization(input.organization_id);
+    if (!organization) throw httpErr(404, 'organization not found');
+    const actorId = String(input.actor_id || '').trim();
+    const role = String(input.role || 'operator').trim();
+    if (!actorId || !['owner', 'operator', 'viewer'].includes(role))
+      throw httpErr(400, 'valid actor and membership role are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO organization_members (membership_id,organization_id,actor_id,role,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(organization_id,actor_id) DO UPDATE SET role=excluded.role,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.membership_id || crypto.randomUUID(),
+      organization.organization_id,
+      actorId,
+      role,
+      input.status || 'active',
+      now,
+      now
+    );
+    return db
+      .prepare('SELECT * FROM organization_members WHERE organization_id=? AND actor_id=?')
+      .get(organization.organization_id, actorId);
+  }
+
+  function listOrganizationMembers({ organization_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        `SELECT * FROM organization_members${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY actor_id LIMIT ?`
+      )
+      .all(...args, n);
+  }
+
+  function canOrganizationActor(organizationId, actorId, roles = ['owner', 'operator', 'viewer']) {
+    const organization = getOrganization(organizationId);
+    if (!organization || !actorId) return false;
+    const row = db
+      .prepare(
+        "SELECT role FROM organization_members WHERE organization_id=? AND actor_id=? AND status='active'"
+      )
+      .get(organization.organization_id, String(actorId));
+    return Boolean(row && roles.includes(row.role));
+  }
+
   const GOAL_STATUSES = new Set(['active', 'achieved', 'paused', 'cancelled']);
 
   function decodeExecutiveGoal(row) {
@@ -1699,6 +1916,7 @@ function open(root, { file } = {}) {
   function decodeExecutiveWorkItem(row) {
     return {
       ...row,
+      labels: safeJsonArray(row.labels_json),
       evidence: normalizeExecutiveEvidence(safeJson(row.evidence_json)),
       evidence_contract: 'executive-evidence/v1',
       evidence_json: undefined,
@@ -1761,6 +1979,271 @@ function open(root, { file } = {}) {
     }
   }
 
+  function createExecutiveProject(input = {}) {
+    const name = String(input.name || '').trim();
+    if (!name) throw httpErr(400, 'project name is required');
+    if (input.goal_id && !getExecutiveGoal(input.goal_id)) throw httpErr(404, 'goal not found');
+    const now = new Date().toISOString();
+    const row = {
+      project_id: input.project_id || crypto.randomUUID(),
+      name,
+      description: String(input.description || ''),
+      status: String(input.status || 'active'),
+      owner: String(input.owner || 'project-manager'),
+      goal_id: input.goal_id || null,
+      created_by: String(input.created_by || 'system'),
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+    };
+    if (!['active', 'paused', 'completed', 'cancelled'].includes(row.status))
+      throw httpErr(400, 'invalid project status');
+    db.prepare(
+      'INSERT INTO executive_projects (project_id,name,description,status,owner,goal_id,created_by,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.project_id,
+      row.name,
+      row.description,
+      row.status,
+      row.owner,
+      row.goal_id,
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.closed_at
+    );
+    return row;
+  }
+
+  function getExecutiveProject(id) {
+    return (
+      db.prepare('SELECT * FROM executive_projects WHERE project_id=?').get(String(id)) || null
+    );
+  }
+  function listExecutiveProjects({ status, goal_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    if (goal_id) {
+      clauses.push('goal_id=?');
+      args.push(String(goal_id));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        `SELECT * FROM executive_projects${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+
+  function updateExecutiveProject(id, patch = {}) {
+    const current = getExecutiveProject(id);
+    if (!current) throw httpErr(404, 'project not found');
+    const next = {
+      ...current,
+      ...patch,
+      project_id: current.project_id,
+      updated_at: new Date().toISOString(),
+    };
+    if (!next.name || !['active', 'paused', 'completed', 'cancelled'].includes(String(next.status)))
+      throw httpErr(400, 'invalid project update');
+    db.prepare(
+      'UPDATE executive_projects SET name=?,description=?,status=?,owner=?,goal_id=?,updated_at=?,closed_at=? WHERE project_id=?'
+    ).run(
+      String(next.name),
+      String(next.description || ''),
+      String(next.status),
+      String(next.owner),
+      next.goal_id || null,
+      next.updated_at,
+      ['completed', 'cancelled'].includes(next.status) ? next.closed_at || next.updated_at : null,
+      current.project_id
+    );
+    return getExecutiveProject(current.project_id);
+  }
+
+  function createExecutivePlan(input = {}) {
+    const title = String(input.title || '').trim();
+    if (!title) throw httpErr(400, 'plan title is required');
+    if (input.goal_id && !getExecutiveGoal(input.goal_id)) throw httpErr(404, 'goal not found');
+    const now = new Date().toISOString();
+    const row = {
+      plan_id: input.plan_id || crypto.randomUUID(),
+      goal_id: input.goal_id || null,
+      title,
+      status: 'draft',
+      current_version: 0,
+      owner: String(input.owner || 'ceo'),
+      created_by: String(input.created_by || 'system'),
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO executive_plans (plan_id,goal_id,title,status,current_version,owner,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.plan_id,
+      row.goal_id,
+      row.title,
+      row.status,
+      row.current_version,
+      row.owner,
+      row.created_by,
+      row.created_at,
+      row.updated_at
+    );
+    return row;
+  }
+  function getExecutivePlan(id) {
+    return db.prepare('SELECT * FROM executive_plans WHERE plan_id=?').get(String(id)) || null;
+  }
+  function listExecutivePlans({ status, goal_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    if (goal_id) {
+      clauses.push('goal_id=?');
+      args.push(String(goal_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM executive_plans${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function addExecutivePlanVersion(planId, input = {}) {
+    const plan = getExecutivePlan(planId);
+    if (!plan) throw httpErr(404, 'plan not found');
+    if (['approved', 'archived'].includes(plan.status))
+      throw httpErr(409, 'approved or archived plans require a new plan');
+    const body = input.body && typeof input.body === 'object' ? input.body : {};
+    const version = Number(plan.current_version || 0) + 1;
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO executive_plan_versions (version_id,plan_id,version,body_json,change_summary,created_by,created_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      input.version_id || crypto.randomUUID(),
+      plan.plan_id,
+      version,
+      JSON.stringify(body),
+      String(input.change_summary || ''),
+      String(input.created_by || 'system'),
+      now
+    );
+    db.prepare(
+      'UPDATE executive_plans SET current_version=?,status=?,updated_at=? WHERE plan_id=?'
+    ).run(version, 'submitted', now, plan.plan_id);
+    return getExecutivePlanVersion(plan.plan_id, version);
+  }
+  function getExecutivePlanVersion(planId, version) {
+    const row = db
+      .prepare('SELECT * FROM executive_plan_versions WHERE plan_id=? AND version=?')
+      .get(String(planId), Number(version));
+    return row ? { ...row, body: safeJson(row.body_json) } : null;
+  }
+  function listExecutivePlanVersions(planId) {
+    return db
+      .prepare('SELECT * FROM executive_plan_versions WHERE plan_id=? ORDER BY version DESC')
+      .all(String(planId))
+      .map(row => ({ ...row, body: safeJson(row.body_json) }));
+  }
+  function decideExecutivePlan(planId, input = {}) {
+    const plan = getExecutivePlan(planId);
+    if (!plan) throw httpErr(404, 'plan not found');
+    const decision = String(input.decision || '').trim();
+    if (!['approved', 'rejected'].includes(decision))
+      throw httpErr(400, 'decision must be approved or rejected');
+    const version = Number(input.version || plan.current_version);
+    if (!getExecutivePlanVersion(planId, version)) throw httpErr(404, 'plan version not found');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO executive_plan_approvals (approval_id,plan_id,version,decision,note,decided_by,decided_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      input.approval_id || crypto.randomUUID(),
+      plan.plan_id,
+      version,
+      decision,
+      String(input.note || ''),
+      String(input.decided_by || 'owner'),
+      now
+    );
+    db.prepare('UPDATE executive_plans SET status=?,updated_at=? WHERE plan_id=?').run(
+      decision === 'approved' ? 'approved' : 'draft',
+      now,
+      plan.plan_id
+    );
+    return getExecutivePlan(plan.plan_id);
+  }
+  function listExecutivePlanApprovals(planId) {
+    return db
+      .prepare('SELECT * FROM executive_plan_approvals WHERE plan_id=? ORDER BY decided_at DESC')
+      .all(String(planId));
+  }
+
+  function createWorkComment(input = {}) {
+    if (!getExecutiveWorkItem(input.work_id)) throw httpErr(404, 'work item not found');
+    const body = String(input.body || '').trim();
+    if (!body || body.length > 20000)
+      throw httpErr(400, 'comment body is required and must be under 20KB');
+    const row = {
+      comment_id: input.comment_id || crypto.randomUUID(),
+      work_id: String(input.work_id),
+      author: String(input.author || 'system'),
+      body,
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO work_comments (comment_id,work_id,author,body,created_at) VALUES (?,?,?,?,?)'
+    ).run(row.comment_id, row.work_id, row.author, row.body, row.created_at);
+    return row;
+  }
+  function listWorkComments({ work_id, limit = 200 } = {}) {
+    return db
+      .prepare('SELECT * FROM work_comments WHERE work_id=? ORDER BY created_at LIMIT ?')
+      .all(String(work_id), Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function createWorkAttachment(input = {}) {
+    if (!getExecutiveWorkItem(input.work_id)) throw httpErr(404, 'work item not found');
+    const label = String(input.label || '').trim(),
+      uri = String(input.uri || '').trim();
+    if (!label || !uri || uri.includes('..') || /[\u0000-\u001f]/.test(uri))
+      throw httpErr(400, 'invalid attachment');
+    const row = {
+      attachment_id: input.attachment_id || crypto.randomUUID(),
+      work_id: String(input.work_id),
+      label,
+      uri,
+      sha256: input.sha256 || null,
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_by: String(input.created_by || 'system'),
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO work_attachments (attachment_id,work_id,label,uri,sha256,metadata_json,created_by,created_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      row.attachment_id,
+      row.work_id,
+      row.label,
+      row.uri,
+      row.sha256,
+      JSON.stringify(row.metadata),
+      row.created_by,
+      row.created_at
+    );
+    return row;
+  }
+  function listWorkAttachments({ work_id, limit = 200 } = {}) {
+    return db
+      .prepare('SELECT * FROM work_attachments WHERE work_id=? ORDER BY created_at DESC LIMIT ?')
+      .all(String(work_id), Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
+  }
+
   function createExecutiveWorkItem(input = {}) {
     const now = input.created_at || new Date().toISOString();
     const row = {
@@ -1775,6 +2258,14 @@ function open(root, { file } = {}) {
       site: input.site ? String(input.site).trim() : null,
       goal_id: input.goal_id ? String(input.goal_id).trim() : null,
       parent_work_id: input.parent_work_id ? String(input.parent_work_id).trim() : null,
+      project_id: input.project_id ? String(input.project_id).trim() : null,
+      labels: Array.isArray(input.labels)
+        ? input.labels
+            .map(String)
+            .map(value => value.trim())
+            .filter(Boolean)
+            .slice(0, 30)
+        : [],
       summary: String(input.summary || '').trim(),
       next_action: String(input.next_action || '').trim(),
       waiting_on: input.waiting_on ? String(input.waiting_on).trim() : null,
@@ -1803,11 +2294,13 @@ function open(root, { file } = {}) {
     if (!WORK_ITEM_STATUSES.has(row.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(row.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
+    if (row.project_id && !getExecutiveProject(row.project_id))
+      throw httpErr(404, 'project not found');
     assertWorkLineage(row);
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -1820,6 +2313,8 @@ function open(root, { file } = {}) {
       row.site,
       row.goal_id,
       row.parent_work_id,
+      row.project_id,
+      JSON.stringify(row.labels),
       row.summary,
       row.next_action,
       row.waiting_on,
@@ -2111,6 +2606,7 @@ function open(root, { file } = {}) {
     const now = input.created_at || new Date().toISOString();
     const row = {
       agent_id: String(input.agent_id || crypto.randomUUID()),
+      organization_id: String(input.organization_id || 'fleet'),
       slug: String(input.slug || '').trim(),
       name: String(input.name || '').trim(),
       title: String(input.title || '').trim(),
@@ -2135,14 +2631,16 @@ function open(root, { file } = {}) {
     if (!AGENT_STATUSES.has(row.status)) throw httpErr(400, 'invalid agent status');
     if (!row.provider || !row.adapter)
       throw httpErr(400, 'agent provider and adapter are required');
+    if (!getOrganization(row.organization_id)) throw httpErr(404, 'organization not found');
     if (row.manager_id && !getAgent(row.manager_id)) throw httpErr(404, 'agent manager not found');
     try {
       db.prepare(
         `INSERT INTO agent_registry
-        (agent_id,slug,name,title,role,manager_id,provider,model,adapter,status,permissions_json,budget_json,heartbeat_json,workspace_json,created_at,updated_at,paused_at,pause_reason)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        (agent_id,organization_id,slug,name,title,role,manager_id,provider,model,adapter,status,permissions_json,budget_json,heartbeat_json,workspace_json,created_at,updated_at,paused_at,pause_reason)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
       ).run(
         row.agent_id,
+        row.organization_id,
         row.slug,
         row.name,
         row.title,
@@ -2170,14 +2668,24 @@ function open(root, { file } = {}) {
     );
   }
 
-  function getAgent(id) {
+  function getAgent(id, organizationId = null) {
     const row = db
-      .prepare('SELECT * FROM agent_registry WHERE agent_id = ? OR slug = ?')
-      .get(String(id), String(id));
+      .prepare(
+        `SELECT * FROM agent_registry WHERE (agent_id = ? OR slug = ?)${organizationId ? ' AND organization_id=?' : ''}`
+      )
+      .get(
+        ...(organizationId
+          ? [
+              String(id),
+              String(id),
+              String(getOrganization(organizationId)?.organization_id || organizationId),
+            ]
+          : [String(id), String(id)])
+      );
     return decodeAgent(row);
   }
 
-  function listAgents({ role, status, manager_id, limit = 200 } = {}) {
+  function listAgents({ role, status, manager_id, organization_id, limit = 200 } = {}) {
     const clauses = [],
       args = [];
     if (role) {
@@ -2191,6 +2699,10 @@ function open(root, { file } = {}) {
     if (manager_id) {
       clauses.push('manager_id = ?');
       args.push(String(manager_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id = ?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     return db
@@ -2256,6 +2768,7 @@ function open(root, { file } = {}) {
     const run = {
       run_id: String(input.run_id || crypto.randomUUID()),
       agent_id: agent.agent_id,
+      organization_id: input.organization_id || agent.organization_id || 'fleet',
       work_id: input.work_id ? String(input.work_id) : null,
       goal_id: input.goal_id ? String(input.goal_id) : null,
       session_id: input.session_id ? String(input.session_id) : crypto.randomUUID(),
@@ -2281,11 +2794,12 @@ function open(root, { file } = {}) {
     try {
       db.prepare(
         `INSERT INTO agent_runs
-        (run_id,agent_id,work_id,goal_id,session_id,idempotency_key,status,attempt,provider,model,started_at,updated_at,finished_at,heartbeat_at,workspace_path,input_tokens,output_tokens,total_tokens,cost_usd,result_json,error)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        (run_id,agent_id,organization_id,work_id,goal_id,session_id,idempotency_key,status,attempt,provider,model,started_at,updated_at,finished_at,heartbeat_at,workspace_path,input_tokens,output_tokens,total_tokens,cost_usd,result_json,error)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
       ).run(
         run.run_id,
         run.agent_id,
+        run.organization_id,
         run.work_id,
         run.goal_id,
         run.session_id,
@@ -2324,7 +2838,7 @@ function open(root, { file } = {}) {
     );
   }
 
-  function listAgentRuns({ agent_id, work_id, status, limit = 200 } = {}) {
+  function listAgentRuns({ agent_id, work_id, status, organization_id, limit = 200 } = {}) {
     const clauses = [],
       args = [];
     if (agent_id) {
@@ -2338,6 +2852,10 @@ function open(root, { file } = {}) {
     if (status) {
       clauses.push('status = ?');
       args.push(String(status));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     return db
@@ -2372,6 +2890,155 @@ function open(root, { file } = {}) {
       current.run_id
     );
     return getAgentRun(current.run_id);
+  }
+
+  function decodeAgentDispatch(row) {
+    return row ? { ...row, payload: safeJson(row.payload_json) } : null;
+  }
+
+  function createAgentDispatch(input = {}) {
+    const run = getAgentRun(input.run_id);
+    if (!run) throw httpErr(404, 'agent run not found');
+    const now = new Date().toISOString();
+    const row = {
+      dispatch_id: input.dispatch_id || crypto.randomUUID(),
+      run_id: run.run_id,
+      agent_id: run.agent_id,
+      adapter: String(input.adapter || run.provider || 'codex').trim(),
+      status: String(input.status || 'queued'),
+      payload: input.payload && typeof input.payload === 'object' ? input.payload : {},
+      available_at: input.available_at || now,
+      lease_owner: null,
+      lease_expires_at: null,
+      attempts: 0,
+      last_error: null,
+      created_at: now,
+      updated_at: now,
+    };
+    if (!['queued', 'leased', 'succeeded', 'failed', 'cancelled'].includes(row.status))
+      throw httpErr(400, 'invalid dispatch status');
+    try {
+      db.prepare(
+        `INSERT INTO agent_dispatch_queue
+        (dispatch_id,run_id,agent_id,adapter,status,payload_json,available_at,lease_owner,lease_expires_at,attempts,last_error,created_at,updated_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        row.dispatch_id,
+        row.run_id,
+        row.agent_id,
+        row.adapter,
+        row.status,
+        JSON.stringify(row.payload),
+        row.available_at,
+        row.lease_owner,
+        row.lease_expires_at,
+        row.attempts,
+        row.last_error,
+        row.created_at,
+        row.updated_at
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)))
+        return (
+          db.prepare('SELECT * FROM agent_dispatch_queue WHERE run_id=?').get(row.run_id) &&
+          decodeAgentDispatch(
+            db.prepare('SELECT * FROM agent_dispatch_queue WHERE run_id=?').get(row.run_id)
+          )
+        );
+      throw error;
+    }
+    return decodeAgentDispatch(
+      db.prepare('SELECT * FROM agent_dispatch_queue WHERE dispatch_id=?').get(row.dispatch_id)
+    );
+  }
+
+  function getAgentDispatch(id) {
+    return decodeAgentDispatch(
+      db
+        .prepare('SELECT * FROM agent_dispatch_queue WHERE dispatch_id=? OR run_id=?')
+        .get(String(id), String(id))
+    );
+  }
+
+  function listAgentDispatches({ status, agent_id, adapter, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['status', status],
+      ['agent_id', agent_id],
+      ['adapter', adapter],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_dispatch_queue${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentDispatch);
+  }
+
+  function claimAgentDispatch(workerId, { leaseSeconds = 900 } = {}) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'dispatch worker id is required');
+    const now = new Date();
+    const iso = now.toISOString();
+    const expires = new Date(
+      now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000
+    ).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          `SELECT * FROM agent_dispatch_queue WHERE (status='queued' AND available_at<=?) OR (status='leased' AND lease_expires_at<=?) ORDER BY available_at, created_at LIMIT 1`
+        )
+        .get(iso, iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      const result = db
+        .prepare(
+          `UPDATE agent_dispatch_queue SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE dispatch_id=? AND (status='queued' OR (status='leased' AND lease_expires_at<=?))`
+        )
+        .run(owner, expires, iso, row.dispatch_id, iso);
+      if (!result.changes) {
+        db.exec('ROLLBACK');
+        return null;
+      }
+      db.exec('COMMIT');
+      return getAgentDispatch(row.dispatch_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+
+  function completeAgentDispatch(id, { status = 'succeeded', error = null, available_at } = {}) {
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid dispatch completion status');
+    const current = getAgentDispatch(id);
+    if (!current) throw httpErr(404, 'agent dispatch not found');
+    db.prepare(
+      'UPDATE agent_dispatch_queue SET status=?,lease_owner=NULL,lease_expires_at=NULL,last_error=?,available_at=?,updated_at=? WHERE dispatch_id=?'
+    ).run(
+      status,
+      error || null,
+      available_at || new Date().toISOString(),
+      new Date().toISOString(),
+      current.dispatch_id
+    );
+    return getAgentDispatch(current.dispatch_id);
+  }
+
+  function completeAgentDispatchForRun(runId, status, error = null) {
+    const dispatch = getAgentDispatch(runId);
+    return dispatch ? completeAgentDispatch(dispatch.dispatch_id, { status, error }) : null;
   }
 
   function createAgentArtifact(input = {}) {
@@ -2873,6 +3540,94 @@ function open(root, { file } = {}) {
     };
   }
 
+  function secretKey() {
+    const value = process.env.FD_SECRET_KEY || process.env.EXECUTIVE_SECRET_KEY;
+    if (!value) throw httpErr(503, 'secret storage key is not configured');
+    return crypto.createHash('sha256').update(String(value)).digest();
+  }
+
+  function encryptSecret(value) {
+    const nonce = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', secretKey(), nonce);
+    const ciphertext = Buffer.concat([cipher.update(String(value), 'utf8'), cipher.final()]);
+    return {
+      ciphertext: ciphertext.toString('base64'),
+      nonce: nonce.toString('base64'),
+      auth_tag: cipher.getAuthTag().toString('base64'),
+    };
+  }
+
+  function decryptSecret(row) {
+    const decipher = crypto.createDecipheriv(
+      'aes-256-gcm',
+      secretKey(),
+      Buffer.from(row.nonce, 'base64')
+    );
+    decipher.setAuthTag(Buffer.from(row.auth_tag, 'base64'));
+    return Buffer.concat([
+      decipher.update(Buffer.from(row.ciphertext, 'base64')),
+      decipher.final(),
+    ]).toString('utf8');
+  }
+
+  function upsertAgentSecret(input = {}) {
+    const name = String(input.name || '').trim();
+    const value = input.value;
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$/.test(name))
+      throw httpErr(400, 'invalid secret name');
+    if (typeof value !== 'string' || !value || value.length > 32768)
+      throw httpErr(400, 'secret value must be a non-empty string under 32KB');
+    const encrypted = encryptSecret(value);
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO agent_secrets (secret_id,name,scope_json,ciphertext,nonce,auth_tag,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET scope_json=excluded.scope_json,ciphertext=excluded.ciphertext,nonce=excluded.nonce,auth_tag=excluded.auth_tag,updated_at=excluded.updated_at`
+    ).run(
+      input.secret_id || crypto.randomUUID(),
+      name,
+      JSON.stringify(input.scope && typeof input.scope === 'object' ? input.scope : {}),
+      encrypted.ciphertext,
+      encrypted.nonce,
+      encrypted.auth_tag,
+      now,
+      now
+    );
+    return getAgentSecret(name);
+  }
+
+  function getAgentSecret(name) {
+    const row = db
+      .prepare(
+        'SELECT secret_id,name,scope_json,created_at,updated_at FROM agent_secrets WHERE name=?'
+      )
+      .get(String(name));
+    return row ? { ...row, scope: safeJson(row.scope_json), scope_json: undefined } : null;
+  }
+
+  function listAgentSecrets({ limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        'SELECT secret_id,name,scope_json,created_at,updated_at FROM agent_secrets ORDER BY name LIMIT ?'
+      )
+      .all(n)
+      .map(row => ({ ...row, scope: safeJson(row.scope_json), scope_json: undefined }));
+  }
+
+  function resolveAgentSecret(name, { agent_id, site, approved = false } = {}) {
+    const grant = getAgentToolGrant(agent_id, `secret:${name}`);
+    const decision = canAgentUseTool(agent_id, `secret:${name}`, { site, approved });
+    if (!decision.allowed || !grant) throw httpErr(403, 'secret is not authorized for this agent');
+    const row = db.prepare('SELECT * FROM agent_secrets WHERE name=?').get(String(name));
+    if (!row) throw httpErr(404, 'secret not found');
+    const scope = safeJson(row.scope_json);
+    if (scope.agent_id && String(scope.agent_id) !== String(agent_id))
+      throw httpErr(403, 'secret agent scope denied');
+    if (scope.site && String(scope.site) !== String(site || ''))
+      throw httpErr(403, 'secret site scope denied');
+    return decryptSecret(row);
+  }
+
   function createAgentWorkspace(input = {}) {
     if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
     const workspacePath = String(input.path || '').trim();
@@ -3166,6 +3921,22 @@ function open(root, { file } = {}) {
     createWorkflowLink,
     listWorkflowLinks,
     deleteWorkflowLink,
+    createExecutiveProject,
+    getExecutiveProject,
+    listExecutiveProjects,
+    updateExecutiveProject,
+    createExecutivePlan,
+    getExecutivePlan,
+    listExecutivePlans,
+    addExecutivePlanVersion,
+    getExecutivePlanVersion,
+    listExecutivePlanVersions,
+    decideExecutivePlan,
+    listExecutivePlanApprovals,
+    createWorkComment,
+    listWorkComments,
+    createWorkAttachment,
+    listWorkAttachments,
     createExecutiveKnowledge,
     listExecutiveKnowledge,
     updateExecutiveKnowledge,
@@ -3178,6 +3949,12 @@ function open(root, { file } = {}) {
     getAgentRunByIdempotency,
     listAgentRuns,
     updateAgentRun,
+    createAgentDispatch,
+    getAgentDispatch,
+    listAgentDispatches,
+    claimAgentDispatch,
+    completeAgentDispatch,
+    completeAgentDispatchForRun,
     createAgentArtifact,
     listAgentArtifacts,
     upsertBudgetPolicy,
@@ -3198,9 +3975,19 @@ function open(root, { file } = {}) {
     getAgentToolGrant,
     listAgentToolGrants,
     canAgentUseTool,
+    upsertAgentSecret,
+    getAgentSecret,
+    listAgentSecrets,
+    resolveAgentSecret,
     createAgentWorkspace,
     listAgentWorkspaces,
     closeAgentWorkspace,
+    createOrganization,
+    listOrganizations,
+    getOrganization,
+    upsertOrganizationMember,
+    listOrganizationMembers,
+    canOrganizationActor,
     close,
     file: dbFile,
   };

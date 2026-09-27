@@ -92,6 +92,15 @@ function beginRun(store, input = {}) {
     idempotency_key: idempotencyKey,
     status: 'running',
   });
+  store.createAgentDispatch({
+    run_id: run.run_id,
+    adapter: agent.adapter,
+    payload: {
+      agent_id: agent.agent_id,
+      goal_id: input.goal_id || null,
+      work_id: input.work_id || null,
+    },
+  });
   return { run, reused: false };
 }
 
@@ -132,6 +141,7 @@ function finish(
     output_tokens,
     total_tokens: Number(input_tokens) + Number(output_tokens),
   });
+  if (store.completeAgentDispatchForRun) store.completeAgentDispatchForRun(runId, status, error);
   // Every completed run gets a small, machine-generated outcome signal. Human
   // or model-quality evaluations can be added separately without making the
   // runtime depend on an evaluator being online.

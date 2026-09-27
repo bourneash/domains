@@ -72,6 +72,7 @@ const executiveCalendar = require('./executive-calendar');
 const agentRuntime = require('../../executive/agent-runtime');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
 const agentToolGateway = require('../../executive/agent-tool-gateway');
+const agentDispatcher = require('../../executive/agent-dispatcher');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -4345,6 +4346,127 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/executive/projects', (req, res) => {
+    try {
+      res.json({ projects: events.listExecutiveProjects(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/projects', (req, res) => {
+    try {
+      res.status(201).json({ project: events.createExecutiveProject(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/projects/:id', (req, res) => {
+    try {
+      res.json({ project: events.updateExecutiveProject(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/plans', (req, res) => {
+    try {
+      res.json({ plans: events.listExecutivePlans(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans', (req, res) => {
+    try {
+      res.status(201).json({ plan: events.createExecutivePlan(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/plans/:id', (req, res) => {
+    try {
+      const plan = events.getExecutivePlan(req.params.id);
+      if (!plan) return res.status(404).json({ error: 'plan not found' });
+      res.json({
+        plan,
+        versions: events.listExecutivePlanVersions(plan.plan_id),
+        approvals: events.listExecutivePlanApprovals(plan.plan_id),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/versions', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ version: events.addExecutivePlanVersion(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/approve', (req, res) => {
+    try {
+      res.json({
+        plan: events.decideExecutivePlan(req.params.id, {
+          ...(req.body || {}),
+          decision: 'approved',
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/reject', (req, res) => {
+    try {
+      res.json({
+        plan: events.decideExecutivePlan(req.params.id, {
+          ...(req.body || {}),
+          decision: 'rejected',
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/work-items/:id/comments', (req, res) => {
+    try {
+      res.json({
+        comments: events.listWorkComments({ work_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/comments', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          comment: events.createWorkComment({ ...(req.body || {}), work_id: req.params.id }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/work-items/:id/attachments', (req, res) => {
+    try {
+      res.json({
+        attachments: events.listWorkAttachments({ work_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/attachments', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({
+          attachment: events.createWorkAttachment({ ...(req.body || {}), work_id: req.params.id }),
+        });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.patch('/api/executive/work-items/:id', (req, res) => {
     try {
       res.json({ work_item: events.updateExecutiveWorkItem(req.params.id, req.body || {}) });
@@ -4422,6 +4544,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/organizations', (req, res) => {
+    try {
+      res.json({ organizations: events.listOrganizations(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/organizations', (req, res) => {
+    try {
+      res.status(201).json({ organization: events.createOrganization(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/organization-members', (req, res) => {
+    try {
+      res.json({ members: events.listOrganizationMembers(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/organization-members', (req, res) => {
+    try {
+      res.status(201).json({ member: events.upsertOrganizationMember(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/agents', (req, res) => {
     try {
       res.status(201).json({ agent: events.createAgent(req.body || {}) });
@@ -4450,6 +4600,28 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.json({ runs: events.listAgentRuns(req.query) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-dispatches', (req, res) => {
+    try {
+      res.json({ dispatches: events.listAgentDispatches(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-dispatches/claim', (req, res) => {
+    try {
+      const dispatch = agentDispatcher.claim(events, req.body?.worker_id, req.body || {});
+      res.status(dispatch ? 200 : 204).json(dispatch ? { dispatch } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-dispatches/:id/complete', (req, res) => {
+    try {
+      res.json({ dispatch: events.completeAgentDispatch(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   app.post('/api/agent-runs', (req, res) => {
@@ -4615,6 +4787,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.post('/api/agent-tools/invoke', (req, res) => {
     try {
       res.json(agentToolGateway.invoke(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 403).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-secrets', (req, res) => {
+    try {
+      res.json({ secrets: events.listAgentSecrets(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-secrets', (req, res) => {
+    try {
+      res.status(201).json({ secret: events.upsertAgentSecret(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-secrets/resolve', (req, res) => {
+    try {
+      res.json({ value: events.resolveAgentSecret(req.body?.name, req.body || {}) });
     } catch (e) {
       res.status(e.httpStatus || 403).json({ error: e.message });
     }
