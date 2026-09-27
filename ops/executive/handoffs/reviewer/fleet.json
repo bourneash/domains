@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:34:29.763Z",
+  "generated_at": "2026-09-27T12:48:29.500Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production work, requeues, experiments, telemetry requests, dependencies, spending, monetization expansion, and unsupported financial claims. Preserve the three SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution and cost reconciliation, and bounded read-only legal/security evidence. Keep private launch gates and external outreach unchanged. Owner message: revenue is limited to a dated aggregate commission that is not site-attributable; ROI, margin, payback, budget capacity, and causal lift remain unknown. Existing queue saturation and unresolved failures make new production work unsafe this cycle.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, causal-lift, production, requeue, experiment, telemetry, dependency, spend, monetization, and public-launch claims. Retain the three cited SEO/performance opportunities as deferred backlog only. Continue existing failure repair-or-close, period-aligned attribution reconciliation, and bounded read-only legal/security evidence. No new research request is justified.",
         "requested_action": null,
         "proposal_id": null
       }

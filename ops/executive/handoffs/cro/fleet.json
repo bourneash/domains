@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T12:34:29.762Z",
+  "generated_at": "2026-09-27T12:48:29.499Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and retain three evidence-backed opportunities as deferred backlog only. Their search and performance signals support prioritization, not revenue, ROI, margin, cost-to-learn, or causal-lift claims. Do not create proposals, experiments, telemetry requests, change requests, dependencies, deployments, spend, or monetization changes until existing failure repair-or-close, validation, rollback, deduplication, isolation, and measurement gates are evidenced.",
+        "summary": "Recommendation: preserve containment-only execution. Retain the three evidence-backed SEO/performance opportunities as deferred backlog: deeppenetrations.com liquid-wrench CTR refinement, broadwayshowgirls.com Priya Raghunathan result refinement, and americastrikes.com mobile-performance diagnosis. Do not create or requeue production work, experiments, telemetry, dependencies, spend, or monetization changes until existing failure repair, validation, rollback, deduplication, isolation, and measurement gates are evidenced. Continue existing repair-or-close, attribution reconciliation, and bounded legal/security evidence work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21, not site-attributable; ROI, margin, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
