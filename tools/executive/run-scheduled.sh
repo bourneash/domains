@@ -61,6 +61,7 @@ try {
 }
 NODE
 )"
+export RUN_ACTION_ID
 APPROVED_WORK_STATUS=0
 finish_scheduler_action() {
   local exit_code=$?
@@ -104,6 +105,22 @@ try {
   store.close();
 }
 NODE
+  if [[ -n "${CALENDAR_EVENT_ID:-}" ]]; then
+    node - "$ROOT" "$CALENDAR_EVENT_ID" "$exit_code" <<'NODE'
+const root = process.argv[2];
+const id = process.argv[3];
+const code = Number(process.argv[4]);
+const cal = require(`${root}/tools/fleet-dashboard/server/executive-calendar`);
+try {
+  cal.completeClaim(root, id, process.env.CALENDAR_CLAIM_ID, { exit_code: code });
+} catch (e) { if (e.status !== 404) throw e; }
+NODE
+    git -C "$ROOT" add -- ops/executive/calendar.json
+    if ! git -C "$ROOT" diff --cached --quiet -- ops/executive/calendar.json; then
+      git -C "$ROOT" commit -m "chore(executive): record calendar run" -- ops/executive/calendar.json || true
+      git -C "$ROOT" push origin main || echo "calendar completion push failed" >&2
+    fi
+  fi
   return "$exit_code"
 }
 trap finish_scheduler_action EXIT

@@ -184,24 +184,13 @@ function start({ store, root, site, action, baseline = {} }) {
 }
 
 function startManual({ store, root, request, baseline = {} }) {
-  // Queue delivery is retried after crashes/timeouts. The request id is the
-  // durable idempotency key; do not create a second task/run while the
-  // existing run is still live.
-  const duplicate = store
-    .listImprovements({
-      site: request.site,
-      source: 'fleet-dashboard',
-      source_id: request.request_id,
-      limit: 10,
-    })
-    .find(row => !['cancelled', 'failed', 'rolled-back'].includes(row.state));
-  if (duplicate) return { run: duplicate, task_file: duplicate.task_file, duplicate: true };
-
-  // The task board is durable evidence too. A retry must not create another
-  // implementation task when the exact request lineage already reached
-  // done/ (the old filename-based lookup missed -2/-3 collision names).
   const existingTasks = tasks.findAllBySourceId(root, request.site, request.request_id);
   const existingTask = existingTasks.find(task => task.column === 'done') || existingTasks[0];
+
+  // Resolve durable completed/ambiguous board lineage before the live-run
+  // dedupe check. A successful terminal run is intentionally not treated as
+  // an active duplicate, and an ambiguous done task must be blocked rather
+  // than hidden behind a stale run row.
   if (existingTask?.column === 'done' && successfulTaskEvidence(store, request, existingTask)) {
     return {
       completed: true,
@@ -219,6 +208,19 @@ function startManual({ store, root, request, baseline = {} }) {
       reason: 'matching done task has no successful durable improvement evidence',
     };
   }
+
+  // Queue delivery is retried after crashes/timeouts. The request id is the
+  // durable idempotency key; do not create a second task/run while the
+  // existing run is still live.
+  const duplicate = store
+    .listImprovements({
+      site: request.site,
+      source: 'fleet-dashboard',
+      source_id: request.request_id,
+      limit: 10,
+    })
+    .find(row => !['cancelled', 'failed', 'rolled-back'].includes(row.state));
+  if (duplicate) return { run: duplicate, task_file: duplicate.task_file, duplicate: true };
 
   const runId = crypto.randomUUID();
   const taskId = crypto.randomUUID();

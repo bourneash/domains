@@ -70,6 +70,7 @@ const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
 const executiveCalendar = require('./executive-calendar');
 const { execFileSync } = require('node:child_process');
+const caseview = require('./caseview');
 const revops = require('./revops');
 const experiments = require('./experiments');
 const campaigns = require('./campaigns');
@@ -113,20 +114,71 @@ const INFRASTRUCTURE_REVALIDATION_VERSION = 'worker-runtime-preview-v8';
 const QUEUE_RECOVERY_WAIT_MS = 5000;
 
 function commitExecutiveCalendar(root, message) {
-  try { return executiveCalendar.withLock(root, () => {
-    execFileSync('git', ['-C', root, 'add', '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
-    try {
-      execFileSync('git', ['-C', root, 'diff', '--cached', '--quiet', '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
-      let pending = '';
-      try { pending = execFileSync('git', ['-C', root, 'log', '-1', '--format=%H', 'origin/main..HEAD', '--', 'ops/executive/calendar.json'], { encoding: 'utf8' }).trim(); } catch {}
-      if (!pending) return { committed: false, pushed: true };
-      try { execFileSync('git', ['-C', root, 'push', 'origin', 'main'], { stdio: 'ignore', timeout: 30000 }); return { committed: false, pushed: true, retried: true }; }
-      catch { return { committed: false, pushed: false, warning: 'calendar push retry failed' }; }
-    } catch {}
-    execFileSync('git', ['-C', root, 'commit', '-m', message, '--', 'ops/executive/calendar.json'], { stdio: 'ignore' });
-    try { execFileSync('git', ['-C', root, 'push', 'origin', 'main'], { stdio: 'ignore', timeout: 30000 }); return { committed: true, pushed: true }; }
-    catch { return { committed: true, pushed: false, warning: 'calendar committed locally but push failed' }; }
-  }); } catch (e) { return { committed: false, pushed: false, warning: `calendar git persistence failed: ${e.message}` }; }
+  try {
+    return executiveCalendar.withLock(root, () => {
+      execFileSync('git', ['-C', root, 'add', '--', 'ops/executive/calendar.json'], {
+        stdio: 'ignore',
+      });
+      try {
+        execFileSync(
+          'git',
+          ['-C', root, 'diff', '--cached', '--quiet', '--', 'ops/executive/calendar.json'],
+          { stdio: 'ignore' }
+        );
+        let pending = '';
+        try {
+          pending = execFileSync(
+            'git',
+            [
+              '-C',
+              root,
+              'log',
+              '-1',
+              '--format=%H',
+              'origin/main..HEAD',
+              '--',
+              'ops/executive/calendar.json',
+            ],
+            { encoding: 'utf8' }
+          ).trim();
+        } catch {}
+        if (!pending) return { committed: false, pushed: true };
+        try {
+          execFileSync('git', ['-C', root, 'push', 'origin', 'main'], {
+            stdio: 'ignore',
+            timeout: 30000,
+          });
+          return { committed: false, pushed: true, retried: true };
+        } catch {
+          return { committed: false, pushed: false, warning: 'calendar push retry failed' };
+        }
+      } catch {}
+      execFileSync(
+        'git',
+        ['-C', root, 'commit', '-m', message, '--', 'ops/executive/calendar.json'],
+        { stdio: 'ignore' }
+      );
+      try {
+        execFileSync('git', ['-C', root, 'push', 'origin', 'main'], {
+          stdio: 'ignore',
+          timeout: 30000,
+        });
+        return { committed: true, pushed: true };
+      } catch {
+        return {
+          committed: true,
+          pushed: false,
+          warning: 'calendar committed locally but push failed',
+        };
+      }
+    });
+  } catch (e) {
+    return {
+      committed: false,
+      pushed: false,
+      warning: `calendar git persistence failed: ${e.message}`,
+    };
+  }
 }
 
 // Report-only work produces evidence in an isolated checkout and cannot ship
@@ -648,6 +700,77 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         };
       }
       const created = improvements.startManual({ store: events, root, request: claimed, baseline });
+      if (created.completed) {
+        const verified = changequeue.reconcileVerified(events, claimed.request_id, site =>
+          isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.reconciled',
+          source: 'fleet-dashboard',
+          site_id: `site:${claimed.site}`,
+          entity_type: 'change-request',
+          entity_id: claimed.request_id,
+          correlation_id: `change-request:${claimed.request_id}`,
+          payload: {
+            reason: 'matching durable task lineage already exists in done/',
+            task_file: created.task_file,
+          },
+        });
+        emitChangeNotification('verified', verified, null, created.task_file);
+        return { request: verified, completed: true, task_file: created.task_file };
+      }
+      if (created.blocked_duplicate) {
+        const quarantined = [];
+        const quarantinePaths = [];
+        for (const duplicate of created.duplicate_tasks || []) {
+          if (duplicate.column !== 'backlog') continue;
+          const moved = tasks.move(root, claimed.site, 'backlog', duplicate.file, 'hold');
+          quarantined.push(moved.file);
+          quarantinePaths.push(`ops/tasks/backlog/${duplicate.file}`);
+          quarantinePaths.push(`ops/tasks/hold/${moved.file}`);
+        }
+        let quarantineError = null;
+        if (quarantinePaths.length) {
+          try {
+            await git.commit(
+              root,
+              claimed.site,
+              quarantinePaths,
+              `chore: quarantine duplicate task lineage ${claimed.request_id.slice(0, 8)}`
+            );
+          } catch (error) {
+            quarantineError = error.message;
+          }
+        }
+        const reason = quarantineError
+          ? `${created.reason}; duplicate backlog quarantine failed: ${quarantineError}`
+          : created.reason;
+        const blocked = changequeue.update(events, claimed.request_id, {
+          status: 'failed',
+          error: reason,
+          next_attempt_at: null,
+          run_id: null,
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        });
+        events.record({
+          event_type: 'change-request.duplicate-blocked',
+          source: 'fleet-dashboard',
+          site_id: `site:${claimed.site}`,
+          entity_type: 'change-request',
+          entity_id: claimed.request_id,
+          correlation_id: `change-request:${claimed.request_id}`,
+          payload: {
+            reason,
+            task_file: created.task_file,
+            quarantined,
+            quarantine_error: quarantineError,
+          },
+        });
+        emitChangeNotification('needs owner', blocked, null, reason);
+        return { request: blocked, blocked_duplicate: true, quarantined };
+      }
       createdRun = created.run;
       // A retry can arrive after the task/run was created but before the
       // request was linked or the worker was started. Reuse a live run rather
@@ -1772,6 +1895,87 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
+  async function reconcileMeasurementQueue({ dedupe = true } = {}) {
+    const queued = events.listChangeRequests({ status: 'queued', limit: 1000 });
+    const runs = events.listImprovements({ limit: 1000 }).filter(run => run.state === 'measuring');
+    const now = new Date().toISOString();
+    const reclassified = [];
+    const duplicateGroups = new Map();
+    for (const request of queued) {
+      const conflicts = runs.some(
+        run => run.site === request.site && changequeueView.measurementConflict(request, run)
+      );
+      if (!conflicts) {
+        if (
+          changequeueView.isMeasurementSafe(request) &&
+          request.delivery_mode === 'direct' &&
+          !String(request.action_key || '').startsWith('task-routing:')
+        ) {
+          const updated = changequeue.update(
+            events,
+            request.request_id,
+            { delivery_mode: 'report_only', next_attempt_at: now, error: null },
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.measurement-reclassified',
+            source: 'fleet-dashboard',
+            site_id: `site:${updated.site}`,
+            entity_type: 'change-request',
+            entity_id: updated.request_id,
+            correlation_id: `change-request:${updated.request_id}`,
+            payload: {
+              delivery_mode: 'report_only',
+              reason: 'non-mutating measurement or diagnostic work',
+            },
+          });
+          reclassified.push(updated.request_id);
+        }
+      }
+      if (dedupe) {
+        const key = [
+          request.site,
+          request.category,
+          request.action_key || '',
+          request.title.trim().toLowerCase(),
+        ].join('|');
+        const group = duplicateGroups.get(key) || [];
+        group.push(request);
+        duplicateGroups.set(key, group);
+      }
+    }
+    const cancelledDuplicates = [];
+    if (dedupe) {
+      for (const group of duplicateGroups.values()) {
+        if (group.length < 2) continue;
+        group.sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0));
+        const keeper = group[0];
+        for (const duplicate of group.slice(1)) {
+          const updated = changequeue.update(
+            events,
+            duplicate.request_id,
+            { status: 'cancelled', error: `superseded by older duplicate ${keeper.request_id}` },
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.duplicate-cancelled',
+            source: 'fleet-dashboard',
+            site_id: `site:${updated.site}`,
+            entity_type: 'change-request',
+            entity_id: updated.request_id,
+            correlation_id: `change-request:${updated.request_id}`,
+            payload: { keeper_request_id: keeper.request_id },
+          });
+          cancelledDuplicates.push({
+            request_id: updated.request_id,
+            keeper_request_id: keeper.request_id,
+          });
+        }
+      }
+    }
+    return { reclassified, cancelled_duplicates: cancelledDuplicates };
+  }
+
   async function pickupChangeRequests(max) {
     // Start the audit-preserving recovery pass, but do not make fresh queued
     // work wait behind every historical failure. A completed recovery pass is
@@ -1798,12 +2002,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         .filter(r => ['building', 'review'].includes(r.state))
         .map(r => r.site)
     );
-    const measuringSites = new Set(
-      events
-        .listImprovements({ limit: 1000 })
-        .filter(r => r.state === 'measuring')
-        .map(r => r.site)
-    );
+    const measuringRuns = events
+      .listImprovements({ limit: 1000 })
+      .filter(r => r.state === 'measuring');
+    const measurementWindows = new Map();
+    for (const run of events
+      .listImprovements({ limit: 1000 })
+      .filter(r => r.state === 'measuring')) {
+      if (!run.measurement_due) continue;
+      const current = measurementWindows.get(run.site);
+      if (!current || String(run.measurement_due) < current)
+        measurementWindows.set(run.site, String(run.measurement_due));
+    }
     // Pull a wider candidate window so a code change that must wait for a
     // measurement window does not hide a later report-only request that can
     // safely run on the same site. `pick` only reads queued rows; claiming
@@ -1823,8 +2033,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
     const picked = candidates
       .filter(request => {
-        if (busySites.has(request.site)) return false;
-        if (measuringSites.has(request.site) && request.delivery_mode !== 'report_only')
+        if (busySites.has(request.site) && request.delivery_mode !== 'report_only') return false;
+        if (
+          measuringRuns.some(
+            run => run.site === request.site && changequeueView.measurementConflict(request, run)
+          ) &&
+          !request.measurement_override
+        )
           return false;
         busySites.add(request.site);
         return true;
@@ -3300,7 +3515,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // has an immediate, durable run handle and can poll it safely.
   app.get('/api/executive/run-status', (_req, res) => {
     try {
-      let actions = events.listExecutiveActions({ limit: 300 });
+      // The executive run stream is its own history. A 300-row global action
+      // slice can contain enough unrelated work to hide days of runs before
+      // the run filter is even applied.
+      let actions = events.listExecutiveActions({ limit: 5000 });
       // A detached manual worker can disappear during a dashboard/container
       // restart. Reconcile that durable row here as well as when starting a
       // new run; otherwise the UI can report a run as active forever.
@@ -3327,7 +3545,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           });
         }
       }
-      if (orphaned.length) actions = events.listExecutiveActions({ limit: 300 });
+      if (orphaned.length) actions = events.listExecutiveActions({ limit: 5000 });
       const manual = actions.filter(row => row.target_type === 'manual-executive-run');
       const scheduled = actions.filter(row => row.target_type === 'scheduled-executive-run');
       const ticks = actions.filter(row => row.action_type === 'tick');
@@ -3378,15 +3596,158 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           },
         };
       });
-      const queue = enrichedRuns.slice(0, 24).map(row => ({
+      const queue = enrichedRuns.slice(0, 300).map(row => ({
         ...row,
         source: row.target_type === 'manual-executive-run' ? 'manual' : 'scheduled',
       }));
       res.json({
         active,
         latest: enrichedRuns[0] || null,
-        runs: enrichedRuns.slice(0, 12),
+        runs: enrichedRuns.slice(0, 300),
         queue,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  // Checked-in executive calendar. The minute dispatcher consumes the same
+  // contract, so UI-created events survive restarts and can be resumed from git.
+  app.get('/api/executive/calendar', (req, res) => {
+    try {
+      executiveCalendar.reconcile(root);
+      res.json({ calendar: executiveCalendar.read(root), events: executiveCalendar.list(root) });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/calendar', (req, res) => {
+    try {
+      const event = executiveCalendar.create(root, req.body || {}, 'owner');
+      res
+        .status(201)
+        .json({
+          event,
+          git: commitExecutiveCalendar(root, 'chore(executive): schedule calendar event'),
+        });
+    } catch (e) {
+      res.status(e.status || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/calendar/:id', (req, res) => {
+    try {
+      const event = executiveCalendar.update(root, req.params.id, req.body || {}, 'owner');
+      res.json({
+        event,
+        git: commitExecutiveCalendar(root, 'chore(executive): update calendar event'),
+      });
+    } catch (e) {
+      res.status(e.status || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/calendar/:id/:state', (req, res) => {
+    try {
+      const event = executiveCalendar.transition(
+        root,
+        req.params.id,
+        req.params.state,
+        req.body || {},
+        'owner'
+      );
+      res.json({
+        event,
+        git: commitExecutiveCalendar(root, 'chore(executive): record calendar state'),
+      });
+    } catch (e) {
+      res.status(e.status || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/run/:id', (req, res) => {
+    try {
+      const run = events.getExecutiveAction(req.params.id);
+      if (!run || !['manual-executive-run', 'scheduled-executive-run'].includes(run.target_type))
+        return res.status(404).json({ error: 'executive run not found' });
+      const allActions = events.listExecutiveActions({ limit: 5000 });
+      const tick = run.result?.tick_action_id
+        ? events.getExecutiveAction(run.result.tick_action_id)
+        : allActions
+            .filter(action => action.action_type === 'tick')
+            .find(
+              action =>
+                (Date.parse(action.started_at || '') || 0) >=
+                (Date.parse(run.started_at || '') || 0) - 1000
+            );
+      const runIds = new Set([run.action_id, tick?.action_id].filter(Boolean));
+      const runStart = Date.parse(run.started_at || '') || 0;
+      const runEnd = Date.parse(run.finished_at || '') || Date.now();
+      const transcript = events
+        .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
+        .filter(message => {
+          if (
+            !['model-prompt', 'model-response', 'background', 'tool-call', 'tool-result'].includes(
+              message.message_type
+            )
+          )
+            return false;
+          if (runIds.has(message.metadata?.run_id)) return true;
+          // Older scheduler wrappers did not export RUN_ACTION_ID. Recover
+          // those operator-safe transcript rows by their bounded run window.
+          const when = Date.parse(message.created_at || '') || 0;
+          return !message.metadata?.run_id && when >= runStart - 1000 && when <= runEnd + 1000;
+        })
+        .sort((a, b) => Date.parse(a.created_at || '') - Date.parse(b.created_at || ''));
+      const explicitIds = new Set(
+        (tick?.result?.created_refs?.work_items || [])
+          .map(ref => (typeof ref === 'string' ? ref : ref?.work_id))
+          .filter(Boolean)
+      );
+      const tickStart = Date.parse(tick?.started_at || run.started_at || '') || 0;
+      const tickEnd = Date.parse(tick?.finished_at || run.finished_at || '') || Date.now();
+      const workAudits = allActions.filter(action => {
+        const when = Date.parse(action.started_at || '') || 0;
+        return (
+          action.target_type === 'executive-work-item' &&
+          when >= tickStart - 1000 &&
+          when <= tickEnd + 1000
+        );
+      });
+      const conversation = events
+        .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
+        .filter(message => {
+          const when = Date.parse(message.created_at || '') || 0;
+          return (
+            when >= Date.parse(run.started_at || '') - 1000 &&
+            when <= (Date.parse(run.finished_at || '') || Date.now()) + 1000
+          );
+        })
+        .sort((a, b) => Date.parse(a.created_at || '') - Date.parse(b.created_at || ''));
+      for (const action of workAudits) explicitIds.add(action.target_id);
+      const actionItems = events
+        .listExecutiveWorkItems({ limit: 1000 })
+        .filter(item => explicitIds.has(item.work_id))
+        .map(item => {
+          const ref = (tick?.result?.created_refs?.work_items || []).find(
+            row => (typeof row === 'string' ? row : row?.work_id) === item.work_id
+          );
+          return {
+            ...item,
+            run_operation:
+              typeof ref === 'string'
+                ? 'created or updated'
+                : ref?.operation || 'updated during run',
+          };
+        });
+      res.json({
+        run,
+        tick,
+        transcript,
+        conversation,
+        action_items: actionItems,
+        action_log: allActions
+          .filter(action => {
+            const when = Date.parse(action.started_at || '') || 0;
+            return when >= tickStart - 1000 && when <= tickEnd + 1000;
+          })
+          .sort((a, b) => Date.parse(a.started_at || '') - Date.parse(b.started_at || '')),
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
@@ -3903,6 +4264,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/cases', (req, res) => {
+    try {
+      const enrichRequests = requests =>
+        changequeueView.enrichChangeRequests(
+          root,
+          requests,
+          events.getChangeQueueSettings(),
+          events.listImprovements({ limit: 1000 })
+        );
+      res.json({ cases: caseview.listCases(events, { ...req.query, enrichRequests }) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/cases/:id', (req, res) => {
+    try {
+      const enrichRequests = requests =>
+        changequeueView.enrichChangeRequests(
+          root,
+          requests,
+          events.getChangeQueueSettings(),
+          events.listImprovements({ limit: 1000 })
+        );
+      const item = caseview.getCase(events, req.params.id, { enrichRequests });
+      if (!item) return res.status(404).json({ error: 'case not found' });
+      res.json({ case: item });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.post('/api/executive/work-items', (req, res) => {
     try {
       const workItem = events.createExecutiveWorkItem(req.body || {});
@@ -3979,6 +4370,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.post('/api/change-requests/reconcile-measurement', async (req, res) => {
+    try {
+      const reconciliation = await reconcileMeasurementQueue({
+        dedupe: req.body?.dedupe !== false,
+      });
+      const pickup = await pickupChangeRequests(Number(req.body?.max_pickup || undefined));
+      res.json({ reconciliation, pickup });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.post('/api/change-requests/pickup', async (req, res) => {
     try {
       res.json(await pickupChangeRequests(req.body?.max));
@@ -4003,6 +4405,51 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         events.listImprovements({ limit: 1000 })
       )[0];
       res.json({ request: enriched, pickup: result });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/change-requests/:id/override-measurement', async (req, res) => {
+    try {
+      const request = events.getChangeRequest(req.params.id);
+      if (!request) return res.status(404).json({ error: 'change request not found' });
+      if (request.status !== 'queued')
+        return res
+          .status(409)
+          .json({
+            error: `only queued requests can override a measurement window; current status is ${request.status}`,
+          });
+      const measuring = events
+        .listImprovements({ site: request.site, limit: 100 })
+        .filter(run => run.state === 'measuring');
+      if (!measuring.length)
+        return res
+          .status(409)
+          .json({ error: 'this request is not blocked by an active measurement window' });
+      const updated = changequeue.update(
+        events,
+        request.request_id,
+        { measurement_override: 1, next_attempt_at: new Date().toISOString(), error: null },
+        site => isKnownSite(root, site)
+      );
+      events.record({
+        event_type: 'change-request.measurement_override',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        correlation_id: `change-request:${request.request_id}`,
+        payload: {
+          measurement_due:
+            measuring
+              .map(run => run.measurement_due)
+              .filter(Boolean)
+              .sort()[0] || null,
+          reason: req.body?.reason || 'operator override',
+        },
+      });
+      const pickup = await pickupChangeRequests(1);
+      res.json({ request: events.getChangeRequest(request.request_id), pickup });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -4277,17 +4724,19 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!settings.enabled) return;
     if (Date.now() - lastQueuePickup < Number(settings.interval_minutes) * 60000) return;
     lastQueuePickup = Date.now();
-    pickupChangeRequests().catch(error => {
-      events.record({
-        event_type: 'change-queue.pickup_failed',
-        source: 'fleet-dashboard',
-        entity_type: 'change-queue',
-        entity_id: queueWorkerId,
-        correlation_id: `change-queue:${queueWorkerId}`,
-        payload: { error: String(error.message || error).slice(0, 1000) },
+    reconcileMeasurementQueue({ dedupe: true })
+      .then(() => pickupChangeRequests())
+      .catch(error => {
+        events.record({
+          event_type: 'change-queue.pickup_failed',
+          source: 'fleet-dashboard',
+          entity_type: 'change-queue',
+          entity_id: queueWorkerId,
+          correlation_id: `change-queue:${queueWorkerId}`,
+          payload: { error: String(error.message || error).slice(0, 1000) },
+        });
+        console.error(`[fleet-dashboard] change queue pickup failed: ${error.message || error}`);
       });
-      console.error(`[fleet-dashboard] change queue pickup failed: ${error.message || error}`);
-    });
   }, 15000);
   if (queuePulse.unref) queuePulse.unref();
 

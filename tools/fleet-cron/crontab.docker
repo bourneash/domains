@@ -121,6 +121,8 @@
 10 3 * * 0 /home/jesse/projects/domains/tools/scripts/gc-docker.sh --cache-all
 
 # --- Job 10b: autonomous executive leadership tick ---
+# Every minute, reconcile and dispatch durable executive calendar events.
+* * * * * /home/jesse/projects/domains/tools/executive/run-calendar.sh
 # Every 15 minutes, single-flight, and hard-bounded by run-sandbox.sh. The
 # shared lock means a long tick is skipped rather than overlapped by the next
 # cron fire. Queue execution is separately gated by the dashboard's reviewed

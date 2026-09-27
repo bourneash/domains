@@ -14482,8 +14482,16 @@ async function renderExecutive() {
   $$('.ex-calendar-complete').forEach(
     b =>
       (b.onclick = async () => {
+        const note = await globalThis.fleetTextPrompt?.({
+          title: 'Review follow-up',
+          label: 'Write the follow-up, or type "none" if no follow-up is needed',
+          required: true,
+          submitLabel: 'Complete event',
+        });
+        if (!note) return;
         await api('POST', `/api/executive/calendar/${encodeURIComponent(b.dataset.id)}/completed`, {
-          followup_required: true,
+          followup_status: note.trim().toLowerCase() === 'none' ? 'none' : 'written',
+          followup_note: note.trim().toLowerCase() === 'none' ? null : note.trim(),
         });
         toast('Event completed — review follow-ups');
         softRender();
