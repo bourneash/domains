@@ -370,7 +370,13 @@ async function buildBrief(store, root = ROOT) {
     .filter(item => ['proposed', 'feedback'].includes(item.status))
     .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 50 });
-  const work_items = store.listExecutiveWorkItems({ limit: 100 });
+  // Owner requests are the executive team's direct inbox. They must not be
+  // displaced by the much larger historical work-item backlog before the
+  // model sees them.
+  const work_items = prioritizeExecutiveWorkItems(
+    store.listExecutiveWorkItems({ limit: 1000 }),
+    100
+  );
   const work_threads = work_items
     .filter(item => !['done', 'cancelled'].includes(item.status))
     .slice(0, 50)
@@ -668,6 +674,22 @@ async function buildBrief(store, root = ROOT) {
 const MODEL_BRIEF_MAX_ARRAY_ITEMS = 12;
 const MODEL_BRIEF_MAX_STRING_LENGTH = 900;
 
+function isPendingOwnerRequest(item) {
+  return (
+    item?.source_type === 'owner-request' &&
+    !['done', 'cancelled', 'complete'].includes(item.status) &&
+    !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(item.lifecycle_state) &&
+    !item.answered_at
+  );
+}
+
+function prioritizeExecutiveWorkItems(items, generalLimit = 100) {
+  const rows = Array.isArray(items) ? items : [];
+  const pendingOwnerRequests = rows.filter(isPendingOwnerRequest);
+  const generalWork = rows.filter(item => !isPendingOwnerRequest(item));
+  return [...pendingOwnerRequests, ...generalWork.slice(0, Math.max(0, generalLimit))];
+}
+
 function compactModelValue(value, depth = 0) {
   if (typeof value === 'string') {
     if (value.length <= MODEL_BRIEF_MAX_STRING_LENGTH) return value;
@@ -811,9 +833,15 @@ function compactModelBrief(brief) {
     })
   );
   const workItems = brief?.work_items || [];
-  compact.work_items = workItems
-    .filter(item => !['cancelled', 'done', 'complete'].includes(item.status))
-    .slice(0, 30)
+  const activeWorkItems = workItems.filter(
+    item => !['cancelled', 'done', 'complete'].includes(item.status)
+  );
+  // Keep every unanswered owner request in the model-visible section, even
+  // when the general backlog is large. The remaining context stays bounded.
+  const pendingOwnerRequests = activeWorkItems.filter(isPendingOwnerRequest);
+  const generalWorkItems = activeWorkItems.filter(item => !isPendingOwnerRequest(item));
+  compact.work_items = [...pendingOwnerRequests, ...generalWorkItems]
+    .slice(0, pendingOwnerRequests.length + Math.max(0, 30 - pendingOwnerRequests.length))
     .map(item => ({
       work_id: item.work_id,
       title: item.title,
@@ -1662,9 +1690,7 @@ function validatePlan(plan) {
     if (!String(item.site || '').trim()) missing.push('site');
     if (!String(item.title || '').trim()) missing.push('title');
     if (!String(item.body || '').trim()) missing.push('body');
-    if (
-      missing.length
-    )
+    if (missing.length)
       throw new Error(
         `invalid change request in provider plan at index ${index} (missing=${missing.join(',')})`
       );
@@ -3505,6 +3531,8 @@ module.exports = {
   buildPrompt,
   buildPassPrompt,
   compactModelBrief,
+  isPendingOwnerRequest,
+  prioritizeExecutiveWorkItems,
   parseOutput,
   isTelemetryRequestProposal,
   normalizeProviderProposalTypes,

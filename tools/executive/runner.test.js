@@ -77,6 +77,35 @@ test('compacts repeated executive evidence before sending it to model passes', (
   assert.match(compact.model_context_note, /authoritative artifacts/);
 });
 
+test('prioritizes unanswered owner requests ahead of the general work backlog', () => {
+  const backlog = Array.from({ length: 150 }, (_, index) => ({
+    work_id: `backlog-${index}`,
+    status: 'in_progress',
+    source_type: 'system',
+  }));
+  const request = {
+    work_id: 'owner-request-1',
+    status: 'waiting',
+    lifecycle_state: 'submitted',
+    source_type: 'owner-request',
+    answered_at: null,
+  };
+
+  const selected = runner.prioritizeExecutiveWorkItems([...backlog, request], 100);
+  assert.equal(selected[0].work_id, request.work_id);
+  assert.equal(selected.length, 101);
+  assert.equal(
+    selected.some(item => item.work_id === 'backlog-100'),
+    false
+  );
+
+  const compact = runner.compactModelBrief({
+    intelligence: {},
+    work_items: [...backlog.slice(0, 40), request],
+  });
+  assert.equal(compact.work_items[0].work_id, request.work_id);
+});
+
 test('reviewer cannot author or replace executive proposals', () => {
   const plan = runner.parseOutput(
     JSON.stringify({
@@ -867,7 +896,10 @@ test('normalizes natural-language change-request aliases before validation', () 
 });
 
 test('normalizes growth and affiliate change-request categories before queue application', () => {
-  assert.equal(runner.normalizeDirectChangeRequest({ category: 'affiliate' }).category, 'marketing');
+  assert.equal(
+    runner.normalizeDirectChangeRequest({ category: 'affiliate' }).category,
+    'marketing'
+  );
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'growth' }).category, 'marketing');
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'ux' }).category, 'design');
   assert.equal(runner.normalizeDirectChangeRequest({ category: 'unsupported' }).category, 'other');
