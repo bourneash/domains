@@ -2,21 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-27T06:18:53.864Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-27T06:34:14.736Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, queue entries, requeues, experiments, telemetry, dependencies, spend, monetization expansion, unsupported revenue claims, and external outreach. Revenue is limited to $4.92 aggregate commission for 2026-09-21 with no site-attributed commission; ROI, margin, forecasts, and spend decisions remain unsupported. Keep the gated product private. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence work.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, duplicate telemetry, dependencies, spending, monetization expansion, external outreach, and unsupported revenue or causal-lift claims. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. Keep the gated product private.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: conflicting AI-cost records, incomplete period-aligned cost data, 47 failure follow-ups, 32 improvements awaiting measurement, and only 1 proven outcome materially limit financial and production decisions. Preserve deferred SEO, performance, accessibility, conversion, attribution, and repository opportunities without requeueing or deployment.",
+        "summary": "Owner concern: available revenue covers one dated window and includes unattributed aggregate commission; conflicting AI-cost records and missing cost periods prevent ROI, margin, forecast, payback, and spend conclusions. Preserve unknowns rather than treating missing telemetry as zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing failed-work repair-or-close review. Do not requeue the deferred SEO opportunity until ownership, root cause, isolated validation, rollback, and deduplication evidence are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only legal and security evidence work using existing metadata and retained artifacts only. Do not retrieve credentials, change permissions or configuration, access private containers, deploy, add dependencies, create duplicate telemetry, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate. Keep the prepared permission request unsent pending human-counsel review and explicit owner authorization; rights, privacy, security, accuracy, attribution, and measurement evidence remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new queue work this cycle. The only authoritative candidate is blocked by an existing stinkyleftfoot.com failure follow-up; other opportunities are already queued, active, deployed, or measuring. Continue existing measurement, attribution reconciliation, failed-work repair-or-close review, and bounded legal/security evidence. No unsupported revenue, ROI, causal-lift, spend, launch, or production claims are approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: the action mandate cannot be satisfied defensibly with a new implementation batch because no candidate is both unqueued and free of active-work, failure, security, legal, attribution, or measurement blockers. Preserve the deferred SEO, UX, performance, accessibility, monetization, and repository opportunities and reconsider them after existing work clears.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T06:18:53.863Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-27T06:34:14.736Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new queue item is technically ready: the authoritative candidate list is empty, failure repair and measurement capacity are occupied, and isolation, validation, rollback, security, attribution, and financial evidence remain incomplete. Continue only existing measurement and attribution reconciliation, failed-work repair-or-close review, and bounded read-only legal/security evidence. Preserve deferred opportunities without requeueing, deployment, new telemetry, dependencies, spend, monetization changes, or external outreach.",
+        "summary": "Approve containment-only execution. No new queue item is technically ready: the authoritative candidate is blocked by an existing stinkyleftfoot.com failure follow-up, while measurement, security, isolation, rollback, attribution, and financial reconciliation remain incomplete. Continue only the existing failed-work repair-or-close review, measurement and attribution reconciliation, and bounded read-only legal/security evidence. Preserve deferred SEO, UX, accessibility, performance, monetization, and repository opportunities without requeueing, deployment, new telemetry, dependencies, spend, or unsupported claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private. Continue the existing read-only launch checklist and internal draft preparation only. External outreach remains unsent pending human-counsel review and explicit owner authorization; no public exposure, configuration or credential changes, deployment, alert expansion, monetization change, dependency addition, or spend is authorized.",
+        "summary": "Continue the existing stinkyleftfoot.com failure repair-or-close review. Do not queue the air-dribble SEO change until ownership, root cause, isolated repair, focused validation, rollback, and deduplication evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing financial reconciliation only. Keep aggregate commission unattributed and reconcile conflicting AI-cost records before any ROI, margin, payback, forecast, budget, or spend decision. Do not treat missing telemetry as zero or create duplicate evidence requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix and failed-work containment only. Record dated evidence, owners, affected scope, explicit unknowns, severity, and release implications. Do not retrieve credentials, change permissions, access private containers, add dependencies, modify production, deploy, or conduct external outreach.",
+        "summary": "Continue only existing failed-work repair-or-close review, measurement and attribution reconciliation, and bounded read-only legal/security evidence. Do not requeue the stinkyleftfoot.com SEO candidate until the existing failure has documented ownership, root cause, isolated repair, focused validation, rollback, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       }
