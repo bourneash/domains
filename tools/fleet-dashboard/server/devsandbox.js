@@ -25,6 +25,7 @@ const DEV_PORT_IN_CONTAINER = parseInt(
   process.env.FD_DEVSANDBOX_DEV_PORT_IN_CONTAINER || '4321',
   10
 );
+const DEV_CONTRACT_VERSION = String(process.env.FD_DEVSANDBOX_CONTRACT_VERSION || '3');
 const PREVIEW_READY_TIMEOUT_MS = parseInt(
   process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '90000',
   10
@@ -614,6 +615,13 @@ async function devStart(site) {
     const r = await devExec(site, 'start');
     if (r.code !== 0) {
       lastError = r.stdout || r.stderr || 'dev start failed';
+      continue;
+    }
+    if (r.kv.contract_version !== DEV_CONTRACT_VERSION) {
+      lastError =
+        `worker image contract mismatch: expected ${DEV_CONTRACT_VERSION}, got ${
+          r.kv.contract_version || 'missing'
+        }; rebuild domain-developer before retrying`;
       continue;
     }
     const ready = await waitForPreview(site);

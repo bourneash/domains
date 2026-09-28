@@ -8322,10 +8322,7 @@ async function validatePreview(instance, url) {
           status: /G-[A-Z0-9]+|googletagmanager|dataLayer/i.test(html) ? 'pass' : 'warn',
         },
         accessibility_structure: {
-          status:
-            /<main\b/i.test(html) && /<h1\b/i.test(html) && /\blang=["'][^"']+/i.test(html)
-              ? 'pass'
-              : 'fail',
+          ...accessibilityStructureCheck(html),
         },
         structured_data: { status: /application\/ld\+json/i.test(html) ? 'pass' : 'warn' },
       };
@@ -8373,6 +8370,25 @@ async function validatePreview(instance, url) {
       if (attempt < 5) await new Promise(resolve => setTimeout(resolve, 1000));
     }
   return out;
+}
+
+function accessibilityStructureCheck(html) {
+  const hasLanguage = /\blang=["'][^"']+/i.test(String(html || ''));
+  const hasDocumentStructure = /<main\b/i.test(String(html || '')) && /<h1\b/i.test(String(html || ''));
+  if (hasLanguage && hasDocumentStructure) return { status: 'pass' };
+  // Vite/React and similar client-rendered sites cannot expose their final
+  // landmark tree in the raw preview HTML. Treat a correctly language-tagged
+  // application shell as structurally valid here, but leave the browser and
+  // Lighthouse accessibility checks as the authoritative rendered-page gate.
+  if (hasLanguage && /id=["']root["']/i.test(String(html || '')))
+    return {
+      status: 'pass',
+      evidence: 'client-rendered application shell; rendered accessibility remains a browser-gated check',
+    };
+  return {
+    status: 'fail',
+    evidence: 'preview HTML must provide lang plus main/h1, or a lang-tagged client-rendered #root shell',
+  };
 }
 
 // One process per repo root may run the side-effecting background pollers
@@ -8458,4 +8474,5 @@ module.exports = {
   shouldValidateBeforeDelivery,
   requiresInstalledSiteOwner,
   applyQualityPolicy,
+  accessibilityStructureCheck,
 };

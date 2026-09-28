@@ -189,6 +189,9 @@ function deliveryMetrics(requests, now = Date.now()) {
         const shipped = inWindow.filter(request => request.status === 'deployed').length;
         const verified = inWindow.filter(request => request.status === 'verified').length;
         const failed = inWindow.filter(request => request.status === 'failed').length;
+        const blocked = inWindow.filter(request =>
+          ['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(request.status)
+        ).length;
         const attempts = shipped + verified + failed;
         return [
           window.key,
@@ -198,6 +201,7 @@ function deliveryMetrics(requests, now = Date.now()) {
             shipped,
             verified,
             failed,
+            blocked,
             attempts,
             success_rate: attempts ? Math.round(((shipped + verified) / attempts) * 100) : null,
           },

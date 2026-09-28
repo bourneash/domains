@@ -11963,6 +11963,7 @@ function cqWorkLabel(r) {
 function cqStatusClass(status) {
   if (['deployed', 'verified', 'committed'].includes(status)) return 'b-green';
   if (['failed', 'cancelled'].includes(status)) return 'b-red';
+  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(status)) return 'b-yellow';
   if (['review', 'reviewing'].includes(status)) return 'b-yellow';
   return 'b-blue';
 }
@@ -11980,6 +11981,9 @@ function cqNextAction(r, settings) {
   if (r.status === 'reviewing') return 'Wait for quality gates';
   if (r.status === 'review') return 'Run review and deliver';
   if (r.status === 'failed') return 'Inspect failure, then retry';
+  if (r.status === 'blocked_owner') return 'Install or assign a site owner';
+  if (r.status === 'blocked_infrastructure') return 'Repair infrastructure, then retry';
+  if (r.status === 'needs_human_review') return 'Human review required';
   if (r.status === 'cancelled') return 'Replace or close request';
   if (['deployed', 'verified', 'committed'].includes(r.status)) return 'Measure outcome';
   return 'Open request details';
@@ -12021,6 +12025,8 @@ function cqActionButtons(r) {
   if (r.status === 'review')
     return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
   if (r.status === 'failed')
+    return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
+  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(r.status))
     return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
   if (['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status))
     return `${manage} <button class="btn sm danger cq-cancel" data-id="${id}">Cancel</button>`;
@@ -12079,7 +12085,7 @@ async function renderChangeQueue({ background = false } = {}) {
   const working = requests.filter(r => r.work?.active);
   // Only surface recoverable exceptions here. Cancelled requests are historical
   // outcomes, not active interventions; failed requests have a direct retry path.
-  const attention = requests.filter(r => r.status === 'failed');
+  const attention = requests.filter(r => ['failed', 'needs_human_review'].includes(r.status));
   const deliveryMetrics = data.delivery_metrics || { windows: {} };
   const throughput = deliveryMetrics.windows || {};
   const capacity = Number(data.settings.max_concurrent || 1);
@@ -12098,7 +12104,7 @@ async function renderChangeQueue({ background = false } = {}) {
     if (CHANGE_QUEUE_VIEW === 'queued') return r.status === 'queued';
     if (CHANGE_QUEUE_VIEW === 'active')
       return ['claimed', 'running', 'reviewing', 'review'].includes(r.status);
-    if (CHANGE_QUEUE_VIEW === 'failed') return r.status === 'failed';
+    if (CHANGE_QUEUE_VIEW === 'failed') return ['failed', 'needs_human_review'].includes(r.status);
     if (CHANGE_QUEUE_VIEW === 'shipped')
       return ['deployed', 'verified', 'committed'].includes(r.status);
     return r.status === 'failed' || isStale(r) || (r.priority === 'high' && isOpen(r));
