@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:06:16.040Z",
+  "generated_at": "2026-09-28T10:21:20.850Z",
   "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, deployments, spending, monetization changes, and unsupported financial or causal claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; margin, ROI, payback, cost-to-learn, and causal lift remain unknown. Continue only existing delivery repair, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. Keep permission outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported financial, production, queue, requeue, telemetry, deployment, spending, monetization, and outreach work. Preserve aggregate commission as unattributed; keep private and parked gates unchanged. Owner concern: any permission request remains unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure-repair and measurement containment only. Before dispatch or requeue, record ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
+        "summary": "Continue existing delivery containment and failure-repair review. Before dispatch or requeue, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, forecast, or causal lift.",
+        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve provider aggregate earnings as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing launch-readiness evidence work. Keep gated products private and permission outreach unsent; authorize no rights-dependent launch, monetization, deployment, configuration, tracking, or external outreach.",
+        "summary": "Continue existing launch-readiness evidence work and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },

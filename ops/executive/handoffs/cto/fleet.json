@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:06:16.039Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:21:20.849Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. No new proposals, change requests, experiments, telemetry, deployments, spend, monetization changes, or requeues are queue-eligible. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. The candidate list is empty; 36 improvements await measurement, 9 requests failed, operations and fleet-security sweeps have no results, and only 3 outcomes are proven. Preserve deferred SEO, UX, accessibility, performance, content, affiliate, CRO, and site-factory opportunities with their existing evidence, metrics, validation, rollback, and ownership requirements. Do not claim revenue, ROI, margin, payback, cost-to-learn, or causal lift. Keep external permission outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Approve containment-only execution this cycle. Create no new proposals, change requests, requeues, telemetry, deployments, dependencies, spend, or outreach. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. Retain all SEO, UX, content, monetization, ownership, deduplication, and launch opportunities as deferred backlog. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded. Preserve aggregate revenue as unattributed and do not infer revenue, ROI, margin, payback, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and failure-repair review. Before any dispatch or requeue, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Do not create or requeue new implementation work.",
+        "summary": "Continue existing delivery containment and failure-repair review. Do not dispatch or requeue work until ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Continue the existing launch-readiness evidence tasks and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, forecasts, or causal lift.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing matching-period revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
