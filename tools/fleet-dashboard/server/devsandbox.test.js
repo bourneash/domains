@@ -26,7 +26,14 @@ test('developer sandboxes drop capabilities and keep writable state explicit', (
 });
 
 test('developer sandboxes force IPv4-first resolution for Astro Cloudflare builds', () => {
-  assert.equal(devsandbox.sandboxRuntimeEnvironment().NODE_OPTIONS, '--dns-result-order=ipv4first');
+  assert.deepEqual(devsandbox.sandboxRuntimeEnvironment(), {
+    NODE_OPTIONS: '--dns-result-order=ipv4first',
+    UV_THREADPOOL_SIZE: '1',
+    TOKIO_WORKER_THREADS: '1',
+    RAYON_NUM_THREADS: '1',
+    CARGO_BUILD_JOBS: '1',
+    npm_config_jobs: '1',
+  });
 });
 
 test('browser audit distinguishes sandbox runtime crashes from page failures', () => {
@@ -57,6 +64,16 @@ test('commands in existing developer sandboxes inherit the IPv4-first runtime', 
     'exec',
     '-e',
     'NODE_OPTIONS=--dns-result-order=ipv4first',
+    '-e',
+    'UV_THREADPOOL_SIZE=1',
+    '-e',
+    'TOKIO_WORKER_THREADS=1',
+    '-e',
+    'RAYON_NUM_THREADS=1',
+    '-e',
+    'CARGO_BUILD_JOBS=1',
+    '-e',
+    'npm_config_jobs=1',
     'dd-imp-12345678',
     'dd-dev',
     'status',

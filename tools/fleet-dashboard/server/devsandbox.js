@@ -111,14 +111,25 @@ function sandboxSecurityArgs() {
 }
 
 function sandboxRuntimeEnvironment() {
-  return { NODE_OPTIONS: NODE_RUNTIME_OPTIONS };
+  return {
+    NODE_OPTIONS: NODE_RUNTIME_OPTIONS,
+    UV_THREADPOOL_SIZE: '1',
+    TOKIO_WORKER_THREADS: '1',
+    RAYON_NUM_THREADS: '1',
+    CARGO_BUILD_JOBS: '1',
+    npm_config_jobs: '1',
+  };
 }
 
 // Apply the same runtime policy to commands in already-running sandboxes.
 // Container creation alone is insufficient because durable review work may
 // outlive a dashboard restart and keep its original environment.
 function sandboxExecCommand(instance, args) {
-  return ['exec', '-e', `NODE_OPTIONS=${NODE_RUNTIME_OPTIONS}`, containerName(instance), ...args];
+  const envArgs = Object.entries(sandboxRuntimeEnvironment()).flatMap(([key, value]) => [
+    '-e',
+    `${key}=${value}`,
+  ]);
+  return ['exec', ...envArgs, containerName(instance), ...args];
 }
 
 async function ensureSandboxNetwork(instance) {
@@ -434,8 +445,10 @@ async function start(root, site, options = {}) {
     'TTYD_PORT=7681',
     '-e',
     'ASTRO_TELEMETRY_DISABLED=1',
-    '-e',
-    `NODE_OPTIONS=${NODE_RUNTIME_OPTIONS}`,
+    ...Object.entries(sandboxRuntimeEnvironment()).flatMap(([key, value]) => [
+      '-e',
+      `${key}=${value}`,
+    ]),
   ];
   const gitMount = gitWorkspaceMount(root, site, canonicalSiteDir, hostSiteDir);
   if (gitMount) {
