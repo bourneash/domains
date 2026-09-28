@@ -19,6 +19,7 @@ test('productivity snapshots separate treatment and control output by lane', () 
   const db = fixture();
   const now = new Date().toISOString();
   db.createChangeRequest({
+    request_id: 'treatment-request',
     site: 'treatment.example',
     title: 'Refresh conversion layout',
     body: 'Ship the approved design CTA improvement with a preview and rollback.',
@@ -26,6 +27,16 @@ test('productivity snapshots separate treatment and control output by lane', () 
     assigned_role: 'engineer',
     status: 'verified',
     created_at: now,
+  });
+  db.createImprovement({
+    site: 'treatment.example',
+    source: 'fleet-dashboard',
+    source_id: 'treatment-request',
+    title: 'Validated design run',
+    state: 'measuring',
+    measurement_due: '2026-10-11',
+    baseline: { captured_at: now },
+    validation: { passed: true },
   });
   db.createChangeRequest({
     site: 'control.example',
@@ -43,6 +54,8 @@ test('productivity snapshots separate treatment and control output by lane', () 
     control_sites: ['control.example'],
   });
   assert.equal(result.treatment.requests_completed, 1);
+  assert.equal(result.treatment.valuable_outputs, 1);
+  assert.equal(result.treatment.measurement_ready_outputs, 1);
   assert.equal(result.treatment.design_items, 1);
   assert.equal(result.control.requests_completed, 0);
   db.close();
@@ -60,6 +73,8 @@ test('pilot evaluation requires measurable treatment lift and guardrails', () =>
       requests_created: 4,
       requests_completed: 4,
       requests_failed: 0,
+      valuable_outputs: 4,
+      measurement_ready_outputs: 4,
     },
     control: { shipped_output: 1, output_per_site: 0.5 },
   });
@@ -72,6 +87,8 @@ test('pilot evaluation requires measurable treatment lift and guardrails', () =>
       requests_created: 2,
       requests_completed: 1,
       requests_failed: 0,
+      valuable_outputs: 1,
+      measurement_ready_outputs: 0,
     },
     control: { shipped_output: 2, output_per_site: 1 },
   });
@@ -85,7 +102,12 @@ test('pilot evaluation stays inconclusive before the minimum observation window'
     {
       from: '2026-09-27T00:00:00.000Z',
       to: '2026-09-28T00:00:00.000Z',
-      treatment: { shipped_output: 2, output_per_site: 0.67, requests_created: 10, requests_completed: 2 },
+      treatment: {
+        shipped_output: 2,
+        output_per_site: 0.67,
+        requests_created: 10,
+        requests_completed: 2,
+      },
       control: { shipped_output: 0, output_per_site: 0 },
     }
   );
@@ -120,7 +142,8 @@ test('private-preview policy blocks growth work but permits design work', () => 
     productivity.siteCategoryEligibility('3boobs.com', 'seo', { privatePreviewSites }),
     {
       eligible: false,
-      reason: 'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
+      reason:
+        'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
     }
   );
   assert.deepEqual(
@@ -188,6 +211,15 @@ test('productivity output does not count pre-existing work reconciled during the
     work_id: 'new-work',
     site: 'treatment.example',
     title: 'Pilot work',
+    status: 'done',
+    created_at: new Date().toISOString(),
+  });
+  db.createExecutiveWorkItem({
+    work_id: 'reconciled-failure',
+    source_type: 'failed-change-request',
+    source_id: 'failed-request',
+    site: 'treatment.example',
+    title: 'Closed repair projection',
     status: 'done',
     created_at: new Date().toISOString(),
   });

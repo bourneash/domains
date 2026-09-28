@@ -59,13 +59,21 @@ function treatmentBatch(pilot) {
 }
 
 function siteCategoryEligibility(site, category, { privatePreviewSites = [] } = {}) {
-  const normalizedSite = String(site || '').trim().toLowerCase();
-  const normalizedCategory = String(category || '').trim().toLowerCase();
+  const normalizedSite = String(site || '')
+    .trim()
+    .toLowerCase();
+  const normalizedCategory = String(category || '')
+    .trim()
+    .toLowerCase();
   const privateSites = new Set(normalizeSites(privatePreviewSites));
-  if (privateSites.has(normalizedSite) && ['seo', 'marketing', 'sales'].includes(normalizedCategory))
+  if (
+    privateSites.has(normalizedSite) &&
+    ['seo', 'marketing', 'sales'].includes(normalizedCategory)
+  )
     return {
       eligible: false,
-      reason: 'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
+      reason:
+        'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
     };
   return { eligible: true, reason: null };
 }
@@ -107,6 +115,8 @@ function emptyGroup() {
     requests_completed: 0,
     requests_failed: 0,
     work_completed: 0,
+    valuable_outputs: 0,
+    measurement_ready_outputs: 0,
     design_items: 0,
     seo_items: 0,
     affiliate_items: 0,
@@ -120,12 +130,27 @@ function measureGroup(rows, sites, from, to) {
   const group = emptyGroup();
   group.sites = sites.length;
   const cycleHours = [];
+  const runsByRequest = new Map(
+    rows.runs.filter(run => run.source_id).map(run => [String(run.source_id), run])
+  );
   for (const row of rows.requests) {
     if (!allowed.has(String(row.site || '').toLowerCase()) || !inWindow(row.created_at, from, to))
       continue;
     group.requests_created += 1;
     if (COMPLETED_REQUEST_STATUSES.has(String(row.status || '').toLowerCase())) {
       group.requests_completed += 1;
+      const run = runsByRequest.get(String(row.request_id));
+      const reportCompleted = row.delivery_mode === 'report_only' && run?.state === 'reported';
+      const implementationValidated =
+        run?.validation?.passed === true &&
+        ['deployed', 'measuring', 'proven', 'inconclusive'].includes(String(run.state || ''));
+      if (reportCompleted || implementationValidated) {
+        group.valuable_outputs += 1;
+        const hasBaseline = run?.baseline && typeof run.baseline === 'object';
+        const hasMeasurementWindow =
+          reportCompleted || Boolean(String(run?.measurement_due || '').trim());
+        if (hasBaseline && hasMeasurementWindow) group.measurement_ready_outputs += 1;
+      }
       const start = Date.parse(row.created_at || '');
       const end = Date.parse(row.updated_at || row.finished_at || '');
       if (Number.isFinite(start) && Number.isFinite(end) && end >= start)
@@ -153,6 +178,10 @@ function measureGroup(rows, sites, from, to) {
       group.affiliate_items += 1;
   }
   for (const row of rows.work) {
+    // Failure-followup rows are recovery projections, not shipped product
+    // work. They may be closed when a diagnosis or descendant repair ends,
+    // but counting that reconciliation as output would inflate the pilot.
+    if (row.source_type === 'failed-change-request') continue;
     // Work items are frequently reconciled when an executive run observes
     // them, even though the underlying work predates the pilot. Counting on
     // updated_at would turn reconciliation activity into fake throughput.
@@ -183,6 +212,7 @@ function snapshot(store, { from, to, treatment_sites = [], control_sites = [] } 
   const rows = {
     requests: store.listChangeRequests({ limit: 1000 }),
     work: store.listExecutiveWorkItems({ limit: 1000 }),
+    runs: store.listImprovements({ limit: 1000 }),
   };
   const treatment = normalizeSites(treatment_sites);
   const control = normalizeSites(control_sites);
@@ -242,6 +272,10 @@ function evaluate(baseline, current) {
   if (completionRate < 0.8 && t.requests_created > 0)
     reasons.push('treatment completion rate below 80%');
   if (t.output_per_site < 2) reasons.push('treatment shipped fewer than two outputs per site');
+  if ((t.valuable_outputs || 0) < t.shipped_output)
+    reasons.push('treatment shipped output lacks a validated implementation or report artifact');
+  if ((t.measurement_ready_outputs || 0) < t.shipped_output)
+    reasons.push('treatment shipped output lacks durable baseline and measurement evidence');
   if (t.requests_failed > baselineTreatment.requests_failed + 1)
     reasons.push('treatment failures increased beyond tolerance');
   return {
