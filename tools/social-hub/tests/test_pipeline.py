@@ -34,6 +34,40 @@ def test_ingest_is_idempotent_and_ages_out_old_content(fake_fleet):
     assert rows["old"] == "skipped"
 
 
+def test_collection_image_template_maps_horoscope_sign_card(fake_fleet):
+    """Prose-only horoscope files still resolve to the site's sign card."""
+    root = fake_fleet / "sites" / "alpha.com"
+    horoscope = root / "site" / "src" / "content" / "horoscopes" / "daily" / "sagittarius"
+    horoscope.mkdir(parents=True)
+    (horoscope / "2026-09-26.md").write_text(
+        "---\n"
+        "type: daily-horoscope\n"
+        "sign: sagittarius\n"
+        "date: '2026-09-26'\n"
+        "---\n\nA measured reading.\n",
+        encoding="utf-8",
+    )
+    cfg = load_site_config("alpha.com")
+    cfg.data["sources"] = {
+        "collections": [{
+            "name": "horoscope",
+            "glob": "site/src/content/horoscopes/daily/*/*.md",
+            "url_template": "https://{domain}/horoscopes/{parent}/archive/{slug}/",
+            "id_template": "horoscope-{parent}-{slug}",
+            "title_template": "{Parent} — {slug}",
+            "summary_from": "body",
+            "date_from": "slug",
+            "image_template": "/og/sign/{parent}.png",
+            "pick": "one_per_day",
+        }]
+    }
+
+    found = sources.discover("alpha.com", cfg)
+
+    assert found[0]["source_id"] == "horoscope-sagittarius-2026-09-26"
+    assert found[0]["image_url"] == "/og/sign/sagittarius.png"
+
+
 def test_generate_creates_one_draft_per_platform_and_never_duplicates(synced):
     cfg = load_site_config("alpha.com")
     sources.ingest("alpha.com", cfg)
