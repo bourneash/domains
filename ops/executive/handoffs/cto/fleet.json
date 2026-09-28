@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:07:43.671Z",
+  "generated_at": "2026-09-28T08:22:55.555Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. Reject the three proposed site change requests from queue entry because ownership, failure-repair, isolated validation, rollback, release, security, attribution, deduplication, and measurement gates remain incomplete. Preserve their technical specifications as deferred backlog. Continue existing repair-or-close, measurement, attribution, legal, and security evidence work using recorded telemetry only. Do not create or requeue production work, add telemetry, dependencies, credentials, destinations, deployments, spending, or monetization changes.",
+        "summary": "Approve containment-only execution this cycle. No new production requests, requeues, experiments, telemetry, dependencies, deployments, spending, credentials, domains, launches, or monetization changes. Preserve existing repair, measurement, attribution, legal, security, ownership, and reconciliation work. Deferred opportunities are technically feasible but not queue-eligible until ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded. Keep private and parked dispositions unchanged; preserve aggregate revenue as unattributed and make no unsupported financial or causal claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The $4.92 commission for 2026-09-21 remains aggregate and unattributed. Revenue, ROI, margin, payback, budget capacity, cost-to-learn, and causal lift are unsupported. Continue the existing period-aligned reconciliation without creating duplicate telemetry or financial work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Record dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence for existing work by the current deadline. Do not dispatch or requeue new implementation work before those gates clear.",
+        "summary": "Continue existing delivery containment and failure-repair review. Do not dispatch or requeue work until dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded by the existing deadline.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -37,7 +30,14 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the gated product private and permission outreach unsent. Continue the existing four legal evidence tasks; human-counsel review remains required for source rights, privacy and consent treatment, and future monetization.",
+        "summary": "Continue the existing launch-readiness evidence work and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed. Reconcile matching periods and recorded cost categories without inferring site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:07:43.671Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:22:55.555Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, rights-dependent monetization, and security-sensitive release; conditional for ordinary reversible work preserving consent, disclosures, provenance, claims, copyright/trademark, platform-policy, age-sensitive, and data-handling boundaries. Recommendation: retain SearchWoot private, keep permission outreach unsent, reject all new implementation dispatch, and continue existing evidence work. Evidence: Woot terms do not establish commercial/public redistribution rights; 0 of 4 launch-readiness tasks are closed; accuracy/freshness, measurement/attribution, and security gates are blocked; compliance is technical-only with 37 pass, 15 fail, and 7 unknown. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable. Human counsel is required for Woot rights, jurisdictional privacy/consent treatment, and future affiliate or advertising use.",
+        "summary": "Disposition: blocked for public launch, rights-dependent monetization, and security-sensitive releases; conditional for ordinary reversible work that preserves consent, disclosures, provenance, claims, copyright/trademark, platform-policy, age-sensitive, and data-handling boundaries. Keep SearchWoot private, keep Woot permission outreach unsent, and continue existing read-only evidence work. Evidence: Woot public terms do not establish commercial or public redistribution rights; all four launch-readiness tasks remain open; accuracy, measurement, attribution, and security gates are incomplete. Human counsel is required for Woot rights, jurisdictional privacy and consent treatment, and future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness remains active: 0 of 4 tasks closed and 4 open. No task is closable on current evidence. Next evidence action: attach and review one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. No task is closable on current evidence. Progress consists of partial official-source, repository/configuration, privacy-policy, and cookie-policy evidence. Next evidence action: attach and review one consolidated read-only evidence bundle and field-level rights matrix covering provenance, storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain site-specific remediation and evidence gates. complicated.work is reachable but fails banner, consent accept/reject, and GA4 checks; retain parked status until remediated. deadlymaracas.com is unreachable by DNS with unknown compliance status; retain parked status and require a concrete reachability and compliance checklist before any launch decision. Incomplete telemetry alone does not block ordinary growth.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data is counsel_required because rights for fetching, storing, transforming, displaying, caching, retaining historical derivatives, sending alerts, using trademarks, images, prices, and monetizing through affiliates or advertising are not evidenced. User alert rules and sync results are evidence_needed because inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior are incomplete. GA4 analytics is evidence_needed because deployed consent and withdrawal behavior, GA4 property and data-sharing settings, retention, and jurisdictional treatment are incomplete. Operational logs and Cloudflare hosting data are evidence_needed because log fields, retention, access controls, vendor coverage, incident handling, and data-request procedures are incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain complicated.work parked because it fails banner, consent accept/reject, and GA4 checks. Retain deadlymaracas.com parked because DNS reachability fails and compliance status is unknown. Before either launch decision, require concrete reachability, consent and banner, privacy and terms, analytics, monetization, and release evidence. Incomplete telemetry alone does not block ordinary growth elsewhere. Preserve the single-period aggregate commission as unattributed and make no revenue, ROI, margin, payback, or causal-lift claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair, reconciliation, legal, security, measurement, and attribution work only. Do not create new production requests, requeues, experiments, telemetry, spending, deployments, or monetization changes this cycle. Preserve deferred growth opportunities until ownership, validation, rollback, release, security, attribution, and measurement evidence clear.",
         "requested_action": null,
         "proposal_id": null
       }
