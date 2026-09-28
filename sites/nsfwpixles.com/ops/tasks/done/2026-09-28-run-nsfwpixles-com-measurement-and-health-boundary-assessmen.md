@@ -5,6 +5,7 @@ priority: 3
 type: seo
 estimated_turns: 4
 created: 2026-09-28
+completed_at: 2026-09-28T18:04:35.446Z
 assigned_role: seo-analyst
 source: fleet-dashboard
 source_id: 1db6a7b9-cda4-4152-98cb-9e6078ccd192
