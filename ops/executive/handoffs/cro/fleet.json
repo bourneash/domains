@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:06:46.271Z",
+  "generated_at": "2026-09-28T05:36:34.819Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain three CRO opportunities as deferred, evidence-backed backlog items: 0xroulette.com CTA hierarchy, offline content-normalization prototype using microsoft/markitdown, and affiliate-link attribution audit for allthingsmasonic.com. No deployment, spend, credential change, domain change, dependency installation, new telemetry, monetization expansion, or causal revenue claim is authorized while failure, measurement, attribution, ownership, release, and security gates remain open.",
+        "summary": "Maintain containment-only execution. Reject the proposed dumbsluts.com design dispatch and elevatorfriends.com readiness packet for this cycle because the authoritative candidate list is empty and existing failure-repair, measurement, attribution, legal, security, and ownership gates remain open. Retain three deferred CRO opportunities: 0xroulette.com CTA hierarchy improvement, using the completed entry-surface inspection and existing performance evidence; smallest prototype is a preview-only CTA reorder with unchanged destinations, measured by existing CTA engagement after approval. Offline microsoft/markitdown content-normalization prototype, using MIT license and completed bounded lab checks; smallest prototype is local conversion of a fixed sample corpus with no dependency installation or production access, measured by formatting fidelity and editorial time saved. allthingsmasonic.com affiliate-link attribution audit, using completed public-surface inspection and partial Amazon attribution; smallest prototype is a read-only link-to-tracking-ID inventory, measured by reconciliation completeness. All remain deferred until queue capacity, ownership, security, validation, rollback, and measurement gates clear. No deployment, spend, credentials, domains, dependencies, telemetry, monetization expansion, or causal revenue claim is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

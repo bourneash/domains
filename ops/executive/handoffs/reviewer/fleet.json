@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:21:46.451Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:36:34.821Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed legal report as duplicate of the existing legal evidence work. Continue existing repair-or-close, measurement, attribution, legal, security, and owner-disposition work only. Revenue, margin, ROI, payback, causal lift, and budget capacity remain unknown; retain aggregate commission as unattributed. No new production work, requeues, telemetry, spend, deployments, dependencies, monetization, or external outreach are authorized. Owner concern: any permission request requires human-counsel review before authorization.",
+        "summary": "Reject all new dispatches, production work, requeues, experiments, telemetry, spending, monetization changes, and unsupported financial or causal claims. Preserve aggregate commission as unattributed, keep launch gates unchanged, and continue only existing evidence, reconciliation, measurement, and failure-containment work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: revenue covers one day and is not site-attributable; cost periods and budget ceilings are incomplete; operations and security evidence remain unavailable; 39 improvements await measurement and 8 requests failed. Do not authorize the proposed preview or any external outreach until existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

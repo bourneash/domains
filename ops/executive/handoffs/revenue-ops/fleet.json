@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:06:46.270Z",
+  "generated_at": "2026-09-28T05:36:34.819Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Route the following evidence-backed affiliate repair and attribution tasks as deferred or existing-work follow-ups; do not deploy, add telemetry, change credentials, spend, or claim ROI. Preserve the $4.92 aggregate commission and 629 aggregate clicks as unattributed.",
+        "summary": "Maintain containment-only execution. Retain affiliate repair and attribution work as bounded report-only follow-ups; do not deploy, add telemetry, change credentials, spend, or infer ROI. Preserve the 629 aggregate clicks and $4.92 aggregate commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

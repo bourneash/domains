@@ -2,50 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:21:46.451Z",
-  "summary": "legal checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:36:34.820Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch and rights-dependent monetization; conditional for ordinary reversible work that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Exact decision: keep SearchWoot private, keep external permission outreach unsent, and authorize no public display, alert expansion, affiliate or advertising use, deployment, tracking change, or monetization expansion. Evidence: Woot public terms do not establish commercial/public redistribution rights; all 4 legal launch tasks remain open; accuracy/freshness, measurement/attribution, and security gates remain blocked; compliance is technical-only with 37 pass, 15 fail, and 7 unknown. Revenue is limited to 2026-09-21, with $4.92 aggregate commission not attributable to a site. This is risk triage, not legal advice or certification. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for public launch and rights-dependent monetization; conditional for ordinary reversible work that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Exact decision: keep searchwoot.com private, reject the proposed dumbsluts.com dispatch, retain parked-site dispositions, and continue only existing read-only evidence, measurement, attribution, failure-repair, and security work. Evidence: Woot public terms do not establish public/commercial redistribution rights; 0 of 4 launch-readiness legal tasks are closed; accuracy/freshness, security, and measurement gates are blocked; compliance is technical-only with 37 pass, 15 fail, and 7 unknown; analytics has 39 configured sites with source-permission errors; revenue covers 2026-09-21 only and includes $4.92 aggregate unattributed commission. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 legal tasks closed; no task is closable on current evidence. Open tasks are searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures. Do not repeat a generic owner question or close tasks without attached evidence.",
+        "summary": "Launch-readiness tracking remains active at 0 of 4 tasks closed. No task is closable on current evidence. Open tasks: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. Progress is limited to existing public terms, API documentation, repository/configuration artifacts, and privacy/cookie pages; these do not satisfy the completion rule. Next evidence action: attach the consolidated read-only bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Site and fleet compliance disposition: ordinary growth is not blocked solely by incomplete telemetry, but failed or unknown compliance sites require concrete remediation or a private/parked decision before exposure or monetization. complicated.work has a reachable compliance failure with banner, accept, reject, and GA4 checks failing; keep it gated until remediation evidence is captured. deadlymaracas.com is unreachable with DNS failure and unknown compliance status; retain parked status until reachability and checklist evidence exist. Reported readiness briefs for therareunicorn.com, gate03.com, and findyourlostpets.com remain evidence-only; record one owner disposition per site without changing launch state or duplicating reports.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data is counsel_required; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and Cloudflare hosting data are evidence_needed. No item is clear for public or monetized use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is counsel_required. Missing evidence is written permission or an API agreement, field-level provenance and rights, permitted storage/caching/display/derivatives/alerts, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results are evidence_needed because data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior are missing. Smallest next action: produce the repository and deployed data-flow and retention table. GA4 analytics is evidence_needed because deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention, and jurisdictional treatment are missing. Smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data are evidence_needed because log fields, retention/access controls, vendor/DPA review, incident handling, and data-request procedures are missing. Smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
+        "summary": "Do not block ordinary growth solely because telemetry is incomplete. However, concrete compliance failures must be remediated before exposure or monetization. Current evidence supports technical compliance only, not certification; revenue and ROI claims remain unsupported because the $4.92 provider aggregate cannot be assigned to a site and cost periods do not align.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain containment-only execution. Do not retain or dispatch new production, telemetry, spend, deployment, requeue, experiment, or monetization proposals this cycle. Existing SEO, CRO, affiliate, and design opportunities may remain deferred backlog only. Continue existing legal, security, failure-repair, attribution, measurement, and owner-disposition work using recorded evidence only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private launch gates and complete evidence-based legal review",
-        "summary": "Keep rights-dependent and evidence-incomplete launches private or parked while continuing the existing legal, privacy, consent, data-provenance, security, accuracy, attribution, and measurement workstreams. Permit only ordinary reversible work that preserves existing boundaries.",
-        "requested_action": "Maintain SearchWoot private_only status; keep external permission outreach unsent pending human-counsel review and owner authorization; attach the consolidated evidence bundle and field-level rights matrix; do not close launch-readiness tasks without their stated evidence.",
         "proposal_id": null
       }
     ]

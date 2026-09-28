@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:37:28.679Z",
+  "generated_at": "2026-09-28T05:36:34.819Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only portfolio execution. No new site implementation, experiment, telemetry, spend, deployment, monetization change, or requeue is supported this cycle. Continue existing repair-or-close, measurement and attribution reconciliation, legal evidence, and security evidence work. Evidence: queue eligibility is blocked; 49 improvements remain active, 39 await measurement, 8 requests failed, only 2 outcomes are proven, revenue is limited to $4.92 aggregate commission that is not site-attributable, and operations/security evidence remains incomplete. Retain SEO, UX, accessibility, performance, content, affiliate, and launch-readiness opportunities as deferred backlog. Preserve private launch gates and parked dispositions.",
+        "summary": "Keep all other validated opportunities as deferred readiness backlog. Do not create duplicate briefs, change requests, telemetry requests, deployments, monetization work, or launch activity while ownership, legal, security, measurement, and rollback gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }
