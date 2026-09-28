@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:37:28.681Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:52:22.944Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal risk disposition: blocked for public launch and rights-dependent monetization; conditional for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Exact decision: keep searchwoot.com private, do not send external permission outreach, expand alerts, enable monetization, deploy, or change tracking. Evidence: Woot public terms do not establish commercial/public redistribution rights; 0 of 4 legal launch tasks are closed; accuracy/freshness, measurement/attribution, and security gates are blocked; compliance is technical-only with 34 pass, 14 fail, and 11 unknown; analytics and revenue attribution remain incomplete. Progress: 0/4 tasks closed; no task is closable on current evidence. Next evidence action: attach one consolidated read-only evidence bundle and field-level rights matrix, then route the unsent permission package for human-counsel review and owner authorization. This is risk triage, not legal advice or certification.",
+        "summary": "Risk disposition: blocked for searchwoot.com public beta, full launch, alert expansion, and rights-dependent monetization; conditional for bounded internal evidence work and ordinary reversible growth that preserves existing disclosures, consent, provenance, claims, and data boundaries. Exact decision: keep searchwoot.com private, keep external Woot permission outreach unsent, and authorize no deployment, tracking change, alert expansion, monetization, or public exposure. Evidence: Woot terms do not establish commercial/public redistribution rights; all 4 legal launch tasks remain open; accuracy/freshness, measurement/attribution, and security gates are blocked; fleet compliance is technical-only with 34 pass, 14 fail, and 11 unknown; analytics and revenue attribution remain incomplete. This is risk triage, not legal advice or certification. Human counsel is required for upstream data rights, jurisdictional privacy/consent treatment, and future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Open tasks: searchwoot-legal-source-rights, searchwoot-data-flow-retention, searchwoot-ga4-consent-evidence, and searchwoot-logs-vendors-incident. Close none until the stated evidence is attached and reviewed. Next evidence action: produce one read-only bundle covering field provenance and rights, storage/caching/display/derivatives/alerts, data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active at 0/4 closed. No task is closable on current evidence. Next evidence action: attach one consolidated read-only bundle and field-level rights matrix covering Woot provenance and permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, trademarks, images, prices, affiliate use, alert data flow, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor/DPA coverage, and incident/request procedures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Data-use dispositions: Woot API deal and price-history data is counsel_required; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed; operational logs and Cloudflare hosting data are evidence_needed. Missing evidence and smallest next actions are recorded below; no item is clear for public or monetized use.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet compliance, data quality, site, analytics, revenue, and launch evidence support containment rather than fleet-wide clearance. Do not block ordinary growth solely for incomplete telemetry, but remediate concrete compliance failures before exposure or monetization. Preserve the $4.92 provider aggregate as unattributed; do not claim site revenue, ROI, margin, payback, or causal lift. Private or gated sites require an explicit keep-private or parked decision and completed checklist before launch.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:37:28.681Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:52:22.944Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment and reject all new dispatches, spend, forecasts, commitments, monetization changes, experiments, telemetry, deployments, and requeues this cycle. Continue only the existing period-aligned revenue, attribution, cost, measurement, legal, security, and failure-repair work. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is not site-attributable; site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, with 225 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because periods are misaligned, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget limits are blank, and no learning-outcome threshold is defined. The pilot's 70 treatment outputs versus 44 controls are operational activity, not financial or causal lift. Retain all product, SEO, UX, CRO, launch-readiness, and site-factory ideas as deferred backlog only; do not queue the proposed launch-readiness change request. Minimum measurement remains: period-aligned attributable revenue by site/content/tracking ID, a reconciled complete cost ledger, approved budget ceilings, and a defined learning outcome with a maximum cost-to-learn.",
+        "summary": "CFO recommendation: maintain financial containment. Approve no new spend, forecasts, commitments, monetization expansion, or unsupported revenue claims. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; site-attributed $0 does not prove zero performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls, $890.42 cost, 225 errors, and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, non-AI costs are incomplete, monthly budget ceilings are blank, and no learning threshold exists. The 70 treatment outputs versus 44 controls are operational throughput, not causal or financial lift. Continue only existing reconciliation and repair-or-close work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance evidence before reconsidering growth: period-aligned attributable revenue by site, content, and tracking ID; a reconciled ledger for AI, infrastructure, domains, labor, marketing, and experiments; approved budget ceilings; and a defined learning outcome with a maximum cost-to-learn. Preserve provider aggregate rows as unattributed and do not treat traffic, impressions, clicks, sessions, conversions, ordered items, shipped items, AI calls, or output counts as financial return.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO disposition: reject the proposed fleet control-plane product work for this cycle because it duplicates existing containment, proposal-execution, failure-review, and measurement reconciliation. Retain it only as deferred backlog. The existing reconciliation work item is the correct finance path; no new finance proposal or duplicate report-only request is warranted.",
         "requested_action": null,
         "proposal_id": null
       }
