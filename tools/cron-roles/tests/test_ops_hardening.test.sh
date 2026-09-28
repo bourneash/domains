@@ -54,6 +54,8 @@ grep -q 'SYNC_ALERT_AFTER' "$principal_template" \
   || fail "principal-engineer template lacks sync defer threshold"
 grep -q 'good resolved' "$principal_template" \
   || fail "principal-engineer template does not force resolved Slack delivery"
+grep -q 'CHECKPOINT_TURN=\$((MAX_TURNS - 8))' "$principal_template" \
+  || fail "principal-engineer template does not derive its turn checkpoint"
 bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
 grep -q 'SYNC_ALERT_AFTER' "$bma_principal" \
   || fail "BMA sync defer threshold missing"
