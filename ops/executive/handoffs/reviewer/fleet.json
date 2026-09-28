@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:52:16.786Z",
+  "generated_at": "2026-09-28T03:53:51.790Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: no new implementation work is approved this cycle. The available candidates are report-only or blocked by active queue, measurement, failure-repair, ownership, release, security, or attribution gates. Revenue, ROI, margin, payback, and causal lift remain unsupported; preserve existing reconciliation and evidence work, keep deferred candidates unqueued, and do not create telemetry, spend, deployments, requeues, credential/configuration changes, or external outreach.",
+        "summary": "Reject all new implementation queue work this cycle. The authoritative snapshot reports zero queue-eligible candidates, 52 failed-request follow-ups, 33 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and only 2 proven outcomes. Revenue, ROI, margin, payback, causal lift, and budget capacity remain unknown. Preserve existing repair, reconciliation, legal, security, and measurement work; retain production candidates as deferred until ownership, validation, release, attribution, and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
