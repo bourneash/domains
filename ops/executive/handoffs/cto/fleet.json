@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T23:23:26.764Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T23:36:23.614Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. No new implementation requests, requeues, deployments, dependencies, telemetry, spend, monetization changes, or external outreach are technically cleared. Continue only existing measurement, failure repair-or-close, finance and attribution reconciliation, legal/security evidence, and owner-gap readiness work. Preserve parked/private states and unavailable fields as unknown.",
+        "summary": "Continue the existing owner-gap work for complicated.work, deadlymaracas.com, and driveford.net through 2026-09-30T17:00:00Z. Attach dated execution-owner verification, preview/build checks, compliance/security evidence, measurement boundary, rollback point, and an explicit blocker or queue-clear decision. Do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing allthingsmasonic.com measurement window only. Validate the deployed homepage and affiliate-path change using existing checks and telemetry; do not duplicate work, requeue, add tracking, or claim conversion or revenue lift before measurement.",
+        "summary": "Continue repair-or-close review for failed and cancelled work without requeueing unchanged requests. Before any future retry, document ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked/private status and require dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence before any queue entry or launch decision.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter permissions or configuration, add dependencies, deploy, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep searchwoot.com private. Keep permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter permissions or configuration, add dependencies, deploy, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue repair-or-close review without retrying unchanged failed or cancelled work. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
+        "summary": "Continue the existing revenue, attribution, and cost reconciliation. Preserve aggregate provider commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
