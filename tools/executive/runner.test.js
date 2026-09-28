@@ -507,6 +507,30 @@ test('normalizes approved report-only work to queue-safe fields', () => {
   store.close();
 });
 
+test('synthesizes executable briefs for approved implementation metadata', () => {
+  const { root, store } = db();
+  const implementation = runner.normalizeApprovedImplementation(
+    {
+      title: 'Improve affiliate conversion path',
+      summary: 'Ship one reversible affiliate CTA improvement.',
+      requested_action: 'Use existing affiliate configuration only.',
+      proposal_type: 'growth',
+      implementation: {
+        site: 'example.com',
+        scope: 'Inspect commercial pages and improve one CTA or merchandising surface.',
+        constraints: ['Preserve the existing tracking ID.', 'Do not invent revenue results.'],
+        primary_metric: 'affiliate clicks and ordered items',
+      },
+    },
+    root
+  );
+  assert.equal(implementation.title, 'Improve affiliate conversion path');
+  assert.equal(implementation.category, 'marketing');
+  assert.match(implementation.body, /Preserve the existing tracking ID/);
+  assert.equal(implementation.delivery_mode, 'direct');
+  store.close();
+});
+
 test('routes concrete SEO candidates as implementation work', () => {
   const plan = runner.buildActionMandateFallback(
     { messages: [], change_requests: [] },

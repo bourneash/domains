@@ -2362,6 +2362,56 @@ function approvedImplementation(proposal, root = ROOT) {
   const reportOnly = approvedReportOnlyImplementation(proposal, root);
   if (Object.keys(reportOnly).length)
     return { ...reportOnly, ...(hasImplementation ? implementation : {}) };
+  // Older approved implementation proposals stored a scope/constraints
+  // object but omitted the queue's executable title/body fields. Treat that
+  // as an implementation commitment, not as permanently open paperwork.
+  // Synthesize the bounded worker brief while preserving the owner's exact
+  // scope and constraints.
+  if (hasImplementation) {
+    const site = implementation.site || proposalSite(proposal, root);
+    const scope = implementation.scope || implementation.objective || proposal.requested_action;
+    if (site && scope) {
+      const constraints = Array.isArray(implementation.constraints)
+        ? implementation.constraints
+        : implementation.constraints
+          ? [implementation.constraints]
+          : [];
+      const metric = implementation.primary_metric || 'the approved site-specific metric';
+      const measurement =
+        implementation.measurement_boundary ||
+        'Measure against the recorded baseline for 14 days or 100 relevant impressions/clicks, whichever comes later.';
+      const text = `${proposal.title || ''} ${proposal.summary || ''} ${scope}`;
+      const category = /affiliate|monetiz|revenue|attribution|conversion/i.test(text)
+        ? 'marketing'
+        : 'other';
+      return {
+        ...implementation,
+        site,
+        title: proposal.title,
+        body: [
+          `Execute the approved implementation for ${site}.`,
+          `Scope: ${scope}`,
+          constraints.length
+            ? `Constraints:\n${constraints.map(item => `- ${item}`).join('\n')}`
+            : '',
+          `Acceptance: implement only this bounded change, run focused tests/build/link/disclosure checks, and record the exact artifact and rollback point. Primary metric: ${metric}.`,
+          `Measurement boundary: ${measurement}`,
+          'Do not change credentials, DNS, spending, provider configuration, or unrelated production surfaces.',
+        ]
+          .filter(Boolean)
+          .join('\n\n'),
+        category,
+        assigned_role: implementation.owner_role || 'engineer',
+        priority: implementation.priority || 'medium',
+        provider: implementation.provider || 'chatgpt',
+        model: implementation.model || 'gpt-5.6-luna',
+        max_turns: implementation.max_turns || 12,
+        auto_review: implementation.auto_review ?? true,
+        delivery_mode: 'direct',
+        action_key: implementation.action_key || 'approved-proposal-implementation',
+      };
+    }
+  }
   return hasImplementation ? implementation : {};
 }
 
@@ -2445,6 +2495,29 @@ function followThroughWorkPayload(proposal, implementation, { status, nextAction
   };
 }
 
+function approvedProposalQueuePriority(proposal, implementation = {}) {
+  const text = [
+    proposal?.title,
+    proposal?.summary,
+    proposal?.requested_action,
+    implementation?.title,
+    implementation?.body,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  let score = 0;
+  if (/affiliate|monetiz|revenue|attribution|conversion/.test(text)) score += 100;
+  if (implementation?.title && implementation?.body) score += 40;
+  if (/design|performance|lcp|core web vital|build|launch|finish/.test(text)) score += 20;
+  // Older approved work has waited longer for delivery; use age as a small
+  // tie-breaker so monetization priority cannot starve long-standing items.
+  const created = Date.parse(proposal?.created_at || proposal?.updated_at || '');
+  if (Number.isFinite(created))
+    score += Math.min(20, Math.max(0, (Date.now() - created) / 86400000));
+  return score;
+}
+
 function sameFollowThroughFields(current, next) {
   return [
     'title',
@@ -2471,7 +2544,19 @@ function reconcileApprovedProposalFollowThrough(
     .filter(
       proposal =>
         !EXECUTIVE_EXCLUDED_SITES.has(String(proposal.implementation?.site || '').toLowerCase())
-    );
+    )
+    .map(proposal => ({
+      proposal,
+      implementation: normalizeApprovedImplementation(proposal, root),
+    }))
+    .sort((a, b) => {
+      const priority =
+        approvedProposalQueuePriority(b.proposal, b.implementation) -
+        approvedProposalQueuePriority(a.proposal, a.implementation);
+      if (priority !== 0) return priority;
+      return String(a.proposal.created_at || '').localeCompare(String(b.proposal.created_at || ''));
+    })
+    .map(row => row.proposal);
   const requests = store.listChangeRequests({ limit: 1000 });
   const requestsById = new Map(requests.map(request => [String(request.request_id), request]));
   const requestsByProposal = new Map();
@@ -4237,6 +4322,7 @@ module.exports = {
   normalizeDirectChangeRequest,
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
+  approvedProposalQueuePriority,
   drainApprovedProposalQueue,
   approvedWorkQueueBudgets,
   failureDiagnosisLineageKey,
