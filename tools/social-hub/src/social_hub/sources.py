@@ -411,11 +411,6 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
     for item in found:
         source_type = item.get("source_type", "article")
         image_ref = item.get("image_url")
-        if image_ref:
-            from social_hub import media
-
-            if not media.local_image_exists(str(image_ref), domain):
-                image_warnings.append(f"{item['source_id']}: image is missing: {image_ref}")
         existing = db.one(
             "SELECT id, image_url FROM sources "
             "WHERE site = ? AND source_type = ? AND source_id = ?",
@@ -428,6 +423,11 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
             if not existing["image_url"] and item.get("image_url"):
                 db.update("sources", existing["id"], {"image_url": item["image_url"]})
             continue
+        if image_ref:
+            from social_hub import media
+
+            if not media.local_image_exists(str(image_ref), domain):
+                image_warnings.append(f"{item['source_id']}: image is missing: {image_ref}")
         state = "new" if _is_fresh(item.get("published_at", ""), max_age) else "skipped"
         db.insert(
             "sources",

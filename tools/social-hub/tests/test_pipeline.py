@@ -83,6 +83,23 @@ def test_media_validation_catches_a_broken_local_template(fake_fleet):
     assert issues and "image is missing" in issues[0]
 
 
+def test_ingest_reports_broken_local_image_references(fake_fleet):
+    cfg = load_site_config("alpha.com")
+    cfg.data["sources"] = {
+        "collections": [{
+            "name": "article",
+            "glob": "site/src/content/articles/*.md",
+            "image_template": "/missing/{slug}.png",
+        }]
+    }
+
+    result = sources.ingest("alpha.com", cfg, limit=1)
+
+    assert result["image_warnings"] == 1
+    event = db.one("SELECT kind FROM events WHERE kind = 'media.source_image_missing'")
+    assert event and event["kind"] == "media.source_image_missing"
+
+
 def test_actual_sinderella_horoscope_config_has_real_sign_cards(fake_fleet, monkeypatch):
     from pathlib import Path
 

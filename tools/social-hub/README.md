@@ -221,7 +221,8 @@ checked-in fallback before generation. Missing-image generation is cached by
 site/source/prompt fingerprint, bounded by `media.timeout` (maximum 300 seconds),
 and protected by a shared circuit breaker (`failure_threshold` failures followed
 by `cooldown_seconds`). `social-hub doctor` validates local media and generator
-health. Nightly `social-hub maintain` automatically reschedules parked
+health. Ingestion records missing local image references as
+`media.source_image_missing` events. Nightly `social-hub maintain` automatically reschedules parked
 image-required posts once a fallback or generator becomes available.
 
 ## Engagement

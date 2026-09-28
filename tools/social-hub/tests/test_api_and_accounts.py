@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
+import asyncio
 
 import pytest
-from fastapi.testclient import TestClient
+import httpx
 
 from social_hub import accounts, db, generator, queue, sources
 from social_hub.api import app
@@ -14,7 +15,25 @@ from social_hub.config import load_site_config
 
 @pytest.fixture
 def client(synced):
-    return TestClient(app)
+    class SyncASGIClient:
+        def request(self, method, url, **kwargs):
+            async def send():
+                transport = httpx.ASGITransport(app=app)
+                async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+                    return await client.request(method, url, **kwargs)
+
+            return asyncio.run(send())
+
+        def get(self, url, **kwargs):
+            return self.request("GET", url, **kwargs)
+
+        def post(self, url, **kwargs):
+            return self.request("POST", url, **kwargs)
+
+        def patch(self, url, **kwargs):
+            return self.request("PATCH", url, **kwargs)
+
+    return SyncASGIClient()
 
 
 # --------------------------------------------------------------------------
@@ -152,35 +171,35 @@ def test_missing_post_is_404(client):
     assert client.get("/api/posts/9999").status_code == 404
 
 
-def test_token_guard_blocks_unauthenticated_calls(synced, monkeypatch):
+def test_token_guard_blocks_unauthenticated_calls(client, monkeypatch):
     monkeypatch.setenv("SOCIAL_HUB_TOKEN", "s3cret")
-    guarded = TestClient(app)
+    guarded = client
     assert guarded.get("/api/health").status_code == 401
     assert guarded.get("/api/health", headers={"Authorization": "Bearer s3cret"}).status_code == 200
 
 
-def test_token_is_rejected_in_the_query_string(synced, monkeypatch):
+def test_token_is_rejected_in_the_query_string(client, monkeypatch):
     """A credential in a URL leaks via access logs, proxy logs and Referer.
 
     The header is the only accepted channel; a correct token in ?token= must
     still be a 401, or the leaky path is quietly back.
     """
     monkeypatch.setenv("SOCIAL_HUB_TOKEN", "s3cret")
-    guarded = TestClient(app)
+    guarded = client
     assert guarded.get("/api/health?token=s3cret").status_code == 401
 
 
-def test_wrong_token_is_rejected(synced, monkeypatch):
+def test_wrong_token_is_rejected(client, monkeypatch):
     monkeypatch.setenv("SOCIAL_HUB_TOKEN", "s3cret")
-    guarded = TestClient(app)
+    guarded = client
     assert guarded.get("/api/health", headers={"Authorization": "Bearer wrong"}).status_code == 401
     # A prefix of the real token must not pass either.
     assert guarded.get("/api/health", headers={"Authorization": "Bearer s3c"}).status_code == 401
 
 
-def test_responses_carry_no_referrer_policy(synced, monkeypatch):
+def test_responses_carry_no_referrer_policy(client, monkeypatch):
     monkeypatch.setenv("SOCIAL_HUB_TOKEN", "s3cret")
-    guarded = TestClient(app)
+    guarded = client
     r = guarded.get("/api/health", headers={"Authorization": "Bearer s3cret"})
     assert r.headers.get("Referrer-Policy") == "no-referrer"
 

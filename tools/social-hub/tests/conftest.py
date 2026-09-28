@@ -65,6 +65,30 @@ def fake_fleet(tmp_path, monkeypatch):
     db.reset_connections()
 
 
+@pytest.fixture(autouse=True)
+def inline_sync_asgi_endpoints(monkeypatch):
+    """Keep API tests deterministic in the restricted runner.
+
+    This sandbox blocks AnyIO's worker-thread bridge, which makes Starlette's
+    normal sync-endpoint adapter hang. Production still uses the real bridge;
+    these tests exercise request/response behavior, not thread scheduling.
+    """
+    async def inline(func, *args, **kwargs):
+        return func(*args, **kwargs)
+
+    import fastapi.routing
+    import anyio.to_thread
+    import starlette.routing
+
+    monkeypatch.setattr(fastapi.routing, "run_in_threadpool", inline)
+    async def run_endpoint_function(*, dependant, values, is_coroutine):
+        return await dependant.call(**values) if is_coroutine else dependant.call(**values)
+
+    monkeypatch.setattr(fastapi.routing, "run_endpoint_function", run_endpoint_function)
+    monkeypatch.setattr(starlette.routing, "run_in_threadpool", inline)
+    monkeypatch.setattr(anyio.to_thread, "run_sync", inline)
+
+
 def make_site(root: Path, domain: str, *, articles: int = 1, config_yaml: str | None = None) -> Path:
     site = root / "sites" / domain
     content = site / "site" / "src" / "content" / "articles"
