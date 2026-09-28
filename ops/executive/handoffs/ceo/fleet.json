@@ -2,63 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:39:58.508Z",
-  "summary": "ceo checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-28T01:17:16.666Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new affiliate or monetization dispatch is safe this cycle. Existing evidence shows incomplete attribution, 31 deployed improvements awaiting measurement, 47 failure follow-ups, unavailable operations/security sweeps, and zero queue-eligible candidates. Preserve aggregate commission as unattributed and continue existing repair, validation, measurement, attribution, legal, and security work. Do not infer ROI, margin, payback, or site revenue from unattributed totals.",
+        "summary": "Recommendation: preserve containment-only execution and reject new dispatch this cycle. Evidence: authoritative snapshot reports zero queue-eligible candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, and only 2 proven outcomes. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, causal lift, and budget capacity remain unknown. Smallest next step: delivery-lead drains existing repair, validation, measurement, attribution, legal, and security work before reconsidering deferred candidates. Owner decision: keep the prepared SearchWoot/Woot permission request unsent, or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and defer all new dispatch. Evidence: zero queue-eligible candidates, 47 failure follow-ups, 31 deployed improvements awaiting measurement, and only 2 proven outcomes. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, payback, causal lift, and budget capacity remain unknown. Preserve the CRO SEO, affiliate, CTA, and content-normalization ideas as deferred backlog; do not deploy, requeue, add telemetry, spend, or install dependencies. Smallest next step: drain existing repair, measurement, attribution, legal, and security work. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue existing repair-or-close, validation, rollback, deduplication, measurement, and attribution work only. Do not create or requeue production requests while queue eligibility is false.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve private launch gates and continue the existing read-only evidence matrix. No public exposure, security-sensitive release, credential access, permission change, dependency addition, deployment, or outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue period-aligned reconciliation only. Preserve the $4.92 aggregate commission as unattributed and do not infer site revenue, margin, ROI, payback, or cost-to-learn.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: keep SearchWoot private and external permission outreach unsent. Continue the four open evidence tasks and route the consolidated rights matrix for human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair-or-close, validation, rollback, deduplication, measurement, and attribution work only. Do not create or requeue production requests while queue eligibility is false.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve private launch gates and continue the existing read-only evidence matrix. No public exposure, security-sensitive release, credential access, permission change, dependency addition, deployment, or outreach is authorized.",
+        "summary": "Handoff: retain the proposed SEO, affiliate, CTA, site-factory, and control-plane items as deferred backlog only. Do not queue, requeue, deploy, add telemetry, spend, or change launch gates until existing failure-repair, measurement, attribution, release, legal, and security gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

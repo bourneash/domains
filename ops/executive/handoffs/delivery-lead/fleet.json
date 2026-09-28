@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:22:15.841Z",
+  "generated_at": "2026-09-28T01:17:16.665Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain CRO, SEO, UX, site-factory, and repository opportunities as deferred backlog. Do not create, duplicate, requeue, deploy, add telemetry, spend, or expand monetization until existing failure, validation, attribution, measurement, and release gates clear.",
+        "summary": "No new site dispatch is authorized this cycle. Continue existing repair, validation, rollback, measurement, attribution, legal, and security work only.",
         "requested_action": null,
         "proposal_id": null
       }

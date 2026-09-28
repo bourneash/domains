@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:39:58.509Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T01:17:16.668Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, production, requeue, telemetry, spending, dependency, deployment, and monetization claims. Continue only existing repair, validation, measurement, attribution, legal, and security work. Owner concern: financial attribution and security evidence remain incomplete; external outreach stays unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject all new production requests and duplicate proposals: queue eligibility is false, failure-repair and measurement work remains open, attribution is incomplete, and security/operations evidence is unavailable. Preserve aggregate commission as unattributed, keep launch gates unchanged, and continue only existing repair, reconciliation, legal, security, and measurement work. Owner concern: keep external permission outreach unsent pending human-counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed parked-site change requests are deferred, not queueable. They are production work while the authoritative candidate list is empty and existing failure, validation, release, and measurement gates remain incomplete. Retain the bounded readiness ideas as backlog only.",
         "requested_action": null,
         "proposal_id": null
       }

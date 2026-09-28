@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-27T14:33:51.872Z",
+  "generated_at": "2026-09-28T01:17:16.665Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution this cycle. Do not create proposals, work items, change requests, experiments, telemetry, deployments, spend, or requeues. Evidence shows 47 failure follow-ups open, 28 deployed improvements awaiting measurement, 187 approved proposals without execution, 34% proposal execution rate, unavailable fleet-doctor and operations sweeps, and partial revenue attribution. Retain future opportunities as deferred backlog: deduplicated failure repair-or-close workflow, approval-to-execution reconciliation, measurement-readiness gates, unified operator queue health, and evidence-gated autonomous routing. Prioritize these later by operator time saved, reliability, reversibility, adoption, and measurable outcome. Continue existing repair, validation, rollback, attribution reconciliation, and bounded legal/security evidence work. Keep private launch gates unchanged and do not invent telemetry. created_by=product-manager-fleet",
+        "summary": "Maintain containment-only execution. Preserve the site-factory pipeline as deferred backlog; do not create or requeue production work while queue eligibility, failure repair, measurement, attribution, legal, security, and release gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }

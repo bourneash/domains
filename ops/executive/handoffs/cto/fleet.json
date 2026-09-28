@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:39:58.509Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T01:17:16.666Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production dispatch, requeues, dependencies, telemetry, deployments, spend, experiments, and monetization changes this cycle. Continue existing repair-or-close, validation, rollback, deduplication, measurement, attribution, legal, and security work. Preserve the proposed control-plane, SEO, affiliate, UX, and content capabilities as deferred backlog only. Queue admission may resume only after ownership, isolated deterministic validation, rollback, release, deduplication, and an existing measurement boundary are evidenced. Preserve all unknown telemetry and do not claim revenue, ROI, margin, payback, or causal lift.",
+        "summary": "CTO disposition: maintain containment-only execution. Do not create or requeue production work this cycle. The authoritative snapshot reports zero actionability candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, incomplete attribution, unavailable operations/security sweeps, and only 2 proven outcomes. Retain the proposed SEO, affiliate, CTA, control-plane, and site-factory work as deferred backlog. Continue existing failure repair, validation, rollback, deduplication, attribution, legal, security, and measurement work using recorded evidence only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the three proposed site-factory change requests for this cycle. Their scopes are technically reversible, but queue admission is unsupported while the authoritative candidate list is empty and existing failure, measurement, ownership, release, security, and attribution gates remain incomplete. Preserve them as backlog only; do not preview, deploy, add telemetry, change credentials, or alter domains.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security and financial reconciliation work only. Preserve private launch gates and parked dispositions. Treat aggregate commission as unattributed and retain revenue, margin, ROI, payback, budget capacity, causal lift, and cost-to-learn as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:39:58.508Z",
+  "generated_at": "2026-09-28T01:17:16.665Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new site dispatch this cycle. Continue existing repair, validation, measurement, attribution, legal, and security work. Retain the lifecycle, failure-guard, and measurement-readiness capabilities as deferred backlog.",
+        "summary": "Strongest site-factory candidate: complicated.work. Exactly one next step: complete the existing bounded read-only readiness assessment and decide whether to retain the parked disposition or prepare the compliance-shell correction; do not queue, deploy, add telemetry, spend, or change domains or credentials until owner, legal, security, measurement, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

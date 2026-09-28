@@ -2,23 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T00:39:58.508Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T01:17:16.666Z",
+  "summary": "cfo checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "When admission resumes, prioritize existing affiliate repairs with explicit tracking-ID validation, link health checks, disclosure review, baseline metric, acceptance test, and rollback. Current revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row is not site-attributable. Preserve all unknown revenue and attribution gaps.",
+        "summary": "Recommendation: maintain financial containment and reject all new dispatches, spend, forecasts, commitments, monetization expansion, and unsupported revenue claims. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is not site-attributable; reported site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, with 225 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget limits are blank, and no learning-outcome threshold exists. The pilot's 70 treatment outputs versus 44 controls is operational activity, not financial or causal evidence; treatment also had 58 requests versus 40 and a longer 12.21-hour cycle versus 9.39. Continue only the existing period-aligned reconciliation, repair, measurement, attribution, legal, and security work. Minimum measurement before reconsidering growth: attributable revenue by site/content/tracking ID for the same cost period; complete AI, infrastructure, domain, labor, marketing, and experiment cost ledger; approved budget ceilings; and a defined learning outcome with maximum cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend approving no new spend, forecasts, commitments, monetization expansion, telemetry, deployments, dependencies, or requeues this cycle. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row is not site-attributable; site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, approximately $0.182 per call as usage reporting only, not unit economics. Infrastructure, domain, labor, marketing, and experiment costs are absent or incomplete; monthly budget limits are blank, so budget exposure is unbounded/unknown. Cost-to-learn is not calculable because no defined learning outcome, measurement window, or maximum learning cost exists. Treat clicks, impressions, sessions, rankings, conversions, orders, shipped items, AI calls, and pilot output as non-financial activity metrics. Continue only the existing period-aligned attribution and cost reconciliation work; preserve explicit unknowns and reject unsupported revenue claims.",
+        "summary": "Retain the four candidate proposals as deferred hypotheses only. Do not queue or requeue the three proposed site changes. Traffic, clicks, sessions, conversions, orders, shipped items, AI usage, SEO impressions, and output counts do not establish contribution margin, ROI, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-saveusfarms-ctr-20260928",
+        "summary": "Decline dispatch this cycle. The observed impressions and position support a deferred CTR hypothesis, not revenue or margin evidence. Reconsider only after queue, failure-repair, attribution, and measurement gates clear.",
+        "requested_action": "declined",
+        "proposal_id": "cro-saveusfarms-ctr-20260928"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-allthingsmasonic-affiliate-intent-20260928",
+        "summary": "Decline dispatch this cycle. Affiliate clicks and analytics conversions do not establish attributable commission or contribution margin.",
+        "requested_action": "declined",
+        "proposal_id": "cro-allthingsmasonic-affiliate-intent-20260928"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-cta-accessibility-pattern-20260928",
+        "summary": "Decline new implementation this cycle. Existing measurement windows and failure follow-ups remain open.",
+        "requested_action": "declined",
+        "proposal_id": "cro-cta-accessibility-pattern-20260928"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-measurement-dedup-control-plane-20260928",
+        "summary": "Decline implementation this cycle. Retain as deferred backlog pending containment work and a defensible baseline.",
+        "requested_action": "declined",
+        "proposal_id": "cro-measurement-dedup-control-plane-20260928"
       }
     ]
   }
