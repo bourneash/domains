@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:54:44.994Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:04:42.434Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 6 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: preserve containment on production, spend, credentials, launches, and external outreach, while routing one bounded report-only implementation for elevatorfriends.com. Evidence: 192 approved proposals lack execution, 39 deployed improvements await measurement, and only 2 outcomes are proven; elevatorfriends.com is queue-ready but analytics is not configured, so audience, revenue, attribution, compliance, and margin are unknown. The smallest next step is a dated readiness assessment with one disposition and no production change. Owner decision: keep the SearchWoot/Woot permission request unsent pending human-counsel review, or authorize it after that review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: execute the bounded elevatorfriends.com readiness artifact through the existing review queue. Do not duplicate the already reported drivegm.net or dumbsluts.com assessments. Preserve all unknowns and do not change production, telemetry, credentials, domains, or launch state.",
         "requested_action": null,
         "proposal_id": null
       }
