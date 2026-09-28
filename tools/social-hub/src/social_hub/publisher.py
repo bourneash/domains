@@ -176,6 +176,28 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
         if generated:
             images.append(generated)
 
+    # A site may provide a checked-in fallback for content types that do not
+    # have per-item artwork (for example daily briefings). This is deliberately
+    # after generation so real covers and fresh generated art always win, and
+    # it keeps a temporary media-gen outage from turning an otherwise valid
+    # image-required post into a hard failure.
+    if (
+        not images and post["kind"] != "reply"
+        and not options.get("content_label")
+        and capabilities(post["platform"]).media
+    ):
+        fallback_ref = (settings := (cfg.get("media") or {})).get("default_image")
+        if fallback_ref:
+            data = media.load_image(str(fallback_ref), post["site"])
+            if data:
+                images.append(
+                    Image(
+                        data=data,
+                        alt=str(settings.get("default_image_alt") or ""),
+                        url=str(fallback_ref),
+                    )
+                )
+
     required_sites = set(cfg.get("media.require_image_sites", []) or [])
     require_image = bool(cfg.get("media.require_image")) or cfg.site in required_sites
     if (

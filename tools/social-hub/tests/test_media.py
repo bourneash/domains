@@ -96,6 +96,29 @@ def test_required_image_contract_fails_closed_when_generation_fails(synced, monk
         publisher.build_outgoing(post, cfg)
 
 
+def test_required_image_uses_checked_in_fallback_when_generation_is_unavailable(
+    synced, monkeypatch
+):
+    cfg = load_site_config("alpha.com")
+    cfg.data["media"] = {
+        "require_image_sites": ["alpha.com"],
+        "default_image": "/social-default.jpg",
+        "default_image_alt": "Editorial illustration",
+    }
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+    post_id = queue.list_posts(site="alpha.com", status="draft")[0]["id"]
+    post = queue.get(post_id)
+
+    monkeypatch.setattr(media, "load_image", lambda ref, site: b"fallback" if ref == "/social-default.jpg" else None)
+    monkeypatch.setattr(publisher, "_generate_missing_image", lambda *_args: None)
+
+    outgoing = publisher.build_outgoing(post, cfg)
+
+    assert outgoing.images[0].data == b"fallback"
+    assert outgoing.images[0].alt == "Editorial illustration"
+
+
 def test_missing_image_uses_media_gen_client(monkeypatch):
     calls = {}
 
