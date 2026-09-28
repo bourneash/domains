@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:52:19.602Z",
+  "generated_at": "2026-09-28T17:22:41.865Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment for production, launches, requeues, spend, telemetry, and monetization, while routing one reversible ownership repair for EXEC_CONV_7. Evidence: 36 improvements await measurement, 10 requests failed, 4 failure follow-ups remain open, only 3 outcomes are proven, and Amazon reports $4.92 aggregate unattributed commission for 2026-09-21. Margin, ROI, and causal lift are unknown. The smallest next step is engineer validation of the existing eastcoastrappers.com task reassignment; keep Woot permission outreach unsent pending human-counsel review. Owner decision: authorize Woot outreach after counsel review, or keep it unsent.",
+        "summary": "Recommendation: route one bounded eastcoastrappers.com engineering repair this cycle. Evidence: the scorecard identifies an unblocked task-routing candidate scored 96, while 36 improvements await measurement and 12 requests have failed. The change is reversible and adds no spend, telemetry, dependencies, credentials, or deployment scope. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin and causal lift are unknown. Smallest next step: engineer validates the existing task and reports within 72 hours. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing delivery containment and attach dated ownership, root-cause, validation, rollback, security, attribution, and measurement evidence by 2026-09-28T17:00Z. Do not dispatch or requeue production work before that gate.",
+        "summary": "Handoff: execute the scoped eastcoastrappers.com task-routing repair through the normal engineer queue. Preserve existing containment for launches, spend, credentials, telemetry, dependencies, and external outreach. Validate ownership, root cause, deterministic tests, rollback, and measurement evidence before any follow-on work.",
         "requested_action": null,
         "proposal_id": null
       }

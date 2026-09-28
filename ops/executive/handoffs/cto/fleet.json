@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:52:19.602Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:22:41.866Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution for the managed websites portfolio this cycle. Continue existing measurement, repair-or-close, parked-site verification, security evidence, and attribution reconciliation. Do not create or requeue production work, add telemetry, deploy, spend, change monetization, or claim unsupported financial or causal outcomes.",
+        "summary": "Maintain containment-only execution this cycle. Continue existing measurement, repair-or-close, security evidence, accessibility/performance validation, parked-site verification, and attribution reconciliation. Do not dispatch or requeue the eastcoastrappers.com routing repair: the task-routing attempt has retained failure evidence, including a prior metadata-only delivery rejection, and ownership, root cause, isolated validation, rollback, deduplication, security, and measurement gates are not independently evidenced. Defer new site changes, experiments, telemetry, dependencies, deployments, spend, monetization expansion, and unsupported financial or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve exactly one bounded ownership-metadata repair for the existing eastcoastrappers.com task. It is technically feasible, isolated from site code and production behavior, immediately verifiable, and reversible. Do not broaden it into site implementation, telemetry, deployment, credentials, dependencies, or external behavior.",
+        "summary": "Retain the eastcoastrappers.com routing opportunity as deferred backlog only. Inspect the existing failure artifact and document repair-or-close disposition through the current containment work item; do not create a duplicate request or retry unchanged work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve all other design, UX, affiliate, site-factory, CRO, launch, and monetization scopes as deferred or existing-work continuations. Reconsider queue entry only after ownership, root cause, isolated validation, release, security, attribution, deduplication, measurement, and rollback evidence clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing finance reconciliation boundary. Preserve provider aggregate earnings as unattributed and keep missing matching-period revenue, cost, commitment, budget, and learning-threshold fields unknown. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; missing matching-period costs, budgets, commitments, and learning thresholds remain unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:52:19.602Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:22:41.866Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only financial execution. Preserve the $4.92 Amazon commission reported for 2026-09-21 as aggregate and unattributed; do not claim site revenue, contribution margin, ROI, payback, budget capacity, forecast, or causal lift. AI usage cost is $916.9145 for 2026-09-01 through 2026-09-28 across 5,009 calls, but matching revenue, infrastructure, labor, domain, marketing, commitments, and budget data are unavailable, so AI payback and portfolio margin are not calculable. The 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial outcomes. Continue only the existing period-aligned reconciliation and measurement containment; do not spend, requeue, deploy, add telemetry, or change monetization.",
+        "summary": "CFO recommendation: maintain containment-only execution and do not authorize additional production, spend, monetization, experiments, or requeues this cycle. The existing eastcoastrappers.com routing repair may remain bounded only if its ownership, validation, rollback, security, attribution, and measurement gates are independently evidenced; it has no supplied financial baseline and should not be treated as value-generating. Continue only the existing period-aligned finance reconciliation work item 67ebb985-a7b8-47f4-9792-b4d727275c4a.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing finance work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile all 18 named provider tracking rows and the aggregate provider row against matching-period revenue and costs. Record ordered items, shipped items, commission, AI cost, infrastructure cost, other operating costs, commitments, budget ceilings, and the approved learning threshold. Missing values remain unknown, not zero. Minimum finance artifact: a dated reconciliation showing the $4.92 aggregate commission, 6 shipped items, 28 ordered items, 6,219 clicks, zero attributed income, and explicit period mismatches or missing cost fields.",
+        "summary": "Financial evidence as of 2026-09-28: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is in an aggregate provider row and cannot be assigned to a site; named site rows show $0 attributed income. Therefore site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage from 2026-09-01 through 2026-09-28 totals $922.38102435 across 5,048 calls; this is not period-matched to the revenue record, so AI payback and cost-to-revenue are unknown. Infrastructure, labor, domain, marketing, commitments, budget ceilings, and approved cost-to-learn thresholds are absent; missing values must remain unknown, not zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject vanity-metric or forecast claims. The SEO aggregate of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions is operating evidence only, not revenue or margin evidence. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement; it does not support a portfolio forecast. Minimum finance measurement is a dated reconciliation of all 18 named tracking rows plus the aggregate row against matching-period revenue, AI cost, infrastructure cost, other operating costs, commitments, budget ceilings, and an explicit cost-to-learn threshold.",
         "requested_action": null,
         "proposal_id": null
       }
