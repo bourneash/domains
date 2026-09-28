@@ -111,3 +111,14 @@ def test_stop_chrome_tolerates_process_that_ignores_forced_shutdown(monkeypatch)
     monkeypatch.setattr(vitals.os, "killpg", lambda pid, sig: signals.append((pid, sig)))
     vitals.stop_chrome(StubbornProcess())
     assert signals == [(1234, signal.SIGTERM), (1234, signal.SIGKILL)]
+
+
+def test_tbt_noise_does_not_flag_good_mobile_run_as_regression():
+    assert vitals.regressions(
+        {"tbt_ms": 165},
+        {"tbt_ms": 0},
+    ) == []
+    assert vitals.regressions(
+        {"tbt_ms": 300},
+        {"tbt_ms": 0},
+    ) == ["tbt_ms"]

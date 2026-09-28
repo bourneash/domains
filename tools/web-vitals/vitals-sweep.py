@@ -78,7 +78,13 @@ BUDGETS = {
 
 # How far a metric may move before it counts as a regression rather than noise.
 # Lighthouse is not deterministic; without a band, every run reports movement.
-NOISE = {"performance": 0.05, "accessibility": 0.03, "lcp_ms": 500, "cls": 0.03, "tbt_ms": 150}
+# Lighthouse's mobile TBT is quantized on this fleet: clean runs commonly
+# alternate between 0ms and roughly 160-180ms.  A 150ms band therefore turns a
+# sub-budget sample such as 165ms into a false regression.  Keep the band wide
+# enough to absorb that instrument noise; a value above 250ms is still an
+# actionable movement from a zero baseline and is also close to the 200ms
+# budget.
+NOISE = {"performance": 0.05, "accessibility": 0.03, "lcp_ms": 500, "cls": 0.03, "tbt_ms": 250}
 
 
 def log(msg: str) -> None:
