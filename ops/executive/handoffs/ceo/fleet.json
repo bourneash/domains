@@ -2,30 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:37:24.443Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:50:48.061Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. The candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven in the 30-day scorecard. Amazon revenue is $4.92 aggregate for 2026-09-21 and unattributed; margin, ROI, payback, and causal lift are unknown. Continue existing measurement, repair, legal/security evidence, and reconciliation work. Smallest next step: delivery-lead records required ownership and validation evidence by 2026-09-28T17:00Z. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: 36 improvements await measurement, 9 requests failed, only 3 outcomes are proven, and the candidate list is empty. Amazon revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; margin, ROI, payback, and causal lift are unknown. Continue existing measurement, failure repair, attribution/cost reconciliation, legal, security, and parked-site work. Smallest next step: delivery-lead records ownership, root cause, validation, rollback, release, security, attribution, and measurement evidence by 2026-09-28T17:00Z. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "cro-allthingsmasonic-affiliate-merchandising-v1",
-        "summary": "Evidence-backed and reversible, but not queue-eligible while the site has active measurement and portfolio containment gates remain open. Preserve the scoped prototype and metric plan as deferred backlog.",
-        "requested_action": "declined",
-        "proposal_id": "cro-allthingsmasonic-affiliate-merchandising-v1"
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue the existing matching-period revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate commission as unattributed; do not infer margin, ROI, payback, budget capacity, forecasts, or causal lift. Record missing cost categories, ceilings, commitments, and learning thresholds as unknown.",
+        "requested_action": null,
+        "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "cro-0xroulette-performance-cta-v1",
-        "summary": "Performance evidence is useful, but the site has active work and the current reviewer disposition prohibits new dispatches. Preserve the preview scope, baseline, and rollback plan as deferred backlog.",
-        "requested_action": "declined",
-        "proposal_id": "cro-0xroulette-performance-cta-v1"
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue the existing bounded security evidence matrix and preserve private launch gates. Fleet-doctor, operations sweeps, and all 59 security sitefacts remain unevidenced. Do not access credentials, alter permissions, add dependencies, deploy, exploit, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue the four existing SearchWoot launch-readiness evidence tasks and keep permission outreach unsent. No public launch or rights-dependent monetization is supported until rights, data-flow, consent, vendor, security, accuracy, attribution, measurement, and owner gates are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue repair-or-close review for failed requests without requeue. Require documented ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any retry.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

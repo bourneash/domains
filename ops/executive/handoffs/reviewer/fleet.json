@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:37:24.444Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:50:48.062Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject both proposed change requests. Existing measurement, failure-repair, ownership, release, security, attribution, and rollback gates remain incomplete; no new production work, dispatch, requeue, deployment, telemetry, spend, or monetization change is justified. Continue only existing containment, evidence, measurement, repair-or-close, and reconciliation work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve aggregate commission as unattributed. Matching-period costs, budget ceilings, and learning thresholds are incomplete, so revenue, margin, ROI, payback, forecasts, and causal lift remain unsupported. Keep private launch gates unchanged and keep external permission outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the bounded site scopes as deferred backlog only. Reconsider production work after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded.",
+        "summary": "Reject the duplicate security proposal and all new production, queue, requeue, telemetry, spending, monetization, and unsupported financial claims. Continue existing security, legal, repair-or-close, measurement, and attribution/cost reconciliation work only. Preserve the $4.92 aggregate commission as unattributed; margin, ROI, payback, forecasts, and causal lift remain unknown. No bounded research request is added because the identified evidence gaps are already covered by existing telemetry or active work.",
         "requested_action": null,
         "proposal_id": null
       }

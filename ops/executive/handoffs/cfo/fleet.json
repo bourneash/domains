@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:37:24.444Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:50:48.061Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and retain only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is under aggregate tracking_id 'other' and cannot be assigned to a site. AI usage records $901.8975 for 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors, so it is not comparable to the one-day revenue period. Contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are not calculable because matching-period site-attributed revenue, infrastructure, domain, labor, marketing, experiment costs, budget ceilings, commitments, and learning thresholds are missing. Sessions, impressions, clicks, ordered items, and conversions remain operating indicators, not financial outcomes. Do not create work, spend, deploy, requeue, change monetization, or make revenue or causal-lift claims. Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Minimum evidence required: provider earnings and site/content identifiers for the same period; complete cost ledger by site and period; approved budget limits and commitments; and an explicit cost-to-learn threshold tied to a measurable outcome.",
+        "summary": "Recommendation: retain only the existing period-aligned revenue, attribution, and cost reconciliation; reject new spend, deployments, monetization changes, experiments, telemetry, forecasts, and unsupported financial claims. Amazon reports $4.92 aggregate commission for 2026-09-21 from 28 ordered items and 6 shipped items, but it is not site-attributable. AI usage records $901.897533 from 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors. Contribution margin, ROI, payback, cost-to-learn, and budget exposure are not calculable because revenue covers one day while AI spend covers 28 days, and matching infrastructure, domain, labor, marketing, experiment costs, budget ceilings, commitments, and a learning threshold are absent. Clicks, impressions, sessions, conversions, proposal counts, approved work, and SEO outcomes are not financial results. Minimum measurement: matching-period site/content revenue identifiers, a complete cost ledger, budget ceilings and commitments, and an explicit cost-to-learn threshold.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing finance reconciliation work only. Reconcile the 2026-09-21 Amazon earnings against matching-period site-attributed revenue and recorded AI, infrastructure, domain, labor, marketing, and experiment costs. Preserve the $4.92 aggregate commission as unattributed. Record missing cost categories, budget ceilings, commitments, and cost-to-learn thresholds as unknown; do not treat missing data as zero or infer margin, ROI, payback, budget capacity, forecasts, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject vanity-metric-based financial conclusions. The 30-day scorecard has 3 proven outcomes, 36 improvements awaiting measurement, 9 failed requests, and metric deltas of 14 sessions, 38 clicks, 805 impressions, and zero commission-income delta. These figures do not establish contribution, profitability, or causal lift. Retain existing measurement and repair work without adding telemetry or spend.",
+        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Reconcile matching-period revenue identifiers against recorded AI, infrastructure, domain, labor, marketing, and experiment costs; document missing budget ceilings, commitments, and cost-to-learn threshold. Do not infer margin, ROI, payback, budget capacity, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
