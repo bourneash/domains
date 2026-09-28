@@ -207,6 +207,33 @@ function evaluate(baseline, current) {
   const c = current?.control || emptyGroup();
   const baselineTreatment = baseline?.treatment || emptyGroup();
   const baselineControl = baseline?.control || emptyGroup();
+  const observedFrom = Date.parse(current?.from || '');
+  const observedTo = Date.parse(current?.to || '');
+  const observationDays =
+    Number.isFinite(observedFrom) && Number.isFinite(observedTo) && observedTo >= observedFrom
+      ? (observedTo - observedFrom) / 86400000
+      : null;
+  const minimumObservationDays = 7;
+  if (observationDays !== null && observationDays < minimumObservationDays) {
+    return {
+      schema: 'executive-productivity-evaluation/v1',
+      status: 'inconclusive',
+      passed: null,
+      observation_days: Number(observationDays.toFixed(2)),
+      minimum_observation_days: minimumObservationDays,
+      treatment_delta: null,
+      control_delta: null,
+      completion_rate: null,
+      reasons: [
+        `measurement window is incomplete: ${Number(observationDays.toFixed(2))} of ${minimumObservationDays} minimum days observed`,
+      ],
+      guardrails: {
+        no_unsafe_authority_change: true,
+        legal_security_review_required: true,
+        measurement_required: true,
+      },
+    };
+  }
   const reasons = [];
   const treatmentDelta = t.shipped_output - baselineTreatment.shipped_output;
   const controlDelta = c.shipped_output - baselineControl.shipped_output;
@@ -219,7 +246,10 @@ function evaluate(baseline, current) {
     reasons.push('treatment failures increased beyond tolerance');
   return {
     schema: 'executive-productivity-evaluation/v1',
+    status: reasons.length === 0 ? 'passed' : 'needs-adjustment',
     passed: reasons.length === 0,
+    observation_days: observationDays === null ? null : Number(observationDays.toFixed(2)),
+    minimum_observation_days: minimumObservationDays,
     treatment_delta: treatmentDelta,
     control_delta: controlDelta,
     completion_rate: Number(completionRate.toFixed(3)),

@@ -79,6 +79,22 @@ test('pilot evaluation requires measurable treatment lift and guardrails', () =>
   assert.ok(failing.reasons.length >= 2);
 });
 
+test('pilot evaluation stays inconclusive before the minimum observation window', () => {
+  const result = productivity.evaluate(
+    { treatment: { shipped_output: 10 }, control: { shipped_output: 6 } },
+    {
+      from: '2026-09-27T00:00:00.000Z',
+      to: '2026-09-28T00:00:00.000Z',
+      treatment: { shipped_output: 2, output_per_site: 0.67, requests_created: 10, requests_completed: 2 },
+      control: { shipped_output: 0, output_per_site: 0 },
+    }
+  );
+  assert.equal(result.status, 'inconclusive');
+  assert.equal(result.passed, null);
+  assert.equal(result.observation_days, 1);
+  assert.match(result.reasons[0], /measurement window is incomplete/);
+});
+
 test('treatment batch creates one idempotent design and growth action per treatment site', () => {
   const batch = productivity.treatmentBatch({
     pilot_id: 'pilot-123',

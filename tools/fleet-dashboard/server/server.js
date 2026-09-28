@@ -629,7 +629,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         `no installed owner for category=${claimed.category} on ${claimed.site}; ` +
         `requested role=${claimed.assigned_role || 'unassigned'}`;
       const blocked = events.updateChangeRequest(claimed.request_id, {
-        status: 'failed',
+        status: 'blocked_owner',
         error: reason,
         next_attempt_at: null,
         lease_owner: null,
@@ -1371,6 +1371,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         reviewerMarker !== 'PASS';
       if (!agentFailed && !reviewExhausted) continue;
       try {
+        const terminalStatus = reviewExhausted ? 'needs_human_review' : 'failed';
         const failedRun = improvements.transition(events, run.run_id, {
           state: 'failed',
           outcome: {
@@ -1381,7 +1382,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               : 'automatic reviewer handoff exhausted its bounded repair attempts',
           },
         });
-        syncChangeRequestFromRun(failedRun, 'failed');
+        syncChangeRequestFromRun(failedRun, terminalStatus);
         changed += 1;
       } catch {
         /* keep the existing audit record if a concurrent worker advanced it */
@@ -3763,8 +3764,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         phase: 'evaluation',
         snapshot: current,
       });
+      const pilotStatus =
+        evaluation.passed === true
+          ? 'passed'
+          : evaluation.passed === false
+            ? 'needs-adjustment'
+            : 'active';
       const updated = events.updateProductivityPilot(pilot.pilot_id, {
-        status: evaluation.passed ? 'passed' : 'needs-adjustment',
+        status: pilotStatus,
         evaluation,
       });
       res.json({ pilot: updated, current, evaluation });
