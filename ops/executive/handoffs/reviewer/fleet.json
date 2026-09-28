@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:45:35.438Z",
+  "generated_at": "2026-09-28T20:47:41.101Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only plan retained. No new implementation requests are authorized: the reviewer and CEO have blocked queue work, requeues, production changes, telemetry, spend, dependencies, monetization, and outreach. Available candidates are blocked by active work or measurement windows, missing launch-readiness or execution-owner evidence, failure-repair gates, or security and attribution gaps. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site ownership verification, and failure repair-or-close work. Aggregate commission remains unattributed; revenue, margin, ROI, and causal lift remain unknown.",
+        "summary": "Independent review: reject all new production, queue, requeue, spending, telemetry, dependency, deployment, monetization, outreach, and unsupported financial or causal claims this cycle. Existing candidates are blocked by active work, measurement backlog, failed-request containment, missing launch/security/ownership evidence, or incomplete attribution and cost coverage. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site ownership verification, and repair-or-close work. Preserve aggregate commission as unattributed; missing costs, margin, ROI, forecasts, and lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
