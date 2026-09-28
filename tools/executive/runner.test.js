@@ -763,6 +763,35 @@ test('owner-request acknowledgements reserve message capacity after a full provi
   store.close();
 });
 
+test('linked full provider plans defer overflow owner acknowledgements without failing execution', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please acknowledge this direction after the linked handoffs.',
+  });
+  const linked = Array.from({ length: 20 }, (_, index) =>
+    store.createExecutiveWorkItem({
+      work_id: `existing-work-${index}`,
+      title: `Existing linked work ${index}`,
+      owner: 'ceo',
+      status: 'open',
+    })
+  );
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: linked.map((item, index) => ({
+        actor: 'ceo',
+        body: `Linked handoff ${index}`,
+        work_id: item.work_id,
+        message_type: 'handoff',
+      })),
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.messages.length, 20);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'submitted');
+  store.close();
+});
+
 test('roles can curate a source and move it through the learning queue', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

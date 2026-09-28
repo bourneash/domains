@@ -726,7 +726,13 @@ function ensureOwnerRequestCoverage(store, plan) {
     plan.messages = plan.messages.filter((_message, index) => !remove.has(index));
   }
 
+  // If every provider message is already linked to durable work, there may
+  // be no safe message to remove. Defer any remaining acknowledgements to the
+  // next cycle rather than exceeding the plan limit and discarding the entire
+  // executable plan. The dedicated pre-provider coverage path still drains
+  // all pending requests when called independently.
   for (const item of pendingRequests) {
+    if (plan.messages.length >= maxMessages) break;
     const workId = String(item.work_id);
     const sourceId = item.source_id ? String(item.source_id) : null;
     if (covered.has(workId) || (sourceId && covered.has(sourceId))) continue;
