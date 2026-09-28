@@ -14,6 +14,7 @@ LOCK_FILE="${EXECUTIVE_LOCK_FILE:-$ROOT/tools/executive/data/executive.lock}"
 exec 8>"$LOCK_FILE"
 flock -n 8 || { echo "[$(date -Is)] executive scheduled tick already running"; exit 75; }
 export EXECUTIVE_LOCK_HELD=1
+export EXECUTIVE_SCOPE=fleet
 settings="$(node -e "const s=require('$ROOT/tools/fleet-dashboard/server/eventstore').open('$ROOT'); const x=s.getExecutiveSettings(); const q=s.getChangeQueueSettings(); const enabled=x.queue_execution_enabled === undefined ? q.enabled === true : x.queue_execution_enabled === true; process.stdout.write([x.tick_enabled === true ? '1' : '0', enabled ? '1' : '0'].join('|')); s.close()" 2>/dev/null || printf '0|0')"
 IFS='|' read -r enabled queue_enabled <<<"$settings"
 # EXECUTIVE_FORCE bypasses the recurring tick_enabled switch for an operator

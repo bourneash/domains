@@ -3854,6 +3854,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
 
 async function tick({ root = ROOT, apply = false, allowQueue = false, providerOptions = {} } = {}) {
   const store = eventstore.open(root);
+  const scope = String(process.env.EXECUTIVE_SCOPE || 'fleet').trim() || 'fleet';
   const tickAction = executive.action(store, {
     actor: 'system',
     action_type: 'tick',
@@ -3879,6 +3880,7 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
       payload: {
         apply,
         allowQueue,
+        scope,
         counts: Object.fromEntries(Object.entries(plan).map(([key, value]) => [key, value.length])),
       },
     });
@@ -3887,6 +3889,7 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
       result: {
         apply,
         allowQueue,
+        scope,
         counts: Object.fromEntries(Object.entries(plan).map(([key, value]) => [key, value.length])),
         ...(created
           ? {

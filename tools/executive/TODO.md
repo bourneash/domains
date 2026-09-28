@@ -11,9 +11,9 @@ items remain before the program can be declared successful:
       decisions and bounded implementation requests. A brief is not a launch.
 - [ ] Complete at least one validated new-site go/no-go decision and preserve
       legal, security, analytics, affiliate, and rollback gates.
-- [ ] Investigate why several recent completed ticks recorded
-      `allowQueue: false` despite queue execution being enabled; confirm the
-      scheduler and manual-run paths expose the same queue policy.
+- [x] Label fleet and per-site domain-manager ticks separately in the durable
+      result and scorecard; domain-manager runs intentionally use
+      `allowQueue: false`.
 - [ ] Verify the hard sandbox timeout terminates the complete process/container
       tree and releases the single-flight lock; retain the recovery evidence in
       the executive scorecard.

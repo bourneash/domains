@@ -69,6 +69,33 @@ test('scorecard makes an unproductive executive cycle visible', () => {
   assert.match(result.next_step, /bounded, measurable action/);
 });
 
+test('scorecard distinguishes fleet and domain-manager tick scopes', () => {
+  const store = {
+    listExecutiveActions: () => [
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:00:00.000Z',
+        result: { scope: 'fleet', allowQueue: true, created_counts: { change_requests: 1 } },
+      },
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:05:00.000Z',
+        result: { scope: 'domain-manager', allowQueue: false, created_counts: {} },
+      },
+    ],
+    listExecutiveProposals: () => [],
+    listChangeRequests: () => [],
+    listImprovements: () => [],
+    list: () => [],
+  };
+  const result = scorecard.buildScorecard(store, {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.deepEqual(result.cadence.scopes, { fleet: 1, 'domain-manager': 1 });
+  assert.equal(result.cadence.fleet_ticks, 1);
+  assert.equal(result.cadence.domain_manager_ticks, 1);
+});
+
 test('accountability escalates repeated executable no-op cycles', () => {
   const result = scorecard.buildExecutiveAccountability([
     {
