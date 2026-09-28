@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:37:24.443Z",
+  "generated_at": "2026-09-28T12:06:17.747Z",
   "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a bounded deferred launch pipeline. No new domains, spend, telemetry, deployment, launch, monetization expansion, or requeue is authorized while ownership, legal, security, measurement, release, rollback, attribution, and failure-repair gates remain incomplete. Preserve site briefs, templates, content seeds, SEO baselines, analytics/affiliate readiness, compliance checklists, and launch gates as internal artifacts only.",
+        "summary": "Site-factory plan: maintain a two-entry bounded launch pipeline: complicated.work and deadlymaracas.com remain parked and private with unknown audience, traffic, revenue, attribution, compliance, analytics, security, and operational health. For either future launch packet, require an owner-approved site brief, reusable template, content seed, SEO baseline, existing-telemetry analytics/affiliate mapping, compliance checklist, security review, legal disposition, measurement plan, rollback plan, and launch gate; no domains, spend, credentials, deployment, monetization, or launch changes are authorized. Strongest candidate: complicated.work, because it is queue-ready but remains blocked by the existing execution-owner gap and parked/private disposition. Exactly one next step: site-factory reconciles the existing complicated.work owner-gap item and records verified ownership status; do not create, duplicate, requeue, deploy, or change launch state.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Strongest candidate: elevatorfriends.com. Exactly one next step: reconcile its existing readiness artifact into a single site-factory gate record naming the owner, template/content scope, SEO baseline, analytics and affiliate readiness, compliance status, security disposition, rollback path, and measurement boundary. Do not dispatch implementation or launch until every required gate has dated evidence and owner sign-off.",
+        "summary": "Recommendation: preserve complicated.work and deadlymaracas.com as parked and private. Existing owner-gap and readiness work may continue only as bounded repository evidence; no launch, DNS, credentials, analytics, monetization, or deployment changes are authorized. Smallest next step: verify the existing execution-owner records and attach dated evidence.",
         "requested_action": null,
         "proposal_id": null
       }

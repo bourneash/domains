@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:37:24.443Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:06:17.748Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain three evidence-backed CRO opportunities as deferred backlog only. Current containment gates prohibit new dispatch, deployment, spend, telemetry, dependencies, requeues, or monetization changes. The opportunities include an affiliate merchandising test for allthingsmasonic.com, a performance/CTA prototype for 0xroulette.com, and an offline content-pipeline prototype using microsoft/markitdown. Reconsider after active measurement, failure repair, ownership, security, attribution, rollback, and release evidence clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Evidence remains bounded: Amazon reported $4.92 aggregate commission for 2026-09-21 under an aggregate row and it is not site-attributable. Existing site metrics are directional only; no revenue, ROI, margin, payback, or causal-lift claim is supported.",
+        "summary": "CRO handoff: retain three evidence-backed opportunities as deferred backlog only. (1) microsoft/markitdown (MIT): prototype offline document-to-Markdown extraction for content QA on one existing repository; evidence: 22 keyword hits, 8/8 bounded checks passed, 194 files; risks: dependency provenance, parser accuracy, maintenance, and no production adoption; metric: extraction accuracy and editor time saved; time-to-learn: 1–2 days; smallest reversible prototype: fixture-only conversion script. (2) shadcn-ui/ui (MIT): prototype one accessible CTA/card component for a queue-ready site; evidence: 3/3 bounded checks passed, 3,198 files; risks: framework compatibility, dependency/supply-chain review, maintenance, and visual regression; metric: deterministic accessibility/build checks and CTA interaction rate using existing telemetry; time-to-learn: 1–2 days; smallest prototype: isolated preview component. (3) mermaid-js/mermaid (MIT): prototype one source-backed diagram in an editorial explainer; evidence: supported use case, 2,799 files, but no safe native checks; risks: client bundle/performance, rendering reliability, maintenance, and content accuracy; metric: page engagement and web-vitals using existing telemetry; time-to-learn: 1–2 days; smallest prototype: static offline-rendered SVG fixture. Do not install dependencies, deploy, add telemetry, spend, or requeue until existing measurement, failure-repair, ownership, security, release, rollback, attribution, and validation gates clear. Current evidence supports no revenue, ROI, or conversion-lift claim.",
         "requested_action": null,
         "proposal_id": null
       }

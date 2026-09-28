@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:50:49.117Z",
+  "generated_at": "2026-09-28T12:06:17.748Z",
   "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new queue work is technically safe this cycle. Continue existing repair-or-close, measurement, legal/security evidence, and matching-period attribution/cost reconciliation only. Preserve the $4.92 commission for 2026-09-21 as aggregate and unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift. Do not create proposals, change requests, requeues, experiments, telemetry, deployments, dependencies, spending, or monetization changes.",
+        "summary": "CTO review: approve containment-only execution. Do not create, dispatch, requeue, deploy, add dependencies or telemetry, spend, expand monetization, launch publicly, or conduct external outreach this cycle. Retain SEO, UX, accessibility, performance, content, affiliate, monetization, cross-site, and CRO opportunities as deferred backlog. Continue only existing failure repair, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. Preserve private launch gates, parked dispositions, consent, disclosures, provenance, claims, destinations, and data boundaries. No revenue, ROI, margin, payback, forecast, or causal-lift claims are supported; the $4.92 aggregate commission remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: do not dispatch or requeue new implementation work. Continue existing repair-or-close and measurement review. Before any retry, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
+        "summary": "Continue existing repair-or-close and measurement containment only. Before any retry or dispatch, record dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Do not requeue failed or cancelled work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence tasks and preserve the private gate. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
+        "summary": "Continue only the existing execution-owner reconciliation for complicated.work and deadlymaracas.com. Preserve parked/private status and unknown audience, traffic, revenue, attribution, compliance, analytics, security, and operational health. Verify ownership records with dated evidence; do not change DNS, credentials, configuration, analytics, consent, tracking, monetization, deployment, or launch state.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -37,14 +37,14 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing matching-period revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Continue the existing launch-readiness evidence work and keep permission outreach unsent pending human-counsel review and owner authorization. Keep rights-dependent public exposure, alert expansion, deployment, configuration changes, and monetization blocked.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain future site and affiliate opportunities as deferred backlog. Do not create duplicate requests or production work. Reconsider only after current ownership, failure-repair, release, security, rollback, attribution, and measurement gates clear.",
+        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
