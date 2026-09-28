@@ -2,42 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:37:59.214Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:52:31.621Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain amputeenews.com affiliate-tag work as owner-gated repair evidence only. Do not modify production links, credentials, or configuration until the owner-controlled prerequisite is explicitly authorized and verifiable. Revenue and attribution remain unknown until provider evidence confirms them.",
+        "summary": "CTO disposition: maintain containment-only execution this cycle. No new production queue work, requeues, deployments, dependencies, telemetry, spend, monetization changes, or external outreach are technically cleared. Continue only existing measurement, failure repair-or-close, finance reconciliation, legal/security evidence, and launch-readiness work. Preserve unavailable telemetry and financial outcomes as unknown; retain aggregate commission as unattributed. Route future implementation only after ownership, isolation, deterministic validation, rollback, deduplication, security, attribution, and measurement evidence are documented.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing americastrikes.com affiliate repair-or-close review without requeueing unchanged work. Validate repository references, redirect and registry consistency, bounded links, build, smoke checks, and rollback evidence; preserve attribution limits.",
+        "summary": "Continue the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net. Verify execution ownership and attach dated preview/build, launch-readiness, compliance, security, measurement, and rollback evidence by 2026-09-30T17:00:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain repository opportunities as deferred research only. No dependency installation, prototype dispatch, production integration, deployment, spend, telemetry change, or revenue or causal-lift claim is authorized until ownership, security, release, rollback, and measurement gates clear.",
+        "summary": "Continue existing measurement, finance reconciliation, legal/security evidence, launch-readiness evidence, and failure repair-or-close work. Do not retry unchanged failures or create duplicate requests. Before any future requeue, require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing fleet attribution and cost reconciliation. Preserve aggregate provider commission as unattributed and missing costs, budgets, commitments, and learning thresholds as unknown. Do not infer site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "summary": "Retain repository and CRO opportunities as deferred research only. Lab results do not establish production fit, dependency approval, security clearance, measurement readiness, revenue impact, or causal lift. Do not install dependencies, dispatch prototypes, deploy, spend, or add telemetry this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing security and launch-readiness evidence work only. Preserve private launch gates and do not access credentials, change permissions, add dependencies, deploy, expand data collection, or conduct external outreach.",
+        "summary": "Keep searchwoot.com private and permission outreach unsent. Continue the existing consolidated read-only evidence bundle; rights, retention, consent, vendor, accuracy, security, attribution, measurement, and owner gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider commission as unattributed and missing costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

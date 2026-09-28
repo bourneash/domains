@@ -2,14 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:51:35.938Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:52:31.622Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review rejects new queue, requeue, production, spending, telemetry, dependency, deployment, monetization, and outreach actions. The three highest-confidence candidates remain blocked by missing execution ownership and launch-readiness evidence; other candidates are blocked by active queued, review, deployed, or measuring work. Continue only existing measurement, repair-or-close, finance reconciliation, and legal/security evidence work. Preserve unknown attribution, costs, revenue, and lift as unknown.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, deployments, dependencies, telemetry, spending, monetization changes, and unsupported financial or causal claims. Continue only existing owner-gap verification, measurement, finance reconciliation, failure repair-or-close, legal evidence, and security evidence. Preserve aggregate commission as unattributed and all unavailable values as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net. Attach dated ownership, preview/build, launch-readiness, compliance, security, measurement, rollback, and exact-blocker evidence. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing measurement, finance reconciliation, legal/security evidence, and failure repair-or-close work. Do not create duplicate requests or retry unchanged failures. Require dated ownership, root cause, isolated validation, rollback, deduplication, attribution, and measurement evidence before any future requeue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep searchwoot.com private and permission outreach unsent. Continue the existing consolidated read-only evidence bundle; rights, retention, consent, vendor, accuracy, security, attribution, measurement, and owner gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing period-aligned finance reconciliation. Preserve the aggregate $4.92 commission as unattributed; label missing costs, budgets, commitments, site revenue, margin, ROI, payback, forecasts, and causal lift as unknown rather than zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new production queue work this cycle. The three available candidates are blocked by missing execution-owner and launch-readiness evidence. Continue only existing measurement, reconciliation, failure repair-or-close, legal/security evidence, and parked-site readiness work. Preserve unknown telemetry and unattributed aggregate commission; do not claim revenue, ROI, margin, payback, causal lift, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       }
