@@ -5884,6 +5884,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           reviewer: started,
         });
       }
+      // A reviewer can persist an infrastructure failure as a terminal
+      // `failed` run before the recovery sweep projects it back to `review`.
+      // Reuse the same guarded preservation path here so an operator retry
+      // does not discard a valid isolated implementation or start a fresh
+      // implementation attempt against the same evidence.
+      if (
+        existingRun?.state === 'failed' &&
+        improvements.canRecoverInfrastructureReview(existingRun, {
+          state: 'building',
+          recover_infrastructure: true,
+        })
+      ) {
+        const preserved = preserveInfrastructureBlockedReview(existing, existingRun, {
+          message:
+            existingRun.outcome?.infrastructure_error ||
+            existingRun.outcome?.error ||
+            existing.error ||
+            'validation infrastructure is unavailable; implementation is preserved for revalidation',
+          validation: existingRun.validation,
+        });
+        if (preserved) {
+          const started = await autoReviewRequest(existing.request_id);
+          return res.status(202).json({
+            revalidated_in_place: true,
+            request: events.getChangeRequest(existing.request_id),
+            run: events.getImprovement(existingRun.run_id),
+            reviewer: started,
+          });
+        }
+      }
       // Preserve a dirty reviewer worktree and repair it in place. The normal
       // retry path intentionally refuses dirty cleanup, but a successful
       // reviewer process that rejected the change is exactly the bounded
