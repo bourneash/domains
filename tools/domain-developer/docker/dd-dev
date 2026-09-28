@@ -180,6 +180,7 @@ cmd_status() {
         exit 0
     fi
     echo "status=stopped"
+    echo "contract_version=${CONTRACT_VERSION}"
     exit 1
 }
 

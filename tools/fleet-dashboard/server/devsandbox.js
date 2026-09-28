@@ -618,10 +618,9 @@ async function devStart(site) {
       continue;
     }
     if (r.kv.contract_version !== DEV_CONTRACT_VERSION) {
-      lastError =
-        `worker image contract mismatch: expected ${DEV_CONTRACT_VERSION}, got ${
-          r.kv.contract_version || 'missing'
-        }; rebuild domain-developer before retrying`;
+      lastError = `worker image contract mismatch: expected ${DEV_CONTRACT_VERSION}, got ${
+        r.kv.contract_version || 'missing'
+      }; rebuild domain-developer before retrying`;
       continue;
     }
     const ready = await waitForPreview(site);

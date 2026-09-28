@@ -46,7 +46,17 @@ const TRANSITIONS = {
   claimed: ['running', 'failed', 'blocked_owner', 'cancelled'],
   running: ['reviewing', 'review', 'failed', 'blocked_infrastructure', 'cancelled'],
   reviewing: ['review', 'failed', 'needs_human_review', 'blocked_infrastructure', 'cancelled'],
-  review: ['queued', 'reviewing', 'running', 'committed', 'verified', 'failed', 'blocked_infrastructure', 'needs_human_review', 'cancelled'],
+  review: [
+    'queued',
+    'reviewing',
+    'running',
+    'committed',
+    'verified',
+    'failed',
+    'blocked_infrastructure',
+    'needs_human_review',
+    'cancelled',
+  ],
   committed: ['deployed', 'failed', 'cancelled'],
   deployed: ['verified', 'failed'],
   verified: [],
@@ -270,7 +280,16 @@ function reconcileVerified(store, id, knownSite) {
   if (!current) throw httpErr(404, 'change request not found');
   if (current.status === 'verified') return current;
   if (
-    !['queued', 'claimed', 'failed', 'running', 'reviewing', 'review', 'committed', 'deployed'].includes(current.status)
+    ![
+      'queued',
+      'claimed',
+      'failed',
+      'running',
+      'reviewing',
+      'review',
+      'committed',
+      'deployed',
+    ].includes(current.status)
   )
     throw httpErr(409, `cannot reconcile ${current.status} to verified`);
   if (!knownSite(current.site)) throw httpErr(404, 'unknown site');

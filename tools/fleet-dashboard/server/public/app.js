@@ -11963,7 +11963,8 @@ function cqWorkLabel(r) {
 function cqStatusClass(status) {
   if (['deployed', 'verified', 'committed'].includes(status)) return 'b-green';
   if (['failed', 'cancelled'].includes(status)) return 'b-red';
-  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(status)) return 'b-yellow';
+  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(status))
+    return 'b-yellow';
   if (['review', 'reviewing'].includes(status)) return 'b-yellow';
   return 'b-blue';
 }
