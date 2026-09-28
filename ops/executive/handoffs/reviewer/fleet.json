@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:53:51.790Z",
+  "generated_at": "2026-09-28T03:54:44.994Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation queue work this cycle. The authoritative snapshot reports zero queue-eligible candidates, 52 failed-request follow-ups, 33 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and only 2 proven outcomes. Revenue, ROI, margin, payback, causal lift, and budget capacity remain unknown. Preserve existing repair, reconciliation, legal, security, and measurement work; retain production candidates as deferred until ownership, validation, release, attribution, and measurement gates clear.",
+        "summary": "Independent review rejects all new implementation queue work this cycle. No candidate is safely queueable: existing high-priority work, 52 failed-request follow-ups, 33 improvements awaiting measurement, unavailable operations/security sweeps, incomplete attribution, and only two proven outcomes leave release and measurement gates uncleared. Revenue, ROI, margin, payback, and causal lift remain unknown; aggregate commission stays unattributed. Continue only existing repair-or-close, period-aligned reconciliation, and bounded legal/security evidence work. Retain SEO, affiliate, UX, and site-factory candidates as deferred backlog until ownership, validation, rollback, compliance, security, attribution, and measurement gates clear. No new telemetry, spend, credentials, configuration, deployment, requeue, or monetization change is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
