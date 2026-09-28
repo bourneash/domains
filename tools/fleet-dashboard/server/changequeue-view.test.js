@@ -87,6 +87,29 @@ test('only overlapping production scope is held', () => {
   );
 });
 
+test('independent explicit delivery categories can proceed during measurement', () => {
+  const run = {
+    site: 'example.com',
+    state: 'measuring',
+    title: 'Ship homepage design refresh',
+    baseline: { request_category: 'engineering' },
+  };
+  assert.equal(
+    view.measurementConflict(
+      { site: 'example.com', category: 'seo', title: 'Repair affiliate search path' },
+      run
+    ),
+    false
+  );
+  assert.equal(
+    view.measurementConflict(
+      { site: 'example.com', category: 'engineering', title: 'Tune homepage layout' },
+      run
+    ),
+    true
+  );
+});
+
 test('report-only work can proceed while an implementation is active', () => {
   const blockers = view.queueBlockers(
     { status: 'queued', site: 'example.com', delivery_mode: 'report_only' },

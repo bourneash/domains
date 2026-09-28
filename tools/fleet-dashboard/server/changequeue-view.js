@@ -36,12 +36,26 @@ function measurementScope(value = {}) {
   return [...new Set([...paths, ...extractPaths(textOf(value))])];
 }
 
+function measurementCategory(value = {}) {
+  return String(value.category || value.request_category || value.baseline?.request_category || '')
+    .trim()
+    .toLowerCase();
+}
+
 // A measurement run blocks only a production request that could change the
 // same measured surface. When either side has no reliable URL/path scope we
 // stay conservative and hold it; diagnostics and control-plane work are
 // explicitly exempt above.
 function measurementConflict(request = {}, run = {}) {
   if (isMeasurementSafe(request)) return false;
+  // A measurement window owns one delivery lane, not an entire site. The
+  // improvement runner records the originating request category in the
+  // baseline; allow an independent SEO/marketing/design lane to proceed when
+  // both sides are explicit and differ. Unknown categories remain
+  // conservative and continue to require path scope or an override.
+  const requestCategory = measurementCategory(request);
+  const runCategory = measurementCategory(run);
+  if (requestCategory && runCategory && requestCategory !== runCategory) return false;
   const requestPaths = measurementScope(request);
   const runPaths = measurementScope(run);
   if (requestPaths.length && runPaths.length)
@@ -315,6 +329,7 @@ module.exports = {
   isMeasurementSafe,
   measurementScope,
   measurementConflict,
+  measurementCategory,
   queueMetrics,
   deliveryMetrics,
   enrichChangeRequests,
