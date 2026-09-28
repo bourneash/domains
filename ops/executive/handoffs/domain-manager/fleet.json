@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:24.203Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:10:00.164Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Assess driveford.net readiness after execution-owner installation",
-        "summary": "driveford.net is queue-ready with analytics not configured, so audience, traffic, conversion, revenue, attribution, SEO, compliance, operational health, and cost remain unknown. The existing work item records no installed site execution owner, blocking assessment execution.",
-        "requested_action": "Install and verify the required driveford.net execution owner, then produce one bounded read-only assessment covering observable positioning, content scope, monetization readiness, available health evidence, backlog priorities, explicit unknowns, and exactly one next disposition. Do not request duplicate telemetry, modify production, change credentials or configuration, deploy, spend money, or claim unavailable outcomes.",
-        "proposal_id": "429dc06d-2871-4c9a-9333-ccc1ff16587b"
-      }
-    ]
+    "report_id": "be13072c-c048-4557-acc5-beb6d86dfd81",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 0,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
