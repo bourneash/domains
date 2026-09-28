@@ -591,6 +591,45 @@ test('roles can create and update bounded workbench cases through the plan', asy
   store.close();
 });
 
+test('stale message work links are skipped without aborting the executive plan', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'ceo',
+          body: 'This stale thread should be audited and skipped.',
+          work_id: 'closed-or-missing-work-item',
+        },
+        { actor: 'cto', body: 'The rest of the plan remains actionable.' },
+      ],
+      work_items: [
+        {
+          title: 'Continue the bounded delivery plan',
+          kind: 'implementation',
+          owner: 'delivery-lead',
+          priority: 'high',
+          summary: 'Keep valid plan work moving even when a message link is stale.',
+          next_action: 'Review the active queue and select the next bounded item.',
+        },
+      ],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.work_items.length, 1);
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.skipped_messages.length, 1);
+  assert.equal(created.skipped_messages[0].work_id, 'closed-or-missing-work-item');
+  assert.equal(store.listExecutiveMessages().length, 1);
+  assert.equal(
+    store
+      .listExecutiveActions({ limit: 20 })
+      .some(action => action.status === 'skipped' && action.action_type === 'message'),
+    true
+  );
+  store.close();
+});
+
 test('roles can curate a source and move it through the learning queue', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

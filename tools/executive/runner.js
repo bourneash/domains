@@ -2952,6 +2952,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   validatePlan(plan);
   const created = {
     messages: [],
+    skipped_messages: [],
     proposal_reviews: [],
     data_requests: [],
     proposals: [],
@@ -3086,6 +3087,26 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         result: { message_id: message.message_id },
       });
     } catch (error) {
+      // A model can carry a stale work_id from an earlier brief after the
+      // underlying item was closed or reconciled. That message is disposable
+      // metadata; it must not abort otherwise valid work in the same plan.
+      // Keep the rejection durable so the stale-reference source is visible
+      // and can be fixed without replaying the entire executive tick.
+      if (error.message === 'message references an unknown work item') {
+        const skipped = {
+          actor: item.actor,
+          work_id: item.work_id || null,
+          reply_to: item.reply_to || null,
+          reason: error.message,
+        };
+        created.skipped_messages.push(skipped);
+        executive.finishAction(store, audit.action_id, {
+          status: 'skipped',
+          error: error.message,
+          result: skipped,
+        });
+        continue;
+      }
       executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
       throw error;
     }
