@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:38:15.816Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:07:43.489Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment and route no new production work this cycle under EXEC_CONV_7. Evidence: 105 stranded work items, 123 approved proposals without execution, 40 improvements awaiting measurement, 14 failed requests, unavailable operations/fleet-doctor sweeps, and $4.92 aggregate unattributed commission for 2026-09-21. The smallest next step is to complete the existing eastcoastrappers.com routing repair with dated validation and rollback evidence. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: maintain complicated.work, deadlymaracas.com, and driveford.net as parked/private. Continue only existing owner-gap and launch-readiness evidence work; do not deploy, change DNS, add telemetry, activate monetization, or begin public launch work until execution ownership, compliance, security, measurement, rollback, and owner gates are evidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue repair-or-close review for failed and cancelled requests without retrying unchanged work. Require dated ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurement evidence before any requeue.",
+        "summary": "Continue existing finance reconciliation, legal and security evidence, parked-site ownership verification, measurement, and failure repair-or-close work. Keep private and parked dispositions unchanged. Do not create additional production work, spend, telemetry, dependencies, deployments, monetization changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

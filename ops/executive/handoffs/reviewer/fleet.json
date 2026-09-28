@@ -2,58 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:38:15.818Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:07:43.489Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, and monetization claims. Continue only existing measurement, attribution and cost reconciliation, repair-or-close, legal/security evidence, parked-site verification, and the single bounded routing repair. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
+        "summary": "Reject the candidate plan's existing eastcoastrappers.com routing repair because it is high-priority queue work and not defensible under the current containment gate. Preserve only existing read-only finance reconciliation, legal/security evidence, failure repair-or-close review without requeue, and parked-site ownership/readiness verification. Reject new proposals, change requests, research requests, deployments, dependencies, telemetry, spend, monetization, outreach, and financial or causal claims. Aggregate commission remains unattributed; missing costs, budgets, margin, ROI, and lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing task-routing repair. Require dated ownership evidence, deterministic routing tests, duplicate-task verification, rollback evidence, and an audit confirming no site behavior changed. Do not create or requeue unrelated work.",
+        "summary": "Material concerns: provider revenue is aggregate and unattributed, periods and cost coverage do not align, operational and security evidence is incomplete, and many approved items await execution or measurement. Do not treat missing values as zero or authorize production, queue, spending, monetization, or outreach work. Keep the private and parked dispositions unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial periods, matching costs, site attribution, operational sweeps, security controls, ownership, and measurement remain incomplete. Do not treat missing values as zero or convert research, proposals, or messages into productivity outcomes. Keep deferred opportunities as backlog only.",
+        "summary": "Containment remains required. Route only the existing eastcoastrappers.com task-routing repair: ownership metadata and isolated routing validation, with no site behavior, credentials, telemetry, dependencies, deployment, spend, or outreach changes. Do not queue additional candidates because remaining options are blocked by missing launch-readiness, execution-owner, security, attribution, measurement, active-work, or failure-repair evidence. Preserve aggregate commission as unattributed; site revenue, margin, ROI, forecast, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the existing eastcoastrappers.com metadata-only routing repair. Reject all other new implementation work this cycle: site-factory candidates lack verified execution-owner and launch-readiness evidence; financial claims remain blocked by partial attribution, period mismatch, and missing costs; security and operations evidence remain incomplete. Preserve existing legal, security, measurement, repair, and reconciliation work without requeueing or duplicating it.",
+        "summary": "Route the existing eastcoastrappers.com task-routing repair to engineer. Scope is limited to task ownership metadata and isolated routing validation. Acceptance: dated ownership evidence, deterministic routing tests pass, duplicate-task count is verified, rollback point is recorded, and an audit confirms no site behavior or external destination changed. Do not requeue unrelated work.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-2026-09-28-markitdown-content-normalization",
-        "summary": "Deferred research only; no production adoption, dependency installation, publishing, or revenue claim is supported.",
-        "requested_action": "declined",
-        "proposal_id": "cro-2026-09-28-markitdown-content-normalization"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-2026-09-28-mermaid-explainer-content",
-        "summary": "Deferred research only; no production prototype or causal engagement or revenue claim is supported.",
-        "requested_action": "declined",
-        "proposal_id": "cro-2026-09-28-mermaid-explainer-content"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-2026-09-28-shadcn-cta-system",
-        "summary": "Deferred research only; active work, attribution gaps, security review, rollback, and queue-capacity constraints block adoption.",
-        "requested_action": "declined",
-        "proposal_id": "cro-2026-09-28-shadcn-cta-system"
       }
     ]
   }
