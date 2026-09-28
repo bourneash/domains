@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T18:08:16.785Z",
+  "generated_at": "2026-09-28T19:08:31.411Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution for new launches, experiments, monetization changes, and spend. Amazon revenue is $4.92 aggregate commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; the $4.92 is not site-attributable because it is in an aggregate row. AI usage cost is $922.381 for 2026-09-01 through 2026-09-28 across 5,048 calls, including 229 errors. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget capacity, and forecasts are not calculable because revenue and AI costs cover different periods, matching-period infrastructure/labor/other costs are absent, budget ceilings and commitments are blank, and no approved learning threshold or experiment-to-revenue linkage exists. Do not treat missing values as zero. Continue only the existing period-aligned finance reconciliation and measurement work; preserve aggregate revenue as unattributed. SEO totals and productivity outcomes are operating or vanity indicators, not revenue or margin evidence.",
+        "summary": "Recommendation: maintain containment-only execution for new launches, experiments, monetization changes, and spend; retain only the existing period-aligned finance reconciliation. Amazon reports $4.92 aggregate commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items, but all commission is unattributed. AI usage costs are $922.381 for 2026-09-01 through 2026-09-28 across 5,048 calls, including 229 errors. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget capacity, and forecasts are not calculable because revenue and AI costs cover different periods and matching-period infrastructure, labor, operating costs, commitments, budget ceilings, and learning thresholds are absent. Do not treat missing values as zero. SEO totals, improvement counts, and the 3 proven outcomes are operating or delivery metrics, not financial proof. Continue existing reconciliation only and reject unsupported revenue, margin, ROI, payback, forecast, and causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The containment recommendation is financially supported. Retain the existing finance reconciliation work item only; do not create duplicate finance requests. Minimum required artifact: reconcile all 18 named tracking rows and the aggregate row against matching-period revenue, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an explicit cost-to-learn threshold. Until complete, reject site revenue, contribution margin, ROI, payback, budget-capacity, forecast, and causal-lift claims. The three site-factory candidates should remain deferred on financial grounds as well as their stated ownership and launch gates.",
+        "summary": "CFO review: defer the three CRO opportunities for financial gating. Feasibility, popularity, clicks, impressions, sessions, and proposed time-to-learn windows do not establish contribution margin or payback. Reconsider only after the existing reconciliation produces period-aligned revenue and cost evidence, with an explicit learning threshold and rollback-controlled measurement plan.",
         "requested_action": null,
         "proposal_id": null
       }

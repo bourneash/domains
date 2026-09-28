@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T18:08:16.784Z",
+  "generated_at": "2026-09-28T19:08:31.410Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution for new site product work this cycle. Existing evidence supports prioritizing measurement, failure repair, attribution reconciliation, and security/readiness evidence before additional launches or experiments. SEO and UX opportunities remain deferred backlog; no unsupported revenue or causal claims are made. The three site-factory candidates require verified launch-readiness and execution-owner evidence, so do not queue them yet. Continue existing reversible work through the approved engineer queue and re-evaluate when those gates clear.",
+        "summary": "Executive recommendation: maintain containment-only execution for new site launches, experiments, monetization changes, and additional production work. Existing evidence supports continuing measurement, failure repair, attribution reconciliation, and security/readiness evidence: 54 improvements are active, 40 await measurement, 14 requests failed, and only 3 outcomes are proven. SEO, CTA/accessibility, merchandising, performance, and reusable cross-site capability opportunities should remain prioritized backlog until ownership, validation, rollback, security, and measurement gates clear. Preserve the existing eastcoastrappers.com routing repair as the sole approved bounded implementation path; do not create duplicate requests or claim revenue, ROI, or causal lift. Re-evaluate after the current evidence and repair work produces dated artifacts.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T18:08:16.786Z",
+  "generated_at": "2026-09-28T19:08:31.411Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment for new launches, spend, monetization changes, dependencies, telemetry changes, and security-sensitive releases. Preserve existing measurement, attribution, finance, security, and failure-repair work. Queue only the existing eastcoastrappers.com task-routing repair through the isolated engineer path; it changes ownership metadata only, with deterministic routing validation and rollback. Keep site behavior, credentials, telemetry, dependencies, deployment, and spend unchanged. Defer site-factory launches and repository adoption until ownership, launch-readiness, security, release, rollback, attribution, and measurement gates are evidenced.",
+        "summary": "Approve only the existing eastcoastrappers.com task-routing repair. Scope is limited to ownership metadata and isolated routing validation; preserve site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations. Do not duplicate or requeue unrelated work. Require dated ownership evidence, deterministic routing tests, rollback evidence, and an audit confirming no behavior change before closure.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route the existing eastcoastrappers.com task-routing repair to engineer without duplicating or requeuing unrelated work. Require dated ownership evidence, deterministic routing tests, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, and spend are unchanged. Continue all other work only within existing repair, measurement, reconciliation, and evidence items.",
+        "summary": "Maintain containment for all other launches, experiments, monetization changes, dependencies, telemetry changes, deployments, and spend. Continue existing measurement, failure repair, finance reconciliation, and security/readiness evidence only. Preserve deferred research and site-factory opportunities until ownership, release, security, attribution, measurement, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

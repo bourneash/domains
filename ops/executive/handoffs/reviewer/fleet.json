@@ -2,30 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:53:47.489Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T19:08:31.412Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported financial, causal, production, high-priority queue, requeue, telemetry, spend, dependency, deployment, and monetization actions. Revenue remains $4.92 aggregate commission for 2026-09-21 and unattributed; costs, margin, ROI, and causal lift are unknown. Continue existing measurement, attribution reconciliation, repair-or-close, legal, and security evidence work. Retain only the bounded medium-priority eastcoastrappers.com task-routing metadata repair, with routing correctness, duplicate-task count, focused validation, and rollback required. No new research request is justified because existing telemetry and evidence paths cover the stated gaps.",
+        "summary": "Approve containment-only execution. Reject unsupported financial or causal claims, new production work, high-priority queue expansion, duplicate evidence requests, requeues, spend, telemetry changes, dependencies, deployments, monetization changes, and external outreach. Preserve aggregate commission as unattributed. Continue only the existing bounded routing repair, finance reconciliation, failure repair-or-close review, and legal/security evidence work. Keep private and parked dispositions unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, causal-lift, production, spend, telemetry, dependency, deployment, and outreach claims. Amazon commission is $4.92 aggregate for 2026-09-21 and unattributed; costs and margin remain unknown. Route only the reversible eastcoastrappers.com task-owner metadata repair below. Do not dispatch other candidates: complicated.work, deadlymaracas.com, and driveford.net lack verified launch-readiness and execution-owner evidence. Continue existing measurement, attribution reconciliation, failure repair, security evidence, and private/parked gates.",
+        "summary": "Owner concern: revenue and cost periods do not align, provider commission is aggregate and unattributed, and operational/security evidence is incomplete. Do not treat missing values as zero or claim site revenue, margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Validate only the existing task-routing metadata change. Require dated ownership evidence, deterministic routing tests, duplicate-task check, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, and spend are unchanged. Do not requeue or dispatch additional work until the existing gates clear.",
+        "summary": "Maintain containment-only execution. Route only the existing low-risk eastcoastrappers.com task-routing repair; no other actionable candidate is currently unblocked. Site-factory candidates are blocked by missing execution-owner and launch-readiness evidence; remaining opportunities are blocked by active work, measurement windows, failed-request repair, security gates, or missing attribution. Reject unsupported financial, production, deployment, spend, telemetry, dependency, requeue, and outreach actions. Preserve aggregate commission as unattributed and continue existing evidence and repair work.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner update: the mandate permits only one defensible engineer-routable candidate this cycle: existing eastcoastrappers.com routing metadata repair. Other candidates remain explicitly blocked by launch-readiness, execution-owner, active-work, measurement, security, attribution, or failure-repair constraints. No unsupported revenue or causal claims are made.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-cta-affiliate-component-2026-09-28",
+        "summary": "Retain as deferred research only; no prototype, adoption, dependency, deployment, spend, or production change.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-cta-affiliate-component-2026-09-28"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-offline-markdown-normalization-2026-09-28",
+        "summary": "Retain as deferred research only; feasibility does not establish security, attribution, revenue, or production readiness.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-offline-markdown-normalization-2026-09-28"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-static-explanatory-diagrams-2026-09-28",
+        "summary": "Retain as deferred research only; no production work is justified before measurement, accessibility, security, ownership, and rollback gates clear.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-static-explanatory-diagrams-2026-09-28"
       }
     ]
   }

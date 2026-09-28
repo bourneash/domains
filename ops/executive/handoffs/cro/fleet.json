@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T18:08:16.785Z",
+  "generated_at": "2026-09-28T19:08:31.411Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends retaining three evidence-backed opportunities for later isolated validation: a reusable affiliate/CTA component system, offline source-to-Markdown content normalization, and static explanatory diagrams. Current containment remains appropriate because measurement, attribution, failure repair, ownership, security, and release gates are incomplete. No deployment, dependency installation, spend, telemetry change, or owner approval request is made.",
+        "summary": "Retain three evidence-backed revenue and product opportunities as deferred research backlog. Repository signals support feasibility, not adoption or causal lift. Current containment remains appropriate while measurement, attribution, failure-repair, ownership, security, release, and rollback gates remain incomplete. No deployment, dependency installation, spend, credential change, telemetry change, or owner approval request is made.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Repository signals support feasibility research, not adoption. Before any implementation, require an isolated fixture-only prototype, license review, dependency and supply-chain review, deterministic tests, rollback evidence, and a measurable acceptance metric. Preserve all three opportunities as deferred research backlog until existing containment gates clear.",
+        "summary": "CEO/CTO handoff: when gates clear, validate the smallest reversible prototype first, then require security, license, maintenance, deterministic-test, rollback, and existing-telemetry measurement evidence before adoption.",
         "requested_action": null,
         "proposal_id": null
       }
