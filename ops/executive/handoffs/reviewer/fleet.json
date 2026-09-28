@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:52:10.762Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:07:22.884Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, queue actions, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and unsupported financial or causal claims. Continue only existing repair, reconciliation, legal, security, measurement, and owner-disposition work using recorded evidence.",
+        "summary": "Maintain containment-only execution. Reject new production work, requeues, experiments, telemetry, spending, monetization changes, and unsupported financial or causal claims. Continue only existing repair-or-close, measurement, attribution, reconciliation, legal, and security evidence work. Preserve aggregate commission as unattributed and keep private launch gates unchanged. Owner concern: attribution, cost periods, budget ceilings, operations, and security evidence remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: the $4.92 commission is an unattributed aggregate for 2026-09-21; revenue and cost periods do not align, budget ceilings and cost-to-learn thresholds are absent, and operations/security evidence is incomplete. Preserve financial, margin, ROI, payback, readiness, and causal outcomes as unknown.",
+        "summary": "Continue existing bounded read-only security evidence capture using authorized metadata and retained artifacts only. Do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work and attach it to the existing item for URL-level disclosure and product-link classification. Do not change CTAs, affiliate links, tracking, configuration, or production. Keep deferred performance and conversion opportunities as backlog only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing security evidence matrix with dated, redacted evidence and explicit unknowns. Preserve private launch gates; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Continue existing delivery containment, failure repair-or-close, measurement, attribution, legal, and financial reconciliation work. Do not create duplicate work or requeue items before ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:52:10.761Z",
+  "generated_at": "2026-09-28T07:07:22.883Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and retain only existing reconciliation work. Revenue evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; named site rows report $0 commission, which does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls, 228 errors, and $901.90 cost. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing costs are absent, budget ceilings are blank, and no learning-outcome threshold exists. Do not dispatch, spend, forecast, expand monetization, or claim financial or causal lift. Minimum evidence: period-aligned attributable revenue, a complete reconciled cost ledger including infrastructure, approved budget ceilings, and a defined learning outcome with maximum cost-to-learn.",
+        "summary": "Recommendation: maintain financial containment and continue only the existing reconciliation work. Amazon revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to a site; site-attributed income is $0, which does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls, $901.90 cost, 228 errors, and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable. Revenue and AI-cost periods do not align; infrastructure, domain, labor, marketing, and experiment costs are incomplete; monthly budget ceilings and a maximum cost-to-learn threshold are blank. Do not approve new spend, forecasts, commitments, monetization changes, or financial claims. Continue the existing period-aligned reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the existing period-aligned revenue, attribution, and cost reconciliation work item only. Preserve aggregate provider commission as unattributed; reconcile revenue, AI, infrastructure, domain, labor, marketing, and experiment costs for matching periods; record approved budget ceilings and the cost-to-learn threshold. Do not create duplicate telemetry or financial work.",
+        "summary": "Handoff: retain and continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile provider revenue, attribution identifiers, AI and other recorded costs, and approved budget limits for matching periods. Preserve aggregate provider rows as unattributed. Do not create duplicate telemetry or financial work, and do not infer margin, ROI, payback, cost-to-learn, budget capacity, or causal lift from clicks, orders, shipped items, sessions, conversions, AI calls, or output counts.",
         "requested_action": null,
         "proposal_id": null
       }

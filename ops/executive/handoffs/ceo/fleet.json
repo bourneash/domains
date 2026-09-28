@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:52:10.761Z",
+  "generated_at": "2026-09-28T07:07:22.882Z",
   "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and preserve the deferred 0xroulette.com performance and allthingsmasonic.com disclosure/CTA work. Evidence: 39 improvements await measurement, 8 requests failed, only 2 outcomes are proven, operations/security sweeps have no results, and the actionable candidate list is empty. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift remain unknown. Smallest next step: delivery-lead records dated ownership, root-cause, validation, rollback, deduplication, and measurement evidence by 2026-09-28T17:00:00Z. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Handoff: record dated ownership, root cause, validation, rollback, deduplication, release, security, attribution, and measurement evidence for existing work by 2026-09-28T17:00:00Z. Do not dispatch or requeue new implementation until those gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the 0xroulette.com performance packet as deferred backlog. Do not dispatch, requeue, deploy, add telemetry, or adopt dependencies until existing measurement, failure-repair, ownership, release, security, attribution, and rollback gates clear.",
+        "summary": "Handoff: continue the existing bounded read-only security evidence matrix and preserve private launch gates. All 59 security sitefacts remain unknown; fleet-doctor and operations sweeps have no results. Do not access credentials, alter permissions, add dependencies, deploy, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: attach the completed allthingsmasonic.com inspection to the existing evidence item and classify disclosure placement and product-link destinations by audited URL. No CTA, affiliate, tracking, or production change is authorized this cycle.",
+        "summary": "Handoff: continue the existing SearchWoot launch-readiness evidence work. 0 of 4 legal tasks are closed; retain the private gate and keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }
