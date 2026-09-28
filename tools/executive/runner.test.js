@@ -37,6 +37,19 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   store.close();
 });
 
+test('model prompts hide excluded-domain identifiers while preserving the safety rule', () => {
+  const prompt = runner.buildPrompt({
+    intelligence: {},
+    portfolio_policy: {
+      managed_sites: 'all discovered fleet sites except 3boobs.com',
+      excluded_sites: ['3boobs.com'],
+    },
+  });
+  assert.equal(prompt.includes('3boobs.com'), false);
+  assert.match(prompt, /\[excluded-site\]/);
+  assert.match(prompt, /Do not target, analyze, or mention/);
+});
+
 test('compacts repeated executive evidence before sending it to model passes', () => {
   const bulky = {
     sites: ['example.com'],
@@ -713,6 +726,27 @@ test('every pending owner request receives a linked executive acknowledgement', 
   assert.equal(created.messages[0].actor, 'ceo');
   assert.equal(created.messages[0].work_id, tracked.work_item.work_id);
   assert.equal(created.messages[0].reply_to, tracked.message.message_id);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'answered');
+  store.close();
+});
+
+test('owner-request acknowledgements reserve message capacity after a full provider plan', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please prioritize the next measurable fleet improvement.',
+  });
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: Array.from({ length: 20 }, (_, index) => ({
+        actor: 'ceo',
+        body: `Unlinked status update ${index}`,
+      })),
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(plan.messages.length, 20);
+  assert.equal(created.messages.length, 20);
+  assert.ok(created.messages.some(message => message.work_id === tracked.work_item.work_id));
   assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'answered');
   store.close();
 });

@@ -701,6 +701,31 @@ function ensureOwnerRequestCoverage(store, plan) {
     .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
     .filter(isPendingOwnerRequest);
 
+  // Provider passes may legitimately fill the message budget with status
+  // updates. Reserve enough room for mandatory CEO acknowledgements before
+  // appending them, otherwise a valid plan can fail only after all model work
+  // has completed. Never discard a message that is linked to durable work;
+  // only unlinked conversational updates are eligible for this compaction.
+  const missing = pendingRequests.filter(item => {
+    const workId = String(item.work_id);
+    const sourceId = item.source_id ? String(item.source_id) : null;
+    return !covered.has(workId) && !(sourceId && covered.has(sourceId));
+  }).length;
+  const maxMessages = 20;
+  if (plan.messages.length + missing > maxMessages) {
+    let removable = plan.messages
+      .map((message, index) => ({ message, index }))
+      .filter(
+        ({ message }) =>
+          !message.work_id && !message.reply_to && !message.metadata?.system_generated
+      )
+      .map(({ index }) => index)
+      .reverse();
+    const removeCount = plan.messages.length + missing - maxMessages;
+    const remove = new Set(removable.slice(0, removeCount));
+    plan.messages = plan.messages.filter((_message, index) => !remove.has(index));
+  }
+
   for (const item of pendingRequests) {
     const workId = String(item.work_id);
     const sourceId = item.source_id ? String(item.source_id) : null;
@@ -915,8 +940,12 @@ function compactModelBrief(brief) {
   return compact;
 }
 
+function modelBriefForPrompt(brief) {
+  return JSON.stringify(compactModelBrief(brief)).replaceAll('3boobs.com', '[excluded-site]');
+}
+
 function buildPrompt(brief) {
-  const modelBrief = compactModelBrief(brief);
+  const modelBriefJson = modelBriefForPrompt(brief);
   return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, Legal/Compliance lead, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
 
 Rules:
@@ -931,7 +960,7 @@ Rules:
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
 - Treat cro_proposals as CRO handoffs for CEO/CTO review, not owner approval requests. For each useful lead, either create a bounded public research request, create a separate owner-facing proposal with measurable acceptance criteria, or explain why no action is justified. Do not leave the lead waiting on the owner merely because it came from the CRO.
-- Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
+- Do not target, analyze, or mention any site marked [excluded-site] in the supplied brief. It is out of scope entirely; do not propose work for it, mention it in owner updates, or queue work for it.
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
@@ -974,7 +1003,7 @@ Return ONLY valid JSON with this shape:
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
 
 FLEET BRIEF:
-${JSON.stringify(modelBrief)}`;
+${modelBriefJson}`;
 }
 
 function buildPassPrompt(brief, role, candidate = null) {
@@ -984,7 +1013,7 @@ function buildPassPrompt(brief, role, candidate = null) {
       ? `${prompt}\n\nCANDIDATE PLAN FROM THE CRO OR EARLIER PASS:\n${JSON.stringify(compactModelValue(candidate))}\n\nReview and preserve useful evidence-backed work; correct or reject unsafe items explicitly.`
       : prompt;
   }
-  const modelBrief = compactModelBrief(brief);
+  const modelBriefJson = modelBriefForPrompt(brief);
   const base =
     role === 'cro'
       ? 'You are the CRO pass for an autonomous domain-fleet executive. Turn purpose-fit market, GitHub, CRO-lab, search, affiliate, and audience signals into concrete revenue experiments and product opportunities. Do not merely list popular repositories: explain the fleet use case, validation evidence, license/security/maintenance risks, expected metric, time-to-learn, and smallest reversible prototype. CRO leads are handoffs to the CEO and CTO, not owner approval requests. Every proposal you retain must set created_by to cro, and you must not directly deploy, spend, change credentials, or add domains.'
@@ -1015,7 +1044,7 @@ function buildPassPrompt(brief, role, candidate = null) {
                               : role === 'domain-manager'
                                 ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
                                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
+  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target any [excluded-site]. Do not invent telemetry.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
