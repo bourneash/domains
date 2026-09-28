@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:36:06.904Z",
+  "generated_at": "2026-09-28T08:51:56.867Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security proposal as duplicate report-only work. Retain the existing security evidence item and containment-only execution. No new production work, requeues, telemetry, experiments, dependencies, deployments, spending, monetization changes, or outreach are authorized. Revenue and causal outcomes remain unsupported; preserve aggregate commission as unattributed.",
+        "summary": "Approve containment-only execution. Reject unsupported financial claims and all new production, queue, requeue, experiment, telemetry, dependency, deployment, spending, monetization, and external-outreach work. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, and security evidence work. Preserve aggregate revenue as unattributed; keep private launch gates and parked dispositions unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: attribution and cost periods are incomplete, operations and security evidence remain unavailable, and substantial work awaits measurement or failure repair. Continue only existing legal, security, finance reconciliation, measurement, repair-or-close, and bounded site-remediation work with recorded evidence.",
+        "summary": "Owner concern: 36 improvements await measurement, 9 requests failed, ownership and release gates remain incomplete, and operations/security sweeps provide no control results. Do not dispatch or requeue work until existing ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded. Any permission outreach remains unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:36:06.902Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:51:56.865Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposals, experiments, product opportunities, or change requests this cycle. The authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, operations/security evidence is unavailable, and only 3 outcomes are proven. GitHub signals and CRO-lab results remain discovery evidence only; keep markitdown, shadcn/ui, and Mermaid as deferred prototypes pending ownership, security/license/maintenance review, validation, rollback, and measurement gates. Continue existing affiliate repair, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site readiness work using recorded evidence only. Preserve aggregate commission as unattributed and make no revenue, ROI, margin, payback, or causal-lift claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: americastrikes.com affiliate-reference repair, complicated.work remediation, and deadlymaracas.com reachability assessment remain existing bounded work only. Do not add deployments, requeues, experiments, telemetry, dependencies, spending, monetization changes, credentials, domains, or external outreach. Reconsider deferred CRO opportunities only after current ownership, failure-repair, validation, rollback, security, attribution, and measurement gates clear.",
+        "summary": "Recommendation: maintain containment-only execution for the managed portfolio this cycle. CRO signals support deferred, reversible opportunities: use MIT-licensed MarkItDown for bounded source-to-Markdown SEO workflows, shadcn/ui for accessible CTA/component prototypes, and Mermaid for explanatory editorial diagrams. Evidence is discovery-only: repository lab fits were supported, but no dependency installation, security review, prototype, attribution, or conversion lift is established. Retain these as deferred backlog with use-case briefs, license/security/maintenance review, expected metrics, time-to-learn, and smallest reversible prototype documented before queue entry. Continue existing measurement, failure repair, attribution reconciliation, and legal/security evidence work. Create no new proposals, change requests, experiments, telemetry, deployments, spending, credentials, domains, or monetization changes this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

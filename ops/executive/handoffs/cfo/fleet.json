@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:36:06.903Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:51:56.866Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and retain only existing reversible evidence or remediation work. Revenue is supported only for 2026-09-21: $4.92 Amazon commission on 28 ordered items and 6 shipped items, but all $4.92 is in an aggregate unattributed row. AI spend is $901.897533 for 2026-09-01 through 2026-09-28; infrastructure, domain, labor, marketing, and experiment costs are not recorded in matching periods. Contribution margin, ROI, payback, budget capacity, and cost-to-learn are therefore not calculable. Do not approve new spend, monetization changes, deployments, requeues, experiments, telemetry, or unsupported revenue claims. Retain the existing period-aligned reconciliation and bounded site remediation only.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Do not authorize new spend, production work, requeues, experiments, telemetry, deployments, or monetization changes. Amazon reported $4.92 aggregate commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; it is not site-attributable, so no site revenue claim is supported. AI usage recorded $901.90 across 4,926 calls from 2026-09-01 through 2026-09-28, but contribution margin is not calculable because revenue and cost periods do not match and infrastructure, domains, labor, marketing, and experiment costs are missing. ROI, payback, budget capacity, and cost-to-learn are also unknown. Continue only the existing reconciliation, measurement, repair, legal, and security work. Minimum finance evidence: period-matched revenue by site/content/tracking ID; all recorded cost categories for the same period; approved budget ceilings; and a defined cost-to-learn threshold tied to a measurable outcome. Treat clicks, orders, shipped items, sessions, conversions, AI calls, output counts, and pilot throughput as activity metrics, not financial performance or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance evidence still missing: matching-period infrastructure, domain, labor, marketing, experiment, and other operating costs; approved budget ceilings; and an owner-approved cost-to-learn threshold. Until those records exist, report revenue as $4.92 aggregate unattributed commission and AI spend as $901.897533, with no contribution-margin or cost-to-learn conclusion.",
+        "summary": "Retain existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile existing revenue, attribution identifiers, AI spend, infrastructure, domain, labor, marketing, and experiment costs for matching periods; document missing budget ceilings and the cost-to-learn threshold. Do not create duplicate finance work or infer contribution margin, ROI, payback, budget capacity, cost-to-learn, or causal lift. Escalate only after the minimum evidence is attached.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Push back on vanity metrics and unsupported forecasts: the 30-day scorecard has 3 proven outcomes, 36 improvements awaiting measurement, and 9 failed implementation requests, but these do not establish financial return. Retain SEO, UX, affiliate, site-factory, and CRO opportunities as deferred backlog until attribution, cost, ownership, validation, rollback, release, security, and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

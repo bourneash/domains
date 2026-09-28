@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:22:02.440Z",
+  "generated_at": "2026-09-28T08:51:56.865Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Preserve a small site-factory pipeline of bounded, evidence-only packets; no domains, spend, deployment, launch, new telemetry, or monetization changes. Strongest candidate: allthingsmasonic.com, because analytics and compliance are passing, affiliate capability is registered, and a bounded public inspection exists. Exactly one next step: complete the existing affiliate-disclosure evidence audit by attaching the retained inspection artifact and recording disclosure status by audited URL before any CTA or affiliate change.",
+        "summary": "Recommendation: maintain a draft-only site-factory pipeline with allthingsmasonic.com as the strongest candidate. Its brief, reusable affiliate/editorial template, content seed, SEO baseline, analytics readiness, affiliate readiness, compliance checklist, and launch gate are specified below, but no new dispatch or launch is authorized. Exactly one next step: reconcile and attach the existing measurement, release, security, attribution, rollback, legal, and owner evidence for allthingsmasonic.com before reconsidering implementation.",
         "requested_action": null,
         "proposal_id": null
       }

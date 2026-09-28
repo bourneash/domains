@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:36:06.903Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:51:56.866Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution while advancing existing evidence work. Evidence: the candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven. Revenue covers 2026-09-21 only: $4.92 aggregate commission from 28 ordered items and 6 shipped items, not site-attributable; margin, ROI, payback, and causal lift are unknown. Smallest next steps are the existing readiness assessments for complicated.work and deadlymaracas.com, plus bounded affiliate-reference repair on americastrikes.com. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: the candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven in the 30-day scorecard generated 2026-09-28. Amazon revenue is $4.92 aggregate for 2026-09-21 and unattributed; margin, ROI, payback, and causal lift are unknown. Continue existing repair, measurement, attribution, legal, and security work. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: complete the existing complicated.work readiness and compliance assessment. Retain parked status because the site fails banner, consent accept/reject, and GA4 checks. Record dated evidence and rerun the same checks after any isolated remediation; no launch or telemetry changes.",
+        "summary": "Corrected disposition: retain SEO, UX, CRO repository, and site-factory opportunities as deferred backlog. No new proposal or implementation dispatch is justified while ownership, failure repair, validation, rollback, release, security, attribution, and measurement gates remain open.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: complete the existing deadlymaracas.com reachability and monetization-readiness assessment. DNS fetch failure and unconfigured analytics leave audience, revenue, SEO, compliance, and operations unknown. Retain parked status unless checklist evidence supports a bounded next step.",
+        "summary": "Handoff: continue the four existing SearchWoot launch-readiness evidence tasks. Keep the product private and permission outreach unsent. Current evidence supports no public launch or rights-dependent monetization; the smallest next step is the consolidated rights, data-flow, consent, vendor, and incident evidence bundle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing americastrikes.com affiliate-reference repair. Replace or remove only confirmed invalid references, preserve the registered tracking ID, and record before/after link validation. Do not claim orders, commission, ROI, or causal lift.",
+        "summary": "Handoff: retain the existing fleet security evidence matrix only. All 59 security sitefacts remain unknown and fleet-doctor/operations sweeps have no results. Preserve private launch gates and perform authorized read-only evidence capture without credentials, permission changes, dependencies, deployment, exploitation, or outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: preserve the site-factory draft pipeline and existing parked-site dispositions, but do not dispatch launches or production work. Reconcile owner, legal, security, release, rollback, attribution, and measurement evidence before reconsideration.",
         "requested_action": null,
         "proposal_id": null
       }
