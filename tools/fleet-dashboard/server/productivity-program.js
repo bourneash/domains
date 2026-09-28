@@ -296,6 +296,48 @@ function evaluate(baseline, current) {
   };
 }
 
+function recordPilotMeasurement(store, pilot, { now = new Date() } = {}) {
+  if (!store || !pilot) throw new Error('store and pilot are required');
+  const measuredAt = now instanceof Date ? now : new Date(now);
+  if (!Number.isFinite(measuredAt.getTime())) throw new Error('invalid measurement time');
+  const current = snapshot(store, {
+    from: pilot.start_at,
+    to: measuredAt.toISOString(),
+    treatment_sites: pilot.treatment_sites,
+    control_sites: pilot.control_sites,
+  });
+  const dueAt = Date.parse(pilot.end_at || '');
+  const final = Number.isFinite(dueAt) && measuredAt.getTime() >= dueAt;
+  const evaluation = evaluate(pilot.baseline, current);
+  if (final) {
+    store.createProductivitySnapshot({
+      pilot_id: pilot.pilot_id,
+      phase: 'evaluation',
+      snapshot: current,
+      created_at: measuredAt.toISOString(),
+    });
+    const status =
+      evaluation.passed === true
+        ? 'passed'
+        : evaluation.passed === false
+          ? 'needs-adjustment'
+          : 'active';
+    return {
+      final: true,
+      current,
+      evaluation,
+      pilot: store.updateProductivityPilot(pilot.pilot_id, { status, evaluation }),
+    };
+  }
+  store.createProductivitySnapshot({
+    pilot_id: pilot.pilot_id,
+    phase: 'progress',
+    snapshot: current,
+    created_at: measuredAt.toISOString(),
+  });
+  return { final: false, current, evaluation, pilot };
+}
+
 module.exports = {
   LANES,
   normalizeSites,
@@ -305,4 +347,5 @@ module.exports = {
   treatmentBatch,
   siteCategoryEligibility,
   queueReadiness,
+  recordPilotMeasurement,
 };

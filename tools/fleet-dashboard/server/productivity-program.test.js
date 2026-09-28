@@ -232,3 +232,49 @@ test('productivity output does not count pre-existing work reconciled during the
   assert.equal(result.treatment.work_completed, 1);
   db.close();
 });
+
+test('pilot measurement finalizes at end time and persists the decision', () => {
+  const db = fixture();
+  const start = '2026-09-01T00:00:00.000Z';
+  const end = '2026-09-08T00:00:00.000Z';
+  const pilot = db.createProductivityPilot({
+    pilot_id: 'pilot-finalize',
+    name: 'Finalize test',
+    treatment_sites: ['treatment.example'],
+    control_sites: ['control.example'],
+    start_at: start,
+    end_at: end,
+    baseline: {
+      treatment: { shipped_output: 0, requests_failed: 0 },
+      control: { shipped_output: 0, requests_failed: 0 },
+    },
+  });
+  db.updateProductivityPilot(pilot.pilot_id, { status: 'active', baseline: pilot.baseline });
+  db.createChangeRequest({
+    request_id: 'final-request',
+    site: 'treatment.example',
+    title: 'Validated design change',
+    body: 'Design improvement',
+    category: 'design',
+    status: 'verified',
+    created_at: '2026-09-02T00:00:00.000Z',
+  });
+  db.createImprovement({
+    site: 'treatment.example',
+    source: 'productivity-pilot',
+    source_id: 'final-request',
+    title: 'Validated output',
+    state: 'measuring',
+    measurement_due: end,
+    baseline: { captured_at: start },
+    validation: { passed: true },
+  });
+  const result = productivity.recordPilotMeasurement(db, db.getProductivityPilot(pilot.pilot_id), {
+    now: new Date(end),
+  });
+  assert.equal(result.final, true);
+  assert.equal(result.pilot.status, 'needs-adjustment');
+  assert.equal(db.listProductivitySnapshots(pilot.pilot_id, { limit: 1 })[0].phase, 'evaluation');
+  assert.equal(db.getProductivityPilot(pilot.pilot_id).evaluation.status, 'needs-adjustment');
+  db.close();
+});

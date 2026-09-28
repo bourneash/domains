@@ -26,23 +26,19 @@ measurements.run({ root })
     const pilots = store.listProductivityPilots({ status: 'active', limit: 20 });
     const snapshots = [];
     for (const pilot of pilots) {
-      const current = productivity.snapshot(store, {
-        from: pilot.start_at,
-        to: new Date().toISOString(),
-        treatment_sites: pilot.treatment_sites,
-        control_sites: pilot.control_sites,
-      });
       const last = store.listProductivitySnapshots(pilot.pilot_id, { limit: 1 })[0];
       const lastAt = Date.parse(last?.created_at || '');
       // Measurement jobs may run more often than the evidence cadence. Keep
       // the trail useful without writing duplicate snapshots in one interval.
       if (Number.isFinite(lastAt) && Date.now() - lastAt < 10 * 60 * 1000) continue;
-      store.createProductivitySnapshot({
+      const recorded = productivity.recordPilotMeasurement(store, pilot);
+      snapshots.push({
         pilot_id: pilot.pilot_id,
-        phase: 'progress',
-        snapshot: current,
+        phase: recorded.final ? 'evaluation' : 'progress',
+        snapshot: recorded.current,
+        evaluation: recorded.evaluation,
+        status: recorded.pilot.status,
       });
-      snapshots.push({ pilot_id: pilot.pilot_id, snapshot: current });
     }
     store.close();
     process.stdout.write(JSON.stringify({ measurement: result, productivity_snapshots: snapshots }) + '\n');
