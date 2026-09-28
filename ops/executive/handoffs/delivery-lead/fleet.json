@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:40:02.258Z",
+  "generated_at": "2026-09-28T00:22:15.841Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: keep the four CRO proposals as deferred backlog. Their evidence is useful for later isolated prototypes, but current gates block dispatch: zero queue candidates, active failures, pending measurement, incomplete attribution, and unavailable operations/security sweeps. Do not duplicate, requeue, add telemetry, install dependencies, deploy, or spend.",
+        "summary": "Handoff: retain CRO, SEO, UX, site-factory, and repository opportunities as deferred backlog. Do not create, duplicate, requeue, deploy, add telemetry, spend, or expand monetization until existing failure, validation, attribution, measurement, and release gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

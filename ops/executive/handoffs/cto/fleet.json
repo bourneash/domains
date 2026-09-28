@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:52:47.600Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T00:39:58.509Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Do not create or requeue production work this cycle. Retain the proposed SEO, UX, affiliate, site-factory, and product opportunities as deferred backlog. Existing failure repairs, measurement windows, attribution reconciliation, security evidence, validation, rollback, and deduplication gates remain open. No new telemetry, dependencies, deployments, spend, credentials, configuration changes, experiments, or monetization changes are authorized. Existing work remains isolated and reversible; queue admission can resume only after ownership, deterministic validation, rollback, deduplication, and an available recorded measurement boundary are evidenced. Preserve all unknown telemetry and do not claim revenue, ROI, margin, payback, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Technical disposition: the deferred broadwayshowgirls.com UX packet and deeppenetrations.com metadata packet are feasible as small isolated reversible changes, but neither is safe to enter the existing queue this cycle because current admission controls and measurement/review capacity are not clear. Retain their existing evidence and acceptance criteria without dispatch.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only existing repair-or-close, measurement, attribution, legal, and security evidence work. Keep private launch gates and parked dispositions unchanged. Operations and fleet-doctor sweeps remain unavailable, so no security clearance or deployment readiness should be inferred. Reconsider queue admission only after the current evidence and failure backlog is reduced and the authoritative candidate list contains an implementable, deduplicated, measurable request.",
+        "summary": "Reject new production dispatch, requeues, dependencies, telemetry, deployments, spend, experiments, and monetization changes this cycle. Continue existing repair-or-close, validation, rollback, deduplication, measurement, attribution, legal, and security work. Preserve the proposed control-plane, SEO, affiliate, UX, and content capabilities as deferred backlog only. Queue admission may resume only after ownership, isolated deterministic validation, rollback, release, deduplication, and an existing measurement boundary are evidenced. Preserve all unknown telemetry and do not claim revenue, ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

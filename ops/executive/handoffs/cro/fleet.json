@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-27T23:22:15.977Z",
+  "generated_at": "2026-09-28T00:39:58.508Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain these evidence-backed opportunities as deferred backlog only; do not create queue work this cycle. 1) saveusfarms.com: refresh the title/meta treatment for the article with 1,668 impressions, position 10.5, and 0 clicks; metric is organic CTR/clicks after 100 new impressions; smallest reversible prototype is metadata-only with rollback. 2) deeppenetrations.com: improve the /reviews/liquid-wrench search result, which has 95 impressions, position 2.8, and 0 clicks; metric is CTR/clicks after 100 new impressions; prototype is title/description copy only. 3) Fleet UX component pattern: prototype one accessible CTA/card pattern inspired by shadcn-ui/ui. The lab found MIT licensing, three of three bounded checks passed, and no dependency installation or production access; risks are dependency/supply-chain review, Astro/Cloudflare compatibility, bundle impact, and maintenance drift. Smallest prototype is a manually copied isolated component in one preview, with no package adoption. Mermaid remains research-only: MIT licensed and relevant to content diagrams, but native checks were unavailable and SVG sanitization/page weight require review. Markitdown is MIT licensed with eight of eight bounded checks passing, but introduces Python/runtime and document-parser security review; prototype only as an offline content transformation fixture. Expected learning is whether the isolated pattern or metadata change improves measurable search/CTA behavior without new tracking, spend, credentials, domains, or deployment. Financial return, causal lift, and revenue attribution remain unknown.",
+        "summary": "Retain four evidence-backed opportunities as deferred backlog only. Current queue admission is blocked by zero eligible candidates, 47 failure follow-ups, 31 improvements awaiting measurement, incomplete attribution, and unavailable operations/security sweeps. No deployment, spend, credential, domain, telemetry, dependency, or monetization change is requested. Reconsider only after existing repair, validation, rollback, deduplication, attribution, and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

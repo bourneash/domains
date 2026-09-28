@@ -1,0 +1,25 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "growth-director",
+  "site": "fleet",
+  "generated_at": "2026-09-28T00:39:58.507Z",
+  "summary": "growth-director checked in 2 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new SEO or growth change request is safe this cycle. The authoritative snapshot reports zero queue-eligible candidates, 47 failure follow-ups, 31 deployed improvements awaiting measurement, incomplete attribution, unavailable operations/security sweeps, and only 2 proven outcomes. Preserve existing SEO opportunities as deferred backlog, including 93 actions across 39 measured sites, and continue existing repair, validation, measurement, attribution, legal, and security work. Reconsider dispatch only when ownership, deterministic acceptance tests, rollback, deduplication, release, and an existing measurement boundary are evidenced. Do not infer traffic, revenue, ROI, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "When queue admission resumes, prioritize existing high-evidence SEO work by measured opportunity: saveusfarms.com CTR improvement on /articles/2026-09-03-michigan-land-trusts-fight-farm-loss (1,668 impressions, position 10.5, 0 clicks); xxxtea.com cannibalization review across five competing pages; and marineactivity.com /guides/ais-navigational-status-codes (332 impressions, position 8.2, 3 clicks). Each future request must declare target URL, baseline, metric, sample window, acceptance test, and rollback. No new telemetry or unsupported outcome claims.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
+  }
+}
