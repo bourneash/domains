@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:22:02.441Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:36:26.628Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject all new production work, requeues, experiments, telemetry, spending, monetization changes, and unsupported financial or causal claims. Preserve the aggregate commission as unattributed and continue only existing repair, measurement, attribution, legal, security, and reconciliation work. The proposed security proposal is duplicative of the existing evidence work item; retain that work without creating a new proposal. No bounded public research is justified because the relevant evidence and telemetry already exist.",
+        "summary": "Reject all new proposals, change requests, requeues, deployments, spending, telemetry, monetization expansion, and external outreach this cycle. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; ROI, margin, payback, causal lift, cost-to-learn, and budget capacity remain unknown. Preserve deferred opportunities as backlog, keep private launch gates unchanged, and continue only existing reconciliation, repair-or-close, measurement, legal, and security evidence work. Owner concern: 39 improvements await measurement, 8 requests failed, only 2 outcomes are proven, and operations/security evidence is unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only backlog. Do not implement, deploy, expand affiliate use, alter attribution, or claim revenue or conversion lift. Continue the existing legal and security evidence gates and record only evidence-backed dispositions.",
         "requested_action": null,
         "proposal_id": null
       }
