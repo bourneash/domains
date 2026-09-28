@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:36:34.820Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:52:49.197Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: queue one preview-only, reversible CTA and metadata pass for dumbsluts.com, and reject the elevatorfriends.com request as duplicate. Evidence: dumbsluts.com has completed bounded public inspection, an approved unexecuted readiness proposal, and no active site work is listed; elevatorfriends.com already has a verified readiness report. Portfolio evidence remains constrained: 39 improvements await measurement, 8 requests failed, and only 2 outcomes are proven. Production revenue, ROI, and causal lift remain unknown; the $4.92 commission for 2026-09-21 is aggregate and unattributed. Smallest next step: validate the dumbsluts preview within 72 hours, preserving production state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: route the bounded dumbsluts.com preview through the normal isolated review queue. Do not deploy, add telemetry, alter credentials, change destinations, or infer audience classification from the domain name.",
+        "summary": "Recommendation: defer the proposed infrainnovator.com preview and all four CRO proposals this cycle. Evidence: the authoritative candidate list is empty; 39 improvements await measurement, 8 requests failed, only 2 outcomes are proven, and security/operations evidence is incomplete. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; ROI, margin, causal lift, and cost-to-learn are unknown. Smallest next step: delivery-lead records dated unblock evidence and resolves existing repair, measurement, attribution, ownership, and release gates. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       }

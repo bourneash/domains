@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:36:34.819Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:52:49.196Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain affiliate repair and attribution work as bounded report-only follow-ups; do not deploy, add telemetry, change credentials, spend, or infer ROI. Preserve the 629 aggregate clicks and $4.92 aggregate commission as unattributed.",
+        "summary": "Maintain containment-only execution. Revenue covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row is not site-attributable; site revenue, ROI, margin, payback, and causal lift remain unknown. Route only reconciliation and evidence work until measurement and failure gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Defer the proposed infrainnovator.com preview until existing failure-repair, measurement, ownership, attribution, and release gates clear. Preserve it as backlog; no production change or lift claim is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

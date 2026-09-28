@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:36:34.820Z",
+  "generated_at": "2026-09-28T05:52:49.197Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new dumbsluts.com preview from queue entry this cycle. The scoped change is technically feasible and reversible, but existing failure-repair, measurement, attribution, release, ownership, and security gates make new implementation dispatch unsafe. Preserve the CEO’s CTA and metadata objective as deferred backlog; do not create or requeue work, deploy, add telemetry, alter credentials, destinations, disclosures, or configuration. Continue existing repair-or-close and evidence work using recorded telemetry only.",
+        "summary": "Handoff: reject the infrainnovator.com change request for queue entry this cycle. Preserve it as deferred backlog because active measurement, failure-repair, ownership, release, attribution, and security gates remain open. Do not deploy, add telemetry, dependencies, credentials, or spend. Reconsider only after isolated validation and rollback evidence are recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing elevatorfriends.com readiness report and other site-factory briefs without duplicate execution. No new readiness packet, production work, launch activity, or telemetry request is warranted while ownership, legal, security, measurement, and rollback gates remain incomplete.",
+        "summary": "Reject the infrainnovator.com preview for queue entry this cycle. The proposed scope is technically feasible, isolated, reversible, and measurable through deterministic preview checks, but active measurement, failure-repair, ownership, release, attribution, rollback, and security gates remain incomplete. Preserve the specification as deferred backlog; do not create or requeue implementation work, deploy, add telemetry, dependencies, credentials, destinations, or spend. Reconsider only after existing gates clear and isolated validation ownership is confirmed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failure repair, measurement, attribution, legal, and security evidence work. Preserve aggregate provider commission as unattributed and keep revenue, ROI, margin, payback, causal lift, and cost-to-learn unknown. Do not treat output counts or existing telemetry as proof of financial or causal performance.",
+        "summary": "Maintain containment-only execution and continue existing repair-or-close, measurement, attribution, legal, and security evidence work. Treat revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown. Preserve aggregate provider commission as unattributed and do not create duplicate telemetry or financial work.",
         "requested_action": null,
         "proposal_id": null
       }
