@@ -699,7 +699,14 @@ function ensureOwnerRequestCoverage(store, plan) {
   );
   const pendingRequests = store
     .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
-    .filter(isPendingOwnerRequest);
+    .filter(isPendingOwnerRequest)
+    // Owner-request records predate the current prompt redaction boundary in
+    // some environments. Never reintroduce an excluded site while adding the
+    // mandatory acknowledgement messages after provider-plan sanitization.
+    .filter(item => {
+      const serialized = JSON.stringify(item || '').toLowerCase();
+      return ![...EXECUTIVE_EXCLUDED_SITES].some(site => serialized.includes(site));
+    });
 
   // Provider passes may legitimately fill the message budget with status
   // updates. Reserve enough room for mandatory CEO acknowledgements before

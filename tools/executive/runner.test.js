@@ -2075,6 +2075,36 @@ test('rejects plans that mention or target the excluded site', () => {
   );
 });
 
+test('owner-request coverage does not reintroduce an excluded site', () => {
+  const plan = { messages: [] };
+  runner.ensureOwnerRequestCoverage(
+    {
+      listExecutiveWorkItems: () => [
+        {
+          work_id: 'excluded-owner-request',
+          source_id: 'owner-message',
+          source_type: 'owner-request',
+          status: 'open',
+          lifecycle_state: 'open',
+          summary: 'Review 3boobs.com immediately',
+        },
+        {
+          work_id: 'managed-owner-request',
+          source_id: 'managed-message',
+          source_type: 'owner-request',
+          status: 'open',
+          lifecycle_state: 'open',
+          summary: 'Improve example.com conversion tracking',
+        },
+      ],
+    },
+    plan
+  );
+  assert.equal(plan.messages.length, 1);
+  assert.equal(plan.messages[0].work_id, 'managed-owner-request');
+  assert.doesNotMatch(JSON.stringify(plan), /3boobs(?:\.com)?/i);
+});
+
 test('only routes executive implementation proposals to engineer roles', () => {
   const base = {
     messages: [],
