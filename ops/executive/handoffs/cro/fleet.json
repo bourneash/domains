@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:52:19.602Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:37:38.250Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain the following as deferred CEO/CTO research leads; do not dispatch, install dependencies, deploy, spend, add telemetry, or change monetization this cycle. Fleet containment remains appropriate because 36 improvements await measurement, 9 implementation requests failed, ownership and validation gates remain incomplete, and only 3 outcomes are proven.\n\n1. Microsoft MarkItDown (MIT): offline conversion of approved internal documents into Markdown could reduce source-backed SEO/content production effort across editorial and affiliate sites. Evidence: weekly trend signal at 187,397 stars; CRO lab passed 8/8 bounded checks with 194 files and no dependency installation. Risks: parser fidelity, transitive dependency and supply-chain review, maintenance, and rights to source documents. Metric: publishable-content throughput, editor correction rate, and indexed-page outcomes; revenue remains unknown. Time-to-learn: 1–2 weeks. Smallest reversible prototype: convert one fixed, owner-approved document fixture in a disposable workspace and compare output against a manually prepared Markdown baseline.\n\n2. Mermaid (MIT): render explanatory diagrams for guides, comparison pages, and technical editorial content where visual structure may improve comprehension and engagement. Evidence: daily trend signal at 90,456 stars; CRO lab supported the SEO-content fit, but no safe native checks were available without installing dependencies. Risks: dependency and rendering security review, accessibility of generated SVG, visual accuracy, maintenance, and no evidence of conversion lift. Metric: assisted-page engagement and search performance using existing telemetry only; causal lift remains unknown. Time-to-learn: 1–2 weeks. Smallest reversible prototype: render one static diagram from a fixed internal fixture offline, then run accessibility and deterministic output checks.\n\n3. shadcn/ui (MIT): selectively adapt accessible, customizable components for repeatable CTA, comparison-card, and merchandising layouts across the fleet, reducing one-off UI work. Evidence: daily trend signal at 124,749 stars; CRO lab completed 3/3 bounded checks across 3 checks, with no dependency installation. Risks: component dependency and provenance review, styling regressions, accessibility validation, bundle impact, maintenance, and cross-site design drift. Metric: preview validation pass rate, task cycle time, Core Web Vitals, and existing CTA/conversion telemetry where available; no lift is assumed. Time-to-learn: 1 week. Smallest reversible prototype: reproduce one page-local CTA component in an isolated worktree without adding it to production or changing shared infrastructure.\n\n4. Affiliate attribution repair as a product opportunity: standardize registered tracking-ID validation and link-level reconciliation before any further affiliate optimization. Evidence: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; named site rows exist, but the aggregate earnings row is not assignable to a site. Existing site-specific repairs and the pending amputeenews.com tag prerequisite are already in the queue and must not be duplicated. Risks: owner-controlled tag dependency, incorrect attribution, provider-policy constraints, and incomplete matching-period cost evidence. Metric: valid tracking-ID coverage and attributable ordered/shipped items and commission; ROI and margin remain unknown. Time-to-learn: one reporting cycle after existing repairs clear. Smallest reversible prototype: offline validation of registered tracking IDs against generated affiliate URLs and existing configuration, with no credential or production change.",
+        "summary": "Reject the proposed AI cost-governance control-plane product this cycle. Existing evidence supports a need, but the work is outside the current growth execution scope while 36 improvements await measurement, 11 requests are failed, 5 repair follow-ups remain open, and 103 work items are stranded. Preserve the concept as deferred backlog; continue existing measurement, repair-or-close, attribution reconciliation, and security evidence work. Do not add telemetry, requeue work, change model routing, set budgets, deploy, spend, or claim financial improvement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain MarkItDown, Mermaid, shadcn/ui, CTA/comparison-card concepts, and evidence-backed SEO, UX, accessibility, performance, content, and affiliate opportunities as research backlog only. Lab evidence supports feasibility research, not production fit, security clearance, revenue impact, or causal lift. Reconsider only after ownership, failure repair, validation, rollback, release, security, attribution, and measurement gates clear. No adoption, dependency installation, prototype dispatch, deployment, or spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded affiliate-path repair, disclosure validation, and measurement of existing work. Available Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The commission is unattributed; site revenue, ROI, margin, payback, and causal lift remain unknown. Do not expand monetization or claim financial outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:36:34.818Z",
+  "generated_at": "2026-09-28T17:37:38.249Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. The authoritative candidate list is empty; 39 improvements await measurement, 8 requests have failed, and only 2 outcomes are proven. Do not create or requeue SEO, content, design, or growth work. Continue existing measurement, attribution, failure-repair, legal, and security work using recorded telemetry only. Preserve aggregate commission as unattributed and make no causal, revenue, ROI, or readiness claims.",
+        "summary": "Reject the proposed AI cost-governance product specification this cycle because it is outside the Fleet Growth execution scope and would add new control-plane work while 36 improvements await measurement, 11 requests are failed, 5 repair follow-ups remain open, and ownership/validation gates are unresolved. No new growth change request is queue-eligible. Preserve existing evidence-backed SEO opportunities as deferred backlog, including xxxtea.com cannibalization resolution, saveusfarms.com CTR improvement, and marineactivity.com internal-link/page opportunities. Reassess only after active measurement, failure repair, ownership, validation, rollback, security, attribution, and release gates clear. Do not invent telemetry or claim traffic, conversion, revenue, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

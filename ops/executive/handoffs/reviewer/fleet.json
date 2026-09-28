@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:22:41.867Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:37:38.252Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed eastcoastrappers.com queue request because prior metadata-only delivery failed and independent ownership, root cause, validation, rollback, deduplication, security, attribution, and measurement evidence are incomplete. Preserve aggregate commission as unattributed; do not claim revenue, ROI, margin, payback, forecast, or causal lift. Continue only existing evidence, reconciliation, measurement, and repair-or-close work; keep private launch gates unchanged.",
+        "summary": "Reject new production, queue, requeue, spending, telemetry, dependency, deployment, monetization, and unsupported financial or causal claims. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; matching-period costs and financial thresholds are incomplete. Continue only existing SearchWoot launch evidence, security evidence, compliance/data-quality triage, attribution reconciliation, measurement, and repair-or-close work. Keep private launch gates and external permission outreach unchanged pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts. Do not create production work, requeue failures, add telemetry or dependencies, deploy, spend, change credentials or configuration, expand monetization, or conduct external outreach.",
+        "summary": "Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, and monetization claims. No implementation candidate is currently queue-eligible: the two authoritative site-factory candidates require verified launch-readiness evidence, while other candidates are blocked by active measurement/work, ownership gaps, failed-request repair, security evidence, or launch gates. Do not create new change requests. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, compliance, legal, and security evidence work. Amazon data covers 2026-09-21 with $4.92 aggregate commission, which remains unattributed; matching-period costs and financial outcomes are unknown. Keep private and parked dispositions unchanged and keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new production work, requeues, deployments, spend, telemetry, dependencies, monetization changes, and unsupported financial or causal claims. No implementation candidate is currently queue-eligible: site-factory candidates lack verified execution ownership and launch-readiness evidence; the eastcoastrappers.com routing task has retained delivery-failure evidence and lacks independent repair, validation, rollback, deduplication, security, attribution, and measurement gates. Continue only existing measurement, repair-or-close, attribution reconciliation, parked-site verification, and legal/security evidence work. Preserve the $4.92 aggregate commission as unattributed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: revenue is limited to one period and includes an unattributed aggregate row; matching-period costs, budgets, and learning thresholds are missing; 36 improvements await measurement; 12 requests have failed; operations and fleet security sweeps are unavailable; and launch/ownership gates remain incomplete. Keep private and parked dispositions unchanged. Keep rights-related outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not dispatch or requeue new work this cycle. Continue existing repair-or-close and measurement containment, and require dated ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurement evidence before reconsidering any candidate.",
+        "summary": "The required batch of three or more candidates cannot be safely routed because no actionable candidate remains after applying launch, legal, security, ownership, active-work, and measurement gates. The two scored site-factory candidates are explicitly blocked pending verified launch-readiness artifacts. Existing work may continue without dispatching duplicates or requeues; reassess after dated unblock evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       }
