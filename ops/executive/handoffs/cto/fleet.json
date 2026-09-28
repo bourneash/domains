@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:21:20.849Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:37:24.443Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. Create no new proposals, change requests, requeues, telemetry, deployments, dependencies, spend, or outreach. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. Retain all SEO, UX, content, monetization, ownership, deduplication, and launch opportunities as deferred backlog. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded. Preserve aggregate revenue as unattributed and do not infer revenue, ROI, margin, payback, budget capacity, or causal lift.",
+        "summary": "Handoff: retain the three CRO opportunities as deferred backlog. Do not dispatch, requeue, deploy, add dependencies, change telemetry, or spend until active measurement, failure repair, ownership, security, release, rollback, attribution, and validation gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and failure-repair review. Do not dispatch or requeue work until ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are complete.",
+        "summary": "Maintain containment-only execution. Reject the proposed elevatorfriends.com and mynewgm.info change requests for queue entry this cycle because active measurement, failure-repair, ownership, release, security, attribution, rollback, and validation gates remain incomplete. Preserve both scopes as deferred backlog. Continue existing measurement, repair-or-close, legal/security evidence, parked-site, and period-aligned attribution/cost work using recorded telemetry only. Do not create or requeue work, deploy, add dependencies, alter credentials, change destinations, add telemetry, spend, or claim revenue, ROI, margin, payback, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence tasks and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing matching-period revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
+        "summary": "Retain the three CRO opportunities as deferred backlog. The offline content-pipeline concept remains research-only; no production dependency, adoption, publishing, or deployment is authorized. Reconsider only after existing measurement, failure repair, ownership, security, release, rollback, attribution, and validation gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

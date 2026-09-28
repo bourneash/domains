@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:56.865Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:37:24.443Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain a draft-only site-factory pipeline with allthingsmasonic.com as the strongest candidate. Its brief, reusable affiliate/editorial template, content seed, SEO baseline, analytics readiness, affiliate readiness, compliance checklist, and launch gate are specified below, but no new dispatch or launch is authorized. Exactly one next step: reconcile and attach the existing measurement, release, security, attribution, rollback, legal, and owner evidence for allthingsmasonic.com before reconsidering implementation.",
+        "summary": "Maintain a bounded deferred launch pipeline. No new domains, spend, telemetry, deployment, launch, monetization expansion, or requeue is authorized while ownership, legal, security, measurement, release, rollback, attribution, and failure-repair gates remain incomplete. Preserve site briefs, templates, content seeds, SEO baselines, analytics/affiliate readiness, compliance checklists, and launch gates as internal artifacts only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Strongest candidate: elevatorfriends.com. Exactly one next step: reconcile its existing readiness artifact into a single site-factory gate record naming the owner, template/content scope, SEO baseline, analytics and affiliate readiness, compliance status, security disposition, rollback path, and measurement boundary. Do not dispatch implementation or launch until every required gate has dated evidence and owner sign-off.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:21:20.849Z",
+  "generated_at": "2026-09-28T10:37:24.444Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue only the existing matching-period revenue, attribution, and cost reconciliation. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
+        "summary": "Recommendation: maintain containment-only execution and retain only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is under aggregate tracking_id 'other' and cannot be assigned to a site. AI usage records $901.8975 for 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors, so it is not comparable to the one-day revenue period. Contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are not calculable because matching-period site-attributed revenue, infrastructure, domain, labor, marketing, experiment costs, budget ceilings, commitments, and learning thresholds are missing. Sessions, impressions, clicks, ordered items, and conversions remain operating indicators, not financial outcomes. Do not create work, spend, deploy, requeue, change monetization, or make revenue or causal-lift claims. Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Minimum evidence required: provider earnings and site/content identifiers for the same period; complete cost ledger by site and period; approved budget limits and commitments; and an explicit cost-to-learn threshold tied to a measurable outcome.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and retain only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 aggregate commission for 2026-09-21 from 28 ordered items and 6 shipped items; it is not site-attributable. AI usage records $901.897533 for 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors. Contribution margin, cost-to-learn, ROI, payback, budget capacity, forecasts, and causal lift are not calculable because revenue covers one day while AI spend covers 28 days, and matching infrastructure, domain, labor, marketing, experiment costs, budget ceilings, commitments, and a cost-to-learn threshold are absent. Do not treat clicks, impressions, sessions, conversions, proposal counts, or approved-but-unexecuted work as financial outcomes. Do not create duplicate finance work, spend, deploy, change monetization, add telemetry, or requeue work.",
+        "summary": "Retain the existing finance reconciliation work only. Reconcile the 2026-09-21 Amazon earnings against matching-period site-attributed revenue and recorded AI, infrastructure, domain, labor, marketing, and experiment costs. Preserve the $4.92 aggregate commission as unattributed. Record missing cost categories, budget ceilings, commitments, and cost-to-learn thresholds as unknown; do not treat missing data as zero or infer margin, ROI, payback, budget capacity, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile 2026-09-21 provider earnings against matching-period attributed revenue and recorded AI, infrastructure, domain, labor, marketing, and experiment costs. Preserve the $4.92 aggregate as unattributed. Record missing budget ceilings, commitments, and the owner-approved cost-to-learn threshold; escalate only after the minimum evidence is attached.",
+        "summary": "Reject vanity-metric-based financial conclusions. The 30-day scorecard has 3 proven outcomes, 36 improvements awaiting measurement, 9 failed requests, and metric deltas of 14 sessions, 38 clicks, 805 impressions, and zero commission-income delta. These figures do not establish contribution, profitability, or causal lift. Retain existing measurement and repair work without adding telemetry or spend.",
         "requested_action": null,
         "proposal_id": null
       }

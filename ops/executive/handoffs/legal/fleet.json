@@ -2,44 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:21:20.849Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:37:24.444Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch and rights-dependent monetization; conditional for bounded reversible growth. Recommendation: keep SearchWoot private and authorize no public beta, affiliate/advertising expansion, alert expansion, or external permission outreach until human-counsel review and all technical, security, accuracy, measurement, and owner gates are complete. Evidence: Woot documentation establishes API access but not rights to store, derive, cache, display, alert on, or monetize deal data; current terms restrict commercial/public reuse. Fleet compliance is technical-only with 37 pass, 15 fail, and 7 unknown; analytics has yellow source gaps; operations and fleet-doctor sweeps have no results; revenue is $4.92 aggregate for 2026-09-21 and unattributed. Ordinary reversible growth may continue only when existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, affiliate, and data boundaries. Recommendation: keep SearchWoot private, authorize no rights-dependent monetization, alert expansion, deployment, or external permission outreach without human-counsel review and owner authorization. Evidence: Woot API documentation establishes access mechanics but not commercial/public display, storage, derivatives, caching, alerts, images, prices, trademarks, affiliate, or advertising rights; public Woot terms restrict those uses. Fleet compliance is technical-only with 37 pass, 15 fail, and 7 unknown. Analytics is yellow; failing sources are not zero. Revenue is $4.92 aggregate for 2026-09-21 and unattributed. Next evidence action: attach and review one consolidated read-only rights, data-flow, retention, consent, vendor, incident, accuracy, and measurement bundle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. No task is closable on current evidence. Progress consists of official Woot/API/terms/support artifacts, repository/configuration evidence, privacy and cookie-policy artifacts, and draft public terms. Next evidence action: attach and review one consolidated read-only bundle and field-level rights matrix covering provenance, permitted storage/caching/display/derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures. Keep permission outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. No task is closable on current evidence. Continue only the existing evidence workstream; close tasks only when the required artifacts and technical, security, measurement, and owner gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot API deal and price-history data: counsel_required. Missing evidence is written permission or an API agreement plus field-level rights for prices, images, trademarks, historical derivatives, caching, display, alerts, attribution, freshness, correction, takedown, affiliate, and advertising use. Smallest next action: complete the field-level rights matrix and route the unsent permission package for human-counsel review. User alert rules and sync results: evidence_needed. Missing evidence is the actual data inventory, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only repository/deployed data-flow and retention table. GA4 analytics: evidence_needed. Missing evidence is deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment. Smallest next action: capture existing consent and GA4 configuration without enabling tracking or advertising. Operational logs and Cloudflare hosting data: evidence_needed. Missing evidence is the log-field inventory, retention/access controls, vendor or DPA review, incident handling, and data-request procedures. Smallest next action: produce a read-only operator/vendor inventory and identify counsel-required gaps.",
+        "summary": "Site-specific decision: retain complicated.work parked until banner, consent accept/reject, and GA4 failures are remediated. Retain deadlymaracas.com parked until DNS reachability and a concrete compliance checklist are evidenced. Do not infer audience, revenue, compliance, or launch readiness from missing telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Site and checklist disposition: retain complicated.work blocked pending remediation of evidenced banner/consent failures and GA4 failure; retain deadlymaracas.com private/parked because DNS reachability and compliance evidence are unknown; do not infer adult, age-sensitive, or NSFW status from domain names. Do not treat incomplete analytics or revenue telemetry as zero. Affiliate disclosures, claims, provenance, copyright/trademark, platform-policy, privacy, terms, cookie/analytics disclosure, and age-sensitive issues require site-specific evidence before monetization or launch.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution for legal scope. Continue only existing legal evidence, security evidence, repair-or-close, measurement, and matching-period attribution/cost reconciliation work. Do not create or requeue production work, enable tracking, change monetization, deploy, spend, expand alerts, or conduct outreach. Revenue remains aggregate and unattributed; no ROI, margin, payback, forecast, or causal-lift claim is supported.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cro-markitdown-offline-content-pipeline-v1",
+        "summary": "Research-only evaluation may continue offline against authorized documents; human review, provenance, copyright, privacy, dependency, and security checks are required before adoption.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-markitdown-offline-content-pipeline-v1"
       }
     ]
   }

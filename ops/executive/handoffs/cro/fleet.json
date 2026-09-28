@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:06:16.038Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:37:24.443Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution this cycle. Retain existing measurement, repair-or-close, attribution and cost reconciliation, legal evidence, security evidence, affiliate validation, and parked-site readiness work. Defer new experiments, CRO changes, repository adoption, SEO/content changes, monetization expansion, telemetry, deployments, spend, and requeues until ownership, validation, rollback, release, security, attribution, and measurement gates clear. Preserve the CRO backlog as deferred hypotheses with their recorded evidence, risks, metrics, learning windows, and reversible prototype scopes. No revenue, ROI, margin, payback, conversion lift, or causal-lift claims are supported.",
+        "summary": "Retain three evidence-backed CRO opportunities as deferred backlog only. Current containment gates prohibit new dispatch, deployment, spend, telemetry, dependencies, requeues, or monetization changes. The opportunities include an affiliate merchandising test for allthingsmasonic.com, a performance/CTA prototype for 0xroulette.com, and an offline content-pipeline prototype using microsoft/markitdown. Reconsider after active measurement, failure repair, ownership, security, attribution, rollback, and release evidence clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Evidence remains bounded: Amazon reported $4.92 aggregate commission for 2026-09-21 under an aggregate row and it is not site-attributable. Existing site metrics are directional only; no revenue, ROI, margin, payback, or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }
