@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:38:47.552Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T22:10:00.166Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Establish vibratorporn.com audience, monetization, health, and backlog baseline",
-        "summary": "Authoritative evidence records vibratorporn.com analytics as not configured; audience, traffic, conversion, revenue attribution, SEO, operational health, compliance detail, and AI cost are not evidenced in the supplied snapshot. Produce a bounded site-specific baseline without treating unavailable fields as zero.",
-        "requested_action": "Create a timestamped read-only assessment using existing authoritative registry, analytics, SEO, revenue-attribution, compliance, operations, social, and AI-usage evidence. Document observable site positioning and content scope only where directly evidenced, list conversion and monetization paths as unknown when unevidenced, identify exactly one evidence-backed next action or blocker, and make no production, telemetry, credential, configuration, spending, or deployment changes.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "45935b50-01a6-4e3f-b785-f62d199c9216",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 0,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
