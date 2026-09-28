@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:22:03.724Z",
+  "generated_at": "2026-09-28T04:37:28.680Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a bounded site-factory pipeline for scaffold properties. Keep all candidates private/parked until owner, legal, security, measurement, compliance, and rollback gates are evidenced. No domains, spend, deployment, launch, credentials, or telemetry changes are authorized.",
+        "summary": "Maintain a bounded site-factory pipeline with no deployment, domain change, spend, credential change, telemetry change, or launch. Keep gate03.com as the strongest candidate by recorded score, but blocked by its missing execution owner. Route one read-only launch-readiness brief for therareunicorn.com and preserve all unverified audience, revenue, attribution, compliance, security, and operational fields as unknown. Require owner, legal, security, measurement, affiliate, rollback, and launch-gate evidence before any public exposure.",
         "requested_action": null,
         "proposal_id": null
       }

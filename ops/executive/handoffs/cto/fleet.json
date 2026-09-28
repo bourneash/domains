@@ -2,49 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:22:03.725Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:37:28.681Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment-only execution. Do not create, requeue, deploy, spend, add telemetry or dependencies, change credentials/configuration, expand monetization, or conduct external outreach this cycle. Existing repair-or-close, measurement, attribution, legal, and security work remains the executable priority; deferred SEO, UX, site-factory, CRO, and repository opportunities remain backlog only.",
+        "summary": "CTO review: approve one bounded report-only launch-readiness assessment for therareunicorn.com. It is technically feasible, isolated, reversible, and measurable without production access, telemetry changes, credentials, dependencies, spend, deployment, or launch-state changes. Preserve all unavailable audience, revenue, attribution, compliance, security, operational, and margin fields as unknown. Do not queue gate03.com work or duplicate its existing owner-gap item.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical review: the deferred candidates are generally reversible and implementable, but none is safely queueable while ownership, failure repair, validation, rollback, deduplication, release, measurement, and security gates remain incomplete. Treat pilot output counts as operational activity only; revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing security evidence capture using authorized metadata and retained artifacts only. Preserve private launch gates and do not access credentials, change permissions, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing failure-repair reviews without requeueing. Reconsider any failed or cancelled implementation only after documented root cause, isolated validation, rollback, ownership, deduplication, and reviewer evidence are complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned attribution and cost reconciliation using recorded telemetry only. Preserve aggregate provider commission as unattributed and do not infer site revenue or financial performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and external permission outreach unsent pending the existing legal, security, accuracy, attribution, measurement, counsel, and owner gates.",
+        "summary": "Maintain containment for all other implementation, experiment, monetization, deployment, requeue, spend, and telemetry changes. Continue existing failure repair, measurement and attribution reconciliation, legal evidence, and security evidence work. Retain SEO, UX, affiliate, site-factory, and CRO opportunities as deferred backlog. Preserve private launch gates and parked dispositions.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:22:03.724Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:37:28.680Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle and drain existing repair, measurement, attribution, legal, and security work. Evidence: 192 approved proposals lack execution, 39 deployed improvements await measurement, 7 requests failed, and only 2 outcomes are proven in the 30-day scorecard. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, payback, causal lift, and budget capacity remain unknown. No unblocked implementation candidate is supported because active queue, failure-repair, ownership, release, security, and measurement gates remain open. Smallest next step: delivery-lead records dated unblock evidence and escalates overdue blockers. Owner decision: keep the Woot permission request unsent pending human-counsel review, or authorize it after review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue existing repair-or-close, measurement reconciliation, and failure containment. Do not requeue cancelled or failed requests without documented root cause, isolated validation, rollback, ownership, and deduplication evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve private launch gates and continue the existing read-only security evidence matrix. Fleet-doctor and operations sweeps have no results, and all 59 security sitefacts remain unknown; no public exposure or security-sensitive release is cleared.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain the SearchWoot private gate and continue the four open evidence tasks. External permission outreach remains unsent until human-counsel review and owner authorization.",
+        "summary": "Recommendation: queue one bounded, read-only launch-readiness assessment for therareunicorn.com. Evidence: it is a parked scaffold for 51 days, analytics is not configured, and its actionability score is 65.1; audience, revenue, attribution, compliance, security, and margin remain unknown. The assessment changes no production state and measures checklist completeness. Portfolio controls remain contained: 39 improvements await measurement, 8 requests failed, and revenue is only $4.92 aggregate for 2026-09-21 and unattributed. Keep SearchWoot private and authorize no Woot outreach until human-counsel review. Owner decision: authorize the prepared Woot request after counsel review, or keep it unsent.",
         "requested_action": null,
         "proposal_id": null
       }
