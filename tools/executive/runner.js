@@ -2278,7 +2278,12 @@ function proposalSite(proposal, root = ROOT) {
 
 function approvedReportOnlyImplementation(proposal, root = ROOT) {
   const implementation = proposal?.implementation;
-  if (implementation && typeof implementation === 'object' && Object.keys(implementation).length)
+  if (
+    implementation &&
+    typeof implementation === 'object' &&
+    String(implementation.title || '').trim() &&
+    String(implementation.body || '').trim()
+  )
     return implementation;
   const text = `${proposal?.title || ''}\n${proposal?.summary || ''}\n${proposal?.requested_action || ''}`;
   const explicitlyReadOnly =
@@ -2321,6 +2326,7 @@ function approvedReportOnlyImplementation(proposal, root = ROOT) {
     auto_review: true,
     delivery_mode: 'report_only',
     action_key: 'approved-proposal-report',
+    ...(implementation && typeof implementation === 'object' ? implementation : {}),
   };
 }
 
@@ -2331,24 +2337,32 @@ function approvedFollowThroughQueueDecision(proposal, implementation = {}) {
   const deliveryMode = String(implementation?.delivery_mode || '')
     .trim()
     .toLowerCase();
-  const explicitModelOptIn = implementation?.allow_model_followthrough === true;
+  // An approved report-only proposal is already an owner-approved bounded
+  // commitment. Keep an explicit false escape hatch for sensitive cases, but
+  // do not require a second opt-in that leaves approved evidence,
+  // attribution, and monetization-readiness cases permanently idle.
+  const reportFollowThroughDisabled = implementation?.allow_model_followthrough === false;
   if (proposalType === 'report-only' || deliveryMode === 'report_only') {
-    return explicitModelOptIn
-      ? { queue: true, reason: 'explicit owner-approved model follow-through' }
-      : {
-          queue: false,
-          reason:
-            'report-only follow-through is recorded in the workbench; model execution requires explicit allow_model_followthrough=true',
-        };
+    return reportFollowThroughDisabled
+      ? { queue: false, reason: 'report-only follow-through explicitly disabled by owner' }
+      : { queue: true, reason: 'approved bounded report-only follow-through' };
   }
   return { queue: true, reason: 'implementation follow-through' };
 }
 
 function approvedImplementation(proposal, root = ROOT) {
   const implementation = proposal?.implementation;
-  if (implementation && typeof implementation === 'object' && Object.keys(implementation).length)
-    return implementation;
-  return approvedReportOnlyImplementation(proposal, root);
+  const hasImplementation =
+    implementation && typeof implementation === 'object' && Object.keys(implementation).length;
+  const hasExecutableBody =
+    hasImplementation &&
+    String(implementation.title || '').trim() &&
+    String(implementation.body || '').trim();
+  if (hasExecutableBody) return implementation;
+  const reportOnly = approvedReportOnlyImplementation(proposal, root);
+  if (Object.keys(reportOnly).length)
+    return { ...reportOnly, ...(hasImplementation ? implementation : {}) };
+  return hasImplementation ? implementation : {};
 }
 
 function normalizeApprovedImplementation(proposal, root = ROOT) {

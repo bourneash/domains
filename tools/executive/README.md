@@ -179,10 +179,9 @@ or failed audit record.
 
 Before each model pass, `run-approved-work.sh` performs a cheap deterministic
 drain of already-approved proposals. It routes concrete implementation work
-through the normal worker queue while keeping report-only approvals as quiet,
-durable workbench records. A report-only item enters the model queue only when
-the approval explicitly sets `implementation.allow_model_followthrough=true`,
-and then it is capped at four turns. This preserves site-capacity,
+through the normal worker queue and routes approved report-only commitments as
+bounded, read-only work. A report-only item is capped at four turns unless its
+implementation explicitly sets `allow_model_followthrough=false`. This preserves site-capacity,
 Legal/Security launch gates, and audit events without spending a model pass on
 routine evidence collection; it never authorizes a new proposal or bypasses
 the queue/reviewer pipeline.

@@ -213,6 +213,23 @@ test('candidate capacity distinguishes independent work lanes', () => {
   assert.equal(runner.candidateQueueCategory({ type: 'site-factory-build' }), 'engineering');
 });
 
+test('approved report-only commitments are queueable unless explicitly disabled', () => {
+  assert.deepEqual(
+    runner.approvedFollowThroughQueueDecision(
+      { proposal_type: 'report-only' },
+      { delivery_mode: 'report_only' }
+    ),
+    { queue: true, reason: 'approved bounded report-only follow-through' }
+  );
+  assert.equal(
+    runner.approvedFollowThroughQueueDecision(
+      { proposal_type: 'report-only' },
+      { delivery_mode: 'report_only', allow_model_followthrough: false }
+    ).queue,
+    false
+  );
+});
+
 test('site-factory launch-readiness candidates require report coverage', () => {
   const brief = {
     launch_readiness: [],
