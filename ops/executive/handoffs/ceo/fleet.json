@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:53:47.488Z",
+  "generated_at": "2026-09-28T18:08:16.785Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: route the existing eastcoastrappers.com task-routing repair now. Evidence: the actionability scorecard identifies it as the highest-confidence unblocked candidate with score 96; 36 improvements await measurement and 14 requests have failed. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin and causal lift are unknown. Operations and fleet-doctor baselines are unavailable. Smallest next step: engineer validates the routing change within 72 hours. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: preserve containment for new launches and production work while delivery-lead clears existing gates. Evidence: all three site-factory candidates require execution-owner and launch-readiness evidence; 55 active improvements, 39 awaiting measurement, 14 failed requests, and only 3 proven outcomes remain. Revenue is $4.92 aggregate commission for 2026-09-21 and unattributed; margin and causal lift are unknown. Data Hub health and operations/fleet-doctor sweeps are unavailable, and analytics is yellow from source-permission errors. Smallest next step: delivery-lead attach dated ownership, validation, rollback, security, attribution, and measurement evidence by 2026-09-28T19:00Z. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: validate the scoped eastcoastrappers.com task-routing repair through the normal engineer queue. Require dated ownership, deterministic routing tests, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, and spend are unchanged.",
+        "summary": "Handoff: continue existing delivery containment. Do not queue complicated.work, deadlymaracas.com, or driveford.net launch work until execution-owner and launch-readiness evidence is verified. Preserve parked/private state and update the existing owner-gap records only.",
         "requested_action": null,
         "proposal_id": null
       }

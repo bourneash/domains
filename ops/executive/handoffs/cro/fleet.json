@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:53:47.487Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T18:08:16.785Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Create no new proposals, experiments, dependencies, or production work this cycle. Existing gates require containment: 38 improvements await measurement, 14 requests failed, 146 approved proposals lack execution requests, operations/fleet-doctor evidence is unavailable, and revenue attribution is partial. Retain these CRO opportunities for CEO/CTO review after gates clear: (1) allthingsmasonic.com affiliate CTA/disclosure refinement, supported by 61 Amazon clicks and 0 site-attributed orders in the available window; metric: affiliate click-to-order rate, learn in 14 days or 100 new impressions, prototype: one CTA/disclosure variant with file-level rollback; (2) xxxtea.com query-cannibalization resolution across five pages sharing 94 impressions; metric: target-query clicks and impressions, learn after the existing measurement window, prototype: canonical/intent-map change on one page cluster; (3) MarkItDown-based offline content normalization for SEO drafts; MIT license and 8/8 bounded checks support feasibility, but dependency, parser, supply-chain, and content-quality risks require isolated validation; metric: publish-ready draft acceptance rate, learn in one batch, prototype: convert three local documents without production integration; (4) shadcn/ui-based accessible CTA/comparison-card prototype; MIT license and 3/3 bounded checks support feasibility, but dependency drift, bundle impact, and visual consistency require review; metric: CTA engagement or task completion using existing telemetry, learn in one preview cycle, prototype: one isolated component preview. Mermaid remains research-only because the lab found no native checks without dependency installation; use only as an offline preview after validation. Do not claim revenue, ROI, causal lift, or site-level commission from aggregate Amazon earnings.",
+        "summary": "CRO recommends retaining three evidence-backed opportunities for later isolated validation: a reusable affiliate/CTA component system, offline source-to-Markdown content normalization, and static explanatory diagrams. Current containment remains appropriate because measurement, attribution, failure repair, ownership, security, and release gates are incomplete. No deployment, dependency installation, spend, telemetry change, or owner approval request is made.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain four bounded opportunities without dispatch: allthingsmasonic affiliate CTA refinement; xxxtea cannibalization cleanup; offline MarkItDown content normalization; isolated shadcn/ui CTA/comparison-card preview. Each requires isolated preview, deterministic build/accessibility/security checks, existing-telemetry measurement only, and file-level rollback. MarkItDown and shadcn/ui are MIT-licensed and passed available bounded lab checks, but those checks did not install dependencies or establish production security, maintenance, or performance fit. Mermaid is MIT-licensed and use-case-supported, but no safe native checks ran; keep it offline research only. No adoption, dependency installation, deployment, credentials, spend, new telemetry, or external outreach is requested.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair-or-close, measurement, attribution reconciliation, security evidence, and execution-owner work. The only retained implementation path is the already-routed eastcoastrappers.com task-routing repair. Do not create duplicate change requests or experiments. Revenue remains $4.92 aggregate commission for 2026-09-21 and unattributed; matching-period costs, margin, ROI, and causal lift remain unknown.",
+        "summary": "Repository signals support feasibility research, not adoption. Before any implementation, require an isolated fixture-only prototype, license review, dependency and supply-chain review, deterministic tests, rollback evidence, and a measurable acceptance metric. Preserve all three opportunities as deferred research backlog until existing containment gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

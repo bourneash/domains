@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:21:53.273Z",
-  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T18:08:16.784Z",
+  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution for the managed websites portfolio this cycle. The authoritative candidate list is empty; 36 improvements await measurement, 9 implementation requests failed, and only 3 outcomes are proven. Existing SEO, UX, accessibility, content, performance, and monetization opportunities should remain deferred until measurement, ownership, validation, rollback, security, and attribution gates clear. Continue existing measurement, repair-or-close, parked-site verification, and reconciliation work only. Do not create new production work, requeue requests, add telemetry, spend, deploy, or claim site-level revenue or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution for the managed websites portfolio this cycle. No new design or implementation work is queue-eligible because 36 improvements await measurement, 9 implementation requests failed, ownership and validation gates remain incomplete, and only 3 outcomes are proven. Continue existing measurement, repair-or-close, parked-site verification, and attribution reconciliation. Keep deferred UX/design opportunities for 0xroulette.com, amputeenews.com, allthingsmasonic.com, greatamericanlakes.com, blackmarketapparel.com, broadwayshowgirls.com, marineactivity.com, and saveusfarms.com unchanged until their existing work clears. Do not create new production work, requeue requests, add telemetry, spend, deploy, or claim conversion lift or revenue impact.",
+        "summary": "Recommendation: maintain containment-only execution for new site product work this cycle. Existing evidence supports prioritizing measurement, failure repair, attribution reconciliation, and security/readiness evidence before additional launches or experiments. SEO and UX opportunities remain deferred backlog; no unsupported revenue or causal claims are made. The three site-factory candidates require verified launch-readiness and execution-owner evidence, so do not queue them yet. Continue existing reversible work through the approved engineer queue and re-evaluate when those gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
