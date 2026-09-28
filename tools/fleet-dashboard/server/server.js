@@ -118,7 +118,7 @@ const AUTOMATIC_DELIVERY_CLAIM_MAX_MS = 15 * 60 * 1000;
 // Bump this when the validation harness changes. A preserved implementation
 // may then receive one bounded revalidation automatically, without reopening
 // the same infrastructure failure on every queue pulse.
-const INFRASTRUCTURE_REVALIDATION_VERSION = 'worker-runtime-preview-v8';
+const INFRASTRUCTURE_REVALIDATION_VERSION = 'worker-runtime-preview-v9';
 // Recovery inspects historical failed work and may need Docker/Git probes.
 // It must not hold the normal queue pickup path hostage when an old worker or
 // container is slow; the recovery lock keeps the long pass single-flight.
