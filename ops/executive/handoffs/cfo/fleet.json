@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:06:52.170Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:21:43.902Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and reject new spend, production work, requeues, monetization expansion, and unsupported financial forecasts. Amazon revenue is $4.92 aggregate commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; it is not site-attributable. AI spend is $916.91454435 for 2026-09-01 through 2026-09-28 across 39 instrumented sites, including 5,009 calls and 228 errors. Contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable because matching-period infrastructure, domain, labor, marketing, commitments, budget ceilings, and approved learning thresholds are missing. Continue only the existing reconciliation, measurement, repair-or-close, and evidence work.",
+        "summary": "CFO recommendation: maintain containment-only execution this cycle and continue the existing period-aligned revenue, attribution, and cost reconciliation. Do not create new spend, proposals, experiments, telemetry, deployments, monetization changes, or forecasts. Revenue evidence is limited to $4.92 Amazon commission for 2026-09-21: 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is in an aggregate provider row and cannot be assigned to a site. AI usage records $916.914544 from 2026-09-01 through 2026-09-28 across 5,009 calls, but matching infrastructure, labor, domain, marketing, commitment, and budget records are unavailable. Contribution margin, cost-to-learn, ROI, payback, budget exposure, and forecasts are therefore not calculable. Minimum measurement remains: site/content-level revenue identifiers, complete matching-period cost ledger, commitments and budget ceilings, and an approved learning threshold. Treat SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions as operating indicators only; they do not support revenue or margin claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject vanity-metric and unsupported revenue claims. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or contribution-margin evidence. The 30-day scorecard generated 2026-09-28 records 3 proven outcomes and 36 improvements awaiting measurement; this does not support a portfolio forecast or causal-lift claim. Preserve the current containment plan.",
+        "summary": "Continue existing containment and do not dispatch or requeue work. CFO finance gates remain open because revenue is only partially attributable, matching-period costs and commitments are unavailable, budget ceilings are blank, and no learning threshold is recorded. Recheck eligibility only after existing ownership, validation, rollback, security, attribution, and measurement evidence is attached.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only existing measurement and attribution reconciliation. Preserve the 2026-09-21 Amazon aggregate row as unattributed and do not treat missing infrastructure or AI-cost allocation as zero. No site-level contribution margin or AI payback claim is supportable until provider identifiers reconcile to matching-period costs.",
         "requested_action": null,
         "proposal_id": null
       }
