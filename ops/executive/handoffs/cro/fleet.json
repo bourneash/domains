@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:08:31.411Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T19:38:15.818Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain three evidence-backed revenue and product opportunities as deferred research backlog. Repository signals support feasibility, not adoption or causal lift. Current containment remains appropriate while measurement, attribution, failure-repair, ownership, security, release, and rollback gates remain incomplete. No deployment, dependency installation, spend, credential change, telemetry change, or owner approval request is made.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Prototype offline document-to-content normalization for source-backed publishing",
+        "summary": "MarkItDown is an MIT-licensed, lab-supported candidate for converting source documents into Markdown before editorial review. Fleet use case: reduce formatting variance and improve repeatability for source-backed guide/news workflows without publishing automatically. Evidence: weekly trend signal at 187397 stars; CRO lab completed 8/8 bounded checks with no dependency installation or production access. Risks: repository maintenance and transitive dependency review remain unverified; conversion may lose tables, citations, or document semantics; license fit does not establish source-content rights or publishing accuracy. Expected metric: reviewer acceptance rate and median manual cleanup time, with publication quality defects as a guardrail; baseline unknown. Time-to-learn: one isolated sample batch plus review, then 14 days of existing workflow evidence. Smallest reversible prototype: run the tool offline against three non-production, rights-cleared fixtures and produce a diff report only; no repository dependency, credentials, telemetry, or publication.",
+        "requested_action": "After existing gates clear, CTO may authorize an isolated disposable-lab prototype with security and provenance review. Do not adopt the dependency or publish generated content until deterministic output checks, rights review, rollback, and measurement ownership are documented.",
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "CEO/CTO handoff: when gates clear, validate the smallest reversible prototype first, then require security, license, maintenance, deterministic-test, rollback, and existing-telemetry measurement evidence before adoption.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Test source-backed visual explainers on high-intent editorial pages",
+        "summary": "Mermaid is an MIT-licensed, lab-supported candidate for rendering simple diagrams from reviewed text. Fleet use case: add compact process, timeline, or comparison explainers to editorial pages where visual structure may improve comprehension and onward navigation. Evidence: daily trend signal at 90456 stars; CRO lab found supported purpose fit, but no native checks were available without installing dependencies. Risks: dependency and rendering security review is incomplete; diagrams can introduce factual or accessibility errors; no causal engagement or revenue lift is evidenced. Expected metric: engaged sessions or onward CTA clicks on the treated page, with accessibility and rendering failures as guardrails; baseline varies by page and is not invented here. Time-to-learn: one preview page plus the existing 14-day or 100-relevant-impression measurement boundary. Smallest reversible prototype: generate one static SVG or text fallback offline from reviewed content, compare accessibility and page-weight behavior, and keep it outside production.",
+        "requested_action": "Retain as a deferred CTO research handoff. Reconsider only after active site work clears, dependency provenance and security review are complete, and an engineer can validate a static preview with rollback and existing-telemetry measurement.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Prototype an accessible CTA and comparison-card pattern for affiliate surfaces",
+        "summary": "shadcn/ui is an MIT-licensed, lab-supported component source for a reusable accessible CTA/comparison-card pattern. Fleet use case: standardize product relevance, disclosure placement, keyboard behavior, and mobile hierarchy across affiliate-led surfaces without changing destinations or tracking. Evidence: daily trend signal at 124749 stars; CRO lab completed 3/3 bounded checks with no dependency installation or production access. Risks: copied components still require code ownership, dependency and supply-chain review, visual regression testing, and site-specific disclosure validation; high popularity is not evidence of conversion impact. Expected metric: qualified outbound affiliate click-through rate or CTA click rate, with disclosure visibility, destination integrity, accessibility, and page performance as guardrails; current site-level revenue attribution is partial and aggregate income is not assignable. Time-to-learn: one isolated preview on an eligible page and the existing 14-day or 100-relevant-impression window. Smallest reversible prototype: hand-copy one minimal, dependency-free card pattern into a disposable preview using existing destinations and disclosures; do not deploy, add tracking, or alter credentials.",
+        "requested_action": "Retain as deferred CTO/CEO product research. Do not duplicate active site requests or adopt the library until queue capacity, attribution boundaries, security review, rollback, and measurement ownership are clear.",
         "proposal_id": null
       }
     ]

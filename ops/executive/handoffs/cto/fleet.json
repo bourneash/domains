@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:08:31.411Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T19:38:15.817Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the existing eastcoastrappers.com task-routing repair. Scope is limited to ownership metadata and isolated routing validation; preserve site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations. Do not duplicate or requeue unrelated work. Require dated ownership evidence, deterministic routing tests, rollback evidence, and an audit confirming no behavior change before closure.",
+        "summary": "Maintain containment-only execution and create no new proposal, work item, requeue, deployment, dependency, telemetry, spend, or monetization change this cycle. The proposed tooling capabilities are technically feasible but not queue-eligible while stranded work, failed requests, measurement backlog, ownership gaps, unavailable operations/security evidence, and attribution limitations remain unresolved. Continue only the existing bounded routing repair and approved evidence, measurement, and repair-or-close work. Require isolated validation, deterministic tests, rollback evidence, deduplication checks, and existing-telemetry measurement before any follow-on dispatch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment for all other launches, experiments, monetization changes, dependencies, telemetry changes, deployments, and spend. Continue existing measurement, failure repair, finance reconciliation, and security/readiness evidence only. Preserve deferred research and site-factory opportunities until ownership, release, security, attribution, measurement, and rollback gates are evidenced.",
+        "summary": "Continue only the existing task-routing repair. Limit scope to ownership metadata and isolated routing validation; preserve site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations. Before closure, attach dated ownership evidence, deterministic routing tests, duplicate-task verification, rollback evidence, and an audit confirming no behavior change.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only existing owner-gap and launch-readiness evidence work for the parked/private site-factory candidates. Do not deploy, change DNS, credentials, analytics, consent, monetization, or launch state. A launch packet is not queue authorization; reconsider only after verified ownership, compliance, security, measurement, rollback, and preview evidence exists.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the unified execution-readiness state machine, stranded-work recovery, measurement lifecycle, and repository/tooling opportunities as deferred backlog. They are feasible in principle, but implementation effort, isolation, release controls, ownership, rollback, and measurement instrumentation are not sufficiently evidenced for safe queue entry. Do not invent telemetry or treat unavailable operational data as zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Repair only the existing task-routing metadata for eastcoastrappers.com. Acceptance: ownership is assigned to the correct engineer role, deterministic routing tests pass, duplicate-task count is unchanged or reduced, and an audit confirms no site behavior changed. Metric: routing validation pass and duplicate-task count. Rollback: revert only the ownership-metadata change if validation fails. Do not alter production, credentials, telemetry, dependencies, deployment, spend, or external destinations.",
         "requested_action": null,
         "proposal_id": null
       }

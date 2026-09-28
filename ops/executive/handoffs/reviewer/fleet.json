@@ -2,58 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:08:31.412Z",
+  "generated_at": "2026-09-28T19:38:15.818Z",
   "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported financial or causal claims, new production work, high-priority queue expansion, duplicate evidence requests, requeues, spend, telemetry changes, dependencies, deployments, monetization changes, and external outreach. Preserve aggregate commission as unattributed. Continue only the existing bounded routing repair, finance reconciliation, failure repair-or-close review, and legal/security evidence work. Keep private and parked dispositions unchanged.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, and monetization claims. Continue only existing measurement, attribution and cost reconciliation, repair-or-close, legal/security evidence, parked-site verification, and the single bounded routing repair. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: revenue and cost periods do not align, provider commission is aggregate and unattributed, and operational/security evidence is incomplete. Do not treat missing values as zero or claim site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "summary": "Continue only the existing task-routing repair. Require dated ownership evidence, deterministic routing tests, duplicate-task verification, rollback evidence, and an audit confirming no site behavior changed. Do not create or requeue unrelated work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Route only the existing low-risk eastcoastrappers.com task-routing repair; no other actionable candidate is currently unblocked. Site-factory candidates are blocked by missing execution-owner and launch-readiness evidence; remaining opportunities are blocked by active work, measurement windows, failed-request repair, security gates, or missing attribution. Reject unsupported financial, production, deployment, spend, telemetry, dependency, requeue, and outreach actions. Preserve aggregate commission as unattributed and continue existing evidence and repair work.",
+        "summary": "Financial periods, matching costs, site attribution, operational sweeps, security controls, ownership, and measurement remain incomplete. Do not treat missing values as zero or convert research, proposals, or messages into productivity outcomes. Keep deferred opportunities as backlog only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner update: the mandate permits only one defensible engineer-routable candidate this cycle: existing eastcoastrappers.com routing metadata repair. Other candidates remain explicitly blocked by launch-readiness, execution-owner, active-work, measurement, security, attribution, or failure-repair constraints. No unsupported revenue or causal claims are made.",
+        "summary": "Approve only the existing eastcoastrappers.com metadata-only routing repair. Reject all other new implementation work this cycle: site-factory candidates lack verified execution-owner and launch-readiness evidence; financial claims remain blocked by partial attribution, period mismatch, and missing costs; security and operations evidence remain incomplete. Preserve existing legal, security, measurement, repair, and reconciliation work without requeueing or duplicating it.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
-        "title": "cro-cta-affiliate-component-2026-09-28",
-        "summary": "Retain as deferred research only; no prototype, adoption, dependency, deployment, spend, or production change.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-cta-affiliate-component-2026-09-28"
+        "title": "cro-2026-09-28-markitdown-content-normalization",
+        "summary": "Deferred research only; no production adoption, dependency installation, publishing, or revenue claim is supported.",
+        "requested_action": "declined",
+        "proposal_id": "cro-2026-09-28-markitdown-content-normalization"
       },
       {
         "kind": "proposal-review",
-        "title": "cro-offline-markdown-normalization-2026-09-28",
-        "summary": "Retain as deferred research only; feasibility does not establish security, attribution, revenue, or production readiness.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-offline-markdown-normalization-2026-09-28"
+        "title": "cro-2026-09-28-mermaid-explainer-content",
+        "summary": "Deferred research only; no production prototype or causal engagement or revenue claim is supported.",
+        "requested_action": "declined",
+        "proposal_id": "cro-2026-09-28-mermaid-explainer-content"
       },
       {
         "kind": "proposal-review",
-        "title": "cro-static-explanatory-diagrams-2026-09-28",
-        "summary": "Retain as deferred research only; no production work is justified before measurement, accessibility, security, ownership, and rollback gates clear.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-static-explanatory-diagrams-2026-09-28"
+        "title": "cro-2026-09-28-shadcn-cta-system",
+        "summary": "Deferred research only; active work, attribution gaps, security review, rollback, and queue-capacity constraints block adoption.",
+        "requested_action": "declined",
+        "proposal_id": "cro-2026-09-28-shadcn-cta-system"
       }
     ]
   }
