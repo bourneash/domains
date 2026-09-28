@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:50:48.062Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:06:18.799Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the duplicate security proposal and all new production, queue, requeue, telemetry, spending, monetization, and unsupported financial claims. Continue existing security, legal, repair-or-close, measurement, and attribution/cost reconciliation work only. Preserve the $4.92 aggregate commission as unattributed; margin, ROI, payback, forecasts, and causal lift remain unknown. No bounded research request is added because the identified evidence gaps are already covered by existing telemetry or active work.",
+        "summary": "Reject all new production work, queue dispatch, requeues, telemetry, spending, monetization changes, and unsupported financial or causal claims. Continue only existing failure-repair, measurement, legal/security evidence, and matching-period attribution/cost reconciliation. Preserve aggregate commission as unattributed; keep private and parked gates unchanged. Permission outreach remains unsent pending human-counsel review and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue repair-or-close and measurement review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve provider aggregate earnings as unattributed. Reconcile only existing matching-period revenue and recorded costs; do not infer site revenue, margin, ROI, payback, forecasts, budget capacity, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only launch-readiness evidence work. Keep the gated product private and permission outreach unsent pending human-counsel review and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T10:50:48.061Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:06:18.798Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only the existing period-aligned revenue, attribution, and cost reconciliation; reject new spend, deployments, monetization changes, experiments, telemetry, forecasts, and unsupported financial claims. Amazon reports $4.92 aggregate commission for 2026-09-21 from 28 ordered items and 6 shipped items, but it is not site-attributable. AI usage records $901.897533 from 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors. Contribution margin, ROI, payback, cost-to-learn, and budget exposure are not calculable because revenue covers one day while AI spend covers 28 days, and matching infrastructure, domain, labor, marketing, experiment costs, budget ceilings, commitments, and a learning threshold are absent. Clicks, impressions, sessions, conversions, proposal counts, approved work, and SEO outcomes are not financial results. Minimum measurement: matching-period site/content revenue identifiers, a complete cost ledger, budget ceilings and commitments, and an explicit cost-to-learn threshold.",
+        "summary": "Recommendation: preserve the $4.92 aggregate commission for 2026-09-21 as unattributed and continue matching-period reconciliation. Missing cost categories, budget ceilings, commitments, and learning thresholds mean margin, ROI, payback, and budget capacity are not calculable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Reconcile matching-period revenue identifiers against recorded AI, infrastructure, domain, labor, marketing, and experiment costs; document missing budget ceilings, commitments, and cost-to-learn threshold. Do not infer margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Recommendation: maintain containment-only execution and create no new production, spending, monetization, telemetry, or requeue work this cycle. Amazon reports $4.92 commission for 2026-09-21, but it is aggregate under tracking_id 'other' and cannot support site-level revenue claims. Named site rows show clicks only and $0 attributed commission. AI spend is $916.91 for 2026-09-01 through 2026-09-28 across 39 instrumented sites, including $143.69 for 0daynews.com, $98.55 for americastrikes.com, and $66.06 for blackmarketapparel.com; infrastructure, domain, labor, marketing, experiment, commitments, and budget ceilings are not provided. Therefore contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable. Continue only the existing matching-period revenue, attribution, and cost reconciliation. Minimum evidence needed: provider-level revenue identifiers, complete matching-period cost ledger by site/fleet, budget ceilings and commitments, and an explicit learning threshold. Do not treat missing data as zero or use clicks, sessions, impressions, conversions, or AI calls as financial outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, margin, ROI, payback, forecast, and causal-lift claims. The 30-day scorecard records only 3 proven outcomes, while 36 improvements await measurement and 9 implementation requests failed. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue evidence. Preserve the $4.92 aggregate commission as unattributed until provider identifiers permit assignment. Continue existing reconciliation and report-only evidence work; retain all growth opportunities as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       }
