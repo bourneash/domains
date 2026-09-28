@@ -2,11 +2,11 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:20:00.497Z",
-  "summary": "weekly domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-28T16:10:00.192Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "report_id": "cb96329b-8bd8-4e0f-8094-2af99ce6d5db",
-    "cadence": "weekly",
+    "report_id": "cfee6a94-7408-49ca-9135-ad6a4978e4a1",
+    "cadence": "six_hour",
     "summary": {
       "sites_considered": 59,
       "sites_reported": 59,
