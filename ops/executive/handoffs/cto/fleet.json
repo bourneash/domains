@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:07:25.731Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T22:21:51.203Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block security-sensitive releases. Do not access credentials, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Preserve the rejected factory implementation batch as deferred backlog. Continue only existing measurement, failure repair-or-close, legal/security evidence, finance reconciliation, and readiness work. No requeue is authorized until ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence are recorded.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution this cycle. No new implementation requests, requeues, deployments, dependencies, telemetry, spend, monetization changes, or external outreach are technically cleared. Continue only existing measurement, failure repair-or-close, finance and attribution reconciliation, legal/security evidence, launch-readiness evidence, and owner-gap verification. Preserve parked/private states and all unavailable telemetry, revenue, cost, attribution, readiness, and causal-lift fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net. By 2026-09-30T17:00:00Z, attach dated execution-owner verification, preview/build evidence, launch-readiness evidence, measurement boundary, rollback point, and explicit blockers. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain CRO and repository opportunities as deferred research only. Their bounded lab evidence does not establish production fit, isolation, security clearance, dependency approval, measurement readiness, revenue impact, or causal lift. Do not install dependencies, dispatch prototypes, or create implementation work until ownership, isolated validation, rollback, deduplication, release, security, attribution, and measurement gates are documented.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing measurement, failure repair-or-close, finance reconciliation, legal/security evidence, and launch-readiness work without duplicate requests. Before any future requeue, require dated ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence. Preserve aggregate commission as unattributed and do not infer site revenue, ROI, margin, payback, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

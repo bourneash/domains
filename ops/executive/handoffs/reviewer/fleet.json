@@ -2,56 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:07:25.732Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-28T22:21:51.204Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production, queue, requeue, telemetry, dependency, deployment, spending, monetization, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, legal/security evidence, and parked-site readiness. Aggregate commission remains unattributed; missing costs, budgets, ownership, security, attribution, and measurement remain unknown. Keep private launch gates and permission outreach unchanged.",
+        "summary": "Reject all new queue work, requeues, deployments, spending, telemetry changes, monetization expansion, and external outreach this cycle. Continue only existing measurement, finance/attribution reconciliation, failure repair-or-close, owner-gap verification, and legal/security evidence. Revenue, ROI, margin, payback, causal lift, readiness, and unavailable telemetry remain unknown; aggregate commission remains unattributed. Keep parked/private gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject all new production queue work this cycle. No actionable candidate clears the existing launch, ownership, security, measurement, attribution, or failure-containment gates. The three factory candidates remain explicitly blocked by missing execution-owner and launch-readiness evidence; existing active or queued work is unchanged. Continue only existing reconciliation, measurement, repair-or-close, legal/security evidence, and parked-site readiness work. Preserve aggregate commission as unattributed and all missing financial fields as unknown.",
+        "summary": "Retain CRO and repository opportunities as deferred research only. Existing public evidence and shared telemetry do not justify production work or duplicate research requests. Continue the existing bounded security evidence matrix and other already-open containment work with no configuration, credential, dependency, schedule, spending, or production changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue and cost reconciliation only. Preserve the aggregate provider commission as unattributed; missing matching-period costs, budgets, commitments, learning thresholds, site mapping, ROI, margin, payback, forecasts, and causal lift remain unknown.",
+        "summary": "Reject all new implementation queue work this cycle. The three highest-confidence factory candidates remain blocked by missing verified execution ownership and launch-readiness evidence; remaining candidates are blocked by active queued, review, deployed, or measuring work. Continue only existing measurement, finance and attribution reconciliation, failure repair-or-close, legal/security evidence, and owner-gap verification. Preserve aggregate commission, costs, revenue, readiness, and causal lift as unknown or unattributed. Do not deploy, requeue, spend, change credentials or configuration, add dependencies, expand telemetry, monetize, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing affiliate repair-or-close and failed-work review only. Do not requeue unchanged work or create production requests until ownership, root cause, validation, rollback, deduplication, security, attribution, and measurement evidence are complete.",
+        "summary": "Continue the existing owner-gap verification for the three scaffold candidates. Attach dated execution-owner verification, preview/build checks, launch-readiness, compliance/security evidence, measurement boundary, rollback point, and explicit blockers by 2026-09-30T17:00:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private and permission outreach unsent. Continue the existing consolidated read-only evidence bundle; upstream rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block security-sensitive releases; do not access credentials, change permissions or configuration, add dependencies, deploy, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing owner-gap and launch-readiness verification for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked/private status. No implementation, publication, deployment, analytics configuration, monetization, DNS, or spending is authorized until dated ownership, preview/build, compliance, security, measurement, and rollback evidence exists.",
+        "summary": "The action mandate cannot be satisfied safely with a new engineer batch: every available unblocked candidate is either missing verified ownership/readiness evidence or already has active work. Preserve the smallest containment-only plan and do not treat unavailable telemetry or aggregate provider earnings as zero or site-attributable.",
         "requested_action": null,
         "proposal_id": null
       }
