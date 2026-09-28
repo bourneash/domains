@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:06:35.862Z",
+  "generated_at": "2026-09-28T09:20:59.649Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution, with no new spend, monetization changes, deployments, requeues, experiments, or telemetry. Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Revenue support is limited to $4.92 aggregate Amazon commission for 2026-09-21, from 6,219 clicks, 28 ordered items, and 6 shipped items; all $4.92 is unattributed to sites. AI usage cost is $901.90 for 2026-09-01 through 2026-09-28 across 4,926 calls, but contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable because revenue is not site-attributed or period-matched and infrastructure, domains, labor, marketing, and experiment costs plus budget ceilings are missing. Do not treat clicks, orders, shipped items, sessions, conversions, AI calls, output counts, or pilot throughput as financial performance. Minimum evidence required: matching-period site/content revenue by registered attribution ID; infrastructure, domain, labor, marketing, and experiment costs; approved budget ceilings; and a predefined cost-to-learn threshold. Preserve aggregate revenue as unattributed and retain existing finance reconciliation only.",
+        "summary": "Recommend containment-only execution. Retain work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only; create no duplicate finance work, spend, deployment, monetization change, experiment, or telemetry. Amazon revenue is $4.92 aggregate commission for 2026-09-21 from 28 ordered items and 6 shipped items; the $4.92 is not site-attributable because it is in an aggregate provider row. AI spend is $901.897533 for 2026-09-01 through 2026-09-28 across 4,926 calls, with 228 errors. Contribution margin, cost-to-learn, ROI, payback, budget exposure, and revenue forecasts are not calculable: matching-period infrastructure, domain, labor, marketing, experiment costs, approved budget ceilings, and an owner-approved cost-to-learn threshold are absent. Do not treat clicks, sessions, orders, shipped items, conversions, AI calls, output counts, or the 3 proven 30-day outcomes as financial performance or causal lift. Minimum measurement: a period-aligned ledger keyed to site/content and affiliate tracking ID, reconciling revenue, AI, infrastructure, domain, labor, marketing, and experiment costs, plus approved budget ceilings and a cost-to-learn threshold. Preserve aggregate revenue as unattributed and make no unsupported revenue or margin claim.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the 2026-09-21 aggregate commission against matching-period attributed revenue and all recorded AI, infrastructure, domain, labor, marketing, and experiment costs. Record budget ceilings and the cost-to-learn threshold when evidenced. Escalate only after the minimum evidence is attached; do not create duplicate finance work or infer margin, ROI, payback, budget capacity, or causal lift.",
+        "summary": "Continue only existing attribution and cost reconciliation. Named affiliate tracking rows report clicks but zero attributed income; the provider aggregate row contains all $4.92 commission and cannot be assigned without inventing attribution. Reconcile the 2026-09-21 provider period against recorded costs from the same period and preserve unavailable categories as unknown. Escalate only after the minimum ledger, budget, and learning-threshold evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       }

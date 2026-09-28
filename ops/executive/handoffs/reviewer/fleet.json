@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:06:35.863Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T09:20:59.650Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, spending, deployments, monetization changes, and unsupported financial or causal claims. Continue only existing validation, repair, measurement, attribution/cost reconciliation, legal, security, and parked-site evidence work. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, payback, and causal lift remain unknown. Keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, telemetry, experiment, deployment, spending, and monetization claims. Retain existing repair, measurement, attribution/cost reconciliation, legal, security, and affiliate-repair work only. Preserve $4.92 aggregate commission for 2026-09-21 as unattributed; keep private and parked gates unchanged. Owner concern: keep permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing affiliate-reference repair through deterministic validation only. Record destination integrity, registered attribution identity, disclosure preservation, redirect behavior, unchanged non-target content, test results, rollback readiness, and release disposition. Do not requeue, deploy, or claim financial lift.",
+        "summary": "Continue existing delivery containment and failure-repair review. Before any dispatch or requeue, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Preserve other opportunities as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Retain existing matching-period revenue, attribution, and cost reconciliation only. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete records.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing launch-readiness and security evidence work. Keep private launch gates and permission outreach unchanged; authorize no credentials, configuration, deployment, monetization, alert expansion, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
