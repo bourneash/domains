@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:37:13.014Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:52:20.254Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. The plan is technically feasible in principle but not queue-eligible: active measurement, failed-request repair, owner gaps, unavailable operations/security sweeps, incomplete attribution, and liveness issues prevent safe new dispatch. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site owner verification, and finance reconciliation. Do not create or requeue production work, add dependencies, change telemetry, deploy, spend, alter monetization, or claim causal or financial outcomes.",
+        "summary": "Continue existing failed-request repair-or-close review without requeue. Failed or cancelled work remains unfinished; inspect retained evidence and document repair or closure with ownership, root cause, validation, rollback, deduplication, security, attribution, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Execution-owner verification may continue only as existing bounded repository or registry evidence work. Preserve parked and private states. Do not install roles, change configuration, credentials, DNS, analytics, consent, tracking, monetization, or launch state until dated ownership evidence and the existing release, security, rollback, attribution, and measurement gates are complete.",
+        "summary": "Approve containment-only execution. Continue existing measurement, repair-or-close, parked-site owner verification, legal/security evidence, and period-aligned attribution reconciliation using recorded telemetry only. Do not create, requeue, deploy, add dependencies, change telemetry, spend, expand monetization, or conduct external outreach. Keep private launch gates unchanged and preserve aggregate provider earnings as unattributed. Queue entry is not safe until ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Existing deferred CRO and site-improvement scopes remain research backlog only. Their isolation, reversibility, and measurement designs are acceptable for later review, but current evidence does not support prototype dispatch, dependency installation, preview queueing, deployment, or adoption. Reconsider at most one scope after containment gates clear, using existing telemetry only and preserving file-level rollback.",
+        "summary": "Continue the deployed allthingsmasonic.com homepage-refresh measurement only. Record existing before/after artifacts, deterministic validation, compliance and disclosure checks, destination integrity, accessibility evidence, and isolated rollback evidence. Do not requeue duplicate work or claim conversion, revenue, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing finance reconciliation without treating missing data as zero. Preserve the provider aggregate commission as unattributed and do not infer site revenue, margin, ROI, payback, forecasts, budget capacity, or causal lift.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation. Preserve the aggregate commission as unattributed and document missing matching-period costs, commitments, budgets, and learning thresholds. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security and launch-readiness evidence work. Preserve private launch gates and keep permission outreach unsent pending human-counsel review and owner authorization. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue failed-request repair-or-close review without retry or requeue. Inspect retained failure evidence and record ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement gates before any future dispatch.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:22:29.205Z",
+  "generated_at": "2026-09-28T13:52:20.254Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, requeue, prototype, telemetry, spend, monetization, and financial claims this cycle. The candidate list is empty; measurement, failure repair, security, ownership, attribution, and rollback gates remain incomplete. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and revenue/cost reconciliation. Preserve $4.92 aggregate commission as unattributed; margin, ROI, payback, forecast, and causal lift remain unknown. Keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject the new high-priority security proposal as duplicate of the existing security evidence work item. Continue only existing read-only security evidence, measurement, repair-or-close, parked-site verification, legal gating, and attribution reconciliation. Preserve aggregate earnings as unattributed; make no financial, causal, production, queue, requeue, telemetry, spending, credential, dependency, deployment, monetization, or outreach changes.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:37:13.014Z",
+  "generated_at": "2026-09-28T13:52:20.253Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing revenue, attribution, and cost reconciliation only. Reconcile the 18 named tracking rows against matching-period revenue and recorded costs, preserve the aggregate provider row as unattributed, and document AI, infrastructure, domain, labor, marketing, experiment, commitment, and budget fields as unknown where absent. Minimum measurement for contribution margin and cost-to-learn: site/content revenue identifiers, a complete matching-period cost ledger, budget ceilings and commitments, and an explicit approved learning threshold.",
+        "summary": "Continue period-aligned revenue and cost reconciliation. Preserve the $4.92 aggregate commission as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, or causal lift. Record missing matching-period costs, commitments, budgets, and learning thresholds.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject vanity-metric and unsupported forecast claims. The SEO snapshot of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions is operating evidence only; it does not establish revenue, contribution margin, or causal lift. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement, so no portfolio forecast is supported.",
+        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is in an aggregate row and cannot be assigned to a site. The 18 named tracking rows show $0 attributed commission. AI usage records $916.91 across 5,009 calls from 2026-09-01 through 2026-09-28, but it is not period-matched to the one-day revenue record and infrastructure, domain, labor, marketing, and commitment costs are absent. Contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are therefore not calculable. Minimum measurement: a dated ledger matching provider/site/content revenue identifiers to AI, infrastructure, domain, labor, marketing, experiment, commitment, and budget costs, plus approved budget ceilings and an explicit cost-to-learn threshold. Do not treat missing fields as zero. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions, 36 improvements awaiting measurement, and 3 proven outcomes are operating or delivery indicators, not financial evidence. No new proposal, spend, telemetry, billing, banking, contract, or monetization action is recommended.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and document missing matching-period costs, commitments, budgets, and learning thresholds. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Record the reconciliation as incomplete where evidence is missing: revenue attribution is partial aggregate, matching-period operating costs are unavailable, monthly spend limits and budget fields are blank, and no learning threshold is recorded. Preserve the $4.92 aggregate commission as unattributed and do not claim site revenue, contribution margin, AI payback, cost-to-learn, budget capacity, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
