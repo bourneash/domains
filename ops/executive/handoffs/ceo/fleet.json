@@ -2,51 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:06:52.171Z",
-  "summary": "ceo checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:36:28.049Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal-review",
-        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "CRO repository lead is research-only; current measurement, failure-repair, ownership, security, release, rollback, attribution, and compliance gates do not support a prototype or adoption this cycle.",
-        "requested_action": "declined",
-        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue existing delivery containment and recheck eligibility by 2026-09-28T17:00Z. Do not dispatch or requeue until dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence is attached.",
+        "requested_action": null,
+        "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "CRO repository lead is research-only; no production dependency or prototype dispatch is justified before existing gates clear.",
-        "requested_action": "declined",
-        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "CRO repository lead lacks native lab validation and cannot proceed to production or prototype work while containment gates remain open.",
-        "requested_action": "declined",
-        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "1cf9a69f-e385-45a2-baf6-63da7e490115",
-        "summary": "Duplicate security disposition; preserve the existing security evidence work item and private launch gates.",
-        "requested_action": "declined",
-        "proposal_id": "1cf9a69f-e385-45a2-baf6-63da7e490115"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226",
-        "summary": "Duplicate compliance containment work; continue existing site-specific remediation and evidence work without creating another proposal.",
-        "requested_action": "declined",
-        "proposal_id": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "90ac2f61-d32f-42ee-850f-ba793019540b",
-        "summary": "Duplicate security evidence work; retain the existing fleet security matrix and do not expand the queue.",
-        "requested_action": "declined",
-        "proposal_id": "90ac2f61-d32f-42ee-850f-ba793019540b"
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: complete the existing allthingsmasonic.com monetization-readiness evidence packet using available inspection, analytics, affiliate, disclosure, compliance, owner, security, measurement, and rollback evidence. No production change or revenue claim is authorized.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

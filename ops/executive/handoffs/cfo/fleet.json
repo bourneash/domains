@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:21:43.902Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:36:28.050Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution this cycle and continue the existing period-aligned revenue, attribution, and cost reconciliation. Do not create new spend, proposals, experiments, telemetry, deployments, monetization changes, or forecasts. Revenue evidence is limited to $4.92 Amazon commission for 2026-09-21: 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is in an aggregate provider row and cannot be assigned to a site. AI usage records $916.914544 from 2026-09-01 through 2026-09-28 across 5,009 calls, but matching infrastructure, labor, domain, marketing, commitment, and budget records are unavailable. Contribution margin, cost-to-learn, ROI, payback, budget exposure, and forecasts are therefore not calculable. Minimum measurement remains: site/content-level revenue identifiers, complete matching-period cost ledger, commitments and budget ceilings, and an approved learning threshold. Treat SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions as operating indicators only; they do not support revenue or margin claims.",
+        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned reconciliation. Amazon reports $4.92 commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; the income is in aggregate tracking_id=other and cannot support site revenue claims. AI spend is $916.914544 for 2026-09-01 through 2026-09-28 across 5,009 calls and 39 instrumented sites, but matching-period infrastructure, labor, domain, marketing, commitments, and budget costs are unavailable. Contribution margin, cost-to-learn, payback, ROI, budget exposure, forecasts, and causal lift are therefore not calculable. Do not treat missing data as zero or use 14,410 impressions, 146 clicks, 1,002 sessions, 15 conversions, or 3 proven outcomes as financial evidence. Minimum finance artifact: reconcile provider/site/content identifiers, revenue, AI and infrastructure costs, other operating costs, commitments, budget ceilings, and an approved learning threshold for the same period. No new proposals, change requests, requeues, deployments, telemetry, spending, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing containment and do not dispatch or requeue work. CFO finance gates remain open because revenue is only partially attributable, matching-period costs and commitments are unavailable, budget ceilings are blank, and no learning threshold is recorded. Recheck eligibility only after existing ownership, validation, rollback, security, attribution, and measurement evidence is attached.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only existing measurement and attribution reconciliation. Preserve the 2026-09-21 Amazon aggregate row as unattributed and do not treat missing infrastructure or AI-cost allocation as zero. No site-level contribution margin or AI payback claim is supportable until provider identifiers reconcile to matching-period costs.",
+        "summary": "Known finance boundaries: site-level revenue is unsupported because Amazon supplied one unattributed aggregate income row; contribution margin is not calculable because matching-period operating and infrastructure costs are missing; cost-to-learn is not calculable because no approved learning threshold or complete incremental-cost ledger exists; budget exposure is not calculable because monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Retain the $4.92 as unattributed and preserve all unavailable financial fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,49 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:21:43.903Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:36:28.050Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution this cycle. Continue existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create proposals, work items, change requests, requeues, telemetry, deployments, dependencies, spend, monetization changes, or external outreach while the authoritative candidate list is empty and release, ownership, validation, rollback, security, attribution, and measurement gates remain open.",
+        "summary": "Recommendation: approve containment-only execution. No new production work, queue requests, requeues, telemetry, dependencies, deployments, spending, monetization changes, or external outreach are queue-eligible this cycle. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Preserve the $4.92 aggregate commission as unattributed; do not make site-level revenue, ROI, margin, payback, forecast, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing delivery-containment work item only. Do not dispatch or requeue work. Recheck eligibility after dated ownership, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence is attached.",
+        "summary": "Continue existing delivery containment and repair-or-close review. Before any retry or dispatch, attach dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Recheck queue eligibility only after existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Resolve only existing execution-owner evidence gaps through current work items. Preserve parked/private dispositions and make no DNS, credential, analytics, monetization, deployment, configuration, or launch-state changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing affiliate-link, disclosure, destination-integrity, attribution, conversion-leak, and measurement reviews using recorded telemetry only. Preserve the aggregate provider earnings as unattributed; do not claim site revenue, ROI, margin, payback, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain repository, CTA, comparison-card, and content-pipeline opportunities as deferred research backlog. Feasibility evidence does not establish production fit, security, maintenance, license, revenue, or causal lift; no prototype, dependency installation, adoption, or deployment is authorized this cycle.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation. Keep provider aggregate earnings explicitly unattributed and mark unavailable matching-period costs, commitments, budgets, and learning thresholds as unknown. Do not treat missing data as zero.",
         "requested_action": null,
         "proposal_id": null
       }

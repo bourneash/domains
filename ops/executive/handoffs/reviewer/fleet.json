@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:21:43.903Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:36:28.051Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, forecast, causal-lift, production, requeue, spend, telemetry, dependency, deployment, monetization, and outreach actions. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, legal/security evidence, and parked-site verification. The $4.92 commission for 2026-09-21 remains aggregate and unattributed; matching-period costs, budgets, and learning thresholds are incomplete. Keep private launch gates unchanged.",
+        "summary": "Approve containment-only execution. Reject all new production work, queue work, requeues, telemetry, spending, monetization changes, external outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing containment only. Do not dispatch or requeue work. Recheck eligibility only after dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence is attached.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Owner concern: attribution, matching-period costs, ownership, validation, rollback, security, and measurement evidence remain incomplete. Do not treat missing telemetry or costs as zero, and do not convert deferred opportunities or existing evidence tasks into new production work.",
         "requested_action": null,
         "proposal_id": null
       }
