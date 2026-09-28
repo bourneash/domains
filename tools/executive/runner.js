@@ -944,6 +944,32 @@ function modelBriefForPrompt(brief) {
   return JSON.stringify(compactModelBrief(brief)).replaceAll('3boobs.com', '[excluded-site]');
 }
 
+// A provider can still echo an excluded identifier despite the redacted brief
+// and prompt. Keep the trusted host validator fail-closed, but do not discard
+// an otherwise useful multi-role plan because one provider-generated item is
+// contaminated. Remove only the offending item; the rest still passes through
+// the normal schema, authority, and action gates.
+function sanitizeExcludedPlanItems(plan = {}) {
+  const sanitized = { ...plan };
+  for (const key of [
+    'messages',
+    'proposal_reviews',
+    'proposals',
+    'work_items',
+    'knowledge',
+    'change_requests',
+    'research_requests',
+    'data_requests',
+  ]) {
+    if (!Array.isArray(sanitized[key])) continue;
+    sanitized[key] = sanitized[key].filter(item => {
+      const serialized = JSON.stringify(item || '').toLowerCase();
+      return ![...EXECUTIVE_EXCLUDED_SITES].some(site => serialized.includes(site));
+    });
+  }
+  return sanitized;
+}
+
 function buildPrompt(brief) {
   const modelBriefJson = modelBriefForPrompt(brief);
   return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, Legal/Compliance lead, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
@@ -3697,6 +3723,7 @@ module.exports = {
   prioritizeExecutiveWorkItems,
   ensureOwnerRequestCoverage,
   parseOutput,
+  sanitizeExcludedPlanItems,
   isTelemetryRequestProposal,
   normalizeProviderProposalTypes,
   validatePlan,

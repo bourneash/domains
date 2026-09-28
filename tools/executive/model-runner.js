@@ -153,6 +153,8 @@ async function main() {
   const usage = createUsageLedger();
   const transcript = [];
   let finalized = false;
+  const mergeProviderPlan = nextPlan =>
+    runner.sanitizeExcludedPlanItems(mergePassPlans(plan, nextPlan));
   // Preserve partial cost/pass evidence when a provider response fails
   // validation. The sandbox may not produce a plan, but it must still export
   // the calls already made so failures cannot disappear from the audit ledger.
@@ -205,7 +207,7 @@ async function main() {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
       });
-      plan = mergePassPlans(plan, nextPlan);
+      plan = mergeProviderPlan(nextPlan);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
       // Allow one bounded correction attempt, then fail closed.
@@ -221,7 +223,7 @@ async function main() {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
       });
-      plan = mergePassPlans(plan, nextPlan);
+      plan = mergeProviderPlan(nextPlan);
     }
     audit.push({
       role,
@@ -250,7 +252,7 @@ async function main() {
       true,
       transcript
     );
-    plan = mergePassPlans(plan, runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
+    plan = mergeProviderPlan(runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -279,7 +281,7 @@ async function main() {
         true,
         transcript
       );
-      plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
+      plan = mergeProviderPlan(runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,
