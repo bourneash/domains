@@ -2,51 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:36:21.959Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:50:49.118Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed production preview and all new queue work, requeues, telemetry, spending, monetization, dependencies, deployments, and unsupported financial claims. Continue only existing measurement, failure repair, attribution/cost reconciliation, legal, security, and parked-site evidence work. Preserve the $4.92 aggregate commission as unattributed; site revenue, margin, ROI, payback, forecasts, and causal lift remain unknown. Owner concern: keep permission outreach unsent pending human-counsel review and authorization.",
+        "summary": "Approve containment-only execution. Reject the proposed security report as duplicate existing evidence work. Continue only existing repair-or-close, measurement, matching-period attribution/cost reconciliation, and legal/security evidence work. Preserve aggregate earnings as unattributed; no new production work, queue dispatch, requeue, telemetry, spending, monetization, deployment, or external outreach is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing allthingsmasonic.com homepage-refresh measurement record using existing telemetry only. Retain the deployment or document bounded rollback from observed validation; do not expand production scope or claim revenue lift.",
+        "summary": "Continue existing repair-or-close and measurement review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence before any retry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry.",
+        "summary": "Continue the existing launch-readiness evidence tasks and preserve the private gate. Keep permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed and record missing cost, budget, commitment, and learning-threshold evidence without inferring financial performance.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Do not create duplicate work or alter production state.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "ec92a3e3-b8fc-4031-bae3-aebb5efbf722",
-        "summary": "Continue the existing private-gate evidence work only; no duplicate proposal or production change is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "ec92a3e3-b8fc-4031-bae3-aebb5efbf722"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226",
-        "summary": "Maintain site-specific compliance containment and remediation gates. Technical compliance evidence is not legal certification; ordinary reversible growth remains conditional within existing boundaries.",
-        "requested_action": "accepted_research",
-        "proposal_id": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226"
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing matching-period revenue, attribution, and cost reconciliation only. Preserve aggregate earnings as unattributed and treat missing cost, budget, commitment, and learning-threshold records as unknown.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

@@ -2,51 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:36:21.958Z",
+  "generated_at": "2026-09-28T11:50:49.117Z",
   "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Reject the proposed infrainnovator.com preview from queue entry this cycle despite technical feasibility, because active measurement, failed-request repair, ownership, release, security, attribution, rollback, and validation gates remain incomplete. Continue existing measurement, repair-or-close, legal/security evidence, parked-site, and cost-reconciliation work only. Do not create or requeue production work, add telemetry, dependencies, credentials, destinations, spending, or monetization changes.",
+        "summary": "CTO review: approve containment-only execution. No new queue work is technically safe this cycle. Continue existing repair-or-close, measurement, legal/security evidence, and matching-period attribution/cost reconciliation only. Preserve the $4.92 commission for 2026-09-21 as aggregate and unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift. Do not create proposals, change requests, requeues, experiments, telemetry, deployments, dependencies, spending, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing homepage-refresh measurement record using existing telemetry only. Retain the deployment or document a bounded rollback based on observed validation; do not expand production scope or claim revenue lift.",
+        "summary": "CTO disposition: do not dispatch or requeue new implementation work. Continue existing repair-or-close and measurement review. Before any retry, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Continue the existing launch-readiness evidence tasks and preserve the private gate. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "Defer the CRO research lead until active measurement, failure repair, ownership, security, release, rollback, attribution, and validation gates clear.",
-        "requested_action": "declined",
-        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "Bounded lab evidence and MIT licensing do not establish fleet fit, dependency safety, maintenance, or measurable benefit; defer prototype work.",
-        "requested_action": "declined",
-        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing matching-period revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "Defer prototype and adoption work while approved-execution backlog and failed-request repairs remain unresolved.",
-        "requested_action": "declined",
-        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
+        "kind": "message",
+        "title": null,
+        "summary": "Retain future site and affiliate opportunities as deferred backlog. Do not create duplicate requests or production work. Reconsider only after current ownership, failure-repair, release, security, rollback, attribution, and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
