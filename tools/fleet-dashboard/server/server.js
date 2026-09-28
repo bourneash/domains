@@ -3504,6 +3504,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         source_type: 'owner-request',
         limit: req.query.limit || 100,
       });
+      const historyLimit = Math.max(1, Math.min(Number(req.query.history_limit) || 100, 100));
+      const linkLimit = Math.max(1, Math.min(Number(req.query.link_limit) || 100, 100));
       const now = Date.now();
       const tracked = requests.map(request => {
         const overdue =
@@ -3521,7 +3523,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           });
         }
         const messages = events
-          .listExecutiveMessages({ work_id: request.work_id, limit: 100 })
+          .listExecutiveMessages({ work_id: request.work_id, limit: historyLimit })
           .reverse();
         const responses = messages.filter(message => message.actor !== 'owner');
         return {
@@ -3530,7 +3532,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           links: events.listWorkflowLinks({
             entity_type: 'work-item',
             entity_id: request.work_id,
-            limit: 100,
+            limit: linkLimit,
           }),
           response_count: responses.length,
           latest_response: responses[responses.length - 1] || null,

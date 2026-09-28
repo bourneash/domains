@@ -36,6 +36,10 @@ const EXEC_RUN_UI = {
 const EXEC_INBOX = { browserNotified: false };
 const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
+// Route/bootstrap changes can trigger two renders close together (for example
+// when the live stream opens while the initial hash is settling). Reuse the
+// same short-lived read rather than starting a second identical fan-out.
+let EXECUTIVE_LOAD_CACHE = null;
 
 function notifyExecutiveBrowser(notifications = []) {
   if (EXEC_INBOX.browserNotified || !notifications.length || !('Notification' in window)) return;
@@ -14036,65 +14040,47 @@ async function renderExecutive() {
     calendar;
   const conversationOnly = STATE.agentPage === 'conversation';
   try {
+    const loadKey = conversationOnly ? 'conversation' : `workspace:${STATE.agentPage || 'overview'}`;
+    const now = Date.now();
+    if (!EXECUTIVE_LOAD_CACHE || EXECUTIVE_LOAD_CACHE.key !== loadKey || EXECUTIVE_LOAD_CACHE.expires <= now) {
+      EXECUTIVE_LOAD_CACHE = {
+        key: loadKey,
+        expires: now + 1000,
+        promise: Promise.all([
+          // The inbox is the canonical owner-thread source. Conversation
+          // does not need a second copy of the same messages/work items.
+          conversationOnly
+            ? Promise.resolve({ messages: [] })
+            : api('GET', '/api/executive/messages?limit=100'),
+          conversationOnly
+            ? Promise.resolve({ messages: [], retention_days: 90 })
+            : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
+          conversationOnly
+            ? Promise.resolve({ work_items: [] })
+            : api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
+          api('GET', `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`),
+          conversationOnly ? Promise.resolve({ proposals: [] }) : api('GET', '/api/executive/proposals?limit=100'),
+          conversationOnly ? Promise.resolve({ actions: [] }) : api('GET', '/api/executive/actions?limit=200'),
+          conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
+          conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
+          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
+          conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
+          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
+          conversationOnly ? Promise.resolve({ reports: [] }) : api('GET', '/api/executive/reports?limit=20'),
+          conversationOnly ? Promise.resolve({ queue: {} }) : api('GET', '/api/executive/domain-manager-queue'),
+          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+          conversationOnly ? Promise.resolve({ runs: [] }) : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+          conversationOnly ? Promise.resolve({ active: null, latest: null, runs: [] }) : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+          conversationOnly ? Promise.resolve({ cases: [] }) : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+          conversationOnly ? Promise.resolve({ events: [], calendar: { events: [] } }) : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
+        ]),
+      };
+    }
     [
-      messages,
-      transcript,
-      requests,
-      inbox,
-      proposals,
-      actions,
-      settings,
-      brief,
-      revops,
-      experiments,
-      campaigns,
-      reports,
-      managerQueue,
-      principalQueue,
-      croLabRuns,
-      runStatus,
-      cases,
-      calendar,
-    ] = await Promise.all([
-      api('GET', '/api/executive/messages?limit=100'),
-      conversationOnly
-        ? Promise.resolve({ messages: [], retention_days: 90 })
-        : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
-      api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
-      api('GET', '/api/executive/inbox?limit=50'),
-      conversationOnly
-        ? Promise.resolve({ proposals: [] })
-        : api('GET', '/api/executive/proposals?limit=100'),
-      conversationOnly
-        ? Promise.resolve({ actions: [] })
-        : api('GET', '/api/executive/actions?limit=200'),
-      conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
-      conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
-      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
-      conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
-      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
-      conversationOnly
-        ? Promise.resolve({ reports: [] })
-        : api('GET', '/api/executive/reports?limit=20'),
-      conversationOnly
-        ? Promise.resolve({ queue: {} })
-        : api('GET', '/api/executive/domain-manager-queue'),
-      conversationOnly
-        ? Promise.resolve({ summary: {} })
-        : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
-      conversationOnly
-        ? Promise.resolve({ runs: [] })
-        : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-      conversationOnly
-        ? Promise.resolve({ active: null, latest: null, runs: [] })
-        : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
-      conversationOnly
-        ? Promise.resolve({ cases: [] })
-        : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
-      conversationOnly
-        ? Promise.resolve({ events: [], calendar: { events: [] } })
-        : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
-    ]);
+      messages, transcript, requests, inbox, proposals, actions, settings, brief, revops,
+      experiments, campaigns, reports, managerQueue, principalQueue, croLabRuns, runStatus,
+      cases, calendar,
+    ] = await EXECUTIVE_LOAD_CACHE.promise;
   } catch (e) {
     renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
@@ -14343,7 +14329,12 @@ async function renderExecutive() {
     })
     .join('');
   const pendingApprovalRows = (proposals.proposals || [])
-    .filter(p => ['proposed', 'feedback'].includes(p.status) && !isCROHandoff(p))
+    .filter(
+      p =>
+        ['proposed', 'feedback'].includes(p.status) &&
+        p.owner_action_required === true &&
+        !isCROHandoff(p)
+    )
     .map(p => {
       const impl = p.implementation || {};
       const route = [
@@ -14371,7 +14362,10 @@ async function renderExecutive() {
   const intel = brief.brief?.intelligence || {};
   const executiveBreadcrumb = STATE.view === 'agent' ? breadcrumb('executive') : '';
   const pendingCount = (proposals.proposals || []).filter(
-    p => ['proposed', 'feedback'].includes(p.status) && !isCROHandoff(p)
+    p =>
+      ['proposed', 'feedback'].includes(p.status) &&
+      p.owner_action_required === true &&
+      !isCROHandoff(p)
   ).length;
   const fleetCost = intel.ai_usage?.summary?.total_cost_usd;
   const fleetCalls = intel.ai_usage?.summary?.calls;
@@ -14518,12 +14512,12 @@ async function renderExecutive() {
     .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh">↻ Refresh</button></div></header>
-    <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
+    <section class="ex-kpis">${stat(pendingCount, 'owner decisions', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'internal reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
-        <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">DECISIONS &amp; REVIEWS</div><h3>What needs your attention</h3><p class="muted ex-attention-intro">These are not general chat messages. A proposal is a recommendation from the executive team asking for a specific decision; approving it only authorizes the bounded route shown below, subject to its gates.</p></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision or executive review.</div>' : ''}</section>
+        <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER DECISIONS</div><h3>What needs your attention</h3><p class="muted ex-attention-intro">Only decisions that require an owner choice appear here. Evidence gathering, monitoring, and routine executive follow-through stay in the workbench.</p></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount ? `${pendingCount} open` : 'all clear'}</span></div>${pendingApprovalRows || '<div class="ex-empty">Nothing is waiting for an owner decision.</div>'}</section>
         <section class="ex-panel ex-compose" id="ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEW CONVERSATION</div><h3>Message the executive team</h3></div><span class="muted">A durable thread the team can answer</span></div><p class="muted ex-compose-help">Start a new conversation here. Your message becomes a tracked request, appears in the inbox below, and is included in the executive team’s next run.</p><textarea id="ex-message" class="cm-input" rows="5" placeholder="What would you like the executive team to research, decide, or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Tip: include the question, context, links, and what a useful answer should contain.</span><button class="btn primary" id="ex-send">Start conversation</button></div></section>
         ${casePanel}
         <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationGroup}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
