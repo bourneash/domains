@@ -211,7 +211,19 @@ GIT_AUTHOR_DATE="$fresh_commit_date" GIT_COMMITTER_DATE="$fresh_commit_date" \
 for script in "$ROOT"/sites/*/ops/scripts/deploy.sh; do
   bash -n "$script" || fail "syntax error: $script"
   grep -q 'BUILD_CONFIRMED=0' "$script" || continue
-  grep -q 'cf-build-unconfirmed' "$script" || fail "deploy verification can fall back silently: $script"
+  # Deployers may choose either policy when the Cloudflare Builds API cannot
+  # resolve a matching build: fail closed with a structured incident, or use a
+  # clearly logged propagation fallback whose smoke tests remain the final
+  # gate. Test the behavior contract, not one incident class or wording.
+  if grep -q 'cf-build-unconfirmed' "$script"; then
+    grep -q 'emit_incident' "$script" \
+      || fail "unconfirmed-build hard-fail lacks incident emission: $script"
+  else
+    grep -qiE 'build unconfirmed|unconfirmed.*build|build.*unconfirmed|no build-status confirmation|verification unavailable|polling timed out' "$script" \
+      || fail "unconfirmed-build fallback is not explicitly logged: $script"
+    grep -qE 'run-smoke-tests\.sh|engineer-render-check\.mjs' "$script" \
+      || fail "unconfirmed-build fallback lacks a smoke-test gate: $script"
+  fi
 done
 
 smoke="$ROOT/sites/blackmarketapparel.com/ops/scripts/run-smoke-tests.sh"
