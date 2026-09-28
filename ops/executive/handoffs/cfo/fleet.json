@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:04:42.434Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T04:22:03.725Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and reject candidate-plan dispatch, forecasts, commitments, monetization expansion, and new spend this cycle. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; reported site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls, $890.42 cost, 225 errors, and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods are not aligned, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget ceilings are blank, and no learning-outcome threshold exists. The treatment pilot's 70 outputs versus 44 controls is operational activity, not financial or causal evidence; treatment also had 58 requests versus 40, 7 failures versus 7, and a 12.21-hour average cycle versus 9.39 hours. Continue only existing reconciliation, repair, validation, legal, security, and measurement work using recorded telemetry.",
+        "summary": "CFO recommendation: maintain financial containment. Approve no new spend, forecasts, commitments, monetization expansion, or unsupported revenue claims. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to sites, so site revenue is unsupported. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, with 225 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget limits are blank, and no learning threshold is defined. The pilot’s 70 treatment outputs versus 44 controls is operational activity, not financial or causal lift. Continue only the existing reconciliation and evidence work; retain all growth and implementation items as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the candidate SEO, UX, affiliate, site-factory, control-plane, and content-normalization ideas as deferred hypotheses only. Do not create duplicate finance work or dispatch the proposed change requests. The minimum finance evidence is already assigned to the existing measurement and attribution reconciliation work item: reconcile provider revenue to site/content/tracking identifiers for the same period as costs, preserve aggregate commission as unattributed, and retain margin, ROI, payback, causal lift, budget capacity, and cost-to-learn as unknown until the required ledger and thresholds exist.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain financial containment. Do not claim site revenue, ROI, margin, payback, causal lift, budget capacity, or cost-to-learn. Preserve the provider-aggregate commission as unattributed and continue the existing period-aligned reconciliation work only.",
+        "summary": "Minimum finance evidence before reconsidering growth: period-aligned attributable revenue by site, content, and tracking ID; a reconciled AI, infrastructure, domain, labor, marketing, and experiment cost ledger; approved budget ceilings; and a defined learning outcome with a maximum cost-to-learn. Preserve provider aggregate rows as unattributed and do not treat site-attributed $0 as proof of zero performance.",
         "requested_action": null,
         "proposal_id": null
       }

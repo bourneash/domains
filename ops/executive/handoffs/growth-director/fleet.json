@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:20:13.836Z",
+  "generated_at": "2026-09-28T04:22:03.723Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Evidence-backed SEO opportunities remain deferred because queue eligibility is false, failure-repair and measurement work are open, attribution is incomplete, and operations/security evidence is unavailable. Continue existing SEO repair, validation, measurement, rollback, and attribution work using recorded telemetry only. Do not create or requeue SEO changes, add telemetry, deploy, spend, or claim traffic, conversion, revenue, or causal lift.",
+        "summary": "Growth disposition: no new SEO implementation is safely queueable this cycle. Existing failure-repair, measurement, ownership, release, security, and attribution gates remain open. Retain these bounded candidates for the next eligible slot: saveusfarms.com /articles/2026-09-03-michigan-land-trusts-fight-farm-loss (1,668 impressions, position 10.5, 0 clicks); xxxtea.com competing pages for “xxxtea” (101 impressions across five URLs); marineactivity.com /guides/ais-navigational-status-codes (332 impressions, position 8.2, 3 clicks); deeppenetrations.com /reviews/liquid-wrench (95 impressions, position 2.8, 0 clicks). Future acceptance requires preserving the recorded baseline, deterministic SEO/link/build validation, existing-telemetry measurement for 14 days or 100 new impressions, and isolated rollback. No lift, revenue, or attribution claim is made.",
         "requested_action": null,
         "proposal_id": null
       }
