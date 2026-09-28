@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:23:30.699Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:37:59.214Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain repository and CRO opportunities as deferred research backlog only. Lab results do not establish production fit, dependency approval, security clearance, measurement readiness, or revenue impact. Require isolated fixtures, dependency and license review, compatibility and security review, deterministic validation, rollback, and an existing-telemetry measurement boundary before reconsideration.",
+        "summary": "Retain amputeenews.com affiliate-tag work as owner-gated repair evidence only. Do not modify production links, credentials, or configuration until the owner-controlled prerequisite is explicitly authorized and verifiable. Revenue and attribution remain unknown until provider evidence confirms them.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing americastrikes.com affiliate repair-or-close review without requeueing unchanged work. Validate repository references, redirect and registry consistency, bounded links, build, smoke checks, and rollback evidence; preserve attribution limits.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain repository opportunities as deferred research only. No dependency installation, prototype dispatch, production integration, deployment, spend, telemetry change, or revenue or causal-lift claim is authorized until ownership, security, release, rollback, and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing fleet attribution and cost reconciliation. Preserve aggregate provider commission as unattributed and missing costs, budgets, commitments, and learning thresholds as unknown. Do not infer site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing security and launch-readiness evidence work only. Preserve private launch gates and do not access credentials, change permissions, add dependencies, deploy, expand data collection, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
