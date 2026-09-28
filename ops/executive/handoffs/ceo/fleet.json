@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:07:26.219Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:10:35.438Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. No new change request is eligible: all three highest-scored factory candidates remain blocked by missing execution-owner and launch-readiness evidence. Evidence: 111 approved proposals lack execution, 41 improvements await measurement, 15 requests failed, operations/fleet-doctor results are unavailable, and Amazon’s $4.92 commission for 2026-09-21 is aggregate and unattributed. Margin, ROI, and causal lift remain unknown. Smallest next step: site-factory verifies the existing owner-gap and readiness packet by 2026-09-30T17:00Z. Owner decision: keep Woot permission outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff under EXEC_CONV_12: continue existing repair-or-close, measurement, attribution reconciliation, legal/security evidence, and parked-site readiness only. Do not requeue failed work, add dependencies, change telemetry, spend, deploy, publish, alter DNS, or expand monetization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff under EXEC_CONV_12: update the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net with dated execution-owner verification, preview/build checks, measurement plan, rollback point, and explicit blocker by 2026-09-30T17:00Z. Preserve parked/private status.",
+        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }

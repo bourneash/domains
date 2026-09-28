@@ -2,86 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:07:26.221Z",
-  "summary": "reviewer checked in 11 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:10:35.438Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, spending, telemetry changes, dependencies, deployments, monetization expansion, and unsupported financial or causal claims. Continue only existing measurement, failure repair-or-close, finance reconciliation, legal/security evidence, parked-site readiness, and the already-approved bounded routing repair. Material concerns: revenue is one period with an unattributed aggregate row; matching costs, budgets, and margins are unknown; operations and fleet-doctor evidence are unavailable; and substantial work awaits measurement or repair. Keep permission outreach unsent pending human-counsel review.",
+        "summary": "Containment-only plan retained. No new implementation candidate is queueable: complicated.work, deadlymaracas.com, and driveford.net require verified execution ownership and launch-readiness evidence. Existing queue, measurement, failure-repair, finance reconciliation, legal/security evidence, and parked-site verification may continue without requeue, production changes, telemetry, spending, credentials, dependencies, deployment, monetization, or outreach. Aggregate commission remains unattributed; margin, ROI, forecast, and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Update the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net with dated ownership verification, readiness evidence, preview/build checks, measurement plan, rollback point, and explicit blockers by 2026-09-30T17:00Z. Preserve parked/private status; do not publish, deploy, change DNS, credentials, analytics, monetization, or spending.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing period-aligned reconciliation. Preserve the 2026-09-21 aggregate commission as unattributed and retain missing matching-period revenue identifiers, costs, commitments, budgets, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and private launch gates. Record dated evidence and explicit unknowns from authorized metadata only. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization; do not change production, tracking, credentials, configuration, alert scope, monetization, or launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new implementation and queue work this cycle. No candidate has sufficient verified ownership, launch-readiness, security, validation, rollback, attribution, and measurable-outcome evidence. Preserve existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not requeue, deploy, spend, add dependencies, change telemetry, alter DNS, or expand monetization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The action mandate cannot be safely satisfied: the available factory candidates are explicitly blocked by missing execution-owner and launch-readiness evidence, while existing sites are blocked by active measurement or queued work. No new engineer requests are authorized. Continue existing bounded work and preserve all unavailable fields as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: Amazon revenue covers one period and includes $4.92 aggregate unattributed commission; matching costs, budgets, and learning thresholds are missing; operations and fleet-doctor results are unavailable; 41 improvements await measurement and 15 requests failed. Keep SearchWoot private and permission outreach unsent pending human-counsel review. No unsupported financial, causal, production, queue, requeue, spend, telemetry, dependency, or deployment action is approved.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-allthingsmasonic-affiliate-cta",
-        "summary": "Deferred only. Existing active work and measurement block duplicate production queue entry; attribution and volume do not support a revenue claim.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-deferred-allthingsmasonic-affiliate-cta"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-markitdown-content-pipeline",
-        "summary": "Offline disposable research only. No production dependency, publishing, adoption, spending, or causal claim is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-deferred-markitdown-content-pipeline"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-shadcn-accessible-pattern",
-        "summary": "Standalone preview research only. No production integration, dependency, or adoption is authorized without later security, accessibility, compatibility, and measurement gates.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-deferred-shadcn-accessible-pattern"
       }
     ]
   }
