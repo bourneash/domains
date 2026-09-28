@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:07:58.602Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:22:02.441Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. No new proposals, change requests, requeues, experiments, telemetry, deployments, dependencies, spend, or monetization changes are queue-eligible. Continue existing repair-or-close, measurement, attribution, legal, security, and owner-disposition work using recorded evidence only. Retain performance, accessibility, SEO, UX, content, affiliate, and prototype opportunities as deferred backlog.",
+        "summary": "CTO disposition: maintain containment-only execution. No new implementation, requeue, deployment, dependency, credential, telemetry, spend, experiment, or monetization change is queue-eligible this cycle. Continue existing repair-or-close, measurement, attribution, legal, security, and financial reconciliation work using recorded evidence only. Preserve deferred SEO, UX, affiliate, performance, and content opportunities with their existing metrics, tests, measurement windows, and rollback notes. Treat revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown; retain aggregate provider commission as unattributed. Reconsider new queue work only after dated ownership, root cause, isolated validation, rollback, deduplication, release, security, and measurement evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed performance/accessibility pass is technically feasible, isolated, reversible, and measurable, but it is not queue-eligible while active measurement windows, failed-request repairs, ownership, release, security, attribution, and rollback gates remain open. Preserve the specification as deferred backlog; do not dispatch or requeue it.",
+        "summary": "Handoff: record dated unblock evidence for existing failed and measuring work by the established deadline. Do not requeue or duplicate work until ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing evidence-only owner-disposition task for therareunicorn.com. Record exactly one disposition using the existing readiness brief, preserving unknown audience, revenue, attribution, compliance, security, and margin fields. No production, telemetry, credential, configuration, domain, spend, or launch-state changes are authorized.",
+        "summary": "Handoff: continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and record explicit unknowns; do not access credentials, alter permissions or configuration, add dependencies, deploy, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue aggregate affiliate attribution and period-aligned cost reconciliation using recorded data only. Preserve provider aggregate earnings as unattributed and do not infer site revenue, margin, ROI, payback, causal lift, budget capacity, or cost-to-learn.",
+        "summary": "Handoff: continue the existing launch-readiness evidence work and keep rights-dependent public exposure and external permission outreach blocked pending human-counsel review and owner authorization. Do not close a gate without its required evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete periods or activity counts.",
         "requested_action": null,
         "proposal_id": null
       }

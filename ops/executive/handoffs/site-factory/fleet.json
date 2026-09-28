@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:52:49.197Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:22:02.440Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain validated site opportunities as deferred backlog because measurement, failure-repair, attribution, ownership, legal, security, and rollback gates remain incomplete. Do not create new implementation work, deploy, add telemetry, spend, change domains, or claim traffic, revenue, ROI, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Strongest candidate: infrainnovator.com bounded SEO and information-architecture preview. Evidence supports a queue-ready scaffold and a reversible preview scope, but analytics, audience, revenue, conversion, production readiness, ownership, release, security, and measurement gates remain unknown or incomplete. Preserve the preview specification as deferred backlog.",
+        "summary": "Maintain containment-only execution. Preserve a small site-factory pipeline of bounded, evidence-only packets; no domains, spend, deployment, launch, new telemetry, or monetization changes. Strongest candidate: allthingsmasonic.com, because analytics and compliance are passing, affiliate capability is registered, and a bounded public inspection exists. Exactly one next step: complete the existing affiliate-disclosure evidence audit by attaching the retained inspection artifact and recording disclosure status by audited URL before any CTA or affiliate change.",
         "requested_action": null,
         "proposal_id": null
       }

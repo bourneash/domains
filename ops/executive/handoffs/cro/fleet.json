@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:07:58.168Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:22:02.440Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO evidence note: the markitdown repository is MIT-licensed and passed bounded read-only lab checks, making a disposable document-to-Markdown prototype plausible for structured SEO-content workflows. The smallest reversible prototype is offline conversion of a fixed sample set with human review, no production dependency or deployment. Expected metric: reviewed conversion accuracy and time-to-draft; time-to-learn: one isolated lab cycle. Risks: dependency and parser security review, maintenance/version drift, document privacy, and no proof of search or revenue lift. Keep prototype-only until CTO/security and measurement gates clear.",
+        "summary": "Recommendation: maintain containment-only execution and retain three CRO opportunities as deferred backlog. Existing evidence supports learning value but not new dispatch: 39 improvements await measurement, 8 requests failed, operations/security sweeps have no results, and only 2 outcomes are proven. Continue affiliate-disclosure, attribution, measurement, and failure-repair evidence work using recorded telemetry only. No production change, spend, dependency, credential, domain, telemetry, requeue, or unsupported revenue claim is included.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: retain the 0xroulette performance pass, allthingsmasonic CTA/disclosure pass, and markitdown content-ingestion prototype as deferred CRO backlog. Each has a reversible prototype, metric, validation gate, and rollback path, but queue entry remains blocked by current measurement, failure-repair, ownership, security, and release gates. Reconsider after dated unblock evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       }

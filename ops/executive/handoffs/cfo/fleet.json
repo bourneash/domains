@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:07:58.602Z",
+  "generated_at": "2026-09-28T06:22:02.441Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and retain only existing reconciliation work. Revenue evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls and $901.90 cost, with 228 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget ceilings are blank, and no learning-outcome threshold exists. The 39 awaiting-measurement improvements, 8 failed requests, 2 proven outcomes, and pilot output counts are not financial performance. Continue the existing revenue, attribution, and cost reconciliation using recorded evidence only; do not create duplicate telemetry, spend, forecasts, commitments, monetization changes, or new dispatches.",
+        "summary": "CFO recommendation: maintain financial containment and approve no new spend, forecasts, commitments, monetization expansion, deployments, requeues, or experiments this cycle. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to a site; $0 site-attributed commission is not evidence of zero performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls and $901.90 cost, including 228 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, and budget exposure are not calculable because revenue and costs are period-misaligned, infrastructure/domain/labor/marketing/experiment costs are absent or incomplete, monthly budget ceilings are blank, and no learning outcome or maximum cost-to-learn is defined. Treat clicks, orders, shipped items, sessions, conversions, AI calls, proposal counts, shipped output, and the 70-versus-44 pilot output comparison as operating or vanity metrics, not financial performance. Continue only the existing period-aligned reconciliation work: reconcile attributable revenue to site/content/tracking identifiers, retain aggregate provider rows as unattributed, reconcile all cost categories including infrastructure, record approved ceilings, and define a measurable learning outcome with a maximum cost-to-learn. No duplicate telemetry request is warranted.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the existing affiliate-attribution and revenue/cost reconciliation work only. Preserve the $4.92 provider aggregate as unattributed, reconcile registered tracking IDs and aligned cost periods, and do not infer margin, ROI, payback, budget capacity, or cost-to-learn from clicks, orders, shipped items, sessions, conversions, AI calls, or output counts.",
+        "summary": "Handoff: continue the existing revenue, attribution, and cost reconciliation work item only. Preserve the $4.92 aggregate commission as unattributed; do not infer contribution margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete periods or activity counts. Escalate only when the minimum finance evidence is attached; do not create duplicate telemetry or financial work.",
         "requested_action": null,
         "proposal_id": null
       }

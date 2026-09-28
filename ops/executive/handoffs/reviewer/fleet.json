@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:07:58.603Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:22:02.441Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, measurement, attribution, legal, security, and owner-disposition work using recorded evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: the $4.92 provider aggregate for 2026-09-21 is not site-attributable; revenue and cost periods do not align; budget ceilings and cost-to-learn thresholds are absent; operations and security evidence remain incomplete. Preserve the aggregate as unattributed and keep financial and causal outcomes unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain existing legal, security, failure-repair, measurement, attribution, and owner-disposition work. Keep private launch gates and parked dispositions unchanged. Do not create duplicate readiness reports, queue work, or production changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing therareunicorn.com owner-disposition record as evidence-only work. It must preserve unknown audience, revenue, attribution, compliance, security, and margin fields and make no production, telemetry, credential, configuration, domain, spending, or launch-state changes.",
+        "summary": "Approve containment-only execution. Reject all new production work, requeues, experiments, telemetry, spending, monetization changes, and unsupported financial or causal claims. Preserve the aggregate commission as unattributed and continue only existing repair, measurement, attribution, legal, security, and reconciliation work. The proposed security proposal is duplicative of the existing evidence work item; retain that work without creating a new proposal. No bounded public research is justified because the relevant evidence and telemetry already exist.",
         "requested_action": null,
         "proposal_id": null
       }
