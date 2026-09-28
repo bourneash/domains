@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:36:26.628Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:52:10.762Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new proposals, change requests, requeues, deployments, spending, telemetry, monetization expansion, and external outreach this cycle. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; ROI, margin, payback, causal lift, cost-to-learn, and budget capacity remain unknown. Preserve deferred opportunities as backlog, keep private launch gates unchanged, and continue only existing reconciliation, repair-or-close, measurement, legal, and security evidence work. Owner concern: 39 improvements await measurement, 8 requests failed, only 2 outcomes are proven, and operations/security evidence is unavailable.",
+        "summary": "Approve containment-only execution. Reject new production work, queue actions, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and unsupported financial or causal claims. Continue only existing repair, reconciliation, legal, security, measurement, and owner-disposition work using recorded evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only backlog. Do not implement, deploy, expand affiliate use, alter attribution, or claim revenue or conversion lift. Continue the existing legal and security evidence gates and record only evidence-backed dispositions.",
+        "summary": "Owner concern: the $4.92 commission is an unattributed aggregate for 2026-09-21; revenue and cost periods do not align, budget ceilings and cost-to-learn thresholds are absent, and operations/security evidence is incomplete. Preserve financial, margin, ROI, payback, readiness, and causal outcomes as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work and attach it to the existing item for URL-level disclosure and product-link classification. Do not change CTAs, affiliate links, tracking, configuration, or production. Keep deferred performance and conversion opportunities as backlog only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing security evidence matrix with dated, redacted evidence and explicit unknowns. Preserve private launch gates; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:36:26.627Z",
+  "generated_at": "2026-09-28T06:52:10.761Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and continue only the existing reconciliation work. Revenue evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The aggregate row cannot be assigned to a site; site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls, $901.90 cost, 228 errors, and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget ceilings are blank, and no learning threshold exists. The 39 awaiting-measurement improvements, 8 failed requests, 2 proven outcomes, and pilot output counts are not financial performance. Do not approve new spend, forecasts, commitments, monetization expansion, deployments, requeues, or unsupported revenue claims. Preserve aggregate commission as unattributed and continue period-aligned reconciliation using existing telemetry only.",
+        "summary": "Recommendation: maintain financial containment and retain only existing reconciliation work. Revenue evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; named site rows report $0 commission, which does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls, 228 errors, and $901.90 cost. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing costs are absent, budget ceilings are blank, and no learning-outcome threshold exists. Do not dispatch, spend, forecast, expand monetization, or claim financial or causal lift. Minimum evidence: period-aligned attributable revenue, a complete reconciled cost ledger including infrastructure, approved budget ceilings, and a defined learning outcome with maximum cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing revenue, attribution, and cost reconciliation work item only. Reconcile provider revenue with site, content, and tracking identifiers for the same period as recorded costs; retain aggregate provider earnings as unattributed; reconcile all available cost categories; and record explicit unknowns. Do not create duplicate telemetry or financial work.",
+        "summary": "Handoff: retain the existing period-aligned revenue, attribution, and cost reconciliation work item only. Preserve aggregate provider commission as unattributed; reconcile revenue, AI, infrastructure, domain, labor, marketing, and experiment costs for matching periods; record approved budget ceilings and the cost-to-learn threshold. Do not create duplicate telemetry or financial work.",
         "requested_action": null,
         "proposal_id": null
       }

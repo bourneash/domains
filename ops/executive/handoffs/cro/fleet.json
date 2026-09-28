@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:36:26.627Z",
+  "generated_at": "2026-09-28T06:52:10.760Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review of the strongest current evidence item: retain the allthingsmasonic.com readiness packet as existing evidence work, not a new monetization or launch approval. Attach the completed inspection artifact and record one disclosure/destination disposition. Preserve the registered tracking ID, consent gating, explicit attribution limits, source provenance, and rollback boundary. Stop after the disposition; do not implement, deploy, launch, or claim revenue or conversion lift.",
+        "summary": "CRO handoff: retain the deferred opportunities until dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement gates are documented. Preserve aggregate affiliate earnings as unattributed and use existing telemetry only.",
         "requested_action": null,
         "proposal_id": null
       }
