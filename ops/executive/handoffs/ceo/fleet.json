@@ -2,37 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:07:31.785Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:10:36.167Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep searchwoot.com private. Rights, retention, consent, vendor, accuracy, security, attribution, measurement, and owner gates remain incomplete. Keep permission outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Recommendation: execute the 6 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "Repository evidence supports feasibility research only; active measurement, failure repair, ownership, security, release, rollback, attribution, and validation gates remain open.",
-        "requested_action": "declined",
-        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "No production adoption or prototype is justified while existing delivery and measurement gates remain unresolved.",
-        "requested_action": "declined",
-        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "Lab evidence does not establish measurable fleet upside or production readiness; retain as deferred research backlog.",
-        "requested_action": "declined",
-        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
       }
     ]
   }
