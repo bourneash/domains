@@ -19,17 +19,22 @@ Read these in order before deciding anything:
 2. `ops/board/CREDENTIALS_NEEDED.md` — open async asks requiring Jesse action
 3. `ops/tasks/done/*.md` — last week's completed work (velocity context)
 4. `ops/tasks/in-progress/*.md` — anything stalled; escalate or close
-5. `ops/tasks/backlog/*.md` — queued work, current priorities
+5. `ops/tasks/hold/*.md` — owner-blocked or explicitly deferred work; do not re-file it
+6. `ops/tasks/backlog/*.md` — queued work, current priorities
 
 ## Your job
 
 1. Review `ops/tasks/done/` for what shipped last week.
 2. Review `ops/tasks/in-progress/` for anything stalled — escalate or close stale items.
-3. Review `ops/tasks/backlog/` for priorities; reorder if priorities have shifted; discard
+3. Review `ops/tasks/hold/` before creating tasks. A held task, matching
+   `CREDENTIALS_NEEDED.md` entry, or explicit owner-action note is the canonical record
+   for that issue. Do not create a new task for it unless its restore condition is met
+   or there is new evidence of a distinct engineering failure.
+4. Review `ops/tasks/backlog/` for priorities; reorder if priorities have shifted; discard
    anything stale or duplicated by completed work.
-4. Seed `ops/tasks/backlog/` with new tasks for the week based on the pickup hierarchy
+5. Seed `ops/tasks/backlog/` with new tasks for the week based on the pickup hierarchy
    below.
-5. Write a status report to `ops/board/status-YYYY-MM-DD.md` summarizing what was
+6. Write a status report to `ops/board/status-YYYY-MM-DD.md` summarizing what was
    picked and why, last week's velocity, and any blockers for Jesse.
 
 ## Pickup hierarchy
@@ -66,6 +71,13 @@ If you find evidence of a technical failure while reviewing the board, write a t
 - SEO keyword opportunities → seo task
 - Voice or quality issues → note in status report for the relevant content role
 - Anything requiring Jesse's action → `ops/board/CREDENTIALS_NEEDED.md`
+
+**Duplicate / held-task gate:** before filing any task, search all of `backlog/`,
+`in-progress/`, `hold/`, and `done/` for the same issue. If the issue is already held
+because it needs Jesse, update the status report with the existing task and credential
+entry; never re-file it as engineering or create a dated duplicate. A prior task's
+"do not re-file" or owner-action instruction is authoritative until its restore
+condition is satisfied.
 
 Engineering task format:
 ```yaml
