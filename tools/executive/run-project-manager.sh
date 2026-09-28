@@ -27,9 +27,9 @@ try {
       catch { return []; }
     },
   });
-  // Keep approved report-only proposals moving even when the hourly model
-  // pass is skipped or fails. This uses the same bounded queue/review path as
-  // the executive scheduler and never approves a proposal.
+  // Reconcile approved proposals even when the hourly model pass is skipped
+  // or fails. Implementation work may enter the bounded queue; report-only
+  // follow-through remains quiet unless explicitly opted into model work.
   result.approved_follow_through = runner.drainApprovedProposalQueue(store, { root, maxQueue: 2 });
   result.sla_notifications = sla_notifications.length;
   executive.finishAction(store, audit.action_id, { status: 'completed', result });

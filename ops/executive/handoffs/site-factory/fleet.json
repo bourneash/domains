@@ -1,0 +1,18 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "site-factory",
+  "site": "fleet",
+  "generated_at": "2026-09-28T03:20:13.836Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution; no new site-factory dispatch is authorized while queue eligibility is false and failure, measurement, attribution, release, legal, and security gates remain open. Keep a small deferred pipeline: noveltyguns.com (strongest validated candidate, score 72.8), complicated.work (72.6), and driveford.net (72.5). For each, the bounded launch packet must include site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, named owner, legal/security/measurement approvals, and rollback plan. Current audience, traffic, conversion, revenue, attribution, operational health, and launch clearance remain unknown where not directly evidenced. Exactly one next step: after queue eligibility and required gates clear, have the site-factory owner produce the read-only launch-readiness brief for noveltyguns.com; do not deploy, add domains, spend, change telemetry, or launch before owner, legal, security, measurement, and rollback approval.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
+  }
+}

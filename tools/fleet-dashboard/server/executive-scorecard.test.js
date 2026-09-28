@@ -69,6 +69,44 @@ test('scorecard makes an unproductive executive cycle visible', () => {
   assert.match(result.next_step, /bounded, measurable action/);
 });
 
+test('accountability escalates repeated executable no-op cycles', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 1 } },
+    },
+    {
+      started_at: '2026-09-22T01:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 0 } },
+    },
+    {
+      started_at: '2026-09-22T02:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 0 } },
+    },
+  ]);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.no_action_streak, 2);
+  assert.equal(result.escalation_required, true);
+  assert.equal(result.status, 'escalate-ceo');
+});
+
+test('accountability excludes deliberately disabled queue cycles', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: false, created_counts: { change_requests: 0 } },
+    },
+    {
+      started_at: '2026-09-22T01:00:00.000Z',
+      result: { allowQueue: true, created_counts: { work_items: 1 } },
+    },
+  ]);
+  assert.equal(result.eligible_ticks, 1);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.escalation_required, false);
+  assert.equal(result.status, 'on-track');
+});
+
 test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
   const summary = scorecard.proposalExecutionSummary(
     [
@@ -155,4 +193,36 @@ test('scorecard exposes open repair work for terminal worker failures', () => {
   assert.deepEqual(result.execution.failure_followups_by_owner, { cto: 1 });
   assert.match(result.attention.join('\n'), /open repair work items/);
   assert.match(result.next_step, /failure-repair/);
+});
+
+test('scorecard alerts when an owner request survives a run unanswered', () => {
+  const store = {
+    listExecutiveActions: () => [
+      {
+        action_type: 'tick',
+        started_at: '2026-09-22T00:30:00.000Z',
+        result: { allowQueue: true, created_counts: { messages: 0 } },
+      },
+    ],
+    listExecutiveProposals: () => [],
+    listChangeRequests: () => [],
+    listImprovements: () => [],
+    listExecutiveWorkItems: () => [
+      {
+        work_id: 'owner-request-1',
+        source_type: 'owner-request',
+        lifecycle_state: 'submitted',
+        created_at: '2026-09-22T00:00:00.000Z',
+        title: 'Owner request: answer me',
+        next_action: 'Executive team to reply',
+      },
+    ],
+    list: () => [],
+  };
+  const result = scorecard.buildScorecard(store, {
+    now: new Date('2026-09-22T01:00:00.000Z'),
+  });
+  assert.equal(result.execution.owner_requests_stale, 1);
+  assert.match(result.attention.join('\n'), /owner request\(s\) survived/);
+  assert.equal(result.owner_requests.stale[0].work_id, 'owner-request-1');
 });

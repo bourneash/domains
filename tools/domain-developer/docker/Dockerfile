@@ -111,6 +111,7 @@ COPY --chmod=0755 claude-locked.sh /usr/local/bin/claude
 # bump it by rebuilding with `bin/dd-build`, not by self-update.
 ENV DISABLE_AUTOUPDATER=1
 ENV CHROME_PATH=/usr/local/bin/chromium
+ENV DD_DEV_CONTRACT_VERSION=3
 
 # Put the per-user native-install dir on PATH so claude doesn't nag
 # ("Native installation exists but ~/.local/bin is not in your PATH") if a

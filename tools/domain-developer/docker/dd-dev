@@ -13,6 +13,7 @@ set -uo pipefail
 PID_FILE=/tmp/dd-dev.pid
 LOG_FILE=/tmp/dd-dev.log
 DEFAULT_PORT="${DD_DEV_PORT:-4321}"
+CONTRACT_VERSION="3"
 
 # Pick the dev directory: prefer <site>/site/, fall back to <site>/.
 pick_dev_dir() {
@@ -37,6 +38,7 @@ cmd_start() {
     if is_running; then
         echo "status=already-running"
         echo "pid=$(cat "${PID_FILE}")"
+        echo "contract_version=${CONTRACT_VERSION}"
         exit 0
     fi
     local dev_dir
@@ -100,7 +102,13 @@ cmd_start() {
     if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--compatibility-date"* ]]; then
         dev_script="${dev_script} --compatibility-date ${DD_DEV_COMPATIBILITY_DATE:-2026-09-07}"
     fi
-    if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--port"* ]]; then
+    # Every validation sandbox exposes the dev server through the fixed
+    # container port. Normalize Vite/Astro scripts too; leaving their default
+    # port in place makes the health check probe a different socket and report
+    # a healthy server as a preview failure.
+    if [[ "${dev_script}" =~ --port[[:space:]]+([0-9]+) ]]; then
+        dev_script="${dev_script/--port ${BASH_REMATCH[1]}/--port ${DD_DEV_PORT:-4321}}"
+    elif [[ "${dev_script}" != *"python3 -m http.server"* ]]; then
         dev_script="${dev_script} --port ${DD_DEV_PORT:-4321}"
     fi
     if [[ "${dev_script}" == *"wrangler dev"* && "${dev_script}" != *"--live-reload"* ]]; then
@@ -135,6 +143,7 @@ cmd_start() {
 
     echo "status=started"
     echo "pid=${pid}"
+    echo "contract_version=${CONTRACT_VERSION}"
     echo "dir=${dev_dir}"
     echo "log=${LOG_FILE}"
 }
@@ -167,9 +176,11 @@ cmd_status() {
         echo "status=running"
         echo "pid=$(cat "${PID_FILE}")"
         echo "port=${DEFAULT_PORT}"
+        echo "contract_version=${CONTRACT_VERSION}"
         exit 0
     fi
     echo "status=stopped"
+    echo "contract_version=${CONTRACT_VERSION}"
     exit 1
 }
 

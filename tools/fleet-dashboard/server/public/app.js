@@ -102,6 +102,15 @@ function agentLabel(role) {
     .join(' ');
 }
 
+// The agents endpoint has returned both a bare array and an envelope
+// ({ agents: [...] }) across dashboard versions. Keep the shared navigation
+// state iterable so a response-shape change cannot interrupt the whole SPA.
+function normalizeAgentList(value) {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.agents)) return value.agents;
+  return [];
+}
+
 function executiveActorLabel(actor) {
   if (String(actor) === 'researcher') return 'CRO';
   if (String(actor) === 'product-manager-fleet') return 'PM · Fleet tooling';
@@ -11954,6 +11963,8 @@ function cqWorkLabel(r) {
 function cqStatusClass(status) {
   if (['deployed', 'verified', 'committed'].includes(status)) return 'b-green';
   if (['failed', 'cancelled'].includes(status)) return 'b-red';
+  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(status))
+    return 'b-yellow';
   if (['review', 'reviewing'].includes(status)) return 'b-yellow';
   return 'b-blue';
 }
@@ -11971,6 +11982,9 @@ function cqNextAction(r, settings) {
   if (r.status === 'reviewing') return 'Wait for quality gates';
   if (r.status === 'review') return 'Run review and deliver';
   if (r.status === 'failed') return 'Inspect failure, then retry';
+  if (r.status === 'blocked_owner') return 'Install or assign a site owner';
+  if (r.status === 'blocked_infrastructure') return 'Repair infrastructure, then retry';
+  if (r.status === 'needs_human_review') return 'Human review required';
   if (r.status === 'cancelled') return 'Replace or close request';
   if (['deployed', 'verified', 'committed'].includes(r.status)) return 'Measure outcome';
   return 'Open request details';
@@ -12012,6 +12026,8 @@ function cqActionButtons(r) {
   if (r.status === 'review')
     return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
   if (r.status === 'failed')
+    return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
+  if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(r.status))
     return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
   if (['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status))
     return `${manage} <button class="btn sm danger cq-cancel" data-id="${id}">Cancel</button>`;
@@ -12070,11 +12086,9 @@ async function renderChangeQueue({ background = false } = {}) {
   const working = requests.filter(r => r.work?.active);
   // Only surface recoverable exceptions here. Cancelled requests are historical
   // outcomes, not active interventions; failed requests have a direct retry path.
-  const attention = requests.filter(r => r.status === 'failed');
-  const completed = requests
-    .filter(r => ['deployed', 'verified'].includes(r.status))
-    .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0))
-    .slice(0, 8);
+  const attention = requests.filter(r => ['failed', 'needs_human_review'].includes(r.status));
+  const deliveryMetrics = data.delivery_metrics || { windows: {} };
+  const throughput = deliveryMetrics.windows || {};
   const capacity = Number(data.settings.max_concurrent || 1);
   const staleQueued = queued.filter(
     r =>
@@ -12091,7 +12105,7 @@ async function renderChangeQueue({ background = false } = {}) {
     if (CHANGE_QUEUE_VIEW === 'queued') return r.status === 'queued';
     if (CHANGE_QUEUE_VIEW === 'active')
       return ['claimed', 'running', 'reviewing', 'review'].includes(r.status);
-    if (CHANGE_QUEUE_VIEW === 'failed') return r.status === 'failed';
+    if (CHANGE_QUEUE_VIEW === 'failed') return ['failed', 'needs_human_review'].includes(r.status);
     if (CHANGE_QUEUE_VIEW === 'shipped')
       return ['deployed', 'verified', 'committed'].includes(r.status);
     return r.status === 'failed' || isStale(r) || (r.priority === 'high' && isOpen(r));
@@ -12186,7 +12200,7 @@ async function renderChangeQueue({ background = false } = {}) {
       requests.filter(r => ['review', 'reviewing'].includes(r.status)).length,
       'var(--a2)',
     ],
-    ['done', 'Shipped', completed.length, 'var(--green)'],
+    ['done', 'Shipped (month)', throughput.month_to_date?.shipped || 0, 'var(--green)'],
   ];
   if (!CHANGE_QUEUE_NEXT_PICKUP_AT || CHANGE_QUEUE_NEXT_PICKUP_AT < Date.now())
     CHANGE_QUEUE_NEXT_PICKUP_AT = Date.now() + Number(data.settings.interval_minutes || 30) * 60000;
@@ -12199,7 +12213,17 @@ async function renderChangeQueue({ background = false } = {}) {
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button class="btn primary" id="cq-new">New change request</button></div></div>
     <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><div class="cq-command-stat"><span>Blocked</span><strong>${blocked}</strong><small>${data.queue_metrics?.oldest_blocked_at ? `oldest ${cqAge(data.queue_metrics.oldest_blocked_at)}` : 'none'}</small></div><button class="btn sm" id="cq-pickup-all">Dispatch due work</button></section>
     <section class="card cq-working-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">LIVE WORK</div><h3>Currently being worked</h3><p class="muted">Claimed, running, and reviewing requests with their worker and heartbeat.</p></div><span class="cq-live-count ${working.length ? 'is-working' : ''}"><i></i>${working.length ? `${working.length} active` : 'Nothing active'}</span></div><div class="cq-working-list">${workingCards || '<div class="cq-no-work"><strong>No request is being worked right now.</strong><span>The queue is idle or waiting for eligible work.</span></div>'}</div></section>
-    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked — not failed</strong><small>These requests have no error; capacity, another run, or a measurement window is holding them. Open a queued row for the exact reason.</small></div></div>` : ''}${attention.length ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${attention.length} request${attention.length === 1 ? '' : 's'} actually failed</strong><small>Failed work is separate from blocked queue work. Open the failed view to see the recorded reason and retry path.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section>
+    <section class="cq-overview-grid"><div class="card cq-focus-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">OPERATOR FOCUS</div><h3>What needs you now</h3></div><span class="badge ${priorityItems.length ? 'b-yellow' : 'b-green'}">${priorityItems.length ? `${priorityItems.length} item${priorityItems.length === 1 ? '' : 's'}` : 'clear'}</span></div><div class="cq-focus-list">${priorityLane}</div></div><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked — not failed</strong><small>These requests have no error; capacity, another run, or a measurement window is holding them. Open a queued row for the exact reason.</small></div></div>` : ''}${attention.length ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${attention.length} request${attention.length === 1 ? '' : 's'} actually failed</strong><small>Failed work is separate from blocked queue work. Open the failed view to see the recorded reason and retry path.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section><section class="card cq-throughput"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY THROUGHPUT</div><h3>Actually shipped</h3><p class="muted">Deployed changes only · as of ${esc(fmtDate(deliveryMetrics.as_of))}</p></div><span class="muted">${esc(deliveryMetrics.definition || '')}</span></div><div class="cq-throughput-grid">${[
+      ['24h', 'Last 24 hours'],
+      ['2d', 'Last 2 days'],
+      ['5d', 'Last 5 days'],
+      ['month_to_date', throughput.month_to_date?.label || 'Month to date'],
+    ]
+      .map(([key, label]) => {
+        const item = throughput[key] || {};
+        return `<div class="cq-throughput-stat"><strong>${item.shipped || 0}</strong><span>shipped · ${esc(label)}</span><small>${item.verified || 0} verified · ${item.failed || 0} failed${item.success_rate == null ? '' : ` · ${item.success_rate}% terminal success`}</small></div>`;
+      })
+      .join('')}</div></section>
     <section class="card cq-register"><div class="cq-register-head"><div><div class="cq-eyebrow">WORK REGISTER</div><h3>All change requests</h3><p>Search the full history when you need context. The focus lane above is reserved for decisions.</p></div><span class="muted">${filteredRequests.length} matching · ${pageLabel}</span></div><div class="cq-register-toolbar"><div class="cq-filter-group"><input id="cq-search" class="cm-input" placeholder="Search title, site, role…" value="${esc(CHANGE_QUEUE_FILTER.q)}"><select id="cq-status" class="cm-input" title="Filter by state"><option value="all">All states</option>${data.statuses.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.status === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-site-filter" class="cm-input" title="Filter by site"><option value="all">All sites</option>${sites.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_FILTER.site === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-priority-filter" class="cm-input" title="Filter by priority"><option value="all" ${CHANGE_QUEUE_FILTER.priority === 'all' ? 'selected' : ''}>All priorities</option>${['high', 'medium', 'low'].map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.priority === x ? 'selected' : ''}>${x}</option>`).join('')}</select><select id="cq-owner-filter" class="cm-input" title="Filter by owner"><option value="all">All owners</option>${owners.map(x => `<option value="${esc(x)}" ${CHANGE_QUEUE_OWNER === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select><select id="cq-provider-filter" class="cm-input" title="Filter by provider"><option value="all">All providers</option>${data.providers.map(x => `<option value="${x}" ${CHANGE_QUEUE_FILTER.provider === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div><div class="cq-sort-group"><label class="cq-filter-label" for="cq-sort">Sort</label><select id="cq-sort" class="cm-input"><option value="created_at" ${CHANGE_QUEUE_SORT === 'created_at' ? 'selected' : ''}>Recent activity</option><option value="priority" ${CHANGE_QUEUE_SORT === 'priority' ? 'selected' : ''}>Priority</option><option value="status" ${CHANGE_QUEUE_SORT === 'status' ? 'selected' : ''}>State</option><option value="site" ${CHANGE_QUEUE_SORT === 'site' ? 'selected' : ''}>Site</option><option value="owner" ${CHANGE_QUEUE_SORT === 'owner' ? 'selected' : ''}>Owner</option><option value="provider" ${CHANGE_QUEUE_SORT === 'provider' ? 'selected' : ''}>Provider</option></select><button class="btn sm" id="cq-sort-dir" title="Toggle sort direction">${CHANGE_QUEUE_SORT_DIR === 'asc' ? '↑ Ascending' : '↓ Descending'}</button></div></div><div class="table-wrap"><table class="tbl cq-table"><thead><tr><th>Priority</th><th>Request</th><th>State / next action</th><th>Owner</th><th>Actions</th></tr></thead><tbody>${rows || '<tr><td colspan="5" class="muted">No requests match these filters.</td></tr>'}</tbody></table></div><div class="cq-pagination"><label class="muted">Rows <select id="cq-page-size" class="cm-input"><option ${CHANGE_QUEUE_PAGE_SIZE === 10 ? 'selected' : ''}>10</option><option ${CHANGE_QUEUE_PAGE_SIZE === 25 ? 'selected' : ''}>25</option><option ${CHANGE_QUEUE_PAGE_SIZE === 50 ? 'selected' : ''}>50</option></select></label><span class="muted">${pageLabel}</span><button class="btn sm" id="cq-page-prev" ${CHANGE_QUEUE_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="cq-page-next" ${CHANGE_QUEUE_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div></section><div id="cq-detail-panel"></div>`;
   if (CHANGE_QUEUE_CLOCK) clearInterval(CHANGE_QUEUE_CLOCK);
   const updatePickupClock = () => {
@@ -13425,6 +13449,10 @@ function mountExecutiveWorkspaceNav(active) {
         'Executive settings',
         'Manage the strategy contract, recurring cadence, and transcript retention policy.',
       ],
+      runtime: [
+        'Agent runtime',
+        'Operate agent identity, runs, budgets, watchdogs, evaluations, grants, and workspaces.',
+      ],
     }[active] || null;
   if (copy) {
     const title = shell.querySelector('.page-title');
@@ -13440,6 +13468,7 @@ function mountExecutiveWorkspaceNav(active) {
     ['work', 'Work', 'Requests & queues'],
     ['decisions', 'Decisions', 'Approvals & history'],
     ['signals', 'Signals', 'Fleet telemetry'],
+    ['runtime', 'Agent runtime', 'Agents, budgets & safeguards'],
     ['setup', 'Settings', 'Strategy & retention'],
   ];
   const nav = document.createElement('nav');
@@ -13514,6 +13543,7 @@ function applyExecutiveWorkspace(page) {
     hide(performance);
     hide(decisions);
   } else if (page === 'overview') {
+    hide(run);
     hide(compose);
     hide(cases);
     hide(requests);
@@ -13585,6 +13615,238 @@ function applyExecutiveWorkspace(page) {
     hide(decisions);
     show(performance);
     show(secondary);
+  }
+}
+
+async function renderAgentRuntime() {
+  const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
+  try {
+    const [
+      agents,
+      runs,
+      budgets,
+      routines,
+      watchdogs,
+      evals,
+      grants,
+      workspaces,
+      actor,
+      users,
+      issues,
+      policies,
+      decisions,
+      suites,
+      evalRuns,
+      blobs,
+      plugins,
+      connectors,
+      providers,
+      adapters,
+      delegations,
+      dispatches,
+      artifacts,
+      skills,
+      memories,
+      productivityPilots,
+    ] = await Promise.all([
+      api('GET', '/api/agents?limit=100'),
+      api('GET', '/api/agent-runs?limit=100'),
+      api('GET', '/api/budgets?limit=100'),
+      api('GET', '/api/agent-routines?limit=100'),
+      api('GET', '/api/agent-watchdogs?limit=100'),
+      api('GET', '/api/agent-evals?limit=100'),
+      api('GET', '/api/agent-tools?limit=100'),
+      api('GET', '/api/agent-workspaces?limit=100'),
+      api('GET', '/api/platform/actor'),
+      api('GET', '/api/platform/users?limit=100'),
+      api('GET', '/api/agent-issues?limit=100'),
+      api('GET', '/api/execution-policies?limit=100'),
+      api('GET', '/api/governance-decisions?limit=100'),
+      api('GET', '/api/eval-suites?limit=100'),
+      api('GET', '/api/eval-runs?limit=100'),
+      api('GET', '/api/object-blobs?limit=100'),
+      api('GET', '/api/runtime-plugins?limit=100'),
+      api('GET', '/api/runtime-connectors?limit=100'),
+      api('GET', '/api/runtime-providers?limit=100'),
+      api('GET', '/api/runtime-adapters?limit=100'),
+      api('GET', '/api/agent-delegations?limit=100'),
+      api('GET', '/api/agent-dispatches?limit=100'),
+      api('GET', '/api/agent-artifacts?limit=100'),
+      api('GET', '/api/agent-skills?limit=100'),
+      api('GET', '/api/agent-memories?limit=100'),
+      api('GET', '/api/productivity/pilots?limit=20'),
+    ]);
+    const agentRows = agents.agents || [];
+    const runRows = runs.runs || [];
+    const budgetRows = budgets.budgets || [];
+    const routineRows = routines.routines || [];
+    const watchdogRows = watchdogs.watchdogs || [];
+    const evalRows = evals.evaluations || [];
+    const grantRows = grants.grants || [];
+    const workspaceRows = workspaces.workspaces || [];
+    const issueRows = issues.issues || [];
+    const policyRows = policies.policies || [];
+    const decisionRows = decisions.decisions || [];
+    const suiteRows = suites.suites || [];
+    const evalRunRows = evalRuns.runs || [];
+    const blobRows = blobs.blobs || [];
+    const pluginRows = plugins.plugins || [];
+    const connectorRows = connectors.connectors || [];
+    const providerRows = providers.providers || [];
+    const adapterRows = adapters.adapters || [];
+    const productivityPilotRows = productivityPilots.pilots || [];
+    const delegationRows = delegations.delegations || [];
+    const dispatchRows = dispatches.dispatches || [];
+    const artifactRows = artifacts.artifacts || [];
+    const skillRows = skills.skills || [];
+    const memoryRows = memories.memories || [];
+    const activeRuns = runRows.filter(row => ['queued', 'running'].includes(row.status)).length;
+    const fired = watchdogRows.filter(row => row.status === 'fired').length;
+    const spent = budgetRows.reduce((sum, row) => sum + Number(row.spent_usd || 0), 0);
+    const limits = budgetRows.reduce((sum, row) => sum + Number(row.limit_usd || 0), 0);
+    const stat = (value, label, tone = '') =>
+      `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
+    const agentName = id => agentRows.find(row => row.agent_id === id)?.name || id || '—';
+    const statusBadge = status =>
+      `<span class="badge ${status === 'active' || status === 'succeeded' || status === 'satisfied' ? 'b-green' : status === 'failed' || status === 'fired' || status === 'paused' ? 'b-red' : 'b-yellow'}">${esc(status || '—')}</span>`;
+    const rows = agentRows
+      .map(agent => {
+        const agentRuns = runRows.filter(run => run.agent_id === agent.agent_id);
+        const agentEvals = evalRows.filter(row => row.agent_id === agent.agent_id);
+        const average = agentEvals.length
+          ? Math.round(
+              agentEvals.reduce((sum, row) => sum + Number(row.score || 0), 0) / agentEvals.length
+            )
+          : '—';
+        return `<tr><td><b>${esc(agent.name)}</b><div class="muted">${esc(agent.role)} · ${esc(agent.adapter || 'adapter')}</div></td><td>${statusBadge(agent.status)}</td><td>${agentRuns.length} runs<div class="muted">${agentEvals.length ? `${average}/100 eval` : 'not evaluated'}</div></td><td><button class="btn sm agent-runtime-toggle" data-agent-id="${esc(agent.agent_id)}" data-status="${esc(agent.status)}">${agent.status === 'paused' ? 'Resume' : 'Pause'}</button></td></tr>`;
+      })
+      .join('');
+    const runTable = runRows
+      .slice(0, 30)
+      .map(
+        run =>
+          `<tr><td><b>${esc(agentName(run.agent_id))}</b><div class="muted">${esc(run.run_id.slice(0, 12))} · ${esc(fmtDate(run.started_at))}</div></td><td>${statusBadge(run.status)}</td><td>${esc(run.total_tokens || 0)} tokens<div class="muted">$${Number(run.cost_usd || 0).toFixed(4)}</div></td><td>${esc(run.error || run.result?.routine || '—')}</td></tr>`
+      )
+      .join('');
+    const budgetTable = budgetRows
+      .map(
+        row =>
+          `<tr><td>${esc(row.scope_type)}<div class="muted">${esc(row.scope_id)}</div></td><td>$${Number(row.spent_usd || 0).toFixed(2)} / $${Number(row.limit_usd || 0).toFixed(2)}</td><td>${statusBadge(row.status)} ${row.hard_stop ? '<span class="muted">hard stop</span>' : ''}</td></tr>`
+      )
+      .join('');
+    const routineTable = routineRows
+      .map(
+        row =>
+          `<tr><td><b>${esc(row.name)}</b><div class="muted">${esc(agentName(row.agent_id))} · ${esc(row.trigger_type)}</div></td><td>${statusBadge(row.status)}</td><td>${esc(fmtDate(row.next_due_at))}</td></tr>`
+      )
+      .join('');
+    const inventory = (label, value, detail = '') =>
+      `<div class="ex-inventory-card"><b>${esc(value)}</b><span>${esc(label)}</span>${detail ? `<small>${esc(detail)}</small>` : ''}</div>`;
+    const issueTable = issueRows
+      .slice(0, 20)
+      .map(
+        row =>
+          `<tr><td><b>${esc(row.title)}</b><div class="muted">${esc(row.issue_id.slice(0, 10))}</div></td><td>${statusBadge(row.status)}</td><td>${esc(row.checkout_owner || 'unclaimed')}</td><td><button class="btn sm agent-issue-checkout" data-issue-id="${esc(row.issue_id)}">Checkout</button></td></tr>`
+      )
+      .join('');
+    const governanceTable = decisionRows
+      .slice(0, 12)
+      .map(
+        row =>
+          `<tr><td>${esc(row.entity_type)}<div class="muted">${esc(row.entity_id)}</div></td><td>${statusBadge(row.decision)}</td><td>${esc(row.actor_id)}</td></tr>`
+      )
+      .join('');
+    const platformInventory = `<section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">PLATFORM COVERAGE</div><h3>Paperclip-compatible control plane</h3></div><span class="muted">actor: ${esc(actor.actor?.actor_id || 'operator')}</span></div><div class="ex-inventory-grid">${inventory('human users', (users.users || []).length)}${inventory('issues', issueRows.length, `${issueRows.filter(x => x.status === 'in_progress').length} checked out`)}${inventory('execution policies', policyRows.length)}${inventory('governance decisions', decisionRows.length)}${inventory('evaluation suites', suiteRows.length, `${evalRunRows.length} runs`)}${inventory('object blobs', blobRows.length)}${inventory('plugins', pluginRows.length, `${pluginRows.filter(x => x.status === 'active').length} active`)}${inventory('connectors / MCP', connectorRows.length)}${inventory('runtime providers', providerRows.length)}${inventory('adapters', adapterRows.length, `${adapterRows.filter(x => x.status === 'online').length} online`)}${inventory('productivity pilots', productivityPilotRows.length, productivityPilotRows.map(x => x.status).join(', ') || 'none')}${inventory('delegations', delegationRows.length)}${inventory('dispatches', dispatchRows.length)}${inventory('artifacts', artifactRows.length)}${inventory('skills', skillRows.length)}${inventory('memories', memoryRows.length)}</div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">ISSUE QUEUE</div><h3>Atomic task checkout and dependencies</h3></div><span class="muted">${issueRows.length} issues</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Issue</th><th>Status</th><th>Owner</th><th></th></tr></thead><tbody>${issueTable || '<tr><td colspan="4" class="muted">No issues configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">GOVERNANCE</div><h3>Decisions and approval trail</h3></div><span class="muted">${policyRows.length} policies</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Entity</th><th>Decision</th><th>Actor</th></tr></thead><tbody>${governanceTable || '<tr><td colspan="3" class="muted">No governance decisions.</td></tr>'}</tbody></table></div></section></aside></section>`;
+    const pilotTable = productivityPilotRows
+      .map(
+        row =>
+          `<tr><td><b>${esc(row.name)}</b><div class="muted">${esc((row.treatment_sites || []).length)} treatment · ${(row.control_sites || []).length} control</div></td><td>${statusBadge(row.status)}</td><td>${esc(row.baseline?.treatment?.shipped_output || 0)} / ${esc(row.baseline?.control?.shipped_output || 0)} baseline output</td><td>${esc(row.evaluation?.passed === undefined ? 'in progress' : row.evaluation.passed ? 'passed' : 'needs adjustment')}</td></tr>`
+      )
+      .join('');
+    const platformOps = `<section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">PRODUCTIVITY PROGRAM</div><h3>Treatment/control delivery pilots</h3></div><span class="muted">${productivityPilotRows.length} pilot(s)</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Pilot</th><th>Status</th><th>Baseline output</th><th>Evaluation</th></tr></thead><tbody>${pilotTable || '<tr><td colspan="4" class="muted">No productivity pilot configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUNTIME SERVICES</div><h3>Adapters, plugins, providers, and evaluations</h3></div><span class="muted">${adapterRows.length + pluginRows.length + providerRows.length} services · ${suiteRows.length} suites</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Service</th><th>Kind</th><th>Status</th><th>Action</th></tr></thead><tbody>${adapterRows.map(row => `<tr><td>${esc(row.slug)}</td><td>adapter · ${esc(row.kind)}</td><td>${statusBadge(row.status)}</td><td><button class="btn sm runtime-adapter-heartbeat" data-adapter-id="${esc(row.adapter_id)}">Heartbeat</button></td></tr>`).join('')}${pluginRows.map(row => `<tr><td>${esc(row.slug)}</td><td>plugin</td><td>${statusBadge(row.status)}</td><td>${esc(row.manifest?.capabilities?.length || 0)} capabilities</td></tr>`).join('')}${providerRows.map(row => `<tr><td>${esc(row.slug)}</td><td>provider · ${esc(row.kind)}</td><td>${statusBadge(row.status)}</td><td>${esc((row.capabilities || []).join(', ') || '—')}</td></tr>`).join('')}${suiteRows.map(row => `<tr><td>${esc(row.name)}</td><td>evaluation suite</td><td>${statusBadge(evalRunRows.find(run => run.suite_id === row.suite_id)?.status || 'not run')}</td><td>${esc(row.cases?.length || 0)} cases</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No runtime services registered.</td></tr>'}</tbody></table></div></section>`;
+    app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell"><header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE / RUNTIME</div><h2 class="page-title">Agent runtime</h2><p class="muted">One operator surface for identity, resumable runs, atomic budgets, heartbeats, watchdogs, evaluations, grants, isolated workspaces, issues, governance, plugins, connectors, providers, artifacts, skills, and memory.</p></div><div class="task-toolbar"><button class="btn" id="agent-runtime-refresh">↻ Refresh</button><button class="btn primary" id="agent-runtime-heartbeat">Run heartbeat</button><button class="btn" id="agent-runtime-audit">Audit watchdogs</button></div></header><section class="ex-kpis">${stat(agentRows.filter(row => row.status === 'active').length, 'active agents', 'good')}${stat(activeRuns, 'active runs', activeRuns ? 'warn' : '')}${stat(`$${spent.toFixed(2)} / $${limits.toFixed(2)}`, 'reserved / limits')}${stat(fired, 'fired watchdogs', fired ? 'warn' : 'good')}${stat(`${grantRows.length} / ${workspaceRows.length}`, 'grants / workspaces')}</section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">AGENT REGISTRY</div><h3>Identity and operating state</h3></div><span class="muted">${agentRows.length} registered agents</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent</th><th>Status</th><th>Runs / evaluation</th><th>Operator action</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No agents registered.</td></tr>'}</tbody></table></div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RESUMABLE RUNS</div><h3>Execution history</h3></div><span class="muted">${runRows.length} recorded</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent / run</th><th>Status</th><th>Usage</th><th>Result</th></tr></thead><tbody>${runTable || '<tr><td colspan="4" class="muted">No agent runs recorded.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HEARTBEAT QUEUE</div><h3>Routines</h3></div><span class="muted">${routineRows.length} configured</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Status</th><th>Next due</th></tr></thead><tbody>${routineTable || '<tr><td colspan="3" class="muted">No routines configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HARD STOPS</div><h3>Budget policies</h3></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Scope</th><th>Spend / limit</th><th>Policy</th></tr></thead><tbody>${budgetTable || '<tr><td colspan="3" class="muted">No budgets configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RECOVERY</div><h3>Watchdogs</h3></div><span class="badge ${fired ? 'b-red' : 'b-green'}">${fired ? `${fired} fired` : 'clear'}</span></div><p class="muted">${watchdogRows.length} watchdogs are persisted against active and completed runs. Fired watchdogs require operator review.</p></section></aside></section>${platformInventory}</div>`;
+    document.querySelector('#app .ex-shell')?.insertAdjacentHTML('beforeend', platformOps);
+    wireCrumbs();
+    $('#agent-runtime-refresh').onclick = () => softRender();
+    $('#agent-runtime-heartbeat').onclick = async event => {
+      event.currentTarget.disabled = true;
+      try {
+        await api('POST', '/api/agent-heartbeat/tick', {});
+        toast('Heartbeat dispatched');
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        event.currentTarget.disabled = false;
+      }
+    };
+    $('#agent-runtime-audit').onclick = async event => {
+      event.currentTarget.disabled = true;
+      try {
+        const result = await api('POST', '/api/agent-watchdogs/audit', {});
+        toast(`${result.fired?.length || 0} watchdogs fired`);
+        softRender();
+      } catch (e) {
+        toast(e.message, 'err');
+      } finally {
+        event.currentTarget.disabled = false;
+      }
+    };
+    $$('.agent-runtime-toggle').forEach(button => {
+      button.onclick = async () => {
+        button.disabled = true;
+        const paused = button.dataset.status !== 'paused';
+        try {
+          await api('PATCH', `/api/agents/${encodeURIComponent(button.dataset.agentId)}`, {
+            status: paused ? 'paused' : 'active',
+            pause_reason: paused ? 'operator pause from runtime console' : null,
+          });
+          toast(paused ? 'Agent paused' : 'Agent resumed');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+        } finally {
+          button.disabled = false;
+        }
+      };
+    });
+    $$('.agent-issue-checkout').forEach(button => {
+      button.onclick = async () => {
+        button.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/agent-issues/${encodeURIComponent(button.dataset.issueId)}/checkout`,
+            { owner: 'operator-console' }
+          );
+          toast('Issue checked out');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+          button.disabled = false;
+        }
+      };
+    });
+    $$('.runtime-adapter-heartbeat').forEach(button => {
+      button.onclick = async () => {
+        button.disabled = true;
+        try {
+          await api(
+            'POST',
+            `/api/runtime-adapters/${encodeURIComponent(button.dataset.adapterId)}/heartbeat`,
+            { status: 'online' }
+          );
+          toast('Adapter heartbeat recorded');
+          softRender();
+        } catch (e) {
+          toast(e.message, 'err');
+          button.disabled = false;
+        }
+      };
+    });
+  } catch (e) {
+    renderViewError(app, `Agent runtime failed: ${e.message}`);
   }
 }
 
@@ -13748,6 +14010,7 @@ async function renderExecutiveSetup() {
 }
 
 async function renderExecutive() {
+  if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
@@ -13769,6 +14032,7 @@ async function renderExecutive() {
     runStatus,
     cases,
     calendar;
+  const conversationOnly = STATE.agentPage === 'conversation';
   try {
     [
       messages,
@@ -13788,31 +14052,58 @@ async function renderExecutive() {
       croLabRuns,
       runStatus,
       cases,
+      calendar,
     ] = await Promise.all([
       api('GET', '/api/executive/messages?limit=100'),
-      apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
+      conversationOnly
+        ? Promise.resolve({ messages: [], retention_days: 90 })
+        : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
       api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
       api('GET', '/api/executive/inbox?limit=50'),
-      api('GET', '/api/executive/proposals?limit=100'),
-      api('GET', '/api/executive/actions?limit=200'),
-      api('GET', '/api/executive/settings'),
-      api('GET', '/api/executive/brief'),
-      api('GET', '/api/revops/summary'),
-      api('GET', '/api/experiments'),
-      api('GET', '/api/campaigns/summary'),
-      api('GET', '/api/executive/reports?limit=20'),
-      api('GET', '/api/executive/domain-manager-queue'),
-      api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
-      apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-      apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
-      apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
-      apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
+      conversationOnly
+        ? Promise.resolve({ proposals: [] })
+        : api('GET', '/api/executive/proposals?limit=100'),
+      conversationOnly
+        ? Promise.resolve({ actions: [] })
+        : api('GET', '/api/executive/actions?limit=200'),
+      conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
+      conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
+      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
+      conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
+      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
+      conversationOnly
+        ? Promise.resolve({ reports: [] })
+        : api('GET', '/api/executive/reports?limit=20'),
+      conversationOnly
+        ? Promise.resolve({ queue: {} })
+        : api('GET', '/api/executive/domain-manager-queue'),
+      conversationOnly
+        ? Promise.resolve({ summary: {} })
+        : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+      conversationOnly
+        ? Promise.resolve({ runs: [] })
+        : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+      conversationOnly
+        ? Promise.resolve({ active: null, latest: null, runs: [] })
+        : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+      conversationOnly
+        ? Promise.resolve({ cases: [] })
+        : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+      conversationOnly
+        ? Promise.resolve({ events: [], calendar: { events: [] } })
+        : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
     ]);
   } catch (e) {
     renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
   }
-  const allOwnerRequests = inbox.requests || requests.work_items || [];
+  // The inbox endpoint is the canonical source for owner requests. Older
+  // responses can still contain the same work item in both the inbox payload
+  // and the work-items fallback, so keep the UI keyed to one row per thread.
+  const ownerRequestMap = new Map(
+    (inbox.requests || requests.work_items || []).map(request => [request.work_id, request])
+  );
+  const allOwnerRequests = Array.from(ownerRequestMap.values());
   const unreadNotifications = (inbox.notifications || []).filter(item => !item.read_at);
   const requestMatches = request => {
     const haystack = [request.title, request.summary, request.lifecycle_state, request.status]
@@ -13890,11 +14181,13 @@ async function renderExecutive() {
         `<div class="ex-thread-activity-row"><b>${esc(item.metadata?.label || 'Background work')}</b><span>${esc(item.body)}</span><small>${esc(fmtDate(item.created_at))}</small></div>`
     )
     .join('');
+  // Behave like an email client: show previews until the operator chooses a
+  // message. Preserve an explicitly selected thread across soft refreshes.
   const selectedRequestId = ownerRequests.some(
     request => request.work_id === EXEC_INBOX_UI.selected
   )
     ? EXEC_INBOX_UI.selected
-    : ownerRequests[0]?.work_id || null;
+    : null;
   EXEC_INBOX_UI.selected = selectedRequestId;
   const requestThread = request =>
     (
@@ -13914,7 +14207,12 @@ async function renderExecutive() {
       const thread = requestThread(request);
       const [status, tone] = requestStatus(request, thread);
       const unread = unreadNotifications.some(n => n.work_id === request.work_id);
-      return `<button type="button" class="ex-request-list-item ${request.work_id === selectedRequestId ? 'selected' : ''}" data-request-id="${esc(request.work_id)}"><span class="ex-request-list-top"><b>${esc(request.title)}</b>${unread ? '<span class="ex-unread-dot" title="Unread reply"></span>' : ''}</span><span class="ex-request-list-meta">${esc(fmtDate(request.created_at))} · ${thread.length} event${thread.length === 1 ? '' : 's'} <span class="badge ${tone}">${esc(status)}</span></span><span class="ex-request-list-summary">${esc(request.summary)}</span></button>`;
+      const latest = thread.at(-1);
+      const sender = latest
+        ? executiveActorLabel(latest.actor)
+        : executiveActorLabel(request.owner || 'owner');
+      const preview = latest?.body || request.summary || 'No message preview available.';
+      return `<button type="button" class="ex-request-list-item ${request.work_id === selectedRequestId ? 'selected' : ''}" data-request-id="${esc(request.work_id)}"><span class="ex-request-list-top"><b>${esc(request.title)}</b><time datetime="${esc(request.created_at || '')}">${esc(fmtDate(request.created_at))}</time></span><span class="ex-request-list-meta"><span class="ex-request-list-sender">${esc(sender)}</span>${unread ? '<span class="ex-unread-dot" title="Unread reply"></span>' : ''}<span class="badge ${tone}">${esc(status)}</span></span><span class="ex-request-list-summary">${esc(preview)}</span></button>`;
     })
     .join('');
   const selectedRequest = ownerRequests.find(request => request.work_id === selectedRequestId);
@@ -13922,13 +14220,19 @@ async function renderExecutive() {
     ? (() => {
         const request = selectedRequest;
         const thread = requestThread(request);
-        const response = thread.find(message => message.actor !== 'owner');
         const timeline = thread
           .map(
             message =>
               `<div class="ex-thread-message ${message.actor === 'owner' ? 'owner' : 'agent'}"><div class="ex-thread-message-head"><b>${esc(executiveActorLabel(message.actor))}</b><span>${esc(fmtDate(message.created_at))}</span></div><div>${esc(message.body)}</div></div>`
           )
           .join('');
+        // The request summary already contains the initial owner message. A
+        // one-event thread would therefore render that same text a third time;
+        // reserve the full-thread section for actual back-and-forth history.
+        const threadSection =
+          thread.length > 1
+            ? `<div class="ex-thread-heading"><b>Full thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline}</div>`
+            : '';
         const linked = (request.links || [])
           .map(
             link =>
@@ -13949,7 +14253,7 @@ async function renderExecutive() {
           request.lifecycle_state === 'closed'
             ? ''
             : `<div class="ex-work-reply"><div class="ex-thread-heading"><b>Continue this thread</b><span class="muted">The executive team will see this on its next run.</span></div><textarea class="cm-input ex-work-reply-body" data-id="${esc(request.work_id)}" rows="4" placeholder="Reply with clarification, a decision, or the next direction…"></textarea><div class="task-toolbar"><span class="muted">Your reply stays attached to this work item.</span><button class="btn sm primary ex-work-reply-send" data-id="${esc(request.work_id)}" type="button">Send reply</button></div></div>`;
-        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${response ? `<div class="ex-request-response"><b>${esc(executiveActorLabel(response.actor))} replied</b><div>${esc(response.body)}</div><small class="muted">${esc(fmtDate(response.created_at))}</small></div>` : '<p class="muted">No response yet. The request remains in the executive queue.</p>'}<div class="ex-thread-heading"><b>Thread</b><span class="muted">${thread.length} event${thread.length === 1 ? '' : 's'}</span></div><div class="ex-thread">${timeline || '<span class="muted">No thread events yet.</span>'}</div>${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
+        return `<article class="ex-request-detail"><div class="ex-request-detail-head"><div><div class="ex-eyebrow">REQUEST THREAD</div><h4>${esc(request.title)}</h4><p class="muted">Submitted ${esc(fmtDate(request.created_at))} · ${esc(request.work_id.slice(0, 8))} · owner ${esc(executiveActorLabel(request.owner || 'ceo'))} · waiting on ${esc(request.waiting_on || 'executive team')}</p></div><div>${due} <span class="badge ${statusClass}">${esc(status)}</span></div></div><div class="ex-request-summary">${esc(request.summary)}</div>${threadSection}${replyComposer}<details class="ex-thread-activity"><summary>Run activity <span class="muted">${transcriptMessages.length} events</span></summary><div>${backgroundRows || '<span class="muted">No background activity recorded.</span>'}</div></details>${linked ? `<div class="ex-request-links">${linked}</div>` : ''}${request.outcome ? `<p><b>Outcome:</b> ${esc(request.outcome)}</p>` : ''}<div class="task-toolbar ex-request-actions">${actions}</div></article>`;
       })()
     : '<div class="ex-request-detail ex-empty">Select a request to inspect its full thread.</div>';
   const allCases = cases?.cases || [];
@@ -14071,10 +14375,10 @@ async function renderExecutive() {
   const activeRun = runStatus?.active;
   const latestRun = runStatus?.latest;
   const runQueue = runStatus?.queue || [];
-  const selectedRunId = EXEC_RUN_UI.selected || latestRun?.action_id || null;
-  const runDetail = selectedRunId
-    ? await apiOptional('GET', `/api/executive/run/${encodeURIComponent(selectedRunId)}`, null)
-    : null;
+  // Run logs load in their own drawer on demand. Fetching a full dossier here
+  // made every page refresh wait on a large transcript, even when no log was
+  // being viewed.
+  const selectedRunId = null;
   const runResult = latestRun?.result?.tick_result || latestRun?.result || {};
   const runCounts = runResult?.counts || runResult?.created_counts || {};
   const runFailureReason =
@@ -14174,23 +14478,6 @@ async function renderExecutive() {
   };
   const failedRunCount = runQueue.filter(run => run.status === 'failed').length;
   const runQueueToolbar = `<div class="ex-run-queue-toolbar"><input id="ex-run-filter" class="cm-input" placeholder="Filter runs…" value="${esc(EXEC_RUN_UI.q)}"><select id="ex-run-status" class="cm-input"><option value="all" ${EXEC_RUN_UI.status === 'all' ? 'selected' : ''}>All statuses</option><option value="running" ${EXEC_RUN_UI.status === 'running' ? 'selected' : ''}>Running</option><option value="completed" ${EXEC_RUN_UI.status === 'completed' ? 'selected' : ''}>Completed</option><option value="failed" ${EXEC_RUN_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select><label class="muted">Rows <select id="ex-run-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${EXEC_RUN_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>${failedRunCount ? '<button class="btn sm danger" id="ex-run-clear-failed" type="button">Clear failed</button>' : ''}</div>`;
-  const detailTranscript = (
-    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
-  )
-    .map(
-      item =>
-        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type)} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
-    )
-    .join('');
-  const detailItems = (runDetail?.action_items || [])
-    .map(
-      item =>
-        `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner)}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
-    )
-    .join('');
-  const runDetailPanel = runDetail
-    ? `<section class="ex-run-detail"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h3>${esc(runDetail.run?.source || (runDetail.run?.target_type === 'manual-executive-run' ? 'manual' : 'scheduled'))} run · ${esc(fmtDate(runDetail.run?.started_at))}</h3><p class="muted">${esc(runDetail.transcript?.length || 0)} model transcript entries · ${esc(runDetail.conversation?.length || 0)} executive messages · ${esc(runDetail.action_items?.length || 0)} action items</p></div><button class="btn sm" id="ex-run-log-close" type="button">Close</button></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${detailTranscript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail.action_log?.length || 0)})</summary><pre>${esc((runDetail.action_log || []).map(action => `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`).join('\n') || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${detailItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div></section>`
-    : '';
   const croLabRows = croRuns
     .slice(0, 6)
     .map(run => {
@@ -14223,7 +14510,7 @@ async function renderExecutive() {
     <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
-        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div>${runDetailPanel}</section>
+        <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
         <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEXT DECISIONS</div><h3>Needs your attention</h3></div><span class="badge ${pendingCount || reviewCount ? 'b-yellow' : 'b-green'}">${pendingCount + reviewCount ? `${pendingCount + reviewCount} open` : 'all clear'}</span></div>${pendingApprovalRows}${croReviewRows}${!pendingApprovalRows && !croReviewRows ? '<div class="ex-empty">Nothing is waiting for a decision.</div>' : ''}</section>
         <section class="ex-panel ex-compose" id="ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEW CONVERSATION</div><h3>Message the executive team</h3></div><span class="muted">A durable thread the team can answer</span></div><p class="muted ex-compose-help">Start a new conversation here. Your message becomes a tracked request, appears in the inbox below, and is included in the executive team’s next run.</p><textarea id="ex-message" class="cm-input" rows="5" placeholder="What would you like the executive team to research, decide, or prioritize?"></textarea><div class="ex-compose-foot"><span class="muted">Tip: include the question, context, links, and what a useful answer should contain.</span><button class="btn primary" id="ex-send">Start conversation</button></div></section>
@@ -14429,13 +14716,15 @@ async function renderExecutive() {
     button.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      EXEC_RUN_UI.selected = button.dataset.id;
-      softRender();
+      button.disabled = true;
+      button.textContent = 'Opening…';
+      openExecutiveRunLog(button.dataset.id).finally(() => {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.textContent = 'View log';
+        }
+      });
     });
-  });
-  $('#ex-run-log-close')?.addEventListener('click', () => {
-    EXEC_RUN_UI.selected = null;
-    softRender();
   });
   $$('.ex-run-sort').forEach(
     button =>
@@ -15307,6 +15596,68 @@ function renderAgent(role) {
   return renderGenericAgent(role);
 }
 
+let EXEC_RUN_LOG_REQUEST = 0;
+
+function executiveRunDetailContent(runDetail) {
+  const transcript = (
+    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
+  )
+    .map(
+      item =>
+        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type || 'event')} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
+    )
+    .join('');
+  const actionItems = (runDetail?.action_items || [])
+    .map(
+      item =>
+        `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner || 'unassigned')}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
+    )
+    .join('');
+  const audit = (runDetail?.action_log || [])
+    .map(
+      action =>
+        `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`
+    )
+    .join('\n');
+  return `<div class="ex-run-drawer-summary"><b>${esc(runDetail?.transcript?.length || 0)} model transcript entries</b><span>·</span><b>${esc(runDetail?.conversation?.length || 0)} executive messages</b><span>·</span><b>${esc(runDetail?.action_items?.length || 0)} action items</b></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${transcript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail?.action_log?.length || 0)})</summary><pre>${esc(audit || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${actionItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div>`;
+}
+
+function closeExecutiveRunLog() {
+  EXEC_RUN_LOG_REQUEST += 1;
+  $('#ex-run-log-drawer')?.remove();
+  EXEC_RUN_UI.selected = null;
+}
+
+async function openExecutiveRunLog(actionId) {
+  const requestId = ++EXEC_RUN_LOG_REQUEST;
+  EXEC_RUN_UI.selected = actionId;
+  $('#ex-run-log-drawer')?.remove();
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    `<div id="ex-run-log-drawer" class="ex-run-drawer-shell" role="dialog" aria-modal="true" aria-labelledby="ex-run-drawer-title"><div class="ex-run-drawer-backdrop" data-ex-run-log-close></div><aside class="ex-run-drawer"><div class="ex-run-drawer-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h2 id="ex-run-drawer-title">Loading run log…</h2><p class="muted" id="ex-run-drawer-status">Fetching this run’s retained transcript and actions.</p></div><button class="icon-btn" type="button" data-ex-run-log-close aria-label="Close run log">×</button></div><div class="ex-run-drawer-toolbar"><button class="btn sm" type="button" id="ex-run-log-refresh">↻ Refresh log</button><span class="muted">This panel stays open during dashboard updates.</span></div><div class="ex-run-drawer-body"><div class="ex-run-drawer-loading" role="status">Loading run log…</div></div></aside></div>`
+  );
+  const shell = $('#ex-run-log-drawer');
+  $$('[data-ex-run-log-close]', shell).forEach(button =>
+    button.addEventListener('click', closeExecutiveRunLog)
+  );
+  $('#ex-run-log-refresh', shell)?.addEventListener('click', () => openExecutiveRunLog(actionId));
+  try {
+    const detail = await api('GET', `/api/executive/run/${encodeURIComponent(actionId)}`);
+    if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
+    const run = detail?.run || {};
+    $('#ex-run-drawer-title').textContent =
+      `${run.source || (run.target_type === 'manual-executive-run' ? 'manual' : 'scheduled')} run · ${fmtDate(run.started_at)}`;
+    $('#ex-run-drawer-status').textContent = 'Retained transcript and action history';
+    $('.ex-run-drawer-body', shell).innerHTML = executiveRunDetailContent(detail);
+  } catch (error) {
+    if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
+    $('#ex-run-drawer-title').textContent = 'Run log unavailable';
+    $('#ex-run-drawer-status').textContent = error.message;
+    $('.ex-run-drawer-body', shell).innerHTML =
+      `<div class="error-box">${esc(error.message)}</div>`;
+  }
+}
+
 // In-place refresh of the current view: capture UI state, repaint without the
 // loading flash, then restore the viewport after the view finishes. Live ticks
 // can arrive faster than slow API responses, so only one redraw is allowed at
@@ -15472,6 +15823,15 @@ function applyAutoUI() {
 function updateCountdown() {
   const next = $('#auto-next');
   if (!next) return;
+  if (
+    $('#ex-run-log-drawer') ||
+    $('.ex-request-detail:not(.ex-empty)') ||
+    $('.ex-case-detail') ||
+    $('details[open]')
+  ) {
+    next.textContent = 'paused while reading';
+    return;
+  }
   if (!autoCfg().on) {
     next.textContent = 'paused';
     return;
@@ -15510,6 +15870,12 @@ function refreshTick() {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
   if (document.hidden) return; // tab not visible
   if (!$('#modal').classList.contains('hidden')) return; // editing a task
+  const reading =
+    $('#ex-run-log-drawer') ||
+    $('.ex-request-detail:not(.ex-empty)') ||
+    $('.ex-case-detail') ||
+    $('details[open]');
+  if (reading) return; // never repaint an open reading surface underneath the operator
   const ae = document.activeElement; // mid-typing (e.g. commit msg)
   if (ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
   softRender();
@@ -15618,7 +15984,7 @@ async function boot() {
     STATE.sites = [];
   }
   try {
-    STATE.agents = await api('GET', '/api/agents');
+    STATE.agents = normalizeAgentList(await api('GET', '/api/agents'));
   } catch {
     STATE.agents = [];
   }
@@ -15708,6 +16074,7 @@ async function boot() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
+      closeExecutiveRunLog();
       cmCloseLogs();
       cmCloseDiff();
       cmCloseEditorSafely();

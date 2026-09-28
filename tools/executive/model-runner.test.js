@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { mergePassPlans } = require('./model-runner');
+const runner = require('./runner');
 
 test('review passes cannot erase earlier queue work by returning empty arrays', () => {
   const previous = {
@@ -37,4 +38,20 @@ test('a review pass with an explicit replacement list can revise queue work', ()
     { messages: [], change_requests: [{ site: 'new.example', title: 'new' }] }
   );
   assert.deepEqual(merged.change_requests, [{ site: 'new.example', title: 'new' }]);
+});
+
+test('provider plan sanitization drops only excluded items and preserves safe work', () => {
+  const sanitized = runner.sanitizeExcludedPlanItems({
+    messages: [
+      { actor: 'ceo', body: 'Safe recommendation.' },
+      { actor: 'ceo', body: 'Do not mention 3boobs.com.' },
+    ],
+    change_requests: [
+      { site: 'safe.example', title: 'Safe bounded task' },
+      { site: '3boobs.com', title: 'Out of scope task' },
+    ],
+    proposals: [],
+  });
+  assert.deepEqual(sanitized.messages, [{ actor: 'ceo', body: 'Safe recommendation.' }]);
+  assert.deepEqual(sanitized.change_requests, [{ site: 'safe.example', title: 'Safe bounded task' }]);
 });

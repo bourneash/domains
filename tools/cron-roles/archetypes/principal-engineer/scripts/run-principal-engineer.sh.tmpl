@@ -99,6 +99,8 @@ SUMMARY="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys
 OCC="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["occurrence"])')"
 ATTEMPT="$(printf '%s' "$OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["attempt"])')"
 CHANNEL="$CHANNEL_DEFAULT"
+WORKER_STARTED_MARKER="ops/.locks/principal-engineer-worker-started-${FP}"
+rm -f "$WORKER_STARTED_MARKER"
 
 log "acting on fingerprint=$FP occurrence=$OCC attempt=$ATTEMPT — dispatching worker"
 
@@ -117,5 +119,28 @@ if [[ "$pe_exit" -eq 130 || "$pe_exit" -eq 143 ]]; then
   exit 0
 fi
 log "worker exited $pe_exit"
+if [[ ! -f "$WORKER_STARTED_MARKER" ]]; then
+  # docker compose can fail before the worker shell starts (for example when
+  # the cron container cannot access the Docker socket). The scanner already
+  # marked this incident investigating and incremented attempts, so undo that
+  # bookkeeping; no Claude pass ran and it must not consume a repair attempt.
+  python3 - "$REPO_ROOT/ops/health/principal-incidents/${FP}.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+try:
+    rec = json.load(open(p, encoding="utf-8"))
+except Exception:
+    rec = {}
+rec["status"] = "open"
+rec["attempts"] = max(0, int(rec.get("attempts", 1)) - 1)
+rec["last_outcome"] = "deferred: principal-engineer worker did not start"
+json.dump(rec, open(p, "w", encoding="utf-8"), indent=2)
+PY
+  rm -f "$WORKER_STARTED_MARKER"
+  log "worker did not start (exit=$pe_exit) — attempt returned to queue"
+  pulse worker-launch-failed
+  exit 0
+fi
+rm -f "$WORKER_STARTED_MARKER"
 pulse dispatched
 exit 0

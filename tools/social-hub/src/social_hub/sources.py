@@ -353,6 +353,28 @@ def discover(domain: str, cfg: SiteConfig | None = None) -> list[dict]:
     return items
 
 
+def validate_media(domain: str, cfg: SiteConfig) -> list[str]:
+    """Validate configured local image references before publishing can fail."""
+    from social_hub import media
+
+    settings = cfg.get("media") or {}
+    required = bool(cfg.get("media.require_image")) or domain in set(
+        cfg.get("media.require_image_sites", []) or []
+    )
+    issues: list[str] = []
+    fallback = settings.get("default_image")
+    if fallback and not media.local_image_exists(str(fallback), domain):
+        issues.append(f"configured fallback is missing: {fallback}")
+
+    for item in discover(domain, cfg):
+        ref = item.get("image_url")
+        if ref and not media.local_image_exists(str(ref), domain):
+            issues.append(f"{item['source_id']}: image is missing: {ref}")
+        elif required and not ref and not settings.get("generate_missing") and not fallback:
+            issues.append(f"{item['source_id']}: no image, generator, or fallback configured")
+    return issues
+
+
 def _is_fresh(published_at: str, max_age_hours: int) -> bool:
     if not published_at:
         return True  # undated content (catalogs) — age can't disqualify it
@@ -383,10 +405,17 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
     found = [i for i in everything if i.get("source_type") != "spotlight"][:limit]
     found += [i for i in everything if i.get("source_type") == "spotlight"]
     new = skipped = 0
+    image_warnings: list[str] = []
     now = db.utcnow()
 
     for item in found:
         source_type = item.get("source_type", "article")
+        image_ref = item.get("image_url")
+        if image_ref:
+            from social_hub import media
+
+            if not media.local_image_exists(str(image_ref), domain):
+                image_warnings.append(f"{item['source_id']}: image is missing: {image_ref}")
         existing = db.one(
             "SELECT id, image_url FROM sources "
             "WHERE site = ? AND source_type = ? AND source_id = ?",
@@ -428,7 +457,19 @@ def ingest(domain: str, cfg: SiteConfig, limit: int = 25) -> dict:
             message=f"{new} new, {skipped} too old",
             data={"scanned": len(found)},
         )
-    return {"scanned": len(found), "new": new, "skipped": skipped}
+    if image_warnings:
+        db.log_event(
+            "media.source_image_missing",
+            site=domain,
+            message=f"{len(image_warnings)} source image(s) missing",
+            data={"warnings": image_warnings[:25]},
+        )
+    return {
+        "scanned": len(found),
+        "new": new,
+        "skipped": skipped,
+        "image_warnings": len(image_warnings),
+    }
 
 
 def pending_sources(domain: str, limit: int = 5) -> list[dict]:

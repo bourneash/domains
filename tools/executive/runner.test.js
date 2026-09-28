@@ -37,6 +37,19 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   store.close();
 });
 
+test('model prompts hide excluded-domain identifiers while preserving the safety rule', () => {
+  const prompt = runner.buildPrompt({
+    intelligence: {},
+    portfolio_policy: {
+      managed_sites: 'all discovered fleet sites except 3boobs.com',
+      excluded_sites: ['3boobs.com'],
+    },
+  });
+  assert.equal(prompt.includes('3boobs.com'), false);
+  assert.match(prompt, /\[excluded-site\]/);
+  assert.match(prompt, /Do not target, analyze, or mention/);
+});
+
 test('compacts repeated executive evidence before sending it to model passes', () => {
   const bulky = {
     sites: ['example.com'],
@@ -75,6 +88,35 @@ test('compacts repeated executive evidence before sending it to model passes', (
   assert.equal(compact.task_queue.engineer.length, 4);
   assert.equal(compact.work_items.length, 30);
   assert.match(compact.model_context_note, /authoritative artifacts/);
+});
+
+test('prioritizes unanswered owner requests ahead of the general work backlog', () => {
+  const backlog = Array.from({ length: 150 }, (_, index) => ({
+    work_id: `backlog-${index}`,
+    status: 'in_progress',
+    source_type: 'system',
+  }));
+  const request = {
+    work_id: 'owner-request-1',
+    status: 'waiting',
+    lifecycle_state: 'submitted',
+    source_type: 'owner-request',
+    answered_at: null,
+  };
+
+  const selected = runner.prioritizeExecutiveWorkItems([...backlog, request], 100);
+  assert.equal(selected[0].work_id, request.work_id);
+  assert.equal(selected.length, 101);
+  assert.equal(
+    selected.some(item => item.work_id === 'backlog-100'),
+    false
+  );
+
+  const compact = runner.compactModelBrief({
+    intelligence: {},
+    work_items: [...backlog.slice(0, 40), request],
+  });
+  assert.equal(compact.work_items[0].work_id, request.work_id);
 });
 
 test('reviewer cannot author or replace executive proposals', () => {
@@ -138,6 +180,105 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
+test('site-factory candidates turn queue-ready parked sites into bounded launch-readiness reports', () => {
+  const candidates = runner.siteFactoryCandidates(
+    [
+      {
+        domain: 'ready.example.com',
+        lifecycle: 'scaffold',
+        parked: true,
+        parked_days: 120,
+        capabilities: ['site', 'ops'],
+      },
+      { domain: 'live.example.com', lifecycle: 'live', parked: false },
+    ],
+    ['ready.example.com', 'live.example.com'],
+    { keys: new Set(), titles: new Set() }
+  );
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].type, 'site-factory');
+  assert.equal(candidates[0].delivery_mode, 'report_only');
+  assert.match(candidates[0].title, /ready\.example\.com/);
+});
+
+test('site-factory launch-readiness candidates require report coverage', () => {
+  const brief = {
+    launch_readiness: [],
+    action_mandate: {
+      candidates: [
+        { site: 'one.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+        { site: 'two.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+        { site: 'three.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+      ],
+    },
+  };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      { change_requests: [{ site: 'one.example.com', delivery_mode: 'report_only' }] },
+      brief
+    ),
+    false
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        change_requests: [
+          { site: 'one.example.com', delivery_mode: 'report_only' },
+          { site: 'two.example.com', delivery_mode: 'report_only' },
+          { site: 'three.example.com', delivery_mode: 'report_only' },
+        ],
+      },
+      brief
+    ),
+    true
+  );
+});
+
+test('action-mandate fallback escalates a fully blocked fleet to delivery leadership', () => {
+  const brief = {
+    generated_at: '2026-09-27T21:00:00.000Z',
+    queue: [],
+    improvements: [],
+    productivity: {
+      queue_ready_fleet_sites: [],
+      blocked_fleet_sites: [
+        {
+          site: 'example.com',
+          reason: 'active improvement: measuring',
+          measurement_due: '2026-10-07',
+        },
+      ],
+    },
+    action_mandate: { candidates: [] },
+  };
+  const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(plan.work_items[0].work_id, 'executive-throughput-escalation:2026-09-27');
+  assert.equal(plan.work_items[0].owner, 'delivery-lead');
+  assert.equal(plan.work_items[0].priority, 'high');
+  assert.match(plan.work_items[0].title, /no queue-ready fleet sites/);
+  assert.match(plan.work_items[0].summary, /example\.com/);
+  assert.match(plan.work_items[0].next_action, /six hours/);
+});
+
+test('normalizes provider measurement work into the evidence lane', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      work_items: [
+        {
+          title: 'Measure the SEO treatment result',
+          kind: 'measurement',
+          status: 'in_progress',
+          owner: 'delivery-lead',
+          next_action: 'Record the before and after result.',
+        },
+      ],
+    }),
+    { defaultActor: 'delivery-lead' }
+  );
+  assert.equal(plan.work_items[0].kind, 'evidence');
+});
+
 test('restores an exact trusted task-routing key omitted by a provider', () => {
   const plan = {
     change_requests: [
@@ -189,6 +330,78 @@ test('uses stable lineage for chained automatic failure diagnoses', () => {
       'Repair failed request: Failure diagnosis: Follow through: Arttogogh orchestration failure diagnosis',
   });
   assert.equal(key, 'arttogogh.com:arttogogh orchestration failure diagnosis');
+});
+
+test('recognizes a completed diagnosis or repair descendant', () => {
+  const requests = [
+    {
+      request_id: 'failed-1',
+      status: 'failed',
+      body: 'original',
+    },
+    {
+      request_id: 'diagnosis-1',
+      status: 'verified',
+      delivery_mode: 'report_only',
+      action_key: 'failure-diagnosis:failed-1',
+    },
+    {
+      request_id: 'failed-2',
+      status: 'failed',
+      body: 'original',
+    },
+    {
+      request_id: 'repair-2',
+      status: 'deployed',
+      body: 'Project-manager work_id: failed-change-request:failed-2',
+    },
+  ];
+  assert.equal(
+    runner.failedRequestDescendantCompleted(requests, 'failed-1').request_id,
+    'diagnosis-1'
+  );
+  assert.equal(
+    runner.failedRequestDescendantCompleted(requests, 'failed-2').request_id,
+    'repair-2'
+  );
+  assert.equal(runner.failedRequestDescendantCompleted(requests, 'missing'), null);
+});
+
+test('reconciles completed failure work items without deleting request history', () => {
+  const items = [
+    {
+      work_id: 'failed-change-request:failed-1',
+      source_type: 'failed-change-request',
+      source_id: 'failed-1',
+      status: 'open',
+      evidence: [],
+    },
+  ];
+  const requests = [
+    { request_id: 'failed-1', status: 'failed', body: 'original' },
+    {
+      request_id: 'diagnosis-1',
+      status: 'verified',
+      delivery_mode: 'report_only',
+      action_key: 'failure-diagnosis:failed-1',
+    },
+  ];
+  let updated;
+  const store = {
+    listChangeRequests: () => requests,
+    listExecutiveWorkItems: () => items,
+    getChangeRequest: id => requests.find(request => request.request_id === id),
+    updateExecutiveWorkItem: (id, patch) => {
+      updated = { id, patch };
+      return { ...items[0], ...patch };
+    },
+  };
+  const result = runner.reconcileCompletedFailureFollowups(store);
+  assert.equal(result.length, 1);
+  assert.equal(updated.patch.status, 'done');
+  assert.equal(updated.patch.lifecycle_state, 'closed');
+  assert.match(updated.patch.resolution_note, /diagnosis-1/);
+  assert.equal(requests.length, 2);
 });
 
 test('does not infer a task-routing key from a near-match', () => {
@@ -342,6 +555,55 @@ test('does not reissue a delivered candidate with the same action key or title',
   );
 });
 
+test('supports over-sampling candidates before capacity filtering', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-23T07:00:00.000Z',
+      decision_support: {
+        priorities: {
+          scorecards: Array.from({ length: 4 }, (_, index) => ({
+            site: `site-${index}.example.com`,
+            lifecycle: 'live',
+            opportunity_score: 100 - index,
+          })),
+        },
+      },
+    },
+    Array.from({ length: 4 }, (_, index) => `site-${index}.example.com`),
+    { keys: new Set(), titles: new Set() },
+    4
+  );
+  assert.equal(candidates.length, 4);
+  assert.deepEqual(
+    candidates.map(row => row.site),
+    ['site-0.example.com', 'site-1.example.com', 'site-2.example.com', 'site-3.example.com']
+  );
+});
+
+test('classifies organic page opportunities as SEO work', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-09-23T07:00:00.000Z',
+      decision_support: {
+        priorities: {
+          items: [
+            {
+              site: 'example.com',
+              kind: 'page-opportunity',
+              title: 'Grow organic reach for the tips page',
+              recommendation: 'Improve search intent coverage and internal links.',
+              score: 79,
+            },
+          ],
+        },
+      },
+    },
+    ['example.com'],
+    { keys: new Set(), titles: new Set() }
+  );
+  assert.equal(candidates[0].type, 'seo');
+});
+
 test('does not create a duplicate candidate while the failed request is retryable', () => {
   const candidates = runner.actionCandidates(
     {
@@ -465,6 +727,157 @@ test('roles can create and update bounded workbench cases through the plan', asy
   const updated = await runner.applyPlan(store, update, { root });
   assert.equal(updated.work_items[0].status, 'in_progress');
   assert.equal(store.getExecutiveWorkItem(id).owner, 'cto');
+  store.close();
+});
+
+test('stale message work links are skipped without aborting the executive plan', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'ceo',
+          body: 'This stale thread should be audited and skipped.',
+          work_id: 'closed-or-missing-work-item',
+        },
+        { actor: 'cto', body: 'The rest of the plan remains actionable.' },
+      ],
+      work_items: [
+        {
+          title: 'Continue the bounded delivery plan',
+          kind: 'implementation',
+          owner: 'delivery-lead',
+          priority: 'high',
+          summary: 'Keep valid plan work moving even when a message link is stale.',
+          next_action: 'Review the active queue and select the next bounded item.',
+        },
+      ],
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.work_items.length, 1);
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.skipped_messages.length, 1);
+  assert.equal(created.skipped_messages[0].work_id, 'closed-or-missing-work-item');
+  assert.equal(store.listExecutiveMessages().length, 1);
+  assert.equal(
+    store
+      .listExecutiveActions({ limit: 20 })
+      .some(action => action.status === 'skipped' && action.action_type === 'message'),
+    true
+  );
+  store.close();
+});
+
+test('every pending owner request receives a linked executive acknowledgement', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please review and implement the reporting capability.',
+  });
+  const plan = runner.parseOutput(JSON.stringify({ messages: [] }));
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.messages[0].actor, 'ceo');
+  assert.equal(created.messages[0].work_id, tracked.work_item.work_id);
+  assert.equal(created.messages[0].reply_to, tracked.message.message_id);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'answered');
+  store.close();
+});
+
+test('owner coverage can be applied before provider execution', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please acknowledge this direction before model execution.',
+  });
+  const created = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.messages[0].work_id, tracked.work_item.work_id);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).answered_at !== null, true);
+  store.close();
+});
+
+test('repeated failed runs do not duplicate owner acknowledgements', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, { body: 'Keep this request idempotent.' });
+  const first = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  const second = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  assert.equal(first.messages.length, 1);
+  assert.equal(second, null);
+  assert.equal(store.listExecutiveMessages({ work_id: tracked.work_item.work_id }).length, 2);
+  store.close();
+});
+
+test('sanitizes malformed and excluded provider items while preserving safe work', () => {
+  const plan = {
+    messages: [
+      { actor: 'not-a-role', body: 'invalid' },
+      { actor: 'ceo', body: 'safe message' },
+      { actor: 'ceo', body: '3boobs.com must never be retained' },
+    ],
+    work_items: [
+      { title: 'Safe evidence item', owner: 'ceo' },
+      { title: '3boobs.com item', owner: 'ceo' },
+    ],
+  };
+  const dropped = runner.sanitizePlan(plan);
+  assert.equal(plan.messages.length, 1);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(dropped.length, 3);
+  const parsed = runner.parseOutput(
+    JSON.stringify({ messages: plan.messages, work_items: plan.work_items }),
+    { sanitize: true }
+  );
+  assert.equal(parsed.messages.length, 1);
+  assert.equal(parsed.work_items.length, 1);
+});
+
+test('owner-request acknowledgements reserve message capacity after a full provider plan', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please prioritize the next measurable fleet improvement.',
+  });
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: Array.from({ length: 20 }, (_, index) => ({
+        actor: 'ceo',
+        body: `Unlinked status update ${index}`,
+      })),
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(plan.messages.length, 20);
+  assert.equal(created.messages.length, 20);
+  assert.ok(created.messages.some(message => message.work_id === tracked.work_item.work_id));
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'answered');
+  store.close();
+});
+
+test('linked full provider plans defer overflow owner acknowledgements without failing execution', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please acknowledge this direction after the linked handoffs.',
+  });
+  const linked = Array.from({ length: 20 }, (_, index) =>
+    store.createExecutiveWorkItem({
+      work_id: `existing-work-${index}`,
+      title: `Existing linked work ${index}`,
+      owner: 'ceo',
+      status: 'open',
+    })
+  );
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: linked.map((item, index) => ({
+        actor: 'ceo',
+        body: `Linked handoff ${index}`,
+        work_id: item.work_id,
+        message_type: 'handoff',
+      })),
+    })
+  );
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.messages.length, 20);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'submitted');
   store.close();
 });
 
@@ -752,6 +1165,74 @@ test('accepts provider natural-language message field aliases inside the closed 
   assert.equal(plan.messages[0].body, 'Recommendation: inspect the site backlog.');
 });
 
+test('normalizes natural-language change-request aliases before validation', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      change_requests: [
+        {
+          domain: 'example.com',
+          name: 'Refresh organic title',
+          summary: 'Update the title and measure search impressions.',
+          type: 'seo',
+          priority: 'low',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.change_requests[0].site, 'example.com');
+  assert.equal(plan.change_requests[0].title, 'Refresh organic title');
+  assert.equal(plan.change_requests[0].body, 'Update the title and measure search impressions.');
+  assert.equal(plan.change_requests[0].category, 'seo');
+});
+
+test('normalizes growth and affiliate change-request categories before queue application', () => {
+  assert.equal(
+    runner.normalizeDirectChangeRequest({ category: 'affiliate' }).category,
+    'marketing'
+  );
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'growth' }).category, 'marketing');
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'ux' }).category, 'design');
+  assert.equal(runner.normalizeDirectChangeRequest({ category: 'unsupported' }).category, 'other');
+});
+
+test('preserves direct work as a durable owner gap when a site has no installed roles', () => {
+  assert.equal(runner.installedSiteRoles('/tmp/does-not-exist', 'gate03.com').length, 0);
+});
+
+test('defaults blank provider message types to update', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'growth-director',
+          message_type: '   ',
+          body: 'Recommendation: keep the bounded growth test.',
+        },
+      ],
+    })
+  );
+  assert.equal(plan.messages[0].message_type, 'update');
+  runner.validatePlan(plan);
+});
+
+test('accepts messages from the delivery, design, growth, revenue, and site-factory roles', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        { actor: 'delivery-lead', body: 'Delivery update.' },
+        { actor: 'design-director', body: 'Design update.' },
+        { actor: 'growth-director', body: 'Growth update.' },
+        { actor: 'revenue-ops', body: 'Revenue update.' },
+        { actor: 'site-factory', body: 'Factory update.' },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.actor),
+    ['delivery-lead', 'design-director', 'growth-director', 'revenue-ops', 'site-factory']
+  );
+});
+
 test('binds an omitted actor to the authenticated pass role', () => {
   const plan = runner.parseOutput(
     JSON.stringify({ messages: [{ body: 'Recommendation: keep this bounded.' }] }),
@@ -783,6 +1264,31 @@ test('normalizes specialist review message types without widening the message co
   assert.deepEqual(
     plan.messages.map(message => message.message_type),
     ['update', 'update']
+  );
+});
+
+test('normalizes role-specific escalation and disposition messages', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'delivery-lead',
+          message_type: 'escalation',
+          body: 'Blocked on a dated owner action.',
+        },
+        { actor: 'ceo', message_type: 'risk_disposition', body: 'Risk disposition recorded.' },
+        { actor: 'cfo', message_type: 'finance_review', body: 'Finance review recorded.' },
+        {
+          actor: 'security',
+          message_type: 'security_disposition',
+          body: 'Security disposition recorded.',
+        },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.message_type),
+    ['update', 'update', 'update', 'update']
   );
 });
 
@@ -848,6 +1354,48 @@ test('parses structured provider output and applies only explicitly enabled queu
   assert.equal(store.listChangeRequests().length, 0);
   const queued = await runner.applyPlan(store, plan, { allowQueue: true, root });
   assert.equal(queued.change_requests.length, 1);
+  store.close();
+});
+
+test('stale source work ids do not abort otherwise valid queued work', async () => {
+  const { root, store } = db();
+  const created = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Unsafe urgent request',
+          body: 'This must remain out of the normal queue.',
+          category: 'engineering',
+          priority: 'urgent',
+          delivery_mode: 'report_only',
+        },
+        {
+          site: 'example.com',
+          source_work_id: 'missing-work-item-from-an-old-run',
+          title: 'Repair one measurable SEO path',
+          body: 'Update the bounded SEO target and verify the build.',
+          category: 'seo',
+          priority: 'low',
+          assigned_role: 'engineer',
+          provider: 'local',
+          delivery_mode: 'report_only',
+        },
+      ],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(created.change_requests.length, 1);
+  assert.match(created.plan_sanitization[0].reason, /high-priority/);
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 1);
   store.close();
 });
 
@@ -978,7 +1526,7 @@ test('routes approved implementation and creates durable follow-through for unfi
   store.close();
 });
 
-test('turns an approved site-specific report-only proposal into bounded worker work', async () => {
+test('keeps an approved report-only proposal in the quiet workbench by default', async () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({
     created_by: 'ceo',
@@ -1004,17 +1552,15 @@ test('turns an approved site-specific report-only proposal into bounded worker w
     },
     { allowQueue: true, root }
   );
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 1);
-  assert.equal(request.delivery_mode, 'report_only');
-  assert.equal(request.site, 'example.com');
-  assert.equal(request.assigned_role, 'seo-analyst');
-  assert.equal(request.status, 'queued');
-  assert.ok(store.getExecutiveProposal(proposal.proposal_id).linked_request_id);
+  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
+  const followUp = store.getExecutiveWorkItem(`executive-proposal:${proposal.proposal_id}`);
+  assert.equal(followUp.status, 'waiting');
+  assert.match(followUp.next_action, /No model run scheduled/);
   store.close();
 });
 
-test('routes approved SEO evidence to an installed engineer on legacy sites', async () => {
+test('does not route approved SEO evidence to a worker even when an engineer is installed', async () => {
   const { root, store } = db();
   fs.mkdirSync(path.join(root, 'sites', 'example.com', 'ops', 'roles'), { recursive: true });
   fs.writeFileSync(
@@ -1031,13 +1577,11 @@ test('routes approved SEO evidence to an installed engineer on legacy sites', as
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.assigned_role, 'engineer');
-  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 
-test('deterministic approved-work drain routes approved work without a model plan', () => {
+test('deterministic approved-work drain does not spend a model turn on report-only work', () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({
     created_by: 'ceo',
@@ -1050,14 +1594,12 @@ test('deterministic approved-work drain routes approved work without a model pla
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.delivery_mode, 'report_only');
-  assert.equal(request.status, 'queued');
+  assert.equal(drained.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 
-test('approved report-only work can run while a deployed improvement is measuring', () => {
+test('approved report-only work stays quiet while a deployed improvement is measuring', () => {
   const { root, store } = db();
   store.createImprovement({
     site: 'example.com',
@@ -1077,10 +1619,8 @@ test('approved report-only work can run while a deployed improvement is measurin
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.site, 'example.com');
-  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(drained.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 
@@ -1664,6 +2204,36 @@ test('rejects plans that mention or target the excluded site', () => {
       ),
     /excluded site/
   );
+});
+
+test('owner-request coverage does not reintroduce an excluded site', () => {
+  const plan = { messages: [] };
+  runner.ensureOwnerRequestCoverage(
+    {
+      listExecutiveWorkItems: () => [
+        {
+          work_id: 'excluded-owner-request',
+          source_id: 'owner-message',
+          source_type: 'owner-request',
+          status: 'open',
+          lifecycle_state: 'open',
+          summary: 'Review 3boobs.com immediately',
+        },
+        {
+          work_id: 'managed-owner-request',
+          source_id: 'managed-message',
+          source_type: 'owner-request',
+          status: 'open',
+          lifecycle_state: 'open',
+          summary: 'Improve example.com conversion tracking',
+        },
+      ],
+    },
+    plan
+  );
+  assert.equal(plan.messages.length, 1);
+  assert.equal(plan.messages[0].work_id, 'managed-owner-request');
+  assert.doesNotMatch(JSON.stringify(plan), /3boobs(?:\.com)?/i);
 });
 
 test('only routes executive implementation proposals to engineer roles', () => {

@@ -226,7 +226,13 @@ def stop_chrome(proc: subprocess.Popen | None) -> None:
             os.killpg(proc.pid, signal.SIGKILL)
         except (OSError, ProcessLookupError):
             proc.kill()
-        proc.wait(timeout=2)
+        # A stubborn Chrome process can survive both the graceful shutdown
+        # and the first forced wait. Cleanup must not turn a completed
+        # measurement into a sweep-level crash.
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            return
 
 
 def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None, str | None]:

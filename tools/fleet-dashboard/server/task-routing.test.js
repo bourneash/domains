@@ -40,6 +40,8 @@ test('SEO never treats an installed engineer as the SEO owner', () => {
 });
 
 test('implementation work selects an installed engineering owner', () => {
+  assert.equal(assignedRoleForType('design', 'design-director'), 'engineer');
+  assert.equal(assignedRoleForSite('design', 'design-director', ['engineer']), 'engineer');
   assert.equal(assignedRoleForSite('engineering', 'principal-engineer', ['engineer']), 'engineer');
   assert.equal(assignedRoleForSite('engineering', 'principal-engineer', ['promoter']), undefined);
 });

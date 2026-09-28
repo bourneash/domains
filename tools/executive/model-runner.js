@@ -132,11 +132,16 @@ async function main() {
           'security',
           'domain-manager',
           'reviewer',
+          'delivery-lead',
+          'design-director',
+          'growth-director',
+          'revenue-ops',
+          'site-factory',
         ].includes(x)
     )
   )
     throw new Error(
-      'EXECUTIVE_PASSES must contain adaptive, product-manager-fleet, product-manager-sites, ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
+      'EXECUTIVE_PASSES must contain adaptive, product-manager-fleet, product-manager-sites, delivery-lead, design-director, growth-director, revenue-ops, site-factory, ceo, cro, cto, cfo, legal, security, domain-manager, reviewer'
     );
   const passes = requestedPasses[0] === 'adaptive' ? ['ceo'] : requestedPasses;
   const passTimeout = Number(process.env.EXECUTIVE_PASS_TIMEOUT_MS || 5 * 60 * 1000);
@@ -148,6 +153,8 @@ async function main() {
   const usage = createUsageLedger();
   const transcript = [];
   let finalized = false;
+  const mergeProviderPlan = nextPlan =>
+    runner.sanitizeExcludedPlanItems(mergePassPlans(plan, nextPlan));
   // Preserve partial cost/pass evidence when a provider response fails
   // validation. The sandbox may not produce a plan, but it must still export
   // the calls already made so failures cannot disappear from the audit ledger.
@@ -199,8 +206,9 @@ async function main() {
       const nextPlan = runner.parseOutput(output, {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
+        sanitize: true,
       });
-      plan = mergePassPlans(plan, nextPlan);
+      plan = mergeProviderPlan(nextPlan);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
       // Allow one bounded correction attempt, then fail closed.
@@ -215,8 +223,9 @@ async function main() {
       const nextPlan = runner.parseOutput(output, {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
+        sanitize: true,
       });
-      plan = mergePassPlans(plan, nextPlan);
+      plan = mergeProviderPlan(nextPlan);
     }
     audit.push({
       role,
@@ -245,7 +254,9 @@ async function main() {
       true,
       transcript
     );
-    plan = mergePassPlans(plan, runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
+    plan = mergeProviderPlan(
+      runner.parseOutput(repairedOutput, { defaultActor: 'reviewer', sanitize: true })
+    );
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -274,7 +285,9 @@ async function main() {
         true,
         transcript
       );
-      plan = mergePassPlans(plan, runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
+      plan = mergeProviderPlan(
+        runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo', sanitize: true })
+      );
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,

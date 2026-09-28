@@ -95,6 +95,30 @@ test('classifies Docker worker disappearance as infrastructure evidence', () => 
   );
 });
 
+test('classifies delivery checkout conflicts as infrastructure evidence', () => {
+  assert.equal(isInfrastructureEvidence('improvement worktree is on an unexpected branch'), true);
+  assert.equal(isInfrastructureEvidence('Could not apply abc123 during rebase'), true);
+  assert.equal(isInfrastructureEvidence('quality gates did not pass'), false);
+});
+
+test('classifies process exhaustion during validation as infrastructure evidence', () => {
+  const validation = {
+    passed: false,
+    checks: {
+      tests: {
+        status: 'fail',
+        excerpt: 'Error: spawn /usr/bin/node EAGAIN',
+      },
+    },
+    preview: {
+      passed: false,
+      startup_error: 'HTTP no response; dev-server log: Local: http://localhost:4173/',
+    },
+  };
+  assert.equal(isInfrastructureEvidence('Error: spawn /usr/bin/node EAGAIN'), true);
+  assert.equal(validationInfrastructureBlock(validation), true);
+});
+
 test('keeps deterministic preview defects on the automatic repair path', () => {
   assert.equal(
     validationInfrastructureBlock({

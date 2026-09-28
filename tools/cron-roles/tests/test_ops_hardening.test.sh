@@ -44,6 +44,7 @@ grep -q 'DEPLOY_ALLOW_UNCONFIRMED_BUILD=1' "$saltwater_deploy" \
   || fail "saltwaternews emergency override is not explicitly logged"
 
 principal_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/principal-engineer.sh.tmpl"
+principal_runner_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/run-principal-engineer.sh.tmpl"
 bash -n <(sed 's/{{[^}]*}}/placeholder/g' "$principal_template") \
   || fail "principal-engineer template syntax error"
 grep -q 'validate_result_contract' "$principal_template" \
@@ -54,6 +55,12 @@ grep -q 'SYNC_ALERT_AFTER' "$principal_template" \
   || fail "principal-engineer template lacks sync defer threshold"
 grep -q 'good resolved' "$principal_template" \
   || fail "principal-engineer template does not force resolved Slack delivery"
+grep -q 'CHECKPOINT_TURN=\$((MAX_TURNS - 8))' "$principal_template" \
+  || fail "principal-engineer template does not derive its turn checkpoint"
+grep -q 'principal-engineer-worker-started-' "$principal_runner_template" \
+  || fail "principal-engineer runner template lacks worker-start sentinel"
+grep -q 'worker did not start' "$principal_runner_template" \
+  || fail "principal-engineer runner template does not return unstarted attempts"
 bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
 grep -q 'SYNC_ALERT_AFTER' "$bma_principal" \
   || fail "BMA sync defer threshold missing"
@@ -204,7 +211,19 @@ GIT_AUTHOR_DATE="$fresh_commit_date" GIT_COMMITTER_DATE="$fresh_commit_date" \
 for script in "$ROOT"/sites/*/ops/scripts/deploy.sh; do
   bash -n "$script" || fail "syntax error: $script"
   grep -q 'BUILD_CONFIRMED=0' "$script" || continue
-  grep -q 'cf-build-unconfirmed' "$script" || fail "deploy verification can fall back silently: $script"
+  # Deployers may choose either policy when the Cloudflare Builds API cannot
+  # resolve a matching build: fail closed with a structured incident, or use a
+  # clearly logged propagation fallback whose smoke tests remain the final
+  # gate. Test the behavior contract, not one incident class or wording.
+  if grep -q 'cf-build-unconfirmed' "$script"; then
+    grep -q 'emit_incident' "$script" \
+      || fail "unconfirmed-build hard-fail lacks incident emission: $script"
+  else
+    grep -qiE 'build unconfirmed|unconfirmed.*build|build.*unconfirmed|no build-status confirmation|verification unavailable|polling timed out' "$script" \
+      || fail "unconfirmed-build fallback is not explicitly logged: $script"
+    grep -qE 'run-smoke-tests\.sh|engineer-render-check\.mjs' "$script" \
+      || fail "unconfirmed-build fallback lacks a smoke-test gate: $script"
+  fi
 done
 
 smoke="$ROOT/sites/blackmarketapparel.com/ops/scripts/run-smoke-tests.sh"

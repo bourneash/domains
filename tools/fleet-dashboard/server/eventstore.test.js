@@ -163,3 +163,186 @@ test('requires completion evidence and rejects stale work-item writes', () => {
   assert.equal(done.status, 'done');
   store.close();
 });
+
+test('agent registry, resumable runs, artifacts, and hard-stop budgets are durable', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-runtime-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const ceo = store.createAgent({
+    slug: 'fleet-ceo',
+    name: 'Fleet CEO',
+    title: 'Chief Executive Officer',
+    role: 'ceo',
+    provider: 'chatgpt',
+    model: 'gpt-5',
+    adapter: 'codex',
+    permissions: ['read:intelligence'],
+  });
+  assert.equal(store.getAgent('fleet-ceo').agent_id, ceo.agent_id);
+  assert.throws(
+    () =>
+      store.createAgent({
+        slug: 'fleet-ceo',
+        name: 'Duplicate',
+        title: 'CEO',
+        role: 'ceo',
+        adapter: 'codex',
+      }),
+    /agent slug already exists/
+  );
+
+  store.upsertBudgetPolicy({
+    scope_type: 'agent',
+    scope_id: ceo.agent_id,
+    period: 'run',
+    limit_usd: 1,
+  });
+  assert.equal(
+    store.reserveBudget({
+      scope_type: 'agent',
+      scope_id: ceo.agent_id,
+      period: 'run',
+      amount_usd: 0.75,
+    }).allowed,
+    true
+  );
+  assert.equal(
+    store.reserveBudget({
+      scope_type: 'agent',
+      scope_id: ceo.agent_id,
+      period: 'run',
+      amount_usd: 0.3,
+    }).allowed,
+    false
+  );
+  assert.equal(
+    store.getBudgetPolicy({ scope_type: 'agent', scope_id: ceo.agent_id, period: 'run' }).spent_usd,
+    0.75
+  );
+  store.upsertBudgetPolicy({
+    scope_type: 'fleet',
+    scope_id: 'domains',
+    period: 'run',
+    limit_usd: 1,
+  });
+  assert.throws(
+    () =>
+      store.reserveBudgetBatch([
+        { scope_type: 'agent', scope_id: ceo.agent_id, period: 'run', amount_usd: 0.1 },
+        { scope_type: 'fleet', scope_id: 'domains', period: 'run', amount_usd: 1.1 },
+      ]),
+    /budget exceeded/
+  );
+  assert.equal(
+    store.getBudgetPolicy({ scope_type: 'agent', scope_id: ceo.agent_id, period: 'run' }).spent_usd,
+    0.75
+  );
+
+  const run = store.createAgentRun({
+    agent_id: ceo.agent_id,
+    work_id: 'work-1',
+    idempotency_key: 'tick-1',
+  });
+  assert.equal(
+    store.createAgentRun({ agent_id: ceo.agent_id, idempotency_key: 'tick-1' }).run_id,
+    run.run_id
+  );
+  const resumed = store.updateAgentRun(run.run_id, {
+    status: 'running',
+    session_id: run.session_id,
+  });
+  assert.equal(resumed.status, 'running');
+  const artifact = store.createAgentArtifact({
+    run_id: run.run_id,
+    agent_id: ceo.agent_id,
+    kind: 'report',
+    label: 'tick report',
+    uri: '/reports/tick.json',
+  });
+  assert.equal(
+    store.listAgentArtifacts({ run_id: run.run_id })[0].artifact_id,
+    artifact.artifact_id
+  );
+  store.close();
+});
+
+test('routines and watchdogs provide durable scheduling and stalled-run detection', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-watchdog-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const agent = store.createAgent({
+    slug: 'watchdog-agent',
+    name: 'Watchdog',
+    title: 'Worker',
+    role: 'engineer',
+    adapter: 'codex',
+  });
+  const routine = store.createAgentRoutine({
+    agent_id: agent.agent_id,
+    name: 'hourly-check',
+    schedule: '3600',
+  });
+  assert.equal(
+    store.listAgentRoutines({ agent_id: agent.agent_id })[0].routine_id,
+    routine.routine_id
+  );
+  const run = store.createAgentRun({
+    agent_id: agent.agent_id,
+    started_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-01T00:00:00.000Z',
+    status: 'running',
+  });
+  store.createAgentWatchdog({ run_id: run.run_id, timeout_seconds: 30 });
+  const audit = store.auditAgentWatchdogs({ now: new Date('2026-01-01T00:01:00.000Z') });
+  assert.equal(audit.fired.length, 1);
+  assert.equal(store.listAgentWatchdogs({ status: 'fired' }).length, 1);
+  store.close();
+});
+
+test('evaluations, tool grants, and workspaces are scoped and auditable', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-governance-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const agent = store.createAgent({
+    slug: 'governed-agent',
+    name: 'Governed',
+    title: 'Worker',
+    role: 'engineer',
+    adapter: 'codex',
+  });
+  const evaluation = store.createAgentEval({
+    agent_id: agent.agent_id,
+    dimension: 'quality',
+    score: 92,
+    feedback: 'verified output',
+  });
+  assert.equal(store.agentEvalSummary(agent.agent_id).by_dimension.quality.average, 92);
+  assert.equal(evaluation.agent_id, agent.agent_id);
+  store.upsertAgentToolGrant({
+    agent_id: agent.agent_id,
+    tool_name: 'read:gsc',
+    scope: { sites: ['example.com'] },
+  });
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'example.com' }).allowed,
+    false
+  );
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'example.com', approved: true })
+      .allowed,
+    true
+  );
+  assert.equal(
+    store.canAgentUseTool(agent.agent_id, 'read:gsc', { site: 'other.example', approved: true })
+      .allowed,
+    false
+  );
+  assert.equal(store.canAgentUseTool(agent.agent_id, 'write:deploy').allowed, false);
+  const workspace = store.createAgentWorkspace({
+    agent_id: agent.agent_id,
+    path: '/tmp/agent-workspace',
+  });
+  assert.equal(store.closeAgentWorkspace(workspace.workspace_id).status, 'closed');
+  assert.throws(
+    () => store.createAgentWorkspace({ agent_id: agent.agent_id, path: '../escape' }),
+    /invalid workspace path/
+  );
+  store.close();
+});

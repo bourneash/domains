@@ -1,0 +1,18 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "growth-director",
+  "site": "fleet",
+  "generated_at": "2026-09-28T03:20:13.836Z",
+  "summary": "growth-director checked in 1 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution this cycle. Evidence-backed SEO opportunities remain deferred because queue eligibility is false, failure-repair and measurement work are open, attribution is incomplete, and operations/security evidence is unavailable. Continue existing SEO repair, validation, measurement, rollback, and attribution work using recorded telemetry only. Do not create or requeue SEO changes, add telemetry, deploy, spend, or claim traffic, conversion, revenue, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
+  }
+}

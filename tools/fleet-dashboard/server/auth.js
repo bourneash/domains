@@ -76,6 +76,14 @@ const ALLOWED_HOSTS = new Set(
 
 // Paths reachable without a token so the login screen can bootstrap.
 const EXEMPT = new Set(['/api/version', '/api/login', '/api/auth', '/healthz']);
+let externalAuthenticator = null;
+
+// The fleet token remains the bootstrap/operator credential. Runtime agents
+// and human users may additionally authenticate with database-backed scoped
+// credentials without making auth.js depend on the event store module.
+function configureExternalAuthenticator(fn) {
+  externalAuthenticator = typeof fn === 'function' ? fn : null;
+}
 
 function hostname(req) {
   return (req.hostname || (req.headers.host || '').split(':')[0] || '').toLowerCase();
@@ -142,6 +150,7 @@ function authed(req) {
   if (!AUTH_REQUIRED) return true; // token gate disabled
   if (tokenValid(req.headers['x-fd-token']) || viewerTokenValid(req.headers['x-fd-token']))
     return true;
+  if (externalAuthenticator && externalAuthenticator(req.headers['x-agent-key'])) return true;
   return sessionCookieValid(req); // cookie (browser)
 }
 
@@ -149,6 +158,7 @@ function accessLevel(req) {
   if (!AUTH_REQUIRED || tokenValid(req.headers['x-fd-token']) || sessionCookieValid(req))
     return 'operator';
   if (viewerTokenValid(req.headers['x-fd-token'])) return 'viewer';
+  if (externalAuthenticator && externalAuthenticator(req.headers['x-agent-key'])) return 'agent';
   return null;
 }
 
@@ -198,6 +208,7 @@ module.exports = {
   apiGuard,
   loginHandler,
   authStatus,
+  configureExternalAuthenticator,
   authed,
   hostAllowed,
   tokenValid,

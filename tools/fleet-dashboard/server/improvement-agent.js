@@ -12,6 +12,10 @@ const WORKER_START_GRACE_MS = Math.max(
   10_000,
   Number(process.env.FD_CHANGE_QUEUE_WORKER_START_GRACE_MS || 120_000)
 );
+const REVIEWER_TIMEOUT_MS = Math.max(
+  60_000,
+  Number(process.env.FD_CHANGE_QUEUE_REVIEWER_TIMEOUT_MS || 15 * 60 * 1000)
+);
 
 // The fleet worker image has a project-scoped Codex credential, while Claude
 // intentionally has no shared OAuth credential in the dashboard container.
@@ -180,6 +184,7 @@ function launch({
         `Run focused checks when useful. Do not edit files, commit, push, deploy, switch branches, or modify ops/tasks. ` +
         `Check that the request is actually satisfied, that site instructions are respected, and that the change is safe to ship. ` +
         `The dashboard runs the authoritative build, test, preview, and browser gates after your review. Do not reject a bounded diff solely because an optional local tool is unavailable (for example a missing Playwright browser executable, a missing dev dependency, or a transient upstream service); record that as an infrastructure warning and let the deterministic gate classify it. Reject it when the diff itself is wrong, unrelated, unsafe, or violates the site's instructions. ` +
+        `When running npm test, use the bounded form npm test -- --run --maxWorkers=1 --minWorkers=1 when the test runner supports it; do not start an unbounded Vitest/Jest worker pool. If a low-resource test still reports EAGAIN, record that as infrastructure evidence and finish the review marker rather than repeatedly spawning workers. ` +
         `Treat command exit codes and recorded validation output as authoritative: never describe a failed build, test, preview, or browser check as passing. ` +
         `You must finish with exactly one marker: FD_REVIEW_RESULT: PASS or FD_REVIEW_RESULT: FAIL. ` +
         `If failing, briefly explain the blocking issue before the marker.\n\nRequest:\n${String(taskBody || run.title).slice(0, 30000)}`
@@ -233,7 +238,7 @@ function launch({
       timedOut = true;
       child.kill('SIGTERM');
     },
-    45 * 60 * 1000
+    phase === 'reviewer' ? REVIEWER_TIMEOUT_MS : 45 * 60 * 1000
   );
   if (timeout.unref) timeout.unref();
   store.updateImprovement(run.run_id, {
@@ -283,6 +288,7 @@ function launch({
         } catch {
           result = null;
         }
+        const terminalError = timedOut ? 'agent timed out' : `agent exited with code ${code}`;
         store.updateImprovement(run.run_id, {
           agent: {
             status: timedOut ? 'timed-out' : code === 0 ? 'completed' : 'failed',
@@ -302,7 +308,7 @@ function launch({
           if (request && request.status === 'running') {
             store.updateChangeRequest(run.source_id, {
               status: nextStatus,
-              error: nextStatus === 'failed' ? `agent exited with code ${code}` : null,
+              error: nextStatus === 'failed' ? terminalError : null,
               next_attempt_at:
                 nextStatus === 'failed' && request.attempts < AUTOMATIC_RETRY_ATTEMPTS
                   ? new Date(Date.now() + 15 * 60 * 1000).toISOString()
@@ -332,7 +338,7 @@ function launch({
                 phase,
                 exit_code: code,
                 timed_out: timedOut,
-                error: `agent exited with code ${code}`,
+                error: terminalError,
               },
             });
           }
@@ -448,6 +454,7 @@ module.exports = {
   processListHasWorker,
   workerStartupGraceActive,
   WORKER_START_GRACE_MS,
+  REVIEWER_TIMEOUT_MS,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,

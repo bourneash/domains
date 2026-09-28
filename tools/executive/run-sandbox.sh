@@ -43,6 +43,7 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/executive-scorecard.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-data.js" \
+    "$ROOT/tools/fleet-dashboard/server/productivity-program.js" \
     "$ROOT/tools/fleet-dashboard/server/workflow-engine.js" \
     "$ROOT/tools/fleet-dashboard/server/roles.js" \
     "$ROOT/tools/fleet-dashboard/server/sites.js" \
@@ -72,6 +73,54 @@ fi
 RUN_DIR="$(mktemp -d "$ROOT/tools/executive/data/.run.XXXXXX")"
 mkdir -m 700 "$RUN_DIR/input" "$RUN_DIR/output"
 trap 'rm -rf "$RUN_DIR"' EXIT
+
+# Register the real sandbox execution in the durable agent runtime. Failure to
+# record observability must not grant or alter execution authority, so the
+# legacy executive path remains available if the runtime database is briefly
+# unavailable.
+RUNTIME_RUN_ID="$(node - "$ROOT" "${EXECUTIVE_RUN_ID:-sandbox-$$}" <<'NODE' 2>/dev/null || true
+const root = process.argv[2];
+const key = process.argv[3];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const runtime = require(`${root}/tools/executive/agent-runtime`);
+const store = eventstore.open(root);
+try {
+  runtime.ensureRegistry(store);
+  const agent = store.getAgent('fleet-ceo');
+  const started = runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: key, work_id: 'executive-tick' });
+  process.stdout.write(started.run.run_id);
+} finally { store.close(); }
+NODE
+)"
+
+finish_runtime_run() {
+  local status="$1"
+  local error_message="${2:-}"
+  [[ -n "$RUNTIME_RUN_ID" ]] || return 0
+  node - "$ROOT" "$RUNTIME_RUN_ID" "$status" "$error_message" "$RUN_DIR/output/usage.json" <<'NODE' 2>/dev/null || true
+const fs = require('node:fs');
+const root = process.argv[2];
+const runId = process.argv[3];
+const status = process.argv[4];
+const error = process.argv[5] || null;
+const usageFile = process.argv[6];
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const runtime = require(`${root}/tools/executive/agent-runtime`);
+const store = eventstore.open(root);
+try {
+  let usage = {};
+  try { usage = JSON.parse(fs.readFileSync(usageFile, 'utf8')); } catch {}
+  const updated = runtime.finish(store, runId, {
+    status: status === 'succeeded' ? 'succeeded' : 'failed',
+    error,
+    input_tokens: Number(usage.estimated_input_tokens || 0),
+    output_tokens: Number(usage.estimated_output_tokens || 0),
+    result: { passes: usage.calls || [], estimated_total_tokens: Number(usage.estimated_total_tokens || 0) },
+  });
+  if (fs.existsSync(usageFile)) runtime.attachArtifact(store, updated, { kind: 'report', label: 'Executive usage ledger', uri: usageFile });
+} finally { store.close(); }
+NODE
+}
 
 # Brief generation and plan application happen in the trusted control plane.
 node "$ROOT/tools/executive/runner.js" --brief-only > "$RUN_DIR/input/brief.json"
@@ -221,6 +270,30 @@ NODE
       set -e
     fi
   fi
+  # Capacity is a provider availability failure, not a malformed or partial
+  # leadership result. Retry once only when no pass started; never replay a
+  # partially completed leadership sequence.
+  if [[ "$MODEL_STATUS" -ne 0 && -s "$RUN_DIR/output/failure.json" ]] && \
+    grep -Eiq 'selected model is at capacity|model is at capacity|capacity' "$RUN_DIR/model.log"; then
+    PASSES_COMPLETED="$(node - "$RUN_DIR/output/failure.json" <<'NODE'
+const fs = require('node:fs');
+try {
+  const value = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+  process.stdout.write(String(Array.isArray(value.passes_completed) ? value.passes_completed.length : 1));
+} catch {
+  process.stdout.write('1');
+}
+NODE
+)"
+    if [[ "$PASSES_COMPLETED" == "0" ]]; then
+      echo "executive provider model is at capacity before the first pass; retrying once" >&2
+      sleep "${EXECUTIVE_CAPACITY_RETRY_DELAY_SECONDS:-15}"
+      set +e
+      run_model
+      MODEL_STATUS=$?
+      set -e
+    fi
+  fi
 fi
 
 # Preserve the model's bounded, non-secret usage estimate outside the transient
@@ -332,8 +405,15 @@ try {
   store.close();
 }
 NODE
+  finish_runtime_run failed "isolated executive model exited with status $MODEL_STATUS"
   exit "$MODEL_STATUS"
 fi
 
 [[ -s "$RUN_DIR/output/plan.json" ]] || { echo "executive model produced no plan" >&2; exit 1; }
-node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE
+if node "$ROOT/tools/executive/runner.js" --apply-plan-file "$RUN_DIR/output/plan.json" $MODE; then
+  finish_runtime_run succeeded
+else
+  apply_status=$?
+  finish_runtime_run failed "executive plan application failed with status $apply_status"
+  exit "$apply_status"
+fi

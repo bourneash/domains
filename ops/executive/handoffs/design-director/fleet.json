@@ -1,0 +1,18 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "design-director",
+  "site": "fleet",
+  "generated_at": "2026-09-28T03:20:13.836Z",
+  "summary": "design-director checked in 1 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution this cycle. No new design or implementation dispatch is authorized while queue eligibility is false, failure-repair work is open, active measurement windows remain, attribution is incomplete, and operations/security evidence is unavailable. Continue existing repair, validation, measurement, accessibility, and rollback work; retain reversible design opportunities as deferred backlog. Do not claim conversion lift without measured evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
+  }
+}

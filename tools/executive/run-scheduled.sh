@@ -31,7 +31,7 @@ else
 fi
 # Keep the leadership sequence hungry and deterministic. Each pass is still
 # bounded, and run-sandbox.sh applies the hard wall-clock/container cap.
-export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,cro,ceo,cfo,cto,legal,security,reviewer}"
+export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,delivery-lead,design-director,growth-director,revenue-ops,site-factory,cro,ceo,cfo,cto,legal,security,reviewer}"
 export EXECUTIVE_PASS_TIMEOUT_MS="${EXECUTIVE_PASS_TIMEOUT_MS:-120000}"
 export EXECUTIVE_CONTAINER_TIMEOUT="${EXECUTIVE_CONTAINER_TIMEOUT:-14m}"
 RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'
@@ -82,14 +82,36 @@ try {
     .listExecutiveActions({ action_type: 'tick', limit: 20 })
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
-  const status = exitCode !== 0 ? 'failed' : checkinStatus !== 0 ? 'completed_with_warning' : 'completed';
+  const ownerAcknowledged = store
+    .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+    .some(item => {
+      const answered = Date.parse(item.answered_at || '');
+      return Number.isFinite(answered) && answered >= scheduledStarted;
+    });
+  const providerDeferred = /selected model is at capacity|model is at capacity|provider model is at capacity/i.test(
+    String(tickError || '')
+  );
+  const status =
+    ownerAcknowledged && exitCode !== 0
+      ? 'completed_with_warning'
+      : exitCode !== 0
+      ? providerDeferred
+        ? 'completed_with_warning'
+        : 'failed'
+      : checkinStatus !== 0
+        ? 'completed_with_warning'
+        : 'completed';
   executive.finishAction(store, actionId, {
     status,
     error:
-      exitCode === 0
+      ownerAcknowledged && exitCode !== 0
+        ? `executive run degraded after acknowledging owner request; ${tickError || `dispatch exited with code ${exitCode}`}`
+        : exitCode === 0
         ? checkinStatus !== 0
           ? `executive handoff check-in exited with code ${checkinStatus}`
           : null
+        : providerDeferred
+          ? `executive provider deferred the leadership pass: ${tickError}`
         : tickError
           ? `executive tick failed: ${tickError}`
           : `scheduled executive dispatch exited with code ${exitCode}`,
@@ -105,8 +127,12 @@ try {
       checkin_status: checkinStatus,
       checkin_warning:
         checkinStatus === 0 ? null : 'executive handoff check-in failed; retry is required',
+      provider_deferred: providerDeferred,
+      owner_request_acknowledged: ownerAcknowledged,
       failed_stage:
-        exitCode === 0
+        providerDeferred
+          ? 'provider availability'
+          : exitCode === 0
           ? checkinStatus === 0
             ? null
             : 'executive handoff check-in'
@@ -114,7 +140,9 @@ try {
             ? 'executive tick / plan application'
             : 'scheduler wrapper',
       failure_reason:
-        tickError ||
+        providerDeferred
+          ? `provider unavailable: ${tickError}`
+          : tickError ||
         (exitCode !== 0
           ? `dispatch exited with code ${exitCode}`
           : checkinStatus !== 0

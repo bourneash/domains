@@ -15,7 +15,10 @@ test('explains queue blockers using the same site locks as dispatch', () => {
     busySites: new Set(['example.com']),
     measuringSites: new Set(['example.com']),
   });
-  assert.deepEqual(blockers.map(item => item.code), ['capacity', 'site_active', 'measurement_window']);
+  assert.deepEqual(
+    blockers.map(item => item.code),
+    ['capacity', 'site_active', 'measurement_window']
+  );
   assert.match(blockers[1].detail, /build or review/);
 });
 
@@ -29,12 +32,32 @@ test('report-only work can proceed during a measurement window', () => {
 
 test('diagnostic and control-plane work can proceed during a site measurement', () => {
   for (const request of [
-    { status: 'queued', site: 'example.com', delivery_mode: 'direct', category: 'engineering', title: 'Measurement coverage review' },
-    { status: 'queued', site: 'example.com', delivery_mode: 'direct', category: 'engineering', title: 'Reassign task to engineer: Route performance-budget task' , action_key: 'task-routing:example:task.md' },
+    {
+      status: 'queued',
+      site: 'example.com',
+      delivery_mode: 'direct',
+      category: 'engineering',
+      title: 'Measurement coverage review',
+    },
+    {
+      status: 'queued',
+      site: 'example.com',
+      delivery_mode: 'direct',
+      category: 'engineering',
+      title: 'Reassign task to engineer: Route performance-budget task',
+      action_key: 'task-routing:example:task.md',
+    },
   ]) {
     assert.deepEqual(
       view.queueBlockers(request, {
-        measuringRuns: [{ site: 'example.com', state: 'measuring', title: 'Improve /homepage', baseline: { evidence: 'homepage' } }],
+        measuringRuns: [
+          {
+            site: 'example.com',
+            state: 'measuring',
+            title: 'Improve /homepage',
+            baseline: { evidence: 'homepage' },
+          },
+        ],
       }),
       []
     );
@@ -42,9 +65,26 @@ test('diagnostic and control-plane work can proceed during a site measurement', 
 });
 
 test('only overlapping production scope is held', () => {
-  const run = { site: 'example.com', state: 'measuring', title: 'Improve /homepage', baseline: { evidence: 'homepage' } };
-  assert.equal(view.measurementConflict({ site: 'example.com', title: 'Improve /homepage CTA', body: 'Change /homepage' }, run), true);
-  assert.equal(view.measurementConflict({ site: 'example.com', title: 'Improve /about', body: 'Change /about' }, run), false);
+  const run = {
+    site: 'example.com',
+    state: 'measuring',
+    title: 'Improve /homepage',
+    baseline: { evidence: 'homepage' },
+  };
+  assert.equal(
+    view.measurementConflict(
+      { site: 'example.com', title: 'Improve /homepage CTA', body: 'Change /homepage' },
+      run
+    ),
+    true
+  );
+  assert.equal(
+    view.measurementConflict(
+      { site: 'example.com', title: 'Improve /about', body: 'Change /about' },
+      run
+    ),
+    false
+  );
 });
 
 test('report-only work can proceed while an implementation is active', () => {
@@ -59,13 +99,15 @@ test('exposes measurement deadline and honors a per-request override', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-measurement-'));
   const rows = view.enrichChangeRequests(
     root,
-    [{
-      request_id: 'measurement-1',
-      status: 'queued',
-      site: 'example.com',
-      delivery_mode: 'direct',
-      created_at: '2026-09-26T10:00:00.000Z',
-    }],
+    [
+      {
+        request_id: 'measurement-1',
+        status: 'queued',
+        site: 'example.com',
+        delivery_mode: 'direct',
+        created_at: '2026-09-26T10:00:00.000Z',
+      },
+    ],
     { max_concurrent: 4 },
     [{ site: 'example.com', state: 'measuring', measurement_due: '2026-10-10' }]
   );
@@ -89,12 +131,14 @@ test('enriches requests with registry context and retry state', () => {
   );
   const rows = view.enrichChangeRequests(
     root,
-    [{
-      request_id: '1',
-      status: 'queued',
-      site: 'example.com',
-      next_attempt_at: '2099-01-01T00:00:00.000Z',
-    }],
+    [
+      {
+        request_id: '1',
+        status: 'queued',
+        site: 'example.com',
+        next_attempt_at: '2099-01-01T00:00:00.000Z',
+      },
+    ],
     { max_concurrent: 2 },
     []
   );
@@ -112,13 +156,15 @@ test('prefers machine-readable registry context and reports fairness escalation'
   const now = Date.parse('2026-09-26T12:00:00.000Z');
   const rows = view.enrichChangeRequests(
     root,
-    [{
-      request_id: '1',
-      status: 'queued',
-      site: 'example.com',
-      created_at: '2026-09-26T10:00:00.000Z',
-      delivery_mode: 'direct',
-    }],
+    [
+      {
+        request_id: '1',
+        status: 'queued',
+        site: 'example.com',
+        created_at: '2026-09-26T10:00:00.000Z',
+        delivery_mode: 'direct',
+      },
+    ],
     { max_concurrent: 1 },
     [{ site: 'example.com', state: 'measuring' }],
     now
@@ -127,17 +173,49 @@ test('prefers machine-readable registry context and reports fairness escalation'
   assert.equal(rows[0].queue_block.escalated, true);
   assert.equal(rows[0].queue_block.blocked_since, '2026-09-26T10:00:00.000Z');
   assert.equal(view.queueMetrics(rows, now).by_reason.measurement_window, 1);
-  assert.equal(view.buildQueueSnapshot(root, rows, { max_concurrent: 1 }, [{ site: 'example.com', state: 'measuring' }], now).queue_metrics.blocked, 1);
+  assert.equal(
+    view.buildQueueSnapshot(
+      root,
+      rows,
+      { max_concurrent: 1 },
+      [{ site: 'example.com', state: 'measuring' }],
+      now
+    ).queue_metrics.blocked,
+    1
+  );
 });
 
 test('unknown site context is safe and metrics distinguish eligible work', () => {
   const rows = view.enrichChangeRequests(
     fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-unknown-')),
-    [{ request_id: '1', status: 'queued', site: 'unknown.example', created_at: new Date().toISOString() }],
+    [
+      {
+        request_id: '1',
+        status: 'queued',
+        site: 'unknown.example',
+        created_at: new Date().toISOString(),
+      },
+    ],
     { max_concurrent: 2 },
     []
   );
   assert.match(rows[0].site_context.description, /not in the fleet registry/);
   assert.equal(rows[0].queue_block.blocked, false);
   assert.equal(view.queueMetrics(rows).eligible, 1);
+});
+
+test('delivery metrics count deployed work by explicit rolling windows', () => {
+  const now = Date.parse('2026-09-27T12:00:00.000Z');
+  const rows = [
+    { status: 'deployed', updated_at: '2026-09-27T11:00:00.000Z' },
+    { status: 'verified', updated_at: '2026-09-26T12:00:00.000Z' },
+    { status: 'failed', updated_at: '2026-09-25T12:00:00.000Z' },
+    { status: 'deployed', updated_at: '2026-09-01T00:00:00.000Z' },
+  ];
+  const metrics = view.deliveryMetrics(rows, now);
+  assert.equal(metrics.windows['24h'].shipped, 1);
+  assert.equal(metrics.windows['2d'].shipped, 1);
+  assert.equal(metrics.windows['5d'].failed, 1);
+  assert.equal(metrics.windows.month_to_date.shipped, 2);
+  assert.match(metrics.definition, /deployed/);
 });

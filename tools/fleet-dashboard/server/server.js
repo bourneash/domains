@@ -69,6 +69,14 @@ const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
 const executiveCalendar = require('./executive-calendar');
+const agentRuntime = require('../../executive/agent-runtime');
+const agentHeartbeat = require('../../executive/agent-heartbeat');
+const agentToolGateway = require('../../executive/agent-tool-gateway');
+const agentDispatcher = require('../../executive/agent-dispatcher');
+const runtimeProvider = require('../../executive/runtime-provider');
+const runtimePlugin = require('../../executive/runtime-plugin');
+const evalRunner = require('../../executive/eval-runner');
+const organizationPortability = require('../../executive/organization-portability');
 const { execFileSync } = require('node:child_process');
 const caseview = require('./caseview');
 const revops = require('./revops');
@@ -79,6 +87,8 @@ const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
 const workflowBoard = require('./workflow-board');
 const executiveLiveness = require('./executive-liveness');
+const productivityProgram = require('./productivity-program');
+const executiveRunRecovery = require('./executive-run-recovery');
 const {
   assignedRoleForType,
   assignedRoleForSite,
@@ -202,7 +212,7 @@ function interruptedWorkerRecoveryPath(request) {
 // Docker can remove an isolated worker between the reviewer and delivery
 // callbacks, which surfaces as "No such container".
 function isInfrastructureEvidence(value) {
-  return /(ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1)/i.test(
+  return /(EAGAIN|spawn\s+[^\n]*node|failed to spawn|ECONNREFUSED|ECONNRESET|ETIMEDOUT|connection refused|failed to connect|server is not responding|D1 binding|interstitial|compatibility date|newest date supported|Workers runtime failed|ProcessSingleton|SingletonLock|browser tab has unexpectedly crashed|screenshot timed out|isolated worker retained no production-network access|procReady not received|browser profile|No such container|container not found|Error response from daemon|OCI runtime exec failed|runc init error|Resource temporarily unavailable|unable to spawn stage-2|failed to sync with stage-1|unexpected branch|production checkout must be|worktree has uncommitted|rebase|merge --ff-only|branch push failed|merged locally but push failed)/i.test(
     String(value || '')
   );
 }
@@ -444,6 +454,8 @@ function applyQualityPolicy(root, site, validation) {
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
   const events = eventstore.open(root);
+  auth.configureExternalAuthenticator(token => Boolean(events.authenticateApiCredential(token)));
+  agentRuntime.ensureRegistry(events);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
@@ -541,6 +553,34 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // read its body, and before routes. Static assets + /healthz stay open so the
   // login shell always loads.
   app.use(auth.apiGuard);
+  // Resolve the durable actor after the network credential gate. Mutating
+  // platform routes use this identity instead of trusting a caller-supplied
+  // actor field, while legacy fleet routes continue to operate unchanged.
+  app.use((req, res, next) => {
+    req.platformActor = events.authenticateActor(req);
+    if (req.platformActor.access === 'agent' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      const path = req.path;
+      const required =
+        path.startsWith('/api/platform/credentials') || path.startsWith('/api/platform/invites')
+          ? 'platform:admin'
+          : path.startsWith('/api/agent-issues')
+            ? 'work:write'
+            : path.startsWith('/api/governance') || path.startsWith('/api/execution-policies')
+              ? 'governance:write'
+              : path.startsWith('/api/eval-')
+                ? 'eval:write'
+                : path.startsWith('/api/object-blobs')
+                  ? 'storage:write'
+                  : path.startsWith('/api/mcp/')
+                    ? 'mcp:call'
+                    : path.startsWith('/api/runtime-adapters')
+                      ? 'adapter:heartbeat'
+                      : 'agent:run';
+      if (!req.platformActor.scopes.includes('*') && !req.platformActor.scopes.includes(required))
+        return res.status(403).json({ error: `credential lacks ${required} scope` });
+    }
+    next();
+  });
 
   // Prevent browsers from retaining an older SPA after a restart. Without this,
   // new controls can be present on disk but invisible in an already-open tab.
@@ -590,7 +630,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         `no installed owner for category=${claimed.category} on ${claimed.site}; ` +
         `requested role=${claimed.assigned_role || 'unassigned'}`;
       const blocked = events.updateChangeRequest(claimed.request_id, {
-        status: 'failed',
+        status: 'blocked_owner',
         error: reason,
         next_attempt_at: null,
         lease_owner: null,
@@ -724,7 +764,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         const quarantined = [];
         const quarantinePaths = [];
         for (const duplicate of created.duplicate_tasks || []) {
-          if (duplicate.column !== 'backlog') continue;
+          // A stale done card is just as unsafe as a backlog duplicate here:
+          // it represents a prior attempt that never produced durable
+          // evidence, and otherwise blocks every honest retry forever. Move
+          // both stale columns to hold so the new run gets a clean lineage;
+          // genuinely completed done cards are handled by
+          // successfulTaskEvidence() before this branch.
+          if (!['backlog', 'done'].includes(duplicate.column)) continue;
           const moved = tasks.move(root, claimed.site, 'backlog', duplicate.file, 'hold');
           quarantined.push(moved.file);
           quarantinePaths.push(`ops/tasks/backlog/${duplicate.file}`);
@@ -1326,6 +1372,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         reviewerMarker !== 'PASS';
       if (!agentFailed && !reviewExhausted) continue;
       try {
+        const terminalStatus = reviewExhausted ? 'needs_human_review' : 'failed';
         const failedRun = improvements.transition(events, run.run_id, {
           state: 'failed',
           outcome: {
@@ -1336,7 +1383,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               : 'automatic reviewer handoff exhausted its bounded repair attempts',
           },
         });
-        syncChangeRequestFromRun(failedRun, 'failed');
+        syncChangeRequestFromRun(failedRun, terminalStatus);
         changed += 1;
       } catch {
         /* keep the existing audit record if a concurrent worker advanced it */
@@ -2868,7 +2915,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
-  function startAutomaticReviewRepair(request, run, error) {
+  async function startAutomaticReviewRepair(request, run, error) {
     const settings = events.getChangeQueueSettings();
     if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
       return false;
@@ -2899,6 +2946,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         });
       }
+      // A dashboard restart or worker-image rebuild can remove the disposable
+      // container while preserving the dirty worktree. Recreate it before the
+      // repair agent starts; otherwise the model exits with "No such
+      // container" and consumes a bounded repair attempt without doing work.
+      repairRun = await ensureImprovementSandbox(repairRun);
       // The reviewer callback may still own the intermediate `reviewing`
       // projection when validation fails. Re-enter through `review` first;
       // the queue state machine intentionally does not allow reviewing →
@@ -2986,7 +3038,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     });
   }
 
-  function recordAutoReviewFailure(id, error) {
+  async function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
     const run = request.run_id ? events.getImprovement(request.run_id) : null;
@@ -3035,7 +3087,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       return;
     }
-    if (startAutomaticReviewRepair(request, run, error)) return;
+    if (await startAutomaticReviewRepair(request, run, error)) return;
     const failedRun = markImprovementFailed(run, error);
     try {
       changequeue.update(
@@ -3075,6 +3127,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       if (!['reviewing', 'review'].includes(request.status)) continue;
+      // A reviewer PASS whose delivery hit a repository-state problem is
+      // intentionally parked for an operator. Do not rediscover the PASS and
+      // repeat the same deployment attempt on every recovery sweep.
+      if (run?.outcome?.delivery_blocked === true) continue;
       const activeSince = activeAutomaticReviews.get(request.request_id);
       if (activeSince) {
         const finishedAt = Date.parse(run?.agent?.finished_at || '');
@@ -3251,6 +3307,46 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       await deliverAutomatically(fresh);
     } catch (error) {
       releaseAutomaticDeliveryClaim(events.getImprovement(run.run_id));
+      // A reviewer PASS is not a deployment PASS. If the delivery handoff
+      // fails because the repository is dirty, on the wrong branch, or cannot
+      // rebase/merge, park it as an infrastructure block. Without this durable
+      // marker the recovery sweep sees the old PASS marker and retries the
+      // same deployment indefinitely.
+      if (isInfrastructureEvidence(error?.message || error)) {
+        const latest = events.getImprovement(run.run_id);
+        const message = String(error?.message || error);
+        if (latest) {
+          events.updateImprovement(latest.run_id, {
+            outcome: {
+              ...(latest.outcome || {}),
+              infrastructure_blocked: true,
+              delivery_blocked: true,
+              infrastructure_error: message,
+              delivery_blocked_at: new Date().toISOString(),
+            },
+          });
+        }
+        const request = events.getChangeRequest(id);
+        if (request) {
+          const updated = changequeue.update(
+            events,
+            id,
+            infrastructureReviewProjectionPatch(request, message),
+            site => isKnownTarget(root, site)
+          );
+          events.record({
+            event_type: 'change-request.delivery_blocked',
+            source: 'fleet-dashboard',
+            site_id: `site:${request.site}`,
+            entity_type: 'change-request',
+            entity_id: id,
+            correlation_id: `change-request:${id}`,
+            payload: { error: message, reason: 'delivery-infrastructure' },
+          });
+          emitChangeNotification('delivery blocked', updated, latest, message);
+        }
+        return;
+      }
       recordAutoReviewFailure(id, error);
     }
   }
@@ -3265,6 +3361,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       });
     let run = request.run_id ? events.getImprovement(request.run_id) : null;
     if (!run) throw Object.assign(new Error('request has no improvement run'), { httpStatus: 409 });
+    if (run.outcome?.delivery_blocked) {
+      run = events.updateImprovement(run.run_id, {
+        outcome: {
+          ...(run.outcome || {}),
+          delivery_blocked: false,
+          infrastructure_blocked: false,
+          delivery_retry_requested_at: new Date().toISOString(),
+        },
+      });
+    }
     if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
     // Claim the durable reviewing slot before the first await below. Without
     // this ordering, a recovery sweep could launch several async reviews in
@@ -3511,6 +3617,175 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(500).json({ error: e.message || String(e) });
     }
   });
+  app.get('/api/productivity/pilots', (req, res) =>
+    res.json({ pilots: events.listProductivityPilots(req.query) })
+  );
+  app.post('/api/productivity/pilots', (req, res) => {
+    try {
+      const cohortCheck = productivityProgram.validatePilotCohorts(req.body || {});
+      if (!cohortCheck.valid) {
+        const error = new Error(cohortCheck.errors.join('; '));
+        error.httpStatus = 400;
+        throw error;
+      }
+      const pilot = events.createProductivityPilot({
+        ...(req.body || {}),
+        created_by: req.platformActor?.actor_id || 'owner',
+      });
+      const baseline = productivityProgram.snapshot(events, {
+        from: new Date(Date.parse(pilot.start_at) - 14 * 86400000).toISOString(),
+        to: pilot.start_at,
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+      });
+      events.createProductivitySnapshot({
+        pilot_id: pilot.pilot_id,
+        phase: 'baseline',
+        snapshot: baseline,
+      });
+      const active = events.updateProductivityPilot(pilot.pilot_id, {
+        status: 'active',
+        baseline,
+      });
+      res.status(201).json({ pilot: active, baseline });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/productivity/pilots/:id', (req, res) => {
+    const pilot = events.getProductivityPilot(req.params.id);
+    if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+    res.json({ pilot, snapshots: events.listProductivitySnapshots(pilot.pilot_id) });
+  });
+  app.post('/api/productivity/pilots/:id/seed', (req, res) => {
+    try {
+      const pilot = events.getProductivityPilot(req.params.id);
+      if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+      if (pilot.status !== 'active')
+        return res.status(409).json({ error: 'only active productivity pilots can be seeded' });
+      const seeded = [];
+      const skipped = [];
+      const readiness = productivityProgram.queueReadiness(events, pilot.treatment_sites);
+      const privatePreviewSites = seoIntelligence.privatePreviewSites(root, pilot.treatment_sites);
+      const blockedSites = new Map(readiness.blocked_sites.map(item => [item.site, item]));
+      const existing = new Set(
+        events
+          .listChangeRequests({ limit: 1000 })
+          .map(row => String(row.action_key || ''))
+          .filter(Boolean)
+      );
+      for (const spec of productivityProgram.treatmentBatch(pilot)) {
+        const blocked = blockedSites.get(String(spec.site).toLowerCase());
+        if (blocked) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: 'site is not queue-ready',
+            detail: blocked.reason,
+            measurement_due: blocked.measurement_due || null,
+          });
+          continue;
+        }
+        const eligibility = productivityProgram.siteCategoryEligibility(spec.site, spec.category, {
+          privatePreviewSites,
+        });
+        if (!eligibility.eligible) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: eligibility.reason,
+            category: spec.category,
+          });
+          continue;
+        }
+        const availableRoles = installedSiteRoles(root, spec.site);
+        const assignedRole = assignedRoleForSite(spec.category, undefined, availableRoles, {
+          delivery_mode: 'direct',
+        });
+        if (!assignedRole) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: 'no installed owner for category',
+            category: spec.category,
+            detail: `Install the ${spec.category} owner for ${spec.site} before seeding this lane.`,
+          });
+          continue;
+        }
+        if (existing.has(spec.action_key)) {
+          skipped.push({ action_key: spec.action_key, reason: 'already seeded' });
+          continue;
+        }
+        const request = changequeue.create(
+          events,
+          {
+            ...spec,
+            assigned_role: assignedRole,
+            provider: 'chatgpt',
+            priority: 'high',
+            delivery_mode: 'direct',
+            auto_review: true,
+            requested_by: 'delivery-lead',
+            max_turns: 20,
+          },
+          site => isKnownTarget(root, site),
+          site => installedSiteRoles(root, site)
+        );
+        seeded.push(request);
+        existing.add(spec.action_key);
+      }
+      res.status(201).json({ pilot, readiness, seeded, skipped });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/productivity/pilots/:id/evaluate', (req, res) => {
+    try {
+      const pilot = events.getProductivityPilot(req.params.id);
+      if (!pilot) return res.status(404).json({ error: 'productivity pilot not found' });
+      const current = productivityProgram.snapshot(events, {
+        from: pilot.start_at,
+        to: (req.body || {}).to || new Date().toISOString(),
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+      });
+      const evaluation = productivityProgram.evaluate(pilot.baseline, current);
+      const requestedFinal = (req.body || {}).final === true;
+      const complete = requestedFinal || Date.now() >= Date.parse(pilot.end_at);
+      if (!complete) {
+        events.createProductivitySnapshot({
+          pilot_id: pilot.pilot_id,
+          phase: 'progress',
+          snapshot: current,
+        });
+        return res.status(202).json({
+          pilot,
+          current,
+          evaluation,
+          provisional: true,
+          next_evaluation_at: pilot.end_at,
+        });
+      }
+      events.createProductivitySnapshot({
+        pilot_id: pilot.pilot_id,
+        phase: 'evaluation',
+        snapshot: current,
+      });
+      const pilotStatus =
+        evaluation.passed === true
+          ? 'passed'
+          : evaluation.passed === false
+            ? 'needs-adjustment'
+            : 'active';
+      const updated = events.updateProductivityPilot(pilot.pilot_id, {
+        status: pilotStatus,
+        evaluation,
+      });
+      res.json({ pilot: updated, current, evaluation });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   // Operator-triggered executive runs are detached because a full pass can
   // take several minutes. The action row is created before spawning so the UI
   // has an immediate, durable run handle and can poll it safely.
@@ -3523,28 +3798,28 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // A detached manual worker can disappear during a dashboard/container
       // restart. Reconcile that durable row here as well as when starting a
       // new run; otherwise the UI can report a run as active forever.
-      const orphaned = actions.filter(
-        row =>
-          row.status === 'started' && row.target_type === 'manual-executive-run' && row.result?.pid
+      const orphaned = actions.filter(row =>
+        executiveRunRecovery.isOrphanedManualRun(row, {
+          pidAlive: pid => {
+            try {
+              process.kill(pid, 0);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+        })
       );
       for (const run of orphaned) {
-        let running = true;
-        try {
-          process.kill(Number(run.result.pid), 0);
-        } catch {
-          running = false;
-        }
-        if (!running) {
-          executive.finishAction(events, run.action_id, {
-            status: 'failed',
-            error: 'manual executive run was orphaned after its worker process exited',
-            result: {
-              ...run.result,
-              orphaned_at: new Date().toISOString(),
-              orphaned_pid: run.result.pid,
-            },
-          });
-        }
+        executive.finishAction(events, run.action_id, {
+          status: 'failed',
+          error: 'manual executive run was orphaned after its worker process exited',
+          result: {
+            ...run.result,
+            orphaned_at: new Date().toISOString(),
+            orphaned_pid: run.result.pid,
+          },
+        });
       }
       if (orphaned.length) actions = events.listExecutiveActions({ limit: 5000 });
       const manual = actions.filter(row => row.target_type === 'manual-executive-run');
@@ -3758,25 +4033,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         .listExecutiveActions({ limit: 100 })
         .filter(row => row.target_type === 'manual-executive-run');
       const active = recent.find(row => row.status === 'started');
-      if (active && active.result?.pid) {
-        let running = true;
-        try {
-          process.kill(Number(active.result.pid), 0);
-        } catch {
-          running = false;
-        }
-        if (!running) {
-          executive.finishAction(events, active.action_id, {
-            status: 'failed',
-            error: 'manual executive run was orphaned after its worker process exited',
-            result: {
-              ...active.result,
-              orphaned_at: new Date().toISOString(),
-              orphaned_pid: active.result.pid,
-            },
-          });
-        }
-      }
+      if (
+        executiveRunRecovery.isOrphanedManualRun(active, {
+          pidAlive: pid => {
+            try {
+              process.kill(pid, 0);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+        })
+      )
+        executive.finishAction(events, active.action_id, {
+          status: 'failed',
+          error: 'manual executive run was orphaned after its worker process exited',
+          result: {
+            ...active.result,
+            orphaned_at: new Date().toISOString(),
+            orphaned_pid: active.result.pid,
+          },
+        });
       const stillActive =
         recent.find(row => row.status === 'started' && row.action_id === active?.action_id) &&
         events.getExecutiveAction(active.action_id)?.status === 'started';
@@ -4258,7 +4535,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/work-items', (req, res) => {
     try {
       if (req.query.source_type === 'owner-request') executive.ensureOwnerRequests(events);
-      res.json({ work_items: events.listExecutiveWorkItems(req.query) });
+      res.json({
+        work_items: events.listExecutiveWorkItems({
+          ...req.query,
+          // Owner-facing UI is quiet by default. Auditors and role tooling can
+          // request quiet system follow-through explicitly with quiet=0.
+          quiet: req.query.quiet === undefined ? '1' : req.query.quiet,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
@@ -4341,9 +4625,168 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/executive/projects', (req, res) => {
+    try {
+      res.json({ projects: events.listExecutiveProjects(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/projects', (req, res) => {
+    try {
+      res.status(201).json({ project: events.createExecutiveProject(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/executive/projects/:id', (req, res) => {
+    try {
+      res.json({ project: events.updateExecutiveProject(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/plans', (req, res) => {
+    try {
+      res.json({ plans: events.listExecutivePlans(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans', (req, res) => {
+    try {
+      res.status(201).json({ plan: events.createExecutivePlan(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/plans/:id', (req, res) => {
+    try {
+      const plan = events.getExecutivePlan(req.params.id);
+      if (!plan) return res.status(404).json({ error: 'plan not found' });
+      res.json({
+        plan,
+        versions: events.listExecutivePlanVersions(plan.plan_id),
+        approvals: events.listExecutivePlanApprovals(plan.plan_id),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/versions', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ version: events.addExecutivePlanVersion(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/approve', (req, res) => {
+    try {
+      res.json({
+        plan: events.decideExecutivePlan(req.params.id, {
+          ...(req.body || {}),
+          decision: 'approved',
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/plans/:id/reject', (req, res) => {
+    try {
+      res.json({
+        plan: events.decideExecutivePlan(req.params.id, {
+          ...(req.body || {}),
+          decision: 'rejected',
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/work-items/:id/comments', (req, res) => {
+    try {
+      res.json({
+        comments: events.listWorkComments({ work_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/comments', (req, res) => {
+    try {
+      res.status(201).json({
+        comment: events.createWorkComment({ ...(req.body || {}), work_id: req.params.id }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/work-items/:id/attachments', (req, res) => {
+    try {
+      res.json({
+        attachments: events.listWorkAttachments({ work_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/attachments', (req, res) => {
+    try {
+      res.status(201).json({
+        attachment: events.createWorkAttachment({ ...(req.body || {}), work_id: req.params.id }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.patch('/api/executive/work-items/:id', (req, res) => {
     try {
       res.json({ work_item: events.updateExecutiveWorkItem(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/claim', (req, res) => {
+    try {
+      const workItem = events.claimExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body?.lease_seconds
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item is already claimed or unavailable' });
+      res.json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/heartbeat', (req, res) => {
+    try {
+      const workItem = events.heartbeatExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body?.lease_seconds
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item lease is not owned by this worker' });
+      res.json({ work_item: workItem });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/work-items/:id/release', (req, res) => {
+    try {
+      const workItem = events.releaseExecutiveWorkItem(
+        req.params.id,
+        req.body?.lease_owner,
+        req.body || {}
+      );
+      if (!workItem)
+        return res.status(409).json({ error: 'work item lease is not owned by this worker' });
+      res.json({ work_item: workItem });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4365,6 +4808,853 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.patch('/api/executive/knowledge/:id', (req, res) => {
     try {
       res.json({ knowledge: events.updateExecutiveKnowledge(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  // Executive platform identity and work APIs. These endpoints expose the
+  // durable primitives used by external agents and the runtime console.
+  app.get('/api/platform/users', (req, res) =>
+    res.json({ users: events.listHumanUsers(req.query) })
+  );
+  app.post('/api/platform/users', (req, res) => {
+    try {
+      res.status(201).json({ user: events.createHumanUser(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/credentials', (req, res) => {
+    try {
+      res.status(201).json({
+        credential: events.createApiCredential({
+          ...(req.body || {}),
+          user_id: req.body?.user_id || req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/credentials/:id/revoke', (req, res) => {
+    try {
+      res.json({ credential: events.revokeApiCredential(req.params.id) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/invites', (req, res) => {
+    try {
+      res.status(201).json({
+        invite: events.createOrganizationInvite({
+          ...(req.body || {}),
+          invited_by: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/platform/invites/accept', (req, res) => {
+    try {
+      res.json({
+        membership: events.acceptOrganizationInvite(
+          req.body?.token,
+          req.body?.user_id || req.platformActor.actor_id
+        ),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/platform/actor', (req, res) => res.json({ actor: req.platformActor }));
+  app.post('/api/agent-sessions', (req, res) => {
+    try {
+      res.status(201).json({ session: events.createAgentSession(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-sessions/:id/heartbeat', (req, res) => {
+    try {
+      res.json({ session: events.heartbeatAgentSession(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues', (req, res) =>
+    res.json({ issues: events.listAgentIssues(req.query) })
+  );
+  app.post('/api/agent-issues', (req, res) => {
+    try {
+      res.status(201).json({
+        issue: events.createAgentIssue({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-issues/:id', (req, res) => {
+    try {
+      res.json({ issue: events.updateAgentIssue(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-issues/:id/checkout', (req, res) => {
+    try {
+      const issue = events.checkoutAgentIssue(
+        req.params.id,
+        req.body?.owner || req.platformActor.actor_id,
+        req.body?.lease_seconds
+      );
+      if (!issue) return res.status(409).json({ error: 'issue is already checked out or closed' });
+      res.json({ issue });
+    } catch (e) {
+      res.status(e.httpStatus || 409).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-issues/:id/dependencies', (req, res) => {
+    try {
+      res.status(201).json({
+        dependency: events.addAgentIssueDependency({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/execution-policies', (req, res) =>
+    res.json({ policies: events.listExecutionPolicies(req.query) })
+  );
+  app.post('/api/execution-policies', (req, res) => {
+    try {
+      res.status(201).json({
+        policy: events.upsertExecutionPolicy({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/governance-decisions', (req, res) =>
+    res.json({ decisions: events.listGovernanceDecisions(req.query) })
+  );
+  app.post('/api/governance-decisions', (req, res) => {
+    try {
+      res.status(201).json({
+        decision: events.createGovernanceDecision({
+          ...(req.body || {}),
+          actor_id: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/eval-suites', (req, res) => res.json({ suites: events.listEvalSuites(req.query) }));
+  app.post('/api/eval-suites', (req, res) => {
+    try {
+      res.status(201).json({
+        suite: events.createEvalSuite({
+          ...(req.body || {}),
+          created_by: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/eval-runs', (req, res) => res.json({ runs: events.listEvalRuns(req.query) }));
+  app.post('/api/eval-runs', (req, res) => {
+    try {
+      res.status(201).json({ run: events.createEvalRun(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/eval-runs/execute', async (req, res) => {
+    try {
+      res.status(201).json({ run: await evalRunner.run(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/object-blobs', (req, res) =>
+    res.json({ blobs: events.listObjectBlobs(req.query) })
+  );
+  app.post('/api/object-blobs', (req, res) => {
+    try {
+      res.status(201).json({ blob: events.createObjectBlob(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/object-blobs/:id/content', (req, res) => {
+    try {
+      const blob = events.getObjectBlob(req.params.id);
+      if (!blob || !blob.storage_uri.startsWith('file://'))
+        return res.status(404).json({ error: 'local object content not found' });
+      const file = new URL(blob.storage_uri).pathname;
+      if (!fs.existsSync(file)) return res.status(404).json({ error: 'object content missing' });
+      res
+        .type(blob.content_type)
+        .set('Content-Length', String(blob.byte_size))
+        .send(fs.readFileSync(file));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agents', (req, res) => {
+    try {
+      res.json({ agents: events.listAgents(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues/:id/comments', (req, res) =>
+    res.json({
+      comments: events.listAgentIssueComments({ issue_id: req.params.id, limit: req.query.limit }),
+    })
+  );
+  app.post('/api/agent-issues/:id/comments', (req, res) => {
+    try {
+      res.status(201).json({
+        comment: events.createAgentIssueComment({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+          actor_id: req.platformActor.actor_id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-issues/:id/attachments', (req, res) =>
+    res.json({
+      attachments: events.listAgentIssueAttachments({
+        issue_id: req.params.id,
+        limit: req.query.limit,
+      }),
+    })
+  );
+  app.post('/api/agent-issues/:id/attachments', (req, res) => {
+    try {
+      res.status(201).json({
+        attachment: events.createAgentIssueAttachment({
+          ...(req.body || {}),
+          issue_id: req.params.id,
+        }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/organizations', (req, res) => {
+    try {
+      res.json({ organizations: events.listOrganizations(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/organizations', (req, res) => {
+    try {
+      res.status(201).json({ organization: events.createOrganization(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/organizations/:id/export', (req, res) => {
+    try {
+      res.json(organizationPortability.exportOrganization(events, req.params.id));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/organizations/import', (req, res) => {
+    try {
+      res.status(201).json(organizationPortability.importOrganization(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/organization-members', (req, res) => {
+    try {
+      res.json({ members: events.listOrganizationMembers(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/organization-members', (req, res) => {
+    try {
+      res.status(201).json({ member: events.upsertOrganizationMember(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agents', (req, res) => {
+    try {
+      res.status(201).json({ agent: events.createAgent(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agents/:id', (req, res) => {
+    try {
+      const agent = events.getAgent(req.params.id);
+      if (!agent) return res.status(404).json({ error: 'agent not found' });
+      res.json({ agent });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agents/:id', (req, res) => {
+    try {
+      res.json({ agent: events.updateAgent(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-runs', (req, res) => {
+    try {
+      res.json({ runs: events.listAgentRuns(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-dispatches', (req, res) => {
+    try {
+      res.json({ dispatches: events.listAgentDispatches(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-dispatches/claim', (req, res) => {
+    try {
+      const dispatch = agentDispatcher.claim(events, req.body?.worker_id, req.body || {});
+      res.status(dispatch ? 200 : 204).json(dispatch ? { dispatch } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-dispatches/:id/complete', (req, res) => {
+    try {
+      res.json({ dispatch: events.completeAgentDispatch(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-runs', (req, res) => {
+    try {
+      const started = agentRuntime.beginRun(events, req.body || {});
+      res.status(started.reused ? 200 : 201).json(started);
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-runs/:id', (req, res) => {
+    try {
+      const body = req.body || {};
+      if (['succeeded', 'failed', 'cancelled'].includes(body.status)) {
+        const current = events.getAgentRun(req.params.id);
+        if (!current) return res.status(404).json({ error: 'agent run not found' });
+        return res.json({
+          run: agentRuntime.finish(events, req.params.id, {
+            ...body,
+            cost_usd: body.cost_usd ?? current.cost_usd,
+            input_tokens: body.input_tokens ?? current.input_tokens,
+            output_tokens: body.output_tokens ?? current.output_tokens,
+          }),
+        });
+      }
+      res.json({ run: events.updateAgentRun(req.params.id, body) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-artifacts', (req, res) => {
+    try {
+      res.json({ artifacts: events.listAgentArtifacts(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-artifacts', (req, res) => {
+    try {
+      res.status(201).json({ artifact: events.createAgentArtifact(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/budgets', (req, res) => {
+    try {
+      res.json({ budgets: events.listBudgetPolicies(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets', (req, res) => {
+    try {
+      res.status(201).json({ budget: events.upsertBudgetPolicy(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets/reserve', (req, res) => {
+    try {
+      const result = events.reserveBudget(req.body || {});
+      res.status(result.allowed ? 200 : 409).json(result);
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/budgets/enforce', (req, res) => {
+    try {
+      res.json({ stopped: events.enforceBudgetStops() });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-routines', (req, res) => {
+    try {
+      res.json({ routines: events.listAgentRoutines(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-routines', (req, res) => {
+    try {
+      res.status(201).json({ routine: events.createAgentRoutine(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agent-routines/:id', (req, res) => {
+    try {
+      res.json({ routine: events.touchAgentRoutine(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-watchdogs', (req, res) => {
+    try {
+      res.json({ watchdogs: events.listAgentWatchdogs(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-watchdogs', (req, res) => {
+    try {
+      res.status(201).json({ watchdog: events.createAgentWatchdog(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-watchdogs/audit', (req, res) => {
+    try {
+      res.json(events.auditAgentWatchdogs());
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-heartbeat/tick', (req, res) => {
+    try {
+      res.json(agentHeartbeat.tick(events));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-events/trigger', (req, res) => {
+    try {
+      res.json(agentHeartbeat.triggerEvent(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-delegations', (req, res) => {
+    try {
+      res.json({ delegations: events.listAgentDelegations(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-delegations', (req, res) => {
+    try {
+      res.status(201).json({ delegation: events.upsertAgentDelegation(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-providers', (req, res) => {
+    try {
+      res.json({ providers: events.listRuntimeProviders(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-providers', (req, res) => {
+    try {
+      res.status(201).json({ provider: events.upsertRuntimeProvider(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-evals', (req, res) => {
+    try {
+      res.json({ evaluations: events.listAgentEvals(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-evals', (req, res) => {
+    try {
+      res.status(201).json({ evaluation: events.createAgentEval(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agents/:id/evals/summary', (req, res) => {
+    try {
+      res.json({ summary: events.agentEvalSummary(req.params.id) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-tools', (req, res) => {
+    try {
+      res.json({ grants: events.listAgentToolGrants(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-tools', (req, res) => {
+    try {
+      res.status(201).json({ grant: events.upsertAgentToolGrant(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-tools/check', (req, res) => {
+    try {
+      res.json(
+        events.canAgentUseTool(req.query.agent_id, req.query.tool_name, {
+          site: req.query.site,
+          approved: req.query.approved === 'true',
+        })
+      );
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-tools/invoke', (req, res) => {
+    try {
+      res.json(agentToolGateway.invoke(events, req.body || {}));
+    } catch (e) {
+      res.status(e.httpStatus || 403).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-secrets', (req, res) => {
+    try {
+      res.json({ secrets: events.listAgentSecrets(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-secrets', (req, res) => {
+    try {
+      res.status(201).json({ secret: events.upsertAgentSecret(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-secrets/resolve', (req, res) => {
+    try {
+      res.json({ value: events.resolveAgentSecret(req.body?.name, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 403).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-skills', (req, res) => {
+    try {
+      res.json({ skills: events.listAgentSkills(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skills', (req, res) => {
+    try {
+      res.status(201).json({ skill: events.createAgentSkill(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skills/:id/versions', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ version: events.publishAgentSkillVersion(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-skill-assignments', (req, res) => {
+    try {
+      res.status(201).json({ assignment: events.assignAgentSkill(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-skill-assignments', (req, res) => {
+    try {
+      res.json({ assignments: events.listAgentAssignments(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-memories', (req, res) => {
+    try {
+      res.json({ memories: events.listAgentMemories(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-memories', (req, res) => {
+    try {
+      res.status(201).json({ memory: events.upsertAgentMemory(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-adapters', (req, res) =>
+    res.json({ adapters: events.listRuntimeAdapters(req.query) })
+  );
+  app.post('/api/runtime-adapters', (req, res) => {
+    try {
+      res.status(201).json({ adapter: events.upsertRuntimeAdapter(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-adapters/:id/heartbeat', (req, res) => {
+    try {
+      res.json({ adapter: events.heartbeatRuntimeAdapter(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  // Minimal MCP JSON-RPC gateway. Tool calls remain queued through the
+  // governed connector worker, so an HTTP client cannot execute host actions
+  // directly from this route.
+  app.post('/api/mcp/:connectorId', (req, res) => {
+    try {
+      const message = req.body || {};
+      const connector = events.getRuntimeConnector(req.params.connectorId);
+      if (!connector || connector.status !== 'active')
+        return res.status(404).json({ error: 'active connector not found' });
+      if (message.method === 'initialize') {
+        const session = events.createMcpSession({
+          connector_id: connector.connector_id,
+          protocol_version: message.params?.protocolVersion,
+          client_info: message.params?.clientInfo,
+        });
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            protocolVersion: session.protocol_version,
+            capabilities: { tools: { listChanged: false } },
+            serverInfo: { name: connector.slug, version: '1.0.0' },
+            sessionId: session.session_id,
+          },
+        });
+      }
+      if (message.method === 'tools/list')
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            tools: connector.capabilities.map(name => ({
+              name,
+              description: `Governed ${name} connector operation`,
+              inputSchema: { type: 'object' },
+            })),
+          },
+        });
+      if (message.method === 'tools/call') {
+        const name = String(message.params?.name || '');
+        const call = events.enqueueRuntimeConnectorCall({
+          connector_id: connector.connector_id,
+          operation: name,
+          payload: message.params?.arguments || {},
+          idempotency_key: message.params?.idempotencyKey,
+        });
+        return res.json({
+          jsonrpc: '2.0',
+          id: message.id ?? null,
+          result: {
+            content: [{ type: 'text', text: `queued connector call ${call.call_id}` }],
+            isError: false,
+            callId: call.call_id,
+          },
+        });
+      }
+      return res.status(400).json({
+        jsonrpc: '2.0',
+        id: message.id ?? null,
+        error: { code: -32601, message: 'method not found' },
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({
+        jsonrpc: '2.0',
+        id: req.body?.id ?? null,
+        error: { code: -32000, message: e.message },
+      });
+    }
+  });
+  app.get('/api/runtime-plugins', (req, res) => {
+    try {
+      res.json({ plugins: events.listRuntimePlugins(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugins', (req, res) => {
+    try {
+      res.status(201).json({ plugin: events.upsertRuntimePlugin(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-plugin-jobs', (req, res) => {
+    try {
+      res.json({ jobs: events.listRuntimePluginJobs(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs', (req, res) => {
+    try {
+      res.status(201).json({ job: events.enqueueRuntimePluginJob(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/claim', (req, res) => {
+    try {
+      const job = events.claimRuntimePluginJob(req.body?.worker_id);
+      res.status(job ? 200 : 204).json(job ? { job } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/process', async (req, res) => {
+    try {
+      res.json(await runtimePlugin.processOne(events, { workerId: req.body?.worker_id }));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-plugin-jobs/:id/complete', (req, res) => {
+    try {
+      res.json({ job: events.completeRuntimePluginJob(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-connectors', (req, res) => {
+    try {
+      res.json({ connectors: events.listRuntimeConnectors(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connectors', (req, res) => {
+    try {
+      res.status(201).json({ connector: events.upsertRuntimeConnector(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/runtime-connector-calls', (req, res) => {
+    try {
+      res.json({ calls: events.listRuntimeConnectorCalls(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls', (req, res) => {
+    try {
+      res.status(201).json({ call: events.enqueueRuntimeConnectorCall(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls/claim', (req, res) => {
+    try {
+      const call = events.claimRuntimeConnectorCall(req.body?.worker_id);
+      res.status(call ? 200 : 204).json(call ? { call } : {});
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/runtime-connector-calls/:id/complete', (req, res) => {
+    try {
+      res.json({ call: events.completeRuntimeConnectorCall(req.params.id, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-runs/:id/logs', (req, res) => {
+    try {
+      res.json({
+        logs: events.listAgentRunLogs({ run_id: req.params.id, limit: req.query.limit }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-runs/:id/logs', (req, res) => {
+    try {
+      res
+        .status(201)
+        .json({ log: events.appendAgentRunLog({ ...(req.body || {}), run_id: req.params.id }) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.get('/api/agent-workspaces', (req, res) => {
+    try {
+      res.json({ workspaces: events.listAgentWorkspaces(req.query) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces', (req, res) => {
+    try {
+      res.status(201).json({ workspace: events.createAgentWorkspace(req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces/provision', async (req, res) => {
+    try {
+      res.status(201).json({ workspace: await runtimeProvider.provision(events, req.body || {}) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agent-workspaces/:id/close', async (req, res) => {
+    try {
+      const workspace = await runtimeProvider.close(events, req.params.id);
+      if (!workspace) return res.status(404).json({ error: 'active workspace not found' });
+      res.json({ workspace });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
@@ -4635,6 +5925,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           reviewer: started,
         });
       }
+      // A reviewer can persist an infrastructure failure as a terminal
+      // `failed` run before the recovery sweep projects it back to `review`.
+      // Reuse the same guarded preservation path here so an operator retry
+      // does not discard a valid isolated implementation or start a fresh
+      // implementation attempt against the same evidence.
+      if (
+        existingRun?.state === 'failed' &&
+        improvements.canRecoverInfrastructureReview(existingRun, {
+          state: 'building',
+          recover_infrastructure: true,
+        })
+      ) {
+        const preserved = preserveInfrastructureBlockedReview(existing, existingRun, {
+          message:
+            existingRun.outcome?.infrastructure_error ||
+            existingRun.outcome?.error ||
+            existing.error ||
+            'validation infrastructure is unavailable; implementation is preserved for revalidation',
+          validation: existingRun.validation,
+        });
+        if (preserved) {
+          const started = await autoReviewRequest(existing.request_id);
+          return res.status(202).json({
+            revalidated_in_place: true,
+            request: events.getChangeRequest(existing.request_id),
+            run: events.getImprovement(existingRun.run_id),
+            reviewer: started,
+          });
+        }
+      }
       // Preserve a dirty reviewer worktree and repair it in place. The normal
       // retry path intentionally refuses dirty cleanup, but a successful
       // reviewer process that rejected the change is exactly the bounded
@@ -4646,7 +5966,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         })
       ) {
-        const started = startAutomaticReviewRepair(
+        const started = await startAutomaticReviewRepair(
           existing,
           existingRun,
           new Error(existing.error || 'reviewer rejected the change; bounded repair requested')
@@ -7018,10 +8338,7 @@ async function validatePreview(instance, url) {
           status: /G-[A-Z0-9]+|googletagmanager|dataLayer/i.test(html) ? 'pass' : 'warn',
         },
         accessibility_structure: {
-          status:
-            /<main\b/i.test(html) && /<h1\b/i.test(html) && /\blang=["'][^"']+/i.test(html)
-              ? 'pass'
-              : 'fail',
+          ...accessibilityStructureCheck(html),
         },
         structured_data: { status: /application\/ld\+json/i.test(html) ? 'pass' : 'warn' },
       };
@@ -7069,6 +8386,28 @@ async function validatePreview(instance, url) {
       if (attempt < 5) await new Promise(resolve => setTimeout(resolve, 1000));
     }
   return out;
+}
+
+function accessibilityStructureCheck(html) {
+  const hasLanguage = /\blang=["'][^"']+/i.test(String(html || ''));
+  const hasDocumentStructure =
+    /<main\b/i.test(String(html || '')) && /<h1\b/i.test(String(html || ''));
+  if (hasLanguage && hasDocumentStructure) return { status: 'pass' };
+  // Vite/React and similar client-rendered sites cannot expose their final
+  // landmark tree in the raw preview HTML. Treat a correctly language-tagged
+  // application shell as structurally valid here, but leave the browser and
+  // Lighthouse accessibility checks as the authoritative rendered-page gate.
+  if (hasLanguage && /id=["']root["']/i.test(String(html || '')))
+    return {
+      status: 'pass',
+      evidence:
+        'client-rendered application shell; rendered accessibility remains a browser-gated check',
+    };
+  return {
+    status: 'fail',
+    evidence:
+      'preview HTML must provide lang plus main/h1, or a lang-tagged client-rendered #root shell',
+  };
 }
 
 // One process per repo root may run the side-effecting background pollers
@@ -7154,4 +8493,5 @@ module.exports = {
   shouldValidateBeforeDelivery,
   requiresInstalledSiteOwner,
   applyQualityPolicy,
+  accessibilityStructureCheck,
 };

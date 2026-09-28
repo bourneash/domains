@@ -95,6 +95,11 @@ BUILTIN_DEFAULTS: dict[str, Any] = {
     # source covers are always preferred, and generation is best-effort.
     "media": {
         "generate_missing": False,
+        "timeout": 120,
+        "health_timeout": 5,
+        "failure_threshold": 3,
+        "cooldown_seconds": 300,
+        "default_image_first": False,
     },
     "attribution": {
         "enabled": True,

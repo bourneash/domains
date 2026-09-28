@@ -20,6 +20,11 @@ const ACTORS = new Set([
   'reviewer',
   'system',
   'project-manager',
+  'delivery-lead',
+  'design-director',
+  'growth-director',
+  'revenue-ops',
+  'site-factory',
 ]);
 const PROPOSAL_TYPES = new Set([
   'business',
@@ -45,7 +50,15 @@ const ACTION_TYPES = new Set([
   'other',
 ]);
 const changequeue = require('./changequeue');
-const OWNER_REQUEST_LIFECYCLE = new Set(['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'closed', 'snoozed']);
+const OWNER_REQUEST_LIFECYCLE = new Set([
+  'submitted',
+  'acknowledged',
+  'answered',
+  'actioned',
+  'measured',
+  'closed',
+  'snoozed',
+]);
 const OWNER_REQUEST_TRANSITIONS = {
   submitted: new Set(['acknowledged', 'answered', 'snoozed', 'closed']),
   acknowledged: new Set(['answered', 'actioned', 'snoozed', 'closed']),
@@ -68,11 +81,18 @@ function message(store, input = {}) {
   }
   if (workId && store.getExecutiveWorkItem && !store.getExecutiveWorkItem(workId))
     throw httpErr(400, 'message references an unknown work item');
-  const created = store.createExecutiveMessage({ ...input, actor: String(input.actor), work_id: workId });
+  const created = store.createExecutiveMessage({
+    ...input,
+    actor: String(input.actor),
+    work_id: workId,
+  });
   if (created.work_id && created.actor !== 'owner' && store.getExecutiveWorkItem) {
     const workItem = store.getExecutiveWorkItem(created.work_id);
     if (workItem?.source_type === 'owner-request') {
-      if (!['closed', 'done', 'cancelled'].includes(workItem.lifecycle_state) && workItem.lifecycle_state !== 'answered') {
+      if (
+        !['closed', 'done', 'cancelled'].includes(workItem.lifecycle_state) &&
+        workItem.lifecycle_state !== 'answered'
+      ) {
         store.updateExecutiveWorkItem(workItem.work_id, {
           status: 'in_progress',
           lifecycle_state: 'answered',
@@ -92,7 +112,9 @@ function message(store, input = {}) {
       });
       if (notification) {
         try {
-          void require('./executive-notify').drain(store).catch(() => {});
+          void require('./executive-notify')
+            .drain(store)
+            .catch(() => {});
         } catch {
           // External notification is optional and must never block the reply.
         }
@@ -134,7 +156,9 @@ function ownerRequest(store, input = {}) {
 function ensureOwnerRequests(store) {
   for (const item of store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })) {
     if (!OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state) || item.lifecycle_state === 'open') {
-      const hasResponse = store.listExecutiveMessages({ work_id: item.work_id, limit: 100 }).some(message => message.actor !== 'owner');
+      const hasResponse = store
+        .listExecutiveMessages({ work_id: item.work_id, limit: 100 })
+        .some(message => message.actor !== 'owner');
       store.updateExecutiveWorkItem(item.work_id, {
         lifecycle_state: hasResponse ? 'answered' : 'submitted',
         answered_at: hasResponse ? item.answered_at || new Date().toISOString() : item.answered_at,
@@ -174,8 +198,11 @@ function transitionOwnerRequest(store, id, lifecycleState, patch = {}) {
   const item = store.getExecutiveWorkItem(id);
   if (!item || item.source_type !== 'owner-request') throw httpErr(404, 'owner request not found');
   const nextState = String(lifecycleState || '').trim();
-  if (!OWNER_REQUEST_LIFECYCLE.has(nextState)) throw httpErr(400, 'invalid owner request lifecycle state');
-  const currentState = OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state) ? item.lifecycle_state : 'submitted';
+  if (!OWNER_REQUEST_LIFECYCLE.has(nextState))
+    throw httpErr(400, 'invalid owner request lifecycle state');
+  const currentState = OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state)
+    ? item.lifecycle_state
+    : 'submitted';
   if (currentState !== nextState && !OWNER_REQUEST_TRANSITIONS[currentState]?.has(nextState)) {
     throw httpErr(409, `cannot move owner request from ${currentState} to ${nextState}`);
   }
@@ -186,12 +213,28 @@ function transitionOwnerRequest(store, id, lifecycleState, patch = {}) {
   const updated = store.updateExecutiveWorkItem(id, {
     ...patch,
     lifecycle_state: nextState,
-    acknowledged_at: ['acknowledged', 'answered', 'actioned', 'measured', 'closed'].includes(nextState) ? item.acknowledged_at || now : item.acknowledged_at,
-    answered_at: ['answered', 'actioned', 'measured', 'closed'].includes(nextState) ? item.answered_at || now : item.answered_at,
+    acknowledged_at: ['acknowledged', 'answered', 'actioned', 'measured', 'closed'].includes(
+      nextState
+    )
+      ? item.acknowledged_at || now
+      : item.acknowledged_at,
+    answered_at: ['answered', 'actioned', 'measured', 'closed'].includes(nextState)
+      ? item.answered_at || now
+      : item.answered_at,
     closed_at: nextState === 'closed' ? item.closed_at || now : null,
-    status: nextState === 'closed' ? 'done' : nextState === 'snoozed' ? 'waiting' : item.status === 'done' ? 'in_progress' : item.status,
+    status:
+      nextState === 'closed'
+        ? 'done'
+        : nextState === 'snoozed'
+          ? 'waiting'
+          : item.status === 'done'
+            ? 'in_progress'
+            : item.status,
     waiting_on: nextState === 'closed' ? null : patch.waiting_on || item.waiting_on,
-    resolution_note: nextState === 'closed' ? String(patch.outcome || item.outcome || '').trim() : item.resolution_note,
+    resolution_note:
+      nextState === 'closed'
+        ? String(patch.outcome || item.outcome || '').trim()
+        : item.resolution_note,
     outcome: String(patch.outcome || item.outcome || '').trim() || null,
   });
   if (store.record && currentState !== nextState) {
@@ -228,9 +271,10 @@ function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
 
   const title = String(input.title || 'the requested work').trim();
   const target = input.site ? ` for ${input.site}` : '';
-  const body = downstreamType === 'change-request'
-    ? `Acknowledged. We have queued agents to work on “${title}”${target}. I’ll report back in this thread as the work progresses.`
-    : `Acknowledged. We’re moving this into the executive ${downstreamType} track: “${title}”${target}. I’ll report back in this thread when there is a concrete outcome.`;
+  const body =
+    downstreamType === 'change-request'
+      ? `Acknowledged. We have queued agents to work on “${title}”${target}. I’ll report back in this thread as the work progresses.`
+      : `Acknowledged. We’re moving this into the executive ${downstreamType} track: “${title}”${target}. I’ll report back in this thread when there is a concrete outcome.`;
   const response = message(store, {
     actor: 'ceo',
     body,
@@ -249,15 +293,18 @@ function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
   const current = store.getExecutiveWorkItem(source.work_id);
   if (current && !['closed', 'done', 'cancelled'].includes(current.lifecycle_state)) {
     const targetState = downstreamType === 'change-request' ? 'actioned' : 'answered';
-    const patch = downstreamType === 'change-request'
-      ? {
-          waiting_on: 'worker',
-          next_action: 'Worker execution is queued; progress and results will be posted to this thread.',
-        }
-      : {
-          waiting_on: 'executive-team',
-          next_action: 'Executive follow-through is linked below; review the thread for the resulting decision or implementation handoff.',
-        };
+    const patch =
+      downstreamType === 'change-request'
+        ? {
+            waiting_on: 'worker',
+            next_action:
+              'Worker execution is queued; progress and results will be posted to this thread.',
+          }
+        : {
+            waiting_on: 'executive-team',
+            next_action:
+              'Executive follow-through is linked below; review the thread for the resulting decision or implementation handoff.',
+          };
     try {
       transitionOwnerRequest(store, source.work_id, targetState, patch);
     } catch (error) {
@@ -277,7 +324,8 @@ function escalateOverdueOwnerRequests(store, now = Date.now()) {
     if (!Number.isFinite(due) || due > now) continue;
     const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
     const dedupeKey = `executive-sla:${item.work_id}:${level}`;
-    const alreadyExists = store.listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
+    const alreadyExists = store
+      .listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
       ?.some(notification => notification.dedupe_key === dedupeKey);
     if (alreadyExists) continue;
     const notification = store.createExecutiveNotification?.({
@@ -297,11 +345,23 @@ function escalateOverdueWorkItems(store, now = Date.now()) {
   const created = [];
   for (const item of store.listExecutiveWorkItems({ limit: 1000 })) {
     if (['done', 'cancelled'].includes(item.status) || !item.due_at) continue;
+    // Quiet approved-proposal research/evidence is deliberately not an owner
+    // notification stream. It remains durable for audit, but only blocked or
+    // explicitly high-priority cases deserve an escalation.
+    if (
+      item.source_type === 'approved-proposal' &&
+      ['research', 'evidence'].includes(item.kind) &&
+      item.priority !== 'urgent' &&
+      item.priority !== 'high' &&
+      item.status !== 'blocked'
+    )
+      continue;
     const due = Date.parse(item.due_at);
     if (!Number.isFinite(due) || due > now) continue;
     const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;
     const dedupeKey = `executive-work-sla:${item.work_id}:${level}`;
-    const alreadyExists = store.listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
+    const alreadyExists = store
+      .listExecutiveNotifications?.({ recipient: item.created_by || 'owner', limit: 500 })
       ?.some(notification => notification.dedupe_key === dedupeKey);
     if (alreadyExists) continue;
     const notification = store.createExecutiveNotification?.({
@@ -339,9 +399,16 @@ function health(store, now = Date.now()) {
       : null,
     work: {
       total: work.length,
-      overdue: work.filter(item => item.due_at && Date.parse(item.due_at) <= now && !['done', 'cancelled'].includes(item.status)).length,
+      overdue: work.filter(
+        item =>
+          item.due_at &&
+          Date.parse(item.due_at) <= now &&
+          !['done', 'cancelled'].includes(item.status)
+      ).length,
       blocked: work.filter(item => item.status === 'blocked').length,
-      leased: work.filter(item => item.lease_owner && item.lease_expires_at && Date.parse(item.lease_expires_at) > now).length,
+      leased: work.filter(
+        item => item.lease_owner && item.lease_expires_at && Date.parse(item.lease_expires_at) > now
+      ).length,
     },
   };
 }
@@ -361,12 +428,18 @@ function proposal(store, input = {}) {
       'security',
       'domain-manager',
       'researcher',
-    ].includes(
-      String(input.created_by || 'ceo')
-    )
+      'delivery-lead',
+      'design-director',
+      'growth-director',
+      'revenue-ops',
+      'site-factory',
+    ].includes(String(input.created_by || 'ceo'))
   )
     throw httpErr(400, 'proposals must be created by an executive role or researcher');
-  const created = store.createExecutiveProposal({ ...input, created_by: String(input.created_by || 'ceo') });
+  const created = store.createExecutiveProposal({
+    ...input,
+    created_by: String(input.created_by || 'ceo'),
+  });
   // Give every proposal a durable conversation anchor immediately. The PM
   // migration also backfills older proposals created before this behavior.
   const workId = `executive-proposal:${created.proposal_id}`;
@@ -374,7 +447,12 @@ function proposal(store, input = {}) {
     store.createExecutiveWorkItem({
       work_id: workId,
       title: `Proposal thread: ${created.title}`,
-      kind: created.proposal_type === 'report-only' ? 'research' : created.created_by === 'security' ? 'security' : 'decision',
+      kind:
+        created.proposal_type === 'report-only'
+          ? 'research'
+          : created.created_by === 'security'
+            ? 'security'
+            : 'decision',
       status: 'waiting',
       priority: 'normal',
       owner: 'project-manager',
@@ -382,7 +460,8 @@ function proposal(store, input = {}) {
       source_id: created.proposal_id,
       site: created.implementation?.site || null,
       summary: created.summary,
-      next_action: 'Owner decision required: approve, request changes, or decline. Continue discussion in this thread.',
+      next_action:
+        'Owner decision required: approve, request changes, or decline. Continue discussion in this thread.',
       waiting_on: 'owner',
       created_by: created.created_by,
     });
@@ -457,13 +536,20 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
       body: input.decision_note || `Owner marked this proposal ${proposal.status}.`,
       work_id: workId,
       message_type: proposal.status === 'feedback' ? 'question' : 'decision_request',
-      metadata: { proposal_id: proposal.proposal_id, status: proposal.status, to: proposal.created_by },
+      metadata: {
+        proposal_id: proposal.proposal_id,
+        status: proposal.status,
+        to: proposal.created_by,
+      },
     });
     if (proposal.status === 'feedback' || proposal.status === 'approved') {
       store.createExecutiveNotification?.({
         recipient: proposal.created_by,
         notification_type: `executive-proposal-${proposal.status}`,
-        title: proposal.status === 'feedback' ? 'Executive proposal needs revision' : 'Executive proposal approved',
+        title:
+          proposal.status === 'feedback'
+            ? 'Executive proposal needs revision'
+            : 'Executive proposal approved',
         body: input.decision_note || `The owner marked “${proposal.title}” ${proposal.status}.`,
         work_id: workId,
         message_id: decisionMessage.message_id,

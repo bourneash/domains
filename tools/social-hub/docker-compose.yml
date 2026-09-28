@@ -23,6 +23,11 @@ services:
       VAULT_SERVER: "https://credential-vault:80"
       VAULT_SESSION_CACHE_FILE: "${HOME:-/home/jesse}/.social-hub-vault-session-cache"
       DATAHUB_API: "http://datahub-api:4760"
+    # media-gen-api runs in host-network mode and listens on the host's
+    # 4780 port. Linux Docker does not provide host.docker.internal unless the
+    # host-gateway mapping is declared explicitly.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - social_hub_home:${HOME:-/home/jesse}
       - ${DOMAINS_ROOT:-/home/jesse/projects/domains}:${DOMAINS_ROOT:-/home/jesse/projects/domains}

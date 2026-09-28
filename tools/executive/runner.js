@@ -14,6 +14,7 @@ const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot'
 const executiveData = require('../fleet-dashboard/server/executive-data');
 const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
 const launchReadiness = require('./launch-readiness');
+const productivityProgram = require('../fleet-dashboard/server/productivity-program');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -132,8 +133,23 @@ function completedActionIndex(store) {
   return { keys, titles, failed };
 }
 
-function actionCandidates(intelligence, sites, completed = { keys: new Set(), titles: new Set() }) {
+function actionCandidates(
+  intelligence,
+  sites,
+  completed = { keys: new Set(), titles: new Set() },
+  limit = 12
+) {
   const allowed = new Set(sites);
+  const inferCandidateType = (item, fallback) => {
+    const text = `${item?.kind || ''} ${item?.type || ''} ${item?.title || ''} ${item?.recommendation || ''}`;
+    if (/affiliate|attribution|amazon|revenue|conversion|monetiz/i.test(text)) return 'marketing';
+    if (
+      /seo|search|organic|gsc|crawl|sitemap|index(?:ing)?|snippet|query|internal link/i.test(text)
+    )
+      return 'seo';
+    if (/design|ux|visual|layout|imagery|accessib/i.test(text)) return 'design';
+    return item?.type || item?.kind || fallback;
+  };
   const now = Date.parse(intelligence?.generated_at || '') || Date.now();
   const seoActions = Array.isArray(intelligence?.decision_support?.seo?.actions)
     ? intelligence.decision_support.seo.actions
@@ -142,7 +158,7 @@ function actionCandidates(intelligence, sites, completed = { keys: new Set(), ti
           site: action.site,
           key: action.key || null,
           title: action.title || 'Evidence-backed SEO opportunity',
-          type: action.type || 'seo',
+          type: inferCandidateType(action, 'seo'),
           evidence: action.evidence || null,
           score: action.rankScore || action.score || 0,
           recommendation: action.recommendation || null,
@@ -156,7 +172,7 @@ function actionCandidates(intelligence, sites, completed = { keys: new Set(), ti
           site: item.site,
           key: item.id || null,
           title: item.title || 'Evidence-backed portfolio action',
-          type: item.kind || 'portfolio',
+          type: inferCandidateType(item, 'portfolio'),
           evidence: item.evidence || null,
           score: item.score || 0,
           recommendation: item.recommendation || item.title || null,
@@ -215,7 +231,56 @@ function actionCandidates(intelligence, sites, completed = { keys: new Set(), ti
       (a, b) =>
         Number(b.score || 0) - Number(a.score || 0) || String(a.site).localeCompare(String(b.site))
     )
-    .slice(0, 12);
+    .slice(0, Math.max(1, Number(limit) || 12));
+}
+
+function siteFactoryCandidates(
+  inventory,
+  queueReadySites,
+  completed = { keys: new Set(), titles: new Set() },
+  limit = 6
+) {
+  const ready = new Set(
+    (Array.isArray(queueReadySites) ? queueReadySites : [])
+      .map(site =>
+        String(site || '')
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean)
+  );
+  return (Array.isArray(inventory) ? inventory : [])
+    .filter(item => ready.has(String(item.domain || '').toLowerCase()))
+    .filter(
+      item => item.parked === true || ['scaffold', 'positioning_tbd'].includes(item.lifecycle)
+    )
+    .map(item => {
+      const site = String(item.domain).toLowerCase();
+      return {
+        site,
+        key: `site-factory:launch-readiness:${site}`,
+        title: `Prepare launch-readiness brief for ${site}`,
+        type: 'site-factory',
+        delivery_mode: 'report_only',
+        evidence: {
+          lifecycle: item.lifecycle || null,
+          parked: item.parked === true,
+          parked_days: item.parked_days ?? null,
+          capabilities: item.capabilities || [],
+          registrar_expires: item.registrar_expires || null,
+        },
+        score: Math.min(80, 60 + Math.min(20, Number(item.parked_days || 0) / 10)),
+        recommendation:
+          'Produce a bounded site brief covering audience fit, launch scope, SEO/content seed, analytics and affiliate readiness, legal/security checklist, and the single next owner decision. Do not deploy or add the site to production.',
+        metric: 'launch-readiness checklist completeness',
+      };
+    })
+    .filter(candidate => {
+      const titleKey = `${candidate.site}:${normalizeActionTitle(candidate.title)}`;
+      return !completed.keys.has(candidate.key) && !completed.titles.has(titleKey);
+    })
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || a.site.localeCompare(b.site))
+    .slice(0, Math.max(1, Number(limit) || 6));
 }
 
 function readSiteDescriptions(root = ROOT) {
@@ -354,7 +419,13 @@ async function buildBrief(store, root = ROOT) {
     .filter(item => ['proposed', 'feedback'].includes(item.status))
     .slice(0, 10);
   const messages = store.listExecutiveMessages({ limit: 50 });
-  const work_items = store.listExecutiveWorkItems({ limit: 100 });
+  // Owner requests are the executive team's direct inbox. They must not be
+  // displaced by the much larger historical work-item backlog before the
+  // model sees them.
+  const work_items = prioritizeExecutiveWorkItems(
+    store.listExecutiveWorkItems({ limit: 1000 }),
+    100
+  );
   const work_threads = work_items
     .filter(item => !['done', 'cancelled'].includes(item.status))
     .slice(0, 50)
@@ -416,10 +487,29 @@ async function buildBrief(store, root = ROOT) {
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
   const actionability = executiveScorecard.buildScorecard(store);
-  const allActionCandidates = actionCandidates(
-    intel.intelligence,
-    sites,
-    completedActionIndex(store)
+  const portfolioInventory = buildPortfolioInventory(root);
+  const productivityPilots = store.listProductivityPilots
+    ? store.listProductivityPilots({ limit: 10 }).map(pilot => ({
+        pilot_id: pilot.pilot_id,
+        name: pilot.name,
+        status: pilot.status,
+        lanes: pilot.lanes,
+        treatment_sites: pilot.treatment_sites,
+        control_sites: pilot.control_sites,
+        start_at: pilot.start_at,
+        end_at: pilot.end_at,
+        baseline: pilot.baseline,
+        evaluation: pilot.evaluation,
+        queue_readiness: productivityProgram.queueReadiness(store, pilot.treatment_sites),
+      }))
+    : [];
+  const fleetQueueReadiness = productivityProgram.queueReadiness(store, sites);
+  const completedActions = completedActionIndex(store);
+  const allActionCandidates = actionCandidates(intel.intelligence, sites, completedActions, 100);
+  const launchReadinessCandidates = siteFactoryCandidates(
+    portfolioInventory,
+    fleetQueueReadiness.ready_sites,
+    completedActions
   );
   // A candidate is only actionable when its site has capacity. The previous
   // brief exposed already-queued or measuring sites as fresh candidates, then
@@ -438,10 +528,15 @@ async function buildBrief(store, root = ROOT) {
     if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(run.state))
       activeSites.add(String(run.site || '').toLowerCase());
   }
-  const executableActionCandidates = allActionCandidates.filter(
-    candidate => !activeSites.has(String(candidate.site || '').toLowerCase())
-  );
-  const deferredActionCandidates = allActionCandidates
+  const combinedActionCandidates = [...allActionCandidates, ...launchReadinessCandidates];
+  const executableActionCandidates = [
+    ...new Map(
+      combinedActionCandidates
+        .filter(candidate => !activeSites.has(String(candidate.site || '').toLowerCase()))
+        .map(candidate => [String(candidate.site || '').toLowerCase(), candidate])
+    ).values(),
+  ];
+  const deferredActionCandidates = combinedActionCandidates
     .filter(candidate => activeSites.has(String(candidate.site || '').toLowerCase()))
     .slice(0, 12)
     .map(candidate => ({
@@ -452,7 +547,7 @@ async function buildBrief(store, root = ROOT) {
     generated_at: new Date().toISOString(),
     sites,
     site_context: buildSiteContext(root),
-    portfolio_inventory: buildPortfolioInventory(root),
+    portfolio_inventory: portfolioInventory,
     portfolio_policy: {
       managed_sites: 'all discovered fleet sites except 3boobs.com',
       excluded_sites: ['3boobs.com'],
@@ -511,6 +606,14 @@ async function buildBrief(store, root = ROOT) {
     },
     owner_strategy: store.getExecutiveSettings(),
     actionability,
+    productivity: {
+      pilots: productivityPilots,
+      queue_ready_fleet_sites: fleetQueueReadiness.ready_sites,
+      blocked_fleet_sites: fleetQueueReadiness.blocked_sites,
+      operating_rule:
+        'Measure verified/deployed work, cycle time, design/SEO/affiliate output, and treatment-versus-control lift. Proposals and messages are not productivity outcomes.',
+      lanes: productivityProgram.LANES,
+    },
     proposal_execution: proposalExecution,
     action_mandate: {
       cadence: 'hourly',
@@ -626,6 +729,177 @@ async function buildBrief(store, root = ROOT) {
 
 const MODEL_BRIEF_MAX_ARRAY_ITEMS = 12;
 const MODEL_BRIEF_MAX_STRING_LENGTH = 900;
+
+function isPendingOwnerRequest(item) {
+  return (
+    item?.source_type === 'owner-request' &&
+    !['done', 'cancelled', 'complete'].includes(item.status) &&
+    !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(item.lifecycle_state) &&
+    !item.answered_at
+  );
+}
+
+function prioritizeExecutiveWorkItems(items, generalLimit = 100) {
+  const rows = Array.isArray(items) ? items : [];
+  const pendingOwnerRequests = rows.filter(isPendingOwnerRequest);
+  const generalWork = rows.filter(item => !isPendingOwnerRequest(item));
+  return [...pendingOwnerRequests, ...generalWork.slice(0, Math.max(0, generalLimit))];
+}
+
+function ensureOwnerRequestCoverage(store, plan) {
+  const covered = new Set(
+    (plan.messages || [])
+      .flatMap(message => [message.work_id, message.reply_to])
+      .filter(Boolean)
+      .map(String)
+  );
+  const pendingRequests = store
+    .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+    .filter(isPendingOwnerRequest)
+    // Owner-request records predate the current prompt redaction boundary in
+    // some environments. Never reintroduce an excluded site while adding the
+    // mandatory acknowledgement messages after provider-plan sanitization.
+    .filter(item => {
+      const serialized = JSON.stringify(item || '').toLowerCase();
+      return ![...EXECUTIVE_EXCLUDED_SITES].some(site => serialized.includes(site));
+    });
+
+  // Provider passes may legitimately fill the message budget with status
+  // updates. Reserve enough room for mandatory CEO acknowledgements before
+  // appending them, otherwise a valid plan can fail only after all model work
+  // has completed. Never discard a message that is linked to durable work;
+  // only unlinked conversational updates are eligible for this compaction.
+  const missing = pendingRequests.filter(item => {
+    const workId = String(item.work_id);
+    const sourceId = item.source_id ? String(item.source_id) : null;
+    return !covered.has(workId) && !(sourceId && covered.has(sourceId));
+  }).length;
+  const maxMessages = 20;
+  if (plan.messages.length + missing > maxMessages) {
+    let removable = plan.messages
+      .map((message, index) => ({ message, index }))
+      .filter(
+        ({ message }) =>
+          !message.work_id && !message.reply_to && !message.metadata?.system_generated
+      )
+      .map(({ index }) => index)
+      .reverse();
+    const removeCount = plan.messages.length + missing - maxMessages;
+    const remove = new Set(removable.slice(0, removeCount));
+    plan.messages = plan.messages.filter((_message, index) => !remove.has(index));
+  }
+
+  // If every provider message is already linked to durable work, there may
+  // be no safe message to remove. Defer any remaining acknowledgements to the
+  // next cycle rather than exceeding the plan limit and discarding the entire
+  // executable plan. The dedicated pre-provider coverage path still drains
+  // all pending requests when called independently.
+  for (const item of pendingRequests) {
+    if (plan.messages.length >= maxMessages) break;
+    const workId = String(item.work_id);
+    const sourceId = item.source_id ? String(item.source_id) : null;
+    if (covered.has(workId) || (sourceId && covered.has(sourceId))) continue;
+
+    plan.messages.push({
+      actor: 'ceo',
+      body:
+        `Acknowledged owner request: ${item.summary}\n\n` +
+        'The executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.',
+      work_id: item.work_id,
+      reply_to: item.source_id || null,
+      message_type: 'update',
+      metadata: { system_generated: true, reason: 'owner-request-coverage' },
+    });
+    covered.add(workId);
+    if (sourceId) covered.add(sourceId);
+  }
+}
+
+function workflowEntityExists(store, type, id) {
+  if (!store || !id) return false;
+  if (type === 'work-item') return Boolean(store.getExecutiveWorkItem?.(id));
+  if (type === 'request') return Boolean(store.getChangeRequest?.(id));
+  if (type === 'proposal') return Boolean(store.getExecutiveProposal?.(id));
+  return false;
+}
+
+// Model plans may carry stale source_work_id values from a previous run. A
+// missing lineage edge must not make an otherwise valid request or proposal
+// fail atomically; the durable work remains queued and can be relinked later.
+function safeCreateWorkflowLink(store, input) {
+  if (typeof store?.createWorkflowLink !== 'function') return false;
+  if (!workflowEntityExists(store, input.from_type, input.from_id)) return false;
+  if (!workflowEntityExists(store, input.to_type, input.to_id)) return false;
+  store.createWorkflowLink(input);
+  return true;
+}
+
+function emptyPlan() {
+  return {
+    messages: [],
+    proposal_reviews: [],
+    data_requests: [],
+    proposals: [],
+    research_requests: [],
+    work_items: [],
+    knowledge: [],
+    change_requests: [],
+  };
+}
+
+const PLAN_ITEM_LIMITS = {
+  messages: 20,
+  proposal_reviews: 20,
+  data_requests: 10,
+  proposals: 20,
+  research_requests: 10,
+  work_items: 20,
+  knowledge: 20,
+  change_requests: 20,
+};
+
+function sanitizePlan(plan) {
+  const dropped = [];
+  const source = plan && typeof plan === 'object' ? plan : {};
+  for (const [key, limit] of Object.entries(PLAN_ITEM_LIMITS)) {
+    const rows = Array.isArray(source[key]) ? source[key] : [];
+    const prioritized =
+      key === 'messages'
+        ? rows.slice().sort((a, b) => {
+            const aCoverage = a?.metadata?.reason === 'owner-request-coverage' ? 0 : 1;
+            const bCoverage = b?.metadata?.reason === 'owner-request-coverage' ? 0 : 1;
+            return aCoverage - bCoverage;
+          })
+        : rows;
+    const kept = [];
+    for (const [index, item] of prioritized.entries()) {
+      if (index >= limit) {
+        dropped.push({ key, index, reason: 'per-tick item limit' });
+        continue;
+      }
+      if (/3boobs(?:\.com)?/i.test(JSON.stringify(item))) {
+        dropped.push({ key, index, reason: 'excluded site reference' });
+        continue;
+      }
+      const candidate = { ...emptyPlan(), [key]: [item] };
+      try {
+        validatePlan(candidate);
+        kept.push(item);
+      } catch (error) {
+        dropped.push({ key, index, reason: error.message });
+      }
+    }
+    source[key] = kept;
+  }
+  return dropped;
+}
+
+async function applyPendingOwnerRequestCoverage(store, { allowQueue = false, root = ROOT } = {}) {
+  const plan = emptyPlan();
+  ensureOwnerRequestCoverage(store, plan);
+  if (!plan.messages.length) return null;
+  return applyPlan(store, plan, { allowQueue, root });
+}
 
 function compactModelValue(value, depth = 0) {
   if (typeof value === 'string') {
@@ -770,9 +1044,15 @@ function compactModelBrief(brief) {
     })
   );
   const workItems = brief?.work_items || [];
-  compact.work_items = workItems
-    .filter(item => !['cancelled', 'done', 'complete'].includes(item.status))
-    .slice(0, 30)
+  const activeWorkItems = workItems.filter(
+    item => !['cancelled', 'done', 'complete'].includes(item.status)
+  );
+  // Keep every unanswered owner request in the model-visible section, even
+  // when the general backlog is large. The remaining context stays bounded.
+  const pendingOwnerRequests = activeWorkItems.filter(isPendingOwnerRequest);
+  const generalWorkItems = activeWorkItems.filter(item => !isPendingOwnerRequest(item));
+  compact.work_items = [...pendingOwnerRequests, ...generalWorkItems]
+    .slice(0, pendingOwnerRequests.length + Math.max(0, 30 - pendingOwnerRequests.length))
     .map(item => ({
       work_id: item.work_id,
       title: item.title,
@@ -815,8 +1095,38 @@ function compactModelBrief(brief) {
   return compact;
 }
 
+function modelBriefForPrompt(brief) {
+  return JSON.stringify(compactModelBrief(brief)).replaceAll('3boobs.com', '[excluded-site]');
+}
+
+// A provider can still echo an excluded identifier despite the redacted brief
+// and prompt. Keep the trusted host validator fail-closed, but do not discard
+// an otherwise useful multi-role plan because one provider-generated item is
+// contaminated. Remove only the offending item; the rest still passes through
+// the normal schema, authority, and action gates.
+function sanitizeExcludedPlanItems(plan = {}) {
+  const sanitized = { ...plan };
+  for (const key of [
+    'messages',
+    'proposal_reviews',
+    'proposals',
+    'work_items',
+    'knowledge',
+    'change_requests',
+    'research_requests',
+    'data_requests',
+  ]) {
+    if (!Array.isArray(sanitized[key])) continue;
+    sanitized[key] = sanitized[key].filter(item => {
+      const serialized = JSON.stringify(item || '').toLowerCase();
+      return ![...EXECUTIVE_EXCLUDED_SITES].some(site => serialized.includes(site));
+    });
+  }
+  return sanitized;
+}
+
 function buildPrompt(brief) {
-  const modelBrief = compactModelBrief(brief);
+  const modelBriefJson = modelBriefForPrompt(brief);
   return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, Legal/Compliance lead, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
 
 Rules:
@@ -831,11 +1141,13 @@ Rules:
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
 - Treat cro_proposals as CRO handoffs for CEO/CTO review, not owner approval requests. For each useful lead, either create a bounded public research request, create a separate owner-facing proposal with measurable acceptance criteria, or explain why no action is justified. Do not leave the lead waiting on the owner merely because it came from the CRO.
-- Manage every listed site except the explicitly excluded sites. 3boobs.com is out of scope entirely: do not analyze it, propose work for it, mention it in owner updates, or queue work for it.
+- Do not target, analyze, or mention any site marked [excluded-site] in the supplied brief. It is out of scope entirely; do not propose work for it, mention it in owner updates, or queue work for it.
 - Review portfolio_inventory when deciding where to invest. Parked/scaffold domains are owned inventory, not invisible sites: evaluate their audience fit, monetization potential, renewal cost, build effort, and opportunity cost. A new-domain/site launch always requires an owner proposal and approval before onboarding or production work.
 - The managed properties are satire/meme sites. Never infer adult or NSFW classification from a domain name. Use the supplied site description/registry evidence and owner instructions; if evidence is incomplete, say so without inventing a classification.
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
+- The CEO is accountable for throughput, not just risk disposition. Every cycle must either (a) commit a small batch of safe, reversible, measurable implementation work across the finish-sites, growth-revenue, and site-factory lanes, or (b) create/update one named delivery-lead work item with a dated unblock action, owner, and escalation deadline. “The fleet has enough to manage” is not an acceptable terminal disposition while ready work, unfinished sites, measurable SEO/design/affiliate work, or validated new-site candidates exist.
+- Use the productivity pilot cohorts when present. Prefer treatment-site work that can ship within 72 hours, keep a comparable control cohort untouched for measurement, and record the lane, acceptance test, before/after metric, rollback, and completion evidence on every selected item. Do not add a new site to production until the site-factory launch checklist is complete; do not let that gate suppress unrelated reversible work on existing sites.
 - Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, convert a clearly site-specific and explicitly report-only proposal into a bounded report request, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
 - When the approved-execution backlog is high, prioritize draining it over generating new proposals. The trusted control plane applies a small proposal budget and records any suppressed ideas for audit; use messages, work items, and execution requests to move existing commitments instead.
 - Treat approved proposals with failed or cancelled requests as unfinished. Do not blindly retry them; create or update the durable follow-through work item with the failure evidence and the smallest repair/replacement action.
@@ -859,20 +1171,20 @@ Rules:
 
 Return ONLY valid JSON with this shape:
 {
-  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
+  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
 
 Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
 
 FLEET BRIEF:
-${JSON.stringify(modelBrief)}`;
+${modelBriefJson}`;
 }
 
 function buildPassPrompt(brief, role, candidate = null) {
@@ -882,7 +1194,7 @@ function buildPassPrompt(brief, role, candidate = null) {
       ? `${prompt}\n\nCANDIDATE PLAN FROM THE CRO OR EARLIER PASS:\n${JSON.stringify(compactModelValue(candidate))}\n\nReview and preserve useful evidence-backed work; correct or reject unsafe items explicitly.`
       : prompt;
   }
-  const modelBrief = compactModelBrief(brief);
+  const modelBriefJson = modelBriefForPrompt(brief);
   const base =
     role === 'cro'
       ? 'You are the CRO pass for an autonomous domain-fleet executive. Turn purpose-fit market, GitHub, CRO-lab, search, affiliate, and audience signals into concrete revenue experiments and product opportunities. Do not merely list popular repositories: explain the fleet use case, validation evidence, license/security/maintenance risks, expected metric, time-to-learn, and smallest reversible prototype. CRO leads are handoffs to the CEO and CTO, not owner approval requests. Every proposal you retain must set created_by to cro, and you must not directly deploy, spend, change credentials, or add domains.'
@@ -890,20 +1202,30 @@ function buildPassPrompt(brief, role, candidate = null) {
         ? 'You are the internal Product Manager for the Domain Fleet tooling. Inspect the fleet dashboard, scheduler, cron-role framework, executive control plane, task board, deployment/release workflow, telemetry, AI usage, and operator workflows in the read-only brief. Find product friction and high-leverage capabilities that would make the fleet easier to operate, safer, more measurable, and more autonomous. Prioritize opportunities by operator time saved, reliability, adoption, reversibility, and measurable outcome. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not write code, deploy, change schedules, grant access, or invent telemetry; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-fleet.'
         : role === 'product-manager-sites'
           ? 'You are the Product Manager for the managed websites portfolio. Treat the published domains as products: inspect audience fit, information architecture, user journeys, content/product opportunities, accessibility, performance, monetization surfaces, experimentation, and cross-site capabilities in the read-only brief. Identify evidence-backed improvements that help visitors and produce durable portfolio value. Prioritize by expected user benefit, attributable outcome, confidence, time-to-learn, and reversibility. Present a concise recommendation to the executive team through a message, and create product proposals or work items when warranted. You do not edit sites, deploy, add domains, spend money, or make unsupported revenue claims; implementation must go through the existing approval and engineer queue. Every proposal you retain must set created_by to product-manager-sites.'
-          : role === 'cto'
-            ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
-            : role === 'cfo'
-              ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
-              : role === 'principal-engineer'
-                ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
-                : role === 'legal'
-                  ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
-                  : role === 'security'
-                    ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
-                    : role === 'domain-manager'
-                      ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
-                      : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target 3boobs.com. Do not invent telemetry.\n\nFLEET BRIEF:\n${JSON.stringify(modelBrief)}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {}))}`;
+          : role === 'delivery-lead'
+            ? 'You are the Head of Portfolio Delivery. Convert approved intent into shipped work across three lanes: finish existing sites, grow SEO/design/affiliate revenue, and validate new-site launches. Inspect queue, failures, stranded work, site coverage, and measurements. Use each pilot queue_readiness block and productivity.queue_ready_fleet_sites: never select a site with an active request or improvement/measurement window; select the next queue-ready site from the action candidates or the queue-ready fleet list instead. Select a small batch of concrete reversible change requests across distinct ready sites; assign owners, due dates, acceptance tests, before/after metrics, and rollback notes. Do not create another proposal when an executable task can be made. If no queue-ready site exists, create/update a delivery-lead escalation with the blocked sites, owner, SLA, and next action; do not close the cycle with a generic evidence report. Your success metric is verified/deployed work, not messages.'
+            : role === 'design-director'
+              ? 'You are the Fleet Design Director. Find the highest-value reversible design, UX, accessibility, imagery, layout, and conversion improvements across unfinished sites. Create concrete design or implementation work with exact site scope, preview/acceptance criteria, test, metric, and rollback. Prefer shipping one visible improvement over producing a design brief. Do not claim conversion lift without measurement.'
+              : role === 'growth-director'
+                ? 'You are the Fleet Growth Director. Own evidence-backed SEO and growth execution: technical SEO, information architecture, internal linking, content opportunities, search intent, and measurable traffic/conversion improvements. Create bounded implementation work with a target page/site, baseline, metric, sample window, acceptance test, and rollback. Do not use spam, fake engagement, unsupported claims, or reports as substitutes for action.'
+                : role === 'revenue-ops'
+                  ? 'You are the Fleet Revenue Operations and Affiliate Lead. Find broken affiliate links, missing tracking IDs, disclosure gaps, attribution mismatches, conversion leaks, and monetization readiness work. Create concrete repair tasks with the affected site, evidence, expected metric, validation, and rollback. Preserve unknown revenue and do not infer ROI from unattributed totals.'
+                  : role === 'site-factory'
+                    ? 'You are the New Site Factory Lead. Turn validated fleet opportunities into repeatable, bounded launch work: site brief, template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and launch gate. Maintain a small pipeline and identify exactly one next step for the strongest candidate. Do not add domains, spend money, deploy, or launch without the required owner, legal, security, measurement, and rollback gates.'
+                    : role === 'cto'
+                      ? "You are the CTO review pass for an autonomous domain-fleet executive. Check technical feasibility, isolation, reversibility, implementation effort, measurement instrumentation, and whether the proposed work can safely enter the existing queue. Preserve the CEO's revenue intent while correcting unsafe or technically unsupported items."
+                      : role === 'cfo'
+                        ? 'You are the CFO review pass for an autonomous domain-fleet executive. Check attribution quality, contribution margin, cost-to-learn, AI and infrastructure spend, budget exposure, and whether revenue claims are supported. Lead with a financial recommendation, using known numbers and dates from the brief. If a number is not calculable, say exactly why and give the minimum measurement needed; do not merely ask the owner to decide without a recommendation. Push back on vanity metrics and unsupported forecasts. You may propose report-only finance work, but never move money, change billing, access banking, sign contracts, or make legal/tax claims. Every proposal you retain must set created_by to cfo.'
+                        : role === 'principal-engineer'
+                          ? 'You are the Principal Engineer review pass and the CTO’s senior implementation partner. Check urgent technical work, failure recovery, architecture risk, acceptance criteria, rollback, and test coverage. Route only bounded, evidence-backed implementation to assigned_role principal-engineer; never deploy directly. Every proposal you retain must set created_by to cto.'
+                          : role === 'legal'
+                            ? 'You are the Legal and Compliance review pass for the autonomous domain-fleet executive. Inspect compliance, data_quality, site, analytics, revenue, launch evidence, and launch_readiness checklists. Lead with a risk disposition and recommendation: clear, conditional, blocked, or counsel_required. State the specific evidence, concrete blockers, and the exact decision you recommend. Treat launch_readiness.tracking and its open tasks as an active workstream: report progress, close only evidenced tasks, and name the next evidence action rather than repeating a generic owner question. For every launch-readiness data_use_review item, decide whether the stated source, purpose, processing, display/sharing, and monetization use is clear, conditional, blocked, counsel_required, or evidence_needed; name the missing evidence and the smallest next action. This is risk triage, not legal advice or certification; never invent legal advice, and identify where human counsel is required. Triage privacy, consent, terms, cookie/analytics disclosure, affiliate disclosure, data provenance and rights, claims, copyright/trademark, platform policy, and regulated or age-sensitive concerns when supported by evidence. Do not block ordinary growth merely because telemetry is incomplete. For private or gated sites, require a concrete launch decision and checklist. Every proposal you retain must set created_by to legal. For a go-live proposal, include implementation.launch_gate="go_live" and implementation.legal_review with status approved or needs_owner, reviewed_by legal, and a concise decision_note only when supported by the evidence.'
+                            : role === 'security'
+                              ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
+                              : role === 'domain-manager'
+                                ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
+                                : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target any [excluded-site]. Do not invent telemetry.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
@@ -985,7 +1307,7 @@ function parseProviderJson(raw) {
   throw lastError || new Error('provider output is empty');
 }
 
-function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
+function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = false } = {}) {
   const raw = String(text || '')
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
@@ -1023,6 +1345,13 @@ function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
     knowledge: result.knowledge || [],
   };
   normalizeProviderProposalTypes(plan, { defaultActor, defaultSite });
+  const sanitization = sanitize ? sanitizePlan(plan) : [];
+  if (sanitize)
+    Object.defineProperty(plan, '__sanitization', {
+      value: sanitization,
+      enumerable: false,
+      configurable: true,
+    });
   validatePlan(plan);
   return plan;
 }
@@ -1034,6 +1363,17 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
   // mergePassPlans preserves the earlier CEO/CTO/CRO proposals while the
   // reviewer contributes messages and proposal_reviews.
   if (String(defaultActor || '') === 'reviewer') plan.proposals = [];
+  for (const item of plan.change_requests) {
+    // Providers sometimes use the natural-language names from the brief
+    // instead of the compact queue schema. These aliases remain subject to
+    // the same site, role, category, priority, and delivery validation below.
+    if (!item.site && (item.domain || item.site_id || defaultSite))
+      item.site = item.domain || item.site_id || defaultSite;
+    if (!item.title && (item.name || item.subject)) item.title = item.name || item.subject;
+    if (!item.body && (item.summary || item.description || item.recommendation))
+      item.body = item.summary || item.description || item.recommendation;
+    if (!item.category && (item.type || item.kind)) item.category = item.type || item.kind;
+  }
   for (const item of plan.proposals) {
     // Domain-manager passes are already scoped to one managed site. Preserve
     // that scope when the model omits the repetitive implementation wrapper;
@@ -1112,6 +1452,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'security',
       'domain-manager',
       'reviewer',
+      'delivery-lead',
+      'design-director',
+      'growth-director',
+      'revenue-ops',
+      'site-factory',
     ]);
     const validStatuses = new Set(['accepted_research', 'escalate_owner', 'declined']);
     if (!String(item.proposal_id || '').trim()) return false;
@@ -1148,6 +1493,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     'security review': 'security',
     'security officer': 'security',
     'security/compliance': 'security',
+    'head of portfolio delivery': 'delivery-lead',
+    'design director': 'design-director',
+    'growth director': 'growth-director',
+    'revenue operations': 'revenue-ops',
+    'site factory': 'site-factory',
   };
   for (const item of plan.messages) {
     // Providers occasionally use the prompt's natural-language field names
@@ -1186,8 +1536,17 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       compliance_review: 'update',
       security_review: 'update',
       launch_review: 'update',
+      // Role-specific labels are useful to the model, but the durable
+      // transcript intentionally has a small closed message-type vocabulary.
+      // Normalize safe status/escalation variants before validation so one
+      // expressive executive pass cannot fail the entire team run.
+      escalation: 'update',
+      risk_disposition: 'update',
+      finance_review: 'update',
+      security_disposition: 'update',
     };
     if (messageTypeAliases[messageType]) item.message_type = messageTypeAliases[messageType];
+    else if (!messageType) item.message_type = 'update';
   }
   for (const item of plan.data_requests) {
     const raw = String(item?.requested_by || '')
@@ -1218,6 +1577,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     'security',
     'domain-manager',
     'researcher',
+    'delivery-lead',
+    'design-director',
+    'growth-director',
+    'revenue-ops',
+    'site-factory',
   ]);
   for (const item of plan.change_requests) {
     const raw = String(item?.requested_by || item?.actor || '')
@@ -1269,6 +1633,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       defect: 'incident',
       analytics: 'evidence',
       telemetry: 'evidence',
+      measurement: 'evidence',
+      metrics: 'evidence',
       monitoring: 'evidence',
       launch: 'decision',
       growth: 'evidence',
@@ -1311,6 +1677,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       'principal-engineer',
       'engineer',
       'owner',
+      'delivery-lead',
+      'design-director',
+      'growth-director',
+      'revenue-ops',
+      'site-factory',
     ]);
     const fallbackOwner = defaultActor && validOwners.has(defaultActor) ? defaultActor : 'ceo';
     item.owner = validOwners.has(normalizedOwner) ? normalizedOwner : fallbackOwner;
@@ -1368,11 +1739,21 @@ function validatePlan(plan) {
         'cro',
         'product-manager-fleet',
         'product-manager-sites',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
         'cfo',
         'legal',
         'security',
         'domain-manager',
         'reviewer',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(String(item.reviewed_by || '')) ||
       !['accepted_research', 'escalate_owner', 'declined'].includes(String(item.status || '')) ||
       String(item.decision_note || '').length > 2000
@@ -1391,6 +1772,11 @@ function validatePlan(plan) {
         'cro',
         'product-manager-fleet',
         'product-manager-sites',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
         'cfo',
         'legal',
         'security',
@@ -1501,6 +1887,11 @@ function validatePlan(plan) {
         'principal-engineer',
         'engineer',
         'owner',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(owner)
     )
       invalid.push(`owner=${owner}`);
@@ -1550,14 +1941,29 @@ function validatePlan(plan) {
     if (/3boobs(?:\.com)?/i.test(JSON.stringify(item)))
       throw new Error('knowledge item references an excluded site');
   }
-  for (const item of plan.change_requests) {
-    if (
-      !String(item.site || '').trim() ||
-      !String(item.title || '').trim() ||
-      !String(item.body || '').trim()
-    )
-      throw new Error('invalid change request in provider plan');
-    if (String(item.priority || 'medium') === 'high')
+  for (const [index, item] of plan.change_requests.entries()) {
+    const missing = [];
+    if (!String(item.site || '').trim()) missing.push('site');
+    if (!String(item.title || '').trim()) missing.push('title');
+    if (!String(item.body || '').trim()) missing.push('body');
+    if (missing.length)
+      throw new Error(
+        `invalid change request in provider plan at index ${index} (missing=${missing.join(',')})`
+      );
+    const normalizedPriority =
+      {
+        normal: 'medium',
+        critical: 'high',
+        urgent: 'high',
+      }[
+        String(item.priority || 'medium')
+          .trim()
+          .toLowerCase()
+      ] ||
+      String(item.priority || 'medium')
+        .trim()
+        .toLowerCase();
+    if (normalizedPriority === 'high')
       throw new Error('executive provider cannot queue high-priority work');
     if (EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
       throw new Error('executive plan targets an excluded site');
@@ -1581,6 +1987,11 @@ function validatePlan(plan) {
         'security',
         'domain-manager',
         'researcher',
+        'delivery-lead',
+        'design-director',
+        'growth-director',
+        'revenue-ops',
+        'site-factory',
       ].includes(String(item.requested_by))
     )
       throw new Error('change request has an invalid requested_by role');
@@ -1592,13 +2003,40 @@ function planFingerprint(plan) {
   return crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex');
 }
 
+function normalizeDirectChangeRequest(input = {}) {
+  const category = String(input.category || '')
+    .trim()
+    .toLowerCase();
+  const aliases = {
+    affiliate: 'marketing',
+    attribution: 'marketing',
+    conversion: 'marketing',
+    growth: 'marketing',
+    revenue: 'marketing',
+    ux: 'design',
+    'user-experience': 'design',
+    performance: 'engineering',
+    technical: 'engineering',
+  };
+  const normalizedCategory = changequeue.CATEGORIES.includes(category)
+    ? category
+    : aliases[category] || 'other';
+  return { ...input, category: normalizedCategory };
+}
+
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
   if (!candidates.length) return true;
   const actionableCandidates = candidates.filter(
     item =>
       String(item.type || '').toLowerCase() !== 'portfolio-baseline' &&
+      String(item.type || '').toLowerCase() !== 'site-factory' &&
       !isPrivateLaunchGate(item.site, brief.launch_readiness)
+  );
+  const launchCandidates = candidates.filter(
+    item =>
+      String(item.type || '').toLowerCase() === 'site-factory' &&
+      String(item.delivery_mode || '').toLowerCase() === 'report_only'
   );
   // Baseline-only or explicitly gated cohorts can remain report/research
   // work. Concrete SEO/content/design/engineering candidates must create
@@ -1606,8 +2044,32 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // A gated or already-busy portfolio still needs a durable checkpoint. A
   // pass that emits only owner messages is otherwise indistinguishable from
   // a no-op in the workbench and gives the team no measurable next action.
-  if (!actionableCandidates.length)
-    return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
+  if (!actionableCandidates.length) {
+    if (!launchCandidates.length)
+      return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
+    const launchSites = new Set(
+      launchCandidates
+        .map(item =>
+          String(item.site || '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean)
+    );
+    const coveredLaunchSites = new Set(
+      (plan.change_requests || [])
+        .filter(item => String(item.delivery_mode || '').toLowerCase() === 'report_only')
+        .map(item =>
+          String(item.site || '')
+            .trim()
+            .toLowerCase()
+        )
+    );
+    const requiredLaunchSites = Math.min(3, launchSites.size);
+    return (
+      [...launchSites].filter(site => coveredLaunchSites.has(site)).length >= requiredLaunchSites
+    );
+  }
   const candidateSites = new Set(
     actionableCandidates
       .map(item =>
@@ -1749,11 +2211,34 @@ function approvedReportOnlyImplementation(proposal, root = ROOT) {
     requested_by: proposal.created_by === 'researcher' ? 'cro' : proposal.created_by,
     provider: 'chatgpt',
     model: 'gpt-5.6-luna',
-    max_turns: 12,
+    // Report-only follow-through is intentionally not sent to a model by
+    // default. An owner can explicitly opt a proposal into a bounded model
+    // report with implementation.allow_model_followthrough=true.
+    max_turns: 4,
     auto_review: true,
     delivery_mode: 'report_only',
     action_key: 'approved-proposal-report',
   };
+}
+
+function approvedFollowThroughQueueDecision(proposal, implementation = {}) {
+  const proposalType = String(proposal?.proposal_type || '')
+    .trim()
+    .toLowerCase();
+  const deliveryMode = String(implementation?.delivery_mode || '')
+    .trim()
+    .toLowerCase();
+  const explicitModelOptIn = implementation?.allow_model_followthrough === true;
+  if (proposalType === 'report-only' || deliveryMode === 'report_only') {
+    return explicitModelOptIn
+      ? { queue: true, reason: 'explicit owner-approved model follow-through' }
+      : {
+          queue: false,
+          reason:
+            'report-only follow-through is recorded in the workbench; model execution requires explicit allow_model_followthrough=true',
+        };
+  }
+  return { queue: true, reason: 'implementation follow-through' };
 }
 
 function approvedImplementation(proposal, root = ROOT) {
@@ -1963,6 +2448,7 @@ function reconcileApprovedProposalFollowThrough(
     }
     const implementation = normalizeApprovedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
+    const queueDecision = approvedFollowThroughQueueDecision(proposal, implementation);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
       currentRequest && ['failed', 'cancelled'].includes(currentRequest.status);
@@ -2013,7 +2499,14 @@ function reconcileApprovedProposalFollowThrough(
     if (terminalRequest)
       blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
 
-    if (!currentRequest && ready && !blockers.length && allowQueue && queued < maxQueue) {
+    if (
+      !currentRequest &&
+      ready &&
+      queueDecision.queue &&
+      !blockers.length &&
+      allowQueue &&
+      queued < maxQueue
+    ) {
       const site = String(implementation.site || '').toLowerCase();
       if (!activeSites.has(site)) {
         try {
@@ -2076,6 +2569,35 @@ function reconcileApprovedProposalFollowThrough(
     }
 
     if (existing && ['done', 'cancelled'].includes(existing.status)) continue;
+    if (!queueDecision.queue) {
+      const quietPayload = followThroughWorkPayload(proposal, implementation, {
+        status: 'waiting',
+        nextAction: `No model run scheduled: ${queueDecision.reason}. Review this case only if the owner explicitly requests a report.`,
+        blockers: [],
+      });
+      quietPayload.waiting_on = 'owner';
+      quietPayload.resolution_note = null;
+      if (!existing) {
+        store.createExecutiveWorkItem(quietPayload);
+        result.push({
+          type: 'work-item-created',
+          proposal_id: proposal.proposal_id,
+          work_id: workId,
+          status: 'waiting',
+          quiet: true,
+        });
+      } else if (sameFollowThroughFields(existing, quietPayload)) {
+        store.updateExecutiveWorkItem(workId, quietPayload);
+        result.push({
+          type: 'work-item-updated',
+          proposal_id: proposal.proposal_id,
+          work_id: workId,
+          status: 'waiting',
+          quiet: true,
+        });
+      }
+      continue;
+    }
     const site = String(implementation.site || '').toLowerCase();
     let status = blockers.length ? 'blocked' : ready ? 'waiting' : 'open';
     let nextAction;
@@ -2142,10 +2664,10 @@ function reconcileApprovedProposalFollowThrough(
   return result;
 }
 
-// Approved work must not depend on a successful model pass to enter the
-// worker queue. The scheduler uses this bounded, deterministic drain before
-// invoking the model so already-approved report-only and implementation-ready
-// proposals keep moving while preserving site-capacity and launch gates.
+// Approved implementation work must not depend on a successful model pass to
+// enter the worker queue. Report-only follow-through is deliberately excluded
+// unless the proposal explicitly opts into a bounded model report; otherwise
+// it remains a quiet, durable workbench record.
 function drainApprovedProposalQueue(store, { root = ROOT, maxQueue = 6 } = {}) {
   const limit = Math.max(0, Math.min(12, Number(maxQueue) || 0));
   return reconcileApprovedProposalFollowThrough(store, {
@@ -2252,6 +2774,78 @@ function markReportWorkItem(store, item, request, { completed = false, blocked =
   });
 }
 
+function failedRequestDescendantCompleted(requests, requestId) {
+  const marker = `failed-change-request:${String(requestId || '').trim()}`;
+  if (!marker.endsWith(':')) {
+    const diagnosis = requests.find(
+      request =>
+        request.delivery_mode === 'report_only' &&
+        request.action_key === `failure-diagnosis:${requestId}` &&
+        request.status === 'verified'
+    );
+    if (diagnosis) return diagnosis;
+    const repair = requests.find(
+      request =>
+        request.request_id !== requestId &&
+        String(request.body || '').includes(marker) &&
+        ['deployed', 'verified'].includes(request.status)
+    );
+    if (repair) return repair;
+  }
+  return null;
+}
+
+// Failure cases are durable audit records, but their workbench projections
+// must not remain open after a bounded diagnosis or a descendant repair has
+// completed. This is deliberately conservative: failed descendants do not
+// close the parent, and no request is deleted or retried here.
+function reconcileCompletedFailureFollowups(store, { limit = 1000 } = {}) {
+  const requests = store.listChangeRequests({ limit: 5000 });
+  const items = store
+    .listExecutiveWorkItems({ limit })
+    .filter(
+      item =>
+        item.source_type === 'failed-change-request' &&
+        ['open', 'in_progress', 'ready'].includes(item.status)
+    );
+  const reconciled = [];
+  for (const item of items) {
+    const original = store.getChangeRequest(item.source_id);
+    if (!original) continue;
+    const completed =
+      ['deployed', 'verified', 'cancelled'].includes(original.status) ||
+      failedRequestDescendantCompleted(requests, original.request_id);
+    if (!completed) continue;
+    const descendant =
+      original.status === 'failed'
+        ? failedRequestDescendantCompleted(requests, original.request_id)
+        : null;
+    const note = descendant
+      ? `Linked descendant ${descendant.request_id} completed as ${descendant.status}.`
+      : `Original request ${original.request_id} completed as ${original.status}.`;
+    const updated = store.updateExecutiveWorkItem(item.work_id, {
+      status: 'done',
+      lifecycle_state: 'closed',
+      closed_at: new Date().toISOString(),
+      resolved_at: new Date().toISOString(),
+      resolution_note: `${note} Closed by deterministic failure-followup reconciliation.`,
+      next_action: `Use the completed request evidence in the next executive review; no automatic retry is required.`,
+      evidence: appendWorkEvidence(item, {
+        type: descendant?.delivery_mode === 'report_only' ? 'artifact' : 'decision',
+        label: 'failure follow-up reconciled',
+        note,
+      }),
+    });
+    reconciled.push({
+      type: 'failure-followup-reconciled',
+      work_id: item.work_id,
+      request_id: original.request_id,
+    });
+    if (!updated) continue;
+  }
+  return reconciled;
+}
+
 function queueBoundedReportWork(
   store,
   item,
@@ -2270,7 +2864,10 @@ function queueBoundedReportWork(
       requested_by: requestedBy,
       provider: 'chatgpt',
       model: 'gpt-5.6-luna',
-      max_turns: 12,
+      // Evidence reports are bounded investigations, not implementation
+      // sessions. Keep the default small; callers must opt into a larger
+      // budget at a higher-trust implementation path.
+      max_turns: 4,
       auto_review: true,
       delivery_mode: 'report_only',
       action_key: actionKey,
@@ -2475,7 +3072,13 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   const candidates = Array.isArray(brief.action_mandate?.candidates)
     ? brief.action_mandate.candidates
     : [];
-  if (!candidates.length) return basePlan;
+  const readiness = brief.productivity || {};
+  const hasFullFleetBlock =
+    Array.isArray(readiness.blocked_fleet_sites) &&
+    readiness.blocked_fleet_sites.length > 0 &&
+    Array.isArray(readiness.queue_ready_fleet_sites) &&
+    readiness.queue_ready_fleet_sites.length === 0;
+  if (!candidates.length && !hasFullFleetBlock) return basePlan;
 
   const activeSites = new Set(
     [...(brief.queue || []), ...(brief.improvements || [])]
@@ -2510,30 +3113,50 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   }
   if (!selected.length) {
     const day = String(brief.generated_at || new Date().toISOString()).slice(0, 10);
-    const checkpointId = `executive-cycle-checkpoint:${day}`;
+    const blockedSites = Array.isArray(readiness.blocked_fleet_sites)
+      ? readiness.blocked_fleet_sites
+      : [];
+    const fullyBlocked =
+      blockedSites.length > 0 &&
+      Array.isArray(readiness.queue_ready_fleet_sites) &&
+      readiness.queue_ready_fleet_sites.length === 0;
+    const checkpointId = fullyBlocked
+      ? `executive-throughput-escalation:${day}`
+      : `executive-cycle-checkpoint:${day}`;
     const existing = (brief.work_items || []).find(item => item.work_id === checkpointId);
     if (basePlan.work_items.some(item => item.work_id === checkpointId)) return basePlan;
+    const blockedSummary = blockedSites
+      .slice(0, 12)
+      .map(
+        item =>
+          `${item.site}: ${item.reason}${item.measurement_due ? ` (due ${item.measurement_due})` : ''}`
+      )
+      .join('; ');
     return {
       ...basePlan,
       work_items: [
         ...basePlan.work_items,
         {
           work_id: checkpointId,
-          title: `Executive evidence checkpoint ${day}`,
-          kind: 'evidence',
+          title: fullyBlocked
+            ? `Throughput escalation: no queue-ready fleet sites ${day}`
+            : `Executive evidence checkpoint ${day}`,
+          kind: fullyBlocked ? 'implementation' : 'evidence',
           status: 'in_progress',
-          priority: 'normal',
-          owner: 'ceo',
+          priority: fullyBlocked ? 'high' : 'normal',
+          owner: fullyBlocked ? 'delivery-lead' : 'ceo',
           site: 'fleet',
-          summary:
-            'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
-          next_action:
-            'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
+          summary: fullyBlocked
+            ? `All discovered fleet sites are currently blocked by active work or measurement windows. Blockers: ${blockedSummary || 'see the authoritative queue readiness snapshot.'}`
+            : 'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
+          next_action: fullyBlocked
+            ? 'Within six hours, identify the earliest unblock, assign the responsible owner, and queue the next safe reversible site improvement or document the specific external dependency preventing it. Escalate overdue blockers to the CEO.'
+            : 'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
           due_at: new Date(
-            Date.parse(brief.generated_at || Date.now()) + 24 * 60 * 60 * 1000
+            Date.parse(brief.generated_at || Date.now()) + (fullyBlocked ? 6 : 24) * 60 * 60 * 1000
           ).toISOString(),
           evidence: existing?.evidence || [],
-          created_by: 'ceo',
+          created_by: fullyBlocked ? 'delivery-lead' : 'ceo',
         },
       ],
     };
@@ -2696,7 +3319,7 @@ function proposalCreationBudget(store, { normal = 6, backlogThreshold = 10, back
   };
 }
 
-function runProvider(
+async function runProvider(
   prompt,
   {
     provider = process.env.EXECUTIVE_PROVIDER || 'claude',
@@ -2704,6 +3327,8 @@ function runProvider(
     command = process.env.EXECUTIVE_COMMAND,
   } = {}
 ) {
+  if (provider === 'chatgpt' && String(model).trim().toLowerCase() === 'gpt-5')
+    model = 'gpt-5.6-luna';
   const executable = command || (provider === 'chatgpt' ? 'codex' : 'claude');
   const promptOnStdin = provider === 'chatgpt';
   const args =
@@ -2730,39 +3355,59 @@ function runProvider(
           ...(model ? ['--model', model] : []),
           prompt,
         ];
-  return new Promise((resolve, reject) => {
-    const child = spawn(executable, args, {
-      cwd: ROOT,
-      env: process.env,
-      stdio: [promptOnStdin ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+  const transient =
+    /capacity|429|temporar|unavailable|timeout|timed out|502|503|504|authentication/i;
+  const attempts = Math.max(1, Math.min(3, Number(process.env.EXECUTIVE_PROVIDER_RETRIES || 2)));
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const runOnce = () =>
+    new Promise((resolve, reject) => {
+      const child = spawn(executable, args, {
+        cwd: ROOT,
+        env: process.env,
+        stdio: [promptOnStdin ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+      });
+      if (promptOnStdin) child.stdin.end(prompt);
+      let stdout = '',
+        stderr = '';
+      child.stdout.on('data', chunk => {
+        stdout += chunk;
+      });
+      child.stderr.on('data', chunk => {
+        stderr += chunk;
+      });
+      const timer = setTimeout(
+        () => child.kill('SIGTERM'),
+        Number(process.env.EXECUTIVE_TIMEOUT_MS || 15 * 60 * 1000)
+      );
+      child.on('error', reject);
+      child.on('close', code => {
+        clearTimeout(timer);
+        if (code !== 0)
+          return reject(new Error(`${provider} exited with code ${code}: ${stderr.slice(-500)}`));
+        resolve(stdout);
+      });
     });
-    if (promptOnStdin) child.stdin.end(prompt);
-    let stdout = '',
-      stderr = '';
-    child.stdout.on('data', chunk => {
-      stdout += chunk;
-    });
-    child.stderr.on('data', chunk => {
-      stderr += chunk;
-    });
-    const timer = setTimeout(
-      () => child.kill('SIGTERM'),
-      Number(process.env.EXECUTIVE_TIMEOUT_MS || 15 * 60 * 1000)
-    );
-    child.on('error', reject);
-    child.on('close', code => {
-      clearTimeout(timer);
-      if (code !== 0)
-        return reject(new Error(`${provider} exited with code ${code}: ${stderr.slice(-500)}`));
-      resolve(stdout);
-    });
-  });
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await runOnce();
+    } catch (error) {
+      lastError = error;
+      if (attempt >= attempts || !transient.test(error.message)) throw error;
+      await delay(Math.min(30000, 1000 * 2 ** (attempt - 1)));
+    }
+  }
+  throw lastError;
 }
 
 async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) {
+  ensureOwnerRequestCoverage(store, plan);
+  const planSanitization = plan.__sanitization || sanitizePlan(plan);
   validatePlan(plan);
   const created = {
     messages: [],
+    plan_sanitization: planSanitization,
+    skipped_messages: [],
     proposal_reviews: [],
     data_requests: [],
     proposals: [],
@@ -2897,6 +3542,26 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         result: { message_id: message.message_id },
       });
     } catch (error) {
+      // A model can carry a stale work_id from an earlier brief after the
+      // underlying item was closed or reconciled. That message is disposable
+      // metadata; it must not abort otherwise valid work in the same plan.
+      // Keep the rejection durable so the stale-reference source is visible
+      // and can be fixed without replaying the entire executive tick.
+      if (error.message === 'message references an unknown work item') {
+        const skipped = {
+          actor: item.actor,
+          work_id: item.work_id || null,
+          reply_to: item.reply_to || null,
+          reason: error.message,
+        };
+        created.skipped_messages.push(skipped);
+        executive.finishAction(store, audit.action_id, {
+          status: 'skipped',
+          error: error.message,
+          result: skipped,
+        });
+        continue;
+      }
       executive.finishAction(store, audit.action_id, { status: 'failed', error: error.message });
       throw error;
     }
@@ -3001,8 +3666,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         created_at: undefined,
       });
       created.proposals.push(proposal);
-      if (item.source_work_id && store.createWorkflowLink) {
-        store.createWorkflowLink({
+      if (item.source_work_id) {
+        safeCreateWorkflowLink(store, {
           from_type: 'work-item',
           from_id: item.source_work_id,
           to_type: 'proposal',
@@ -3011,7 +3676,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           created_by: 'executive',
         });
       }
-      if (item.source_work_id) {
+      if (item.source_work_id && workflowEntityExists(store, 'work-item', item.source_work_id)) {
         executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
           downstream_type: 'proposal',
           downstream_id: proposal.proposal_id,
@@ -3046,9 +3711,52 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       Math.min(6, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 6))
     );
     let queuedCount = 0;
-    for (const item of plan.change_requests) {
+    for (const rawItem of plan.change_requests) {
+      const item = normalizeDirectChangeRequest(rawItem);
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
+      const site = String(item.site).trim().toLowerCase();
+      const directImplementation = String(item.delivery_mode || 'direct') !== 'report_only';
+      const installedRoles = site === 'fleet' ? [] : installedSiteRoles(root, site);
+      if (site !== 'fleet' && directImplementation && installedRoles.length === 0) {
+        const workId = `site-owner-gap:${site}`;
+        const existingGap = store.getExecutiveWorkItem(workId);
+        const gap = {
+          work_id: workId,
+          title: `Install an execution owner for ${site}`,
+          kind: 'implementation',
+          status: 'blocked',
+          priority: 'high',
+          owner: 'site-factory',
+          site,
+          summary: `The requested ${item.category} work cannot run because ${site} has no installed ops/roles owner.`,
+          next_action: `Install and verify the site role required for ${item.category}, then re-evaluate the blocked request.`,
+          waiting_on: 'site-factory',
+          evidence: [
+            {
+              type: 'artifact',
+              label: 'installed role inventory',
+              note: `No files found under sites/${site}/ops/roles/`,
+            },
+          ],
+          created_by: 'executive-tick',
+          source_type: 'executive-tick',
+        };
+        const workItem = existingGap
+          ? store.updateExecutiveWorkItem(existingGap.work_id, gap)
+          : store.createExecutiveWorkItem(gap);
+        created.work_items.push(workItem);
+        created.created_refs.work_items.push({
+          work_id: workItem.work_id,
+          operation: existingGap ? 'updated' : 'created',
+        });
+        created.skipped_change_requests.push({
+          site,
+          title: item.title,
+          reason: `no installed owner for direct ${item.category} work; durable site-factory blocker created`,
+        });
+        continue;
+      }
       if (queuedCount >= queueLimit || activeSites.has(item.site)) {
         created.skipped_change_requests.push({
           site: item.site,
@@ -3098,8 +3806,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           site => installedSiteRoles(root, site)
         );
         created.change_requests.push(request);
-        if (item.source_work_id && store.createWorkflowLink) {
-          store.createWorkflowLink({
+        if (item.source_work_id) {
+          safeCreateWorkflowLink(store, {
             from_type: 'work-item',
             from_id: item.source_work_id,
             to_type: 'request',
@@ -3108,7 +3816,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
             created_by: 'executive',
           });
         }
-        if (item.source_work_id) {
+        if (item.source_work_id && workflowEntityExists(store, 'work-item', item.source_work_id)) {
           executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
             downstream_type: 'change-request',
             downstream_id: request.request_id,
@@ -3152,10 +3860,16 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
     summary: `Executive tick using ${providerOptions.provider || process.env.EXECUTIVE_PROVIDER || 'claude'}`,
   });
   try {
+    // Owner directions must be acknowledged before model execution. A provider
+    // outage or invalid model plan must not leave the owner with a silent,
+    // permanently submitted request.
+    const ownerCoverage = apply
+      ? await applyPendingOwnerRequestCoverage(store, { allowQueue, root })
+      : null;
     const brief = await buildBrief(store, root);
     const prompt = buildPrompt(brief);
     const output = await runProvider(prompt, providerOptions);
-    const plan = parseOutput(output);
+    const plan = parseOutput(output, { sanitize: true });
     const created = apply ? await applyPlan(store, plan, { allowQueue, root }) : null;
     store.record({
       event_type: 'executive.tick',
@@ -3184,9 +3898,17 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
               created_refs: created.created_refs,
             }
           : {}),
+        ...(ownerCoverage
+          ? {
+              owner_request_coverage: {
+                messages: ownerCoverage.messages.length,
+                created_refs: ownerCoverage.created_refs,
+              },
+            }
+          : {}),
       },
     });
-    return { brief, plan, created };
+    return { brief, plan, created, ownerCoverage };
   } catch (error) {
     executive.finishAction(store, tickAction.action_id, { status: 'failed', error: error.message });
     throw error;
@@ -3286,23 +4008,34 @@ module.exports = {
   discoverSites,
   executiveSites,
   executiveTarget,
+  installedSiteRoles,
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,
+  siteFactoryCandidates,
   buildActionMandateFallback,
   attachKnownActionKeys,
   proposalSite,
   approvedImplementation,
   normalizeApprovedImplementation,
+  approvedFollowThroughQueueDecision,
   buildBrief,
   buildPrompt,
   buildPassPrompt,
   compactModelBrief,
+  isPendingOwnerRequest,
+  prioritizeExecutiveWorkItems,
+  ensureOwnerRequestCoverage,
+  emptyPlan,
+  sanitizePlan,
+  applyPendingOwnerRequestCoverage,
   parseOutput,
+  sanitizeExcludedPlanItems,
   isTelemetryRequestProposal,
   normalizeProviderProposalTypes,
   validatePlan,
   planFingerprint,
+  normalizeDirectChangeRequest,
   actionMandateSatisfied,
   reconcileApprovedProposalFollowThrough,
   drainApprovedProposalQueue,
@@ -3310,6 +4043,8 @@ module.exports = {
   failureDiagnosisLineageKey,
   drainDataQualityWork,
   drainFailureDiagnostics,
+  failedRequestDescendantCompleted,
+  reconcileCompletedFailureFollowups,
   applyPlan,
   runProvider,
   tick,

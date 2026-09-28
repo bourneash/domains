@@ -20,8 +20,18 @@ function proposalWorkKind(proposal) {
 
 function sameCaseFields(current, next) {
   return [
-    'title', 'kind', 'status', 'priority', 'owner', 'source_type', 'source_id',
-    'site', 'summary', 'next_action', 'waiting_on', 'due_at',
+    'title',
+    'kind',
+    'status',
+    'priority',
+    'owner',
+    'source_type',
+    'source_id',
+    'site',
+    'summary',
+    'next_action',
+    'waiting_on',
+    'due_at',
   ].every(key => String(current?.[key] ?? '') === String(next?.[key] ?? ''));
 }
 
@@ -36,7 +46,9 @@ function syncProposalCases(store, { limit = 200 } = {}) {
     .filter(item => item.status !== 'declined')) {
     const workId = proposalWorkId(proposal);
     let existing = store.getExecutiveWorkItem(workId);
-    const legacy = store.getExecutiveWorkItem(`${LEGACY_PROPOSAL_WORK_PREFIX}${proposal.proposal_id}`);
+    const legacy = store.getExecutiveWorkItem(
+      `${LEGACY_PROPOSAL_WORK_PREFIX}${proposal.proposal_id}`
+    );
     if (!existing && legacy) {
       existing = store.createExecutiveWorkItem({
         ...legacy,
@@ -53,9 +65,12 @@ function syncProposalCases(store, { limit = 200 } = {}) {
       });
       if (store.createWorkflowLink) {
         store.createWorkflowLink({
-          from_type: 'work-item', from_id: legacy.work_id,
-          to_type: 'work-item', to_id: workId,
-          relation: 'related_to', created_by: 'system',
+          from_type: 'work-item',
+          from_id: legacy.work_id,
+          to_type: 'work-item',
+          to_id: workId,
+          relation: 'related_to',
+          created_by: 'system',
         });
       }
     }
@@ -88,7 +103,10 @@ function syncProposalCases(store, { limit = 200 } = {}) {
       next_action: nextAction,
       waiting_on: waitingOn,
       due_at: proposal.updated_at
-        ? new Date(Date.parse(proposal.updated_at) + (proposal.status === 'approved' ? 24 : 48) * 60 * 60 * 1000).toISOString()
+        ? new Date(
+            Date.parse(proposal.updated_at) +
+              (proposal.status === 'approved' ? 24 : 48) * 60 * 60 * 1000
+          ).toISOString()
         : new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
       evidence: [
         {
@@ -115,16 +133,23 @@ function syncProposalCases(store, { limit = 200 } = {}) {
         body: proposal.decision_note,
         work_id: workId,
         message_type: proposal.status === 'feedback' ? 'question' : 'decision_request',
-        metadata: { proposal_id: proposal.proposal_id, status: proposal.status, to: proposal.created_by },
+        metadata: {
+          proposal_id: proposal.proposal_id,
+          status: proposal.status,
+          to: proposal.created_by,
+        },
         created_at: proposal.updated_at,
       });
     }
     changed.push(item);
     if (store.createWorkflowLink) {
       store.createWorkflowLink({
-        from_type: 'proposal', from_id: proposal.proposal_id,
-        to_type: 'work-item', to_id: workId,
-        relation: 'related_to', created_by: 'system',
+        from_type: 'proposal',
+        from_id: proposal.proposal_id,
+        to_type: 'work-item',
+        to_id: workId,
+        relation: 'related_to',
+        created_by: 'system',
       });
     }
   }
@@ -132,9 +157,10 @@ function syncProposalCases(store, { limit = 200 } = {}) {
 }
 
 function acceptanceCriteria(item) {
-  const base = item.kind === 'implementation'
-    ? `The requested change is implemented for ${item.site || 'the stated scope'}, deterministic tests pass, and the result is measurable with a rollback path.`
-    : `The work produces a dated artifact or decision record, names its owner, and records the next measurable step.`;
+  const base =
+    item.kind === 'implementation'
+      ? `The requested change is implemented for ${item.site || 'the stated scope'}, deterministic tests pass, and the result is measurable with a rollback path.`
+      : `The work produces a dated artifact or decision record, names its owner, and records the next measurable step.`;
   return /acceptance criteria/i.test(item.next_action || '')
     ? item.next_action
     : `${item.next_action || 'Complete the smallest useful next step.'}\nAcceptance criteria: ${base}`;
@@ -153,7 +179,19 @@ function ownerFor(item) {
 function alreadyQueued(store, item) {
   return store
     .listChangeRequests({ limit: 1000 })
-    .some(request => request.requested_by === 'project-manager' && request.body.includes(`work_id: ${item.work_id}`));
+    .some(
+      request =>
+        request.requested_by === 'project-manager' &&
+        request.body.includes(`work_id: ${item.work_id}`)
+    );
+}
+
+// Failure follow-ups have their own bounded recovery path in runner.js. They
+// are audit projections, not implementation requests: routing one through the
+// normal project-manager lane turns a failed repair into another direct repair
+// request, which can recurse forever when the underlying work is already done.
+function isFailureFollowup(item) {
+  return item?.source_type === 'failed-change-request';
 }
 
 function run(store, { knownSite = () => true, availableRolesForSite = () => [], limit = 20 } = {}) {
@@ -161,7 +199,10 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
   const proposalCases = syncProposalCases(store, { limit: Math.max(20, Number(limit) || 20) });
   const workItems = store.listExecutiveWorkItems({ limit: 1000 });
   const boardItems = workItems.map(item => ({ ...item, source: 'work-item', id: item.work_id }));
-  const workflow = workflowEngine.evaluate({ items: boardItems, links: store.listWorkflowLinks({ limit: 2000 }) });
+  const workflow = workflowEngine.evaluate({
+    items: boardItems,
+    links: store.listWorkflowLinks({ limit: 2000 }),
+  });
   const notifications = workflowBoard.syncWorkflowNotifications(store, workflow);
   const dependencyChanges = [];
   for (const item of workItems.filter(row => ['open', 'blocked'].includes(row.status))) {
@@ -169,27 +210,36 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
     if (!node) continue;
     if (item.status === 'open' && !node.ready) {
       const waiting = node.blockers.join(', ');
-      dependencyChanges.push(store.updateExecutiveWorkItem(item.work_id, {
-        status: 'blocked', waiting_on: waiting,
-        next_action: `Waiting for ${waiting} to complete before work can start. ${item.next_action || ''}`.trim(),
-      }));
+      dependencyChanges.push(
+        store.updateExecutiveWorkItem(item.work_id, {
+          status: 'blocked',
+          waiting_on: waiting,
+          next_action:
+            `Waiting for ${waiting} to complete before work can start. ${item.next_action || ''}`.trim(),
+        })
+      );
     } else if (item.status === 'blocked' && node.ready) {
-      dependencyChanges.push(store.updateExecutiveWorkItem(item.work_id, {
-        status: 'ready', waiting_on: null,
-        next_action: `Dependency cleared. ${item.next_action || 'Ready for the next action.'}`,
-      }));
+      dependencyChanges.push(
+        store.updateExecutiveWorkItem(item.work_id, {
+          status: 'ready',
+          waiting_on: null,
+          next_action: `Dependency cleared. ${item.next_action || 'Ready for the next action.'}`,
+        })
+      );
     }
   }
   const candidates = store
     .listExecutiveWorkItems({ limit: 1000 })
     .filter(item => ['open', 'ready'].includes(item.status))
+    .filter(item => !isFailureFollowup(item))
     .filter(item => workflow.nodes[`work-item:${item.work_id}`]?.ready)
     .slice(0, Math.max(1, Math.min(Number(limit) || 20, 100)));
 
   for (const item of candidates) {
     const owner = ownerFor(item);
     const nextAction = acceptanceCriteria(item);
-    const summary = item.summary || `Project-manager brief: ${item.title}. Scope: ${item.site || 'fleet-wide'}.`;
+    const summary =
+      item.summary || `Project-manager brief: ${item.title}. Scope: ${item.site || 'fleet-wide'}.`;
     const updated = store.updateExecutiveWorkItem(item.work_id, {
       owner,
       status: 'in_progress',
@@ -205,25 +255,48 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
       !alreadyQueued(store, item)
     ) {
       const roles = availableRolesForSite(item.site);
-      const assignedRole = roles.includes(owner) ? owner : IMPLEMENTATION_ROLES.find(role => roles.includes(role));
+      const assignedRole = roles.includes(owner)
+        ? owner
+        : IMPLEMENTATION_ROLES.find(role => roles.includes(role));
       if (assignedRole) {
-        request = changequeue.create(store, {
-          site: item.site,
-          title: item.title,
-          body: `${summary}\n\n${nextAction}\n\nProject-manager work_id: ${item.work_id}`,
-          category: 'engineering',
-          priority: item.priority === 'urgent' ? 'high' : item.priority === 'low' ? 'low' : 'medium',
-          assigned_role: assignedRole,
-          provider: 'chatgpt',
-          delivery_mode: 'direct',
-          requested_by: 'project-manager',
-          auto_review: true,
-        }, knownSite, availableRolesForSite);
+        request = changequeue.create(
+          store,
+          {
+            site: item.site,
+            title: item.title,
+            body: `${summary}\n\n${nextAction}\n\nProject-manager work_id: ${item.work_id}`,
+            category: 'engineering',
+            priority:
+              item.priority === 'urgent' ? 'high' : item.priority === 'low' ? 'low' : 'medium',
+            assigned_role: assignedRole,
+            provider: 'chatgpt',
+            delivery_mode: 'direct',
+            requested_by: 'project-manager',
+            auto_review: true,
+          },
+          knownSite,
+          availableRolesForSite
+        );
       }
     }
     changed.push({ work_item: updated, request });
   }
-  return { inspected: candidates.length, proposal_cases: proposalCases, dependency_changes: dependencyChanges, alerts: workflow.alerts, notifications: notifications.length, critical_path: workflow.critical_path, changed };
+  return {
+    inspected: candidates.length,
+    proposal_cases: proposalCases,
+    dependency_changes: dependencyChanges,
+    alerts: workflow.alerts,
+    notifications: notifications.length,
+    critical_path: workflow.critical_path,
+    changed,
+  };
 }
 
-module.exports = { acceptanceCriteria, ownerFor, proposalWorkId, syncProposalCases, run };
+module.exports = {
+  acceptanceCriteria,
+  ownerFor,
+  proposalWorkId,
+  syncProposalCases,
+  isFailureFollowup,
+  run,
+};

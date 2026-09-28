@@ -24,6 +24,13 @@ test('navigation category roots are first-class routes', () => {
   }
 });
 
+test('agent navigation tolerates both bare-list and enveloped API responses', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function normalizeAgentList\(value\)/);
+  assert.match(app, /if \(Array\.isArray\(value\?\.agents\)\) return value\.agents/);
+  assert.match(app, /STATE\.agents = normalizeAgentList\(await api\('GET', '\/api\/agents'\)\)/);
+});
+
 test('site command centers are shareable first-class routes', () => {
   const route = routeFor('#site/example.test');
   assert.equal(route.view, 'site');
@@ -38,16 +45,20 @@ test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').view, 'agent');
   assert.equal(routeFor('#agents/executive').agent, 'executive');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /Executive Leadership/);
   assert.match(app, /Fleet Executive Office/);
   assert.match(app, /CEO, CTO, CRO, CFO/);
   assert.match(app, /fleet AI spend telemetry/);
   assert.match(app, /principalQueue,\s+croLabRuns,/);
   assert.match(app, /croLabRuns,\s+runStatus,\s+cases,/);
+  assert.match(app, /else if \(page === 'overview'\) \{\s*hide\(run\);/);
   assert.match(app, /croLabRuns\?\.runs \|\| \[\]/);
   assert.match(app, /id="ex-risk" class="cm-input"/);
   assert.match(app, /Low — conservative/);
   assert.match(app, /class="ex-operating-modes"/);
+  assert.match(style, /body\[data-view="agent"\] main:has\(\.ex-shell\) \{ max-width: none; \}/);
+  assert.match(style, /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/);
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
   assert.match(app, /apiOptional\('GET', '\/api\/cases\?limit=300'/);
@@ -88,7 +99,7 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /wb-thread-toggle/);
 });
 
-test('executive conversation workspace keeps owner messaging visible without an inbox thread', () => {
+test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");
   const end = app.indexOf("} else if (page === 'runs')", start);
@@ -99,9 +110,32 @@ test('executive conversation workspace keeps owner messaging visible without an 
   assert.match(app, /Start a durable request here/);
   assert.match(workspace, /const split = requests\?\.querySelector\('\.ex-request-split'\)/);
   assert.match(workspace, /requests\.insertBefore\(compose, split\)/);
+  assert.match(app, /: null;\n  EXEC_INBOX_UI\.selected = selectedRequestId/);
+  assert.match(app, /new Map\(\s*\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
+  assert.match(app, /class="ex-request-list-summary"/);
+  assert.match(app, /<b>Full thread<\/b>/);
+  assert.match(app, /const threadSection =\s*thread\.length > 1/);
+  assert.doesNotMatch(app, /ex-request-response/);
   assert.match(app, /api\('POST', '\/api\/executive\/requests', \{ actor: 'owner', body \}\)/);
   assert.match(app, /class="btn sm primary ex-work-reply-send"/);
   assert.match(app, /Reply added; the executive team will see it on its next run/);
+});
+
+test('executive conversation route skips unrelated control-plane requests', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const conversationOnly = STATE\.agentPage === 'conversation'/);
+  assert.match(
+    app,
+    /conversationOnly\s*\? Promise\.resolve\(\{ messages: \[\], retention_days: 90 \}\)/
+  );
+  assert.match(
+    app,
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
+  );
+  assert.match(
+    app,
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300'/
+  );
 });
 
 test('knowledge shelf is a first-class operator route', () => {
@@ -824,13 +858,24 @@ test('shared shell manages focus for every modal surface', () => {
   assert.match(shell, /installModalFocusManager/);
   assert.match(
     shell,
-    /\.modal:not\(\.hidden\), \.login-overlay:not\(\.hidden\), \.err-drawer-shell:not\(\.hidden\), #cmdk:not\(\.hidden\)/
+    /\.modal:not\(\.hidden\), \.login-overlay:not\(\.hidden\), \.err-drawer-shell:not\(\.hidden\), \.ex-run-drawer-shell:not\(\.hidden\), #cmdk:not\(\.hidden\)/
   );
   assert.match(shell, /previousFocus = document\.activeElement/);
   assert.match(shell, /e\.key !== 'Tab'/);
   assert.match(shell, /addEventListener\('keydown', e => \{/);
   assert.match(index, /id="modal"[^>]*role="dialog"[^>]*aria-modal="true"/);
   assert.match(index, /id="modal-close"[^>]*aria-label="Close dialog"/);
+});
+
+test('executive run logs open in an independent loading drawer', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /async function openExecutiveRunLog\(actionId\)/);
+  assert.match(app, /Loading run log…/);
+  assert.match(app, /openExecutiveRunLog\(button\.dataset\.id\)/);
+  assert.doesNotMatch(app, /EXEC_RUN_UI\.selected = button\.dataset\.id;\s*softRender\(\)/);
+  assert.match(style, /\.ex-run-drawer\s*\{/);
+  assert.match(style, /\.ex-run-drawer-loading::before/);
 });
 
 test('edit modals protect unsaved changes without retaining sensitive fields', () => {

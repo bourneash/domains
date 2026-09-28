@@ -37,6 +37,58 @@ function metricDeltas(improvements) {
   return totals;
 }
 
+function tickQueueCount(row) {
+  return row.result?.created_counts
+    ? Number(row.result.created_counts.change_requests || 0)
+    : Number(row.result?.counts?.change_requests || 0);
+}
+
+function tickFollowThroughCount(row) {
+  const created = row.result?.created_counts || {};
+  return (
+    Number(created.work_items || 0) + Number(created.research || 0) + Number(created.proposals || 0)
+  );
+}
+
+// Make CEO accountability measurable without treating a deliberately disabled
+// queue as a CEO failure. A cycle is productive when it selects executable
+// change work or records a bounded follow-through item; repeated eligible
+// cycles with neither require an explicit escalation.
+function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = {}) {
+  const rows = (Array.isArray(ticks) ? ticks : [])
+    .filter(row => row && typeof row === 'object')
+    .sort((a, b) => (Date.parse(a.started_at || '') || 0) - (Date.parse(b.started_at || '') || 0));
+  const hasQueueModeMetadata = rows.some(row => typeof row.result?.allowQueue === 'boolean');
+  const eligible = rows.filter(row => !hasQueueModeMetadata || row.result?.allowQueue === true);
+  const productive = eligible.filter(
+    row => tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0
+  );
+  let noActionStreak = 0;
+  for (let index = eligible.length - 1; index >= 0; index -= 1) {
+    const row = eligible[index];
+    if (tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0) break;
+    noActionStreak += 1;
+  }
+  const threshold = Math.max(1, Number(noActionEscalationStreak) || 2);
+  const escalationRequired = noActionStreak >= threshold;
+  return {
+    eligible_ticks: eligible.length,
+    productive_ticks: productive.length,
+    no_action_ticks: eligible.length - productive.length,
+    no_action_streak: noActionStreak,
+    escalation_required: escalationRequired,
+    escalation_reason: escalationRequired
+      ? `CEO produced no bounded queue or follow-through action for ${noActionStreak} consecutive executable cycle(s)`
+      : null,
+    status: escalationRequired
+      ? 'escalate-ceo'
+      : productive.length
+        ? 'on-track'
+        : 'no-executable-cycle',
+    latest_tick_at: rows.at(-1)?.started_at || null,
+  };
+}
+
 function proposalExecutionSummary(proposals, requests) {
   const requestRows = Array.isArray(requests) ? requests : [];
   const proposalRows = Array.isArray(proposals) ? proposals : [];
@@ -134,16 +186,26 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   );
   const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
   const failedRequests = requests.filter(row => row.status === 'failed');
+  const ownerRequests =
+    typeof store.listExecutiveWorkItems === 'function'
+      ? store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+      : [];
+  const staleOwnerRequests = ownerRequests.filter(item => {
+    if (['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(item.lifecycle_state))
+      return false;
+    const createdAt = Date.parse(item.created_at || '');
+    if (!Number.isFinite(createdAt)) return false;
+    const runsSince = ticks.filter(row => (Date.parse(row.started_at || '') || 0) >= createdAt);
+    return runsSince.length >= 1;
+  });
   const failureFollowups =
     typeof store.listExecutiveWorkItems === 'function'
       ? store
           .listExecutiveWorkItems({ source_type: 'failed-change-request', limit: 1000 })
           .filter(row => !['done', 'cancelled'].includes(String(row.status)))
       : [];
-  const queueCountForTick = row =>
-    row.result?.created_counts
-      ? Number(row.result.created_counts.change_requests || 0)
-      : Number(row.result?.counts?.change_requests || 0);
+  const queueCountForTick = tickQueueCount;
+  const accountability = buildExecutiveAccountability(ticks);
   const ticksWithQueueWork = ticks.filter(row => queueCountForTick(row) > 0);
   const ticksWithProposals = ticks.filter(row => Number(row.result?.counts?.proposals || 0) > 0);
   const queueEligibleTicks = ticks.filter(row => row.result?.allowQueue === true);
@@ -209,6 +271,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       actionability_rate_percent: actionabilityRate,
       all_ticks_actionability_rate_percent: allTicksActionabilityRate,
     },
+    accountability,
     decisions: {
       proposals: proposals.length,
       pending_owner_approval: pendingApprovals.length,
@@ -231,6 +294,10 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       requests_by_status: countBy(requests, 'status'),
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
+      owner_requests_pending: ownerRequests.filter(row =>
+        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      ).length,
+      owner_requests_stale: staleOwnerRequests.length,
       failure_followups_open: failureFollowups.length,
       failure_followups_by_owner: countBy(failureFollowups, 'owner'),
       approved_proposals: proposalExecution.approved_proposals,
@@ -265,6 +332,12 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       ...(failedTicks.length
         ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]
         : []),
+      ...(staleOwnerRequests.length
+        ? [
+            `${staleOwnerRequests.length} owner request(s) survived an executive run without a response`,
+          ]
+        : []),
+      ...(accountability.escalation_required ? [accountability.escalation_reason] : []),
       ...(proposalExecution.approved_proposals_unexecuted
         ? [
             `${proposalExecution.approved_proposals_unexecuted} approved proposal(s) lack an execution request`,
@@ -277,6 +350,18 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : []),
     ],
     proposal_execution: proposalExecution,
+    owner_requests: {
+      pending: ownerRequests.filter(row =>
+        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      ).length,
+      stale: staleOwnerRequests.map(item => ({
+        work_id: item.work_id,
+        title: item.title,
+        created_at: item.created_at,
+        lifecycle_state: item.lifecycle_state,
+        next_action: item.next_action,
+      })),
+    },
   };
 }
 
@@ -285,4 +370,5 @@ module.exports = {
   MEASURED_IMPROVEMENTS: [...MEASURED_IMPROVEMENTS],
   proposalExecutionSummary,
   buildScorecard,
+  buildExecutiveAccountability,
 };

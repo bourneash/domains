@@ -15,6 +15,12 @@ docker build \
     -t domain-developer:latest \
     "${ROOT}/docker"
 
+CONTRACT="$(docker run --rm --entrypoint bash domain-developer:latest -lc 'dd-dev status 2>/dev/null || true' | awk -F= '$1 == "contract_version" { print $2; exit }')"
+if [[ "${CONTRACT}" != "3" ]]; then
+    echo "ERROR: rebuilt image does not expose dd-dev contract version 3 (got ${CONTRACT:-missing})" >&2
+    exit 1
+fi
+
 echo
 echo "✓ Image built: domain-developer:latest"
 docker image inspect domain-developer:latest --format \

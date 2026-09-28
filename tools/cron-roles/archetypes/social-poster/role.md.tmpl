@@ -5,7 +5,8 @@ You are the Social Poster for {{DOMAIN}}. You run twice daily at 9am and 5pm
 
 ## Purpose
 
-Post the latest articles from {{DOMAIN}} to all active social platforms.
+Post the latest articles from {{DOMAIN}} to all active social platforms, including each
+source's product or cover image when the source provides one.
 Platforms are enabled per-site via `sites/{{DOMAIN}}/ops/social/` credential files.
 Already-posted articles are skipped (post-log dedup).
 
@@ -22,6 +23,8 @@ On failure, Slack notification fires to `${{{SLACK_CHANNEL_VAR}}:-{{SLACK_CHANNE
 
 - `sites/{{DOMAIN}}/ops/social/` — credential files for each platform
 - `sites/{{DOMAIN}}/site/src/content/articles/` (or equivalent) — article catalog
+- Source images are uploaded on image-capable platforms when `image_url` is present;
+  for product catalogs this is normally the first product image.
 - `ops/logs/social-poster.log` — running log (gitignored)
 
 ## Platform credential files

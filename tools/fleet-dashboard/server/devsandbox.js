@@ -25,6 +25,7 @@ const DEV_PORT_IN_CONTAINER = parseInt(
   process.env.FD_DEVSANDBOX_DEV_PORT_IN_CONTAINER || '4321',
   10
 );
+const DEV_CONTRACT_VERSION = String(process.env.FD_DEVSANDBOX_CONTRACT_VERSION || '3');
 const PREVIEW_READY_TIMEOUT_MS = parseInt(
   process.env.FD_DEVSANDBOX_PREVIEW_READY_TIMEOUT_MS || '90000',
   10
@@ -616,6 +617,12 @@ async function devStart(site) {
       lastError = r.stdout || r.stderr || 'dev start failed';
       continue;
     }
+    if (r.kv.contract_version !== DEV_CONTRACT_VERSION) {
+      lastError = `worker image contract mismatch: expected ${DEV_CONTRACT_VERSION}, got ${
+        r.kv.contract_version || 'missing'
+      }; rebuild domain-developer before retrying`;
+      continue;
+    }
     const ready = await waitForPreview(site);
     if (ready.ready) return { ...r.kv, preview: ready, attempts: attempt };
     const logs = await devLogs(site, 80);
@@ -636,7 +643,13 @@ async function devLogs(site, n) {
 async function validate(site) {
   const checks = [
     ['diff', 'git diff --check'],
-    ['tests', 'if [ -f site/package.json ]; then cd site; fi; npm test --if-present'],
+    // Keep test runners inside the worker's process budget. Vitest and Jest
+    // both accept these flags, and this prevents a large default worker pool
+    // from turning a valid change into spawn EAGAIN under container limits.
+    [
+      'tests',
+      'if [ -f site/package.json ]; then cd site; fi; npm test --if-present -- --maxWorkers=1 --minWorkers=1',
+    ],
     ['build', 'if [ -f site/package.json ]; then cd site; fi; npm run build'],
   ];
   const results = {};

@@ -819,7 +819,7 @@
     let previousFocus = null;
     const currentModal = () =>
       $(
-        '.modal:not(.hidden), .login-overlay:not(.hidden), .err-drawer-shell:not(.hidden), #cmdk:not(.hidden), #fd-shortcuts:not(.hidden)'
+        '.modal:not(.hidden), .login-overlay:not(.hidden), .err-drawer-shell:not(.hidden), .ex-run-drawer-shell:not(.hidden), #cmdk:not(.hidden), #fd-shortcuts:not(.hidden)'
       );
     const sync = () => {
       const next = currentModal();

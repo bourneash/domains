@@ -199,6 +199,22 @@ test('escalates overdue work once per SLA level', () => {
   db.close();
 });
 
+test('does not notify the owner for quiet approved-proposal evidence', () => {
+  const db = store();
+  db.createExecutiveWorkItem({
+    title: 'Follow through: routine evidence review',
+    kind: 'research',
+    source_type: 'approved-proposal',
+    owner: 'ceo',
+    created_by: 'system',
+    priority: 'normal',
+    status: 'waiting',
+    due_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+  });
+  assert.equal(executive.escalateOverdueWorkItems(db).length, 0);
+  db.close();
+});
+
 test('requires owner decision and preserves feedback loop', () => {
   const db = store();
   const proposal = executive.proposal(db, {

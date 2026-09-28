@@ -179,6 +179,69 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_goals_parent ON executive_goals(parent_goal_id, status);
     CREATE INDEX IF NOT EXISTS executive_goals_status ON executive_goals(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_projects (
+      project_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'active',
+      owner TEXT NOT NULL DEFAULT 'project-manager',
+      goal_id TEXT,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS executive_projects_status ON executive_projects(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS executive_plans (
+      plan_id TEXT PRIMARY KEY,
+      goal_id TEXT,
+      title TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      current_version INTEGER NOT NULL DEFAULT 0,
+      owner TEXT NOT NULL DEFAULT 'ceo',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS executive_plan_versions (
+      version_id TEXT PRIMARY KEY,
+      plan_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      body_json TEXT NOT NULL DEFAULT '{}',
+      change_summary TEXT NOT NULL DEFAULT '',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(plan_id, version)
+    );
+    CREATE TABLE IF NOT EXISTS executive_plan_approvals (
+      approval_id TEXT PRIMARY KEY,
+      plan_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      decision TEXT NOT NULL,
+      note TEXT NOT NULL DEFAULT '',
+      decided_by TEXT NOT NULL,
+      decided_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS executive_plans_status ON executive_plans(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS work_comments (
+      comment_id TEXT PRIMARY KEY,
+      work_id TEXT NOT NULL,
+      author TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS work_comments_work ON work_comments(work_id, created_at);
+    CREATE TABLE IF NOT EXISTS work_attachments (
+      attachment_id TEXT PRIMARY KEY,
+      work_id TEXT NOT NULL,
+      label TEXT NOT NULL,
+      uri TEXT NOT NULL,
+      sha256 TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS work_attachments_work ON work_attachments(work_id, created_at DESC);
     CREATE TABLE IF NOT EXISTS executive_work_items (
       work_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -201,6 +264,29 @@ function open(root, { file } = {}) {
     );
     CREATE INDEX IF NOT EXISTS executive_work_items_queue ON executive_work_items(status, priority, updated_at DESC);
     CREATE INDEX IF NOT EXISTS executive_work_items_owner ON executive_work_items(owner, status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS productivity_pilots (
+      pilot_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'baseline',
+      treatment_sites_json TEXT NOT NULL DEFAULT '[]',
+      control_sites_json TEXT NOT NULL DEFAULT '[]',
+      lanes_json TEXT NOT NULL DEFAULT '[]',
+      start_at TEXT NOT NULL,
+      end_at TEXT NOT NULL,
+      baseline_json TEXT NOT NULL DEFAULT '{}',
+      evaluation_json TEXT NOT NULL DEFAULT '{}',
+      created_by TEXT NOT NULL DEFAULT 'system',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS productivity_snapshots (
+      snapshot_id TEXT PRIMARY KEY,
+      pilot_id TEXT NOT NULL,
+      phase TEXT NOT NULL,
+      snapshot_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS productivity_snapshots_pilot ON productivity_snapshots(pilot_id, created_at DESC);
     CREATE TABLE IF NOT EXISTS executive_knowledge_items (
       knowledge_id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -254,6 +340,498 @@ function open(root, { file } = {}) {
       updated_at TEXT NOT NULL
     );
     INSERT OR IGNORE INTO executive_settings (id, updated_at) VALUES (1, datetime('now'));
+    CREATE TABLE IF NOT EXISTS organizations (
+      organization_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS organization_members (
+      membership_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      actor_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(organization_id, actor_id)
+    );
+    INSERT OR IGNORE INTO organizations (organization_id,slug,name,created_at,updated_at) VALUES ('fleet','fleet','Fleet',datetime('now'),datetime('now'));
+    CREATE TABLE IF NOT EXISTS agent_registry (
+      agent_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL DEFAULT 'fleet',
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      role TEXT NOT NULL,
+      manager_id TEXT,
+      provider TEXT NOT NULL,
+      model TEXT,
+      adapter TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      permissions_json TEXT NOT NULL DEFAULT '[]',
+      budget_json TEXT NOT NULL DEFAULT '{}',
+      heartbeat_json TEXT NOT NULL DEFAULT '{}',
+      workspace_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      paused_at TEXT,
+      pause_reason TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_registry_role ON agent_registry(role, status);
+    CREATE INDEX IF NOT EXISTS agent_registry_manager ON agent_registry(manager_id, status);
+    CREATE TABLE IF NOT EXISTS agent_runs (
+      run_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      work_id TEXT,
+      goal_id TEXT,
+      session_id TEXT,
+      idempotency_key TEXT UNIQUE,
+      status TEXT NOT NULL,
+      attempt INTEGER NOT NULL DEFAULT 1,
+      provider TEXT NOT NULL,
+      model TEXT,
+      started_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      finished_at TEXT,
+      heartbeat_at TEXT,
+      workspace_path TEXT,
+      input_tokens INTEGER NOT NULL DEFAULT 0,
+      output_tokens INTEGER NOT NULL DEFAULT 0,
+      total_tokens INTEGER NOT NULL DEFAULT 0,
+      cost_usd REAL NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_runs_agent_time ON agent_runs(agent_id, started_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_runs_work_time ON agent_runs(work_id, started_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_runs_status ON agent_runs(status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_dispatch_queue (
+      dispatch_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL UNIQUE,
+      agent_id TEXT NOT NULL,
+      adapter TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'queued',
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      available_at TEXT NOT NULL,
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      last_error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_dispatch_ready ON agent_dispatch_queue(status, available_at, updated_at);
+    CREATE TABLE IF NOT EXISTS agent_artifacts (
+      artifact_id TEXT PRIMARY KEY,
+      run_id TEXT,
+      work_id TEXT,
+      agent_id TEXT,
+      kind TEXT NOT NULL,
+      label TEXT NOT NULL,
+      uri TEXT,
+      sha256 TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_artifacts_run ON agent_artifacts(run_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS agent_artifacts_work ON agent_artifacts(work_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS budget_policies (
+      policy_id TEXT PRIMARY KEY,
+      scope_type TEXT NOT NULL,
+      scope_id TEXT NOT NULL,
+      period TEXT NOT NULL,
+      limit_usd REAL NOT NULL,
+      warning_pct REAL NOT NULL DEFAULT 0.8,
+      hard_stop INTEGER NOT NULL DEFAULT 1,
+      spent_usd REAL NOT NULL DEFAULT 0,
+      window_start TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      updated_at TEXT NOT NULL,
+      UNIQUE(scope_type, scope_id, period)
+    );
+    CREATE INDEX IF NOT EXISTS budget_policies_scope ON budget_policies(scope_type, scope_id, status);
+    CREATE TABLE IF NOT EXISTS agent_routines (
+      routine_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      trigger_type TEXT NOT NULL DEFAULT 'interval',
+      schedule TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      coalesce INTEGER NOT NULL DEFAULT 1,
+      catch_up INTEGER NOT NULL DEFAULT 0,
+      max_concurrency INTEGER NOT NULL DEFAULT 1,
+      next_due_at TEXT,
+      last_run_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_routines_due ON agent_routines(status, next_due_at);
+    CREATE TABLE IF NOT EXISTS agent_watchdogs (
+      watchdog_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      expected_outcome TEXT NOT NULL,
+      timeout_seconds INTEGER NOT NULL DEFAULT 900,
+      status TEXT NOT NULL DEFAULT 'armed',
+      recovery_action TEXT NOT NULL DEFAULT 'escalate',
+      last_checked_at TEXT,
+      fired_at TEXT,
+      detail TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_watchdogs_due ON agent_watchdogs(status, last_checked_at);
+    CREATE TABLE IF NOT EXISTS agent_evals (
+      eval_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      run_id TEXT,
+      evaluator TEXT NOT NULL,
+      dimension TEXT NOT NULL,
+      score REAL NOT NULL,
+      feedback TEXT NOT NULL DEFAULT '',
+      evidence_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_evals_agent ON agent_evals(agent_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_tool_grants (
+      grant_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      tool_name TEXT NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      approval_required INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, tool_name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_tool_grants_agent ON agent_tool_grants(agent_id, status);
+    CREATE TABLE IF NOT EXISTS agent_secrets (
+      secret_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      ciphertext TEXT NOT NULL,
+      nonce TEXT NOT NULL,
+      auth_tag TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(name)
+    );
+    CREATE INDEX IF NOT EXISTS agent_secrets_name ON agent_secrets(name);
+    CREATE TABLE IF NOT EXISTS agent_workspaces (
+      workspace_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      run_id TEXT,
+      site TEXT,
+      path TEXT NOT NULL,
+      mode TEXT NOT NULL DEFAULT 'isolated',
+      status TEXT NOT NULL DEFAULT 'active',
+      preview_url TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_workspaces_agent ON agent_workspaces(agent_id, status);
+    CREATE INDEX IF NOT EXISTS agent_workspaces_run ON agent_workspaces(run_id, status);
+    CREATE TABLE IF NOT EXISTS agent_skills (
+      skill_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS agent_skill_versions (
+      version_id TEXT PRIMARY KEY,
+      skill_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      instructions TEXT NOT NULL,
+      content_sha256 TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'draft',
+      tests_json TEXT NOT NULL DEFAULT '[]',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(skill_id, version)
+    );
+    CREATE TABLE IF NOT EXISTS agent_skill_assignments (
+      assignment_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      skill_id TEXT NOT NULL,
+      version INTEGER NOT NULL,
+      scope_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      UNIQUE(agent_id, skill_id)
+    );
+    CREATE TABLE IF NOT EXISTS agent_memories (
+      memory_id TEXT PRIMARY KEY,
+      agent_id TEXT,
+      kind TEXT NOT NULL DEFAULT 'lesson',
+      memory_key TEXT NOT NULL,
+      content TEXT NOT NULL,
+      confidence REAL NOT NULL DEFAULT 0.5,
+      source_run_id TEXT,
+      expires_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(agent_id, memory_key)
+    );
+    CREATE INDEX IF NOT EXISTS agent_memories_lookup ON agent_memories(agent_id, kind, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS runtime_plugins (
+      plugin_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      manifest_json TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_connectors (
+      connector_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL,
+      config_json TEXT NOT NULL DEFAULT '{}',
+      capabilities_json TEXT NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_adapters (
+      adapter_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL,
+      endpoint TEXT,
+      capabilities_json TEXT NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'offline',
+      version TEXT,
+      last_heartbeat_at TEXT,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS mcp_sessions (
+      session_id TEXT PRIMARY KEY,
+      connector_id TEXT NOT NULL,
+      protocol_version TEXT NOT NULL,
+      client_info_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS agent_run_logs (
+      log_id TEXT PRIMARY KEY,
+      run_id TEXT NOT NULL,
+      level TEXT NOT NULL,
+      message TEXT NOT NULL,
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_run_logs_run ON agent_run_logs(run_id, created_at);
+    CREATE TABLE IF NOT EXISTS agent_delegations (
+      delegation_id TEXT PRIMARY KEY,
+      from_agent_id TEXT NOT NULL,
+      to_agent_id TEXT NOT NULL,
+      work_kind TEXT NOT NULL DEFAULT 'any',
+      max_concurrent INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      UNIQUE(from_agent_id, to_agent_id, work_kind)
+    );
+    CREATE TABLE IF NOT EXISTS runtime_providers (
+      provider_id TEXT PRIMARY KEY,
+      slug TEXT NOT NULL UNIQUE,
+      kind TEXT NOT NULL,
+      capabilities_json TEXT NOT NULL DEFAULT '[]',
+      config_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'disabled',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_plugin_jobs (
+      job_id TEXT PRIMARY KEY,
+      plugin_id TEXT NOT NULL,
+      idempotency_key TEXT UNIQUE,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'queued',
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS runtime_connector_calls (
+      call_id TEXT PRIMARY KEY,
+      connector_id TEXT NOT NULL,
+      idempotency_key TEXT UNIQUE,
+      operation TEXT NOT NULL,
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'queued',
+      lease_owner TEXT,
+      lease_expires_at TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      result_json TEXT NOT NULL DEFAULT '{}',
+      error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS human_users (
+      user_id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      display_name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS api_credentials (
+      credential_id TEXT PRIMARY KEY,
+      user_id TEXT,
+      organization_id TEXT,
+      label TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      scopes_json TEXT NOT NULL DEFAULT '[]',
+      expires_at TEXT,
+      last_used_at TEXT,
+      revoked_at TEXT,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS api_credentials_lookup ON api_credentials(token_hash, revoked_at);
+    CREATE TABLE IF NOT EXISTS organization_invites (
+      invite_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      email TEXT NOT NULL,
+      role TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      invited_by TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      accepted_at TEXT,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS organization_invites_email ON organization_invites(email, organization_id);
+    CREATE TABLE IF NOT EXISTS agent_sessions (
+      session_id TEXT PRIMARY KEY,
+      agent_id TEXT NOT NULL,
+      organization_id TEXT NOT NULL,
+      run_id TEXT,
+      status TEXT NOT NULL DEFAULT 'active',
+      context_json TEXT NOT NULL DEFAULT '{}',
+      last_heartbeat_at TEXT NOT NULL,
+      expires_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_sessions_agent ON agent_sessions(agent_id, status, updated_at DESC);
+    CREATE TABLE IF NOT EXISTS agent_issues (
+      issue_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      project_id TEXT,
+      goal_id TEXT,
+      parent_issue_id TEXT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'open',
+      priority TEXT NOT NULL DEFAULT 'normal',
+      assignee_agent_id TEXT,
+      checkout_owner TEXT,
+      checkout_expires_at TEXT,
+      inbox_state TEXT NOT NULL DEFAULT 'unread',
+      labels_json TEXT NOT NULL DEFAULT '[]',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      closed_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS agent_issues_queue ON agent_issues(organization_id, status, priority, updated_at);
+    CREATE TABLE IF NOT EXISTS agent_issue_dependencies (
+      dependency_id TEXT PRIMARY KEY,
+      issue_id TEXT NOT NULL,
+      depends_on_issue_id TEXT NOT NULL,
+      relation TEXT NOT NULL DEFAULT 'blocks',
+      created_at TEXT NOT NULL,
+      UNIQUE(issue_id, depends_on_issue_id, relation)
+    );
+    CREATE TABLE IF NOT EXISTS agent_issue_comments (
+      comment_id TEXT PRIMARY KEY,
+      issue_id TEXT NOT NULL,
+      actor_id TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS agent_issue_comments_issue ON agent_issue_comments(issue_id, created_at);
+    CREATE TABLE IF NOT EXISTS agent_issue_attachments (
+      attachment_id TEXT PRIMARY KEY,
+      issue_id TEXT NOT NULL,
+      label TEXT NOT NULL,
+      uri TEXT NOT NULL,
+      content_type TEXT NOT NULL DEFAULT 'application/octet-stream',
+      sha256 TEXT,
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS execution_policies (
+      policy_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      scope_type TEXT NOT NULL,
+      scope_id TEXT NOT NULL,
+      stages_json TEXT NOT NULL DEFAULT '[]',
+      require_approval INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS governance_decisions (
+      decision_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      policy_id TEXT,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      actor_id TEXT NOT NULL,
+      decision TEXT NOT NULL,
+      reason TEXT NOT NULL DEFAULT '',
+      metadata_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS governance_decisions_entity ON governance_decisions(entity_type, entity_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS eval_suites (
+      suite_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      cases_json TEXT NOT NULL DEFAULT '[]',
+      threshold REAL NOT NULL DEFAULT 0.8,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS eval_runs (
+      eval_run_id TEXT PRIMARY KEY,
+      suite_id TEXT NOT NULL,
+      agent_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'queued',
+      scores_json TEXT NOT NULL DEFAULT '{}',
+      feedback TEXT NOT NULL DEFAULT '',
+      started_at TEXT,
+      finished_at TEXT,
+      created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS object_blobs (
+      blob_id TEXT PRIMARY KEY,
+      organization_id TEXT NOT NULL,
+      owner_type TEXT NOT NULL,
+      owner_id TEXT NOT NULL,
+      content_type TEXT NOT NULL,
+      storage_uri TEXT NOT NULL,
+      sha256 TEXT,
+      byte_size INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL
+    );
   `);
   ensureColumn(db, 'improvement_runs', 'workspace_path', 'TEXT');
   ensureColumn(db, 'improvement_runs', 'production_before', 'TEXT');
@@ -288,6 +866,30 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'lease_expires_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'heartbeat_at', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'retry_at', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'project_id', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'labels_json', "TEXT NOT NULL DEFAULT '[]'");
+  ensureColumn(db, 'agent_registry', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'agent_runs', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_goals', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_projects', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_plans', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'executive_work_items', 'organization_id', "TEXT NOT NULL DEFAULT 'fleet'");
+  ensureColumn(db, 'agent_workspaces', 'provider_id', 'TEXT');
+  db.prepare(
+    "UPDATE agent_registry SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
+  ).run();
+  db.prepare(
+    "UPDATE agent_runs SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id='' "
+  ).run();
+  for (const table of [
+    'executive_goals',
+    'executive_projects',
+    'executive_plans',
+    'executive_work_items',
+  ])
+    db.prepare(
+      `UPDATE ${table} SET organization_id='fleet' WHERE organization_id IS NULL OR organization_id=''`
+    ).run();
   ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'goal_id', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'parent_work_id', 'TEXT');
@@ -1336,6 +1938,125 @@ function open(root, { file } = {}) {
       .map(decodeExecutiveAction);
   }
 
+  function decodeProductivityPilot(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      treatment_sites: safeJson(row.treatment_sites_json),
+      control_sites: safeJson(row.control_sites_json),
+      lanes: safeJson(row.lanes_json),
+      baseline: safeJson(row.baseline_json),
+      evaluation: safeJson(row.evaluation_json),
+    };
+  }
+
+  function createProductivityPilot(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const pilotId = input.pilot_id || crypto.randomUUID();
+    const treatment = [
+      ...new Set(
+        (input.treatment_sites || []).map(site => String(site).trim().toLowerCase()).filter(Boolean)
+      ),
+    ];
+    const control = [
+      ...new Set(
+        (input.control_sites || []).map(site => String(site).trim().toLowerCase()).filter(Boolean)
+      ),
+    ];
+    if (!String(input.name || '').trim()) throw httpErr(400, 'pilot name is required');
+    if (!treatment.length || !control.length)
+      throw httpErr(400, 'pilot requires treatment and control sites');
+    if (treatment.some(site => control.includes(site)))
+      throw httpErr(400, 'pilot cohorts must not overlap');
+    const startAt = input.start_at || now;
+    const endAt = input.end_at || new Date(Date.parse(startAt) + 14 * 86400000).toISOString();
+    db.prepare(
+      `INSERT INTO productivity_pilots
+      (pilot_id,name,status,treatment_sites_json,control_sites_json,lanes_json,start_at,end_at,baseline_json,evaluation_json,created_by,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      pilotId,
+      String(input.name).trim(),
+      String(input.status || 'baseline'),
+      JSON.stringify(treatment),
+      JSON.stringify(control),
+      JSON.stringify(input.lanes || ['finish-sites', 'growth-revenue', 'site-factory']),
+      startAt,
+      endAt,
+      JSON.stringify(input.baseline || {}),
+      JSON.stringify(input.evaluation || {}),
+      String(input.created_by || 'system'),
+      now,
+      now
+    );
+    return getProductivityPilot(pilotId);
+  }
+
+  function getProductivityPilot(id) {
+    return decodeProductivityPilot(
+      db.prepare('SELECT * FROM productivity_pilots WHERE pilot_id=?').get(String(id))
+    );
+  }
+
+  function listProductivityPilots({ status, limit = 50 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 50, 200));
+    const rows = status
+      ? db
+          .prepare(
+            'SELECT * FROM productivity_pilots WHERE status=? ORDER BY created_at DESC LIMIT ?'
+          )
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM productivity_pilots ORDER BY created_at DESC LIMIT ?').all(n);
+    return rows.map(decodeProductivityPilot);
+  }
+
+  function updateProductivityPilot(id, patch = {}) {
+    const current = getProductivityPilot(id);
+    if (!current) throw httpErr(404, 'productivity pilot not found');
+    const next = {
+      ...current,
+      ...patch,
+      pilot_id: current.pilot_id,
+      updated_at: new Date().toISOString(),
+    };
+    db.prepare(
+      `UPDATE productivity_pilots SET status=?,baseline_json=?,evaluation_json=?,updated_at=? WHERE pilot_id=?`
+    ).run(
+      String(next.status || current.status),
+      JSON.stringify(next.baseline || {}),
+      JSON.stringify(next.evaluation || {}),
+      next.updated_at,
+      current.pilot_id
+    );
+    return getProductivityPilot(current.pilot_id);
+  }
+
+  function createProductivitySnapshot(input = {}) {
+    const pilot = getProductivityPilot(input.pilot_id);
+    if (!pilot) throw httpErr(404, 'productivity pilot not found');
+    const row = {
+      snapshot_id: input.snapshot_id || crypto.randomUUID(),
+      pilot_id: pilot.pilot_id,
+      phase: String(input.phase || 'current'),
+      snapshot: input.snapshot && typeof input.snapshot === 'object' ? input.snapshot : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO productivity_snapshots (snapshot_id,pilot_id,phase,snapshot_json,created_at) VALUES (?,?,?,?,?)'
+    ).run(row.snapshot_id, row.pilot_id, row.phase, JSON.stringify(row.snapshot), row.created_at);
+    return row;
+  }
+
+  function listProductivitySnapshots(pilotId, { limit = 20 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 20, 100));
+    return db
+      .prepare(
+        'SELECT * FROM productivity_snapshots WHERE pilot_id=? ORDER BY created_at DESC LIMIT ?'
+      )
+      .all(String(pilotId), n)
+      .map(row => ({ ...row, snapshot: safeJson(row.snapshot_json) }));
+  }
+
   function getExecutiveAction(id) {
     const row = db.prepare('SELECT * FROM executive_actions WHERE action_id = ?').get(String(id));
     return row ? decodeExecutiveAction(row) : null;
@@ -1413,7 +2134,108 @@ function open(root, { file } = {}) {
     'principal-engineer',
     'engineer',
     'owner',
+    'delivery-lead',
+    'design-director',
+    'growth-director',
+    'revenue-ops',
+    'site-factory',
   ]);
+
+  function createOrganization(input = {}) {
+    const slug = String(input.slug || '').trim();
+    const name = String(input.name || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !name)
+      throw httpErr(400, 'valid organization slug and name are required');
+    const now = new Date().toISOString();
+    try {
+      db.prepare(
+        'INSERT INTO organizations (organization_id,slug,name,status,created_at,updated_at) VALUES (?,?,?,?,?,?)'
+      ).run(
+        input.organization_id || crypto.randomUUID(),
+        slug,
+        name,
+        input.status || 'active',
+        now,
+        now
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)))
+        throw httpErr(409, 'organization slug already exists');
+      throw error;
+    }
+    return db.prepare('SELECT * FROM organizations WHERE slug=?').get(slug);
+  }
+
+  function listOrganizations({ status, limit = 100 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 100, 500));
+    return status
+      ? db
+          .prepare('SELECT * FROM organizations WHERE status=? ORDER BY name LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM organizations ORDER BY name LIMIT ?').all(n);
+  }
+
+  function getOrganization(id) {
+    return (
+      db
+        .prepare('SELECT * FROM organizations WHERE organization_id=? OR slug=?')
+        .get(String(id), String(id)) || null
+    );
+  }
+
+  function upsertOrganizationMember(input = {}) {
+    const organization = getOrganization(input.organization_id);
+    if (!organization) throw httpErr(404, 'organization not found');
+    const actorId = String(input.actor_id || '').trim();
+    const role = String(input.role || 'operator').trim();
+    if (!actorId || !['owner', 'operator', 'viewer'].includes(role))
+      throw httpErr(400, 'valid actor and membership role are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO organization_members (membership_id,organization_id,actor_id,role,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(organization_id,actor_id) DO UPDATE SET role=excluded.role,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.membership_id || crypto.randomUUID(),
+      organization.organization_id,
+      actorId,
+      role,
+      input.status || 'active',
+      now,
+      now
+    );
+    return db
+      .prepare('SELECT * FROM organization_members WHERE organization_id=? AND actor_id=?')
+      .get(organization.organization_id, actorId);
+  }
+
+  function listOrganizationMembers({ organization_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        `SELECT * FROM organization_members${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY actor_id LIMIT ?`
+      )
+      .all(...args, n);
+  }
+
+  function canOrganizationActor(organizationId, actorId, roles = ['owner', 'operator', 'viewer']) {
+    const organization = getOrganization(organizationId);
+    if (!organization || !actorId) return false;
+    const row = db
+      .prepare(
+        "SELECT role FROM organization_members WHERE organization_id=? AND actor_id=? AND status='active'"
+      )
+      .get(organization.organization_id, String(actorId));
+    return Boolean(row && roles.includes(row.role));
+  }
 
   const GOAL_STATUSES = new Set(['active', 'achieved', 'paused', 'cancelled']);
 
@@ -1426,7 +2248,13 @@ function open(root, { file } = {}) {
     return decodeExecutiveGoal(row);
   }
 
-  function listExecutiveGoals({ status, owner, parent_goal_id, limit = 500 } = {}) {
+  function listExecutiveGoals({
+    status,
+    owner,
+    parent_goal_id,
+    organization_id,
+    limit = 500,
+  } = {}) {
     const clauses = [],
       args = [];
     if (status) {
@@ -1440,6 +2268,10 @@ function open(root, { file } = {}) {
     if (parent_goal_id) {
       clauses.push('parent_goal_id=?');
       args.push(String(parent_goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     return db
       .prepare(
@@ -1476,6 +2308,7 @@ function open(root, { file } = {}) {
       updated_at: now,
       closed_at: input.closed_at || null,
       outcome: input.outcome ? String(input.outcome).trim() : null,
+      organization_id: String(input.organization_id || 'fleet'),
     };
     if (!row.title) throw httpErr(400, 'goal title is required');
     if (!row.statement) throw httpErr(400, 'goal statement is required');
@@ -1485,8 +2318,8 @@ function open(root, { file } = {}) {
       throw httpErr(404, 'parent goal not found');
     assertGoalParentDoesNotCycle(row.goal_id, row.parent_goal_id);
     db.prepare(
-      `INSERT INTO executive_goals (goal_id,title,statement,status,owner,parent_goal_id,target_at,evidence_json,created_by,created_at,updated_at,closed_at,outcome)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO executive_goals (goal_id,title,statement,status,owner,parent_goal_id,target_at,evidence_json,created_by,created_at,updated_at,closed_at,outcome,organization_id)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.goal_id,
       row.title,
@@ -1500,7 +2333,8 @@ function open(root, { file } = {}) {
       row.created_at,
       row.updated_at,
       row.closed_at,
-      row.outcome
+      row.outcome,
+      row.organization_id
     );
     return row;
   }
@@ -1552,6 +2386,7 @@ function open(root, { file } = {}) {
   function decodeExecutiveWorkItem(row) {
     return {
       ...row,
+      labels: safeJsonArray(row.labels_json),
       evidence: normalizeExecutiveEvidence(safeJson(row.evidence_json)),
       evidence_contract: 'executive-evidence/v1',
       evidence_json: undefined,
@@ -1614,6 +2449,283 @@ function open(root, { file } = {}) {
     }
   }
 
+  function createExecutiveProject(input = {}) {
+    const name = String(input.name || '').trim();
+    if (!name) throw httpErr(400, 'project name is required');
+    if (input.goal_id && !getExecutiveGoal(input.goal_id)) throw httpErr(404, 'goal not found');
+    const now = new Date().toISOString();
+    const row = {
+      project_id: input.project_id || crypto.randomUUID(),
+      name,
+      description: String(input.description || ''),
+      status: String(input.status || 'active'),
+      owner: String(input.owner || 'project-manager'),
+      goal_id: input.goal_id || null,
+      created_by: String(input.created_by || 'system'),
+      organization_id: String(input.organization_id || 'fleet'),
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+    };
+    if (!['active', 'paused', 'completed', 'cancelled'].includes(row.status))
+      throw httpErr(400, 'invalid project status');
+    db.prepare(
+      'INSERT INTO executive_projects (project_id,name,description,status,owner,goal_id,created_by,created_at,updated_at,closed_at,organization_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.project_id,
+      row.name,
+      row.description,
+      row.status,
+      row.owner,
+      row.goal_id,
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.closed_at,
+      row.organization_id
+    );
+    return row;
+  }
+
+  function getExecutiveProject(id) {
+    return (
+      db.prepare('SELECT * FROM executive_projects WHERE project_id=?').get(String(id)) || null
+    );
+  }
+  function listExecutiveProjects({ status, goal_id, organization_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    if (goal_id) {
+      clauses.push('goal_id=?');
+      args.push(String(goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        `SELECT * FROM executive_projects${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+
+  function updateExecutiveProject(id, patch = {}) {
+    const current = getExecutiveProject(id);
+    if (!current) throw httpErr(404, 'project not found');
+    const next = {
+      ...current,
+      ...patch,
+      project_id: current.project_id,
+      updated_at: new Date().toISOString(),
+    };
+    if (!next.name || !['active', 'paused', 'completed', 'cancelled'].includes(String(next.status)))
+      throw httpErr(400, 'invalid project update');
+    db.prepare(
+      'UPDATE executive_projects SET name=?,description=?,status=?,owner=?,goal_id=?,updated_at=?,closed_at=? WHERE project_id=?'
+    ).run(
+      String(next.name),
+      String(next.description || ''),
+      String(next.status),
+      String(next.owner),
+      next.goal_id || null,
+      next.updated_at,
+      ['completed', 'cancelled'].includes(next.status) ? next.closed_at || next.updated_at : null,
+      current.project_id
+    );
+    return getExecutiveProject(current.project_id);
+  }
+
+  function createExecutivePlan(input = {}) {
+    const title = String(input.title || '').trim();
+    if (!title) throw httpErr(400, 'plan title is required');
+    if (input.goal_id && !getExecutiveGoal(input.goal_id)) throw httpErr(404, 'goal not found');
+    const now = new Date().toISOString();
+    const row = {
+      plan_id: input.plan_id || crypto.randomUUID(),
+      goal_id: input.goal_id || null,
+      title,
+      status: 'draft',
+      current_version: 0,
+      owner: String(input.owner || 'ceo'),
+      created_by: String(input.created_by || 'system'),
+      organization_id: String(input.organization_id || 'fleet'),
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO executive_plans (plan_id,goal_id,title,status,current_version,owner,created_by,created_at,updated_at,organization_id) VALUES (?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.plan_id,
+      row.goal_id,
+      row.title,
+      row.status,
+      row.current_version,
+      row.owner,
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.organization_id
+    );
+    return row;
+  }
+  function getExecutivePlan(id) {
+    return db.prepare('SELECT * FROM executive_plans WHERE plan_id=?').get(String(id)) || null;
+  }
+  function listExecutivePlans({ status, goal_id, organization_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    if (goal_id) {
+      clauses.push('goal_id=?');
+      args.push(String(goal_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM executive_plans${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function addExecutivePlanVersion(planId, input = {}) {
+    const plan = getExecutivePlan(planId);
+    if (!plan) throw httpErr(404, 'plan not found');
+    if (['approved', 'archived'].includes(plan.status))
+      throw httpErr(409, 'approved or archived plans require a new plan');
+    const body = input.body && typeof input.body === 'object' ? input.body : {};
+    const version = Number(plan.current_version || 0) + 1;
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO executive_plan_versions (version_id,plan_id,version,body_json,change_summary,created_by,created_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      input.version_id || crypto.randomUUID(),
+      plan.plan_id,
+      version,
+      JSON.stringify(body),
+      String(input.change_summary || ''),
+      String(input.created_by || 'system'),
+      now
+    );
+    db.prepare(
+      'UPDATE executive_plans SET current_version=?,status=?,updated_at=? WHERE plan_id=?'
+    ).run(version, 'submitted', now, plan.plan_id);
+    return getExecutivePlanVersion(plan.plan_id, version);
+  }
+  function getExecutivePlanVersion(planId, version) {
+    const row = db
+      .prepare('SELECT * FROM executive_plan_versions WHERE plan_id=? AND version=?')
+      .get(String(planId), Number(version));
+    return row ? { ...row, body: safeJson(row.body_json) } : null;
+  }
+  function listExecutivePlanVersions(planId) {
+    return db
+      .prepare('SELECT * FROM executive_plan_versions WHERE plan_id=? ORDER BY version DESC')
+      .all(String(planId))
+      .map(row => ({ ...row, body: safeJson(row.body_json) }));
+  }
+  function decideExecutivePlan(planId, input = {}) {
+    const plan = getExecutivePlan(planId);
+    if (!plan) throw httpErr(404, 'plan not found');
+    const decision = String(input.decision || '').trim();
+    if (!['approved', 'rejected'].includes(decision))
+      throw httpErr(400, 'decision must be approved or rejected');
+    const version = Number(input.version || plan.current_version);
+    if (!getExecutivePlanVersion(planId, version)) throw httpErr(404, 'plan version not found');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO executive_plan_approvals (approval_id,plan_id,version,decision,note,decided_by,decided_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      input.approval_id || crypto.randomUUID(),
+      plan.plan_id,
+      version,
+      decision,
+      String(input.note || ''),
+      String(input.decided_by || 'owner'),
+      now
+    );
+    db.prepare('UPDATE executive_plans SET status=?,updated_at=? WHERE plan_id=?').run(
+      decision === 'approved' ? 'approved' : 'draft',
+      now,
+      plan.plan_id
+    );
+    return getExecutivePlan(plan.plan_id);
+  }
+  function listExecutivePlanApprovals(planId) {
+    return db
+      .prepare('SELECT * FROM executive_plan_approvals WHERE plan_id=? ORDER BY decided_at DESC')
+      .all(String(planId));
+  }
+
+  function createWorkComment(input = {}) {
+    if (!getExecutiveWorkItem(input.work_id)) throw httpErr(404, 'work item not found');
+    const body = String(input.body || '').trim();
+    if (!body || body.length > 20000)
+      throw httpErr(400, 'comment body is required and must be under 20KB');
+    const row = {
+      comment_id: input.comment_id || crypto.randomUUID(),
+      work_id: String(input.work_id),
+      author: String(input.author || 'system'),
+      body,
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO work_comments (comment_id,work_id,author,body,created_at) VALUES (?,?,?,?,?)'
+    ).run(row.comment_id, row.work_id, row.author, row.body, row.created_at);
+    return row;
+  }
+  function listWorkComments({ work_id, limit = 200 } = {}) {
+    return db
+      .prepare('SELECT * FROM work_comments WHERE work_id=? ORDER BY created_at LIMIT ?')
+      .all(String(work_id), Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function createWorkAttachment(input = {}) {
+    if (!getExecutiveWorkItem(input.work_id)) throw httpErr(404, 'work item not found');
+    const label = String(input.label || '').trim(),
+      uri = String(input.uri || '').trim();
+    if (!label || !uri || uri.includes('..') || /[\u0000-\u001f]/.test(uri))
+      throw httpErr(400, 'invalid attachment');
+    const row = {
+      attachment_id: input.attachment_id || crypto.randomUUID(),
+      work_id: String(input.work_id),
+      label,
+      uri,
+      sha256: input.sha256 || null,
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_by: String(input.created_by || 'system'),
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO work_attachments (attachment_id,work_id,label,uri,sha256,metadata_json,created_by,created_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      row.attachment_id,
+      row.work_id,
+      row.label,
+      row.uri,
+      row.sha256,
+      JSON.stringify(row.metadata),
+      row.created_by,
+      row.created_at
+    );
+    return row;
+  }
+  function listWorkAttachments({ work_id, limit = 200 } = {}) {
+    return db
+      .prepare('SELECT * FROM work_attachments WHERE work_id=? ORDER BY created_at DESC LIMIT ?')
+      .all(String(work_id), Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
+  }
+
   function createExecutiveWorkItem(input = {}) {
     const now = input.created_at || new Date().toISOString();
     const row = {
@@ -1628,6 +2740,14 @@ function open(root, { file } = {}) {
       site: input.site ? String(input.site).trim() : null,
       goal_id: input.goal_id ? String(input.goal_id).trim() : null,
       parent_work_id: input.parent_work_id ? String(input.parent_work_id).trim() : null,
+      project_id: input.project_id ? String(input.project_id).trim() : null,
+      labels: Array.isArray(input.labels)
+        ? input.labels
+            .map(String)
+            .map(value => value.trim())
+            .filter(Boolean)
+            .slice(0, 30)
+        : [],
       summary: String(input.summary || '').trim(),
       next_action: String(input.next_action || '').trim(),
       waiting_on: input.waiting_on ? String(input.waiting_on).trim() : null,
@@ -1650,17 +2770,20 @@ function open(root, { file } = {}) {
       heartbeat_at: input.heartbeat_at || null,
       retry_at: input.retry_at || null,
       last_error: input.last_error ? String(input.last_error).trim() : null,
+      organization_id: String(input.organization_id || 'fleet'),
     };
     if (!row.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(row.kind)) throw httpErr(400, 'invalid work item kind');
     if (!WORK_ITEM_STATUSES.has(row.status)) throw httpErr(400, 'invalid work item status');
     if (!WORK_ITEM_PRIORITIES.has(row.priority)) throw httpErr(400, 'invalid work item priority');
     if (!WORK_ITEM_OWNERS.has(row.owner)) throw httpErr(400, 'invalid work item owner');
+    if (row.project_id && !getExecutiveProject(row.project_id))
+      throw httpErr(404, 'project not found');
     assertWorkLineage(row);
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,organization_id,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).run(
       row.work_id,
       row.title,
@@ -1673,6 +2796,8 @@ function open(root, { file } = {}) {
       row.site,
       row.goal_id,
       row.parent_work_id,
+      row.project_id,
+      JSON.stringify(row.labels),
       row.summary,
       row.next_action,
       row.waiting_on,
@@ -1688,6 +2813,7 @@ function open(root, { file } = {}) {
       row.answered_at,
       row.closed_at,
       row.outcome,
+      row.organization_id,
       row.attempts,
       row.lease_owner,
       row.lease_expires_at,
@@ -1707,6 +2833,8 @@ function open(root, { file } = {}) {
     priority,
     site,
     source_type,
+    quiet,
+    organization_id,
     limit = 200,
   } = {}) {
     const clauses = [],
@@ -1742,6 +2870,22 @@ function open(root, { file } = {}) {
     if (source_type) {
       clauses.push('source_type = ?');
       args.push(String(source_type));
+    }
+    // The default executive view is owner-facing. System-generated
+    // report/evidence follow-through remains durable and queryable, but does
+    // not drown the owner in routine waiting cases. Blocked or urgent cases
+    // always remain visible; pass quiet=1 to explicitly include the quiet
+    // lane (for example, for audits and role views).
+    if (String(quiet || '') === '0' || String(quiet || '').toLowerCase() === 'false') {
+      // Explicit opt-out: include every work item.
+    } else if (String(quiet || '') === '1' || String(quiet || '').toLowerCase() === 'true') {
+      clauses.push(
+        "NOT (source_type = 'approved-proposal' AND kind IN ('research','evidence') AND status = 'waiting' AND priority NOT IN ('urgent','high'))"
+      );
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
     }
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
     const where = clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
@@ -1915,6 +3059,1833 @@ function open(root, { file } = {}) {
     });
   }
 
+  const AGENT_STATUSES = new Set(['active', 'paused', 'disabled']);
+  const AGENT_RUN_STATUSES = new Set([
+    'queued',
+    'running',
+    'paused',
+    'succeeded',
+    'failed',
+    'cancelled',
+  ]);
+  const AGENT_ARTIFACT_KINDS = new Set([
+    'report',
+    'diff',
+    'preview',
+    'test',
+    'screenshot',
+    'deployment',
+    'other',
+  ]);
+  const BUDGET_PERIODS = new Set(['run', 'hour', 'day', 'month']);
+
+  function decodeAgent(row) {
+    if (!row) return null;
+    return {
+      ...row,
+      permissions: safeJsonArray(row.permissions_json),
+      budget: safeJson(row.budget_json),
+      heartbeat: safeJson(row.heartbeat_json),
+      workspace: safeJson(row.workspace_json),
+    };
+  }
+
+  function decodeAgentRun(row) {
+    if (!row) return null;
+    return { ...row, result: safeJson(row.result_json) };
+  }
+
+  function decodeAgentArtifact(row) {
+    if (!row) return null;
+    return { ...row, metadata: safeJson(row.metadata_json) };
+  }
+
+  function decodeBudget(row) {
+    return row ? { ...row, hard_stop: Boolean(row.hard_stop) } : null;
+  }
+
+  function createAgent(input = {}) {
+    const now = input.created_at || new Date().toISOString();
+    const row = {
+      agent_id: String(input.agent_id || crypto.randomUUID()),
+      organization_id: String(input.organization_id || 'fleet'),
+      slug: String(input.slug || '').trim(),
+      name: String(input.name || '').trim(),
+      title: String(input.title || '').trim(),
+      role: String(input.role || '').trim(),
+      manager_id: input.manager_id ? String(input.manager_id).trim() : null,
+      provider: String(input.provider || 'chatgpt').trim(),
+      model: input.model ? String(input.model).trim() : null,
+      adapter: String(input.adapter || 'codex').trim(),
+      status: String(input.status || 'active').trim(),
+      permissions: Array.isArray(input.permissions) ? input.permissions : [],
+      budget: input.budget && typeof input.budget === 'object' ? input.budget : {},
+      heartbeat: input.heartbeat && typeof input.heartbeat === 'object' ? input.heartbeat : {},
+      workspace: input.workspace && typeof input.workspace === 'object' ? input.workspace : {},
+      created_at: now,
+      updated_at: now,
+      paused_at: input.paused_at || null,
+      pause_reason: input.pause_reason ? String(input.pause_reason).trim() : null,
+    };
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(row.slug)) throw httpErr(400, 'invalid agent slug');
+    if (!row.name || !row.title || !row.role)
+      throw httpErr(400, 'agent name, title, and role are required');
+    if (!AGENT_STATUSES.has(row.status)) throw httpErr(400, 'invalid agent status');
+    if (!row.provider || !row.adapter)
+      throw httpErr(400, 'agent provider and adapter are required');
+    if (!getOrganization(row.organization_id)) throw httpErr(404, 'organization not found');
+    if (row.manager_id && !getAgent(row.manager_id)) throw httpErr(404, 'agent manager not found');
+    try {
+      db.prepare(
+        `INSERT INTO agent_registry
+        (agent_id,organization_id,slug,name,title,role,manager_id,provider,model,adapter,status,permissions_json,budget_json,heartbeat_json,workspace_json,created_at,updated_at,paused_at,pause_reason)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        row.agent_id,
+        row.organization_id,
+        row.slug,
+        row.name,
+        row.title,
+        row.role,
+        row.manager_id,
+        row.provider,
+        row.model,
+        row.adapter,
+        row.status,
+        JSON.stringify(row.permissions),
+        JSON.stringify(row.budget),
+        JSON.stringify(row.heartbeat),
+        JSON.stringify(row.workspace),
+        row.created_at,
+        row.updated_at,
+        row.paused_at,
+        row.pause_reason
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message))) throw httpErr(409, 'agent slug already exists');
+      throw error;
+    }
+    return decodeAgent(
+      db.prepare('SELECT * FROM agent_registry WHERE agent_id = ?').get(row.agent_id)
+    );
+  }
+
+  function getAgent(id, organizationId = null) {
+    const row = db
+      .prepare(
+        `SELECT * FROM agent_registry WHERE (agent_id = ? OR slug = ?)${organizationId ? ' AND organization_id=?' : ''}`
+      )
+      .get(
+        ...(organizationId
+          ? [
+              String(id),
+              String(id),
+              String(getOrganization(organizationId)?.organization_id || organizationId),
+            ]
+          : [String(id), String(id)])
+      );
+    return decodeAgent(row);
+  }
+
+  function listAgents({ role, status, manager_id, organization_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (role) {
+      clauses.push('role = ?');
+      args.push(String(role));
+    }
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (manager_id) {
+      clauses.push('manager_id = ?');
+      args.push(String(manager_id));
+    }
+    if (organization_id) {
+      clauses.push('organization_id = ?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_registry${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY role, slug LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgent);
+  }
+
+  function updateAgent(id, patch = {}) {
+    const current = getAgent(id);
+    if (!current) throw httpErr(404, 'agent not found');
+    const next = {
+      ...current,
+      ...patch,
+      agent_id: current.agent_id,
+      updated_at: new Date().toISOString(),
+    };
+    next.slug = String(next.slug || '').trim();
+    next.name = String(next.name || '').trim();
+    next.title = String(next.title || '').trim();
+    next.role = String(next.role || '').trim();
+    next.status = String(next.status || '').trim();
+    if (!AGENT_STATUSES.has(next.status)) throw httpErr(400, 'invalid agent status');
+    if (next.manager_id && !getAgent(next.manager_id))
+      throw httpErr(404, 'agent manager not found');
+    if (next.status === 'paused' && !next.paused_at) next.paused_at = next.updated_at;
+    if (next.status !== 'paused') {
+      next.paused_at = null;
+      next.pause_reason = null;
+    }
+    db.prepare(
+      `UPDATE agent_registry SET slug=?,name=?,title=?,role=?,manager_id=?,provider=?,model=?,adapter=?,status=?,permissions_json=?,budget_json=?,heartbeat_json=?,workspace_json=?,updated_at=?,paused_at=?,pause_reason=? WHERE agent_id=?`
+    ).run(
+      next.slug,
+      next.name,
+      next.title,
+      next.role,
+      next.manager_id || null,
+      next.provider,
+      next.model || null,
+      next.adapter,
+      next.status,
+      JSON.stringify(next.permissions || []),
+      JSON.stringify(next.budget || {}),
+      JSON.stringify(next.heartbeat || {}),
+      JSON.stringify(next.workspace || {}),
+      next.updated_at,
+      next.paused_at || null,
+      next.pause_reason || null,
+      current.agent_id
+    );
+    return getAgent(current.agent_id);
+  }
+
+  function createAgentRun(input = {}) {
+    const agent = getAgent(input.agent_id);
+    if (!agent) throw httpErr(404, 'agent not found');
+    const status = String(input.status || 'queued');
+    if (!AGENT_RUN_STATUSES.has(status)) throw httpErr(400, 'invalid agent run status');
+    const now = input.started_at || new Date().toISOString();
+    const run = {
+      run_id: String(input.run_id || crypto.randomUUID()),
+      agent_id: agent.agent_id,
+      organization_id: input.organization_id || agent.organization_id || 'fleet',
+      work_id: input.work_id ? String(input.work_id) : null,
+      goal_id: input.goal_id ? String(input.goal_id) : null,
+      session_id: input.session_id ? String(input.session_id) : crypto.randomUUID(),
+      idempotency_key: input.idempotency_key ? String(input.idempotency_key) : null,
+      status,
+      attempt: Math.max(1, Number(input.attempt) || 1),
+      provider: String(input.provider || agent.provider),
+      model: input.model || agent.model || null,
+      started_at: now,
+      updated_at: now,
+      finished_at: input.finished_at || null,
+      heartbeat_at: input.heartbeat_at || now,
+      workspace_path: input.workspace_path || null,
+      input_tokens: Number(input.input_tokens) || 0,
+      output_tokens: Number(input.output_tokens) || 0,
+      total_tokens: Number(input.total_tokens) || 0,
+      cost_usd: Number(input.cost_usd) || 0,
+      result: input.result && typeof input.result === 'object' ? input.result : {},
+      error: input.error || null,
+    };
+    if (run.cost_usd < 0 || run.input_tokens < 0 || run.output_tokens < 0)
+      throw httpErr(400, 'usage values cannot be negative');
+    const budgetBlock = budgetBlockReason(run);
+    if (budgetBlock && run.status !== 'cancelled') throw httpErr(409, budgetBlock);
+    const governanceBlock = governanceBlockReason(run);
+    if (governanceBlock && run.status === 'running') throw httpErr(409, governanceBlock);
+    try {
+      db.prepare(
+        `INSERT INTO agent_runs
+        (run_id,agent_id,organization_id,work_id,goal_id,session_id,idempotency_key,status,attempt,provider,model,started_at,updated_at,finished_at,heartbeat_at,workspace_path,input_tokens,output_tokens,total_tokens,cost_usd,result_json,error)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        run.run_id,
+        run.agent_id,
+        run.organization_id,
+        run.work_id,
+        run.goal_id,
+        run.session_id,
+        run.idempotency_key,
+        run.status,
+        run.attempt,
+        run.provider,
+        run.model,
+        run.started_at,
+        run.updated_at,
+        run.finished_at,
+        run.heartbeat_at,
+        run.workspace_path,
+        run.input_tokens,
+        run.output_tokens,
+        run.total_tokens || run.input_tokens + run.output_tokens,
+        run.cost_usd,
+        JSON.stringify(run.result),
+        run.error
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && run.idempotency_key)
+        return getAgentRunByIdempotency(run.idempotency_key);
+      throw error;
+    }
+    return getAgentRun(run.run_id);
+  }
+
+  function getAgentRun(id) {
+    return decodeAgentRun(db.prepare('SELECT * FROM agent_runs WHERE run_id = ?').get(String(id)));
+  }
+
+  function getAgentRunByIdempotency(key) {
+    return decodeAgentRun(
+      db.prepare('SELECT * FROM agent_runs WHERE idempotency_key = ?').get(String(key))
+    );
+  }
+
+  function listAgentRuns({ agent_id, work_id, status, organization_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (agent_id) {
+      clauses.push('agent_id = ?');
+      args.push(String(agent_id));
+    }
+    if (work_id) {
+      clauses.push('work_id = ?');
+      args.push(String(work_id));
+    }
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (organization_id) {
+      clauses.push('organization_id=?');
+      args.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_runs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY started_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentRun);
+  }
+
+  function updateAgentRun(id, patch = {}) {
+    const current = getAgentRun(id);
+    if (!current) throw httpErr(404, 'agent run not found');
+    const status = patch.status ? String(patch.status) : current.status;
+    if (!AGENT_RUN_STATUSES.has(status)) throw httpErr(400, 'invalid agent run status');
+    const now = new Date().toISOString();
+    const terminal = ['succeeded', 'failed', 'cancelled'].includes(status);
+    db.prepare(
+      `UPDATE agent_runs SET status=?,updated_at=?,finished_at=?,heartbeat_at=?,workspace_path=?,input_tokens=?,output_tokens=?,total_tokens=?,cost_usd=?,result_json=?,error=? WHERE run_id=?`
+    ).run(
+      status,
+      now,
+      terminal ? patch.finished_at || current.finished_at || now : null,
+      patch.heartbeat_at || (terminal ? current.heartbeat_at : now),
+      patch.workspace_path ?? current.workspace_path,
+      Number(patch.input_tokens ?? current.input_tokens) || 0,
+      Number(patch.output_tokens ?? current.output_tokens) || 0,
+      Number(patch.total_tokens ?? current.total_tokens) || 0,
+      Number(patch.cost_usd ?? current.cost_usd) || 0,
+      JSON.stringify(patch.result ?? current.result ?? {}),
+      patch.error ?? current.error ?? null,
+      current.run_id
+    );
+    return getAgentRun(current.run_id);
+  }
+
+  function decodeAgentDispatch(row) {
+    return row ? { ...row, payload: safeJson(row.payload_json) } : null;
+  }
+
+  function createAgentDispatch(input = {}) {
+    const run = getAgentRun(input.run_id);
+    if (!run) throw httpErr(404, 'agent run not found');
+    const now = new Date().toISOString();
+    const row = {
+      dispatch_id: input.dispatch_id || crypto.randomUUID(),
+      run_id: run.run_id,
+      agent_id: run.agent_id,
+      adapter: String(input.adapter || run.provider || 'codex').trim(),
+      status: String(input.status || 'queued'),
+      payload: input.payload && typeof input.payload === 'object' ? input.payload : {},
+      available_at: input.available_at || now,
+      lease_owner: null,
+      lease_expires_at: null,
+      attempts: 0,
+      last_error: null,
+      created_at: now,
+      updated_at: now,
+    };
+    if (!['queued', 'leased', 'succeeded', 'failed', 'cancelled'].includes(row.status))
+      throw httpErr(400, 'invalid dispatch status');
+    try {
+      db.prepare(
+        `INSERT INTO agent_dispatch_queue
+        (dispatch_id,run_id,agent_id,adapter,status,payload_json,available_at,lease_owner,lease_expires_at,attempts,last_error,created_at,updated_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      ).run(
+        row.dispatch_id,
+        row.run_id,
+        row.agent_id,
+        row.adapter,
+        row.status,
+        JSON.stringify(row.payload),
+        row.available_at,
+        row.lease_owner,
+        row.lease_expires_at,
+        row.attempts,
+        row.last_error,
+        row.created_at,
+        row.updated_at
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)))
+        return (
+          db.prepare('SELECT * FROM agent_dispatch_queue WHERE run_id=?').get(row.run_id) &&
+          decodeAgentDispatch(
+            db.prepare('SELECT * FROM agent_dispatch_queue WHERE run_id=?').get(row.run_id)
+          )
+        );
+      throw error;
+    }
+    return decodeAgentDispatch(
+      db.prepare('SELECT * FROM agent_dispatch_queue WHERE dispatch_id=?').get(row.dispatch_id)
+    );
+  }
+
+  function getAgentDispatch(id) {
+    return decodeAgentDispatch(
+      db
+        .prepare('SELECT * FROM agent_dispatch_queue WHERE dispatch_id=? OR run_id=?')
+        .get(String(id), String(id))
+    );
+  }
+
+  function listAgentDispatches({ status, agent_id, adapter, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['status', status],
+      ['agent_id', agent_id],
+      ['adapter', adapter],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_dispatch_queue${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentDispatch);
+  }
+
+  function claimAgentDispatch(workerId, { leaseSeconds = 900 } = {}) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'dispatch worker id is required');
+    const now = new Date();
+    const iso = now.toISOString();
+    const expires = new Date(
+      now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000
+    ).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          `SELECT * FROM agent_dispatch_queue WHERE (status='queued' AND available_at<=?) OR (status='leased' AND lease_expires_at<=?) ORDER BY available_at, created_at LIMIT 1`
+        )
+        .get(iso, iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      const result = db
+        .prepare(
+          `UPDATE agent_dispatch_queue SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE dispatch_id=? AND (status='queued' OR (status='leased' AND lease_expires_at<=?))`
+        )
+        .run(owner, expires, iso, row.dispatch_id, iso);
+      if (!result.changes) {
+        db.exec('ROLLBACK');
+        return null;
+      }
+      db.exec('COMMIT');
+      return getAgentDispatch(row.dispatch_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+
+  function completeAgentDispatch(id, { status = 'succeeded', error = null, available_at } = {}) {
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid dispatch completion status');
+    const current = getAgentDispatch(id);
+    if (!current) throw httpErr(404, 'agent dispatch not found');
+    db.prepare(
+      'UPDATE agent_dispatch_queue SET status=?,lease_owner=NULL,lease_expires_at=NULL,last_error=?,available_at=?,updated_at=? WHERE dispatch_id=?'
+    ).run(
+      status,
+      error || null,
+      available_at || new Date().toISOString(),
+      new Date().toISOString(),
+      current.dispatch_id
+    );
+    return getAgentDispatch(current.dispatch_id);
+  }
+
+  function completeAgentDispatchForRun(runId, status, error = null) {
+    const dispatch = getAgentDispatch(runId);
+    return dispatch ? completeAgentDispatch(dispatch.dispatch_id, { status, error }) : null;
+  }
+
+  function createAgentArtifact(input = {}) {
+    const kind = String(input.kind || 'other');
+    const label = String(input.label || '').trim();
+    if (!AGENT_ARTIFACT_KINDS.has(kind)) throw httpErr(400, 'invalid artifact kind');
+    if (!label) throw httpErr(400, 'artifact label is required');
+    if (input.run_id && !getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const row = {
+      artifact_id: String(input.artifact_id || crypto.randomUUID()),
+      run_id: input.run_id || null,
+      work_id: input.work_id || null,
+      agent_id: input.agent_id || null,
+      kind,
+      label,
+      uri: input.uri || null,
+      sha256: input.sha256 || null,
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      `INSERT INTO agent_artifacts (artifact_id,run_id,work_id,agent_id,kind,label,uri,sha256,metadata_json,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`
+    ).run(
+      row.artifact_id,
+      row.run_id,
+      row.work_id,
+      row.agent_id,
+      row.kind,
+      row.label,
+      row.uri,
+      row.sha256,
+      JSON.stringify(row.metadata),
+      row.created_at
+    );
+    return decodeAgentArtifact(
+      db.prepare('SELECT * FROM agent_artifacts WHERE artifact_id = ?').get(row.artifact_id)
+    );
+  }
+
+  function listAgentArtifacts({ run_id, work_id, agent_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['run_id', run_id],
+      ['work_id', work_id],
+      ['agent_id', agent_id],
+    ])
+      if (value) {
+        clauses.push(`${field} = ?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_artifacts${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeAgentArtifact);
+  }
+
+  function upsertBudgetPolicy(input = {}) {
+    const scopeType = String(input.scope_type || '').trim();
+    const scopeId = String(input.scope_id || '').trim();
+    const period = String(input.period || 'month').trim();
+    const limit = Number(input.limit_usd);
+    if (
+      !scopeType ||
+      !scopeId ||
+      !BUDGET_PERIODS.has(period) ||
+      !Number.isFinite(limit) ||
+      limit < 0
+    )
+      throw httpErr(400, 'invalid budget policy');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO budget_policies (policy_id,scope_type,scope_id,period,limit_usd,warning_pct,hard_stop,spent_usd,window_start,status,updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(scope_type,scope_id,period) DO UPDATE SET limit_usd=excluded.limit_usd,warning_pct=excluded.warning_pct,hard_stop=excluded.hard_stop,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.policy_id || crypto.randomUUID(),
+      scopeType,
+      scopeId,
+      period,
+      limit,
+      Number(input.warning_pct ?? 0.8),
+      input.hard_stop === false ? 0 : 1,
+      Number(input.spent_usd) || 0,
+      input.window_start || now,
+      String(input.status || 'active'),
+      now
+    );
+    return getBudgetPolicy({ scope_type: scopeType, scope_id: scopeId, period });
+  }
+
+  function getBudgetPolicy({ scope_type, scope_id, period }) {
+    return decodeBudget(
+      db
+        .prepare('SELECT * FROM budget_policies WHERE scope_type=? AND scope_id=? AND period=?')
+        .get(String(scope_type), String(scope_id), String(period))
+    );
+  }
+
+  function listBudgetPolicies({ scope_type, scope_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['scope_type', scope_type],
+      ['scope_id', scope_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field} = ?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM budget_policies${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY scope_type, scope_id, period LIMIT ?`
+      )
+      .all(...args, n)
+      .map(decodeBudget);
+  }
+
+  function reserveBudget({ scope_type, scope_id, period = 'month', amount_usd = 0 }) {
+    const amount = Number(amount_usd);
+    if (!Number.isFinite(amount) || amount < 0) throw httpErr(400, 'invalid budget amount');
+    const policy = getBudgetPolicy({ scope_type, scope_id, period });
+    if (!policy || policy.status !== 'active')
+      return { allowed: true, policy: policy || null, reason: 'no_active_policy' };
+    const result = db
+      .prepare(
+        `UPDATE budget_policies SET spent_usd=spent_usd+?,updated_at=? WHERE policy_id=? AND status='active' AND (hard_stop=0 OR spent_usd+? <= limit_usd)`
+      )
+      .run(amount, new Date().toISOString(), policy.policy_id, amount);
+    const updated = getBudgetPolicy({ scope_type, scope_id, period });
+    if (!result.changes) return { allowed: false, policy: updated, reason: 'budget_exceeded' };
+    return {
+      allowed: true,
+      policy: updated,
+      warning: updated.spent_usd >= updated.limit_usd * updated.warning_pct,
+    };
+  }
+
+  function reserveBudgetBatch(reservations = []) {
+    if (!Array.isArray(reservations) || !reservations.length)
+      return { allowed: true, policies: [] };
+    const normalized = reservations.map(item => ({
+      scope_type: String(item.scope_type || '').trim(),
+      scope_id: String(item.scope_id || '').trim(),
+      period: String(item.period || 'month').trim(),
+      amount_usd: Number(item.amount_usd || 0),
+    }));
+    if (
+      normalized.some(
+        item =>
+          !item.scope_type ||
+          !item.scope_id ||
+          !Number.isFinite(item.amount_usd) ||
+          item.amount_usd < 0
+      )
+    )
+      throw httpErr(400, 'invalid budget reservation batch');
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const policies = [];
+      for (const item of normalized) {
+        const policy = db
+          .prepare('SELECT * FROM budget_policies WHERE scope_type=? AND scope_id=? AND period=?')
+          .get(item.scope_type, item.scope_id, item.period);
+        if (!policy || policy.status !== 'active') continue;
+        const result = db
+          .prepare(
+            `UPDATE budget_policies SET spent_usd=spent_usd+?,updated_at=? WHERE policy_id=? AND status='active' AND (hard_stop=0 OR spent_usd+? <= limit_usd)`
+          )
+          .run(item.amount_usd, new Date().toISOString(), policy.policy_id, item.amount_usd);
+        if (!result.changes)
+          throw httpErr(409, `budget exceeded for ${item.scope_type}:${item.scope_id}`);
+        policies.push(
+          db.prepare('SELECT * FROM budget_policies WHERE policy_id=?').get(policy.policy_id)
+        );
+      }
+      db.exec('COMMIT');
+      return { allowed: true, policies: policies.map(decodeBudget) };
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+
+  function budgetScopesForRun(run) {
+    const agent = getAgent(run.agent_id);
+    const scopes = [
+      ['agent', run.agent_id],
+      ['organization', run.organization_id || agent?.organization_id || 'fleet'],
+      ['provider', run.provider || agent?.provider],
+      ['model', run.model || agent?.model],
+    ];
+    if (run.goal_id) scopes.push(['goal', run.goal_id]);
+    if (run.work_id) scopes.push(['issue', run.work_id]);
+    return scopes.filter(([, id]) => id);
+  }
+
+  function budgetBlockReason(run) {
+    const policies = budgetScopesForRun(run).flatMap(([scope_type, scope_id]) =>
+      ['run', 'hour', 'day', 'month']
+        .map(period => getBudgetPolicy({ scope_type, scope_id, period }))
+        .filter(Boolean)
+    );
+    const blocked = policies.find(
+      policy =>
+        policy.status === 'active' && policy.hard_stop && policy.spent_usd >= policy.limit_usd
+    );
+    return blocked
+      ? `budget exceeded for ${blocked.scope_type}:${blocked.scope_id}:${blocked.period}`
+      : null;
+  }
+
+  function governanceBlockReason(run) {
+    const policies = db
+      .prepare(
+        "SELECT * FROM execution_policies WHERE organization_id=? AND status='active' AND require_approval=1"
+      )
+      .all(String(run.organization_id || 'fleet'));
+    for (const policy of policies) {
+      const stages = safeJsonArray(policy.stages_json);
+      if (
+        stages.length &&
+        !stages.some(stage => ['run', 'execute', 'agent-run'].includes(String(stage)))
+      )
+        continue;
+      const approved = db
+        .prepare(
+          "SELECT 1 FROM governance_decisions WHERE organization_id=? AND entity_type='agent-run' AND entity_id=? AND decision='approved' ORDER BY created_at DESC LIMIT 1"
+        )
+        .get(String(run.organization_id || 'fleet'), String(run.run_id));
+      if (!approved) return `approval required by policy ${policy.name}`;
+    }
+    return null;
+  }
+
+  function enforceBudgetStops() {
+    const stopped = [];
+    const runs = db
+      .prepare(
+        "SELECT * FROM agent_runs WHERE status IN ('queued','running','paused') ORDER BY started_at"
+      )
+      .all();
+    for (const run of runs) {
+      const reason = budgetBlockReason(run);
+      if (!reason) continue;
+      db.prepare(
+        "UPDATE agent_runs SET status='paused',updated_at=?,error=? WHERE run_id=? AND status IN ('queued','running')"
+      ).run(new Date().toISOString(), reason, run.run_id);
+      db.prepare(
+        "UPDATE agent_dispatch_queue SET status='cancelled',last_error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE run_id=? AND status IN ('queued','leased')"
+      ).run(reason, new Date().toISOString(), run.run_id);
+      stopped.push({ run_id: run.run_id, reason });
+    }
+    return stopped;
+  }
+
+  function createAgentRoutine(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const now = new Date().toISOString();
+    const row = {
+      routine_id: input.routine_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      name: String(input.name || '').trim(),
+      trigger_type: String(input.trigger_type || 'interval'),
+      schedule: String(input.schedule || '').trim(),
+      status: String(input.status || 'active'),
+      coalesce: input.coalesce === false ? 0 : 1,
+      catch_up: input.catch_up === true ? 1 : 0,
+      max_concurrency: Math.max(1, Number(input.max_concurrency) || 1),
+      next_due_at: input.next_due_at || null,
+      last_run_at: input.last_run_at || null,
+      created_at: input.created_at || now,
+      updated_at: now,
+    };
+    if (!row.name || !row.schedule) throw httpErr(400, 'routine name and schedule are required');
+    if (!['interval', 'cron', 'event', 'webhook'].includes(row.trigger_type))
+      throw httpErr(400, 'invalid routine trigger');
+    db.prepare(
+      `INSERT INTO agent_routines (routine_id,agent_id,name,trigger_type,schedule,status,coalesce,catch_up,max_concurrency,next_due_at,last_run_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,name) DO UPDATE SET trigger_type=excluded.trigger_type,schedule=excluded.schedule,status=excluded.status,coalesce=excluded.coalesce,catch_up=excluded.catch_up,max_concurrency=excluded.max_concurrency,next_due_at=excluded.next_due_at,updated_at=excluded.updated_at`
+    ).run(
+      row.routine_id,
+      row.agent_id,
+      row.name,
+      row.trigger_type,
+      row.schedule,
+      row.status,
+      row.coalesce,
+      row.catch_up,
+      row.max_concurrency,
+      row.next_due_at,
+      row.last_run_at,
+      row.created_at,
+      row.updated_at
+    );
+    return db
+      .prepare('SELECT * FROM agent_routines WHERE agent_id=? AND name=?')
+      .get(row.agent_id, row.name);
+  }
+  function listAgentRoutines({ agent_id, status, due_before, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    if (due_before) {
+      clauses.push('next_due_at IS NOT NULL AND next_due_at <= ?');
+      args.push(String(due_before));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_routines${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY next_due_at LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function touchAgentRoutine(id, patch = {}) {
+    const current = db.prepare('SELECT * FROM agent_routines WHERE routine_id=?').get(String(id));
+    if (!current) throw httpErr(404, 'routine not found');
+    db.prepare(
+      'UPDATE agent_routines SET status=?,next_due_at=?,last_run_at=?,updated_at=? WHERE routine_id=?'
+    ).run(
+      patch.status || current.status,
+      patch.next_due_at ?? current.next_due_at,
+      patch.last_run_at ?? new Date().toISOString(),
+      new Date().toISOString(),
+      current.routine_id
+    );
+    return db.prepare('SELECT * FROM agent_routines WHERE routine_id=?').get(current.routine_id);
+  }
+
+  function createAgentWatchdog(input = {}) {
+    if (!getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const now = new Date().toISOString();
+    const row = {
+      watchdog_id: input.watchdog_id || crypto.randomUUID(),
+      run_id: String(input.run_id),
+      expected_outcome: String(input.expected_outcome || 'terminal run with verified result'),
+      timeout_seconds: Math.max(30, Number(input.timeout_seconds) || 900),
+      status: String(input.status || 'armed'),
+      recovery_action: String(input.recovery_action || 'escalate'),
+      last_checked_at: null,
+      fired_at: null,
+      detail: null,
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO agent_watchdogs (watchdog_id,run_id,expected_outcome,timeout_seconds,status,recovery_action,last_checked_at,fired_at,detail,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.watchdog_id,
+      row.run_id,
+      row.expected_outcome,
+      row.timeout_seconds,
+      row.status,
+      row.recovery_action,
+      row.last_checked_at,
+      row.fired_at,
+      row.detail,
+      row.created_at,
+      row.updated_at
+    );
+    return row;
+  }
+  function listAgentWatchdogs({ run_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['run_id', run_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_watchdogs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function auditAgentWatchdogs({ now = new Date() } = {}) {
+    const armed = listAgentWatchdogs({ status: 'armed', limit: 1000 });
+    const fired = [];
+    for (const watchdog of armed) {
+      const run = getAgentRun(watchdog.run_id);
+      if (!run) continue;
+      const iso = now.toISOString();
+      if (['succeeded', 'failed', 'cancelled'].includes(run.status)) {
+        db.prepare(
+          'UPDATE agent_watchdogs SET status=?,last_checked_at=?,updated_at=? WHERE watchdog_id=?'
+        ).run(run.status === 'succeeded' ? 'satisfied' : 'failed', iso, iso, watchdog.watchdog_id);
+      } else if (now.getTime() - Date.parse(run.updated_at) > watchdog.timeout_seconds * 1000) {
+        db.prepare(
+          'UPDATE agent_watchdogs SET status=?,fired_at=?,last_checked_at=?,detail=?,updated_at=? WHERE watchdog_id=?'
+        ).run(
+          'fired',
+          iso,
+          iso,
+          `run ${run.run_id} exceeded ${watchdog.timeout_seconds}s`,
+          iso,
+          watchdog.watchdog_id
+        );
+        fired.push({ ...watchdog, status: 'fired', fired_at: iso });
+      } else
+        db.prepare(
+          'UPDATE agent_watchdogs SET last_checked_at=?,updated_at=? WHERE watchdog_id=?'
+        ).run(iso, iso, watchdog.watchdog_id);
+    }
+    return { checked: armed.length, fired };
+  }
+
+  function createAgentEval(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const score = Number(input.score);
+    if (!Number.isFinite(score) || score < 0 || score > 100)
+      throw httpErr(400, 'eval score must be 0-100');
+    const row = {
+      eval_id: input.eval_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      run_id: input.run_id || null,
+      evaluator: String(input.evaluator || 'system'),
+      dimension: String(input.dimension || 'quality'),
+      score,
+      feedback: String(input.feedback || ''),
+      evidence: input.evidence && typeof input.evidence === 'object' ? input.evidence : {},
+      created_at: input.created_at || new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO agent_evals (eval_id,agent_id,run_id,evaluator,dimension,score,feedback,evidence_json,created_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.eval_id,
+      row.agent_id,
+      row.run_id,
+      row.evaluator,
+      row.dimension,
+      row.score,
+      row.feedback,
+      JSON.stringify(row.evidence),
+      row.created_at
+    );
+    return row;
+  }
+  function listAgentEvals({ agent_id, run_id, dimension, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['run_id', run_id],
+      ['dimension', dimension],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_evals${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n)
+      .map(row => ({ ...row, evidence: safeJson(row.evidence_json) }));
+  }
+  function agentEvalSummary(agentId) {
+    const rows = listAgentEvals({ agent_id: agentId, limit: 1000 });
+    const byDimension = {};
+    for (const row of rows) {
+      const bucket =
+        byDimension[row.dimension] || (byDimension[row.dimension] = { count: 0, total: 0 });
+      bucket.count++;
+      bucket.total += Number(row.score) || 0;
+    }
+    for (const bucket of Object.values(byDimension))
+      bucket.average = Number((bucket.total / bucket.count).toFixed(2));
+    return { agent_id: String(agentId), evaluations: rows.length, by_dimension: byDimension };
+  }
+
+  function upsertAgentToolGrant(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const row = {
+      grant_id: input.grant_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      tool_name: String(input.tool_name || '').trim(),
+      scope: input.scope && typeof input.scope === 'object' ? input.scope : {},
+      approval_required: input.approval_required === false ? 0 : 1,
+      status: String(input.status || 'active'),
+      created_at: input.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    if (!row.tool_name) throw httpErr(400, 'tool name is required');
+    db.prepare(
+      'INSERT INTO agent_tool_grants (grant_id,agent_id,tool_name,scope_json,approval_required,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,tool_name) DO UPDATE SET scope_json=excluded.scope_json,approval_required=excluded.approval_required,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      row.grant_id,
+      row.agent_id,
+      row.tool_name,
+      JSON.stringify(row.scope),
+      row.approval_required,
+      row.status,
+      row.created_at,
+      row.updated_at
+    );
+    return getAgentToolGrant(row.agent_id, row.tool_name);
+  }
+  function getAgentToolGrant(agentId, toolName) {
+    const row = db
+      .prepare('SELECT * FROM agent_tool_grants WHERE agent_id=? AND tool_name=?')
+      .get(String(agentId), String(toolName));
+    return row
+      ? {
+          ...row,
+          scope: safeJson(row.scope_json),
+          approval_required: Boolean(row.approval_required),
+        }
+      : null;
+  }
+  function listAgentToolGrants({ agent_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_tool_grants${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY agent_id,tool_name LIMIT ?`
+      )
+      .all(...args, n)
+      .map(row => ({
+        ...row,
+        scope: safeJson(row.scope_json),
+        approval_required: Boolean(row.approval_required),
+      }));
+  }
+  function canAgentUseTool(agentId, toolName, context = {}) {
+    const agent = getAgent(agentId);
+    const grant = getAgentToolGrant(agentId, toolName);
+    const scope = grant?.scope || {};
+    const sites = Array.isArray(scope.sites) ? scope.sites.map(String) : null;
+    const scopeAllowed = !sites || (context.site && sites.includes(String(context.site)));
+    const approvalAllowed = !grant?.approval_required || context.approved === true;
+    return {
+      allowed: Boolean(
+        agent &&
+        agent.status === 'active' &&
+        grant &&
+        grant.status === 'active' &&
+        scopeAllowed &&
+        approvalAllowed
+      ),
+      requires_approval: Boolean(grant?.approval_required && context.approved !== true),
+      scope_allowed: Boolean(scopeAllowed),
+      agent_status: agent?.status || 'missing',
+      grant: grant || null,
+    };
+  }
+
+  function secretKey() {
+    const value = process.env.FD_SECRET_KEY || process.env.EXECUTIVE_SECRET_KEY;
+    if (!value) throw httpErr(503, 'secret storage key is not configured');
+    return crypto.createHash('sha256').update(String(value)).digest();
+  }
+
+  function encryptSecret(value) {
+    const nonce = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', secretKey(), nonce);
+    const ciphertext = Buffer.concat([cipher.update(String(value), 'utf8'), cipher.final()]);
+    return {
+      ciphertext: ciphertext.toString('base64'),
+      nonce: nonce.toString('base64'),
+      auth_tag: cipher.getAuthTag().toString('base64'),
+    };
+  }
+
+  function decryptSecret(row) {
+    const decipher = crypto.createDecipheriv(
+      'aes-256-gcm',
+      secretKey(),
+      Buffer.from(row.nonce, 'base64')
+    );
+    decipher.setAuthTag(Buffer.from(row.auth_tag, 'base64'));
+    return Buffer.concat([
+      decipher.update(Buffer.from(row.ciphertext, 'base64')),
+      decipher.final(),
+    ]).toString('utf8');
+  }
+
+  function upsertAgentSecret(input = {}) {
+    const name = String(input.name || '').trim();
+    const value = input.value;
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$/.test(name))
+      throw httpErr(400, 'invalid secret name');
+    if (typeof value !== 'string' || !value || value.length > 32768)
+      throw httpErr(400, 'secret value must be a non-empty string under 32KB');
+    const encrypted = encryptSecret(value);
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO agent_secrets (secret_id,name,scope_json,ciphertext,nonce,auth_tag,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET scope_json=excluded.scope_json,ciphertext=excluded.ciphertext,nonce=excluded.nonce,auth_tag=excluded.auth_tag,updated_at=excluded.updated_at`
+    ).run(
+      input.secret_id || crypto.randomUUID(),
+      name,
+      JSON.stringify(input.scope && typeof input.scope === 'object' ? input.scope : {}),
+      encrypted.ciphertext,
+      encrypted.nonce,
+      encrypted.auth_tag,
+      now,
+      now
+    );
+    return getAgentSecret(name);
+  }
+
+  function getAgentSecret(name) {
+    const row = db
+      .prepare(
+        'SELECT secret_id,name,scope_json,created_at,updated_at FROM agent_secrets WHERE name=?'
+      )
+      .get(String(name));
+    return row ? { ...row, scope: safeJson(row.scope_json), scope_json: undefined } : null;
+  }
+
+  function listAgentSecrets({ limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return db
+      .prepare(
+        'SELECT secret_id,name,scope_json,created_at,updated_at FROM agent_secrets ORDER BY name LIMIT ?'
+      )
+      .all(n)
+      .map(row => ({ ...row, scope: safeJson(row.scope_json), scope_json: undefined }));
+  }
+
+  function resolveAgentSecret(name, { agent_id, site, approved = false } = {}) {
+    const grant = getAgentToolGrant(agent_id, `secret:${name}`);
+    const decision = canAgentUseTool(agent_id, `secret:${name}`, { site, approved });
+    if (!decision.allowed || !grant) throw httpErr(403, 'secret is not authorized for this agent');
+    const row = db.prepare('SELECT * FROM agent_secrets WHERE name=?').get(String(name));
+    if (!row) throw httpErr(404, 'secret not found');
+    const scope = safeJson(row.scope_json);
+    if (scope.agent_id && String(scope.agent_id) !== String(agent_id))
+      throw httpErr(403, 'secret agent scope denied');
+    if (scope.site && String(scope.site) !== String(site || ''))
+      throw httpErr(403, 'secret site scope denied');
+    return decryptSecret(row);
+  }
+
+  function createAgentWorkspace(input = {}) {
+    if (!getAgent(input.agent_id)) throw httpErr(404, 'agent not found');
+    const workspacePath = String(input.path || '').trim();
+    if (
+      !workspacePath ||
+      workspacePath.includes('..') ||
+      /[\u0000-\u001f\u007f]/.test(workspacePath) ||
+      !/^(\/tmp|\/workspace|\/home\/jesse\/projects\/domains\/tools\/executive\/data\/workspaces)(\/|$)/.test(
+        workspacePath
+      )
+    )
+      throw httpErr(400, 'invalid workspace path');
+    const now = new Date().toISOString();
+    const row = {
+      workspace_id: input.workspace_id || crypto.randomUUID(),
+      agent_id: String(input.agent_id),
+      run_id: input.run_id || null,
+      site: input.site || null,
+      provider_id: input.provider_id || null,
+      path: workspacePath,
+      mode: String(input.mode || 'isolated'),
+      status: String(input.status || 'active'),
+      preview_url: input.preview_url || null,
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+    };
+    if (row.provider_id && !getRuntimeProvider(row.provider_id))
+      throw httpErr(404, 'runtime provider not found');
+    db.prepare(
+      'INSERT INTO agent_workspaces (workspace_id,agent_id,run_id,site,provider_id,path,mode,status,preview_url,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.workspace_id,
+      row.agent_id,
+      row.run_id,
+      row.site,
+      row.provider_id,
+      row.path,
+      row.mode,
+      row.status,
+      row.preview_url,
+      row.created_at,
+      row.updated_at,
+      row.closed_at
+    );
+    return row;
+  }
+  function listAgentWorkspaces({ agent_id, run_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['agent_id', agent_id],
+      ['run_id', run_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return db
+      .prepare(
+        `SELECT * FROM agent_workspaces${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+  function closeAgentWorkspace(id) {
+    const now = new Date().toISOString();
+    const result = db
+      .prepare(
+        "UPDATE agent_workspaces SET status='closed',closed_at=?,updated_at=? WHERE workspace_id=? AND status='active'"
+      )
+      .run(now, now, String(id));
+    return result.changes
+      ? db.prepare('SELECT * FROM agent_workspaces WHERE workspace_id=?').get(String(id))
+      : null;
+  }
+
+  function createAgentSkill(input = {}) {
+    const slug = String(input.slug || '').trim(),
+      name = String(input.name || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !name)
+      throw httpErr(400, 'valid skill slug and name are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO agent_skills (skill_id,slug,name,description,status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      input.skill_id || crypto.randomUUID(),
+      slug,
+      name,
+      String(input.description || ''),
+      input.status || 'active',
+      String(input.created_by || 'system'),
+      now,
+      now
+    );
+    return getAgentSkill(slug);
+  }
+  function getAgentSkill(id) {
+    const row = db
+      .prepare('SELECT * FROM agent_skills WHERE skill_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row || null;
+  }
+  function listAgentSkills({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return status
+      ? db
+          .prepare('SELECT * FROM agent_skills WHERE status=? ORDER BY name LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM agent_skills ORDER BY name LIMIT ?').all(n);
+  }
+  function publishAgentSkillVersion(skillId, input = {}) {
+    const skill = getAgentSkill(skillId);
+    if (!skill) throw httpErr(404, 'skill not found');
+    const instructions = String(input.instructions || '').trim();
+    if (!instructions || instructions.length > 100000)
+      throw httpErr(400, 'skill instructions are required and bounded');
+    const version =
+      Number(input.version || 0) ||
+      db
+        .prepare(
+          'SELECT COALESCE(MAX(version),0)+1 AS next FROM agent_skill_versions WHERE skill_id=?'
+        )
+        .get(skill.skill_id).next;
+    const now = new Date().toISOString();
+    const hash = crypto.createHash('sha256').update(instructions).digest('hex');
+    db.prepare(
+      'INSERT INTO agent_skill_versions (version_id,skill_id,version,instructions,content_sha256,status,tests_json,created_by,created_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      input.version_id || crypto.randomUUID(),
+      skill.skill_id,
+      version,
+      instructions,
+      hash,
+      input.status || 'published',
+      JSON.stringify(Array.isArray(input.tests) ? input.tests.slice(0, 50) : []),
+      String(input.created_by || 'system'),
+      now
+    );
+    return getAgentSkillVersion(skill.skill_id, version);
+  }
+  function getAgentSkillVersion(skillId, version) {
+    const row = db
+      .prepare('SELECT * FROM agent_skill_versions WHERE skill_id=? AND version=?')
+      .get(String(getAgentSkill(skillId)?.skill_id || skillId), Number(version));
+    return row ? { ...row, tests: safeJsonArray(row.tests_json) } : null;
+  }
+  function assignAgentSkill(input = {}) {
+    const agent = getAgent(input.agent_id),
+      skill = getAgentSkill(input.skill_id);
+    if (!agent || !skill) throw httpErr(404, 'agent or skill not found');
+    const version = getAgentSkillVersion(skill.skill_id, input.version);
+    if (!version || version.status !== 'published')
+      throw httpErr(409, 'published skill version not found');
+    db.prepare(
+      'INSERT INTO agent_skill_assignments (assignment_id,agent_id,skill_id,version,scope_json,status,created_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(agent_id,skill_id) DO UPDATE SET version=excluded.version,scope_json=excluded.scope_json,status=excluded.status'
+    ).run(
+      input.assignment_id || crypto.randomUUID(),
+      agent.agent_id,
+      skill.skill_id,
+      Number(input.version),
+      JSON.stringify(input.scope && typeof input.scope === 'object' ? input.scope : {}),
+      input.status || 'active',
+      new Date().toISOString()
+    );
+    return db
+      .prepare('SELECT * FROM agent_skill_assignments WHERE agent_id=? AND skill_id=?')
+      .get(agent.agent_id, skill.skill_id);
+  }
+  function listAgentAssignments({ agent_id, skill_id, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (agent_id) {
+      clauses.push('agent_id=?');
+      args.push(String(agent_id));
+    }
+    if (skill_id) {
+      clauses.push('skill_id=?');
+      args.push(String(getAgentSkill(skill_id)?.skill_id || skill_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM agent_skill_assignments${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function resolveAgentSkills(agentId, { site } = {}) {
+    return listAgentAssignments({ agent_id: agentId })
+      .filter(row => row.status === 'active')
+      .map(row => {
+        const scope = safeJson(row.scope_json);
+        if (scope.sites && (!site || !scope.sites.includes(site))) return null;
+        return {
+          ...row,
+          scope,
+          skill: getAgentSkill(row.skill_id),
+          version: getAgentSkillVersion(row.skill_id, row.version),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function upsertAgentMemory(input = {}) {
+    const agentId = input.agent_id ? String(input.agent_id) : null;
+    if (agentId && !getAgent(agentId)) throw httpErr(404, 'agent not found');
+    const key = String(input.memory_key || '').trim(),
+      content = String(input.content || '').trim(),
+      confidence = Number(input.confidence ?? 0.5);
+    if (
+      !key ||
+      !content ||
+      content.length > 20000 ||
+      !Number.isFinite(confidence) ||
+      confidence < 0 ||
+      confidence > 1
+    )
+      throw httpErr(400, 'invalid memory');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO agent_memories (memory_id,agent_id,kind,memory_key,content,confidence,source_run_id,expires_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(agent_id,memory_key) DO UPDATE SET kind=excluded.kind,content=excluded.content,confidence=excluded.confidence,source_run_id=excluded.source_run_id,expires_at=excluded.expires_at,updated_at=excluded.updated_at'
+    ).run(
+      input.memory_id || crypto.randomUUID(),
+      agentId,
+      String(input.kind || 'lesson'),
+      key,
+      content,
+      confidence,
+      input.source_run_id || null,
+      input.expires_at || null,
+      now,
+      now
+    );
+    return db
+      .prepare('SELECT * FROM agent_memories WHERE agent_id IS ? AND memory_key=?')
+      .get(agentId, key);
+  }
+  function listAgentMemories({ agent_id, kind, query, limit = 100 } = {}) {
+    const clauses = ['(expires_at IS NULL OR expires_at>?)'],
+      args = [new Date().toISOString()];
+    if (agent_id) {
+      clauses.push('agent_id=?');
+      args.push(String(agent_id));
+    }
+    if (kind) {
+      clauses.push('kind=?');
+      args.push(String(kind));
+    }
+    if (query) {
+      clauses.push('(memory_key LIKE ? OR content LIKE ?)');
+      args.push(`%${query}%`, `%${query}%`);
+    }
+    return db
+      .prepare(
+        `SELECT * FROM agent_memories WHERE ${clauses.join(' AND ')} ORDER BY confidence DESC,updated_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 100, 500)));
+  }
+
+  function upsertRuntimePlugin(input = {}) {
+    const slug = String(input.slug || '').trim(),
+      manifest = input.manifest && typeof input.manifest === 'object' ? input.manifest : {};
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !manifest.name)
+      throw httpErr(400, 'valid plugin slug and manifest name are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO runtime_plugins (plugin_id,slug,manifest_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET manifest_json=excluded.manifest_json,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      input.plugin_id || crypto.randomUUID(),
+      slug,
+      JSON.stringify(manifest),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimePlugin(slug);
+  }
+  function getRuntimePlugin(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_plugins WHERE plugin_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row ? { ...row, manifest: safeJson(row.manifest_json) } : null;
+  }
+  function listRuntimePlugins({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return (
+      status
+        ? db
+            .prepare('SELECT * FROM runtime_plugins WHERE status=? ORDER BY slug LIMIT ?')
+            .all(String(status), n)
+        : db.prepare('SELECT * FROM runtime_plugins ORDER BY slug LIMIT ?').all(n)
+    ).map(row => ({ ...row, manifest: safeJson(row.manifest_json) }));
+  }
+  function upsertRuntimeConnector(input = {}) {
+    const slug = String(input.slug || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !input.kind)
+      throw httpErr(400, 'valid connector slug and kind are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO runtime_connectors (connector_id,slug,kind,config_json,capabilities_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET kind=excluded.kind,config_json=excluded.config_json,capabilities_json=excluded.capabilities_json,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      input.connector_id || crypto.randomUUID(),
+      slug,
+      String(input.kind),
+      JSON.stringify(input.config && typeof input.config === 'object' ? input.config : {}),
+      JSON.stringify(Array.isArray(input.capabilities) ? input.capabilities.slice(0, 50) : []),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimeConnector(slug);
+  }
+  function getRuntimeConnector(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_connectors WHERE connector_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, config: undefined, capabilities: safeJsonArray(row.capabilities_json) }
+      : null;
+  }
+  function listRuntimeConnectors({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    return (
+      status
+        ? db
+            .prepare('SELECT * FROM runtime_connectors WHERE status=? ORDER BY slug LIMIT ?')
+            .all(String(status), n)
+        : db.prepare('SELECT * FROM runtime_connectors ORDER BY slug LIMIT ?').all(n)
+    ).map(row => ({ ...row, capabilities: safeJsonArray(row.capabilities_json) }));
+  }
+  function appendAgentRunLog(input = {}) {
+    if (!getAgentRun(input.run_id)) throw httpErr(404, 'agent run not found');
+    const row = {
+      log_id: input.log_id || crypto.randomUUID(),
+      run_id: String(input.run_id),
+      level: String(input.level || 'info'),
+      message: String(input.message || '').slice(0, 20000),
+      metadata: input.metadata && typeof input.metadata === 'object' ? input.metadata : {},
+      created_at: new Date().toISOString(),
+    };
+    if (!row.message) throw httpErr(400, 'log message is required');
+    db.prepare(
+      'INSERT INTO agent_run_logs (log_id,run_id,level,message,metadata_json,created_at) VALUES (?,?,?,?,?,?)'
+    ).run(
+      row.log_id,
+      row.run_id,
+      row.level,
+      row.message,
+      JSON.stringify(row.metadata),
+      row.created_at
+    );
+    return row;
+  }
+  function listAgentRunLogs({ run_id, limit = 500 } = {}) {
+    return db
+      .prepare('SELECT * FROM agent_run_logs WHERE run_id=? ORDER BY created_at LIMIT ?')
+      .all(String(run_id), Math.max(1, Math.min(Number(limit) || 500, 1000)))
+      .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
+  }
+
+  function upsertAgentDelegation(input = {}) {
+    if (!getAgent(input.from_agent_id) || !getAgent(input.to_agent_id))
+      throw httpErr(404, 'delegation agent not found');
+    if (String(input.from_agent_id) === String(input.to_agent_id))
+      throw httpErr(400, 'agent cannot delegate to itself');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO agent_delegations (delegation_id,from_agent_id,to_agent_id,work_kind,max_concurrent,status,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(from_agent_id,to_agent_id,work_kind) DO UPDATE SET max_concurrent=excluded.max_concurrent,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.delegation_id || crypto.randomUUID(),
+      String(input.from_agent_id),
+      String(input.to_agent_id),
+      String(input.work_kind || 'any'),
+      Math.max(1, Number(input.max_concurrent) || 1),
+      input.status || 'active',
+      now,
+      now
+    );
+    return db
+      .prepare(
+        'SELECT * FROM agent_delegations WHERE from_agent_id=? AND to_agent_id=? AND work_kind=?'
+      )
+      .get(
+        String(input.from_agent_id),
+        String(input.to_agent_id),
+        String(input.work_kind || 'any')
+      );
+  }
+  function listAgentDelegations({ from_agent_id, to_agent_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    for (const [field, value] of [
+      ['from_agent_id', from_agent_id],
+      ['to_agent_id', to_agent_id],
+      ['status', status],
+    ])
+      if (value) {
+        clauses.push(`${field}=?`);
+        args.push(String(value));
+      }
+    return db
+      .prepare(
+        `SELECT * FROM agent_delegations${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function upsertRuntimeProvider(input = {}) {
+    const slug = String(input.slug || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !input.kind)
+      throw httpErr(400, 'valid provider slug and kind are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO runtime_providers (provider_id,slug,kind,capabilities_json,config_json,status,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET kind=excluded.kind,capabilities_json=excluded.capabilities_json,config_json=excluded.config_json,status=excluded.status,updated_at=excluded.updated_at`
+    ).run(
+      input.provider_id || crypto.randomUUID(),
+      slug,
+      String(input.kind),
+      JSON.stringify(Array.isArray(input.capabilities) ? input.capabilities.slice(0, 50) : []),
+      JSON.stringify(input.config && typeof input.config === 'object' ? input.config : {}),
+      input.status || 'disabled',
+      now,
+      now
+    );
+    return getRuntimeProvider(slug);
+  }
+  function getRuntimeProvider(id) {
+    const row = db
+      .prepare(
+        'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers WHERE provider_id=? OR slug=?'
+      )
+      .get(String(id), String(id));
+    return row ? { ...row, capabilities: safeJsonArray(row.capabilities_json) } : null;
+  }
+  function getRuntimeProviderConfig(id) {
+    const row = db
+      .prepare(
+        'SELECT provider_id,slug,kind,capabilities_json,config_json,status FROM runtime_providers WHERE provider_id=? OR slug=?'
+      )
+      .get(String(id), String(id));
+    return row
+      ? {
+          ...row,
+          capabilities: safeJsonArray(row.capabilities_json),
+          config: safeJson(row.config_json),
+        }
+      : null;
+  }
+  function listRuntimeProviders({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    const rows = status
+      ? db
+          .prepare(
+            'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers WHERE status=? ORDER BY slug LIMIT ?'
+          )
+          .all(String(status), n)
+      : db
+          .prepare(
+            'SELECT provider_id,slug,kind,capabilities_json,status,created_at,updated_at FROM runtime_providers ORDER BY slug LIMIT ?'
+          )
+          .all(n);
+    return rows.map(row => ({ ...row, capabilities: safeJsonArray(row.capabilities_json) }));
+  }
+  function enqueueRuntimePluginJob(input = {}) {
+    const plugin = getRuntimePlugin(input.plugin_id);
+    if (!plugin) throw httpErr(404, 'plugin not found');
+    if (plugin.status !== 'active') throw httpErr(409, 'plugin is not active');
+    const payload = input.payload && typeof input.payload === 'object' ? input.payload : {};
+    const now = new Date().toISOString();
+    const row = {
+      job_id: input.job_id || crypto.randomUUID(),
+      plugin_id: plugin.plugin_id,
+      idempotency_key: input.idempotency_key || null,
+      payload,
+      status: 'queued',
+      created_at: now,
+      updated_at: now,
+    };
+    try {
+      db.prepare(
+        'INSERT INTO runtime_plugin_jobs (job_id,plugin_id,idempotency_key,payload_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?)'
+      ).run(
+        row.job_id,
+        row.plugin_id,
+        row.idempotency_key,
+        JSON.stringify(payload),
+        row.status,
+        row.created_at,
+        row.updated_at
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && row.idempotency_key)
+        return getRuntimePluginJob(row.idempotency_key);
+      throw error;
+    }
+    return getRuntimePluginJob(row.job_id);
+  }
+  function getRuntimePluginJob(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_plugin_jobs WHERE job_id=? OR idempotency_key=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, payload: safeJson(row.payload_json), result: safeJson(row.result_json) }
+      : null;
+  }
+  function listRuntimePluginJobs({ plugin_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (plugin_id) {
+      clauses.push('plugin_id=?');
+      args.push(String(getRuntimePlugin(plugin_id)?.plugin_id || plugin_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM runtime_plugin_jobs${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({
+        ...row,
+        payload: safeJson(row.payload_json),
+        result: safeJson(row.result_json),
+      }));
+  }
+  function claimRuntimePluginJob(workerId) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'plugin worker id is required');
+    const now = new Date(),
+      iso = now.toISOString(),
+      expires = new Date(now.getTime() + 900000).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          "SELECT * FROM runtime_plugin_jobs WHERE status='queued' OR (status='leased' AND lease_expires_at<=?) ORDER BY created_at LIMIT 1"
+        )
+        .get(iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      db.prepare(
+        "UPDATE runtime_plugin_jobs SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE job_id=?"
+      ).run(owner, expires, iso, row.job_id);
+      db.exec('COMMIT');
+      return getRuntimePluginJob(row.job_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+  function completeRuntimePluginJob(id, input = {}) {
+    const row = getRuntimePluginJob(id);
+    if (!row) throw httpErr(404, 'plugin job not found');
+    const status = String(input.status || 'succeeded');
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid plugin job status');
+    db.prepare(
+      'UPDATE runtime_plugin_jobs SET status=?,result_json=?,error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE job_id=?'
+    ).run(
+      status,
+      JSON.stringify(input.result && typeof input.result === 'object' ? input.result : {}),
+      input.error || null,
+      new Date().toISOString(),
+      row.job_id
+    );
+    return getRuntimePluginJob(row.job_id);
+  }
+  function enqueueRuntimeConnectorCall(input = {}) {
+    const connector = getRuntimeConnector(input.connector_id);
+    if (!connector) throw httpErr(404, 'connector not found');
+    if (connector.status !== 'active') throw httpErr(409, 'connector is not active');
+    if (!connector.capabilities.includes(String(input.operation || '')))
+      throw httpErr(403, 'connector operation is not granted');
+    const now = new Date().toISOString(),
+      payload = input.payload && typeof input.payload === 'object' ? input.payload : {};
+    const callId = input.call_id || crypto.randomUUID();
+    try {
+      db.prepare(
+        'INSERT INTO runtime_connector_calls (call_id,connector_id,idempotency_key,operation,payload_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)'
+      ).run(
+        callId,
+        connector.connector_id,
+        input.idempotency_key || null,
+        String(input.operation),
+        JSON.stringify(payload),
+        'queued',
+        now,
+        now
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message)) && input.idempotency_key)
+        return getRuntimeConnectorCall(input.idempotency_key);
+      throw error;
+    }
+    return getRuntimeConnectorCall(callId) || getRuntimeConnectorCall(input.idempotency_key);
+  }
+  function getRuntimeConnectorCall(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_connector_calls WHERE call_id=? OR idempotency_key=?')
+      .get(String(id), String(id));
+    return row
+      ? { ...row, payload: safeJson(row.payload_json), result: safeJson(row.result_json) }
+      : null;
+  }
+  function listRuntimeConnectorCalls({ connector_id, status, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (connector_id) {
+      clauses.push('connector_id=?');
+      args.push(String(getRuntimeConnector(connector_id)?.connector_id || connector_id));
+    }
+    if (status) {
+      clauses.push('status=?');
+      args.push(String(status));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM runtime_connector_calls${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...args, Math.max(1, Math.min(Number(limit) || 200, 500)))
+      .map(row => ({
+        ...row,
+        payload: safeJson(row.payload_json),
+        result: safeJson(row.result_json),
+      }));
+  }
+  function claimRuntimeConnectorCall(workerId) {
+    const owner = String(workerId || '').trim();
+    if (!owner) throw httpErr(400, 'connector worker id is required');
+    const now = new Date(),
+      iso = now.toISOString(),
+      expires = new Date(now.getTime() + 900000).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = db
+        .prepare(
+          "SELECT * FROM runtime_connector_calls WHERE status='queued' OR (status='leased' AND lease_expires_at<=?) ORDER BY created_at LIMIT 1"
+        )
+        .get(iso);
+      if (!row) {
+        db.exec('COMMIT');
+        return null;
+      }
+      db.prepare(
+        "UPDATE runtime_connector_calls SET status='leased',lease_owner=?,lease_expires_at=?,attempts=attempts+1,updated_at=? WHERE call_id=?"
+      ).run(owner, expires, iso, row.call_id);
+      db.exec('COMMIT');
+      return getRuntimeConnectorCall(row.call_id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+  function completeRuntimeConnectorCall(id, input = {}) {
+    const row = getRuntimeConnectorCall(id);
+    if (!row) throw httpErr(404, 'connector call not found');
+    const status = String(input.status || 'succeeded');
+    if (!['succeeded', 'failed', 'cancelled', 'queued'].includes(status))
+      throw httpErr(400, 'invalid connector call status');
+    db.prepare(
+      'UPDATE runtime_connector_calls SET status=?,result_json=?,error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=? WHERE call_id=?'
+    ).run(
+      status,
+      JSON.stringify(input.result && typeof input.result === 'object' ? input.result : {}),
+      input.error || null,
+      new Date().toISOString(),
+      row.call_id
+    );
+    return getRuntimeConnectorCall(row.call_id);
+  }
+
   const KNOWLEDGE_TYPES = new Set([
     'official',
     'book',
@@ -2080,6 +5051,840 @@ function open(root, { file } = {}) {
     );
   }
 
+  // Platform identity, issue checkout, governance, evaluation, and object
+  // storage primitives. These are intentionally kept in the same transaction
+  // store as runs so every operator action can be correlated with execution.
+  function createHumanUser(input = {}) {
+    const email = String(input.email || '')
+      .trim()
+      .toLowerCase();
+    const displayName = String(input.display_name || input.name || '').trim();
+    if (!/^\S+@\S+\.\S+$/.test(email) || !displayName)
+      throw httpErr(400, 'valid email and display name are required');
+    const now = new Date().toISOString();
+    try {
+      db.prepare(
+        'INSERT INTO human_users (user_id,email,display_name,status,created_at,updated_at) VALUES (?,?,?,?,?,?)'
+      ).run(
+        input.user_id || crypto.randomUUID(),
+        email,
+        displayName,
+        input.status || 'active',
+        now,
+        now
+      );
+    } catch (error) {
+      if (/UNIQUE/i.test(String(error.message))) throw httpErr(409, 'user email already exists');
+      throw error;
+    }
+    return db.prepare('SELECT * FROM human_users WHERE email=?').get(email);
+  }
+
+  function listHumanUsers({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return status
+      ? db
+          .prepare('SELECT * FROM human_users WHERE status=? ORDER BY email LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM human_users ORDER BY email LIMIT ?').all(n);
+  }
+
+  function createApiCredential(input = {}) {
+    const label = String(input.label || '').trim();
+    if (!label) throw httpErr(400, 'credential label is required');
+    const token = String(input.token || `exec_${crypto.randomBytes(30).toString('base64url')}`);
+    const hash = crypto.createHash('sha256').update(token).digest('hex');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO api_credentials (credential_id,user_id,organization_id,label,token_hash,scopes_json,expires_at,created_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      input.credential_id || crypto.randomUUID(),
+      input.user_id || null,
+      input.organization_id || null,
+      label,
+      hash,
+      JSON.stringify(Array.isArray(input.scopes) ? input.scopes : ['agent:run']),
+      input.expires_at || null,
+      now
+    );
+    return {
+      ...db.prepare('SELECT * FROM api_credentials WHERE token_hash=?').get(hash),
+      scopes: input.scopes || ['agent:run'],
+      token,
+    };
+  }
+
+  function authenticateApiCredential(token) {
+    if (!token) return null;
+    const hash = crypto.createHash('sha256').update(String(token)).digest('hex');
+    const row = db
+      .prepare(
+        "SELECT * FROM api_credentials WHERE token_hash=? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at>datetime('now'))"
+      )
+      .get(hash);
+    if (!row) return null;
+    db.prepare("UPDATE api_credentials SET last_used_at=datetime('now') WHERE credential_id=?").run(
+      row.credential_id
+    );
+    return { ...row, scopes: safeJsonArray(row.scopes_json) };
+  }
+
+  function revokeApiCredential(id) {
+    db.prepare("UPDATE api_credentials SET revoked_at=datetime('now') WHERE credential_id=?").run(
+      String(id)
+    );
+    return db
+      .prepare('SELECT credential_id, label, revoked_at FROM api_credentials WHERE credential_id=?')
+      .get(String(id));
+  }
+
+  function createOrganizationInvite(input = {}) {
+    const organization = getOrganization(input.organization_id);
+    const email = String(input.email || '')
+      .trim()
+      .toLowerCase();
+    const role = String(input.role || 'operator');
+    if (
+      !organization ||
+      !/^\S+@\S+\.\S+$/.test(email) ||
+      !['owner', 'operator', 'viewer'].includes(role)
+    )
+      throw httpErr(400, 'valid organization, email, and role are required');
+    const token = String(input.token || `invite_${crypto.randomBytes(28).toString('base64url')}`);
+    const now = new Date().toISOString();
+    const expires = input.expires_at || new Date(Date.now() + 7 * 86400000).toISOString();
+    db.prepare(
+      'INSERT INTO organization_invites (invite_id,organization_id,email,role,token_hash,invited_by,expires_at,created_at) VALUES (?,?,?,?,?,?,?,?)'
+    ).run(
+      input.invite_id || crypto.randomUUID(),
+      organization.organization_id,
+      email,
+      role,
+      crypto.createHash('sha256').update(token).digest('hex'),
+      String(input.invited_by || 'system'),
+      expires,
+      now
+    );
+    return {
+      ...db
+        .prepare(
+          'SELECT * FROM organization_invites WHERE email=? AND organization_id=? ORDER BY created_at DESC LIMIT 1'
+        )
+        .get(email, organization.organization_id),
+      token,
+    };
+  }
+
+  function acceptOrganizationInvite(token, userId) {
+    const hash = crypto
+      .createHash('sha256')
+      .update(String(token || ''))
+      .digest('hex');
+    const invite = db
+      .prepare(
+        "SELECT * FROM organization_invites WHERE token_hash=? AND accepted_at IS NULL AND expires_at>datetime('now')"
+      )
+      .get(hash);
+    if (!invite) throw httpErr(404, 'invite is invalid or expired');
+    const user = db.prepare('SELECT * FROM human_users WHERE user_id=?').get(String(userId));
+    if (!user || user.email !== invite.email)
+      throw httpErr(403, 'invite email does not match user');
+    const membership = upsertOrganizationMember({
+      organization_id: invite.organization_id,
+      actor_id: user.user_id,
+      role: invite.role,
+    });
+    db.prepare("UPDATE organization_invites SET accepted_at=datetime('now') WHERE invite_id=?").run(
+      invite.invite_id
+    );
+    return membership;
+  }
+
+  function authenticateActor(req) {
+    const credential = authenticateApiCredential(req && req.headers && req.headers['x-agent-key']);
+    if (credential)
+      return {
+        actor_id: credential.user_id || `credential:${credential.credential_id}`,
+        organization_id: credential.organization_id || 'fleet',
+        access: 'agent',
+        scopes: credential.scopes,
+      };
+    const actor = req && req.headers && req.headers['x-fd-actor'];
+    return actor
+      ? {
+          actor_id: String(actor),
+          organization_id: String(req.headers['x-organization-id'] || 'fleet'),
+          access: 'operator',
+          scopes: ['*'],
+        }
+      : { actor_id: 'operator', organization_id: 'fleet', access: 'operator', scopes: ['*'] };
+  }
+
+  function createAgentSession(input = {}) {
+    const agent = getAgent(input.agent_id);
+    if (!agent) throw httpErr(404, 'agent not found');
+    const now = new Date().toISOString();
+    const row = {
+      session_id: input.session_id || crypto.randomUUID(),
+      agent_id: agent.agent_id,
+      organization_id: agent.organization_id,
+      run_id: input.run_id || null,
+      status: 'active',
+      context: input.context || {},
+      last_heartbeat_at: now,
+      expires_at: input.expires_at || null,
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO agent_sessions (session_id,agent_id,organization_id,run_id,status,context_json,last_heartbeat_at,expires_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.session_id,
+      row.agent_id,
+      row.organization_id,
+      row.run_id,
+      row.status,
+      JSON.stringify(row.context),
+      row.last_heartbeat_at,
+      row.expires_at,
+      row.created_at,
+      row.updated_at
+    );
+    return { ...row };
+  }
+
+  function heartbeatAgentSession(id, patch = {}) {
+    const now = new Date().toISOString();
+    db.prepare(
+      'UPDATE agent_sessions SET status=?,context_json=?,last_heartbeat_at=?,updated_at=? WHERE session_id=?'
+    ).run(
+      String(patch.status || 'active'),
+      JSON.stringify(patch.context || {}),
+      now,
+      now,
+      String(id)
+    );
+    return getAgentSession(id);
+  }
+
+  function getAgentSession(id) {
+    const row = db.prepare('SELECT * FROM agent_sessions WHERE session_id=?').get(String(id));
+    return row ? { ...row, context: safeJson(row.context_json) } : null;
+  }
+
+  function createAgentIssue(input = {}) {
+    const title = String(input.title || '').trim();
+    if (!title || !getOrganization(input.organization_id || 'fleet'))
+      throw httpErr(400, 'organization and issue title are required');
+    const now = new Date().toISOString();
+    const row = {
+      issue_id: input.issue_id || crypto.randomUUID(),
+      organization_id: getOrganization(input.organization_id || 'fleet').organization_id,
+      project_id: input.project_id || null,
+      goal_id: input.goal_id || null,
+      parent_issue_id: input.parent_issue_id || null,
+      title,
+      description: String(input.description || ''),
+      status: input.status || 'open',
+      priority: input.priority || 'normal',
+      assignee_agent_id: input.assignee_agent_id || null,
+      checkout_owner: null,
+      checkout_expires_at: null,
+      inbox_state: input.inbox_state || 'unread',
+      labels: Array.isArray(input.labels) ? input.labels : [],
+      created_by: String(input.created_by || 'operator'),
+      created_at: now,
+      updated_at: now,
+      closed_at: null,
+    };
+    db.prepare(
+      'INSERT INTO agent_issues (issue_id,organization_id,project_id,goal_id,parent_issue_id,title,description,status,priority,assignee_agent_id,checkout_owner,checkout_expires_at,inbox_state,labels_json,created_by,created_at,updated_at,closed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.issue_id,
+      row.organization_id,
+      row.project_id,
+      row.goal_id,
+      row.parent_issue_id,
+      row.title,
+      row.description,
+      row.status,
+      row.priority,
+      row.assignee_agent_id,
+      row.checkout_owner,
+      row.checkout_expires_at,
+      row.inbox_state,
+      JSON.stringify(row.labels),
+      row.created_by,
+      row.created_at,
+      row.updated_at,
+      row.closed_at
+    );
+    return getAgentIssue(row.issue_id);
+  }
+
+  function getAgentIssue(id) {
+    const row = db.prepare('SELECT * FROM agent_issues WHERE issue_id=?').get(String(id));
+    return row ? { ...row, labels: safeJsonArray(row.labels_json) } : null;
+  }
+  function listAgentIssues({ organization_id, status, assignee_agent_id, limit = 200 } = {}) {
+    const c = [],
+      a = [];
+    if (organization_id) {
+      c.push('organization_id=?');
+      a.push(getOrganization(organization_id)?.organization_id || organization_id);
+    }
+    if (status) {
+      c.push('status=?');
+      a.push(String(status));
+    }
+    if (assignee_agent_id) {
+      c.push('assignee_agent_id=?');
+      a.push(String(assignee_agent_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM agent_issues${c.length ? ` WHERE ${c.join(' AND ')}` : ''} ORDER BY CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, updated_at DESC LIMIT ?`
+      )
+      .all(...a, Math.max(1, Math.min(Number(limit) || 200, 1000)))
+      .map(row => ({ ...row, labels: safeJsonArray(row.labels_json) }));
+  }
+  function addAgentIssueDependency(input = {}) {
+    if (String(input.issue_id) === String(input.depends_on_issue_id))
+      throw httpErr(400, 'issue cannot depend on itself');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT OR IGNORE INTO agent_issue_dependencies (dependency_id,issue_id,depends_on_issue_id,relation,created_at) VALUES (?,?,?,?,?)'
+    ).run(
+      input.dependency_id || crypto.randomUUID(),
+      String(input.issue_id),
+      String(input.depends_on_issue_id),
+      String(input.relation || 'blocks'),
+      now
+    );
+    return db
+      .prepare('SELECT * FROM agent_issue_dependencies WHERE issue_id=? AND depends_on_issue_id=?')
+      .get(String(input.issue_id), String(input.depends_on_issue_id));
+  }
+  function createAgentIssueComment(input = {}) {
+    if (!getAgentIssue(input.issue_id)) throw httpErr(404, 'issue not found');
+    const body = String(input.body || '').trim();
+    if (!body) throw httpErr(400, 'comment body is required');
+    const row = {
+      comment_id: input.comment_id || crypto.randomUUID(),
+      issue_id: String(input.issue_id),
+      actor_id: String(input.actor_id || 'operator'),
+      body,
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO agent_issue_comments (comment_id,issue_id,actor_id,body,created_at) VALUES (?,?,?,?,?)'
+    ).run(row.comment_id, row.issue_id, row.actor_id, row.body, row.created_at);
+    db.prepare("UPDATE agent_issues SET inbox_state='read',updated_at=? WHERE issue_id=?").run(
+      row.created_at,
+      row.issue_id
+    );
+    return row;
+  }
+  function listAgentIssueComments({ issue_id, limit = 500 } = {}) {
+    return db
+      .prepare('SELECT * FROM agent_issue_comments WHERE issue_id=? ORDER BY created_at LIMIT ?')
+      .all(String(issue_id), Math.max(1, Math.min(Number(limit) || 500, 1000)));
+  }
+  function createAgentIssueAttachment(input = {}) {
+    if (!getAgentIssue(input.issue_id)) throw httpErr(404, 'issue not found');
+    const label = String(input.label || '').trim(),
+      uri = String(input.uri || '').trim();
+    if (!label || !uri) throw httpErr(400, 'attachment label and URI are required');
+    const row = {
+      attachment_id: input.attachment_id || crypto.randomUUID(),
+      issue_id: String(input.issue_id),
+      label,
+      uri,
+      content_type: String(input.content_type || 'application/octet-stream'),
+      sha256: input.sha256 || null,
+      created_at: new Date().toISOString(),
+    };
+    db.prepare(
+      'INSERT INTO agent_issue_attachments (attachment_id,issue_id,label,uri,content_type,sha256,created_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      row.attachment_id,
+      row.issue_id,
+      row.label,
+      row.uri,
+      row.content_type,
+      row.sha256,
+      row.created_at
+    );
+    return row;
+  }
+  function listAgentIssueAttachments({ issue_id, limit = 200 } = {}) {
+    return db
+      .prepare(
+        'SELECT * FROM agent_issue_attachments WHERE issue_id=? ORDER BY created_at DESC LIMIT ?'
+      )
+      .all(String(issue_id), Math.max(1, Math.min(Number(limit) || 200, 500)));
+  }
+  function checkoutAgentIssue(id, owner, leaseSeconds = 900) {
+    const now = new Date();
+    const iso = now.toISOString();
+    const exp = new Date(
+      now.getTime() + Math.max(30, Number(leaseSeconds) || 900) * 1000
+    ).toISOString();
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const blocked = db
+        .prepare(
+          "SELECT 1 FROM agent_issue_dependencies d JOIN agent_issues i ON i.issue_id=d.depends_on_issue_id WHERE d.issue_id=? AND i.status NOT IN ('done','cancelled') LIMIT 1"
+        )
+        .get(String(id));
+      if (blocked) {
+        db.exec('ROLLBACK');
+        throw httpErr(409, 'issue is blocked by an unresolved dependency');
+      }
+      const row = db
+        .prepare(
+          "SELECT * FROM agent_issues WHERE issue_id=? AND status NOT IN ('done','cancelled') AND (checkout_owner IS NULL OR checkout_expires_at<=?)"
+        )
+        .get(String(id), iso);
+      if (!row) {
+        db.exec('ROLLBACK');
+        return null;
+      }
+      db.prepare(
+        "UPDATE agent_issues SET checkout_owner=?,checkout_expires_at=?,status='in_progress',updated_at=? WHERE issue_id=?"
+      ).run(String(owner), exp, iso, String(id));
+      db.exec('COMMIT');
+      return getAgentIssue(id);
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK');
+      } catch {}
+      throw error;
+    }
+  }
+  function updateAgentIssue(id, patch = {}) {
+    const current = getAgentIssue(id);
+    if (!current) throw httpErr(404, 'issue not found');
+    const next = { ...current, ...patch, updated_at: new Date().toISOString() };
+    if (['done', 'cancelled'].includes(next.status))
+      next.closed_at = next.closed_at || next.updated_at;
+    db.prepare(
+      'UPDATE agent_issues SET status=?,priority=?,description=?,assignee_agent_id=?,inbox_state=?,labels_json=?,updated_at=?,closed_at=? WHERE issue_id=?'
+    ).run(
+      next.status,
+      next.priority,
+      String(next.description || ''),
+      next.assignee_agent_id || null,
+      next.inbox_state || 'read',
+      JSON.stringify(next.labels || []),
+      next.updated_at,
+      next.closed_at || null,
+      String(id)
+    );
+    return getAgentIssue(id);
+  }
+
+  function upsertExecutionPolicy(input = {}) {
+    const now = new Date().toISOString();
+    const row = {
+      policy_id: input.policy_id || crypto.randomUUID(),
+      organization_id:
+        getOrganization(input.organization_id || 'fleet')?.organization_id || input.organization_id,
+      name: String(input.name || 'default'),
+      scope_type: String(input.scope_type || 'organization'),
+      scope_id: String(input.scope_id || input.organization_id || 'fleet'),
+      stages: Array.isArray(input.stages) ? input.stages : [],
+      require_approval: input.require_approval === false ? 0 : 1,
+      status: input.status || 'active',
+      created_by: String(input.created_by || 'operator'),
+      created_at: input.created_at || now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO execution_policies (policy_id,organization_id,name,scope_type,scope_id,stages_json,require_approval,status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(policy_id) DO UPDATE SET name=excluded.name,stages_json=excluded.stages_json,require_approval=excluded.require_approval,status=excluded.status,updated_at=excluded.updated_at'
+    ).run(
+      row.policy_id,
+      row.organization_id,
+      row.name,
+      row.scope_type,
+      row.scope_id,
+      JSON.stringify(row.stages),
+      row.require_approval,
+      row.status,
+      row.created_by,
+      row.created_at,
+      row.updated_at
+    );
+    return getExecutionPolicy(row.policy_id);
+  }
+  function getExecutionPolicy(id) {
+    const row = db.prepare('SELECT * FROM execution_policies WHERE policy_id=?').get(String(id));
+    return row
+      ? {
+          ...row,
+          stages: safeJsonArray(row.stages_json),
+          require_approval: Boolean(row.require_approval),
+        }
+      : null;
+  }
+  function listExecutionPolicies({ organization_id, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    return organization_id
+      ? db
+          .prepare(
+            'SELECT * FROM execution_policies WHERE organization_id=? ORDER BY updated_at DESC LIMIT ?'
+          )
+          .all(String(getOrganization(organization_id)?.organization_id || organization_id), n)
+          .map(row => ({
+            ...row,
+            stages: safeJsonArray(row.stages_json),
+            require_approval: Boolean(row.require_approval),
+          }))
+      : db
+          .prepare('SELECT * FROM execution_policies ORDER BY updated_at DESC LIMIT ?')
+          .all(n)
+          .map(row => ({
+            ...row,
+            stages: safeJsonArray(row.stages_json),
+            require_approval: Boolean(row.require_approval),
+          }));
+  }
+  function createGovernanceDecision(input = {}) {
+    const now = new Date().toISOString();
+    const row = {
+      decision_id: input.decision_id || crypto.randomUUID(),
+      organization_id:
+        getOrganization(input.organization_id || 'fleet')?.organization_id || input.organization_id,
+      policy_id: input.policy_id || null,
+      entity_type: String(input.entity_type || ''),
+      entity_id: String(input.entity_id || ''),
+      actor_id: String(input.actor_id || 'operator'),
+      decision: String(input.decision || ''),
+      reason: String(input.reason || ''),
+      metadata: input.metadata || {},
+      created_at: now,
+    };
+    if (!row.entity_type || !row.entity_id || !row.decision)
+      throw httpErr(400, 'decision entity and decision are required');
+    db.prepare(
+      'INSERT INTO governance_decisions (decision_id,organization_id,policy_id,entity_type,entity_id,actor_id,decision,reason,metadata_json,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.decision_id,
+      row.organization_id,
+      row.policy_id,
+      row.entity_type,
+      row.entity_id,
+      row.actor_id,
+      row.decision,
+      row.reason,
+      JSON.stringify(row.metadata),
+      now
+    );
+    return { ...row };
+  }
+  function listGovernanceDecisions({ entity_type, entity_id, limit = 200 } = {}) {
+    const c = [],
+      a = [];
+    if (entity_type) {
+      c.push('entity_type=?');
+      a.push(String(entity_type));
+    }
+    if (entity_id) {
+      c.push('entity_id=?');
+      a.push(String(entity_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM governance_decisions${c.length ? ` WHERE ${c.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...a, Math.max(1, Math.min(Number(limit) || 200, 1000)))
+      .map(row => ({ ...row, metadata: safeJson(row.metadata_json) }));
+  }
+
+  function createEvalSuite(input = {}) {
+    const now = new Date().toISOString();
+    const row = {
+      suite_id: input.suite_id || crypto.randomUUID(),
+      organization_id:
+        getOrganization(input.organization_id || 'fleet')?.organization_id || input.organization_id,
+      name: String(input.name || ''),
+      description: String(input.description || ''),
+      cases: Array.isArray(input.cases) ? input.cases : [],
+      threshold: Number(input.threshold ?? 0.8),
+      created_by: String(input.created_by || 'operator'),
+      created_at: now,
+      updated_at: now,
+    };
+    if (!row.name) throw httpErr(400, 'evaluation suite name is required');
+    db.prepare(
+      'INSERT INTO eval_suites (suite_id,organization_id,name,description,cases_json,threshold,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.suite_id,
+      row.organization_id,
+      row.name,
+      row.description,
+      JSON.stringify(row.cases),
+      row.threshold,
+      row.created_by,
+      now,
+      now
+    );
+    return getEvalSuite(row.suite_id);
+  }
+  function getEvalSuite(id) {
+    const row = db.prepare('SELECT * FROM eval_suites WHERE suite_id=?').get(String(id));
+    return row ? { ...row, cases: safeJsonArray(row.cases_json) } : null;
+  }
+  function listEvalSuites({ organization_id, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const rows = organization_id
+      ? db
+          .prepare(
+            'SELECT * FROM eval_suites WHERE organization_id=? ORDER BY updated_at DESC LIMIT ?'
+          )
+          .all(String(getOrganization(organization_id)?.organization_id || organization_id), n)
+      : db.prepare('SELECT * FROM eval_suites ORDER BY updated_at DESC LIMIT ?').all(n);
+    return rows.map(row => ({ ...row, cases: safeJsonArray(row.cases_json) }));
+  }
+  function createEvalRun(input = {}) {
+    if (!getEvalSuite(input.suite_id) || !getAgent(input.agent_id))
+      throw httpErr(404, 'evaluation suite or agent not found');
+    const now = new Date().toISOString();
+    const row = {
+      eval_run_id: input.eval_run_id || crypto.randomUUID(),
+      suite_id: String(input.suite_id),
+      agent_id: String(input.agent_id),
+      status: input.status || 'queued',
+      scores: input.scores || {},
+      feedback: String(input.feedback || ''),
+      started_at: input.started_at || null,
+      finished_at: input.finished_at || null,
+      created_at: now,
+    };
+    db.prepare(
+      'INSERT INTO eval_runs (eval_run_id,suite_id,agent_id,status,scores_json,feedback,started_at,finished_at,created_at) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.eval_run_id,
+      row.suite_id,
+      row.agent_id,
+      row.status,
+      JSON.stringify(row.scores),
+      row.feedback,
+      row.started_at,
+      row.finished_at,
+      now
+    );
+    return getEvalRun(row.eval_run_id);
+  }
+  function getEvalRun(id) {
+    const row = db.prepare('SELECT * FROM eval_runs WHERE eval_run_id=?').get(String(id));
+    return row ? { ...row, scores: safeJson(row.scores_json) } : null;
+  }
+  function updateEvalRun(id, patch = {}) {
+    const current = getEvalRun(id);
+    if (!current) throw httpErr(404, 'evaluation run not found');
+    const scores = patch.scores && typeof patch.scores === 'object' ? patch.scores : current.scores;
+    const status = String(patch.status || current.status);
+    if (!['queued', 'running', 'succeeded', 'failed'].includes(status))
+      throw httpErr(400, 'invalid evaluation run status');
+    db.prepare(
+      'UPDATE eval_runs SET status=?,scores_json=?,feedback=?,started_at=?,finished_at=? WHERE eval_run_id=?'
+    ).run(
+      status,
+      JSON.stringify(scores),
+      String(patch.feedback ?? current.feedback ?? ''),
+      patch.started_at ?? current.started_at,
+      patch.finished_at ?? current.finished_at,
+      current.eval_run_id
+    );
+    return getEvalRun(current.eval_run_id);
+  }
+  function listEvalRuns({ suite_id, agent_id, limit = 200 } = {}) {
+    const c = [],
+      a = [];
+    if (suite_id) {
+      c.push('suite_id=?');
+      a.push(String(suite_id));
+    }
+    if (agent_id) {
+      c.push('agent_id=?');
+      a.push(String(agent_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM eval_runs${c.length ? ` WHERE ${c.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...a, Math.max(1, Math.min(Number(limit) || 200, 1000)))
+      .map(row => ({ ...row, scores: safeJson(row.scores_json) }));
+  }
+  function createObjectBlob(input = {}) {
+    const now = new Date().toISOString();
+    const content = input.content_base64
+      ? Buffer.from(String(input.content_base64), 'base64')
+      : null;
+    if (content && content.byteLength > 20 * 1024 * 1024)
+      throw httpErr(413, 'object blob exceeds 20MB limit');
+    const blobId = input.blob_id || crypto.randomUUID();
+    let storageUri = String(input.storage_uri || '');
+    if (content) {
+      const objectDir = path.join(path.dirname(dbFile), 'objects');
+      fs.mkdirSync(objectDir, { recursive: true, mode: 0o700 });
+      const objectPath = path.join(objectDir, blobId);
+      fs.writeFileSync(objectPath, content, { mode: 0o600, flag: 'wx' });
+      storageUri = `file://${objectPath}`;
+    }
+    const row = {
+      blob_id: blobId,
+      organization_id:
+        getOrganization(input.organization_id || 'fleet')?.organization_id || input.organization_id,
+      owner_type: String(input.owner_type || 'artifact'),
+      owner_id: String(input.owner_id || ''),
+      content_type: String(input.content_type || 'application/octet-stream'),
+      storage_uri: storageUri,
+      sha256:
+        input.sha256 ||
+        (content ? crypto.createHash('sha256').update(content).digest('hex') : null),
+      byte_size: Number(input.byte_size) || content?.byteLength || 0,
+      status: input.status || 'active',
+      created_at: now,
+    };
+    if (!row.owner_id || !row.storage_uri)
+      throw httpErr(400, 'blob owner and storage URI are required');
+    db.prepare(
+      'INSERT INTO object_blobs (blob_id,organization_id,owner_type,owner_id,content_type,storage_uri,sha256,byte_size,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)'
+    ).run(
+      row.blob_id,
+      row.organization_id,
+      row.owner_type,
+      row.owner_id,
+      row.content_type,
+      row.storage_uri,
+      row.sha256,
+      row.byte_size,
+      row.status,
+      now
+    );
+    return row;
+  }
+  function getObjectBlob(id) {
+    return db.prepare('SELECT * FROM object_blobs WHERE blob_id=?').get(String(id)) || null;
+  }
+  function listObjectBlobs({ organization_id, owner_type, owner_id, limit = 200 } = {}) {
+    const c = [],
+      a = [];
+    if (organization_id) {
+      c.push('organization_id=?');
+      a.push(String(getOrganization(organization_id)?.organization_id || organization_id));
+    }
+    if (owner_type) {
+      c.push('owner_type=?');
+      a.push(String(owner_type));
+    }
+    if (owner_id) {
+      c.push('owner_id=?');
+      a.push(String(owner_id));
+    }
+    return db
+      .prepare(
+        `SELECT * FROM object_blobs${c.length ? ` WHERE ${c.join(' AND ')}` : ''} ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(...a, Math.max(1, Math.min(Number(limit) || 200, 1000)));
+  }
+
+  function upsertRuntimeAdapter(input = {}) {
+    const slug = String(input.slug || '').trim();
+    if (!/^[a-z0-9][a-z0-9._-]{1,80}$/.test(slug) || !input.kind)
+      throw httpErr(400, 'valid adapter slug and kind are required');
+    const now = new Date().toISOString();
+    db.prepare(
+      'INSERT INTO runtime_adapters (adapter_id,slug,kind,endpoint,capabilities_json,status,version,last_heartbeat_at,metadata_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET kind=excluded.kind,endpoint=excluded.endpoint,capabilities_json=excluded.capabilities_json,status=excluded.status,version=excluded.version,last_heartbeat_at=excluded.last_heartbeat_at,metadata_json=excluded.metadata_json,updated_at=excluded.updated_at'
+    ).run(
+      input.adapter_id || crypto.randomUUID(),
+      slug,
+      String(input.kind),
+      input.endpoint || null,
+      JSON.stringify(Array.isArray(input.capabilities) ? input.capabilities.slice(0, 100) : []),
+      input.status || 'offline',
+      input.version || null,
+      input.last_heartbeat_at || null,
+      JSON.stringify(input.metadata || {}),
+      now,
+      now
+    );
+    return getRuntimeAdapter(slug);
+  }
+  function getRuntimeAdapter(id) {
+    const row = db
+      .prepare('SELECT * FROM runtime_adapters WHERE adapter_id=? OR slug=?')
+      .get(String(id), String(id));
+    return row
+      ? {
+          ...row,
+          capabilities: safeJsonArray(row.capabilities_json),
+          metadata: safeJson(row.metadata_json),
+        }
+      : null;
+  }
+  function listRuntimeAdapters({ status, limit = 200 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 200, 500));
+    const rows = status
+      ? db
+          .prepare('SELECT * FROM runtime_adapters WHERE status=? ORDER BY slug LIMIT ?')
+          .all(String(status), n)
+      : db.prepare('SELECT * FROM runtime_adapters ORDER BY slug LIMIT ?').all(n);
+    return rows.map(row => ({
+      ...row,
+      capabilities: safeJsonArray(row.capabilities_json),
+      metadata: safeJson(row.metadata_json),
+    }));
+  }
+  function heartbeatRuntimeAdapter(id, patch = {}) {
+    const adapter = getRuntimeAdapter(id);
+    if (!adapter) throw httpErr(404, 'adapter not found');
+    const now = new Date().toISOString();
+    db.prepare(
+      'UPDATE runtime_adapters SET status=?,version=?,last_heartbeat_at=?,metadata_json=?,updated_at=? WHERE adapter_id=?'
+    ).run(
+      String(patch.status || 'online'),
+      patch.version || adapter.version || null,
+      now,
+      JSON.stringify(patch.metadata || adapter.metadata || {}),
+      now,
+      adapter.adapter_id
+    );
+    return getRuntimeAdapter(adapter.adapter_id);
+  }
+  function createMcpSession(input = {}) {
+    const connector = getRuntimeConnector(input.connector_id);
+    if (!connector) throw httpErr(404, 'connector not found');
+    const now = new Date().toISOString();
+    const row = {
+      session_id: input.session_id || crypto.randomUUID(),
+      connector_id: connector.connector_id,
+      protocol_version: String(input.protocol_version || '2025-06-18'),
+      client_info: input.client_info || {},
+      status: 'active',
+      created_at: now,
+      updated_at: now,
+    };
+    db.prepare(
+      'INSERT INTO mcp_sessions (session_id,connector_id,protocol_version,client_info_json,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?)'
+    ).run(
+      row.session_id,
+      row.connector_id,
+      row.protocol_version,
+      JSON.stringify(row.client_info),
+      row.status,
+      now,
+      now
+    );
+    return row;
+  }
+  function getMcpSession(id) {
+    const row = db.prepare('SELECT * FROM mcp_sessions WHERE session_id=?').get(String(id));
+    return row ? { ...row, client_info: safeJson(row.client_info_json) } : null;
+  }
+
   return {
     record,
     recordOnce,
@@ -2118,6 +5923,12 @@ function open(root, { file } = {}) {
     createExecutiveAction,
     listExecutiveActions,
     getExecutiveAction,
+    createProductivityPilot,
+    getProductivityPilot,
+    listProductivityPilots,
+    updateProductivityPilot,
+    createProductivitySnapshot,
+    listProductivitySnapshots,
     finishExecutiveAction,
     updateExecutiveAction,
     createExecutiveGoal,
@@ -2134,9 +5945,150 @@ function open(root, { file } = {}) {
     createWorkflowLink,
     listWorkflowLinks,
     deleteWorkflowLink,
+    createExecutiveProject,
+    getExecutiveProject,
+    listExecutiveProjects,
+    updateExecutiveProject,
+    createExecutivePlan,
+    getExecutivePlan,
+    listExecutivePlans,
+    addExecutivePlanVersion,
+    getExecutivePlanVersion,
+    listExecutivePlanVersions,
+    decideExecutivePlan,
+    listExecutivePlanApprovals,
+    createWorkComment,
+    listWorkComments,
+    createWorkAttachment,
+    listWorkAttachments,
     createExecutiveKnowledge,
     listExecutiveKnowledge,
     updateExecutiveKnowledge,
+    createHumanUser,
+    listHumanUsers,
+    createApiCredential,
+    authenticateApiCredential,
+    revokeApiCredential,
+    createOrganizationInvite,
+    acceptOrganizationInvite,
+    authenticateActor,
+    createAgentSession,
+    getAgentSession,
+    heartbeatAgentSession,
+    createAgentIssue,
+    getAgentIssue,
+    listAgentIssues,
+    updateAgentIssue,
+    addAgentIssueDependency,
+    createAgentIssueComment,
+    listAgentIssueComments,
+    createAgentIssueAttachment,
+    listAgentIssueAttachments,
+    checkoutAgentIssue,
+    upsertExecutionPolicy,
+    getExecutionPolicy,
+    listExecutionPolicies,
+    createGovernanceDecision,
+    listGovernanceDecisions,
+    createEvalSuite,
+    getEvalSuite,
+    listEvalSuites,
+    createEvalRun,
+    getEvalRun,
+    updateEvalRun,
+    listEvalRuns,
+    createObjectBlob,
+    getObjectBlob,
+    listObjectBlobs,
+    upsertRuntimeAdapter,
+    getRuntimeAdapter,
+    listRuntimeAdapters,
+    heartbeatRuntimeAdapter,
+    createMcpSession,
+    getMcpSession,
+    createAgent,
+    getAgent,
+    listAgents,
+    updateAgent,
+    createAgentRun,
+    getAgentRun,
+    getAgentRunByIdempotency,
+    listAgentRuns,
+    updateAgentRun,
+    createAgentDispatch,
+    getAgentDispatch,
+    listAgentDispatches,
+    claimAgentDispatch,
+    completeAgentDispatch,
+    completeAgentDispatchForRun,
+    createAgentArtifact,
+    listAgentArtifacts,
+    upsertBudgetPolicy,
+    getBudgetPolicy,
+    listBudgetPolicies,
+    reserveBudget,
+    reserveBudgetBatch,
+    enforceBudgetStops,
+    createAgentRoutine,
+    listAgentRoutines,
+    touchAgentRoutine,
+    createAgentWatchdog,
+    listAgentWatchdogs,
+    auditAgentWatchdogs,
+    createAgentEval,
+    listAgentEvals,
+    agentEvalSummary,
+    upsertAgentToolGrant,
+    getAgentToolGrant,
+    listAgentToolGrants,
+    canAgentUseTool,
+    upsertAgentSecret,
+    getAgentSecret,
+    listAgentSecrets,
+    resolveAgentSecret,
+    createAgentWorkspace,
+    listAgentWorkspaces,
+    closeAgentWorkspace,
+    createAgentSkill,
+    getAgentSkill,
+    listAgentSkills,
+    publishAgentSkillVersion,
+    getAgentSkillVersion,
+    assignAgentSkill,
+    listAgentAssignments,
+    resolveAgentSkills,
+    upsertAgentMemory,
+    listAgentMemories,
+    upsertRuntimePlugin,
+    getRuntimePlugin,
+    listRuntimePlugins,
+    upsertRuntimeConnector,
+    getRuntimeConnector,
+    listRuntimeConnectors,
+    appendAgentRunLog,
+    listAgentRunLogs,
+    upsertAgentDelegation,
+    listAgentDelegations,
+    upsertRuntimeProvider,
+    getRuntimeProvider,
+    getRuntimeProviderConfig,
+    listRuntimeProviders,
+    enqueueRuntimePluginJob,
+    getRuntimePluginJob,
+    listRuntimePluginJobs,
+    claimRuntimePluginJob,
+    completeRuntimePluginJob,
+    enqueueRuntimeConnectorCall,
+    getRuntimeConnectorCall,
+    listRuntimeConnectorCalls,
+    claimRuntimeConnectorCall,
+    completeRuntimeConnectorCall,
+    createOrganization,
+    listOrganizations,
+    getOrganization,
+    upsertOrganizationMember,
+    listOrganizationMembers,
+    canOrganizationActor,
     close,
     file: dbFile,
   };
@@ -2148,6 +6100,10 @@ function safeJson(value) {
   } catch {
     return {};
   }
+}
+function safeJsonArray(value) {
+  const parsed = safeJson(value);
+  return Array.isArray(parsed) ? parsed : [];
 }
 function decodeImprovement(row) {
   return {

@@ -6,6 +6,7 @@
 const { ROLE_FAMILIES } = require('./roles');
 const EDITORIAL_ROLES = ROLE_FAMILIES.update.roles;
 const OWNERS_BY_TYPE = Object.freeze({
+  design: ['engineer'],
   engineering: ['engineer'],
   seo: ['seo-analyst'],
   content: [EDITORIAL_ROLES[1]],
@@ -21,6 +22,7 @@ const OWNERS_BY_TYPE = Object.freeze({
 // and link-building are outside the engineer role's authority. Technical SEO
 // work is filed as engineering separately by the producer.
 const SITE_FALLBACKS_BY_TYPE = Object.freeze({
+  design: ['engineer', 'principal-engineer'],
   engineering: ['engineer', 'principal-engineer'],
   seo: ['seo-analyst'],
   content: [...EDITORIAL_ROLES.slice(1), 'guide-writer', 'weekly-editorial', 'breaking-news'],

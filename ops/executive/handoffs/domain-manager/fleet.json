@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-27T16:10:00.173Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-28T03:05:36.121Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "8288abbb-f5c5-4f48-937f-092a6b8b7e1f",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 2,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain containment-only execution. Retain measurement-aware queue admission/deduplication and an operator cockpit as deferred proposals. Do not dispatch, requeue, deploy, add telemetry, spend, or expand monetization until existing repair, measurement, attribution, release, legal, and security gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
   }
 }

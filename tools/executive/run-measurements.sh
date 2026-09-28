@@ -18,7 +18,30 @@ fi
 node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const measurements = require(`${root}/tools/fleet-dashboard/server/measurement-runner`);
+const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
+const productivity = require(`${root}/tools/fleet-dashboard/server/productivity-program`);
 measurements.run({ root })
-  .then(result => process.stdout.write(JSON.stringify(result) + '\n'))
+  .then(result => {
+    const store = eventstore.open(root);
+    const pilots = store.listProductivityPilots({ status: 'active', limit: 20 });
+    const snapshots = [];
+    for (const pilot of pilots) {
+      const last = store.listProductivitySnapshots(pilot.pilot_id, { limit: 1 })[0];
+      const lastAt = Date.parse(last?.created_at || '');
+      // Measurement jobs may run more often than the evidence cadence. Keep
+      // the trail useful without writing duplicate snapshots in one interval.
+      if (Number.isFinite(lastAt) && Date.now() - lastAt < 10 * 60 * 1000) continue;
+      const recorded = productivity.recordPilotMeasurement(store, pilot);
+      snapshots.push({
+        pilot_id: pilot.pilot_id,
+        phase: recorded.final ? 'evaluation' : 'progress',
+        snapshot: recorded.current,
+        evaluation: recorded.evaluation,
+        status: recorded.pilot.status,
+      });
+    }
+    store.close();
+    process.stdout.write(JSON.stringify({ measurement: result, productivity_snapshots: snapshots }) + '\n');
+  })
   .catch(error => { console.error(error.stack || error.message); process.exitCode = 1; });
 NODE
