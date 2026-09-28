@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:21:55.922Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:35:57.738Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Produce a dated reconciliation using existing records: provider tracking ID, site/content revenue, AI cost, infrastructure cost, other operating cost, commitments, budget ceiling, and approved learning threshold. Preserve $4.92 as aggregate unattributed commission; do not allocate it to any site. Minimum measurement needed for contribution margin and cost-to-learn is a complete matching-period cost ledger plus site/content-level revenue identifiers and an approved threshold. Missing values must remain unknown, not zero.",
+        "summary": "Continue the existing reconciliation only. AI usage is recorded for 2026-09-01 through 2026-09-28: 5,009 calls, 228 errors, and $916.91454435 total cost across 39 instrumented sites. This cannot be compared with revenue because revenue covers only 2026-09-21 and is partly aggregate. Infrastructure, domain, labor, marketing, commitment, and other operating costs are unavailable; do not treat them as zero. Cost-to-learn is not calculable because no approved learning threshold or outcome-linked cost ledger is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject vanity-metric financial claims. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators only; they do not establish revenue, contribution margin, or causal lift. The 30-day scorecard has 36 improvements awaiting measurement and only 3 proven outcomes as of 2026-09-28. Retain opportunities as deferred backlog until attribution, cost, ownership, validation, rollback, and measurement gates clear.",
+        "summary": "Preserve the Amazon aggregate row as unattributed and reconcile only named tracking rows against matching-period costs. The minimum finance artifact is a dated ledger mapping provider tracking ID to site/content, revenue, AI cost, infrastructure cost, other operating costs, commitments, budget ceiling, and approved cost-to-learn threshold. Do not claim site revenue or conversion value from clicks, sessions, impressions, ordered items, or conversions alone.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Push back on vanity metrics: SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or contribution-margin evidence. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement; these do not support a portfolio forecast. Retain existing measurement and repair work, but create no duplicate finance proposal or new spend.",
         "requested_action": null,
         "proposal_id": null
       }

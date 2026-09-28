@@ -2,63 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:21:55.922Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:35:57.791Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new queue action is safe this cycle because the authoritative candidate list is empty, active measurements and failed requests remain open, ownership and validation evidence is incomplete, operations and security sweeps are unavailable, and attribution is partial. Continue only existing measurement, repair-or-close, parked-site verification, legal/security evidence, and attribution reconciliation. Do not create proposals, change requests, requeues, telemetry, deployments, dependencies, spending, monetization changes, or unsupported financial claims.",
+        "summary": "CTO review: maintain containment-only execution this cycle. No authoritative implementation candidate is queue-eligible: active measurement, failed-request repair, ownership, validation, rollback, release, attribution, and security gates remain open. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create duplicate work, requeue, deploy, add dependencies, change telemetry, spend, expand monetization, or claim revenue, ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain queue containment. Do not install roles, create duplicate requests, dispatch candidates, or requeue failures in this cycle. Continue existing owner-gap, measurement, and repair-or-close work only. Reassess queue readiness after dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence is recorded.",
+        "summary": "No new change request is queue-eligible from the authoritative snapshot. Continue existing measurement and failure-repair containment; resolve ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement blockers before any retry or dispatch. Do not requeue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing read-only execution-owner verification for the currently tracked parked and queue-ready sites. Preserve parked/private status and all unknown audience, analytics, revenue, compliance, security, and operational fields. Do not change DNS, credentials, analytics, consent, tracking, monetization, deployment, or launch state.",
+        "summary": "Continue the existing failed-request repair-or-close review without retry or requeue. Inspect retained failure evidence and document ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement gates before any future dispatch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain affiliate-link, tracking-ID, stale-reference, and prebuild-check concepts as deferred backlog only. Do not dispatch or requeue them. Preserve the aggregate provider row as unattributed: 629 clicks, 28 ordered items, and $4.92 commission for 2026-09-21. Future implementation requires exact link evidence, registered identifiers, deterministic validation, disclosure and consent checks, existing-telemetry measurement, and bounded rollback.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned attribution and cost reconciliation only. Reconcile the 18 named tracking rows against available matching-period records and preserve the aggregate provider row as unattributed. Do not treat missing costs, commitments, budgets, or learning thresholds as zero, and do not infer site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "summary": "Continue the existing private launch-readiness evidence work. Keep permission outreach unsent and preserve the private gate while rights, data-flow, retention, consent, vendor, accuracy, security, attribution, measurement, and owner evidence remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Continue period-aligned attribution and cost reconciliation. Preserve the 2026-09-21 aggregate Amazon commission as unattributed; reconcile only existing named tracking rows against available matching-period costs and record missing costs, budgets, commitments, and learning thresholds as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain existing compliance and private launch gates. Continue the consolidated read-only evidence work and keep permission outreach unsent pending human-counsel review and owner authorization. No rights-dependent exposure, monetization change, tracking change, deployment, or external outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain SEO, UX, accessibility, content, affiliate, monetization, and repository opportunities as deferred backlog only. Technical feasibility does not establish queue eligibility. Reconsider implementation only after active measurement, failure repair, ownership, isolated validation, rollback, release, security, attribution, deduplication, and measurement gates clear.",
+        "summary": "Continue existing affiliate-link, disclosure, attribution, and conversion-leak repair reviews using existing telemetry only. Validate destination integrity, registered tracking identifiers, disclosures, and rollback evidence; do not requeue or claim revenue lift before measurement.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,51 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:21:55.923Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:35:57.793Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, monetization, and outreach actions. Preserve aggregate commission as unattributed; continue only existing reconciliation, measurement, repair-or-close, parked-site verification, and legal/security evidence work. Keep private launch gates unchanged. Material concern: financial periods and attribution are incomplete, so no site-level financial claim or new production work is supported.",
+        "summary": "Approve containment-only execution. Continue existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation only. Reject new production work, requeues, spending, telemetry, dependencies, deployments, monetization changes, and unsupported financial or causal claims. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter configuration or permissions, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Material concerns: revenue covers only 2026-09-21 and includes an unattributed aggregate row; matching-period costs, budgets, and learning thresholds are incomplete. No site revenue, ROI, margin, payback, forecast, or causal lift is supportable. Keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate and continue the existing consolidated read-only evidence bundle. Keep permission outreach unsent pending human-counsel review and owner authorization; do not change launch state, monetization, tracking, credentials, configuration, or production.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "Deferred research only; no prototype or adoption without cleared execution, security, attribution, and measurement gates.",
-        "requested_action": "declined",
-        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "Deferred research only; no production UX adoption without cleared execution, security, attribution, and measurement gates.",
-        "requested_action": "declined",
-        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "Deferred research only; feasibility evidence does not establish measurable SEO or revenue impact.",
-        "requested_action": "declined",
-        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
       }
     ]
   }

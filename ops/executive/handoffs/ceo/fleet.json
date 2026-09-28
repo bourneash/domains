@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:37:13.013Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:35:57.793Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Acknowledged EXEC_CONV_9: Get news sites approved as authoritative news sites on various providers\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Acknowledged EXEC_CONV_8: Get IndexNow enabled for any sites that need it and dont have it\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
         "kind": "proposal-review",
         "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "Retain MarkItDown as deferred research only; current measurement, security, ownership, release, and attribution gates do not support prototype or adoption work.",
+        "summary": "CRO repository evidence supports research feasibility only; active measurement, failure-repair, ownership, security, release, rollback, and attribution gates do not support prototype dispatch or adoption.",
         "requested_action": "declined",
         "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
       },
       {
         "kind": "proposal-review",
         "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "Retain shadcn/ui as deferred research only; no new dependency or prototype is justified while existing execution and measurement gates remain open.",
+        "summary": "No production adoption or prototype is justified while existing delivery and measurement gates remain open.",
         "requested_action": "declined",
         "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
       },
       {
         "kind": "proposal-review",
         "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "Retain Mermaid as deferred research only; runtime, accessibility, performance, and security evidence are insufficient for adoption.",
+        "summary": "Repository lab evidence is not proof of fleet fit, security, or revenue impact; retain as deferred backlog only.",
         "requested_action": "declined",
         "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
       }
