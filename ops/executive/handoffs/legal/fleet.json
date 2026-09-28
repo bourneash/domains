@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:35:57.792Z",
+  "generated_at": "2026-09-28T14:51:16.195Z",
   "summary": "legal checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch and rights-dependent monetization; conditional for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Recommendation: keep searchwoot.com private, retain complicated.work and deadlymaracas.com parked/private, and permit only existing read-only evidence work. Evidence: Woot terms do not establish public or commercial redistribution rights; launch-readiness is 0 of 4 tasks closed; accuracy, security, privacy, retention, vendor, attribution, measurement, and owner gates remain incomplete. Fleet compliance is technical baseline only: 36 pass, 17 fail, 6 unknown, with open banner/consent, privacy, and terms findings. Analytics quality is yellow and revenue is partial aggregate; $4.92 commission for 2026-09-21 remains unattributed. Human counsel is required before any Woot permission request, public beta, alert expansion, affiliate, or advertising use. Do not treat incomplete telemetry alone as a blocker for ordinary reversible growth.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible work that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Exact decision: keep SearchWoot private, keep permission outreach unsent, and authorize only existing bounded read-only evidence work. Evidence: Woot documentation confirms API access but not redistribution rights; public terms restrict commercial/public listing, price, derivative, and data-mining uses. Security, accuracy/freshness, measurement, attribution, and owner gates remain incomplete. Human counsel is required before any rights request, public data display, affiliate or advertising use, alert expansion, or launch decision.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. Existing evidence includes official Woot API, terms, and support records; repository/configuration artifacts; privacy and cookie-policy artifacts; and draft terms. No task closes because rights, field-level provenance, retention, deletion, correction, access, notification, GA4 settings, vendor coverage, incident procedures, accuracy/freshness, and rollback evidence remain incomplete. Next evidence action: attach and review one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence. Keep outreach unsent and do not change production, tracking, credentials, configuration, alert scope, monetization, or launch state.",
+        "summary": "Fleet compliance and data-quality disposition: compliance is conditional, with 36 pass, 17 fail, and 6 unknown; failed or unknown sites require site-specific remediation or evidence before exposure or monetization. Analytics is conditional because source permissions or collector errors remain; incomplete telemetry alone does not block ordinary growth. Revenue is evidence_needed: the 2026-09-21 Amazon export reports $4.92 aggregate commission under an aggregate row that cannot be assigned to a site. Preserve it as unattributed and make no site-revenue, ROI, margin, payback, forecast, or causal-lift claims. SEO and analytics metrics remain operating indicators only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review decisions: Woot API deal and price-history data — blocked. Missing current written permission or API agreement, field-level provenance, storage/caching/display/derivative/alert permissions, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized permission request. User alert rules and sync results — evidence_needed. Missing data inventory, identifiers, retention, deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only deployed/repository data-flow and retention table. GA4 analytics — evidence_needed. Missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional review. Smallest next action: capture consent and GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data — evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, incident procedures, and data-request procedures. Smallest next action: produce a read-only log/vendor/incident inventory.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. Existing progress is evidenced by official Woot API, terms, and support records; repository/configuration artifacts; privacy and cookie-policy artifacts; and draft terms. No task is closable because rights, field-level provenance, retention, deletion, correction, access, notification, GA4 settings, vendor coverage, incident procedures, accuracy/freshness, and rollback evidence remain incomplete. Next evidence action: attach and review one consolidated read-only bundle covering the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence. Do not change production, tracking, credentials, configuration, alert scope, monetization, launch state, or send outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing affiliate repair and measurement work. Validate destination integrity, registered tracking IDs, disclosures, click attribution, and rollback evidence using existing telemetry. Preserve the Amazon aggregate row as unattributed: 629 clicks, 28 ordered items, and $4.92 commission cannot be assigned to a site. Do not claim site revenue, ROI, margin, payback, or causal lift, and do not requeue work.",
+        "summary": "Data-use review decisions: Woot API deal and price-history data — blocked. Missing current written permission or API agreement, field-level provenance and rights, storage/caching/display/derivative/alert permissions, attribution, freshness, correction, takedown, trademark/image/price terms, and affiliate/advertising rights. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized permission request. User alert rules and sync results — evidence_needed. Missing data inventory, identifiers, retention, deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only deployed/repository data-flow and retention table. GA4 analytics — evidence_needed. Missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional review. Smallest next action: capture consent and GA4 configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data — evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest next action: produce a read-only log/vendor/incident inventory.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain private launch gates and continue the existing read-only security evidence matrix. Public exposure and security-sensitive releases remain blocked because fleet-doctor and operations sweeps have no results and all 59 security sitefacts are unknown. Ordinary reversible growth is conditional only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
+        "summary": "Private-site decision: retain complicated.work and deadlymaracas.com parked and private. Both are scaffold/parked, analytics is not configured, and compliance reachability currently fails with network errors; audience, disclosures, consent, monetization, and operational health are unknown. Exact launch decision: no launch or monetization change. Next evidence action: attach dated execution-owner verification, reachability, disclosure, consent, analytics, terms, monetization, and explicit launch-decision evidence. No DNS, credential, analytics, monetization, deployment, or configuration change is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain complicated.work and deadlymaracas.com parked and private. Their compliance checks are unreachable, analytics are not configured, and audience, revenue, attribution, health, and launch readiness remain unknown. Continue only dated execution-owner and reachability evidence; make no DNS, credential, analytics, monetization, deployment, or launch-state changes.",
+        "summary": "Retain containment-only work. Continue existing launch-readiness evidence, site-specific compliance remediation, security evidence, attribution reconciliation, parked-site verification, and existing measurement. Close no launch-readiness task until its required evidence is attached and reviewed. Do not create duplicate proposals, change requests, deployments, monetization expansion, dependencies, telemetry, spend, requeues, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

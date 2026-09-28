@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:35:57.738Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:51:16.195Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing reconciliation only. AI usage is recorded for 2026-09-01 through 2026-09-28: 5,009 calls, 228 errors, and $916.91454435 total cost across 39 instrumented sites. This cannot be compared with revenue because revenue covers only 2026-09-21 and is partly aggregate. Infrastructure, domain, labor, marketing, commitment, and other operating costs are unavailable; do not treat them as zero. Cost-to-learn is not calculable because no approved learning threshold or outcome-linked cost ledger is recorded.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the Amazon aggregate row as unattributed and reconcile only named tracking rows against matching-period costs. The minimum finance artifact is a dated ledger mapping provider tracking ID to site/content, revenue, AI cost, infrastructure cost, other operating costs, commitments, budget ceiling, and approved cost-to-learn threshold. Do not claim site revenue or conversion value from clicks, sessions, impressions, ordered items, or conversions alone.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Push back on vanity metrics: SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or contribution-margin evidence. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement; these do not support a portfolio forecast. Retain existing measurement and repair work, but create no duplicate finance proposal or new spend.",
+        "summary": "CFO recommendation: maintain containment-only execution and reject all new change requests this cycle. Financial claims are unsupported: Amazon reports $4.92 commission for 2026-09-21, but all $4.92 is in aggregate tracking ID \"other\" and cannot be assigned to a site; attributed income is $0. The export has 6,219 clicks, 28 ordered items, and 6 shipped items, but this does not establish site revenue, contribution margin, ROI, payback, or forecast. AI usage cost is $916.914544 for 2026-09-01 through 2026-09-28 across 5,009 calls, while matching-period infrastructure, domain, labor, marketing, commitment, and other operating costs are unavailable. Budget ceiling, monthly spend limit, commitments, and approved cost-to-learn threshold are blank, so budget exposure, contribution margin, and cost-to-learn remain unknown rather than zero. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators only; 36 improvements await measurement and only 3 outcomes are proven as of 2026-09-28. Continue only the existing CFO reconciliation work item and existing measurement/repair evidence; do not create duplicate finance work, spend, telemetry, deployments, requeues, or monetization changes. Minimum finance artifact remains a dated matching-period ledger containing provider/site/content revenue identifiers, AI cost, infrastructure cost, other operating cost, commitments, budget ceiling, and an approved learning threshold.",
         "requested_action": null,
         "proposal_id": null
       }

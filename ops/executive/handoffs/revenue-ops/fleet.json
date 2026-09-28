@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:06:17.747Z",
+  "generated_at": "2026-09-28T14:51:16.194Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Record the following evidence-backed affiliate and attribution repairs as deferred work items; do not dispatch or requeue until ownership, validation, rollback, compliance, and measurement gates clear. Preserve aggregate revenue as unattributed and do not infer ROI.",
+        "summary": "Maintain containment-only execution and continue existing repair, measurement, and reconciliation work. No new queue requests, deployments, telemetry, spend, or monetization changes are authorized this cycle. Concrete existing repair tasks are recorded in metadata.",
         "requested_action": null,
         "proposal_id": null
       }

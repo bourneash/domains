@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:36:34.819Z",
+  "generated_at": "2026-09-28T14:51:16.194Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep all other validated opportunities as deferred readiness backlog. Do not create duplicate briefs, change requests, telemetry requests, deployments, monetization work, or launch activity while ownership, legal, security, measurement, and rollback gates remain incomplete.",
+        "summary": "Product recommendation: maintain containment-only execution this cycle. Existing measurement, failure repair, legal/security evidence, parked-site verification, and attribution reconciliation should continue. Product and UX opportunities remain deferred until ownership, validation, rollback, deduplication, release, attribution, and measurement gates clear. Do not create duplicate proposals, work items, change requests, requeues, telemetry, deployments, spend, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

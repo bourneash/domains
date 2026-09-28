@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:52:20.253Z",
+  "generated_at": "2026-09-28T14:51:16.194Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the deployed allthingsmasonic.com homepage-refresh measurement only. Validate CTA hierarchy, affiliate destinations, disclosures, consent/tracking behavior, screenshots, build, smoke, accessibility, and rollback evidence using existing telemetry. Do not requeue duplicate work.",
+        "summary": "Maintain containment-only execution. Strongest candidate: allthingsmasonic.com, where the homepage refresh is already deployed and measuring. Exactly one next step: complete the existing validation pass for affiliate destinations, disclosure placement, consent behavior, accessibility, smoke, and rollback evidence using existing telemetry only; do not requeue or create new work.",
         "requested_action": null,
         "proposal_id": null
       }

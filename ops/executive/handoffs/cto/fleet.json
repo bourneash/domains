@@ -2,56 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:35:57.791Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:51:16.195Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: maintain containment-only execution this cycle. No authoritative implementation candidate is queue-eligible: active measurement, failed-request repair, ownership, validation, rollback, release, attribution, and security gates remain open. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create duplicate work, requeue, deploy, add dependencies, change telemetry, spend, expand monetization, or claim revenue, ROI, margin, payback, or causal lift.",
+        "summary": "CTO review: approve containment-only execution. Reject the proposed driveford.net and drivegm.net change requests because the authoritative candidate list is empty and ownership, validation, rollback, release, security, attribution, and measurement gates remain incomplete. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create or requeue production work, telemetry, dependencies, deployments, spend, monetization changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No new change request is queue-eligible from the authoritative snapshot. Continue existing measurement and failure-repair containment; resolve ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement blockers before any retry or dispatch. Do not requeue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing failed-request repair-or-close review without retry or requeue. Inspect retained failure evidence and document ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement gates before any future dispatch.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing private launch-readiness evidence work. Keep permission outreach unsent and preserve the private gate while rights, data-flow, retention, consent, vendor, accuracy, security, attribution, measurement, and owner evidence remain incomplete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned attribution and cost reconciliation. Preserve the 2026-09-21 aggregate Amazon commission as unattributed; reconcile only existing named tracking rows against available matching-period costs and record missing costs, budgets, commitments, and learning thresholds as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing affiliate-link, disclosure, attribution, and conversion-leak repair reviews using existing telemetry only. Validate destination integrity, registered tracking identifiers, disclosures, and rollback evidence; do not requeue or claim revenue lift before measurement.",
+        "summary": "Continue existing delivery containment and repair-or-close review. Record dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry. Do not dispatch or requeue new work.",
         "requested_action": null,
         "proposal_id": null
       }
