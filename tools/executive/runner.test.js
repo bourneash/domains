@@ -239,6 +239,23 @@ test('site-factory launch-readiness candidates require report coverage', () => {
   );
 });
 
+test('site-factory continues from a verified readiness report to a shippable preview', () => {
+  const candidates = runner.siteFactoryBuildCandidates(
+    [
+      { domain: 'ready.example.com', lifecycle: 'scaffold' },
+      { domain: 'not-ready.example.com', lifecycle: 'scaffold' },
+    ],
+    {
+      keys: new Set(),
+      titles: new Set(['ready.example.com:prepare launch readiness brief for ready example com']),
+    }
+  );
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].type, 'site-factory-build');
+  assert.equal(candidates[0].site, 'ready.example.com');
+  assert.match(candidates[0].recommendation, /preview-only launch gate/);
+});
+
 test('action-mandate fallback escalates a fully blocked fleet to delivery leadership', () => {
   const brief = {
     generated_at: '2026-09-27T21:00:00.000Z',

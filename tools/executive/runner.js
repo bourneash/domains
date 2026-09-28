@@ -283,6 +283,53 @@ function siteFactoryCandidates(
     .slice(0, Math.max(1, Number(limit) || 6));
 }
 
+// A launch-readiness report is a gate, not the finished product. Once a
+// scaffold has a verified readiness artifact, keep the factory moving with a
+// bounded preview/build candidate. This closes the old loop where every
+// scaffold received a report once and then disappeared from executive work.
+function siteFactoryBuildCandidates(
+  inventory,
+  completed = { keys: new Set(), titles: new Set() },
+  limit = 3
+) {
+  const rows = Array.isArray(inventory) ? inventory : [];
+  return rows
+    .filter(item => item?.lifecycle === 'scaffold' && item?.domain)
+    .map(item => String(item.domain).trim().toLowerCase())
+    .filter(Boolean)
+    .filter(site => {
+      const readinessTitle = normalizeActionTitle(`Prepare launch-readiness brief for ${site}`);
+      const legacyTitle = normalizeActionTitle(
+        `Complete bounded launch-readiness assessment for ${site}`
+      );
+      return [...(completed.titles || [])].some(key => {
+        const value = String(key);
+        return (
+          value.startsWith(`${site}:`) &&
+          (value.includes(readinessTitle) ||
+            value.includes(legacyTitle) ||
+            value.includes('launch readiness'))
+        );
+      });
+    })
+    .map(site => ({
+      site,
+      key: `site-factory:build:${site}`,
+      title: `Build the first shippable public surface for ${site}`,
+      type: 'site-factory-build',
+      evidence: {
+        lifecycle: 'scaffold',
+        prerequisite: 'verified launch-readiness artifact exists',
+      },
+      score: 84,
+      recommendation:
+        'Implement the smallest useful public surface in the existing scaffold, including branded homepage structure, initial content, metadata, analytics/affiliate readiness, and an explicit preview-only launch gate. Do not publish until legal, security, and measurement gates are satisfied.',
+      metric: 'launch checklist completion and preview quality gates',
+    }))
+    .filter(candidate => !completed.keys.has(candidate.key))
+    .slice(0, Math.max(1, Number(limit) || 3));
+}
+
 function readSiteDescriptions(root = ROOT) {
   const descriptions = {};
   const file = path.join(root, 'DOMAINS_INDEX.md');
@@ -511,6 +558,7 @@ async function buildBrief(store, root = ROOT) {
     fleetQueueReadiness.ready_sites,
     completedActions
   );
+  const siteBuildCandidates = siteFactoryBuildCandidates(portfolioInventory, completedActions);
   // A candidate is only actionable when its site has capacity. The previous
   // brief exposed already-queued or measuring sites as fresh candidates, then
   // required the model to cover them again. That created needless mandate
@@ -528,7 +576,11 @@ async function buildBrief(store, root = ROOT) {
     if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(run.state))
       activeSites.add(String(run.site || '').toLowerCase());
   }
-  const combinedActionCandidates = [...allActionCandidates, ...launchReadinessCandidates];
+  const combinedActionCandidates = [
+    ...allActionCandidates,
+    ...launchReadinessCandidates,
+    ...siteBuildCandidates,
+  ];
   const executableActionCandidates = [
     ...new Map(
       combinedActionCandidates
@@ -4103,6 +4155,7 @@ module.exports = {
   buildDomainManagerContext,
   actionCandidates,
   siteFactoryCandidates,
+  siteFactoryBuildCandidates,
   buildActionMandateFallback,
   attachKnownActionKeys,
   proposalSite,

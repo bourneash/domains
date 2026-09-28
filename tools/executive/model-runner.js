@@ -220,11 +220,27 @@ async function main() {
         true,
         transcript
       );
-      const nextPlan = runner.parseOutput(output, {
-        defaultActor: role,
-        defaultSite: brief.domain_manager?.site || '',
-        sanitize: true,
-      });
+      let nextPlan;
+      try {
+        nextPlan = runner.parseOutput(output, {
+          defaultActor: role,
+          defaultSite: brief.domain_manager?.site || '',
+          sanitize: true,
+        });
+      } catch (repairError) {
+        // A provider can fail twice on formatting even after the bounded
+        // correction prompt. Do not discard the useful passes already
+        // completed: an empty replacement lets mergePassPlans retain them,
+        // and the trusted action-mandate fallback below can still route
+        // evidence-backed work without trusting malformed provider text.
+        transcript.push({
+          actor: role,
+          message_type: 'background',
+          body: `Provider plan repair failed; preserving prior plan for deterministic fallback: ${repairError.message}`,
+          metadata: { repair: true, label: 'Plan repair failure', status: 'failed' },
+        });
+        nextPlan = runner.emptyPlan();
+      }
       plan = mergeProviderPlan(nextPlan);
     }
     audit.push({
@@ -254,9 +270,22 @@ async function main() {
       true,
       transcript
     );
-    plan = mergeProviderPlan(
-      runner.parseOutput(repairedOutput, { defaultActor: 'reviewer', sanitize: true })
-    );
+    let repairedPlan;
+    try {
+      repairedPlan = runner.parseOutput(repairedOutput, {
+        defaultActor: 'reviewer',
+        sanitize: true,
+      });
+    } catch (repairError) {
+      transcript.push({
+        actor: 'action-mandate-repair',
+        message_type: 'background',
+        body: `Action-mandate repair returned invalid JSON; deterministic candidate routing will take over: ${repairError.message}`,
+        metadata: { repair: true, label: 'Plan repair failure', status: 'failed' },
+      });
+      repairedPlan = runner.emptyPlan();
+    }
+    plan = mergeProviderPlan(repairedPlan);
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -285,9 +314,22 @@ async function main() {
         true,
         transcript
       );
-      plan = mergeProviderPlan(
-        runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo', sanitize: true })
-      );
+      let finalPlan;
+      try {
+        finalPlan = runner.parseOutput(finalRepairOutput, {
+          defaultActor: 'ceo',
+          sanitize: true,
+        });
+      } catch (repairError) {
+        transcript.push({
+          actor: 'decision-memo-repair',
+          message_type: 'background',
+          body: `Final implementation repair returned invalid JSON; deterministic candidate routing will take over: ${repairError.message}`,
+          metadata: { repair: true, label: 'Plan repair failure', status: 'failed' },
+        });
+        finalPlan = runner.emptyPlan();
+      }
+      plan = mergeProviderPlan(finalPlan);
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,
