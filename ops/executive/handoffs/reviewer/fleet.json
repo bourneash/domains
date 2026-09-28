@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:37:59.215Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:38:47.551Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production, queue, requeue, telemetry, dependency, deployment, spending, monetization, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Preserve aggregate commission as unattributed and all missing costs, ownership, readiness, security, attribution, and measurement fields as unknown. Owner concern: current evidence does not support implementation or revenue claims; keep permission outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing parked-site execution-owner and launch-readiness verification only. Record dated ownership, preview/build, compliance, measurement boundary, rollback, and exact blocker evidence; do not implement, publish, deploy, configure analytics, change DNS or credentials, spend, or alter launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair-or-close, measurement, attribution reconciliation, legal/security evidence, and finance reconciliation work only. Do not create duplicate requests or requeue failed work until ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurable outcome evidence are documented.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. Reject unsupported financial, ROI, margin, payback, causal-lift, production, requeue, spend, telemetry, dependency, deployment, monetization, and outreach actions. Amazon commission is aggregate and unattributed; missing costs, budgets, ownership, validation, rollback, security, and measurement remain unknown. No implementation candidate is eligible this cycle: complicated.work, deadlymaracas.com, and driveford.net are blocked by missing execution-owner and launch-readiness evidence. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner update: the action mandate cannot be satisfied safely with a new engineer queue batch. The only authoritative high-confidence candidates are complicated.work, deadlymaracas.com, and driveford.net; each is explicitly blocked by missing execution ownership and launch-readiness evidence. Preserve parked/private status and require dated owner verification, preview/build checks, measurement boundary, rollback point, and exact blocker by 2026-09-30T17:00Z. Existing active, queued, deployed, or measuring work remains unchanged.",
+        "summary": "Independent review: reject all new implementation queue work this cycle. The three available factory candidates lack verified execution ownership and launch-readiness evidence; other sites are blocked by active work or measurement windows. Continue only existing measurement, finance reconciliation, legal/security evidence, failure repair-or-close, and parked-site readiness. Preserve aggregate commission and unavailable telemetry as unknown; do not claim revenue, ROI, margin, causal lift, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       }

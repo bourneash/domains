@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:37:59.215Z",
+  "generated_at": "2026-09-28T21:38:47.552Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing measurement, failure repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness only. Do not create or requeue implementation work, add dependencies or telemetry, deploy, spend, change credentials or configuration, expand monetization, or conduct external outreach.",
+        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }
