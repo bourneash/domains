@@ -26,6 +26,7 @@ try {
   // diagnostics remain useful, but they must not consume every cheap queue
   // slot and leave the executive team's actionable work waiting indefinitely.
   const budgets = runner.approvedWorkQueueBudgets(maxQueue);
+  const reconciledFailureFollowups = runner.reconcileCompletedFailureFollowups(store);
   const failureDiagnostics = runner.drainFailureDiagnostics(store, {
     root,
     maxQueue: budgets.failureDiagnostics,
@@ -35,6 +36,7 @@ try {
     maxQueue: budgets.dataQuality,
   });
   const result = [
+    ...reconciledFailureFollowups,
     ...failureDiagnostics,
     ...dataQuality,
     ...runner.drainApprovedProposalQueue(store, {
@@ -54,6 +56,7 @@ try {
       queued_failure_diagnostics: result.filter(row => row.type === 'queued-failure-diagnosis').length,
       queued_data_quality: result.filter(row => row.type === 'queued-data-quality').length,
       reconciled: result.filter(row => row.type === 'work-item-reconciled').length,
+      reconciled_failure_followups: result.filter(row => row.type === 'failure-followup-reconciled').length,
       blocked: result.filter(row => row.type === 'work-item-created' && row.status === 'blocked').length,
     },
   });
