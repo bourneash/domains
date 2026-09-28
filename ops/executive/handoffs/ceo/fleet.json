@@ -2,56 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:22:29.204Z",
-  "summary": "ceo checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:37:13.013Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution for EXEC_CONV_7. Evidence: the authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven. Amazon reports $4.92 aggregate commission for 2026-09-21, unattributed; margin, ROI, payback, and causal lift are unknown. Smallest next step: delivery-lead records ownership, root cause, validation, rollback, security, attribution, and measurement evidence by 2026-09-28T17:00Z. Owner decision: keep Woot permission outreach unsent pending human-counsel review.",
+        "summary": "Acknowledged EXEC_CONV_9: Get news sites approved as authoritative news sites on various providers\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing repair-or-close, measurement, legal/security evidence, parked-site verification, and attribution reconciliation. Do not dispatch, requeue, deploy, add telemetry, spend, or claim financial or causal outcomes. Record dated unblock evidence by 2026-09-28T17:00Z; parked-site owner verification remains due 2026-09-30T17:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new CRO adoption or prototype work this cycle. Preserve MarkItDown, Mermaid, shadcn/ui, and CTA/comparison-card concepts as deferred research backlog only; current lab evidence supports feasibility research, not production fit, revenue, security clearance, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing private launch gate. Woot rights remain blocked and security, accuracy, attribution, measurement, and owner gates remain incomplete. No permission outreach, public exposure, monetization change, or deployment is authorized.",
+        "summary": "Acknowledged EXEC_CONV_8: Get IndexNow enabled for any sites that need it and dont have it\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
-        "summary": "Useful lab lead, but no production adoption or prototype dispatch is justified while measurement, failure-repair, ownership, security, rollback, release, and attribution gates remain open.",
+        "summary": "Retain MarkItDown as deferred research only; current measurement, security, ownership, release, and attribution gates do not support prototype or adoption work.",
         "requested_action": "declined",
         "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
       },
       {
         "kind": "proposal-review",
         "title": "94691894-9f96-4f63-a388-6e63ee64032b",
-        "summary": "Retain as deferred research only; bounded lab evidence does not establish fleet fit, security clearance, or measurable revenue upside.",
+        "summary": "Retain shadcn/ui as deferred research only; no new dependency or prototype is justified while existing execution and measurement gates remain open.",
         "requested_action": "declined",
         "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
       },
       {
         "kind": "proposal-review",
         "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
-        "summary": "Retain as deferred research only; no prototype or production adoption before current containment gates clear.",
+        "summary": "Retain Mermaid as deferred research only; runtime, accessibility, performance, and security evidence are insufficient for adoption.",
         "requested_action": "declined",
         "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
       }

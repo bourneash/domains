@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:22:29.205Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:37:13.014Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. No new implementation candidate is queue-safe: active measurement, failed-request repair, unavailable operations/security evidence, incomplete ownership, validation, rollback, attribution, and release gates remain open. Continue existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned attribution/cost reconciliation. Preserve aggregate earnings as unattributed. Do not create or requeue work, add telemetry, dependencies, credentials, deployments, spend, or external outreach.",
+        "summary": "Approve containment-only execution. The plan is technically feasible in principle but not queue-eligible: active measurement, failed-request repair, owner gaps, unavailable operations/security sweeps, incomplete attribution, and liveness issues prevent safe new dispatch. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site owner verification, and finance reconciliation. Do not create or requeue production work, add dependencies, change telemetry, deploy, spend, alter monetization, or claim causal or financial outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Execution-owner verification may continue only as existing bounded repository or registry evidence work. Preserve parked and private states. Do not install roles, change configuration, credentials, DNS, analytics, consent, tracking, monetization, or launch state until dated ownership evidence and the existing release, security, rollback, attribution, and measurement gates are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Existing deferred CRO and site-improvement scopes remain research backlog only. Their isolation, reversibility, and measurement designs are acceptable for later review, but current evidence does not support prototype dispatch, dependency installation, preview queueing, deployment, or adoption. Reconsider at most one scope after containment gates clear, using existing telemetry only and preserving file-level rollback.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing finance reconciliation without treating missing data as zero. Preserve the provider aggregate commission as unattributed and do not infer site revenue, margin, ROI, payback, forecasts, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

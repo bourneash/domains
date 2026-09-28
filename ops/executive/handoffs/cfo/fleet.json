@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:22:29.205Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:37:13.014Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; $4.92 is in aggregate tracking_id=other and cannot be assigned to a site. Contribution margin, ROI, payback, budget exposure, and cost-to-learn are not calculable. AI spend is $916.914544 from 2026-09-01 through 2026-09-28 across 5,009 calls, with 228 errors; infrastructure, domains, labor, marketing, commitments, and budget ceilings are not recorded. Do not treat missing costs as zero or treat SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, 15 conversions, 36 awaiting measurement, or 3 proven outcomes as financial results or forecasts. Continue existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only; create no new spend, telemetry, requeues, deployments, or monetization changes.",
+        "summary": "Continue the existing revenue, attribution, and cost reconciliation only. Reconcile the 18 named tracking rows against matching-period revenue and recorded costs, preserve the aggregate provider row as unattributed, and document AI, infrastructure, domain, labor, marketing, experiment, commitment, and budget fields as unknown where absent. Minimum measurement for contribution margin and cost-to-learn: site/content revenue identifiers, a complete matching-period cost ledger, budget ceilings and commitments, and an explicit approved learning threshold.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance measurement: reconcile all 18 named tracking rows and the aggregate provider row to matching-period site/content revenue; attach a complete cost ledger for AI, infrastructure, domains, labor, marketing, experiments, and commitments; record monthly budget ceilings and an approved cost-to-learn threshold. Until those fields exist, site contribution margin and learning efficiency remain unknown. The current $916.914544 AI total can be reported as spend, but cannot be allocated into site margin beyond the supplied partial by-site rows, and the provider's $4.92 aggregate commission cannot support revenue claims.",
+        "summary": "Reject vanity-metric and unsupported forecast claims. The SEO snapshot of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions is operating evidence only; it does not establish revenue, contribution margin, or causal lift. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement, so no portfolio forecast is supported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and document missing matching-period costs, commitments, budgets, and learning thresholds. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
