@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.250Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:53:47.487Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a two-site site-factory pipeline for complicated.work and deadlymaracas.com as preview-only, parked, and private. Reusable launch packet scope: site brief, template, content seed, SEO metadata baseline, analytics/affiliate readiness, compliance checklist, security review, measurement plan, owner approval, rollback path, and launch gate. No domain changes, spending, deployment, public launch, new telemetry, or monetization changes are authorized. Both candidates remain blocked by incomplete ownership and launch evidence; complicated.work also has compliance failures and unconfigured analytics, while deadlymaracas.com has unreachable compliance evidence and unconfigured analytics. Strongest candidate: complicated.work, because its current evidence is more concrete. Exactly one next step: site-factory verifies and attaches the existing execution-owner record for complicated.work by 2026-09-30T17:00Z; no duplicate request or implementation dispatch.",
+        "summary": "Maintain a small pipeline with complicated.work as the strongest candidate, while deadlymaracas.com remains deferred. For complicated.work, prepare only a bounded preview launch packet covering the site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, launch gate, owner, legal, security, measurement, and rollback fields. Current evidence does not support publication: execution ownership is unverified, analytics is not configured, compliance fails banner/consent checks, and security evidence is unknown. Do not add domains, spend, deploy, or launch.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete exactly one next step: verify the existing execution-owner record for complicated.work and attach dated evidence. If ownership is not verified, keep the site parked/private and do not build, configure analytics or affiliate links, deploy, or launch. After ownership evidence exists, the next review may assemble the preview-only launch packet with explicit legal, security, measurement, compliance, owner, and rollback gates.",
         "requested_action": null,
         "proposal_id": null
       }

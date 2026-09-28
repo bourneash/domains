@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.252Z",
+  "generated_at": "2026-09-28T17:53:47.489Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, queue, requeue, spending, telemetry, dependency, deployment, monetization, and unsupported financial or causal claims. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; matching-period costs and financial thresholds are incomplete. Continue only existing SearchWoot launch evidence, security evidence, compliance/data-quality triage, attribution reconciliation, measurement, and repair-or-close work. Keep private launch gates and external permission outreach unchanged pending human-counsel review and owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported financial, causal, production, high-priority queue, requeue, telemetry, spend, dependency, deployment, and monetization actions. Revenue remains $4.92 aggregate commission for 2026-09-21 and unattributed; costs, margin, ROI, and causal lift are unknown. Continue existing measurement, attribution reconciliation, repair-or-close, legal, and security evidence work. Retain only the bounded medium-priority eastcoastrappers.com task-routing metadata repair, with routing correctness, duplicate-task count, focused validation, and rollback required. No new research request is justified because existing telemetry and evidence paths cover the stated gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, and monetization claims. No implementation candidate is currently queue-eligible: the two authoritative site-factory candidates require verified launch-readiness evidence, while other candidates are blocked by active measurement/work, ownership gaps, failed-request repair, security evidence, or launch gates. Do not create new change requests. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, compliance, legal, and security evidence work. Amazon data covers 2026-09-21 with $4.92 aggregate commission, which remains unattributed; matching-period costs and financial outcomes are unknown. Keep private and parked dispositions unchanged and keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, production, spend, telemetry, dependency, deployment, and outreach claims. Amazon commission is $4.92 aggregate for 2026-09-21 and unattributed; costs and margin remain unknown. Route only the reversible eastcoastrappers.com task-owner metadata repair below. Do not dispatch other candidates: complicated.work, deadlymaracas.com, and driveford.net lack verified launch-readiness and execution-owner evidence. Continue existing measurement, attribution reconciliation, failure repair, security evidence, and private/parked gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The required batch of three or more candidates cannot be safely routed because no actionable candidate remains after applying launch, legal, security, ownership, active-work, and measurement gates. The two scored site-factory candidates are explicitly blocked pending verified launch-readiness artifacts. Existing work may continue without dispatching duplicates or requeues; reassess after dated unblock evidence is attached.",
+        "summary": "Validate only the existing task-routing metadata change. Require dated ownership evidence, deterministic routing tests, duplicate-task check, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, and spend are unchanged. Do not requeue or dispatch additional work until the existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

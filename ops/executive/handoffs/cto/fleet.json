@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.251Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:53:47.488Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject queue entry this cycle. The policy is technically feasible and reversible, but it expands control-plane scope while 36 improvements await measurement, 11 requests are failed, 5 repair follow-ups remain open, 103 work items are stranded, ownership and validation gates are incomplete, and operations/fleet-doctor evidence is unavailable. Existing AI usage records can support a future read-only specification, but do not invent telemetry, set budgets, change routing, automatically block work, add dependencies, or alter execution. Continue existing repair-or-close, measurement, attribution, finance, legal, security, and ownership work only. Reassess after dated ownership, isolated validation, rollback, deduplication, security, and measurement evidence is complete.",
+        "summary": "Approve the existing eastcoastrappers.com task-routing repair for the engineer queue. Scope is metadata-only: reassign the existing task to engineer because human-triage is unavailable. It does not modify site code, production behavior, credentials, telemetry, dependencies, deployment, or spend. Require unique-task validation, focused routing tests, attributable evidence, and reversible owner metadata rollback within 72 hours. Keep all other work contained.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Proceed with the single eastcoastrappers.com routing change through the normal isolated engineer queue. Validate that the existing task resolves to engineer, remains uniquely represented, and preserves the original task content. Record focused validation and rollback evidence; do not alter site code, production behavior, credentials, telemetry, dependencies, deployment, or spend.",
         "requested_action": null,
         "proposal_id": null
       }

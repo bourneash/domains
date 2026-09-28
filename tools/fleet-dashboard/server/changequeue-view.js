@@ -10,7 +10,7 @@ const FAIRNESS_ESCALATION_MS = 30 * 60 * 1000;
 // change the measured production surface, so a site's experiment must not
 // freeze them behind a measurement window.
 const MEASUREMENT_SAFE_TEXT =
-  /\b(?:measurement\s+coverage|attribution\s+reconciliation|attribution\s+assessment|orchestration\s+failure\s+diagnosis|mobile\s+performance\s+diagnosis|content\s+depth.*review|internal[- ]link(?:ing)?\s+review|capture\s+~?\d+\s+more\s+clicks?|reassign\s+task)\b/i;
+  /\b(?:measurement\s+coverage|attribution\s+reconciliation|attribution\s+assessment|orchestration\s+failure\s+diagnosis|mobile\s+performance\s+diagnosis|content\s+depth.*review|internal[- ]link(?:ing)?\s+review|capture\s+~?\d+\s+more\s+clicks?|reassign\s+task|measure(?:ment)?\s+(?:the\s+)?(?:deployed\s+)?(?:[a-z0-9/_-]+\s+)*(?:change|refresh|result|outcome)|(?:run|re-?run|publish)\s+.*(?:baseline|readiness)|readiness\s+(?:baseline|assessment|review))\b/i;
 
 function textOf(request = {}) {
   return `${request.title || ''}\n${request.body || ''}`;

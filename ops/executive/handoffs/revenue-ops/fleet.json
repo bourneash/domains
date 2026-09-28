@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.250Z",
+  "generated_at": "2026-09-28T17:53:47.487Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new growth proposals this cycle. Continue bounded repair, attribution reconciliation, disclosure evidence, and measurement of existing work only. Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is unattributed; site ROI, margin, and causal lift remain unknown.",
+        "summary": "Create no duplicate proposals or production change requests this cycle. Continue existing affiliate repair, attribution reconciliation, measurement, and ownership work. Preserve the $4.92 Amazon commission for 2026-09-21 as aggregate and unattributed; do not infer site revenue, ROI, or causal lift. Route only bounded repairs already supported by evidence, each with deterministic validation and rollback.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -64,6 +64,36 @@ test('diagnostic and control-plane work can proceed during a site measurement', 
   }
 });
 
+test('explicit measurement and readiness follow-through can proceed during a site measurement', () => {
+  for (const title of [
+    'Follow through: Measure the deployed homepage refresh',
+    'Follow through: Run bounded revenue-readiness baseline',
+  ]) {
+    assert.deepEqual(
+      view.queueBlockers(
+        {
+          status: 'queued',
+          site: 'example.com',
+          delivery_mode: 'direct',
+          category: 'engineering',
+          title,
+        },
+        {
+          measuringRuns: [
+            {
+              site: 'example.com',
+              state: 'measuring',
+              title: 'Ship homepage refresh',
+              baseline: { request_category: 'engineering' },
+            },
+          ],
+        }
+      ),
+      []
+    );
+  }
+});
+
 test('only overlapping production scope is held', () => {
   const run = {
     site: 'example.com',

@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.250Z",
+  "generated_at": "2026-09-28T17:53:47.487Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed AI cost-governance control-plane product this cycle. Existing evidence supports a need, but the work is outside the current growth execution scope while 36 improvements await measurement, 11 requests are failed, 5 repair follow-ups remain open, and 103 work items are stranded. Preserve the concept as deferred backlog; continue existing measurement, repair-or-close, attribution reconciliation, and security evidence work. Do not add telemetry, requeue work, change model routing, set budgets, deploy, spend, or claim financial improvement.",
+        "summary": "Create no new proposals, experiments, dependencies, or production work this cycle. Existing gates require containment: 38 improvements await measurement, 14 requests failed, 146 approved proposals lack execution requests, operations/fleet-doctor evidence is unavailable, and revenue attribution is partial. Retain these CRO opportunities for CEO/CTO review after gates clear: (1) allthingsmasonic.com affiliate CTA/disclosure refinement, supported by 61 Amazon clicks and 0 site-attributed orders in the available window; metric: affiliate click-to-order rate, learn in 14 days or 100 new impressions, prototype: one CTA/disclosure variant with file-level rollback; (2) xxxtea.com query-cannibalization resolution across five pages sharing 94 impressions; metric: target-query clicks and impressions, learn after the existing measurement window, prototype: canonical/intent-map change on one page cluster; (3) MarkItDown-based offline content normalization for SEO drafts; MIT license and 8/8 bounded checks support feasibility, but dependency, parser, supply-chain, and content-quality risks require isolated validation; metric: publish-ready draft acceptance rate, learn in one batch, prototype: convert three local documents without production integration; (4) shadcn/ui-based accessible CTA/comparison-card prototype; MIT license and 3/3 bounded checks support feasibility, but dependency drift, bundle impact, and visual consistency require review; metric: CTA engagement or task completion using existing telemetry, learn in one preview cycle, prototype: one isolated component preview. Mermaid remains research-only because the lab found no native checks without dependency installation; use only as an offline preview after validation. Do not claim revenue, ROI, causal lift, or site-level commission from aggregate Amazon earnings.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain MarkItDown, Mermaid, shadcn/ui, CTA/comparison-card concepts, and evidence-backed SEO, UX, accessibility, performance, content, and affiliate opportunities as research backlog only. Lab evidence supports feasibility research, not production fit, security clearance, revenue impact, or causal lift. Reconsider only after ownership, failure repair, validation, rollback, release, security, attribution, and measurement gates clear. No adoption, dependency installation, prototype dispatch, deployment, or spend.",
+        "summary": "Retain four bounded opportunities without dispatch: allthingsmasonic affiliate CTA refinement; xxxtea cannibalization cleanup; offline MarkItDown content normalization; isolated shadcn/ui CTA/comparison-card preview. Each requires isolated preview, deterministic build/accessibility/security checks, existing-telemetry measurement only, and file-level rollback. MarkItDown and shadcn/ui are MIT-licensed and passed available bounded lab checks, but those checks did not install dependencies or establish production security, maintenance, or performance fit. Mermaid is MIT-licensed and use-case-supported, but no safe native checks ran; keep it offline research only. No adoption, dependency installation, deployment, credentials, spend, new telemetry, or external outreach is requested.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded affiliate-path repair, disclosure validation, and measurement of existing work. Available Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The commission is unattributed; site revenue, ROI, margin, payback, and causal lift remain unknown. Do not expand monetization or claim financial outcomes.",
+        "summary": "Continue existing repair-or-close, measurement, attribution reconciliation, security evidence, and execution-owner work. The only retained implementation path is the already-routed eastcoastrappers.com task-routing repair. Do not create duplicate change requests or experiments. Revenue remains $4.92 aggregate commission for 2026-09-21 and unattributed; matching-period costs, margin, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

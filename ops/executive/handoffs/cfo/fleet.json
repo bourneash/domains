@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.251Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T17:53:47.488Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the proposed AI cost-governance control-plane work this cycle and continue only the existing period-aligned finance reconciliation. Revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed income is $0; the $4.92 aggregate row cannot be assigned to a site without inventing attribution. AI usage covers 2026-09-01 through 2026-09-28: $922.38102435 across 5,048 calls and 229 errors. Comparing these periods or dividing AI cost by aggregate commission would be financially invalid. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget capacity, ROI, forecasts, and causal lift are unknown because matching-period infrastructure, labor, domain, marketing, commitments, budget ceilings, and an approved learning threshold are not recorded. SEO totals and execution throughput are operating indicators, not revenue proof. Do not set budgets, change model routing, add telemetry, requeue work, spend money, or claim financial improvement. Continue the existing CFO reconciliation artifact using available records only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing finance work item only. The minimum evidence to calculate contribution margin and cost-to-learn is: matching-period revenue by site/content identifier; complete AI, infrastructure, labor, domain, marketing, and other operating costs; commitments and budget ceilings; and an explicit approved learning threshold. Until these exist, missing values remain unknown rather than zero. The dated reconciliation must show the 18 named tracking rows, the aggregate provider row, $4.92 commission, 28 ordered items, 6 shipped items, 6,219 clicks, $922.38102435 AI cost, and all period mismatches.",
+        "summary": "Recommendation: approve containment-only finance treatment. Create no new proposals, spend, billing changes, or monetization claims. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, all unattributed to sites; attributed income is $0. AI usage covers 2026-09-01 through 2026-09-28: 5,048 calls and $922.38102435 cost across 39 instrumented sites, with 229 errors. These periods do not match, so contribution margin, AI payback, cost-to-learn, and revenue-to-cost ratios are not calculable. Infrastructure, labor, domain, marketing, commitments, budget ceilings, monthly spend limits, revenue targets, and approved learning thresholds are missing and must remain unknown, not zero. Continue only existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a: reconcile all named tracking rows and the aggregate row against matching-period revenue and costs. Treat SEO totals, sessions, conversions, proposal counts, and proven outcomes as operating or throughput indicators, not revenue forecasts or margin evidence.",
         "requested_action": null,
         "proposal_id": null
       }

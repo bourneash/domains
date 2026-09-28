@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-28T17:37:38.251Z",
+  "generated_at": "2026-09-28T17:53:47.488Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed fleet-wide. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Evidence: the security baseline covers 59 managed sites, but fleet-doctor has no run or control results, operations deploy-health/uptime/error sweeps have no results, and all security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release/deployment controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are therefore unverified. No incident or exploitation is evidenced; retained implementation failures are not security findings. Compliance is technical-only with 37 pass, 16 fail, and 6 unknown. No certificate is reported expiring within 30 days, but that does not establish complete TLS safety. Exact decision: keep security-sensitive public exposure and releases blocked; permit only ordinary reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior, while continuing the existing read-only evidence matrix. Do not access credentials or private containers, alter permissions/configuration, deploy, add dependencies, exploit targets, or conduct outreach.",
+        "summary": "Disposition: evidence_needed. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Concrete evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced, and no certificates are reported expiring within 30 days; neither establishes a clean bill of health. Exact decision: keep public exposure and security-sensitive releases blocked; continue only ordinary reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Continue the existing read-only security evidence matrix using dated, redacted evidence; do not access credentials or private containers, alter permissions or configuration, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security supports containment and existing evidence work only. Reject new control-plane, growth, dependency, deployment, telemetry, credential, permission, and monetization changes this cycle because material release and runtime controls remain unevidenced. Preserve the existing private launch gate and do not treat missing telemetry as a clean result.",
+        "summary": "The retained task-routing change is conditionally acceptable from a security perspective because it changes ownership metadata only and does not modify code, credentials, permissions, dependencies, telemetry, deployment, or production behavior. Require focused routing validation, uniqueness/deduplication evidence, attribution, and reversible rollback before completion.",
         "requested_action": null,
         "proposal_id": null
       }
