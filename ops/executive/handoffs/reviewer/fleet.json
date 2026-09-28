@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:10:35.438Z",
+  "generated_at": "2026-09-28T21:12:35.685Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only plan retained. No new implementation candidate is queueable: complicated.work, deadlymaracas.com, and driveford.net require verified execution ownership and launch-readiness evidence. Existing queue, measurement, failure-repair, finance reconciliation, legal/security evidence, and parked-site verification may continue without requeue, production changes, telemetry, spending, credentials, dependencies, deployment, monetization, or outreach. Aggregate commission remains unattributed; margin, ROI, forecast, and causal lift are unknown.",
+        "summary": "Independent review: maintain containment-only execution. Reject all new queue work, requeues, production changes, spending, credential/configuration changes, deployments, monetization changes, and unsupported financial or causal claims this cycle. Available factory candidates are blocked by missing execution-owner and launch-readiness evidence; other candidates are blocked by active work or measurement windows. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site ownership verification, and repair-or-close work. Preserve aggregate commission as unattributed and keep missing costs, margin, ROI, forecasts, and lift unknown.",
         "requested_action": null,
         "proposal_id": null
       }
