@@ -11,13 +11,47 @@ const manager = require('./project-manager');
 test('triages backlog work, writes acceptance criteria, and queues implementation safely', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
-  store.createExecutiveWorkItem({ title: 'Fix checkout', kind: 'implementation', site: 'example.com', owner: 'owner', summary: 'Repair the checkout path.' });
-  const result = manager.run(store, { knownSite: site => site === 'example.com', availableRolesForSite: () => ['engineer'] });
+  store.createExecutiveWorkItem({
+    title: 'Fix checkout',
+    kind: 'implementation',
+    site: 'example.com',
+    owner: 'owner',
+    summary: 'Repair the checkout path.',
+  });
+  const result = manager.run(store, {
+    knownSite: site => site === 'example.com',
+    availableRolesForSite: () => ['engineer'],
+  });
   assert.equal(result.changed.length, 1);
   assert.equal(result.changed[0].work_item.owner, 'engineer');
   assert.match(result.changed[0].work_item.next_action, /Acceptance criteria/);
   assert.equal(result.changed[0].request.requested_by, 'project-manager');
   assert.match(result.changed[0].request.body, /work_id:/);
+  store.close();
+});
+
+test('does not route failure follow-ups back into direct implementation work', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-failure-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  store.createExecutiveWorkItem({
+    work_id: 'failed-change-request:req-1',
+    title: 'Repair failed request: Add the landing CTA',
+    kind: 'implementation',
+    source_type: 'failed-change-request',
+    source_id: 'req-1',
+    site: 'example.com',
+    owner: 'principal-engineer',
+    summary: 'The original request failed after producing output.',
+    next_action: 'Inspect the evidence and decide whether one bounded diagnosis is needed.',
+  });
+  const result = manager.run(store, {
+    knownSite: site => site === 'example.com',
+    availableRolesForSite: () => ['engineer'],
+  });
+  assert.equal(result.inspected, 0);
+  assert.equal(result.changed.length, 0);
+  assert.equal(store.listChangeRequests({ limit: 100 }).length, 0);
+  assert.equal(store.getExecutiveWorkItem('failed-change-request:req-1').status, 'open');
   store.close();
 });
 
@@ -64,8 +98,17 @@ test('migrates the legacy approved case without deleting its audit record', () =
     source_id: proposal.proposal_id,
   });
   manager.syncProposalCases(store, { limit: 20 });
-  assert.equal(store.getExecutiveWorkItem(`executive-proposal:${proposal.proposal_id}`).source_id, proposal.proposal_id);
-  assert.equal(store.getExecutiveWorkItem(`approved-proposal:${proposal.proposal_id}`).status, 'cancelled');
-  assert.equal(store.listWorkflowLinks({ entity_type: 'proposal', entity_id: proposal.proposal_id }).length, 1);
+  assert.equal(
+    store.getExecutiveWorkItem(`executive-proposal:${proposal.proposal_id}`).source_id,
+    proposal.proposal_id
+  );
+  assert.equal(
+    store.getExecutiveWorkItem(`approved-proposal:${proposal.proposal_id}`).status,
+    'cancelled'
+  );
+  assert.equal(
+    store.listWorkflowLinks({ entity_type: 'proposal', entity_id: proposal.proposal_id }).length,
+    1
+  );
   store.close();
 });
