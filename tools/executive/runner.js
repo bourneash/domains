@@ -2032,11 +2032,34 @@ function approvedReportOnlyImplementation(proposal, root = ROOT) {
     requested_by: proposal.created_by === 'researcher' ? 'cro' : proposal.created_by,
     provider: 'chatgpt',
     model: 'gpt-5.6-luna',
-    max_turns: 12,
+    // Report-only follow-through is intentionally not sent to a model by
+    // default. An owner can explicitly opt a proposal into a bounded model
+    // report with implementation.allow_model_followthrough=true.
+    max_turns: 4,
     auto_review: true,
     delivery_mode: 'report_only',
     action_key: 'approved-proposal-report',
   };
+}
+
+function approvedFollowThroughQueueDecision(proposal, implementation = {}) {
+  const proposalType = String(proposal?.proposal_type || '')
+    .trim()
+    .toLowerCase();
+  const deliveryMode = String(implementation?.delivery_mode || '')
+    .trim()
+    .toLowerCase();
+  const explicitModelOptIn = implementation?.allow_model_followthrough === true;
+  if (proposalType === 'report-only' || deliveryMode === 'report_only') {
+    return explicitModelOptIn
+      ? { queue: true, reason: 'explicit owner-approved model follow-through' }
+      : {
+          queue: false,
+          reason:
+            'report-only follow-through is recorded in the workbench; model execution requires explicit allow_model_followthrough=true',
+        };
+  }
+  return { queue: true, reason: 'implementation follow-through' };
 }
 
 function approvedImplementation(proposal, root = ROOT) {
@@ -2246,6 +2269,7 @@ function reconcileApprovedProposalFollowThrough(
     }
     const implementation = normalizeApprovedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
+    const queueDecision = approvedFollowThroughQueueDecision(proposal, implementation);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
       currentRequest && ['failed', 'cancelled'].includes(currentRequest.status);
@@ -2296,7 +2320,14 @@ function reconcileApprovedProposalFollowThrough(
     if (terminalRequest)
       blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
 
-    if (!currentRequest && ready && !blockers.length && allowQueue && queued < maxQueue) {
+    if (
+      !currentRequest &&
+      ready &&
+      queueDecision.queue &&
+      !blockers.length &&
+      allowQueue &&
+      queued < maxQueue
+    ) {
       const site = String(implementation.site || '').toLowerCase();
       if (!activeSites.has(site)) {
         try {
@@ -2359,6 +2390,35 @@ function reconcileApprovedProposalFollowThrough(
     }
 
     if (existing && ['done', 'cancelled'].includes(existing.status)) continue;
+    if (!queueDecision.queue) {
+      const quietPayload = followThroughWorkPayload(proposal, implementation, {
+        status: 'waiting',
+        nextAction: `No model run scheduled: ${queueDecision.reason}. Review this case only if the owner explicitly requests a report.`,
+        blockers: [],
+      });
+      quietPayload.waiting_on = 'owner';
+      quietPayload.resolution_note = null;
+      if (!existing) {
+        store.createExecutiveWorkItem(quietPayload);
+        result.push({
+          type: 'work-item-created',
+          proposal_id: proposal.proposal_id,
+          work_id: workId,
+          status: 'waiting',
+          quiet: true,
+        });
+      } else if (sameFollowThroughFields(existing, quietPayload)) {
+        store.updateExecutiveWorkItem(workId, quietPayload);
+        result.push({
+          type: 'work-item-updated',
+          proposal_id: proposal.proposal_id,
+          work_id: workId,
+          status: 'waiting',
+          quiet: true,
+        });
+      }
+      continue;
+    }
     const site = String(implementation.site || '').toLowerCase();
     let status = blockers.length ? 'blocked' : ready ? 'waiting' : 'open';
     let nextAction;
@@ -2425,10 +2485,10 @@ function reconcileApprovedProposalFollowThrough(
   return result;
 }
 
-// Approved work must not depend on a successful model pass to enter the
-// worker queue. The scheduler uses this bounded, deterministic drain before
-// invoking the model so already-approved report-only and implementation-ready
-// proposals keep moving while preserving site-capacity and launch gates.
+// Approved implementation work must not depend on a successful model pass to
+// enter the worker queue. Report-only follow-through is deliberately excluded
+// unless the proposal explicitly opts into a bounded model report; otherwise
+// it remains a quiet, durable workbench record.
 function drainApprovedProposalQueue(store, { root = ROOT, maxQueue = 6 } = {}) {
   const limit = Math.max(0, Math.min(12, Number(maxQueue) || 0));
   return reconcileApprovedProposalFollowThrough(store, {
@@ -2625,7 +2685,10 @@ function queueBoundedReportWork(
       requested_by: requestedBy,
       provider: 'chatgpt',
       model: 'gpt-5.6-luna',
-      max_turns: 12,
+      // Evidence reports are bounded investigations, not implementation
+      // sessions. Keep the default small; callers must opt into a larger
+      // budget at a higher-trust implementation path.
+      max_turns: 4,
       auto_review: true,
       delivery_mode: 'report_only',
       action_key: actionKey,
@@ -3757,6 +3820,7 @@ module.exports = {
   proposalSite,
   approvedImplementation,
   normalizeApprovedImplementation,
+  approvedFollowThroughQueueDecision,
   buildBrief,
   buildPrompt,
   buildPassPrompt,

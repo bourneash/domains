@@ -178,11 +178,14 @@ timeout and cost, idempotent by plan fingerprint, and must leave a completed
 or failed audit record.
 
 Before each model pass, `run-approved-work.sh` performs a cheap deterministic
-drain of already-approved proposals. It routes concrete implementation work and
-site-specific report-only approvals through the normal worker queue while
-preserving site-capacity, Legal/Security launch gates, and audit events. This
-keeps approved work moving when a model pass is skipped or produces no new plan;
-it never authorizes a new proposal or bypasses the queue/reviewer pipeline.
+drain of already-approved proposals. It routes concrete implementation work
+through the normal worker queue while keeping report-only approvals as quiet,
+durable workbench records. A report-only item enters the model queue only when
+the approval explicitly sets `implementation.allow_model_followthrough=true`,
+and then it is capped at four turns. This preserves site-capacity,
+Legal/Security launch gates, and audit events without spending a model pass on
+routine evidence collection; it never authorizes a new proposal or bypasses
+the queue/reviewer pipeline.
 
 Every hourly cycle carries an action mandate: when the telemetry bundle has an
 evidence-backed, low-risk implementation candidate, the executive pass must

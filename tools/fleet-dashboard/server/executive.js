@@ -345,6 +345,17 @@ function escalateOverdueWorkItems(store, now = Date.now()) {
   const created = [];
   for (const item of store.listExecutiveWorkItems({ limit: 1000 })) {
     if (['done', 'cancelled'].includes(item.status) || !item.due_at) continue;
+    // Quiet approved-proposal research/evidence is deliberately not an owner
+    // notification stream. It remains durable for audit, but only blocked or
+    // explicitly high-priority cases deserve an escalation.
+    if (
+      item.source_type === 'approved-proposal' &&
+      ['research', 'evidence'].includes(item.kind) &&
+      item.priority !== 'urgent' &&
+      item.priority !== 'high' &&
+      item.status !== 'blocked'
+    )
+      continue;
     const due = Date.parse(item.due_at);
     if (!Number.isFinite(due) || due > now) continue;
     const level = now >= due + 24 * 60 * 60 * 1000 ? 2 : 1;

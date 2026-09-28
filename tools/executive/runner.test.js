@@ -1395,7 +1395,7 @@ test('routes approved implementation and creates durable follow-through for unfi
   store.close();
 });
 
-test('turns an approved site-specific report-only proposal into bounded worker work', async () => {
+test('keeps an approved report-only proposal in the quiet workbench by default', async () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({
     created_by: 'ceo',
@@ -1421,17 +1421,15 @@ test('turns an approved site-specific report-only proposal into bounded worker w
     },
     { allowQueue: true, root }
   );
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 1);
-  assert.equal(request.delivery_mode, 'report_only');
-  assert.equal(request.site, 'example.com');
-  assert.equal(request.assigned_role, 'seo-analyst');
-  assert.equal(request.status, 'queued');
-  assert.ok(store.getExecutiveProposal(proposal.proposal_id).linked_request_id);
+  assert.equal(result.follow_through.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
+  const followUp = store.getExecutiveWorkItem(`executive-proposal:${proposal.proposal_id}`);
+  assert.equal(followUp.status, 'waiting');
+  assert.match(followUp.next_action, /No model run scheduled/);
   store.close();
 });
 
-test('routes approved SEO evidence to an installed engineer on legacy sites', async () => {
+test('does not route approved SEO evidence to a worker even when an engineer is installed', async () => {
   const { root, store } = db();
   fs.mkdirSync(path.join(root, 'sites', 'example.com', 'ops', 'roles'), { recursive: true });
   fs.writeFileSync(
@@ -1448,13 +1446,11 @@ test('routes approved SEO evidence to an installed engineer on legacy sites', as
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.assigned_role, 'engineer');
-  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 
-test('deterministic approved-work drain routes approved work without a model plan', () => {
+test('deterministic approved-work drain does not spend a model turn on report-only work', () => {
   const { root, store } = db();
   const proposal = store.createExecutiveProposal({
     created_by: 'ceo',
@@ -1467,14 +1463,12 @@ test('deterministic approved-work drain routes approved work without a model pla
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.delivery_mode, 'report_only');
-  assert.equal(request.status, 'queued');
+  assert.equal(drained.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 
-test('approved report-only work can run while a deployed improvement is measuring', () => {
+test('approved report-only work stays quiet while a deployed improvement is measuring', () => {
   const { root, store } = db();
   store.createImprovement({
     site: 'example.com',
@@ -1494,10 +1488,8 @@ test('approved report-only work can run while a deployed improvement is measurin
   store.decideExecutiveProposal(proposal.proposal_id, { status: 'approved', decided_by: 'owner' });
 
   const drained = runner.drainApprovedProposalQueue(store, { root, maxQueue: 1 });
-  assert.equal(drained.filter(row => row.type === 'queued').length, 1);
-  const request = store.listChangeRequests({ source_proposal_id: proposal.proposal_id })[0];
-  assert.equal(request.site, 'example.com');
-  assert.equal(request.delivery_mode, 'report_only');
+  assert.equal(drained.filter(row => row.type === 'queued').length, 0);
+  assert.equal(store.listChangeRequests({ source_proposal_id: proposal.proposal_id }).length, 0);
   store.close();
 });
 

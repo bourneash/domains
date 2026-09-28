@@ -4535,7 +4535,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/work-items', (req, res) => {
     try {
       if (req.query.source_type === 'owner-request') executive.ensureOwnerRequests(events);
-      res.json({ work_items: events.listExecutiveWorkItems(req.query) });
+      res.json({
+        work_items: events.listExecutiveWorkItems({
+          ...req.query,
+          // Owner-facing UI is quiet by default. Auditors and role tooling can
+          // request quiet system follow-through explicitly with quiet=0.
+          quiet: req.query.quiet === undefined ? '1' : req.query.quiet,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

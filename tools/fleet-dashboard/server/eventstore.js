@@ -2833,6 +2833,7 @@ function open(root, { file } = {}) {
     priority,
     site,
     source_type,
+    quiet,
     organization_id,
     limit = 200,
   } = {}) {
@@ -2869,6 +2870,18 @@ function open(root, { file } = {}) {
     if (source_type) {
       clauses.push('source_type = ?');
       args.push(String(source_type));
+    }
+    // The default executive view is owner-facing. System-generated
+    // report/evidence follow-through remains durable and queryable, but does
+    // not drown the owner in routine waiting cases. Blocked or urgent cases
+    // always remain visible; pass quiet=1 to explicitly include the quiet
+    // lane (for example, for audits and role views).
+    if (String(quiet || '') === '0' || String(quiet || '').toLowerCase() === 'false') {
+      // Explicit opt-out: include every work item.
+    } else if (String(quiet || '') === '1' || String(quiet || '').toLowerCase() === 'true') {
+      clauses.push(
+        "NOT (source_type = 'approved-proposal' AND kind IN ('research','evidence') AND status = 'waiting' AND priority NOT IN ('urgent','high'))"
+      );
     }
     if (organization_id) {
       clauses.push('organization_id=?');
