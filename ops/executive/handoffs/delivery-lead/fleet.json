@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T01:17:16.665Z",
+  "generated_at": "2026-09-28T06:07:58.602Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new site dispatch is authorized this cycle. Continue existing repair, validation, rollback, measurement, attribution, legal, and security work only.",
+        "summary": "Handoff: retain the 0xroulette performance pass, xxxtea SEO opportunity, allthingsmasonic CTA opportunity, and markitdown prototype as deferred backlog. Do not dispatch new implementation or requeue failed work until ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement gates are documented.",
         "requested_action": null,
         "proposal_id": null
       }

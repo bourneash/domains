@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:52:49.197Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:07:58.168Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain three evidence-backed revenue and product opportunities as deferred backlog only. Current gates remain binding: 39 improvements await measurement, 8 requests failed, only 2 outcomes are proven, revenue is limited to $4.92 aggregate and unattributed, and security/operations evidence is incomplete. No deployment, spend, credentials, telemetry, dependency installation, or monetization expansion is proposed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain the 0xroulette.com performance, xxxtea.com SEO, allthingsmasonic.com CTA, and markitdown prototype opportunities as deferred backlog. Their metrics and rollback plans are useful, but no proposal or implementation is queue-eligible while existing measurement and failure gates remain unresolved.",
+        "summary": "CRO evidence note: the markitdown repository is MIT-licensed and passed bounded read-only lab checks, making a disposable document-to-Markdown prototype plausible for structured SEO-content workflows. The smallest reversible prototype is offline conversion of a fixed sample set with human review, no production dependency or deployment. Expected metric: reviewed conversion accuracy and time-to-draft; time-to-learn: one isolated lab cycle. Risks: dependency and parser security review, maintenance/version drift, document privacy, and no proof of search or revenue lift. Keep prototype-only until CTO/security and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

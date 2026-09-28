@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:52:49.197Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T06:07:58.602Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: reject the infrainnovator.com change request for queue entry this cycle. Preserve it as deferred backlog because active measurement, failure-repair, ownership, release, attribution, and security gates remain open. Do not deploy, add telemetry, dependencies, credentials, or spend. Reconsider only after isolated validation and rollback evidence are recorded.",
+        "summary": "Maintain containment-only execution this cycle. No new proposals, change requests, requeues, experiments, telemetry, deployments, dependencies, spend, or monetization changes are queue-eligible. Continue existing repair-or-close, measurement, attribution, legal, security, and owner-disposition work using recorded evidence only. Retain performance, accessibility, SEO, UX, content, affiliate, and prototype opportunities as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the infrainnovator.com preview for queue entry this cycle. The proposed scope is technically feasible, isolated, reversible, and measurable through deterministic preview checks, but active measurement, failure-repair, ownership, release, attribution, rollback, and security gates remain incomplete. Preserve the specification as deferred backlog; do not create or requeue implementation work, deploy, add telemetry, dependencies, credentials, destinations, or spend. Reconsider only after existing gates clear and isolated validation ownership is confirmed.",
+        "summary": "The proposed performance/accessibility pass is technically feasible, isolated, reversible, and measurable, but it is not queue-eligible while active measurement windows, failed-request repairs, ownership, release, security, attribution, and rollback gates remain open. Preserve the specification as deferred backlog; do not dispatch or requeue it.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution and continue existing repair-or-close, measurement, attribution, legal, and security evidence work. Treat revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown. Preserve aggregate provider commission as unattributed and do not create duplicate telemetry or financial work.",
+        "summary": "Continue the existing evidence-only owner-disposition task for therareunicorn.com. Record exactly one disposition using the existing readiness brief, preserving unknown audience, revenue, attribution, compliance, security, and margin fields. No production, telemetry, credential, configuration, domain, spend, or launch-state changes are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue aggregate affiliate attribution and period-aligned cost reconciliation using recorded data only. Preserve provider aggregate earnings as unattributed and do not infer site revenue, margin, ROI, payback, causal lift, budget capacity, or cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       }
