@@ -2,23 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:08:16.772Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:21:55.923Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, requeue, telemetry, spend, monetization, financial, and approval claims this cycle. Attribution is partial, revenue is aggregate and unattributed, telemetry is low-volume or unavailable, and existing measurement, failure-repair, ownership, security, and rollback gates remain incomplete. Continue only existing containment work. Preserve the three bounded public research requests below; they are read-only, reversible, specific, and do not alter credentials, configuration, spending, schedules, telemetry, or production. Owner concern: provider submissions and any rollout require a completed evidence matrix, Legal review where applicable, and explicit owner authorization.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spending, telemetry, dependency, deployment, monetization, and outreach actions. Preserve aggregate commission as unattributed; continue only existing reconciliation, measurement, repair-or-close, parked-site verification, and legal/security evidence work. Keep private launch gates unchanged. Material concern: financial periods and attribution are incomplete, so no site-level financial claim or new production work is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded security evidence capture using authorized metadata and retained artifacts only. Preserve private launch gates and do not access credentials, change permissions or configuration, add dependencies, deploy, submit URLs, contact providers, or conduct outreach.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter configuration or permissions, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate and continue the existing consolidated read-only evidence bundle. Keep permission outreach unsent pending human-counsel review and owner authorization; do not change launch state, monetization, tracking, credentials, configuration, or production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
+        "summary": "Deferred research only; no prototype or adoption without cleared execution, security, attribution, and measurement gates.",
+        "requested_action": "declined",
+        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
+        "summary": "Deferred research only; no production UX adoption without cleared execution, security, attribution, and measurement gates.",
+        "requested_action": "declined",
+        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
+        "summary": "Deferred research only; feasibility evidence does not establish measurable SEO or revenue impact.",
+        "requested_action": "declined",
+        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
       }
     ]
   }
