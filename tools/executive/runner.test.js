@@ -730,6 +730,18 @@ test('every pending owner request receives a linked executive acknowledgement', 
   store.close();
 });
 
+test('owner coverage can be applied before provider execution', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please acknowledge this direction before model execution.',
+  });
+  const created = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.messages[0].work_id, tracked.work_item.work_id);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).answered_at !== null, true);
+  store.close();
+});
+
 test('owner-request acknowledgements reserve message capacity after a full provider plan', async () => {
   const { root, store } = db();
   const tracked = executive.ownerRequest(store, {

@@ -746,6 +746,26 @@ function ensureOwnerRequestCoverage(store, plan) {
   }
 }
 
+function emptyPlan() {
+  return {
+    messages: [],
+    proposal_reviews: [],
+    data_requests: [],
+    proposals: [],
+    research_requests: [],
+    work_items: [],
+    knowledge: [],
+    change_requests: [],
+  };
+}
+
+async function applyPendingOwnerRequestCoverage(store, { allowQueue = false, root = ROOT } = {}) {
+  const plan = emptyPlan();
+  ensureOwnerRequestCoverage(store, plan);
+  if (!plan.messages.length) return null;
+  return applyPlan(store, plan, { allowQueue, root });
+}
+
 function compactModelValue(value, depth = 0) {
   if (typeof value === 'string') {
     if (value.length <= MODEL_BRIEF_MAX_STRING_LENGTH) return value;
@@ -3059,6 +3079,8 @@ function runProvider(
     command = process.env.EXECUTIVE_COMMAND,
   } = {}
 ) {
+  if (provider === 'chatgpt' && String(model).trim().toLowerCase() === 'gpt-5')
+    model = 'gpt-5.6-luna';
   const executable = command || (provider === 'chatgpt' ? 'codex' : 'claude');
   const promptOnStdin = provider === 'chatgpt';
   const args =
@@ -3572,6 +3594,12 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
     summary: `Executive tick using ${providerOptions.provider || process.env.EXECUTIVE_PROVIDER || 'claude'}`,
   });
   try {
+    // Owner directions must be acknowledged before model execution. A provider
+    // outage or invalid model plan must not leave the owner with a silent,
+    // permanently submitted request.
+    const ownerCoverage = apply
+      ? await applyPendingOwnerRequestCoverage(store, { allowQueue, root })
+      : null;
     const brief = await buildBrief(store, root);
     const prompt = buildPrompt(brief);
     const output = await runProvider(prompt, providerOptions);
@@ -3604,9 +3632,17 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
               created_refs: created.created_refs,
             }
           : {}),
+        ...(ownerCoverage
+          ? {
+              owner_request_coverage: {
+                messages: ownerCoverage.messages.length,
+                created_refs: ownerCoverage.created_refs,
+              },
+            }
+          : {}),
       },
     });
-    return { brief, plan, created };
+    return { brief, plan, created, ownerCoverage };
   } catch (error) {
     executive.finishAction(store, tickAction.action_id, { status: 'failed', error: error.message });
     throw error;
@@ -3722,6 +3758,8 @@ module.exports = {
   isPendingOwnerRequest,
   prioritizeExecutiveWorkItems,
   ensureOwnerRequestCoverage,
+  emptyPlan,
+  applyPendingOwnerRequestCoverage,
   parseOutput,
   sanitizeExcludedPlanItems,
   isTelemetryRequestProposal,
