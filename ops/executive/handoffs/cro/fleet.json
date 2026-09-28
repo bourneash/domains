@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:07:43.670Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:36:06.902Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "The retained opportunities include smallest reversible prototypes, deterministic acceptance checks, explicit risks, and rollback paths. Reconsider only after current containment gates clear and an implementation owner is confirmed. GitHub repositories are discovery evidence, not adoption approvals; preserve license, dependency, security, maintenance, and provenance review requirements.",
+        "summary": "CRO disposition: retain no new proposals, experiments, product opportunities, or change requests this cycle. The authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, operations/security evidence is unavailable, and only 3 outcomes are proven. GitHub signals and CRO-lab results remain discovery evidence only; keep markitdown, shadcn/ui, and Mermaid as deferred prototypes pending ownership, security/license/maintenance review, validation, rollback, and measurement gates. Continue existing affiliate repair, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site readiness work using recorded evidence only. Preserve aggregate commission as unattributed and make no revenue, ROI, margin, payback, or causal-lift claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: americastrikes.com affiliate-reference repair, complicated.work remediation, and deadlymaracas.com reachability assessment remain existing bounded work only. Do not add deployments, requeues, experiments, telemetry, dependencies, spending, monetization changes, credentials, domains, or external outreach. Reconsider deferred CRO opportunities only after current ownership, failure-repair, validation, rollback, security, attribution, and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

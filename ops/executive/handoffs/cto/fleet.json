@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:22:55.555Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T08:36:06.903Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. No new production requests, requeues, experiments, telemetry, dependencies, deployments, spending, credentials, domains, launches, or monetization changes. Preserve existing repair, measurement, attribution, legal, security, ownership, and reconciliation work. Deferred opportunities are technically feasible but not queue-eligible until ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded. Keep private and parked dispositions unchanged; preserve aggregate revenue as unattributed and make no unsupported financial or causal claims.",
+        "summary": "CTO disposition: approve containment-only execution. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, security evidence, and explicitly retained site remediation. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or external outreach. Preserve all unknowns and the $4.92 aggregate commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and failure-repair review. Do not dispatch or requeue work until dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence are recorded by the existing deadline.",
+        "summary": "Technical feasibility exists for the retained site remediation, but queue entry for new work is not safe while failure repair, ownership, validation, rollback, deduplication, release, security, attribution, and measurement evidence remain incomplete. Keep private and parked gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation only. AI usage cost is recorded for 2026-09-01 through 2026-09-28; matching infrastructure, domain, labor, marketing, experiment costs, budget ceilings, and cost-to-learn thresholds remain unavailable. Do not infer margin, ROI, payback, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence work and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed. Reconcile matching periods and recorded cost categories without inferring site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
+        "summary": "Retain the existing complicated.work remediation, deadlymaracas.com readiness assessment, and americastrikes.com affiliate-reference repair as bounded existing work. Require isolated changes, deterministic validation, dated evidence, and rollback before any further dispatch or release. No launch or monetization approval follows.",
         "requested_action": null,
         "proposal_id": null
       }
