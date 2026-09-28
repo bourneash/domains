@@ -192,6 +192,7 @@ function launch({
         `If the worktree is dirty, inspect git diff; if it is clean, inspect the improvement commit with git diff HEAD^ HEAD. ` +
         `Run focused checks when useful. Do not edit files, commit, push, deploy, switch branches, or modify ops/tasks. ` +
         `Check that the request is actually satisfied, that site instructions are respected, and that the change is safe to ship. ` +
+        `For monetization, affiliate, advertising, analytics, or credential-related work, treat tags, IDs, accounts, approvals, registries, and active-program status as unavailable unless the workspace contains explicit authoritative evidence. Never accept a value invented by the implementation agent, inferred from a domain, or copied from a default. Reject any diff that creates or activates such a value without evidence, changes a site brief to claim approval, or bypasses an owner/legal gate; explain the exact missing evidence. ` +
         `The dashboard runs the authoritative build, test, preview, and browser gates after your review. Do not reject a bounded diff solely because an optional local tool is unavailable (for example a missing Playwright browser executable, a missing dev dependency, or a transient upstream service); record that as an infrastructure warning and let the deterministic gate classify it. Reject it when the diff itself is wrong, unrelated, unsafe, or violates the site's instructions. ` +
         `When running npm test, use the bounded form npm test -- --run --maxWorkers=1 --minWorkers=1 when the test runner supports it; do not start an unbounded Vitest/Jest worker pool. If a low-resource test still reports EAGAIN, record that as infrastructure evidence and finish the review marker rather than repeatedly spawning workers. ` +
         `Treat command exit codes and recorded validation output as authoritative: never describe a failed build, test, preview, or browser check as passing. ` +
@@ -201,7 +202,8 @@ function launch({
         `Read and obey AGENTS.md and CLAUDE.md in the workspace before editing. Work only in the current workspace. ` +
         `Do not deploy, push, or switch branches. Do not modify files outside the workspace. Do not modify ops/tasks unless the request explicitly requires ` +
         `a task, assignment, or queue metadata change; when it does, edit the existing task in place and record rollback metadata. Implement the task, run focused checks, ` +
-        `and leave all changes uncommitted for dashboard review. You are acting as the ${selectedRole} role.\n\nTask:\n${String(taskBody || run.title).slice(0, 30000)}`;
+        `and leave all changes uncommitted for dashboard review. You are acting as the ${selectedRole} role. ` +
+        `For monetization, affiliate, advertising, analytics, or credential-related work, never invent or infer tags, IDs, accounts, approvals, registries, or active-program status. If authoritative evidence is absent, make no activation change and document the exact owner-supplied prerequisite instead.\n\nTask:\n${String(taskBody || run.title).slice(0, 30000)}`;
   const container = run.sandbox.container || `dd-${run.sandbox.instance}`;
   const selectedModel = model ? String(model) : '';
   let command;
