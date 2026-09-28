@@ -656,13 +656,11 @@ async function devLogs(site, n) {
 async function validate(site) {
   const checks = [
     ['diff', 'git diff --check'],
-    // Keep test runners inside the worker's process budget. Vitest and Jest
-    // both accept these flags, and this prevents a large default worker pool
-    // from turning a valid change into spawn EAGAIN under container limits.
-    [
-      'tests',
-      'if [ -f site/package.json ]; then cd site; fi; npm test --if-present -- --maxWorkers=1 --minWorkers=1',
-    ],
+    // Keep the command runner portable across site-owned test scripts. The
+    // sandbox environment caps auxiliary thread pools; passing framework-
+    // specific worker flags here breaks Vitest versions that do not support
+    // them and can discard an otherwise valid site change.
+    ['tests', 'if [ -f site/package.json ]; then cd site; fi; npm test --if-present'],
     ['build', 'if [ -f site/package.json ]; then cd site; fi; npm run build'],
   ];
   const results = {};
