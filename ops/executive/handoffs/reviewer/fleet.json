@@ -2,30 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:22:42.075Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:36:21.959Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject both queued readiness repairs for this cycle. Missing attribution, low-volume telemetry, unavailable operations/security evidence, and incomplete ownership/validation gates do not support production repository changes. Preserve both sites parked and private; retain the scopes as deferred backlog only. Continue existing reconciliation and containment without requeue, deployment, configuration, credential, DNS, consent, tracking, affiliate, or spending changes.",
+        "summary": "Approve containment-only execution. Reject the proposed production preview and all new queue work, requeues, telemetry, spending, monetization, dependencies, deployments, and unsupported financial claims. Continue only existing measurement, failure repair, attribution/cost reconciliation, legal, security, and parked-site evidence work. Preserve the $4.92 aggregate commission as unattributed; site revenue, margin, ROI, payback, forecasts, and causal lift remain unknown. Owner concern: keep permission outreach unsent pending human-counsel review and authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not execute or requeue the complicated.work or deadlymaracas.com readiness repairs. Execution-owner gaps, low-volume or absent telemetry, and incomplete release, security, rollback, and validation evidence block production work. Preserve parked/private status and explicit unknowns.",
+        "summary": "Continue the existing allthingsmasonic.com homepage-refresh measurement record using existing telemetry only. Retain the deployment or document bounded rollback from observed validation; do not expand production scope or claim revenue lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, margin, ROI, payback, forecast, causal-lift, and production claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Continue only existing containment, measurement, failure-repair review, attribution/cost reconciliation, legal evidence, security evidence, and parked-site disposition work. Keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Continue existing repair-or-close review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed and record missing cost, budget, commitment, and learning-threshold evidence without inferring financial performance.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "ec92a3e3-b8fc-4031-bae3-aebb5efbf722",
+        "summary": "Continue the existing private-gate evidence work only; no duplicate proposal or production change is authorized.",
+        "requested_action": "accepted_research",
+        "proposal_id": "ec92a3e3-b8fc-4031-bae3-aebb5efbf722"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226",
+        "summary": "Maintain site-specific compliance containment and remediation gates. Technical compliance evidence is not legal certification; ordinary reversible growth remains conditional within existing boundaries.",
+        "requested_action": "accepted_research",
+        "proposal_id": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226"
       }
     ]
   }

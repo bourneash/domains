@@ -2,37 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:22:42.074Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:36:21.958Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Preserve only the two already-queued, private, reversible scaffold repairs for complicated.work and deadlymaracas.com. No new proposals, change requests, requeues, deployments, telemetry, dependencies, spending, monetization changes, or public-launch changes. Continue existing measurement, failure repair-or-close, attribution/cost reconciliation, legal, security, and parked-site work using recorded evidence only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; revenue, margin, ROI, payback, forecasts, and causal lift remain unsupported.",
+        "summary": "Recommendation: maintain containment-only execution. Reject the proposed infrainnovator.com preview from queue entry this cycle despite technical feasibility, because active measurement, failed-request repair, ownership, release, security, attribution, rollback, and validation gates remain incomplete. Continue existing measurement, repair-or-close, legal/security evidence, parked-site, and cost-reconciliation work only. Do not create or requeue production work, add telemetry, dependencies, credentials, destinations, spending, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the two existing queued private readiness repairs. Verify assigned ownership before execution; do not dispatch or requeue if the required owner is unavailable. Capture available before/after repository artifacts, deterministic build and readiness-check results, explicit unknowns where checks are unavailable, preserved parked/private status, and scoped rollback evidence. Do not change DNS, credentials, analytics, consent, tracking, affiliate destinations, deployment, or launch state.",
+        "summary": "Continue the existing homepage-refresh measurement record using existing telemetry only. Retain the deployment or document a bounded rollback based on observed validation; do not expand production scope or claim revenue lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep both existing readiness repairs narrowly scoped to repository corrections evidenced by each scaffold. Resolve and verify the execution-owner dependency before implementation; otherwise leave the request queued without requeue. Preserve parked/private disposition and unknown audience, traffic, revenue, attribution, compliance, and health fields. Record exact scoped files and validation outcomes; do not modify production configuration or launch state.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain all other SEO, UX, accessibility, performance, content, affiliate, monetization, and cross-site opportunities as deferred backlog. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
+        "summary": "Defer the CRO research lead until active measurement, failure repair, ownership, security, release, rollback, attribution, and validation gates clear.",
+        "requested_action": "declined",
+        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
+        "summary": "Bounded lab evidence and MIT licensing do not establish fleet fit, dependency safety, maintenance, or measurable benefit; defer prototype work.",
+        "requested_action": "declined",
+        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
+        "summary": "Defer prototype and adoption work while approved-execution backlog and failed-request repairs remain unresolved.",
+        "requested_action": "declined",
+        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
       }
     ]
   }

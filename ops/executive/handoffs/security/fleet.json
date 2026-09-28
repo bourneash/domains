@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:22:42.075Z",
+  "generated_at": "2026-09-28T11:36:21.959Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for bounded reversible growth. Evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced; retained implementation failures are containment signals only. Latest compliance telemetry is technical-only: 36 pass, 17 fail, and 6 unknown. No certificate is reported expiring within 30 days, but this does not establish complete TLS safety. Exact decision: preserve private launch gates and allow only existing bounded reversible work that changes no credentials, permissions, dependencies, data collection, deployment, or public exposure. Continue the existing read-only security evidence matrix; do not create proposals, requeue work, deploy, access credentials or private containers, alter configuration, exploit targets, or conduct outreach.",
+        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Risk severity is high for public exposure and security-sensitive releases, medium for bounded growth. Evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. TLS evidence shows no certificates expiring within 30 days but does not establish complete TLS posture. No incident or exploitation is evidenced. Compliance is technical-only: 36 pass, 17 fail, and 6 unknown. Exact decision: retain private launch gates and permit only bounded reversible work that preserves existing consent, disclosures, provenance, claims, and data boundaries. Continue the existing read-only security evidence matrix only; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Do not create duplicate work, requeue requests, retrieve credentials, access private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Handoff: continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for access boundaries, secrets exposure, runtime isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Do not create duplicate work or alter production state.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:22:42.038Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:36:21.958Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and retain only the two already-queued private readiness repairs for complicated.work and deadlymaracas.com. Evidence: 36 improvements await measurement, 9 requests failed, only 3 outcomes are proven, and the actionable candidate list is empty. Revenue is $4.92 aggregate for 2026-09-21 and unattributed; margin, ROI, and causal lift remain unknown. Reject any duplicate change requests or requeues. Smallest next step: delivery-lead records ownership, before/after artifacts, validation, rollback, and preserved parked status by 2026-09-30T17:00Z. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: 36 improvements await measurement, 9 requests failed, 104 work items are stranded, and only 3 outcomes are proven. Amazon revenue is $4.92 for 2026-09-21 but aggregate and unattributed; margin, ROI, payback, and causal lift are unknown. Reject the proposed infrainnovator.com preview and defer CRO leads. Smallest next step: delivery-lead records repair, ownership, validation, rollback, attribution, and measurement evidence by 2026-09-28T17:00Z. Owner decision: keep Woot permission outreach unsent or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing complicated.work and deadlymaracas.com readiness repairs only. Preserve parked/private status and unknown audience, traffic, revenue, attribution, compliance, and health fields. Do not create duplicate requests or change DNS, credentials, analytics, consent, tracking, affiliate destinations, deployment, or launch state.",
+        "summary": "Handoff: reject the infrainnovator.com preview for queue entry because active measurement, failed-request repair, ownership, release, security, attribution, rollback, and validation gates remain incomplete. Preserve the scope as deferred backlog and continue existing work only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: complete the existing allthingsmasonic.com homepage-refresh measurement record using current telemetry. Retain the deployment or document bounded rollback based on observed validation; make no additional production change.",
         "requested_action": null,
         "proposal_id": null
       }
