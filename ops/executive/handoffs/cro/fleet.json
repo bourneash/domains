@@ -2,15 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.919Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:07:26.221Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommend no new implementation or adoption this cycle; retain the following evidence-backed opportunities for CEO/CTO review after current measurement, ownership, security, attribution, and failure-repair gates clear.\n\n1) allthingsmasonic.com affiliate CTA experiment. Evidence: 61 Amazon clicks, 0 attributed orders, and $0 site-attributed commission in the available 2026-09-21 window; public inspection documented CTA, destination, disclosure, and accessibility evidence. Smallest reversible prototype: one existing merchandising surface with clearer product relevance, CTA copy, and disclosure placement. Metric: affiliate click-through and site-attributed ordered items; time-to-learn: 14 days or 100 relevant impressions/clicks. Risks: aggregate attribution is partial, product/link freshness is unknown, and no revenue lift may be claimed before measurement. Rollback: revert the single surface.\n\n2) deeppenetrations.com search-to-affiliate intent test. Evidence: /reviews/liquid-wrench had 99 impressions at position 2.8 with 0 clicks; /reviews/wd40-silicone had 140 impressions at position 4.9 with 0 clicks; the existing snippet improvement is already measuring. Smallest next prototype after the active run closes: one comparison block linking only to existing, verified destinations. Metric: organic CTR, affiliate outbound clicks, and attributed orders where available; time-to-learn: 14 days or 100 relevant impressions. Risks: active work, low session volume, attribution lag, and security/operations evidence gaps. Do not duplicate the active improvement.\n\n3) reusable accessible CTA/comparison-card capability. Evidence: bounded inspection of 0xroulette.com supports a CTA-hierarchy hypothesis; existing lab evidence supports shadcn-ui/ui for composable accessible components, MIT license, 3 bounded checks passed, no dependency installation, and no production access. Smallest prototype: static, dependency-free card markup in one preview only. Metric: CTA engagement and destination integrity using existing telemetry; time-to-learn: 14 days after deployment. Risks: repository maintenance and transitive dependency posture remain unverified; require CTO/security review and license scan before adoption. Rollback: remove the isolated component.\n\n4) offline content-structure experiment. Evidence: microsoft/markitdown is MIT, 8/8 bounded checks passed, and documentation supports document-to-Markdown conversion; mermaid-js/mermaid is MIT with supported SEO-content fit but no native checks available without dependencies. Smallest prototype: offline conversion of one owned source document into a draft outline plus one internal diagram, with no publishing or new dependency. Metric: editor acceptance time and publish-ready draft quality, not traffic or revenue; time-to-learn: 1 working session. Risks: source rights, factual accuracy, maintenance, dependency and supply-chain review remain unknown. Keep research-only.\n\nDo not deploy, spend, change credentials, add domains, add telemetry, install dependencies, or expand monetization. Preserve all opportunities as deferred CRO backlog until existing gates clear; do not infer revenue, ROI, causal lift, or repository quality from stars or lab evidence alone.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Test clearer affiliate merchandising CTA on allthingsmasonic.com",
+        "summary": "A reversible affiliate conversion experiment is warranted after current active work and measurement gates clear. Available evidence records 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; public inspection documented existing CTA hierarchy, destinations, disclosure, and accessibility evidence. This supports testing clarity, not a revenue claim.",
+        "requested_action": "Retain as a CEO/CTO handoff only. Later prototype one existing merchandising surface with clearer product relevance, CTA copy, and disclosure placement; preserve destinations, consent, and attribution boundaries.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Prototype offline document-to-content workflow with MarkItDown",
+        "summary": "microsoft/markitdown is a plausible fleet utility for turning source documents into Markdown drafts, structured briefs, and reusable SEO inputs. The repository signal is persistent across daily, weekly, and monthly trend windows; the CRO lab found MIT licensing, 194 files, 22 purpose-specific keyword hits, and 8 bounded checks passed. This is feasibility evidence only.",
+        "requested_action": "Retain as a disposable, offline prototype brief. Later test on synthetic or already-authorized fixture documents only; do not connect production sources, publish generated copy, install dependencies in production, or add a runtime dependency without CTO/security review.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Prototype a reusable accessible CTA and comparison-card pattern",
+        "summary": "shadcn-ui/ui offers customizable accessible components that could standardize CTA, disclosure, comparison-card, and navigation patterns across affiliate and editorial sites. The CRO lab found MIT licensing and passed all 3 available bounded checks; adoption remains unapproved.",
+        "requested_action": "Retain as a CTO review brief only. Later build a standalone preview using existing fleet styling tokens and no production integration; require dependency, security, accessibility, bundle-size, and maintenance review before any adoption.",
         "proposal_id": null
       }
     ]

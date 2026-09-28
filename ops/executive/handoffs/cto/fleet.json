@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:51:56.418Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:07:26.220Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only the existing finance reconciliation, failure repair-or-close review, measurement, legal/security evidence, and parked-site ownership verification. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or outreach. Preserve aggregate affiliate revenue as unattributed and unavailable values as unknown. Queue entry is not supported until ownership, root cause, isolation, validation, rollback, deduplication, security, attribution, and measurement evidence are complete.",
+        "summary": "Maintain containment-only execution. Continue existing deployed-work measurement, failed-request repair-or-close review, accessibility/performance validation, parked-site readiness, attribution reconciliation, and the already-approved bounded routing repair. Do not create new proposals, change requests, experiments, requeues, telemetry, dependencies, deployments, spend, or monetization changes. Preserve SEO, UX, content, affiliate, and repository opportunities as deferred backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. Treat unavailable data as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The site-factory candidates remain technically feasible as preview work but are not safe for queue entry. Preserve scaffold and launch candidates as parked, private, and preview-only while continuing existing ownership and launch-readiness evidence. Do not install roles, alter DNS, configure analytics, add credentials, deploy, publish, monetize, or spend.",
+        "summary": "Continue existing work only: dated routing validation and rollback evidence for the approved routing repair; existing failure repair-or-close review; deployed improvement measurement; security evidence capture; finance reconciliation; and parked-site owner/readiness verification. No public launch, DNS, credentials, analytics configuration, monetization, or external outreach changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain repository and CRO opportunities as deferred research backlog. Lab signals do not establish production fit, security clearance, dependency approval, measurement readiness, or revenue impact. No prototype dispatch, dependency installation, adoption, deployment, or new telemetry is authorized during containment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing failure repair-or-close and measurement work without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurement evidence before any future retry.",
+        "summary": "Retain the three CRO and repository opportunities as deferred research only. No dispatch, dependency installation, production integration, telemetry change, deployment, spend, or revenue or causal-lift claim is supported until current measurement, ownership, security, release, rollback, attribution, and failure-repair gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
