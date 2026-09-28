@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:56.865Z",
+  "generated_at": "2026-09-28T10:06:16.038Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution for the managed portfolio this cycle. CRO signals support deferred, reversible opportunities: use MIT-licensed MarkItDown for bounded source-to-Markdown SEO workflows, shadcn/ui for accessible CTA/component prototypes, and Mermaid for explanatory editorial diagrams. Evidence is discovery-only: repository lab fits were supported, but no dependency installation, security review, prototype, attribution, or conversion lift is established. Retain these as deferred backlog with use-case briefs, license/security/maintenance review, expected metrics, time-to-learn, and smallest reversible prototype documented before queue entry. Continue existing measurement, failure repair, attribution reconciliation, and legal/security evidence work. Create no new proposals, change requests, experiments, telemetry, deployments, spending, credentials, domains, or monetization changes this cycle.",
+        "summary": "Recommend containment-only execution this cycle. Retain existing measurement, repair-or-close, attribution and cost reconciliation, legal evidence, security evidence, affiliate validation, and parked-site readiness work. Defer new experiments, CRO changes, repository adoption, SEO/content changes, monetization expansion, telemetry, deployments, spend, and requeues until ownership, validation, rollback, release, security, attribution, and measurement gates clear. Preserve the CRO backlog as deferred hypotheses with their recorded evidence, risks, metrics, learning windows, and reversible prototype scopes. No revenue, ROI, margin, payback, conversion lift, or causal-lift claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }

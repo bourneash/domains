@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:20:59.649Z",
+  "generated_at": "2026-09-28T10:06:16.039Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue matching-period revenue, attribution, and cost reconciliation. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed; margin, ROI, payback, budget capacity, and cost-to-learn remain unknown because matching cost categories and ceilings are incomplete.",
+        "summary": "Recommendation: maintain containment-only execution. The authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven. Amazon revenue is $4.92 aggregate for 2026-09-21 and unattributed; margin, ROI, payback, and causal lift remain unknown. Continue existing repair, measurement, attribution/cost reconciliation, legal, security, and parked-site work. Smallest next step: delivery-lead records ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence by 2026-09-28T17:00Z. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

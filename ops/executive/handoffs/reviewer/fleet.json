@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:51:55.470Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T10:06:16.040Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only existing repair-or-close, measurement, legal/security evidence, and period-aligned attribution/cost reconciliation work. Reject new production work, requeues, experiments, telemetry, spending, deployments, monetization changes, and unsupported revenue, ROI, margin, payback, forecast, or causal-lift claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; keep private and parked gates unchanged; keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject new production work, requeues, experiments, telemetry, deployments, spending, monetization changes, and unsupported financial or causal claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; margin, ROI, payback, cost-to-learn, and causal lift remain unknown. Continue only existing delivery repair, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. Keep permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: revenue covers one day and is partly aggregate, while recorded AI spend covers a different 28-day period; matching costs, budget ceilings, and learning thresholds are incomplete. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift. The smallest defensible plan is to finish existing evidence and repair-or-close work before reconsidering deferred opportunities.",
+        "summary": "Continue existing failure-repair and measurement containment only. Before dispatch or requeue, record ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, forecast, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing launch-readiness evidence work. Keep gated products private and permission outreach unsent; authorize no rights-dependent launch, monetization, deployment, configuration, tracking, or external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

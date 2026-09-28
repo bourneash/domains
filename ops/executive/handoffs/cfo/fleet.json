@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:51:55.470Z",
+  "generated_at": "2026-09-28T10:06:16.039Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and retain only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 aggregate commission for 2026-09-21 from 28 ordered items and 6 shipped items; the amount is not site-attributable. AI usage records $901.897533 for 2026-09-01 through 2026-09-28 across 4,926 calls, including 228 errors. Do not claim contribution margin, ROI, payback, budget capacity, cost-to-learn, forecasts, or causal lift. These are not calculable because revenue covers one day while AI spend covers 28 days, and matching infrastructure, domain, labor, marketing, experiment costs, approved budget ceilings, and a cost-to-learn threshold are absent. Do not create duplicate finance work, spend, deploy, change monetization, add telemetry, or requeue work.",
+        "summary": "Recommend containment-only execution. Do not authorize new spend, production work, requeues, experiments, telemetry, deployments, or monetization changes. Amazon reported $4.92 aggregate commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; site-attributed income is $0 and the $4.92 aggregate row remains unattributed. AI usage recorded $901.8975 from 2026-09-01 through 2026-09-28 across 4,926 calls. Contribution margin is not calculable because revenue and AI-cost periods do not match, and infrastructure, domain, labor, marketing, experiment, and approved-budget records are missing. Cost-to-learn is unknown because no learning-value measure or threshold is recorded. The 30-day scorecard has 3 proven outcomes, 36 improvements awaiting measurement, and 9 failed requests; these do not support ROI, payback, forecast, or causal-lift claims. Continue only the existing period-aligned revenue, attribution, and cost reconciliation work item. Minimum evidence needed: matching-period revenue by site/content/tracking ID; AI, infrastructure, domain, labor, marketing, and experiment costs; approved budget ceilings and commitments; and a defined learning threshold tied to a measurable outcome.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the 2026-09-21 provider earnings against matching-period site-attributed revenue and all recorded cost categories. Preserve aggregate provider rows as unattributed. Report each missing cost category, budget ceiling, and learning threshold explicitly; stop short of margin, ROI, payback, budget exposure, cost-to-learn, forecast, or causal-lift conclusions until the minimum evidence is attached.",
+        "summary": "Retain work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the 2026-09-21 provider earnings against matching-period attributed revenue and recorded AI, infrastructure, domain, labor, marketing, and experiment costs. Preserve aggregate earnings as unattributed and document missing budget ceilings, commitments, and cost-to-learn threshold. Do not create duplicate finance work or infer margin, ROI, payback, budget capacity, cost-to-learn, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

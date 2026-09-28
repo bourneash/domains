@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:51:55.470Z",
+  "generated_at": "2026-09-28T10:06:16.039Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Retain all SEO, UX, accessibility, performance, content, affiliate, monetization, launch, and cross-site opportunities as deferred backlog. Do not create, requeue, deploy, add telemetry or dependencies, change credentials or configuration, spend, or expand monetization while existing measurement, failure-repair, ownership, release, security, attribution, and rollback gates remain open.",
+        "summary": "Maintain containment-only execution this cycle. No new proposals, change requests, experiments, telemetry, deployments, spend, monetization changes, or requeues are queue-eligible. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, security evidence, and parked-site work. The candidate list is empty; 36 improvements await measurement, 9 requests failed, operations and fleet-security sweeps have no results, and only 3 outcomes are proven. Preserve deferred SEO, UX, accessibility, performance, content, affiliate, CRO, and site-factory opportunities with their existing evidence, metrics, validation, rollback, and ownership requirements. Do not claim revenue, ROI, margin, payback, cost-to-learn, or causal lift. Keep external permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing totaljerks.com failed-request repair-or-close work only. Record root cause, owner, isolated validation, rollback, deduplication, release, security, attribution, and measurement boundaries before explicitly requeueing or closing; do not create a duplicate request or claim revenue or causal lift.",
+        "summary": "Continue existing delivery containment and failure-repair review. Before any dispatch or requeue, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Do not create or requeue new implementation work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the deployed allthingsmasonic.com homepage refresh in measurement status. Validate deterministic behavior, hierarchy, CTA clarity, mobile layout, accessibility, consent behavior, and disclosure presentation; compare only available recorded analytics and affiliate attribution. Classify the result as proven, inconclusive, or regressed, and revert only this bounded change if validation fails or a measured regression is confirmed.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
+        "summary": "Retain the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
