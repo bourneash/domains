@@ -1288,6 +1288,14 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
       compliance_review: 'update',
       security_review: 'update',
       launch_review: 'update',
+      // Role-specific labels are useful to the model, but the durable
+      // transcript intentionally has a small closed message-type vocabulary.
+      // Normalize safe status/escalation variants before validation so one
+      // expressive executive pass cannot fail the entire team run.
+      escalation: 'update',
+      risk_disposition: 'update',
+      finance_review: 'update',
+      security_disposition: 'update',
     };
     if (messageTypeAliases[messageType]) item.message_type = messageTypeAliases[messageType];
     else if (!messageType) item.message_type = 'update';

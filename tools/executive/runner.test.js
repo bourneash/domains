@@ -1016,6 +1016,31 @@ test('normalizes specialist review message types without widening the message co
   );
 });
 
+test('normalizes role-specific escalation and disposition messages', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [
+        {
+          actor: 'delivery-lead',
+          message_type: 'escalation',
+          body: 'Blocked on a dated owner action.',
+        },
+        { actor: 'ceo', message_type: 'risk_disposition', body: 'Risk disposition recorded.' },
+        { actor: 'cfo', message_type: 'finance_review', body: 'Finance review recorded.' },
+        {
+          actor: 'security',
+          message_type: 'security_disposition',
+          body: 'Security disposition recorded.',
+        },
+      ],
+    })
+  );
+  assert.deepEqual(
+    plan.messages.map(message => message.message_type),
+    ['update', 'update', 'update', 'update']
+  );
+});
+
 test('normalizes sparse work-item aliases without widening ownership', () => {
   const plan = runner.parseOutput(
     JSON.stringify({
