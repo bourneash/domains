@@ -4042,6 +4042,7 @@ function open(root, { file } = {}) {
           'UPDATE agent_watchdogs SET status=?,last_checked_at=?,updated_at=? WHERE watchdog_id=?'
         ).run(run.status === 'succeeded' ? 'satisfied' : 'failed', iso, iso, watchdog.watchdog_id);
       } else if (now.getTime() - Date.parse(run.updated_at) > watchdog.timeout_seconds * 1000) {
+        const detail = `run ${run.run_id} exceeded ${watchdog.timeout_seconds}s`;
         db.prepare(
           'UPDATE agent_watchdogs SET status=?,fired_at=?,last_checked_at=?,detail=?,updated_at=? WHERE watchdog_id=?'
         ).run(
@@ -4052,6 +4053,25 @@ function open(root, { file } = {}) {
           iso,
           watchdog.watchdog_id
         );
+        if (watchdog.recovery_action === 'fail-orphan') {
+          db.prepare(
+            `UPDATE agent_runs SET status='failed',updated_at=?,finished_at=?,heartbeat_at=?,error=?
+             WHERE run_id=? AND status IN ('queued','running','paused')`
+          ).run(
+            iso,
+            iso,
+            run.heartbeat_at || null,
+            `watchdog recovered orphaned run: ${detail}`,
+            run.run_id
+          );
+          db.prepare(
+            `UPDATE agent_dispatch_queue SET status='failed',last_error=?,lease_owner=NULL,lease_expires_at=NULL,updated_at=?
+             WHERE run_id=? AND status IN ('queued','leased')`
+          ).run(`watchdog recovered orphaned run: ${detail}`, iso, run.run_id);
+          db.prepare(
+            `UPDATE agent_sessions SET status='closed',updated_at=? WHERE run_id=? AND status='active'`
+          ).run(iso, run.run_id);
+        }
         fired.push({ ...watchdog, status: 'fired', fired_at: iso });
       } else
         db.prepare(

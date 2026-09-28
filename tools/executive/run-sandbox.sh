@@ -88,6 +88,14 @@ try {
   runtime.ensureRegistry(store);
   const agent = store.getAgent('fleet-ceo');
   const started = runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: key, work_id: 'executive-tick' });
+  if (!started.reused) {
+    store.createAgentWatchdog({
+      run_id: started.run.run_id,
+      expected_outcome: 'executive sandbox tick reaches a terminal state',
+      timeout_seconds: 900,
+      recovery_action: 'fail-orphan',
+    });
+  }
   process.stdout.write(started.run.run_id);
 } finally { store.close(); }
 NODE

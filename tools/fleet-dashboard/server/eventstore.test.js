@@ -297,6 +297,41 @@ test('routines and watchdogs provide durable scheduling and stalled-run detectio
   store.close();
 });
 
+test('fail-orphan watchdogs terminalize runs and release their dispatch', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-watchdog-recovery-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const agent = store.createAgent({
+    slug: 'orphan-agent',
+    name: 'Orphan Agent',
+    title: 'Worker',
+    role: 'engineer',
+    adapter: 'codex',
+  });
+  const run = store.createAgentRun({
+    agent_id: agent.agent_id,
+    started_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-01T00:00:00.000Z',
+    status: 'running',
+  });
+  const dispatch = store.createAgentDispatch({ run_id: run.run_id });
+  store.createAgentSession({
+    agent_id: agent.agent_id,
+    run_id: run.run_id,
+    session_id: 'orphan-session',
+  });
+  store.createAgentWatchdog({
+    run_id: run.run_id,
+    timeout_seconds: 30,
+    recovery_action: 'fail-orphan',
+  });
+  const audit = store.auditAgentWatchdogs({ now: new Date('2026-01-01T00:01:00.000Z') });
+  assert.equal(audit.fired.length, 1);
+  assert.equal(store.getAgentRun(run.run_id).status, 'failed');
+  assert.equal(store.getAgentDispatch(dispatch.dispatch_id).status, 'failed');
+  assert.equal(store.getAgentSession('orphan-session').status, 'closed');
+  store.close();
+});
+
 test('evaluations, tool grants, and workspaces are scoped and auditable', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-governance-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
