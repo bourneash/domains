@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:21:57.571Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:37:03.374Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the three proposed preview change requests this cycle because existing measurement, failure-repair, ownership, release, security, attribution, rollback, and deduplication gates remain incomplete. Preserve their technical specifications as deferred backlog; do not dispatch, requeue, deploy, add telemetry, dependencies, credentials, destinations, or spend. Continue existing repair-or-close, measurement, attribution, legal, and security evidence work using recorded telemetry only.",
+        "summary": "Approve containment-only execution. Reject the proposed two new implementation requests because ownership, failure-repair, isolated validation, release, security, attribution, rollback, deduplication, and measurement gates remain incomplete. Preserve revenue, SEO, UX, affiliate, and site-factory objectives as deferred backlog. Continue only existing repair-or-close, measurement, attribution, legal, security, and reconciliation work using recorded telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing financial reconciliation, launch-readiness evidence, security evidence, and failure repair-or-close work items. Preserve aggregate provider commission as unattributed and treat revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown. Keep private launch gates and parked dispositions unchanged; keep external permission outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work. Attach audited URLs, disclosure placement, product-link destinations, accessibility evidence, and ready/blocked/unknown classifications to the existing packet. Do not alter production, tracking, affiliate links, or launch state.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing delivery containment and failure-repair review. Require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any dispatch or requeue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 provider aggregate as unattributed; do not infer site revenue, margin, ROI, payback, cost-to-learn, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

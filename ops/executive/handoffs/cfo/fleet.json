@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:21:57.570Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:37:03.373Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment and reject all three new preview change requests this cycle. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate amount is not site-attributable. AI usage covers 2026-09-01 through 2026-09-28: 4,926 calls, 228 errors, and $901.90 recorded cost. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget ceilings are blank, and no learning-outcome threshold exists. The 36 improvements awaiting measurement, 9 failed requests, and 3 proven outcomes are operational status, not financial performance. Retain existing reconciliation only; do not dispatch, spend, deploy, requeue, expand monetization, or make revenue claims.",
+        "summary": "Recommendation: maintain financial containment-only execution. Revenue evidence covers one day, 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to any site; site-attributed commission of $0 does not prove zero performance. AI usage is $901.90 across 4,926 calls from 2026-09-01 through 2026-09-28, with 228 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing costs are incomplete, budget ceilings are blank, and no learning-outcome threshold exists. Reject new dispatches, spend, forecasts, commitments, monetization expansion, and unsupported revenue claims. Continue only the existing period-aligned reconciliation using recorded evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain and continue the existing affiliate-attribution reconciliation work only. Compare existing registry, rendered affiliate URLs, provider tracking rows, and matching-period cost records. Preserve the $4.92 aggregate provider row as unattributed; do not convert clicks, orders, shipped items, sessions, conversions, AI calls, or output counts into revenue, margin, ROI, payback, or causal-lift claims.",
+        "summary": "The delivery-lead request to route two new implementation requests is rejected on financial-control grounds. Queue readiness or operational output is not evidence of positive contribution margin, acceptable cost-to-learn, or budget capacity. Preserve any technically valid work as deferred backlog until the existing reconciliation and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not retain the proposed drivegm.net, failbunny.com, or mynewgm.com change requests for execution. Preserve them as deferred backlog only until existing ownership, failure-repair, release, security, attribution, rollback, and measurement gates clear. Their preview validation metrics may be recorded as operational evidence, but no financial return or learning value should be claimed without a defined outcome and cost ceiling.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned reconciliation and preserve unknowns. Minimum finance evidence remains: matching-period attributable revenue, complete recorded cost categories including AI and infrastructure, approved budget ceilings, and an explicit learning outcome and maximum cost-to-learn. Do not create duplicate telemetry or financial work.",
+        "summary": "Retain the existing revenue, attribution, and cost reconciliation work item only. Preserve the $4.92 provider aggregate as unattributed. Do not treat clicks, orders, shipped items, sessions, conversions, AI calls, output counts, or pilot treatment-versus-control output as financial performance or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

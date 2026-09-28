@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:21:57.571Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:37:03.374Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three proposed preview change requests this cycle. Existing measurement, failure-repair, ownership, release, security, attribution, rollback, and deduplication gates remain incomplete. Preserve the specifications as deferred backlog; do not dispatch, requeue, deploy, add telemetry, spend, or change monetization.",
+        "summary": "Approve containment-only execution. Reject new production work, queue actions, requeues, experiments, telemetry, spending, deployments, monetization changes, and unsupported financial or causal claims. Continue only existing reconciliation, repair-or-close, legal, security, measurement, and owner-disposition work using recorded evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing repair-or-close, measurement, attribution, legal, and security evidence work using recorded telemetry. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; revenue, ROI, margin, payback, causal lift, and budget capacity remain unknown. Keep external permission outreach unsent pending human-counsel review.",
+        "summary": "Owner concern: the $4.92 commission is a single-period unattributed aggregate; revenue and cost periods do not align, budget ceilings and cost-to-learn limits are absent, and operations/security evidence is incomplete. Preserve revenue, margin, ROI, payback, readiness, and causal outcomes as unknown. Keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: 36 improvements await measurement, 9 requests failed, only 3 outcomes are proven, and operations/security evidence remains unavailable. The smallest defensible plan is containment plus one bounded public-surface inspection; no production work follows from it.",
+        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work. Attach audited URLs, disclosure placement, product-link destinations, accessibility evidence, and ready/blocked/unknown classifications to the existing packet. Do not alter production, tracking, affiliate links, configuration, or launch state.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair, reconciliation, legal, security, and measurement work. Record dated ownership, root cause, isolated validation, rollback, release, deduplication, attribution, and measurement evidence before any requeue or new implementation dispatch.",
         "requested_action": null,
         "proposal_id": null
       }
