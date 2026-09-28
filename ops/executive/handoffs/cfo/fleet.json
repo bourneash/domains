@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:37:59.215Z",
+  "generated_at": "2026-09-28T22:07:25.733Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the aggregate provider commission as unattributed and missing costs, commitments, budgets, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation. Preserve the aggregate provider commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

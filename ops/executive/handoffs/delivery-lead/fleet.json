@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.918Z",
-  "summary": "delivery-lead checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T22:07:25.732Z",
+  "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No executable new site change request is eligible this cycle. The next queue-ready sites are blocked by missing verified execution-owner and launch-readiness evidence: complicated.work, deadlymaracas.com, and driveford.net. Update the existing owner-gap work items by 2026-09-30T17:00Z with dated owner verification, launch-readiness artifact, deterministic preview/build checks, measurement plan, and rollback point. Preserve parked/private status; do not deploy, publish, change DNS, configure analytics, monetize, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No new site change request is eligible this cycle. The next queue-ready sites remain blocked by missing verified execution-owner and launch-readiness evidence. Update existing owner-gap work items by 2026-09-30T17:00Z with dated owner verification, launch-readiness artifact, deterministic preview/build checks, measurement plan, and rollback point. Preserve parked/private status; do not deploy, publish, change DNS, configure analytics, monetize, or spend.",
+        "summary": "Continue existing containment work only: measurement, repair-or-close review, attribution reconciliation, parked-site readiness, and legal/security evidence. Do not create duplicate requests or requeue failed work.",
         "requested_action": null,
         "proposal_id": null
       }

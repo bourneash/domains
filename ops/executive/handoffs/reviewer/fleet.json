@@ -2,14 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:52:37.602Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T22:07:25.732Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: no new implementation requests are approved this cycle. The three highest-confidence factory candidates remain blocked by missing execution-owner verification and launch-readiness evidence; preserve them parked/private. Existing active, queued, deployed, measuring, failed, and high-priority work remains unchanged. Continue only existing read-only security/legal evidence, attribution and cost reconciliation, deployed-work measurement, failure repair-or-close review, and ownership verification. Do not claim site revenue, ROI, margin, payback, causal lift, or production readiness; preserve unknowns as unknown.",
+        "summary": "Approve containment-only execution. Reject new production, queue, requeue, telemetry, dependency, deployment, spending, monetization, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, legal/security evidence, and parked-site readiness. Aggregate commission remains unattributed; missing costs, budgets, ownership, security, attribution, and measurement remain unknown. Keep private launch gates and permission outreach unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Independent review: reject all new production queue work this cycle. No actionable candidate clears the existing launch, ownership, security, measurement, attribution, or failure-containment gates. The three factory candidates remain explicitly blocked by missing execution-owner and launch-readiness evidence; existing active or queued work is unchanged. Continue only existing reconciliation, measurement, repair-or-close, legal/security evidence, and parked-site readiness work. Preserve aggregate commission as unattributed and all missing financial fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation only. Preserve the aggregate provider commission as unattributed; missing matching-period costs, budgets, commitments, learning thresholds, site mapping, ROI, margin, payback, forecasts, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing affiliate repair-or-close and failed-work review only. Do not requeue unchanged work or create production requests until ownership, root cause, validation, rollback, deduplication, security, attribution, and measurement evidence are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep searchwoot.com private and permission outreach unsent. Continue the existing consolidated read-only evidence bundle; upstream rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block security-sensitive releases; do not access credentials, change permissions or configuration, add dependencies, deploy, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing owner-gap and launch-readiness verification for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked/private status. No implementation, publication, deployment, analytics configuration, monetization, DNS, or spending is authorized until dated ownership, preview/build, compliance, security, measurement, and rollback evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }
