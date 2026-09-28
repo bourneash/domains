@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:52:20.252Z",
+  "generated_at": "2026-09-28T15:06:52.169Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue repair-or-close and measurement containment. Before any retry, record dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence. Do not dispatch or requeue new work.",
+        "summary": "Handoff: continue existing containment only. The queue-ready sites remain blocked by owner verification or active work; do not dispatch or requeue. By 2026-09-28T17:00Z, attach dated ownership, root cause, isolated validation, rollback, security, attribution, and measurement evidence, then recheck eligibility.",
         "requested_action": null,
         "proposal_id": null
       }

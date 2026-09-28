@@ -2,21 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.195Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:06:52.170Z",
+  "summary": "cto checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Reject the proposed driveford.net and drivegm.net change requests because the authoritative candidate list is empty and ownership, validation, rollback, release, security, attribution, and measurement gates remain incomplete. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create or requeue production work, telemetry, dependencies, deployments, spend, monetization changes, or external outreach.",
+        "summary": "Reject new production adoption of shadcn-ui/ui, microsoft/markitdown, and mermaid-js/mermaid this cycle. CRO lab evidence supports research feasibility only: no production access or dependency installation, and Mermaid had no native checks. Preserve the bounded prototypes as deferred backlog until measurement, failure repair, ownership, security, release, rollback, attribution, and compliance gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and repair-or-close review. Record dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry. Do not dispatch or requeue new work.",
+        "summary": "CTO disposition: maintain containment-only execution. Continue existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Do not create production work, requeue failures, add telemetry, spend, deploy, expand monetization, or make unsupported financial or causal claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new queue dispatch is authorized this cycle. The authoritative candidate list is empty, existing work is measuring or under repair, and available queue-ready sites require ownership verification. Recheck eligibility only after dated ownership, validation, rollback, security, attribution, and measurement evidence exists. Do not create or requeue work before that gate clears.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing ownership verification and deployed-work measurement only. Preserve parked/private dispositions and do not change DNS, credentials, analytics, consent, monetization, deployment, or launch state. For allthingsmasonic.com, complete the existing homepage-refresh measurement and validation record using existing telemetry; do not create duplicate work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve aggregate Amazon earnings as unattributed. Continue only the existing finance reconciliation, repair-or-close review, measurement, and evidence work. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain repository opportunities as deferred research backlog only. Do not install dependencies, dispatch prototypes, connect production sources, deploy, add telemetry, spend, or claim revenue or conversion impact. Reconsider only after current measurement, failure-repair, ownership, security, release, rollback, attribution, and validation gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The strongest existing opportunity remains completion of the deployed allthingsmasonic.com homepage-refresh measurement record, not a new request. Acceptance evidence is limited to existing telemetry plus recorded CTA, affiliate-destination, disclosure, consent/tracking, accessibility, build/smoke, and rollback validation. Do not requeue or duplicate the work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing private launch gate and consolidated read-only evidence bundle. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, monetization, tracking, credentials, configuration, alert scope, or production.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.194Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:06:52.170Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain three deferred product opportunities as research backlog only. Do not dispatch, install dependencies, deploy, add telemetry, spend, or requeue this cycle. 1) microsoft/markitdown: MIT, 194 files, 8/8 bounded checks passed; fleet use case is offline conversion of source documents into structured Markdown for SEO/editorial discovery. Risks: dependency and parser coverage remain unverified because installation was not performed; upstream maintenance and document-rights handling require CTO review. Smallest prototype: isolated fixture corpus and generated-output diff, measuring extraction completeness, editorial correction rate, and processing time; learn in 1–2 days. 2) shadcn-ui/ui: MIT, 3/3 bounded checks passed; use case is reusable accessible CTA, comparison-card, and navigation primitives for fleet sites. Risks: framework/build compatibility, transitive dependencies, maintenance burden, and design consistency remain unverified. Smallest prototype: one static preview component with no production dependency, measuring accessibility checks, build impact, and task completion proxy; learn in 1 day. 3) mermaid-js/mermaid: MIT, 2,799 files, supported documentation signal but no safe native checks; use case is renderable explainers and decision diagrams for complex editorial/product pages. Risks: client bundle/performance impact, rendering security, dependency maintenance, and content legibility remain unverified. Smallest prototype: offline-rendered SVG fixture with deterministic snapshot checks; learn in 1–2 days. None supports revenue, conversion, security, or causal-lift claims yet.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve the existing allthingsmasonic.com homepage-refresh measurement as the only immediate CRO action. Validate affiliate destinations, disclosure placement, consent behavior, accessibility, smoke, and rollback evidence using existing telemetry only. Do not create duplicate work or claim lift. Retain the 0xroulette CTA-hierarchy concept as deferred backlog: the completed read-only inspection supports a reversible static preview of CTA order, destinations, disclosures, and accessibility, with click-through and route-integrity measurement only after current containment gates clear.",
+        "summary": "Handoff: preserve existing affiliate and UX measurement records without duplication. AllThingsMasonic and Ultrarough remain measurement surfaces; causal lift is unknown. Do not create new experiments or alter tracking until the 36 pending improvements are measured or closed with evidence.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,23 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.195Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T15:06:52.171Z",
+  "summary": "ceo checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution for EXEC_CONV_7 and reject the proposed driveford.net/drivegm.net change requests this cycle. Evidence: the authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven in the 30-day scorecard. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift remain unknown. The proposed sites also have unresolved execution-owner gates. Smallest next step: delivery-lead records dated ownership, validation, rollback, and unblock evidence by 2026-09-28T17:00Z. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "60a62399-7a7d-40df-a86f-966fd4905c96",
+        "summary": "CRO repository lead is research-only; current measurement, failure-repair, ownership, security, release, rollback, attribution, and compliance gates do not support a prototype or adoption this cycle.",
+        "requested_action": "declined",
+        "proposal_id": "60a62399-7a7d-40df-a86f-966fd4905c96"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff for EXEC_CONV_7: continue existing repair-or-close, measurement, legal/security evidence, parked-site verification, and attribution reconciliation. Do not dispatch, requeue, deploy, add telemetry, spend, or claim financial or causal outcomes. The candidate change requests from the prior pass are rejected because they conflict with the empty authoritative candidate list and unresolved ownership gates.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "94691894-9f96-4f63-a388-6e63ee64032b",
+        "summary": "CRO repository lead is research-only; no production dependency or prototype dispatch is justified before existing gates clear.",
+        "requested_action": "declined",
+        "proposal_id": "94691894-9f96-4f63-a388-6e63ee64032b"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "53642512-fde9-439e-b4aa-8f1d4d053f4c",
+        "summary": "CRO repository lead lacks native lab validation and cannot proceed to production or prototype work while containment gates remain open.",
+        "requested_action": "declined",
+        "proposal_id": "53642512-fde9-439e-b4aa-8f1d4d053f4c"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "1cf9a69f-e385-45a2-baf6-63da7e490115",
+        "summary": "Duplicate security disposition; preserve the existing security evidence work item and private launch gates.",
+        "requested_action": "declined",
+        "proposal_id": "1cf9a69f-e385-45a2-baf6-63da7e490115"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226",
+        "summary": "Duplicate compliance containment work; continue existing site-specific remediation and evidence work without creating another proposal.",
+        "requested_action": "declined",
+        "proposal_id": "326c90c0-ff9a-4d9c-9981-ece9b2b7a226"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "90ac2f61-d32f-42ee-850f-ba793019540b",
+        "summary": "Duplicate security evidence work; retain the existing fleet security matrix and do not expand the queue.",
+        "requested_action": "declined",
+        "proposal_id": "90ac2f61-d32f-42ee-850f-ba793019540b"
       }
     ]
   }
