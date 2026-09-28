@@ -18,6 +18,7 @@ FP="${1:-}"
 [[ -n "$FP" ]] || { echo "usage: $0 <fingerprint>" >&2; exit 1; }
 INCIDENT_FILE="ops/health/principal-incidents/${FP}.json"
 [[ -f "$INCIDENT_FILE" ]] || { echo "no incident record for $FP" >&2; exit 0; }
+touch "ops/.locks/principal-engineer-worker-started-${FP}"
 
 MODEL="{{MODEL}}"
 # 2026-09-07 ai-usage audit: 3/14 fleet principal-engineer calls that day hit

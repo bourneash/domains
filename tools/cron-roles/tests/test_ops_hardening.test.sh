@@ -44,6 +44,7 @@ grep -q 'DEPLOY_ALLOW_UNCONFIRMED_BUILD=1' "$saltwater_deploy" \
   || fail "saltwaternews emergency override is not explicitly logged"
 
 principal_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/principal-engineer.sh.tmpl"
+principal_runner_template="$ROOT/tools/cron-roles/archetypes/principal-engineer/scripts/run-principal-engineer.sh.tmpl"
 bash -n <(sed 's/{{[^}]*}}/placeholder/g' "$principal_template") \
   || fail "principal-engineer template syntax error"
 grep -q 'validate_result_contract' "$principal_template" \
@@ -56,6 +57,10 @@ grep -q 'good resolved' "$principal_template" \
   || fail "principal-engineer template does not force resolved Slack delivery"
 grep -q 'CHECKPOINT_TURN=\$((MAX_TURNS - 8))' "$principal_template" \
   || fail "principal-engineer template does not derive its turn checkpoint"
+grep -q 'principal-engineer-worker-started-' "$principal_runner_template" \
+  || fail "principal-engineer runner template lacks worker-start sentinel"
+grep -q 'worker did not start' "$principal_runner_template" \
+  || fail "principal-engineer runner template does not return unstarted attempts"
 bma_principal="$ROOT/sites/blackmarketapparel.com/ops/scripts/principal-engineer.sh"
 grep -q 'SYNC_ALERT_AFTER' "$bma_principal" \
   || fail "BMA sync defer threshold missing"
