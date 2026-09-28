@@ -98,6 +98,21 @@ test('treatment batch creates one idempotent design and growth action per treatm
   assert.equal(batch.filter(row => row.lane === 'growth-revenue').length, 2);
 });
 
+test('private-preview policy blocks growth work but permits design work', () => {
+  const privatePreviewSites = ['3BOOBS.com'];
+  assert.deepEqual(
+    productivity.siteCategoryEligibility('3boobs.com', 'seo', { privatePreviewSites }),
+    {
+      eligible: false,
+      reason: 'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
+    }
+  );
+  assert.deepEqual(
+    productivity.siteCategoryEligibility('3boobs.com', 'design', { privatePreviewSites }),
+    { eligible: true, reason: null }
+  );
+});
+
 test('queue readiness excludes sites with active requests or improvement windows', () => {
   const db = fixture();
   db.createChangeRequest({

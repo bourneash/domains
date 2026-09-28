@@ -58,6 +58,18 @@ function treatmentBatch(pilot) {
   ]);
 }
 
+function siteCategoryEligibility(site, category, { privatePreviewSites = [] } = {}) {
+  const normalizedSite = String(site || '').trim().toLowerCase();
+  const normalizedCategory = String(category || '').trim().toLowerCase();
+  const privateSites = new Set(normalizeSites(privatePreviewSites));
+  if (privateSites.has(normalizedSite) && ['seo', 'marketing', 'sales'].includes(normalizedCategory))
+    return {
+      eligible: false,
+      reason: 'private-preview site is not eligible for SEO, affiliate, or revenue work until launch',
+    };
+  return { eligible: true, reason: null };
+}
+
 function queueReadiness(store, sites) {
   const normalized = normalizeSites(sites);
   const activeRequests = store
@@ -227,5 +239,6 @@ module.exports = {
   evaluate,
   laneFor,
   treatmentBatch,
+  siteCategoryEligibility,
   queueReadiness,
 };

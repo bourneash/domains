@@ -3658,6 +3658,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const seeded = [];
       const skipped = [];
       const readiness = productivityProgram.queueReadiness(events, pilot.treatment_sites);
+      const privatePreviewSites = seoIntelligence.privatePreviewSites(root, pilot.treatment_sites);
       const blockedSites = new Map(readiness.blocked_sites.map(item => [item.site, item]));
       const existing = new Set(
         events
@@ -3674,6 +3675,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             reason: 'site is not queue-ready',
             detail: blocked.reason,
             measurement_due: blocked.measurement_due || null,
+          });
+          continue;
+        }
+        const eligibility = productivityProgram.siteCategoryEligibility(spec.site, spec.category, {
+          privatePreviewSites,
+        });
+        if (!eligibility.eligible) {
+          skipped.push({
+            action_key: spec.action_key,
+            site: spec.site,
+            reason: eligibility.reason,
+            category: spec.category,
           });
           continue;
         }
