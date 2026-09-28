@@ -46,9 +46,7 @@ function tickQueueCount(row) {
 function tickFollowThroughCount(row) {
   const created = row.result?.created_counts || {};
   return (
-    Number(created.work_items || 0) +
-    Number(created.research || 0) +
-    Number(created.proposals || 0)
+    Number(created.work_items || 0) + Number(created.research || 0) + Number(created.proposals || 0)
   );
 }
 
@@ -62,7 +60,9 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
     .sort((a, b) => (Date.parse(a.started_at || '') || 0) - (Date.parse(b.started_at || '') || 0));
   const hasQueueModeMetadata = rows.some(row => typeof row.result?.allowQueue === 'boolean');
   const eligible = rows.filter(row => !hasQueueModeMetadata || row.result?.allowQueue === true);
-  const productive = eligible.filter(row => tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0);
+  const productive = eligible.filter(
+    row => tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0
+  );
   let noActionStreak = 0;
   for (let index = eligible.length - 1; index >= 0; index -= 1) {
     const row = eligible[index];
@@ -80,7 +80,11 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
     escalation_reason: escalationRequired
       ? `CEO produced no bounded queue or follow-through action for ${noActionStreak} consecutive executable cycle(s)`
       : null,
-    status: escalationRequired ? 'escalate-ceo' : productive.length ? 'on-track' : 'no-executable-cycle',
+    status: escalationRequired
+      ? 'escalate-ceo'
+      : productive.length
+        ? 'on-track'
+        : 'no-executable-cycle',
     latest_tick_at: rows.at(-1)?.started_at || null,
   };
 }
