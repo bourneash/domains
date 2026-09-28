@@ -37,6 +37,54 @@ function metricDeltas(improvements) {
   return totals;
 }
 
+function tickQueueCount(row) {
+  return row.result?.created_counts
+    ? Number(row.result.created_counts.change_requests || 0)
+    : Number(row.result?.counts?.change_requests || 0);
+}
+
+function tickFollowThroughCount(row) {
+  const created = row.result?.created_counts || {};
+  return (
+    Number(created.work_items || 0) +
+    Number(created.research || 0) +
+    Number(created.proposals || 0)
+  );
+}
+
+// Make CEO accountability measurable without treating a deliberately disabled
+// queue as a CEO failure. A cycle is productive when it selects executable
+// change work or records a bounded follow-through item; repeated eligible
+// cycles with neither require an explicit escalation.
+function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = {}) {
+  const rows = (Array.isArray(ticks) ? ticks : [])
+    .filter(row => row && typeof row === 'object')
+    .sort((a, b) => (Date.parse(a.started_at || '') || 0) - (Date.parse(b.started_at || '') || 0));
+  const hasQueueModeMetadata = rows.some(row => typeof row.result?.allowQueue === 'boolean');
+  const eligible = rows.filter(row => !hasQueueModeMetadata || row.result?.allowQueue === true);
+  const productive = eligible.filter(row => tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0);
+  let noActionStreak = 0;
+  for (let index = eligible.length - 1; index >= 0; index -= 1) {
+    const row = eligible[index];
+    if (tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0) break;
+    noActionStreak += 1;
+  }
+  const threshold = Math.max(1, Number(noActionEscalationStreak) || 2);
+  const escalationRequired = noActionStreak >= threshold;
+  return {
+    eligible_ticks: eligible.length,
+    productive_ticks: productive.length,
+    no_action_ticks: eligible.length - productive.length,
+    no_action_streak: noActionStreak,
+    escalation_required: escalationRequired,
+    escalation_reason: escalationRequired
+      ? `CEO produced no bounded queue or follow-through action for ${noActionStreak} consecutive executable cycle(s)`
+      : null,
+    status: escalationRequired ? 'escalate-ceo' : productive.length ? 'on-track' : 'no-executable-cycle',
+    latest_tick_at: rows.at(-1)?.started_at || null,
+  };
+}
+
 function proposalExecutionSummary(proposals, requests) {
   const requestRows = Array.isArray(requests) ? requests : [];
   const proposalRows = Array.isArray(proposals) ? proposals : [];
@@ -140,10 +188,8 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
           .listExecutiveWorkItems({ source_type: 'failed-change-request', limit: 1000 })
           .filter(row => !['done', 'cancelled'].includes(String(row.status)))
       : [];
-  const queueCountForTick = row =>
-    row.result?.created_counts
-      ? Number(row.result.created_counts.change_requests || 0)
-      : Number(row.result?.counts?.change_requests || 0);
+  const queueCountForTick = tickQueueCount;
+  const accountability = buildExecutiveAccountability(ticks);
   const ticksWithQueueWork = ticks.filter(row => queueCountForTick(row) > 0);
   const ticksWithProposals = ticks.filter(row => Number(row.result?.counts?.proposals || 0) > 0);
   const queueEligibleTicks = ticks.filter(row => row.result?.allowQueue === true);
@@ -209,6 +255,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       actionability_rate_percent: actionabilityRate,
       all_ticks_actionability_rate_percent: allTicksActionabilityRate,
     },
+    accountability,
     decisions: {
       proposals: proposals.length,
       pending_owner_approval: pendingApprovals.length,
@@ -265,6 +312,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       ...(failedTicks.length
         ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]
         : []),
+      ...(accountability.escalation_required ? [accountability.escalation_reason] : []),
       ...(proposalExecution.approved_proposals_unexecuted
         ? [
             `${proposalExecution.approved_proposals_unexecuted} approved proposal(s) lack an execution request`,
@@ -285,4 +333,5 @@ module.exports = {
   MEASURED_IMPROVEMENTS: [...MEASURED_IMPROVEMENTS],
   proposalExecutionSummary,
   buildScorecard,
+  buildExecutiveAccountability,
 };

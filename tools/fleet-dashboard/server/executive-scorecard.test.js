@@ -69,6 +69,44 @@ test('scorecard makes an unproductive executive cycle visible', () => {
   assert.match(result.next_step, /bounded, measurable action/);
 });
 
+test('accountability escalates repeated executable no-op cycles', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 1 } },
+    },
+    {
+      started_at: '2026-09-22T01:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 0 } },
+    },
+    {
+      started_at: '2026-09-22T02:00:00.000Z',
+      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 0 } },
+    },
+  ]);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.no_action_streak, 2);
+  assert.equal(result.escalation_required, true);
+  assert.equal(result.status, 'escalate-ceo');
+});
+
+test('accountability excludes deliberately disabled queue cycles', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: false, created_counts: { change_requests: 0 } },
+    },
+    {
+      started_at: '2026-09-22T01:00:00.000Z',
+      result: { allowQueue: true, created_counts: { work_items: 1 } },
+    },
+  ]);
+  assert.equal(result.eligible_ticks, 1);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.escalation_required, false);
+  assert.equal(result.status, 'on-track');
+});
+
 test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
   const summary = scorecard.proposalExecutionSummary(
     [
