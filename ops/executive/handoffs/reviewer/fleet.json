@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:23:35.281Z",
+  "generated_at": "2026-09-28T12:52:48.863Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed affiliate-readiness artifact and all new queue work as duplicative or unsupported. Maintain containment-only execution: continue existing measurement, repair-or-close, legal/security evidence, parked-site owner verification, and attribution/cost reconciliation. Preserve aggregate commission as unattributed; do not claim site revenue, ROI, margin, payback, forecasts, or causal lift. Keep permission outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject all new production, queue, requeue, financial, monetization, telemetry, dependency, deployment, spending, and scheduler-change proposals. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is unattributed; ROI, margin, payback, forecasts, and causal lift are unsupported. Continue only existing repair, measurement, attribution/cost reconciliation, legal, security, and parked-site evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close and measurement containment only. Require dated ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence before any retry. Do not dispatch or requeue work.",
+        "summary": "Material concerns: attribution is incomplete, matching-period costs and budgets are absent, 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven. Keep the prepared Univer work research-only until compatibility, licensing, security, cost, and scheduler evidence is complete; no installation, deployment, spend, or scheduler change is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Reject the three proposed site previews for queue entry this cycle. Preserve them as deferred scope and continue existing repair-or-close and measurement containment; do not dispatch or requeue without dated ownership, root cause, validation, rollback, release, security, attribution, deduplication, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       }

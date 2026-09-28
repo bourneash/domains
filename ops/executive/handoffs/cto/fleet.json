@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:23:35.281Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:52:48.862Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. No new queue work, proposals, change requests, experiments, telemetry, deployments, dependencies, spending, monetization changes, or requeues are technically safe this cycle. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned attribution/cost reconciliation. Preserve aggregate commission as unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift.",
+        "summary": "Handoff for EXEC_CONV_7: inspect Univer compatibility, license, security, maintenance, report-format support, and scheduler integration boundaries using the bounded research request. Produce a minimal implementation plan with acceptance tests, rollback, and explicit dependency/spend limits. Do not install dependencies, deploy, alter scheduler state, or access credentials.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close and measurement containment through 2026-09-28T17:00:00Z. Before any retry, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Do not dispatch or requeue new work.",
+        "summary": "Recommendation: maintain containment-only execution. Reject the three proposed change requests for queue entry: dumbsluts.com and findyourlostpets.com have active execution-owner gaps, while elevatorfriends.com already has a verified readiness report. Preserve all three scopes as deferred backlog. Continue existing measurement, failure-repair, attribution/cost reconciliation, security evidence, and parked-site owner-verification work. Do not dispatch, requeue, deploy, add telemetry or dependencies, change credentials or destinations, spend, or claim lift or financial outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Do not dispatch or requeue the proposed dumbsluts.com, elevatorfriends.com, or findyourlostpets.com previews. Record the rejection as duplicate or owner-blocked work and preserve each scoped objective for reassessment after existing gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing execution-owner reconciliation for complicated.work and deadlymaracas.com. Verify ownership records with dated evidence by 2026-09-30T17:00:00Z while preserving parked/private status. Do not change DNS, credentials, analytics, consent, tracking, monetization, deployment, or launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Continue only the existing complicated.work owner-verification work item. Attach dated evidence of the execution-owner record while preserving parked/private status. Do not change DNS, credentials, analytics, consent, tracking, monetization, deployment, content, or launch state.",
         "requested_action": null,
         "proposal_id": null
       }

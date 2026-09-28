@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:06:17.748Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:52:48.862Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain three evidence-backed opportunities as deferred backlog only. (1) microsoft/markitdown (MIT): prototype offline document-to-Markdown extraction for content QA on one existing repository; evidence: 22 keyword hits, 8/8 bounded checks passed, 194 files; risks: dependency provenance, parser accuracy, maintenance, and no production adoption; metric: extraction accuracy and editor time saved; time-to-learn: 1–2 days; smallest reversible prototype: fixture-only conversion script. (2) shadcn-ui/ui (MIT): prototype one accessible CTA/card component for a queue-ready site; evidence: 3/3 bounded checks passed, 3,198 files; risks: framework compatibility, dependency/supply-chain review, maintenance, and visual regression; metric: deterministic accessibility/build checks and CTA interaction rate using existing telemetry; time-to-learn: 1–2 days; smallest prototype: isolated preview component. (3) mermaid-js/mermaid (MIT): prototype one source-backed diagram in an editorial explainer; evidence: supported use case, 2,799 files, but no safe native checks; risks: client bundle/performance, rendering reliability, maintenance, and content accuracy; metric: page engagement and web-vitals using existing telemetry; time-to-learn: 1–2 days; smallest prototype: static offline-rendered SVG fixture. Do not install dependencies, deploy, add telemetry, spend, or requeue until existing measurement, failure-repair, ownership, security, release, rollback, attribution, and validation gates clear. Current evidence supports no revenue, ROI, or conversion-lift claim.",
+        "summary": "CRO recommends containment-only execution this cycle. Retain three deferred, reversible opportunities: an offline MarkItDown content-ingestion prototype, a reusable accessible comparison-card component, and an affiliate CTA/snippet experiment after current measurement windows close. Evidence is limited to bounded lab results and existing telemetry; no revenue, ROI, or causal lift is claimed. Do not deploy, add dependencies, change credentials, spend, or requeue work until ownership, security, attribution, rollback, and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: preserve the following opportunities as research-only or deferred backlog. Each has a bounded prototype, explicit license/security review, measurable success criteria, and rollback boundary. No production adoption is requested this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

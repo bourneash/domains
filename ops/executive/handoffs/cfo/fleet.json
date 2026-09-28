@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:23:35.280Z",
+  "generated_at": "2026-09-28T12:52:48.863Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Amazon reports $4.92 aggregate commission for 2026-09-21, with $0 attributed income and $4.92 unattributed under aggregate tracking. AI spend is $916.91 from 2026-09-01 through 2026-09-28. Contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable because matching-period infrastructure, domains, labor, marketing, experiment, commitment, and budget records are missing. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned attribution/cost reconciliation. Do not create new production work, spending, telemetry, monetization, experiments, deployments, dependencies, or requeues.",
+        "summary": "CFO recommendation: maintain containment-only execution and reject all three proposed change requests. Financial claims are not supportable: Amazon reports only $4.92 aggregate commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; the commission is unattributed. AI spend is $916.9145 for 2026-09-01 through 2026-09-28 across 5,009 calls, including 228 errors. Subtracting these figures would be misleading because the periods do not match, revenue is not site-attributed, and infrastructure, domain, labor, marketing, experiment, commitment, and budget costs are absent. Contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are therefore unknown. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial outcomes. Continue only the existing matching-period reconciliation work item.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile provider tracking identifiers against matching-period recorded costs. Preserve the $4.92 commission for 2026-09-21 as unattributed. Minimum measurement for contribution margin and cost-to-learn is site/content revenue identifiers, a complete matching-period cost ledger, budget ceilings and commitments, and an explicit learning threshold. Do not treat missing data as zero.",
+        "summary": "CFO disposition: do not dispatch or requeue the proposed dumbsluts.com, elevatorfriends.com, or findyourlostpets.com previews. They lack validated cost-to-learn thresholds and their analytics or revenue attribution is unavailable or incomplete. Preserve them as deferred previews; no financial lift or payback claim is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject vanity-metric and unsupported forecast claims. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or margin evidence. The 30-day scorecard records 3 proven outcomes and 36 improvements awaiting measurement; these do not support a portfolio forecast or causal-lift claim.",
+        "summary": "Continue the existing revenue and attribution reconciliation only. Preserve the $4.92 Amazon commission for 2026-09-21 as aggregate and unattributed. Do not treat missing site revenue, costs, budgets, commitments, or infrastructure spend as zero.",
         "requested_action": null,
         "proposal_id": null
       }
