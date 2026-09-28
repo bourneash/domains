@@ -44,7 +44,7 @@
 20 4 * * * /home/jesse/projects/domains/tools/scripts/vitals-sweep-cron.sh mobile
 
 # --- Job 7e: weekly desktop web-vitals comparison ---
-40 4 * * 0 /home/jesse/projects/domains/tools/scripts/vitals-sweep-cron.sh desktop
+20 5 * * 0 /home/jesse/projects/domains/tools/scripts/vitals-sweep-cron.sh desktop
 
 # --- Job 7f: web-vitals freshness watchdog ---
 0 */6 * * * /home/jesse/projects/domains/tools/scripts/vitals-sweep-freshness.sh

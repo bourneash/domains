@@ -266,15 +266,26 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
         if not mobile:
             cmd += ["--preset=desktop"]
         last_error = None
-        # Chrome startup is occasionally transient (stale profile/process,
-        # launcher race, or a short-lived host resource issue). Retry once so
-        # one launch blip does not page the site owner as a site outage.
-        for attempt in range(2):
+        try:
+            retry_count = max(0, int(os.environ.get("VITALS_SITE_RETRIES", "2")))
+        except ValueError:
+            retry_count = 2
+        try:
+            backoff = max(0.0, float(os.environ.get("VITALS_RETRY_BACKOFF_SEC", "5")))
+        except ValueError:
+            backoff = 5.0
+        attempts = retry_count + 1
+        # Chrome startup, Lighthouse navigation, and remote sites can all fail
+        # transiently. Retry bounded failures with exponential backoff, while
+        # keeping the outer sweep timeout as the final circuit breaker.
+        for attempt in range(attempts):
             chrome_proc, port, chrome_error = start_chrome(chrome, Path(td) / f"chrome-profile-{attempt}")
             if chrome_error:
                 last_error = f"Chrome launch failed: {chrome_error}"
-                if attempt == 0:
-                    time.sleep(2)
+                if attempt < attempts - 1:
+                    delay = min(backoff * (2 ** attempt), 60.0)
+                    log(f"{url}: retrying after Chrome launch failure in {delay:g}s ({attempt + 1}/{attempts})")
+                    time.sleep(delay)
                 continue
             try:
                 proc = subprocess.run(
@@ -283,7 +294,12 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
                 )
             except subprocess.TimeoutExpired:
                 stop_chrome(chrome_proc)
-                return None, f"lighthouse timed out after {timeout}s"
+                last_error = f"lighthouse timed out after {timeout}s"
+                if attempt < attempts - 1:
+                    delay = min(backoff * (2 ** attempt), 60.0)
+                    log(f"{url}: retrying after Lighthouse timeout in {delay:g}s ({attempt + 1}/{attempts})")
+                    time.sleep(delay)
+                continue
             try:
                 if out.exists():
                     try:
@@ -305,9 +321,11 @@ def run_lighthouse(url: str, *, mobile: bool, timeout: int) -> tuple[dict | None
                         last_error = f"lighthouse exit {proc.returncode}"
             finally:
                 stop_chrome(chrome_proc)
-            if attempt == 0:
-                time.sleep(2)
-        return None, last_error
+            if attempt < attempts - 1:
+                delay = min(backoff * (2 ** attempt), 60.0)
+                log(f"{url}: retrying after Lighthouse failure in {delay:g}s ({attempt + 1}/{attempts})")
+                time.sleep(delay)
+        return None, f"{last_error or 'unknown Lighthouse failure'} after {attempts} attempts"
 
 
 def extract(report: dict) -> dict:
@@ -523,6 +541,7 @@ def main() -> int:
     ap.add_argument("--no-write", action="store_true", help="do not touch reports/")
     args = ap.parse_args()
 
+    sweep_started = time.monotonic()
     sites, gated = load_site_sets(args.site)
     results = []
     warnings_by_site: dict[str, list[str]] = {}
@@ -563,16 +582,21 @@ def main() -> int:
     # would make the sweep fast and the data worthless.
     for d in sites:
         log(f"measuring {d} …")
+        site_started = time.monotonic()
         report, err = run_lighthouse(f"https://{d}", mobile=not args.desktop, timeout=args.timeout)
+        duration_ms = round((time.monotonic() - site_started) * 1000, 1)
         if err:
-            results.append({"site": d, "status": "error", "error": err, "warnings": []})
+            log(f"{d} failed in {duration_ms / 1000:.1f}s: {err}")
+            results.append({"site": d, "status": "error", "error": err, "duration_ms": duration_ms, "warnings": []})
             continue
         m = extract(report)
+        log(f"{d} completed in {duration_ms / 1000:.1f}s")
         results.append({
             "site": d,
             "status": "measured",
             "error": None,
             "metrics": m,
+            "duration_ms": duration_ms,
             "budget_breaches": breaches(m),
             "regressions": regressions(m, previous.get(d)),
             "warnings": warnings_by_site.get(d, []),
@@ -580,6 +604,7 @@ def main() -> int:
 
     payload = {
         "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "duration_seconds": round(time.monotonic() - sweep_started, 1),
         "form_factor": form_factor,
         "budgets": {k: {"op": op, "limit": lim} for k, (op, lim) in BUDGETS.items()},
         "totals": {

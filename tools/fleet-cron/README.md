@@ -37,7 +37,7 @@ directories.
 | 6 | `* * * * *` | `tools/scripts/domain-job-runner.sh` | Drain the Fleet Dashboard Domains-tab onboard/offboard spool |
 | 7 | `35 6 * * *` | `tools/scripts/registry-drift-cron.sh` | Fleet registry (`registry/fleet.yaml`) drift check against per-site config |
 | 7d | `20 4 * * *` | `tools/scripts/vitals-sweep-cron.sh mobile` | Daily mobile Lighthouse performance/accessibility baseline and regression sweep |
-| 7e | `40 4 * * 0` | `tools/scripts/vitals-sweep-cron.sh desktop` | Weekly desktop comparison baseline |
+| 7e | `20 5 * * 0` | `tools/scripts/vitals-sweep-cron.sh desktop` | Weekly desktop comparison baseline (after Sunday mobile sweep buffer) |
 | 7f | `0 */6 * * *` | `tools/scripts/vitals-sweep-freshness.sh` | Alert when either scheduled report goes stale |
 | 7b | `40 6 * * *` | `tools/backlink-audit/audit.js` | Deterministic backlink-report coverage/provenance inventory for every site |
 | 18 | `0,15,30,45 * * * *` | `tools/social-hub/run-tick.sh` | Run the Social Hub pipeline inside its supervised API container |

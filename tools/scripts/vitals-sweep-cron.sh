@@ -16,6 +16,8 @@ LOCK="${VITALS_SWEEP_LOCK:-$TOOL_DIR/.vitals-sweep-${FORM_FACTOR}.lock}"
 STATE="${VITALS_SWEEP_STATE:-$TOOL_DIR/.vitals-sweep-${FORM_FACTOR}.state.json}"
 NOTIFY_ENABLED="${VITALS_SWEEP_NOTIFY:-1}"
 LOG_MAX_BYTES="${VITALS_SWEEP_LOG_MAX_BYTES:-5242880}"
+WARN_SECONDS="${VITALS_SWEEP_WARN_SECONDS:-1800}"
+DURATION_STATE="${VITALS_SWEEP_DURATION_STATE:-$TOOL_DIR/.vitals-sweep-${FORM_FACTOR}.slow}"
 
 mkdir -p "$TOOL_DIR"
 exec 9>"$LOCK"
@@ -26,6 +28,15 @@ if [[ -f "$LOG" ]]; then
   [[ "$size" =~ ^[0-9]+$ ]] && (( size > LOG_MAX_BYTES )) && mv -f "$LOG" "$LOG.1"
 fi
 log() { printf '%s %s\n' "$(date -Iseconds)" "$*" >> "$LOG"; }
+notify_event() {
+  local status="$1" headline="$2" detail="$3"
+  [[ "$NOTIFY_ENABLED" == 1 ]] || return 0
+  timeout 30 python3 "$DOMAINS_ROOT/tools/role-notify/notify_role.py" \
+    --mode structured --site fleet --role web-vitals --status "$status" \
+    --headline "$headline" --detail "$detail" \
+    --channel-env VITALS_SWEEP_CHANNEL --channel-default domain-ops \
+    >/dev/null 2>&1 || true
+}
 
 if [[ -f "$DOMAINS_ROOT/.env" ]]; then
   SLACK_BOT_TOKEN="$(grep -m1 '^SLACK_BOT_TOKEN=' "$DOMAINS_ROOT/.env" | cut -d= -f2-)"
@@ -39,6 +50,8 @@ report="$(timeout "${VITALS_SWEEP_TIMEOUT:-2400}" python3 "$TOOL_DIR/vitals-swee
 rc=$?
 if (( rc != 0 )) || [[ -z "$report" || "${report:0:1}" != "{" ]]; then
   log "sweep failed form_factor=$FORM_FACTOR exit=$rc"
+  notify_event fail "Scheduled $FORM_FACTOR web-vitals sweep failed" \
+    "The fleet sweep did not produce a report (exit=$rc). Inspect $LOG."
   exit 0
 fi
 
@@ -66,8 +79,19 @@ tmp.replace(state_path)
 PY
 )"
 
+duration="$(python3 -c 'import json,sys; print(float(json.loads(sys.argv[1]).get("duration_seconds", 0)))' "$report")"
 summary="$(python3 -c 'import json,sys; r=json.loads(sys.argv[1]); t=r["totals"]; print("sites=%s skipped=%s warnings=%s errors=%s regressed=%s over_budget=%s a11y=%s" % (t["sites"],t.get("skipped",0),t.get("warnings",0),t["errors"],t["regressed"],t["over_budget"],t["a11y_failing"]))' "$report")"
-log "sweep ok form_factor=$FORM_FACTOR $summary"
+log "sweep ok form_factor=$FORM_FACTOR duration=${duration}s $summary"
+if awk "BEGIN { exit !($duration >= $WARN_SECONDS) }"; then
+  log "sweep slow form_factor=$FORM_FACTOR duration=${duration}s threshold=${WARN_SECONDS}s"
+  if [[ ! -f "$DURATION_STATE" ]]; then
+    printf '%s\n' "$duration" > "$DURATION_STATE"
+    notify_event warn "Scheduled $FORM_FACTOR web-vitals sweep is slow" \
+      "The fleet sweep took ${duration}s (warning threshold ${WARN_SECONDS}s)."
+  fi
+else
+  rm -f "$DURATION_STATE"
+fi
 
 while IFS= read -r event; do
   [[ -n "$event" ]] || continue

@@ -122,3 +122,28 @@ def test_tbt_noise_does_not_flag_good_mobile_run_as_regression():
         {"tbt_ms": 300},
         {"tbt_ms": 0},
     ) == ["tbt_ms"]
+
+
+def test_lighthouse_retries_timeouts_with_exponential_backoff(monkeypatch):
+    monkeypatch.setenv("VITALS_SITE_RETRIES", "2")
+    monkeypatch.setenv("VITALS_RETRY_BACKOFF_SEC", "1")
+    monkeypatch.setattr(vitals, "chrome_path", lambda: "/fake/chrome")
+    monkeypatch.setattr(vitals, "start_chrome", lambda *_args: (None, 1234, None))
+    monkeypatch.setattr(vitals, "stop_chrome", lambda _proc: None)
+
+    calls = []
+    sleeps = []
+
+    def timeout(*_args, **_kwargs):
+        calls.append(True)
+        raise vitals.subprocess.TimeoutExpired("lighthouse", 180)
+
+    monkeypatch.setattr(vitals.subprocess, "run", timeout)
+    monkeypatch.setattr(vitals.time, "sleep", lambda seconds: sleeps.append(seconds))
+
+    report, error = vitals.run_lighthouse("https://example.com", mobile=True, timeout=180)
+
+    assert report is None
+    assert error == "lighthouse timed out after 180s after 3 attempts"
+    assert len(calls) == 3
+    assert sleeps == [1, 2]
