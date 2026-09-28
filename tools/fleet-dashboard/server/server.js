@@ -88,6 +88,7 @@ const fleetTask = require('./fleet-task');
 const workflowBoard = require('./workflow-board');
 const executiveLiveness = require('./executive-liveness');
 const productivityProgram = require('./productivity-program');
+const executiveRunRecovery = require('./executive-run-recovery');
 const {
   assignedRoleForType,
   assignedRoleForSite,
@@ -3791,28 +3792,28 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // A detached manual worker can disappear during a dashboard/container
       // restart. Reconcile that durable row here as well as when starting a
       // new run; otherwise the UI can report a run as active forever.
-      const orphaned = actions.filter(
-        row =>
-          row.status === 'started' && row.target_type === 'manual-executive-run' && row.result?.pid
+      const orphaned = actions.filter(row =>
+        executiveRunRecovery.isOrphanedManualRun(row, {
+          pidAlive: pid => {
+            try {
+              process.kill(pid, 0);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+        })
       );
       for (const run of orphaned) {
-        let running = true;
-        try {
-          process.kill(Number(run.result.pid), 0);
-        } catch {
-          running = false;
-        }
-        if (!running) {
-          executive.finishAction(events, run.action_id, {
-            status: 'failed',
-            error: 'manual executive run was orphaned after its worker process exited',
-            result: {
-              ...run.result,
-              orphaned_at: new Date().toISOString(),
-              orphaned_pid: run.result.pid,
-            },
-          });
-        }
+        executive.finishAction(events, run.action_id, {
+          status: 'failed',
+          error: 'manual executive run was orphaned after its worker process exited',
+          result: {
+            ...run.result,
+            orphaned_at: new Date().toISOString(),
+            orphaned_pid: run.result.pid,
+          },
+        });
       }
       if (orphaned.length) actions = events.listExecutiveActions({ limit: 5000 });
       const manual = actions.filter(row => row.target_type === 'manual-executive-run');
@@ -4026,25 +4027,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         .listExecutiveActions({ limit: 100 })
         .filter(row => row.target_type === 'manual-executive-run');
       const active = recent.find(row => row.status === 'started');
-      if (active && active.result?.pid) {
-        let running = true;
-        try {
-          process.kill(Number(active.result.pid), 0);
-        } catch {
-          running = false;
-        }
-        if (!running) {
-          executive.finishAction(events, active.action_id, {
-            status: 'failed',
-            error: 'manual executive run was orphaned after its worker process exited',
-            result: {
-              ...active.result,
-              orphaned_at: new Date().toISOString(),
-              orphaned_pid: active.result.pid,
-            },
-          });
-        }
-      }
+      if (
+        executiveRunRecovery.isOrphanedManualRun(active, {
+          pidAlive: pid => {
+            try {
+              process.kill(pid, 0);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+        })
+      )
+        executive.finishAction(events, active.action_id, {
+          status: 'failed',
+          error: 'manual executive run was orphaned after its worker process exited',
+          result: {
+            ...active.result,
+            orphaned_at: new Date().toISOString(),
+            orphaned_pid: active.result.pid,
+          },
+        });
       const stillActive =
         recent.find(row => row.status === 'started' && row.action_id === active?.action_id) &&
         events.getExecutiveAction(active.action_id)?.status === 'started';
@@ -8374,7 +8377,8 @@ async function validatePreview(instance, url) {
 
 function accessibilityStructureCheck(html) {
   const hasLanguage = /\blang=["'][^"']+/i.test(String(html || ''));
-  const hasDocumentStructure = /<main\b/i.test(String(html || '')) && /<h1\b/i.test(String(html || ''));
+  const hasDocumentStructure =
+    /<main\b/i.test(String(html || '')) && /<h1\b/i.test(String(html || ''));
   if (hasLanguage && hasDocumentStructure) return { status: 'pass' };
   // Vite/React and similar client-rendered sites cannot expose their final
   // landmark tree in the raw preview HTML. Treat a correctly language-tagged
@@ -8383,11 +8387,13 @@ function accessibilityStructureCheck(html) {
   if (hasLanguage && /id=["']root["']/i.test(String(html || '')))
     return {
       status: 'pass',
-      evidence: 'client-rendered application shell; rendered accessibility remains a browser-gated check',
+      evidence:
+        'client-rendered application shell; rendered accessibility remains a browser-gated check',
     };
   return {
     status: 'fail',
-    evidence: 'preview HTML must provide lang plus main/h1, or a lang-tagged client-rendered #root shell',
+    evidence:
+      'preview HTML must provide lang plus main/h1, or a lang-tagged client-rendered #root shell',
   };
 }
 
