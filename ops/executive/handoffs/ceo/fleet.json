@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:20:13.837Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:31:25.139Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the candidate plan as deferred production work, but execute the approved read-only launch-readiness follow-through for noveltyguns.com when its queue slot is available. Evidence: the current scorecard lists noveltyguns.com at 72.8, parked 128 days, with no analytics configured; 192 approved proposals remain unexecuted and launch audience, revenue, attribution, compliance, security, and margin are unknown. No safe production change is currently unblocked. Smallest next step: produce the bounded readiness brief without deployment, spend, telemetry, or domain changes. Owner decision: keep the SearchWoot/Woot permission request unsent pending human-counsel review, or authorize it after that review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: route only bounded launch-readiness evidence work for queue-ready scaffold sites; retain complicated.work, deadlymaracas.com, and driveford.net behind their existing owner-gap blockers. Do not deploy, requeue, add telemetry, spend, or alter launch gates.",
+        "summary": "Recommendation: execute the 6 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }
