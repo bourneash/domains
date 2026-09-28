@@ -13,6 +13,11 @@ const executive = require('../fleet-dashboard/server/executive');
 function db() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'executive-runner-'));
   fs.mkdirSync(path.join(root, 'sites', 'example.com'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'sites', 'example.com', 'ops', 'roles'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'sites', 'example.com', 'ops', 'roles', 'engineer.md'),
+    '# Engineer\n'
+  );
   return { root, store: eventstore.open(root) };
 }
 
@@ -1471,7 +1476,7 @@ test('routes approved implementation and creates durable follow-through for unfi
       body: 'Update the page and record the before/after metric.',
       category: 'seo',
       priority: 'low',
-      delivery_mode: 'report_only',
+      delivery_mode: 'direct',
     },
   });
   store.decideExecutiveProposal(ready.proposal_id, { status: 'approved', decided_by: 'owner' });
@@ -1753,8 +1758,11 @@ test('binds executive request follow-up to its role and preserves report-only ro
 
 test('caps queue work and prevents two active implementations on one site', async () => {
   const { root, store } = db();
-  for (const site of ['other.example', 'third.example', 'fourth.example'])
+  for (const site of ['other.example', 'third.example', 'fourth.example']) {
     fs.mkdirSync(path.join(root, 'sites', site), { recursive: true });
+    fs.mkdirSync(path.join(root, 'sites', site, 'ops', 'roles'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'sites', site, 'ops', 'roles', 'engineer.md'), '# Engineer\n');
+  }
   const plan = runner.parseOutput(
     JSON.stringify({
       messages: [],

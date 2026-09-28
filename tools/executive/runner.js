@@ -3701,10 +3701,20 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         .filter(row =>
           ['queued', 'claimed', 'running', 'reviewing', 'review', 'committed'].includes(row.status)
         )
-        .map(row => row.site)
+        .map(row =>
+          String(row.site || '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean)
     );
     for (const row of store.listImprovements({ limit: 1000 })) {
-      if (['proposed', 'building', 'review'].includes(row.state)) activeSites.add(row.site);
+      if (['proposed', 'building', 'review'].includes(row.state))
+        activeSites.add(
+          String(row.site || '')
+            .trim()
+            .toLowerCase()
+        );
     }
     const queueLimit = Math.max(
       1,
@@ -3757,7 +3767,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         });
         continue;
       }
-      if (queuedCount >= queueLimit || activeSites.has(item.site)) {
+      if (queuedCount >= queueLimit || activeSites.has(site)) {
         created.skipped_change_requests.push({
           site: item.site,
           title: item.title,
@@ -3825,7 +3835,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           });
         }
         queuedCount += 1;
-        activeSites.add(item.site);
+        activeSites.add(site);
         executive.finishAction(store, audit.action_id, {
           status: 'completed',
           request_id: request.request_id,
