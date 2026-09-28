@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:06:18.798Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:22:42.074Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. The proposed revenue, SEO, UX, site-factory, CRO, and control-plane work is technically feasible in isolation but is not queue-eligible while active measurement, failed-request repair, ownership, release, rollback, security, attribution, and validation gates remain incomplete. Preserve the opportunities as deferred backlog. Continue only existing repair-or-close, measurement, legal/security evidence, and matching-period attribution/cost reconciliation. Use recorded telemetry only; do not create, requeue, deploy, add dependencies, change credentials or configuration, add telemetry, spend, or expand monetization.",
+        "summary": "CTO review: approve containment-only execution. Preserve only the two already-queued, private, reversible scaffold repairs for complicated.work and deadlymaracas.com. No new proposals, change requests, requeues, deployments, telemetry, dependencies, spending, monetization changes, or public-launch changes. Continue existing measurement, failure repair-or-close, attribution/cost reconciliation, legal, security, and parked-site work using recorded evidence only. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; revenue, margin, ROI, payback, forecasts, and causal lift remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the revenue objective through existing affiliate-integrity and attribution-reconciliation work only. The reported $4.92 commission for 2026-09-21 remains aggregate and unattributed; site revenue, margin, ROI, payback, budget capacity, forecasts, and causal lift are unsupported. Do not dispatch new affiliate repairs or monetization changes until ownership, isolated validation, rollback, registered tracking-ID checks, and measurement evidence are recorded.",
+        "summary": "Continue only the two existing queued private readiness repairs. Verify assigned ownership before execution; do not dispatch or requeue if the required owner is unavailable. Capture available before/after repository artifacts, deterministic build and readiness-check results, explicit unknowns where checks are unavailable, preserved parked/private status, and scoped rollback evidence. Do not change DNS, credentials, analytics, consent, tracking, affiliate destinations, deployment, or launch state.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing delivery containment and failure-repair review without dispatch or requeue. Before any retry, require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
+        "summary": "Keep both existing readiness repairs narrowly scoped to repository corrections evidenced by each scaffold. Resolve and verify the execution-owner dependency before implementation; otherwise leave the request queued without requeue. Preserve parked/private disposition and unknown audience, traffic, revenue, attribution, compliance, and health fields. Record exact scoped files and validation outcomes; do not modify production configuration or launch state.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing launch-readiness evidence tasks and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing matching-period revenue, attribution, and cost reconciliation. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Retain all other SEO, UX, accessibility, performance, content, affiliate, monetization, and cross-site opportunities as deferred backlog. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:06:18.799Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T11:22:42.075Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production work, queue dispatch, requeues, telemetry, spending, monetization changes, and unsupported financial or causal claims. Continue only existing failure-repair, measurement, legal/security evidence, and matching-period attribution/cost reconciliation. Preserve aggregate commission as unattributed; keep private and parked gates unchanged. Permission outreach remains unsent pending human-counsel review and owner authorization.",
+        "summary": "Reject both queued readiness repairs for this cycle. Missing attribution, low-volume telemetry, unavailable operations/security evidence, and incomplete ownership/validation gates do not support production repository changes. Preserve both sites parked and private; retain the scopes as deferred backlog only. Continue existing reconciliation and containment without requeue, deployment, configuration, credential, DNS, consent, tracking, affiliate, or spending changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue repair-or-close and measurement review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence before any retry.",
+        "summary": "Do not execute or requeue the complicated.work or deadlymaracas.com readiness repairs. Execution-owner gaps, low-volume or absent telemetry, and incomplete release, security, rollback, and validation evidence block production work. Preserve parked/private status and explicit unknowns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve provider aggregate earnings as unattributed. Reconcile only existing matching-period revenue and recorded costs; do not infer site revenue, margin, ROI, payback, forecasts, budget capacity, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only launch-readiness evidence work. Keep the gated product private and permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Reject unsupported revenue, margin, ROI, payback, forecast, causal-lift, and production claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed. Continue only existing containment, measurement, failure-repair review, attribution/cost reconciliation, legal evidence, security evidence, and parked-site disposition work. Keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

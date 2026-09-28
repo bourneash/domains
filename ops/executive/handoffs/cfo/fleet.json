@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:06:18.798Z",
+  "generated_at": "2026-09-28T11:22:42.074Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the $4.92 aggregate commission for 2026-09-21 as unattributed and continue matching-period reconciliation. Missing cost categories, budget ceilings, commitments, and learning thresholds mean margin, ROI, payback, and budget capacity are not calculable.",
+        "summary": "Recommendation: maintain containment-only execution and approve no new spend, monetization, telemetry, requeues, or forecasts. Amazon reports $4.92 aggregate commission for 2026-09-21 under an unattributed aggregate row; named site rows show clicks but $0 attributed commission. AI spend is $916.91 from 2026-09-01 through 2026-09-28 across 39 instrumented sites, including $143.69 for 0daynews.com, $98.55 for americastrikes.com, and $66.06 for blackmarketapparel.com. Contribution margin, ROI, payback, budget exposure, and cost-to-learn are not calculable because matching-period infrastructure, domain, labor, marketing, experiment, commitment, budget-ceiling, and learning-threshold data are absent. Continue only existing reconciliation, measurement, repair-or-close, legal, security, and parked-site work. Retain the $4.92 as unattributed and reject revenue or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and create no new production, spending, monetization, telemetry, or requeue work this cycle. Amazon reports $4.92 commission for 2026-09-21, but it is aggregate under tracking_id 'other' and cannot support site-level revenue claims. Named site rows show clicks only and $0 attributed commission. AI spend is $916.91 for 2026-09-01 through 2026-09-28 across 39 instrumented sites, including $143.69 for 0daynews.com, $98.55 for americastrikes.com, and $66.06 for blackmarketapparel.com; infrastructure, domain, labor, marketing, experiment, commitments, and budget ceilings are not provided. Therefore contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable. Continue only the existing matching-period revenue, attribution, and cost reconciliation. Minimum evidence needed: provider-level revenue identifiers, complete matching-period cost ledger by site/fleet, budget ceilings and commitments, and an explicit learning threshold. Do not treat missing data as zero or use clicks, sessions, impressions, conversions, or AI calls as financial outcomes.",
+        "summary": "Continue the existing matching-period finance reconciliation only. Minimum measurement required for contribution margin and cost-to-learn: provider-level revenue identifiers by site/content and matching-period ledger entries for AI, infrastructure, domains, labor, marketing, experiments, commitments, and budgets, plus an explicit cost-to-learn threshold. Until then, SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions remain operating indicators, not financial outcomes; 36 improvements awaiting measurement and 3 proven outcomes do not support a portfolio forecast.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, margin, ROI, payback, forecast, and causal-lift claims. The 30-day scorecard records only 3 proven outcomes, while 36 improvements await measurement and 9 implementation requests failed. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue evidence. Preserve the $4.92 aggregate commission as unattributed until provider identifiers permit assignment. Continue existing reconciliation and report-only evidence work; retain all growth opportunities as deferred backlog.",
+        "summary": "The two already-queued private readiness repairs may continue only within their existing reversible scopes and without financial claims or new spend. Preserve parked/private status, record exact before/after artifacts and deterministic validation, and do not treat readiness-check results, traffic, conversions, or missing revenue data as evidence of contribution margin or payback.",
         "requested_action": null,
         "proposal_id": null
       }
