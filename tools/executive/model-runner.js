@@ -206,6 +206,7 @@ async function main() {
       const nextPlan = runner.parseOutput(output, {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
+        sanitize: true,
       });
       plan = mergeProviderPlan(nextPlan);
     } catch (error) {
@@ -222,6 +223,7 @@ async function main() {
       const nextPlan = runner.parseOutput(output, {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
+        sanitize: true,
       });
       plan = mergeProviderPlan(nextPlan);
     }
@@ -252,7 +254,9 @@ async function main() {
       true,
       transcript
     );
-    plan = mergeProviderPlan(runner.parseOutput(repairedOutput, { defaultActor: 'reviewer' }));
+    plan = mergeProviderPlan(
+      runner.parseOutput(repairedOutput, { defaultActor: 'reviewer', sanitize: true })
+    );
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -281,7 +285,9 @@ async function main() {
         true,
         transcript
       );
-      plan = mergeProviderPlan(runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo' }));
+      plan = mergeProviderPlan(
+        runner.parseOutput(finalRepairOutput, { defaultActor: 'ceo', sanitize: true })
+      );
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,

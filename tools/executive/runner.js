@@ -1950,7 +1950,20 @@ function validatePlan(plan) {
       throw new Error(
         `invalid change request in provider plan at index ${index} (missing=${missing.join(',')})`
       );
-    if (String(item.priority || 'medium') === 'high')
+    const normalizedPriority =
+      {
+        normal: 'medium',
+        critical: 'high',
+        urgent: 'high',
+      }[
+        String(item.priority || 'medium')
+          .trim()
+          .toLowerCase()
+      ] ||
+      String(item.priority || 'medium')
+        .trim()
+        .toLowerCase();
+    if (normalizedPriority === 'high')
       throw new Error('executive provider cannot queue high-priority work');
     if (EXECUTIVE_EXCLUDED_SITES.has(String(item.site).toLowerCase()))
       throw new Error('executive plan targets an excluded site');
@@ -3342,7 +3355,8 @@ async function runProvider(
           ...(model ? ['--model', model] : []),
           prompt,
         ];
-  const transient = /capacity|429|temporar|unavailable|timeout|timed out|502|503|504|authentication/i;
+  const transient =
+    /capacity|429|temporar|unavailable|timeout|timed out|502|503|504|authentication/i;
   const attempts = Math.max(1, Math.min(3, Number(process.env.EXECUTIVE_PROVIDER_RETRIES || 2)));
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const runOnce = () =>

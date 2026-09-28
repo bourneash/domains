@@ -1372,6 +1372,14 @@ test('stale source work ids do not abort otherwise valid queued work', async () 
       change_requests: [
         {
           site: 'example.com',
+          title: 'Unsafe urgent request',
+          body: 'This must remain out of the normal queue.',
+          category: 'engineering',
+          priority: 'urgent',
+          delivery_mode: 'report_only',
+        },
+        {
+          site: 'example.com',
           source_work_id: 'missing-work-item-from-an-old-run',
           title: 'Repair one measurable SEO path',
           body: 'Update the bounded SEO target and verify the build.',
@@ -1386,6 +1394,7 @@ test('stale source work ids do not abort otherwise valid queued work', async () 
     { allowQueue: true, root }
   );
   assert.equal(created.change_requests.length, 1);
+  assert.match(created.plan_sanitization[0].reason, /high-priority/);
   assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 1);
   store.close();
 });
