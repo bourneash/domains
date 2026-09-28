@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:21:53.276Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:52:19.603Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production, queue work, requeues, telemetry, spending, deployments, monetization changes, external outreach, and unsupported financial or causal claims. Preserve aggregate commission as unattributed and continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Material concerns: incomplete attribution and matching-period costs, low-volume measurement, unresolved ownership/validation/rollback gates, and unavailable operations/security sweeps.",
+        "summary": "Approve containment-only execution. Reject unsupported financial or causal claims, high-priority queue work, requeues, production changes, telemetry changes, spend, monetization changes, and outreach. Preserve aggregate commission as unattributed. Continue existing measurement, repair-or-close, legal/security evidence, parked-site verification, and finance reconciliation. Approve only the isolated medium-priority eastcoastrappers.com ownership-metadata repair because it is reversible, non-production, independently verifiable, and has a routing-validation metric.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing delivery containment. Do not dispatch or requeue other work until dated ownership, root cause, isolated validation, rollback, security, attribution, deduplication, and measurement evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       }

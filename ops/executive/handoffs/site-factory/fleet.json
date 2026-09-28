@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:21:53.274Z",
+  "generated_at": "2026-09-28T16:52:19.601Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only site-factory execution. The strongest validated launch candidate is driveford.net, a scaffold with a documented site-factory build opportunity, but its launch-readiness prerequisite and execution-owner evidence are incomplete. Preserve a bounded launch package covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and preview-only launch gate. Do not add domains, spend, deploy, launch, or claim telemetry. Exactly one next step: continue the existing driveford.net owner-gap verification and attach dated evidence of an assigned execution owner.",
+        "summary": "Recommendation: maintain containment-only site-factory execution and retain driveford.net as the strongest candidate. Launch package: site brief records scaffold lifecycle, existing site/ops capabilities, and no evidenced description, analytics, affiliate setup, traffic, revenue, or attribution; reusable template is limited to branded homepage structure, navigation, legal surfaces, consent-safe measurement hooks, and rollbackable preview assets; content seed remains draft-only pending owner review; SEO baseline and affiliate readiness remain unknown until evidenced. Compliance, legal, security, measurement, owner, validation, and rollback gates are mandatory. Keep the site preview-only: do not add domains, spend, deploy, publish, configure credentials, or launch. Exactly one next step: continue the existing driveford.net execution-owner verification and attach dated evidence of an assigned owner, then re-evaluate the launch-readiness gate.",
         "requested_action": null,
         "proposal_id": null
       }

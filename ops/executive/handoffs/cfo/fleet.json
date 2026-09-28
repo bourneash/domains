@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:21:53.275Z",
+  "generated_at": "2026-09-28T16:52:19.602Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned finance reconciliation. Amazon reports $4.92 aggregate commission on 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; the $4.92 cannot be assigned to a site because it is in Amazon's aggregate tracking row. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget capacity, ROI, and forecasts are unknown: matching-period infrastructure, labor, domain, marketing, commitment, budget-ceiling, and learning-threshold records are absent. The $916.91 AI cost for 2026-09-01 through 2026-09-28 is measurable, but cannot support payback or site profitability without period-aligned attributable revenue and complete costs. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are vanity/operating indicators, not financial outcomes. Minimum finance artifact: reconcile all 18 named tracking rows plus the aggregate row to site/content revenue identifiers, matching-period AI and infrastructure costs, other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Do not create production work, requeue, spend, change monetization, or claim revenue, margin, ROI, payback, budget capacity, forecast, or causal lift.",
+        "summary": "Recommendation: maintain containment-only financial execution. Preserve the $4.92 Amazon commission reported for 2026-09-21 as aggregate and unattributed; do not claim site revenue, contribution margin, ROI, payback, budget capacity, forecast, or causal lift. AI usage cost is $916.9145 for 2026-09-01 through 2026-09-28 across 5,009 calls, but matching revenue, infrastructure, labor, domain, marketing, commitments, and budget data are unavailable, so AI payback and portfolio margin are not calculable. The 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial outcomes. Continue only the existing period-aligned reconciliation and measurement containment; do not spend, requeue, deploy, add telemetry, or change monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Preserve the $4.92 Amazon aggregate commission for 2026-09-21 as unattributed. Do not treat missing costs, budgets, commitments, or learning thresholds as zero; report contribution margin, cost-to-learn, AI payback, infrastructure burden, and budget exposure as unknown until the minimum reconciliation artifact exists.",
+        "summary": "Continue the existing finance work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile all 18 named provider tracking rows and the aggregate provider row against matching-period revenue and costs. Record ordered items, shipped items, commission, AI cost, infrastructure cost, other operating costs, commitments, budget ceilings, and the approved learning threshold. Missing values remain unknown, not zero. Minimum finance artifact: a dated reconciliation showing the $4.92 aggregate commission, 6 shipped items, 28 ordered items, 6,219 clicks, zero attributed income, and explicit period mismatches or missing cost fields.",
         "requested_action": null,
         "proposal_id": null
       }

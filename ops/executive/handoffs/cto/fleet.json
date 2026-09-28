@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:21:53.275Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:52:19.602Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new production work, queue work, requeues, telemetry, dependencies, deployments, spending, monetization changes, or external outreach are technically supportable this cycle. Continue only existing measurement, repair-or-close, parked-site verification, legal/security evidence, and period-aligned attribution/cost reconciliation. Preserve aggregate commission as unattributed and keep unsupported revenue, margin, ROI, payback, forecast, and causal-lift claims unknown. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded.",
+        "summary": "Recommendation: maintain containment-only execution for the managed websites portfolio this cycle. Continue existing measurement, repair-or-close, parked-site verification, security evidence, and attribution reconciliation. Do not create or requeue production work, add telemetry, deploy, spend, change monetization, or claim unsupported financial or causal outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve exactly one bounded ownership-metadata repair for the existing eastcoastrappers.com task. It is technically feasible, isolated from site code and production behavior, immediately verifiable, and reversible. Do not broaden it into site implementation, telemetry, deployment, credentials, dependencies, or external behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve all other design, UX, affiliate, site-factory, CRO, launch, and monetization scopes as deferred or existing-work continuations. Reconsider queue entry only after ownership, root cause, isolated validation, release, security, attribution, deduplication, measurement, and rollback evidence clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing finance reconciliation boundary. Preserve provider aggregate earnings as unattributed and keep missing matching-period revenue, cost, commitment, budget, and learning-threshold fields unknown. Do not infer site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
