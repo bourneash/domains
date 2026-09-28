@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:36:28.051Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:07:31.787Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject all new production work, queue work, requeues, telemetry, spending, monetization changes, external outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site verification, and attribution reconciliation. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
+        "summary": "Approve containment-only execution. Reject unsupported financial, causal-lift, production, queue, requeue, spending, telemetry, dependency, deployment, monetization, and outreach actions. Continue only existing measurement, attribution reconciliation, repair-or-close, legal/security evidence, and parked-site verification. Material concern: the $4.92 commission for 2026-09-21 is aggregate and unattributed; matching-period costs, budgets, ownership, validation, rollback, and security evidence remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: attribution, matching-period costs, ownership, validation, rollback, security, and measurement evidence remain incomplete. Do not treat missing telemetry or costs as zero, and do not convert deferred opportunities or existing evidence tasks into new production work.",
+        "summary": "Continue existing delivery containment only. Do not dispatch or requeue work. Attach dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence before rechecking eligibility.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation. Preserve aggregate provider earnings as unattributed and report missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Keep permission outreach unsent pending human-counsel review and owner authorization; make no production, tracking, credential, configuration, monetization, or launch-state changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:36:28.050Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:07:31.786Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned reconciliation. Amazon reports $4.92 commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; the income is in aggregate tracking_id=other and cannot support site revenue claims. AI spend is $916.914544 for 2026-09-01 through 2026-09-28 across 5,009 calls and 39 instrumented sites, but matching-period infrastructure, labor, domain, marketing, commitments, and budget costs are unavailable. Contribution margin, cost-to-learn, payback, ROI, budget exposure, forecasts, and causal lift are therefore not calculable. Do not treat missing data as zero or use 14,410 impressions, 146 clicks, 1,002 sessions, 15 conversions, or 3 proven outcomes as financial evidence. Minimum finance artifact: reconcile provider/site/content identifiers, revenue, AI and infrastructure costs, other operating costs, commitments, budget ceilings, and an approved learning threshold for the same period. No new proposals, change requests, requeues, deployments, telemetry, spending, or monetization changes.",
+        "summary": "CFO recommendation: maintain containment-only execution and make no new financial or production commitments. Revenue support is insufficient: Amazon reports $4.92 commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; the $4.92 is in one aggregate row and cannot be assigned to a site. Contribution margin, ROI, payback, forecast, and cost-to-learn are not calculable because matching-period infrastructure, labor, domain, marketing, commitment, and budget records are missing. AI spend is known for 2026-09-01 through 2026-09-28: $916.914544 across 5,009 calls, including 228 errors and 5 transient errors, but no revenue-linked payback or allocation basis is established. Monthly spend limits, fixed costs, marketing budget, and revenue floor are blank, so budget exposure is unknown rather than zero. Continue only the existing period-aligned reconciliation, preserving aggregate earnings as unattributed; do not create proposals, change requests, experiments, telemetry, deployments, spend, requeues, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Known finance boundaries: site-level revenue is unsupported because Amazon supplied one unattributed aggregate income row; contribution margin is not calculable because matching-period operating and infrastructure costs are missing; cost-to-learn is not calculable because no approved learning threshold or complete incremental-cost ledger exists; budget exposure is not calculable because monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Retain the $4.92 as unattributed and preserve all unavailable financial fields as unknown.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Minimum finance artifact: reconcile all 18 named provider tracking rows and the aggregate row against matching-period site/content revenue, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Until those fields exist, report contribution margin, cost-to-learn, AI payback, infrastructure burden, and budget capacity as unknown; do not treat missing data as zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject vanity-metric financial claims. The 30-day scorecard has 3 proven outcomes and 36 improvements awaiting measurement; SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or margin evidence. No forecast or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }
