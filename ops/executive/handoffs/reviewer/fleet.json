@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:47:43.243Z",
+  "generated_at": "2026-09-28T21:51:35.938Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: no new production queue work is approved this cycle. The three highest-confidence candidates remain blocked by missing verified execution-owner and launch-readiness evidence; preserve parked/private status. Continue existing measurement, finance reconciliation, failure repair-or-close, and legal/security evidence work only. Aggregate commission remains unattributed; financial performance and causal lift are unknown.",
+        "summary": "Independent review rejects new queue, requeue, production, spending, telemetry, dependency, deployment, monetization, and outreach actions. The three highest-confidence candidates remain blocked by missing execution ownership and launch-readiness evidence; other candidates are blocked by active queued, review, deployed, or measuring work. Continue only existing measurement, repair-or-close, finance reconciliation, and legal/security evidence work. Preserve unknown attribution, costs, revenue, and lift as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
