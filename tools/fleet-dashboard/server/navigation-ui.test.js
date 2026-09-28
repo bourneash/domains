@@ -45,6 +45,7 @@ test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').view, 'agent');
   assert.equal(routeFor('#agents/executive').agent, 'executive');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /Executive Leadership/);
   assert.match(app, /Fleet Executive Office/);
   assert.match(app, /CEO, CTO, CRO, CFO/);
@@ -56,6 +57,8 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /id="ex-risk" class="cm-input"/);
   assert.match(app, /Low — conservative/);
   assert.match(app, /class="ex-operating-modes"/);
+  assert.match(style, /body\[data-view="agent"\] main:has\(\.ex-shell\) \{ max-width: none; \}/);
+  assert.match(style, /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/);
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
   assert.match(app, /apiOptional\('GET', '\/api\/cases\?limit=300'/);
