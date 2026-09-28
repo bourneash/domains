@@ -13,6 +13,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export EXECUTIVE_DOMAIN="$1"
 export EXECUTIVE_PASSES="domain-manager"
 export EXECUTIVE_ALLOW_QUEUE="${EXECUTIVE_ALLOW_QUEUE:-0}"
+export EXECUTIVE_SCOPE=domain-manager
 LOCK_SITE="$(printf '%s' "$1" | tr -c 'A-Za-z0-9_.-' '-')"
 export EXECUTIVE_LOCK_FILE="/tmp/domains-executive-domain-${LOCK_SITE}.lock"
 export EXECUTIVE_CONTAINER_NAME="executive-domain-${LOCK_SITE}"

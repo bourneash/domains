@@ -10,7 +10,7 @@ const MEASURED_IMPROVEMENTS = new Set(['proven', 'regressed', 'inconclusive']);
 
 function countBy(rows, key) {
   return rows.reduce((counts, row) => {
-    const value = String(row[key] || 'unknown');
+    const value = String((typeof key === 'function' ? key(row) : row[key]) || 'unknown');
     counts[value] = (counts[value] || 0) + 1;
     return counts;
   }, {});
@@ -48,6 +48,10 @@ function tickFollowThroughCount(row) {
   return (
     Number(created.work_items || 0) + Number(created.research || 0) + Number(created.proposals || 0)
   );
+}
+
+function tickScope(row) {
+  return String(row?.result?.scope || 'fleet').trim() || 'fleet';
 }
 
 // Make CEO accountability measurable without treating a deliberately disabled
@@ -212,6 +216,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const ticksWithQueueWorkWhenEligible = queueEligibleTicks.filter(
     row => queueCountForTick(row) > 0
   );
+  const tickScopes = countBy(ticks, row => tickScope(row));
   // Older tick rows did not persist allowQueue. Keep their historical metric
   // comparable, but once the field exists, do not score deliberate dry runs as
   // CEO no-ops. The dashboard now reports both views so audit history remains
@@ -268,6 +273,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : ticksWithQueueWork.length,
       queued_actions_created: ticks.reduce((sum, row) => sum + queueCountForTick(row), 0),
       ticks_with_proposals: ticksWithProposals.length,
+      scopes: tickScopes,
+      fleet_ticks: ticks.filter(row => tickScope(row) === 'fleet').length,
+      domain_manager_ticks: ticks.filter(row => tickScope(row) === 'domain-manager').length,
       actionability_rate_percent: actionabilityRate,
       all_ticks_actionability_rate_percent: allTicksActionabilityRate,
     },
@@ -294,8 +302,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       requests_by_status: countBy(requests, 'status'),
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
-      owner_requests_pending: ownerRequests.filter(row =>
-        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      owner_requests_pending: ownerRequests.filter(
+        row =>
+          !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
       ).length,
       owner_requests_stale: staleOwnerRequests.length,
       failure_followups_open: failureFollowups.length,
@@ -351,8 +360,9 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     ],
     proposal_execution: proposalExecution,
     owner_requests: {
-      pending: ownerRequests.filter(row =>
-        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      pending: ownerRequests.filter(
+        row =>
+          !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
       ).length,
       stale: staleOwnerRequests.map(item => ({
         work_id: item.work_id,
