@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.920Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:51:56.418Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the existing eastcoastrappers.com metadata-only routing repair. Require dated ownership evidence, deterministic routing validation, duplicate-task verification, rollback evidence, and an audit confirming no site behavior, credentials, telemetry, dependencies, deployment, spend, or external destinations changed. Reject new launches, requeues, CRO adoption, monetization changes, telemetry, dependencies, spending, and outreach this cycle. Continue existing measurement, failure repair-or-close, finance reconciliation, and legal/security evidence work.",
+        "summary": "Approve containment-only execution. Continue only the existing finance reconciliation, failure repair-or-close review, measurement, legal/security evidence, and parked-site ownership verification. Do not create or requeue production work, experiments, telemetry, dependencies, deployments, spending, monetization changes, or outreach. Preserve aggregate affiliate revenue as unattributed and unavailable values as unknown. Queue entry is not supported until ownership, root cause, isolation, validation, rollback, deduplication, security, attribution, and measurement evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete only the existing eastcoastrappers.com task-routing repair. Record the assigned owner, deterministic test results, duplicate-task count, rollback point, and confirmation that site behavior and external state were unchanged. Do not create or requeue unrelated work.",
+        "summary": "The site-factory candidates remain technically feasible as preview work but are not safe for queue entry. Preserve scaffold and launch candidates as parked, private, and preview-only while continuing existing ownership and launch-readiness evidence. Do not install roles, alter DNS, configure analytics, add credentials, deploy, publish, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked and private. Update only the existing owner-gap records with dated ownership and launch-readiness evidence. Do not deploy, publish, change DNS, configure analytics, monetize, spend, or create duplicate requests.",
+        "summary": "Retain repository and CRO opportunities as deferred research backlog. Lab signals do not establish production fit, security clearance, dependency approval, measurement readiness, or revenue impact. No prototype dispatch, dependency installation, adoption, deployment, or new telemetry is authorized during containment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the aggregate commission as unattributed and retain missing costs, budgets, commitments, identifiers, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecasts, budget capacity, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only launch-readiness evidence bundle and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, monetization, or production.",
+        "summary": "Continue existing failure repair-or-close and measurement work without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurement evidence before any future retry.",
         "requested_action": null,
         "proposal_id": null
       }

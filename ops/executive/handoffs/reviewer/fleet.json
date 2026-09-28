@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:48:35.301Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:51:56.419Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject unsupported revenue, ROI, margin, causal-lift, production, spending, credential, deployment, telemetry, and outreach actions. The three available implementation candidates are blocked by missing verified launch-readiness and execution-owner evidence, so none is defensibly queueable. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site verification, and failure repair-or-close work. Preserve aggregate commission as unattributed and treat missing costs, budgets, attribution, and lift as unknown.",
+        "summary": "Approve containment-only execution. Continue existing finance reconciliation, measurement, failure repair-or-close, legal/security evidence, and parked-site ownership verification. Reject new production work, queue entries, requeues, telemetry, dependencies, deployments, spending, monetization changes, outreach, and unsupported financial or causal claims. Preserve aggregate commission as unattributed and all missing values as unknown. Keep private launch gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: revenue covers one provider period and includes an unattributed aggregate row; matching-period costs, budgets, margin, ROI, payback, and causal lift are not evidenced. Security and operations sweeps are unavailable, while many improvements and requests await measurement or repair. Continue only existing bounded read-only work; keep rights-dependent outreach unsent pending human-counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. No defensible implementation candidate is currently unblocked: site-factory candidates lack verified launch-readiness and execution-owner evidence; other candidates are blocked by active measurement, queued work, failed-request repair, security, attribution, or ownership gates. Reject new production work, high-priority queue work, requeues, telemetry, spending, dependencies, deployments, monetization changes, and outreach. Continue only existing finance reconciliation, legal/security evidence, measurement, failure repair-or-close, and parked-site ownership verification. Preserve aggregate commission as unattributed and unavailable values as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

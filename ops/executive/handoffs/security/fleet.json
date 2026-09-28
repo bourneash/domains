@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.920Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:51:56.418Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed fleet-wide. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. No incident or exploitation is evidenced. Compliance is technical-only at 37 pass, 16 fail, and 6 unknown; no certificates are reported expiring within 30 days, which does not establish complete TLS safety. Exact decision: block public exposure and security-sensitive releases; allow only reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior; continue the existing read-only evidence matrix without duplicate telemetry, credential access, private-container access, permission changes, deployment, exploitation, or outreach.",
+        "summary": "Disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for ordinary bounded reversible growth. Risk severity is high for public exposure or security-sensitive releases and medium for bounded growth. Evidence: security fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication/access boundaries, secrets handling, container isolation, release/deployment controls, dependency and supply-chain provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. No incident or exploitation is evidenced. Compliance is technical-only at 37 pass, 16 fail, and 6 unknown. No certificates are reported expiring within 30 days, but this does not establish complete TLS safety. Data quality is yellow for analytics source permissions or collector errors; unavailable telemetry must remain unknown, not zero. Exact decision: preserve private launch gates and block security-sensitive releases; permit only reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Continue the existing read-only security evidence matrix only; do not access credentials or private containers, alter permissions or configuration, deploy, exploit targets, add dependencies, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence work only. Record dated, redacted evidence and explicit unknowns for access boundaries, secrets exposure, runtime isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Do not create duplicate proposals, queue new work, requeue failures, retrieve credentials, access private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix and preserve private launch gates. Public exposure and security-sensitive releases remain blocked while material controls are unevidenced. Do not access credentials, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

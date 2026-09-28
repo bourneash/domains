@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.919Z",
+  "generated_at": "2026-09-28T20:51:56.419Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a three-site bounded pipeline: complicated.work, deadlymaracas.com, and driveford.net. Each remains parked/private pending verified execution ownership and launch-readiness evidence. The reusable readiness packet must define the site brief, template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, measurement plan, rollback point, and preview-only launch gate without adding telemetry or inventing unknowns. Exactly one next step: update the existing complicated.work owner-gap with dated execution-owner verification and its launch-readiness packet. Do not deploy, publish, change DNS, configure analytics, monetize, spend, or create duplicate work.",
+        "summary": "Continue existing parked-site ownership and launch-readiness verification only. Scaffold candidates remain parked, private, and preview-only because execution-owner and launch-readiness evidence is incomplete. Do not install roles, change DNS, configure analytics, add credentials, deploy, publish, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       }
