@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:37:03.374Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:51:41.125Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, queue actions, requeues, experiments, telemetry, spending, deployments, monetization changes, and unsupported financial or causal claims. Continue only existing reconciliation, repair-or-close, legal, security, measurement, and owner-disposition work using recorded evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: the $4.92 commission is a single-period unattributed aggregate; revenue and cost periods do not align, budget ceilings and cost-to-learn limits are absent, and operations/security evidence is incomplete. Preserve revenue, margin, ROI, payback, readiness, and causal outcomes as unknown. Keep external permission outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work. Attach audited URLs, disclosure placement, product-link destinations, accessibility evidence, and ready/blocked/unknown classifications to the existing packet. Do not alter production, tracking, affiliate links, configuration, or launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair, reconciliation, legal, security, and measurement work. Record dated ownership, root cause, isolated validation, rollback, release, deduplication, attribution, and measurement evidence before any requeue or new implementation dispatch.",
+        "summary": "Approve containment-only execution. Reject all new production work, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and unsupported revenue or causal claims. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed, keep private launch gates and parked dispositions unchanged, and keep external permission outreach unsent pending human-counsel review. Owner concern: attribution and cost periods are incomplete, operations/security evidence is unavailable, and material work remains awaiting measurement or failure repair.",
         "requested_action": null,
         "proposal_id": null
       }

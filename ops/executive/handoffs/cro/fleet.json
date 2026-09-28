@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:21:57.569Z",
+  "generated_at": "2026-09-28T07:51:41.123Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the strongest reversible opportunities with their evidence, license and security caveats, expected metrics, learning windows, and rollback notes for reconsideration after dated ownership, root-cause, isolated validation, release, security, attribution, and measurement gates clear. No implementation approval or deployment follows from this handoff.",
+        "summary": "Handoff: preserve CRO opportunities as deferred backlog only. Do not create proposals, change requests, experiments, telemetry, deployments, spend, credentials, domains, or monetization changes this cycle. Evidence-backed opportunities: 0xroulette.com performance remediation (mobile performance 63, LCP 3021ms, TBT 3753ms); marineactivity.com AIS-status guide expansion (332 impressions, position 8.2, 3 clicks); and a fleet content-ingestion prototype using microsoft/markitdown (MIT; 8/8 bounded checks passed) to convert source documents into reviewable Markdown for SEO workflows. Product UX opportunity: shadcn/ui (MIT; 3/3 bounded checks passed) for accessible, reusable CTA and disclosure components. Mermaid (MIT; supported use case, no native checks available) may support explainers and comparison content. These are discovery signals, not adoption approval. Risks: repository maintenance, dependency and supply-chain review, license notices, security review, and no demonstrated conversion or revenue lift. Expected metrics are target-page impressions/clicks, Core Web Vitals, CTA interaction, affiliate outbound clicks, and attributable conversions using existing telemetry only; financial outcomes remain unknown. Smallest reversible prototypes: static preview of one performance fix, one target-page content expansion, one offline document-to-Markdown fixture, and one isolated accessible CTA component. Time-to-learn: 14 days or 100 new impressions after gates clear; offline prototypes can be evaluated in one review cycle. Reconsider only after ownership, failure repair, isolated validation, rollback, release, security, attribution, and measurement evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:37:03.373Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:51:41.124Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: no queue-eligible candidates, 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven; revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable. Margin, ROI, payback, and causal lift remain unknown. Continue existing repair, measurement, legal, security, and attribution work. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Preserve existing repair, measurement, attribution, legal, and security work; create no new production requests or requeues. Evidence: 36 improvements await measurement, 9 requests failed, operations/security sweeps are unavailable, and revenue is limited to $4.92 aggregate commission for 2026-09-21, not site-attributable. Margin, ROI, payback, and causal lift are unknown. Smallest next step: delivery-lead records dated ownership, root cause, validation, rollback, deduplication, release, security, attribution, and measurement evidence by 2026-09-28T17:00:00Z. Owner decision: keep the prepared Woot permission request unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve the allthingsmasonic.com inspection as evidence-only work. Attach audited URLs, disclosure placement, product-link destinations, accessibility evidence, and ready/blocked/unknown classifications to the existing packet. Do not alter production, tracking, affiliate links, or launch state.",
+        "summary": "Handoff: continue existing delivery containment and failure-repair review. Preserve CRO opportunities as deferred backlog only; reconsider after ownership, validation, rollback, release, security, attribution, and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: record dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence for existing work by 2026-09-28T17:00:00Z. Do not dispatch or requeue new implementation before those gates clear.",
+        "summary": "Handoff: continue the existing period-aligned reconciliation. Preserve the $4.92 aggregate provider row as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: preserve private launch gates and continue the existing bounded security evidence matrix using authorized metadata only. No credentials, permission changes, dependencies, deployments, or outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: retain the existing SearchWoot legal evidence work. Keep the product private and permission outreach unsent; all four checklist tasks remain open and human-counsel review is required for rights, privacy, and future monetization.",
         "requested_action": null,
         "proposal_id": null
       }

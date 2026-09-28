@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:37:03.374Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:51:41.124Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed two new implementation requests because ownership, failure-repair, isolated validation, release, security, attribution, rollback, deduplication, and measurement gates remain incomplete. Preserve revenue, SEO, UX, affiliate, and site-factory objectives as deferred backlog. Continue only existing repair-or-close, measurement, attribution, legal, security, and reconciliation work using recorded telemetry.",
+        "summary": "Approve containment-only execution. Preserve evidence-backed SEO, performance, UX, accessibility, affiliate, and content opportunities as deferred backlog. Do not create proposals, change requests, experiments, telemetry, deployments, requeues, dependencies, spend, credentials, domains, or monetization changes this cycle. Existing work remains blocked by open failure repair, measurement, ownership, validation, rollback, deduplication, release, security, and attribution gates. Use existing recorded telemetry only; do not claim revenue, ROI, margin, payback, cost-to-learn, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the completed allthingsmasonic.com inspection as evidence-only work. Attach audited URLs, disclosure placement, product-link destinations, accessibility evidence, and ready/blocked/unknown classifications to the existing packet. Do not alter production, tracking, affiliate links, or launch state.",
+        "summary": "Continue existing delivery containment and repair-or-close work. Require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any dispatch or requeue. Preserve current private launch gates and parked dispositions. Continue only the existing finance reconciliation and bounded legal/security evidence work; keep external permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and failure-repair review. Require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any dispatch or requeue.",
+        "summary": "Repository-lab findings remain discovery evidence, not adoption approval. Do not add markitdown, shadcn/ui, Mermaid, or other dependencies or platform components. Any future adoption requires a disposable prototype, security and license review, owner-approved implementation, isolated validation, rollback, and an existing measurable outcome.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 provider aggregate as unattributed; do not infer site revenue, margin, ROI, payback, cost-to-learn, budget capacity, or causal lift.",
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from clicks, orders, shipped items, sessions, conversions, AI usage, or output counts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases until evidence is complete. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
