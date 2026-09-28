@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:50:55.258Z",
+  "generated_at": "2026-09-28T03:52:16.786Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue and production work this cycle. No implementation candidate is safely queueable: queue eligibility is false, existing failure-repair and measurement work remains open, operations and security sweeps are unavailable, attribution is incomplete, and financial outcomes remain unknown. Continue only existing repair-or-close, attribution reconciliation, legal evidence, security evidence, and measurement work. Retain reversible site-factory and SEO opportunities as deferred backlog; do not deploy, requeue, add telemetry, change credentials or configuration, spend, or expand monetization.",
+        "summary": "Independent review: no new implementation work is approved this cycle. The available candidates are report-only or blocked by active queue, measurement, failure-repair, ownership, release, security, or attribution gates. Revenue, ROI, margin, payback, and causal lift remain unsupported; preserve existing reconciliation and evidence work, keep deferred candidates unqueued, and do not create telemetry, spend, deployments, requeues, credential/configuration changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
