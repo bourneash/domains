@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:12:35.685Z",
+  "generated_at": "2026-09-28T21:18:35.499Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: maintain containment-only execution. Reject all new queue work, requeues, production changes, spending, credential/configuration changes, deployments, monetization changes, and unsupported financial or causal claims this cycle. Available factory candidates are blocked by missing execution-owner and launch-readiness evidence; other candidates are blocked by active work or measurement windows. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site ownership verification, and repair-or-close work. Preserve aggregate commission as unattributed and keep missing costs, margin, ROI, forecasts, and lift unknown.",
+        "summary": "Independent review: reject all new production queue work this cycle. The three available candidates are explicitly blocked: complicated.work, deadlymaracas.com, and driveford.net lack verified execution-owner and launch-readiness evidence. Existing containment, measurement, finance reconciliation, failure repair-or-close, and legal/security evidence work may continue. Do not claim revenue, ROI, margin, payback, causal lift, or site-level financial performance; preserve aggregate commission as unattributed and unavailable telemetry as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
