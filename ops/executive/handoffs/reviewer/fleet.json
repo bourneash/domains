@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:07:22.884Z",
+  "generated_at": "2026-09-28T07:21:57.571Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new production work, requeues, experiments, telemetry, spending, monetization changes, and unsupported financial or causal claims. Continue only existing repair-or-close, measurement, attribution, reconciliation, legal, and security evidence work. Preserve aggregate commission as unattributed and keep private launch gates unchanged. Owner concern: attribution, cost periods, budget ceilings, operations, and security evidence remain incomplete.",
+        "summary": "Reject all three proposed preview change requests this cycle. Existing measurement, failure-repair, ownership, release, security, attribution, rollback, and deduplication gates remain incomplete. Preserve the specifications as deferred backlog; do not dispatch, requeue, deploy, add telemetry, spend, or change monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing bounded read-only security evidence capture using authorized metadata and retained artifacts only. Do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Continue only existing repair-or-close, measurement, attribution, legal, and security evidence work using recorded telemetry. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed; revenue, ROI, margin, payback, causal lift, and budget capacity remain unknown. Keep external permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment, failure repair-or-close, measurement, attribution, legal, and financial reconciliation work. Do not create duplicate work or requeue items before ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence are complete.",
+        "summary": "Owner concern: 36 improvements await measurement, 9 requests failed, only 3 outcomes are proven, and operations/security evidence remains unavailable. The smallest defensible plan is containment plus one bounded public-surface inspection; no production work follows from it.",
         "requested_action": null,
         "proposal_id": null
       }

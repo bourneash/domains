@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T06:52:10.760Z",
+  "generated_at": "2026-09-28T07:21:57.569Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain the deferred opportunities until dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement gates are documented. Preserve aggregate affiliate earnings as unattributed and use existing telemetry only.",
+        "summary": "Retain the strongest reversible opportunities with their evidence, license and security caveats, expected metrics, learning windows, and rollback notes for reconsideration after dated ownership, root-cause, isolated validation, release, security, attribution, and measurement gates clear. No implementation approval or deployment follows from this handoff.",
         "requested_action": null,
         "proposal_id": null
       }

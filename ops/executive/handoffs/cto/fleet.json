@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T07:07:22.883Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T07:21:57.571Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution this cycle. No new proposals, change requests, experiments, telemetry, deployments, spend, monetization changes, or requeues are queue-eligible. Continue only existing repair-or-close, measurement, attribution, legal, security, reconciliation, and failure-containment work. Preserve deferred opportunities until ownership, isolation, validation, rollback, deduplication, release, security, attribution, and measurement evidence are complete. Do not infer revenue, ROI, margin, payback, cost-to-learn, or causal lift.",
+        "summary": "Approve containment-only execution. Reject the three proposed preview change requests this cycle because existing measurement, failure-repair, ownership, release, security, attribution, rollback, and deduplication gates remain incomplete. Preserve their technical specifications as deferred backlog; do not dispatch, requeue, deploy, add telemetry, dependencies, credentials, destinations, or spend. Continue existing repair-or-close, measurement, attribution, legal, and security evidence work using recorded telemetry only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing delivery containment and record dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence by the existing deadline. Do not dispatch or requeue new implementation work before those gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue existing launch-readiness evidence work and keep the gated product private. Keep external permission outreach unsent pending human-counsel review and owner authorization; do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete periods or activity counts.",
+        "summary": "Retain the existing financial reconciliation, launch-readiness evidence, security evidence, and failure repair-or-close work items. Preserve aggregate provider commission as unattributed and treat revenue, ROI, margin, payback, cost-to-learn, budget capacity, and causal lift as unknown. Keep private launch gates and parked dispositions unchanged; keep external permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
