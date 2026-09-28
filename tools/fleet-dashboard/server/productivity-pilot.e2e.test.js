@@ -40,6 +40,8 @@ function request(server, method, pathname, body) {
 
 test('productivity pilot API creates baseline and evaluates treatment output', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-productivity-api-'));
+  fs.mkdirSync(path.join(root, 'sites', 'treatment.example', 'ops'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'sites', 'control.example', 'ops'), { recursive: true });
   const server = createApp({ root }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   t.after(() => new Promise(resolve => server.close(resolve)));

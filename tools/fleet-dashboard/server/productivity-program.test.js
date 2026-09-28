@@ -152,6 +152,25 @@ test('private-preview policy blocks growth work but permits design work', () => 
   );
 });
 
+test('pilot cohort validation rejects excluded, unknown, and overlapping sites', () => {
+  const invalid = productivity.validatePilotCohorts(
+    {
+      treatment_sites: ['3BOOBS.com', 'known.example'],
+      control_sites: ['known.example', 'missing.example'],
+    },
+    { known_sites: ['3boobs.com', 'known.example'] }
+  );
+  assert.equal(invalid.valid, false);
+  assert.match(invalid.errors.join(' '), /excluded site/);
+  assert.match(invalid.errors.join(' '), /overlap/);
+  assert.match(invalid.errors.join(' '), /unknown site/);
+  const valid = productivity.validatePilotCohorts(
+    { treatment_sites: ['known.example'], control_sites: ['other.example'] },
+    { known_sites: ['known.example', 'other.example'] }
+  );
+  assert.equal(valid.valid, true);
+});
+
 test('queue readiness excludes sites with active requests or improvement windows', () => {
   const db = fixture();
   db.createChangeRequest({

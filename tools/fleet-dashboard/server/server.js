@@ -3622,6 +3622,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   );
   app.post('/api/productivity/pilots', (req, res) => {
     try {
+      const cohortCheck = productivityProgram.validatePilotCohorts(req.body || {});
+      if (!cohortCheck.valid) {
+        const error = new Error(cohortCheck.errors.join('; '));
+        error.httpStatus = 400;
+        throw error;
+      }
       const pilot = events.createProductivityPilot({
         ...(req.body || {}),
         created_by: req.platformActor?.actor_id || 'owner',

@@ -8,6 +8,7 @@
 const LANES = Object.freeze(['finish-sites', 'growth-revenue', 'site-factory']);
 const COMPLETED_REQUEST_STATUSES = new Set(['deployed', 'verified', 'completed', 'done']);
 const COMPLETED_WORK_STATUSES = new Set(['done', 'completed', 'resolved']);
+const DEFAULT_EXCLUDED_SITES = Object.freeze(['3boobs.com']);
 
 function normalizeSites(value) {
   return [
@@ -17,6 +18,34 @@ function normalizeSites(value) {
         .filter(Boolean)
     ),
   ];
+}
+
+function validatePilotCohorts(
+  { treatment_sites = [], control_sites = [] } = {},
+  { excluded_sites = DEFAULT_EXCLUDED_SITES, known_sites = null } = {}
+) {
+  const treatment = normalizeSites(treatment_sites);
+  const control = normalizeSites(control_sites);
+  const excluded = new Set(normalizeSites(excluded_sites));
+  const known = known_sites === null ? null : new Set(normalizeSites(known_sites));
+  const errors = [];
+  if (!treatment.length || !control.length) errors.push('pilot requires treatment and control sites');
+  const overlap = treatment.filter(site => control.includes(site));
+  if (overlap.length) errors.push(`pilot cohorts overlap: ${overlap.join(', ')}`);
+  const excludedInCohort = [...new Set([...treatment, ...control].filter(site => excluded.has(site)))];
+  if (excludedInCohort.length)
+    errors.push(`pilot cohort includes excluded site(s): ${excludedInCohort.join(', ')}`);
+  if (known) {
+    const unknown = [...new Set([...treatment, ...control].filter(site => !known.has(site)))];
+    if (unknown.length) errors.push(`pilot cohort includes unknown site(s): ${unknown.join(', ')}`);
+  }
+  return {
+    valid: errors.length === 0,
+    errors,
+    treatment_sites: treatment,
+    control_sites: control,
+    excluded_sites: [...excluded],
+  };
 }
 
 function inWindow(value, from, to) {
@@ -346,6 +375,7 @@ module.exports = {
   laneFor,
   treatmentBatch,
   siteCategoryEligibility,
+  validatePilotCohorts,
   queueReadiness,
   recordPilotMeasurement,
 };
