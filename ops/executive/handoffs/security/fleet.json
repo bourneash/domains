@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-28T01:17:16.667Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:05:36.121Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for fleet-wide clearance; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Fleet-doctor has no run or control results, operations deploy-health/uptime/error sweeps have no results, and all 59 security sitefacts are unknown. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS completeness, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced; retained implementation failures are containment signals only. Exact decision: preserve private launch gates, permit only bounded reversible work within existing consent, disclosure, provenance, claims, and data boundaries, and continue the existing read-only evidence matrix without credentials, permission changes, dependencies, deployment, exploitation, or outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not create duplicate work, retrieve credentials, access private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Disposition: evidence_needed for fleet-wide security clearance; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Fleet-doctor and operations sweeps have no results, and all 59 security sitefacts are unknown. Preserve private launch gates and continue bounded read-only evidence work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed security disposition and private launch gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and all 59 security sitefacts are unknown. Preserve private launch gates while continuing bounded read-only evidence work and allowing only conditional reversible growth within existing boundaries.",
-        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked. Permit only bounded reversible growth that preserves existing consent, disclosures, provenance, claims, and data boundaries. Do not retrieve credentials, access private containers, modify permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced.",
+        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and allow only bounded reversible growth within existing consent, disclosure, provenance, claims, and data boundaries. Do not retrieve credentials, access private containers, modify permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "proposal_id": null
       }
     ]

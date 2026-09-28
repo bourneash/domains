@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T01:17:16.666Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:05:36.120Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain four evidence-backed opportunities as deferred CEO/CTO handoffs: saveusfarms.com CTR recovery, allthingsmasonic.com affiliate-intent merchandising, a reusable CTA/accessibility pattern after current measurement windows clear, and a control-plane measurement/deduplication capability. No deployment, spend, credentials, domains, dependencies, telemetry, or requeue is requested. Current evidence includes zero queue-eligible candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, partial aggregate attribution, and only 2 proven outcomes.",
+        "summary": "No new SEO, content, CRO, affiliate, or growth change request is queueable this cycle. Continue existing repair, validation, rollback, measurement, attribution, legal, and security work using recorded evidence only. Preserve deferred opportunities until queue eligibility and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. No new SEO, content, internal-linking, CRO, affiliate, or growth change request is queueable this cycle. Continue existing repair, validation, rollback, measurement, attribution, legal, and security work using recorded evidence only. Preserve deferred SEO opportunities until queue eligibility and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Retain four deferred, evidence-backed opportunities: saveusfarms.com CTR recovery, allthingsmasonic.com affiliate-intent merchandising, a reusable accessible CTA pattern, and measurement-aware queue admission/deduplication. No deployment, spend, credentials, domains, dependencies, telemetry, or requeue is requested.",
         "requested_action": null,
         "proposal_id": null
       }

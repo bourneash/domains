@@ -2,21 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T01:17:16.666Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:05:36.120Z",
+  "summary": "ceo checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and reject new dispatch this cycle. Evidence: authoritative snapshot reports zero queue-eligible candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, and only 2 proven outcomes. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, causal lift, and budget capacity remain unknown. Smallest next step: delivery-lead drains existing repair, validation, measurement, attribution, legal, and security work before reconsidering deferred candidates. Owner decision: keep the prepared SearchWoot/Woot permission request unsent, or authorize it only after human-counsel review.",
+        "summary": "Maintain containment-only execution. Retain measurement-aware queue admission/deduplication and an operator cockpit as deferred proposals. Do not dispatch, requeue, deploy, add telemetry, spend, or expand monetization until existing repair, measurement, attribution, release, legal, and security gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the proposed SEO, affiliate, CTA, site-factory, and control-plane items as deferred backlog only. Do not queue, requeue, deploy, add telemetry, spend, or change launch gates until existing failure-repair, measurement, attribution, release, legal, and security gates clear.",
+        "summary": "Recommendation: keep containment-only portfolio execution and do not dispatch new site work this cycle. Evidence: zero queue-eligible candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, and only 2 proven outcomes. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, causal lift, and budget capacity remain unknown. Smallest next step: drain existing repair, validation, measurement, attribution, legal, and security work. Owner decision: keep SearchWoot outreach unsent pending human-counsel review, or authorize it after that review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: do not implement Univer in full yet. First complete bounded compatibility, licensing, security, scheduler, and report-format research; no dependency installation, deployment, spend, or scheduler change is authorized. The owner request is material and the brief contains no validated integration plan or cost boundary. Smallest next step: produce the research artifact and return an implementation decision.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue existing containment, failure-repair, measurement, attribution, legal, and security work. Do not create duplicate proposals or requeue deferred SEO, affiliate, CTA, site-factory, or control-plane work while queue eligibility remains false.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Do not dispatch, requeue, deploy, add dependencies, change credentials or permissions, expand monetization, or conduct external outreach until existing release, legal, measurement, and security gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not implement Univer in full yet. First complete bounded compatibility, licensing, security, scheduler, and report-format research. No dependency installation, deployment, spend, or scheduler change is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview validation infrastructure failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview/internal-link and browser validation failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview validation failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
         "requested_action": null,
         "proposal_id": null
       }
