@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.194Z",
+  "generated_at": "2026-09-28T16:21:53.274Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Strongest candidate: allthingsmasonic.com, where the homepage refresh is already deployed and measuring. Exactly one next step: complete the existing validation pass for affiliate destinations, disclosure placement, consent behavior, accessibility, smoke, and rollback evidence using existing telemetry only; do not requeue or create new work.",
+        "summary": "Recommendation: maintain containment-only site-factory execution. The strongest validated launch candidate is driveford.net, a scaffold with a documented site-factory build opportunity, but its launch-readiness prerequisite and execution-owner evidence are incomplete. Preserve a bounded launch package covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and preview-only launch gate. Do not add domains, spend, deploy, launch, or claim telemetry. Exactly one next step: continue the existing driveford.net owner-gap verification and attach dated evidence of an assigned execution owner.",
         "requested_action": null,
         "proposal_id": null
       }

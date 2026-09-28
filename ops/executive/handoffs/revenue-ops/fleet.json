@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.194Z",
+  "generated_at": "2026-09-28T16:21:53.274Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution and continue existing repair, measurement, and reconciliation work. No new queue requests, deployments, telemetry, spend, or monetization changes are authorized this cycle. Concrete existing repair tasks are recorded in metadata.",
+        "summary": "Recommendation: maintain containment-only execution. Preserve the $4.92 Amazon aggregate commission for 2026-09-21 as unattributed; do not infer site revenue, ROI, margin, or causal lift. Record the following evidence-backed affiliate and attribution repairs as deferred tasks or continuations of existing work only. Do not create new production work, requeue, add telemetry, spend, deploy, or change monetization until current measurement, ownership, validation, rollback, security, and attribution gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

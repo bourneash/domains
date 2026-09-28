@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:10:36.167Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:21:53.274Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 6 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: maintain containment-only execution for EXEC_CONV_7 this cycle. The only scored candidates are blocked: deeppenetrations.com is already measuring, while driveford.net has an unresolved execution-owner and launch-readiness gate. Evidence: 36 improvements await measurement, 9 requests failed, only 3 outcomes are proven, and Amazon commission is $4.92 aggregate and unattributed for 2026-09-21. Margin, ROI, and causal lift remain unknown. Smallest next step: delivery-lead attach dated ownership, root-cause, validation, rollback, security, attribution, and measurement evidence by 2026-09-28T17:00Z; owner decision: keep Woot permission outreach unsent pending human-counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: continue existing delivery containment only. Recheck queue eligibility after dated ownership, validation, rollback, security, attribution, and measurement evidence is attached by 2026-09-28T17:00Z. Do not dispatch or requeue work before that gate.",
         "requested_action": null,
         "proposal_id": null
       }

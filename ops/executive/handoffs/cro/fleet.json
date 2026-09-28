@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T15:06:52.170Z",
+  "generated_at": "2026-09-28T16:21:53.274Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: preserve existing affiliate and UX measurement records without duplication. AllThingsMasonic and Ultrarough remain measurement surfaces; causal lift is unknown. Do not create new experiments or alter tracking until the 36 pending improvements are measured or closed with evidence.",
+        "summary": "CRO recommendation: maintain containment-only execution. No new experiments, prototypes, dependencies, deployments, telemetry, spend, requeues, or monetization changes are queue-eligible while 36 improvements await measurement, 9 requests have failed, ownership and validation gates remain incomplete, and only 3 outcomes are proven. Retain these as deferred CEO/CTO research leads: Microsoft MarkItDown (MIT; offline document-to-Markdown pipeline for source-backed SEO/content reuse; lab passed 8/8 bounded checks; risks are dependency/supply-chain review, parser fidelity, maintenance, and rights of source documents; metric: publishable-content throughput and indexed-page outcomes; learning: 1–2 weeks; smallest prototype: convert a fixed internal document fixture in an isolated disposable workspace); Mermaid (MIT; explanatory diagrams for guides and comparison content; lab supported fit but had no native checks; risks are client bundle size, accessibility/rendering quality, maintenance, and content accuracy; metric: engagement or assisted affiliate clicks on instrumented existing pages; learning: 1–2 weeks; prototype: render one static diagram offline); shadcn/ui (MIT; accessible reusable CTA/comparison components for affiliate and editorial surfaces; lab passed 3/3 checks; risks are adoption drift, framework compatibility, maintenance, and security review of any added packages; metric: CTA interaction rate and downstream attributable clicks; learning: 1–2 weeks; prototype: reproduce one existing component in an isolated preview without adding production dependencies). These are feasibility leads, not adoption approvals. Continue existing measurement, repair-or-close, parked-site verification, and attribution reconciliation only. Preserve the aggregate $4.92 commission as unattributed and make no site-level revenue, ROI, margin, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }

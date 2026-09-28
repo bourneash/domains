@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T16:07:31.786Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T16:21:53.275Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. The authoritative candidate list is empty, active measurement and failure-repair work remain open, ownership and release evidence is incomplete, operations/security sweeps are unavailable, and attribution is partial. Create no new proposals, change requests, experiments, telemetry, deployments, dependencies, spend, monetization changes, or requeues. Continue only existing measurement, repair-or-close, ownership verification, legal/security evidence, parked-site verification, and attribution reconciliation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not dispatch or requeue work this cycle. Continue existing containment and attach dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence before rechecking eligibility at the existing deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and preserve the private gate. Keep rights-dependent outreach, public exposure, monetization changes, tracking changes, and launch-state changes blocked pending human-counsel review and completion of the open gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Preserve aggregate provider earnings as unattributed and record missing matching-period costs, budgets, commitments, and learning thresholds. Do not infer site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "summary": "CTO review: approve containment-only execution. No new production work, queue work, requeues, telemetry, dependencies, deployments, spending, monetization changes, or external outreach are technically supportable this cycle. Continue only existing measurement, repair-or-close, parked-site verification, legal/security evidence, and period-aligned attribution/cost reconciliation. Preserve aggregate commission as unattributed and keep unsupported revenue, margin, ROI, payback, forecast, and causal-lift claims unknown. Reconsider queue entry only after dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       }
