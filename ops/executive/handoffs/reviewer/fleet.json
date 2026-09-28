@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:51:56.419Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:55:40.392Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing finance reconciliation, measurement, failure repair-or-close, legal/security evidence, and parked-site ownership verification. Reject new production work, queue entries, requeues, telemetry, dependencies, deployments, spending, monetization changes, outreach, and unsupported financial or causal claims. Preserve aggregate commission as unattributed and all missing values as unknown. Keep private launch gates unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: revenue covers one provider period and includes an unattributed aggregate row; matching-period costs, budgets, margin, ROI, payback, and causal lift are not evidenced. Security and operations sweeps are unavailable, while many improvements and requests await measurement or repair. Continue only existing bounded read-only work; keep rights-dependent outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. No defensible implementation candidate is currently unblocked: site-factory candidates lack verified launch-readiness and execution-owner evidence; other candidates are blocked by active measurement, queued work, failed-request repair, security, attribution, or ownership gates. Reject new production work, high-priority queue work, requeues, telemetry, spending, dependencies, deployments, monetization changes, and outreach. Continue only existing finance reconciliation, legal/security evidence, measurement, failure repair-or-close, and parked-site ownership verification. Preserve aggregate commission as unattributed and unavailable values as unknown.",
+        "summary": "Reviewer disposition: no new production queue work is supportable this cycle. The three highest-confidence candidates—complicated.work, deadlymaracas.com, and driveford.net—are blocked by missing verified execution ownership and launch-readiness artifacts. Keep them parked/private and do not deploy, publish, alter DNS, configure analytics, monetize, spend, or create duplicate work. Continue only existing measurement, reconciliation, security/legal evidence, and repair-or-close work; preserve revenue, attribution, cost, and causal-lift unknowns.",
         "requested_action": null,
         "proposal_id": null
       }
