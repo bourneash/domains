@@ -1185,6 +1185,26 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return Number.isFinite(expiry) && expiry <= now;
       });
       for (const candidate of stale) {
+        // A dashboard restart can orphan the in-memory lease owner while the
+        // provider continues running inside its isolated container. Reattach
+        // the durable lease before claiming recovery; otherwise a productive
+        // dirty worktree is incorrectly terminalized as a failed worker.
+        if (candidate.run_id) {
+          const liveRun = events.getImprovement(candidate.run_id);
+          if (
+            liveRun &&
+            (improvementAgent.isActive(liveRun) ||
+              (await improvementAgent.workerProcessAlive(liveRun)))
+          ) {
+            events.updateChangeRequest(candidate.request_id, {
+              lease_owner: queueWorkerId,
+              lease_expires_at: leaseExpiry(settings.lease_minutes),
+              heartbeat_at: new Date(now).toISOString(),
+              updated_at: new Date(now).toISOString(),
+            });
+            continue;
+          }
+        }
         const request = events.claimExpiredChangeRequest(candidate.request_id, {
           owner: queueWorkerId,
           now: new Date(now).toISOString(),
@@ -1403,7 +1423,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       if (improvementAgent.isActive(run)) continue;
       // The durable row can outlive the dashboard process. Check the actual
       // isolated container rather than trusting the in-memory child map.
-      if (await improvementAgent.workerProcessAlive(run)) continue;
+      const workerAlive = await improvementAgent.workerProcessAlive(run);
+      if (workerAlive) {
+        const liveRequest = run.source_id ? events.getChangeRequest(run.source_id) : null;
+        if (liveRequest?.status === 'failed') {
+          try {
+            changequeue.update(
+              events,
+              liveRequest.request_id,
+              {
+                status: 'running',
+                error: null,
+                next_attempt_at: null,
+                lease_owner: queueWorkerId,
+                lease_expires_at: leaseExpiry(events.getChangeQueueSettings().lease_minutes),
+                heartbeat_at: new Date().toISOString(),
+              },
+              site => isKnownTarget(root, site)
+            );
+          } catch {
+            /* a concurrent completion owns the lifecycle transition */
+          }
+        }
+        continue;
+      }
       if (improvementAgent.workerStartupGraceActive(run)) continue;
       const request = run.source_id ? events.getChangeRequest(run.source_id) : null;
       let snapshot = null;
