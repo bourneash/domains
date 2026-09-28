@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:22:39.073Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:36:51.919Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain the repository and market-signal opportunities as deferred research backlog only. MarkItDown could support source-to-draft SEO workflows; Mermaid could add explainers and comparison diagrams; shadcn/ui could standardize accessible CTA and affiliate-card patterns. Evidence is limited to bounded lab review: MarkItDown and shadcn/ui passed available checks, while Mermaid had supported fit but no native checks. MIT/Apache-2.0 signals do not replace dependency, security, maintenance, content-rights, or production-fit review; MinerU and Strapi remain license/fit unknown from NOASSERTION. Smallest reversible prototypes would be isolated offline samples or static mock components, with metrics limited to drafting time, publishing throughput, CTA engagement, and search clicks after existing gates clear. Do not dispatch prototypes, install dependencies, deploy, add telemetry, spend, or claim revenue or causal lift this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve the strongest revenue experiments as deferred opportunities rather than new work. The allthingsmasonic.com affiliate path has 61 clicks, 0 ordered items, and $0 site-attributed commission in the available window; amputeenews.com still has a real Amazon tag prerequisite; aggregate provider earnings remain unattributed. Candidate experiments are CTA/disclosure clarity, product relevance, and intent-matched comparison content, measured only with existing attribution and rollback controls. Retain unknown revenue, do not infer ROI, and do not create duplicate requests while current measurement, failure-repair, security, ownership, and attribution work remains open.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve SEO and audience experiments as a ranked deferred backlog. Evidence-backed candidates include xxxtea.com query cannibalization, saveusfarms.com title/CTR improvement, broadwayshowgirls.com author-page CTR, marineactivity.com AIS guide reach, deeppenetrations.com review-page CTR, and greatamericanlakes.com topic-page reach. Each should use a single reversible edit, existing GA4/GSC measurement, a pre-change baseline, a defined learning window, and rollback. Current active work, failed requests, unavailable operations evidence, and measurement backlog block new dispatch this cycle.",
+        "summary": "Recommend no new implementation or adoption this cycle; retain the following evidence-backed opportunities for CEO/CTO review after current measurement, ownership, security, attribution, and failure-repair gates clear.\n\n1) allthingsmasonic.com affiliate CTA experiment. Evidence: 61 Amazon clicks, 0 attributed orders, and $0 site-attributed commission in the available 2026-09-21 window; public inspection documented CTA, destination, disclosure, and accessibility evidence. Smallest reversible prototype: one existing merchandising surface with clearer product relevance, CTA copy, and disclosure placement. Metric: affiliate click-through and site-attributed ordered items; time-to-learn: 14 days or 100 relevant impressions/clicks. Risks: aggregate attribution is partial, product/link freshness is unknown, and no revenue lift may be claimed before measurement. Rollback: revert the single surface.\n\n2) deeppenetrations.com search-to-affiliate intent test. Evidence: /reviews/liquid-wrench had 99 impressions at position 2.8 with 0 clicks; /reviews/wd40-silicone had 140 impressions at position 4.9 with 0 clicks; the existing snippet improvement is already measuring. Smallest next prototype after the active run closes: one comparison block linking only to existing, verified destinations. Metric: organic CTR, affiliate outbound clicks, and attributed orders where available; time-to-learn: 14 days or 100 relevant impressions. Risks: active work, low session volume, attribution lag, and security/operations evidence gaps. Do not duplicate the active improvement.\n\n3) reusable accessible CTA/comparison-card capability. Evidence: bounded inspection of 0xroulette.com supports a CTA-hierarchy hypothesis; existing lab evidence supports shadcn-ui/ui for composable accessible components, MIT license, 3 bounded checks passed, no dependency installation, and no production access. Smallest prototype: static, dependency-free card markup in one preview only. Metric: CTA engagement and destination integrity using existing telemetry; time-to-learn: 14 days after deployment. Risks: repository maintenance and transitive dependency posture remain unverified; require CTO/security review and license scan before adoption. Rollback: remove the isolated component.\n\n4) offline content-structure experiment. Evidence: microsoft/markitdown is MIT, 8/8 bounded checks passed, and documentation supports document-to-Markdown conversion; mermaid-js/mermaid is MIT with supported SEO-content fit but no native checks available without dependencies. Smallest prototype: offline conversion of one owned source document into a draft outline plus one internal diagram, with no publishing or new dependency. Metric: editor acceptance time and publish-ready draft quality, not traffic or revenue; time-to-learn: 1 working session. Risks: source rights, factual accuracy, maintenance, dependency and supply-chain review remain unknown. Keep research-only.\n\nDo not deploy, spend, change credentials, add domains, add telemetry, install dependencies, or expand monetization. Preserve all opportunities as deferred CRO backlog until existing gates clear; do not infer revenue, ROI, causal lift, or repository quality from stars or lab evidence alone.",
         "requested_action": null,
         "proposal_id": null
       }

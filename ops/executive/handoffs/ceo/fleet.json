@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:22:39.073Z",
+  "generated_at": "2026-09-28T20:36:51.919Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment and continue only existing repair, measurement, attribution, and launch-readiness work under EXEC_CONV_7. Evidence: 40 improvements await measurement, 14 requests failed, operations and fleet-doctor sweeps are unavailable, and Amazon reports $4.92 aggregate commission for 2026-09-21 that is not site-attributable; margin and causal lift remain unknown. The smallest next step is dated validation of the existing eastcoastrappers.com routing repair. Owner decision: keep the Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: preserve containment and complete only the existing eastcoastrappers.com routing repair under EXEC_CONV_7. Evidence: 40 improvements await measurement, 14 requests failed, operations/fleet-doctor sweeps are unavailable, and Amazon’s $4.92 commission for 2026-09-21 is aggregate and unattributed. Margin, ROI, and causal lift remain unknown. Reject new launches, requeues, CRO adoption, spend, telemetry, dependencies, and outreach this cycle. Smallest next step: dated routing validation and rollback evidence. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: complete the existing eastcoastrappers.com routing repair only. Record ownership, deterministic routing tests, duplicate-task verification, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations were unchanged.",
+        "summary": "Handoff: complete the existing eastcoastrappers.com metadata-only routing repair. Record assigned owner, deterministic routing-test results, duplicate-task count, rollback point, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations were unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

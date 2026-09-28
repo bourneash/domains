@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:22:39.073Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:36:51.919Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment. Continue only the existing eastcoastrappers.com routing repair and existing period-aligned revenue, attribution, and cost reconciliation; create no new spending, monetization, production, or financial work this cycle. Amazon data covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed income is $0, but the $4.92 aggregate row cannot be assigned to a site. AI usage from 2026-09-01 through 2026-09-28 cost $922.38102435 across 5,048 calls; the periods and attribution bases do not support ROI, payback, contribution margin, or forecast claims. Infrastructure, labor, domain, marketing, commitments, matching-period costs, budget ceilings, and approved cost-to-learn thresholds are unknown. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial proof. Preserve unknowns as unknowns and reject unsupported revenue, margin, ROI, payback, budget-capacity, forecast, and causal-lift claims.",
+        "summary": "Recommend containment-only execution. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; the $4.92 is an aggregate provider row and cannot support site revenue claims. AI usage records $922.38102435 across 5,048 calls from 2026-09-01 through 2026-09-28. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, ROI, forecasts, and causal lift are unknown because matching-period site revenue identifiers, complete cost ledger, infrastructure costs, commitments, budget ceilings, and an approved learning threshold are missing. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating metrics, not financial outcomes. Do not create new spend, monetization changes, forecasts, telemetry, production work, or requeues. Continue only the existing dated finance reconciliation and preserve missing values as unknown, not zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance artifact: complete the existing reconciliation of all 18 named provider tracking rows and the aggregate row against the matching reporting period. Record provider identifiers, site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Until complete, contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, and revenue forecasts remain unknown. Do not treat zero site-attributed income or missing costs as zero total revenue or zero cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO supports completing the existing eastcoastrappers.com routing repair only, subject to dated ownership evidence, deterministic routing validation, duplicate-task verification, rollback evidence, and confirmation that no site behavior, credentials, telemetry, dependencies, deployment, spend, or external destinations changed. This is an operational containment action, not evidence of revenue or financial improvement.",
+        "summary": "Retain the existing finance reconciliation only. Reconcile the 18 named provider tracking rows and aggregate row against matching-period commission, ordered and shipped items, site/content revenue identifiers, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and the approved cost-to-learn threshold. Do not treat zero attributed income as zero total revenue or absent costs as zero. No new finance request is needed because the existing work item covers this scope.",
         "requested_action": null,
         "proposal_id": null
       }

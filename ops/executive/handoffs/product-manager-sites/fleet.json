@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:08:31.410Z",
-  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:36:51.918Z",
+  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Executive recommendation: maintain containment-only execution for new site launches, experiments, monetization changes, and additional production work. Existing evidence supports continuing measurement, failure repair, attribution reconciliation, and security/readiness evidence: 54 improvements are active, 40 await measurement, 14 requests failed, and only 3 outcomes are proven. SEO, CTA/accessibility, merchandising, performance, and reusable cross-site capability opportunities should remain prioritized backlog until ownership, validation, rollback, security, and measurement gates clear. Preserve the existing eastcoastrappers.com routing repair as the sole approved bounded implementation path; do not create duplicate requests or claim revenue, ROI, or causal lift. Re-evaluate after the current evidence and repair work produces dated artifacts.",
+        "summary": "Recommend no new site proposals or implementation requests this cycle. Existing evidence supports continuing deployed-work measurement, failed-request repair-or-close review, attribution reconciliation, accessibility/performance validation, and the single already-approved bounded routing repair. Current portfolio evidence shows 40 improvements awaiting measurement, 14 failed requests, unavailable operations/fleet-doctor sweeps, partial revenue attribution, and only 3 proven outcomes. Preserve all deferred SEO, UX, content, monetization, cross-site, and repository opportunities as backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. No unsupported revenue, ROI, causal-lift, or monetization claims; no site edits, deployment, spend, telemetry changes, or new dependencies.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommend no new SEO or growth implementation requests this cycle. Continue deployed-work measurement, failed-request repair-or-close review, attribution reconciliation, accessibility/performance validation, and the single already-approved bounded routing repair. Preserve deferred SEO, UX, content, monetization, cross-site, and repository opportunities as backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. Do not claim unsupported revenue, ROI, causal lift, or monetization outcomes; make no site edits, deployment, spend, telemetry changes, or dependency additions.",
         "requested_action": null,
         "proposal_id": null
       }
