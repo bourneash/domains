@@ -3583,7 +3583,10 @@ async function runProvider(
   if (provider === 'chatgpt' && String(model).trim().toLowerCase() === 'gpt-5')
     model = 'gpt-5.6-luna';
   const executable = command || (provider === 'chatgpt' ? 'codex' : 'claude');
-  const promptOnStdin = provider === 'chatgpt';
+  // Fleet briefs can be much larger than the OS argument-size limit. Feed the
+  // prompt through stdin for every provider; passing the Claude prompt as the
+  // final argv element caused executive ticks to fail immediately with E2BIG.
+  const promptOnStdin = true;
   const args =
     provider === 'chatgpt'
       ? [
@@ -3606,7 +3609,6 @@ async function runProvider(
           'Read,Glob,Grep',
           '--no-session-persistence',
           ...(model ? ['--model', model] : []),
-          prompt,
         ];
   const transient =
     /capacity|429|temporar|unavailable|timeout|timed out|502|503|504|authentication/i;
