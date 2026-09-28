@@ -234,6 +234,55 @@ function actionCandidates(
     .slice(0, Math.max(1, Number(limit) || 12));
 }
 
+function siteFactoryCandidates(
+  inventory,
+  queueReadySites,
+  completed = { keys: new Set(), titles: new Set() },
+  limit = 6
+) {
+  const ready = new Set(
+    (Array.isArray(queueReadySites) ? queueReadySites : [])
+      .map(site =>
+        String(site || '')
+          .trim()
+          .toLowerCase()
+      )
+      .filter(Boolean)
+  );
+  return (Array.isArray(inventory) ? inventory : [])
+    .filter(item => ready.has(String(item.domain || '').toLowerCase()))
+    .filter(
+      item => item.parked === true || ['scaffold', 'positioning_tbd'].includes(item.lifecycle)
+    )
+    .map(item => {
+      const site = String(item.domain).toLowerCase();
+      return {
+        site,
+        key: `site-factory:launch-readiness:${site}`,
+        title: `Prepare launch-readiness brief for ${site}`,
+        type: 'site-factory',
+        delivery_mode: 'report_only',
+        evidence: {
+          lifecycle: item.lifecycle || null,
+          parked: item.parked === true,
+          parked_days: item.parked_days ?? null,
+          capabilities: item.capabilities || [],
+          registrar_expires: item.registrar_expires || null,
+        },
+        score: Math.min(80, 60 + Math.min(20, Number(item.parked_days || 0) / 10)),
+        recommendation:
+          'Produce a bounded site brief covering audience fit, launch scope, SEO/content seed, analytics and affiliate readiness, legal/security checklist, and the single next owner decision. Do not deploy or add the site to production.',
+        metric: 'launch-readiness checklist completeness',
+      };
+    })
+    .filter(candidate => {
+      const titleKey = `${candidate.site}:${normalizeActionTitle(candidate.title)}`;
+      return !completed.keys.has(candidate.key) && !completed.titles.has(titleKey);
+    })
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0) || a.site.localeCompare(b.site))
+    .slice(0, Math.max(1, Number(limit) || 6));
+}
+
 function readSiteDescriptions(root = ROOT) {
   const descriptions = {};
   const file = path.join(root, 'DOMAINS_INDEX.md');
@@ -438,6 +487,7 @@ async function buildBrief(store, root = ROOT) {
   const sites = executiveSites(root);
   const intel = await collectIntel(root, sites);
   const actionability = executiveScorecard.buildScorecard(store);
+  const portfolioInventory = buildPortfolioInventory(root);
   const productivityPilots = store.listProductivityPilots
     ? store.listProductivityPilots({ limit: 10 }).map(pilot => ({
         pilot_id: pilot.pilot_id,
@@ -454,11 +504,12 @@ async function buildBrief(store, root = ROOT) {
       }))
     : [];
   const fleetQueueReadiness = productivityProgram.queueReadiness(store, sites);
-  const allActionCandidates = actionCandidates(
-    intel.intelligence,
-    sites,
-    completedActionIndex(store),
-    100
+  const completedActions = completedActionIndex(store);
+  const allActionCandidates = actionCandidates(intel.intelligence, sites, completedActions, 100);
+  const launchReadinessCandidates = siteFactoryCandidates(
+    portfolioInventory,
+    fleetQueueReadiness.ready_sites,
+    completedActions
   );
   // A candidate is only actionable when its site has capacity. The previous
   // brief exposed already-queued or measuring sites as fresh candidates, then
@@ -477,10 +528,15 @@ async function buildBrief(store, root = ROOT) {
     if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(run.state))
       activeSites.add(String(run.site || '').toLowerCase());
   }
-  const executableActionCandidates = allActionCandidates.filter(
-    candidate => !activeSites.has(String(candidate.site || '').toLowerCase())
-  );
-  const deferredActionCandidates = allActionCandidates
+  const combinedActionCandidates = [...allActionCandidates, ...launchReadinessCandidates];
+  const executableActionCandidates = [
+    ...new Map(
+      combinedActionCandidates
+        .filter(candidate => !activeSites.has(String(candidate.site || '').toLowerCase()))
+        .map(candidate => [String(candidate.site || '').toLowerCase(), candidate])
+    ).values(),
+  ];
+  const deferredActionCandidates = combinedActionCandidates
     .filter(candidate => activeSites.has(String(candidate.site || '').toLowerCase()))
     .slice(0, 12)
     .map(candidate => ({
@@ -491,7 +547,7 @@ async function buildBrief(store, root = ROOT) {
     generated_at: new Date().toISOString(),
     sites,
     site_context: buildSiteContext(root),
-    portfolio_inventory: buildPortfolioInventory(root),
+    portfolio_inventory: portfolioInventory,
     portfolio_policy: {
       managed_sites: 'all discovered fleet sites except 3boobs.com',
       excluded_sites: ['3boobs.com'],
@@ -1888,7 +1944,13 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   const actionableCandidates = candidates.filter(
     item =>
       String(item.type || '').toLowerCase() !== 'portfolio-baseline' &&
+      String(item.type || '').toLowerCase() !== 'site-factory' &&
       !isPrivateLaunchGate(item.site, brief.launch_readiness)
+  );
+  const launchCandidates = candidates.filter(
+    item =>
+      String(item.type || '').toLowerCase() === 'site-factory' &&
+      String(item.delivery_mode || '').toLowerCase() === 'report_only'
   );
   // Baseline-only or explicitly gated cohorts can remain report/research
   // work. Concrete SEO/content/design/engineering candidates must create
@@ -1896,8 +1958,32 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // A gated or already-busy portfolio still needs a durable checkpoint. A
   // pass that emits only owner messages is otherwise indistinguishable from
   // a no-op in the workbench and gives the team no measurable next action.
-  if (!actionableCandidates.length)
-    return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
+  if (!actionableCandidates.length) {
+    if (!launchCandidates.length)
+      return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
+    const launchSites = new Set(
+      launchCandidates
+        .map(item =>
+          String(item.site || '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean)
+    );
+    const coveredLaunchSites = new Set(
+      (plan.change_requests || [])
+        .filter(item => String(item.delivery_mode || '').toLowerCase() === 'report_only')
+        .map(item =>
+          String(item.site || '')
+            .trim()
+            .toLowerCase()
+        )
+    );
+    const requiredLaunchSites = Math.min(3, launchSites.size);
+    return (
+      [...launchSites].filter(site => coveredLaunchSites.has(site)).length >= requiredLaunchSites
+    );
+  }
   const candidateSites = new Set(
     actionableCandidates
       .map(item =>
@@ -3822,6 +3908,7 @@ module.exports = {
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,
+  siteFactoryCandidates,
   buildActionMandateFallback,
   attachKnownActionKeys,
   proposalSite,

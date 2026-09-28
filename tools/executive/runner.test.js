@@ -180,6 +180,60 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
+test('site-factory candidates turn queue-ready parked sites into bounded launch-readiness reports', () => {
+  const candidates = runner.siteFactoryCandidates(
+    [
+      {
+        domain: 'ready.example.com',
+        lifecycle: 'scaffold',
+        parked: true,
+        parked_days: 120,
+        capabilities: ['site', 'ops'],
+      },
+      { domain: 'live.example.com', lifecycle: 'live', parked: false },
+    ],
+    ['ready.example.com', 'live.example.com'],
+    { keys: new Set(), titles: new Set() }
+  );
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].type, 'site-factory');
+  assert.equal(candidates[0].delivery_mode, 'report_only');
+  assert.match(candidates[0].title, /ready\.example\.com/);
+});
+
+test('site-factory launch-readiness candidates require report coverage', () => {
+  const brief = {
+    launch_readiness: [],
+    action_mandate: {
+      candidates: [
+        { site: 'one.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+        { site: 'two.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+        { site: 'three.example.com', type: 'site-factory', delivery_mode: 'report_only' },
+      ],
+    },
+  };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      { change_requests: [{ site: 'one.example.com', delivery_mode: 'report_only' }] },
+      brief
+    ),
+    false
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        change_requests: [
+          { site: 'one.example.com', delivery_mode: 'report_only' },
+          { site: 'two.example.com', delivery_mode: 'report_only' },
+          { site: 'three.example.com', delivery_mode: 'report_only' },
+        ],
+      },
+      brief
+    ),
+    true
+  );
+});
+
 test('action-mandate fallback escalates a fully blocked fleet to delivery leadership', () => {
   const brief = {
     generated_at: '2026-09-27T21:00:00.000Z',
