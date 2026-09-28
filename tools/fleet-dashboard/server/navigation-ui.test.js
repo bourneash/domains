@@ -51,6 +51,7 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /fleet AI spend telemetry/);
   assert.match(app, /principalQueue,\s+croLabRuns,/);
   assert.match(app, /croLabRuns,\s+runStatus,\s+cases,/);
+  assert.match(app, /else if \(page === 'overview'\) \{\s*hide\(run\);/);
   assert.match(app, /croLabRuns\?\.runs \|\| \[\]/);
   assert.match(app, /id="ex-risk" class="cm-input"/);
   assert.match(app, /Low — conservative/);

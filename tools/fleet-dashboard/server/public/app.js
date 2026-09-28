@@ -13543,6 +13543,7 @@ function applyExecutiveWorkspace(page) {
     hide(performance);
     hide(decisions);
   } else if (page === 'overview') {
+    hide(run);
     hide(compose);
     hide(cases);
     hide(requests);
