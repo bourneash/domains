@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:56.866Z",
-  "summary": "ceo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T09:06:35.862Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: the candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven in the 30-day scorecard generated 2026-09-28. Amazon revenue is $4.92 aggregate for 2026-09-21 and unattributed; margin, ROI, payback, and causal lift are unknown. Continue existing repair, measurement, attribution, legal, and security work. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
+        "summary": "Recommendation: maintain containment-only execution while completing existing repair, measurement, legal, security, and parked-site work. Evidence: the candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven in the 30-day scorecard generated 2026-09-28. Amazon revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; margin, ROI, payback, and causal lift are unknown. Smallest next step: complete the existing affiliate-reference validation and readiness evidence. Owner decision: keep the prepared Woot permission request unsent, or authorize it only after human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Corrected disposition: retain SEO, UX, CRO repository, and site-factory opportunities as deferred backlog. No new proposal or implementation dispatch is justified while ownership, failure repair, validation, rollback, release, security, attribution, and measurement gates remain open.",
+        "summary": "Handoff: continue the existing americastrikes.com affiliate-reference repair through deterministic validation only. Confirm destinations, registered tracking ID, disclosures, redirects, and unchanged non-target content; do not requeue or deploy without the existing gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the four existing SearchWoot launch-readiness evidence tasks. Keep the product private and permission outreach unsent. Current evidence supports no public launch or rights-dependent monetization; the smallest next step is the consolidated rights, data-flow, consent, vendor, and incident evidence bundle.",
+        "summary": "Handoff: record dated ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence for existing work by 2026-09-28T17:00:00Z. Do not dispatch or requeue new implementation work before those gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain the existing fleet security evidence matrix only. All 59 security sitefacts remain unknown and fleet-doctor/operations sweeps have no results. Preserve private launch gates and perform authorized read-only evidence capture without credentials, permission changes, dependencies, deployment, exploitation, or outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve the site-factory draft pipeline and existing parked-site dispositions, but do not dispatch launches or production work. Reconcile owner, legal, security, release, rollback, attribution, and measurement evidence before reconsideration.",
+        "summary": "Handoff: retain the current parked dispositions. complicated.work fails banner, consent accept/reject, and GA4 checks; deadlymaracas.com has DNS reachability failure and unknown compliance status. Continue bounded readiness evidence only; no launch or monetization decision is supported.",
         "requested_action": null,
         "proposal_id": null
       }

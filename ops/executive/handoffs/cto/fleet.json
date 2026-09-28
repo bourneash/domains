@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:56.866Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T09:06:35.863Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution for this cycle. Continue existing measurement, failure repair, attribution reconciliation, legal evidence, security evidence, and finance reconciliation work. Do not create or requeue implementation work, experiments, telemetry, deployments, spending, credentials, dependencies, domains, or monetization changes. Preserve SEO, UX, content, affiliate, CRO, and site-factory opportunities as deferred backlog until ownership, isolated validation, rollback, release, security, attribution, and measurement gates clear. Existing evidence does not support revenue, ROI, margin, payback, or causal-lift claims.",
+        "summary": "Approve containment-only execution this cycle. No new proposals, change requests, requeues, deployments, telemetry, dependencies, spending, experiments, or monetization changes are queue-eligible. Continue only existing repair, measurement, attribution, legal, security, and parked-site readiness work. The existing affiliate-reference validation is technically feasible, isolated, reversible, and measurable with recorded telemetry, but must remain validation-only until ownership, root cause, deterministic checks, rollback, release, security, attribution, and measurement evidence are complete. Preserve aggregate provider revenue as unattributed and make no ROI, margin, payback, budget-capacity, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing delivery containment and failure-repair review. Before any dispatch or requeue, record dated ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence. Use existing recorded telemetry only; do not invent or request duplicate telemetry.",
+        "summary": "Continue the existing affiliate-reference repair through deterministic validation only. Record destination integrity, registered attribution identity, disclosure preservation, redirect behavior, unchanged non-target content, test results, rollback readiness, and release disposition. Do not requeue or deploy without the existing gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing fleet security evidence matrix and private launch gates. Use authorized metadata and retained artifacts only. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
+        "summary": "Continue existing delivery containment and failure-repair review. Before any dispatch or requeue, record dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence. Retain all new SEO, UX, accessibility, performance, content, affiliate, monetization, and cross-site opportunities as deferred backlog.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence work and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider earnings as unattributed. Reconcile matching periods and recorded cost categories without inferring site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
+        "summary": "Continue existing launch-readiness evidence work and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete or mismatched records.",
         "requested_action": null,
         "proposal_id": null
       }

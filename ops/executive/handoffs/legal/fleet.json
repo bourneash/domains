@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T08:51:56.866Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T09:06:35.863Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, rights-dependent monetization, and security-sensitive release; conditional for ordinary reversible work that preserves consent, disclosures, provenance, claims, copyright/trademark, platform-policy, age-sensitive, and data-handling boundaries. Exact recommendation: keep searchwoot.com private, keep Woot permission outreach unsent, and continue only existing evidence work. Evidence: Woot terms do not establish public or commercial redistribution rights; 0 of 4 launch-readiness tasks are closed; accuracy/freshness, measurement/attribution, and security gates are blocked; compliance is technical-only with 37 pass, 15 fail, and 7 unknown. Revenue is $4.92 aggregate commission for 2026-09-21 and is not site-attributable. Human counsel is required for Woot rights, jurisdictional privacy/consent treatment, and future affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for public launch, rights-dependent monetization, and security-sensitive release; conditional for ordinary reversible growth within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, age-sensitive, and data-handling boundaries. Exact decision: retain SearchWoot private, keep permission outreach unsent, and continue only existing read-only evidence work. Evidence: Woot terms do not establish commercial/public redistribution rights; all four launch-readiness tasks remain open; accuracy/freshness, measurement/attribution, and security gates are blocked; compliance is technical-only with 37 pass, 15 fail, and 7 unknown. Human counsel is required for Woot rights, jurisdictional privacy/consent treatment, and future affiliate or advertising use. Incomplete telemetry alone does not block ordinary reversible growth.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress is partial official-source, repository/configuration, privacy-policy, and cookie-policy evidence only; no task is closable. Keep all 4 tasks open. Next evidence action: attach and review one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. No task is closable on current evidence. Progress is limited to official-source, repository/configuration, privacy-policy, and cookie-policy artifacts. Next evidence action: attach and review one consolidated read-only evidence bundle and field-level rights matrix covering provenance, permitted storage/caching/display/derivatives, alerts, attribution, freshness, correction, takedown, identifiers, retention, deletion, access, notification consent, unsubscribe behavior, GA4 settings, log fields, vendor coverage, and incident/request procedures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Site-specific compliance decisions remain unchanged: retain complicated.work parked until banner, consent accept/reject, and GA4 failures are remediated; retain deadlymaracas.com parked until DNS reachability and a concrete compliance checklist are evidenced. Ordinary growth elsewhere may proceed only within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Preserve the $4.92 aggregate commission as unattributed; make no revenue, ROI, margin, payback, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }
