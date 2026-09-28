@@ -14,6 +14,8 @@ import json
 import os
 import sys
 import tempfile
+import threading
+import time
 from pathlib import Path
 
 from social_hub import accounts, attribution, db, media, notify, queue
@@ -33,7 +35,94 @@ class MediaRequiredError(AdapterError):
         super().__init__(
             f"{site}: image required{ref}, but no source or generated image was available",
             retryable=True,
+            retry_delay_minutes=60,
         )
+
+
+class MediaGenerationError(AdapterError):
+    """The configured generator was unavailable or returned no image."""
+
+    def __init__(self, site: str, source_id: str | None, cause: object):
+        ref = f" for {source_id}" if source_id else ""
+        super().__init__(
+            f"{site}: image generation unavailable{ref}: {cause}",
+            retryable=True,
+            retry_delay_minutes=60,
+        )
+
+
+_MEDIA_GEN_LOCK = threading.Lock()
+_MEDIA_GEN_FAILURES = 0
+_MEDIA_GEN_OPEN_UNTIL = 0.0
+
+
+def _media_settings(cfg: SiteConfig) -> dict:
+    return cfg.get("media") or {}
+
+
+def _generation_circuit_open(settings: dict) -> bool:
+    with _MEDIA_GEN_LOCK:
+        return _MEDIA_GEN_OPEN_UNTIL > time.monotonic()
+
+
+def _record_generation_result(settings: dict, *, ok: bool) -> None:
+    global _MEDIA_GEN_FAILURES, _MEDIA_GEN_OPEN_UNTIL
+    threshold = max(1, int(settings.get("failure_threshold", 3)))
+    cooldown = max(1, float(settings.get("cooldown_seconds", 300)))
+    with _MEDIA_GEN_LOCK:
+        if ok:
+            _MEDIA_GEN_FAILURES = 0
+            _MEDIA_GEN_OPEN_UNTIL = 0.0
+            return
+        _MEDIA_GEN_FAILURES += 1
+        if _MEDIA_GEN_FAILURES >= threshold:
+            _MEDIA_GEN_OPEN_UNTIL = time.monotonic() + cooldown
+
+
+def _fallback_image(post: dict, settings: dict) -> Image | None:
+    ref = settings.get("default_image")
+    if not ref:
+        return None
+    data = media.load_image(str(ref), post["site"])
+    if not data:
+        return None
+    return Image(
+        data=data,
+        alt=str(settings.get("default_image_alt") or ""),
+        url=str(ref),
+    )
+
+
+def media_diagnostics(cfg: SiteConfig) -> dict:
+    """Return safe, bounded diagnostics for doctor and recovery jobs."""
+    settings = _media_settings(cfg)
+    result = {
+        "fallback_configured": bool(settings.get("default_image")),
+        "fallback_available": False,
+        "generator_enabled": bool(settings.get("generate_missing")),
+        "generator_healthy": None,
+    }
+    if settings.get("default_image"):
+        result["fallback_available"] = bool(_fallback_image({"site": cfg.site}, settings))
+    if settings.get("generate_missing"):
+        try:
+            client_dir = Path(os.environ.get(
+                "MEDIA_GEN_CLIENT_DIR",
+                Path(__file__).resolve().parents[3] / "media-gen" / "client",
+            ))
+            if str(client_dir) not in sys.path:
+                sys.path.insert(0, str(client_dir))
+            from media_gen_client import MediaGenClient
+
+            health = MediaGenClient(
+                base_url=settings.get("api") or None,
+                timeout=min(float(settings.get("health_timeout", 5)), 10),
+            ).health()
+            result["generator_healthy"] = bool(health.get("ok", True))
+        except Exception as exc:
+            result["generator_healthy"] = False
+            result["generator_error"] = str(exc)[:200]
+    return result
 
 
 def mirror_to_site_log(post: dict) -> None:
@@ -76,8 +165,14 @@ def _source_for(post: dict) -> dict | None:
 
 def _generate_missing_image(post: dict, source: dict, cfg: SiteConfig) -> Image | None:
     """Generate a cover when the source has no usable image, if opted in."""
-    settings = cfg.get("media") or {}
+    settings = _media_settings(cfg)
     if not settings.get("generate_missing"):
+        return None
+    if _generation_circuit_open(settings):
+        db.log_event(
+            "media.generate_skipped", site=post["site"], ref_type="post",
+            ref_id=post.get("id"), message="media-gen circuit breaker open",
+        )
         return None
 
     client_dir = Path(os.environ.get(
@@ -99,41 +194,58 @@ def _generate_missing_image(post: dict, source: dict, cfg: SiteConfig) -> Image 
             "natural light, tasteful composition, no words, no logos, no watermark."
         )).format(title=title, summary=summary)
         site_slug = str(settings.get("site") or post["site"].split(".", 1)[0])
+        source_id = str(post.get("source_id") or "social-post")
+        fingerprint = {
+            "prompt": prompt,
+            "backend": str(settings.get("backend") or "comfyui"),
+            "profile": str(settings.get("profile") or "fast"),
+            "width": int(settings.get("width", 1216)),
+            "height": int(settings.get("height", 832)),
+            "aspect_ratio": str(settings.get("aspect_ratio") or "3:2"),
+        }
+        key = media.cache_key(post["site"], source_id, fingerprint)
+        cached = media.read_cached_image(key)
+        if cached:
+            return Image(data=cached, alt=title[:290], url=f"generated://cache/{key}")
         with tempfile.TemporaryDirectory(prefix="social-hub-media-") as tmp:
-            dest = Path(tmp) / f"{post.get('source_id') or 'post'}.jpg"
+            dest = Path(tmp) / f"{source_id}.jpg"
             MediaGenClient(
                 base_url=settings.get("api") or None,
-                timeout=float(settings.get("timeout", 720)),
+                timeout=min(float(settings.get("timeout", 120)), 300),
             ).generate(
                 site=site_slug,
                 prompt=prompt,
                 backend=str(settings.get("backend") or "comfyui"),
                 profile=str(settings.get("profile") or "fast"),
-                slug=str(post.get("source_id") or "social-post"),
-                width=int(settings.get("width", 1216)),
-                height=int(settings.get("height", 832)),
-                aspect_ratio=str(settings.get("aspect_ratio") or "3:2"),
+                slug=source_id,
+                width=fingerprint["width"],
+                height=fingerprint["height"],
+                aspect_ratio=fingerprint["aspect_ratio"],
                 dest_path=dest,
             )
             data = dest.read_bytes()
         if not data:
-            return None
+            raise RuntimeError("generator returned an empty image")
+        media.write_cached_image(key, data)
+        _record_generation_result(settings, ok=True)
         return Image(
             data=data,
             alt=title[:290],
-            url=f"generated://media-gen/{post.get('source_id') or 'social-post'}",
+            url=f"generated://cache/{key}",
         )
     except Exception as exc:
+        _record_generation_result(settings, ok=False)
         db.log_event(
             "media.generate_failed", site=post["site"], ref_type="post",
             ref_id=post.get("id"), message=str(exc),
         )
-        return None
+        raise MediaGenerationError(post["site"], post.get("source_id"), exc) from exc
 
 
 def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     platform_cfg = cfg.for_platform(post["platform"])
     source = _source_for(post)
+    settings = _media_settings(cfg)
     options = dict(platform_cfg.get("options") or {})
     for key in ("subreddit", "board_id", "content_label"):
         value = platform_cfg.get(key)
@@ -154,6 +266,8 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
     images: list[Image] = []
     # A self-labeled (adult) post takes a different, image-free send path —
     # see BlueskyAdapter._send_labeled.
+    media_origin = ""
+    generation_error: MediaGenerationError | None = None
     if (
         media_refs
         and post["kind"] != "reply"
@@ -166,15 +280,29 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
                 images.append(
                     Image(data=data, alt=media.alt_text((source or {}).get("title", "")), url=ref)
                 )
+                media_origin = "source"
+
+    if not images and settings.get("default_image_first") and post["kind"] != "reply" \
+        and not options.get("content_label") and capabilities(post["platform"]).media:
+        fallback = _fallback_image(post, settings)
+        if fallback:
+            images.append(fallback)
+            media_origin = "fallback"
 
     if (
         not images and source and post["kind"] != "reply"
         and not options.get("content_label")
         and capabilities(post["platform"]).media
     ):
-        generated = _generate_missing_image(post, source, cfg)
+        try:
+            generated = _generate_missing_image(post, source, cfg)
+        except MediaGenerationError as exc:
+            # A checked-in fallback may still satisfy the contract below.
+            generation_error = exc
+            generated = None
         if generated:
             images.append(generated)
+            media_origin = "generated"
 
     # A site may provide a checked-in fallback for content types that do not
     # have per-item artwork (for example daily briefings). This is deliberately
@@ -186,17 +314,17 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
         and not options.get("content_label")
         and capabilities(post["platform"]).media
     ):
-        fallback_ref = (settings := (cfg.get("media") or {})).get("default_image")
-        if fallback_ref:
-            data = media.load_image(str(fallback_ref), post["site"])
-            if data:
-                images.append(
-                    Image(
-                        data=data,
-                        alt=str(settings.get("default_image_alt") or ""),
-                        url=str(fallback_ref),
-                    )
-                )
+        fallback = _fallback_image(post, settings)
+        if fallback:
+            images.append(fallback)
+            media_origin = "fallback"
+
+    if media_origin:
+        options["media_source"] = media_origin
+        db.log_event(
+            "media.selected", site=post["site"], ref_type="post",
+            ref_id=post.get("id"), message=media_origin,
+        )
 
     required_sites = set(cfg.get("media.require_image_sites", []) or [])
     require_image = bool(cfg.get("media.require_image")) or cfg.site in required_sites
@@ -206,6 +334,8 @@ def build_outgoing(post: dict, cfg: SiteConfig) -> Outgoing:
         and capabilities(post["platform"]).media
         and not images
     ):
+        if generation_error:
+            raise generation_error
         raise MediaRequiredError(cfg.site, post.get("source_id"))
 
     return Outgoing(
@@ -261,7 +391,12 @@ def publish_post(post_id: int, *, cfg: SiteConfig | None = None, claim: bool = T
     except AdapterError as exc:
         if post.get("channel_id"):
             accounts.record_publish_result(post["channel_id"], ok=False, error=str(exc))
-        updated = queue.mark_failed(post_id, str(exc), retryable=exc.retryable)
+        updated = queue.mark_failed(
+            post_id,
+            str(exc),
+            retryable=exc.retryable,
+            retry_delay_minutes=exc.retry_delay_minutes,
+        )
         if updated and updated["status"] == "failed":
             notify.notify_failure(post["site"], post["platform"], post_id, str(exc))
         return {"ok": False, "error": str(exc), "retryable": exc.retryable}

@@ -119,6 +119,54 @@ def test_required_image_uses_checked_in_fallback_when_generation_is_unavailable(
     assert outgoing.images[0].alt == "Editorial illustration"
 
 
+def test_default_fallback_can_skip_generation_and_records_provenance(synced, monkeypatch):
+    cfg = load_site_config("alpha.com")
+    cfg.data["media"] = {
+        "default_image": "/social-default.jpg",
+        "default_image_first": True,
+    }
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+    post_id = queue.list_posts(site="alpha.com", status="draft")[0]["id"]
+
+    monkeypatch.setattr(
+        media,
+        "load_image",
+        lambda ref, site: b"fallback" if ref == "/social-default.jpg" else None,
+    )
+    monkeypatch.setattr(
+        publisher, "_generate_missing_image",
+        lambda *_args: pytest.fail("generation should be skipped when fallback_first is enabled"),
+    )
+
+    outgoing = publisher.build_outgoing(queue.get(post_id), cfg)
+
+    assert outgoing.images[0].url == "/social-default.jpg"
+    assert outgoing.options["media_source"] == "fallback"
+
+
+def test_generation_circuit_breaker_opens_after_configured_failures(monkeypatch):
+    settings = {"failure_threshold": 2, "cooldown_seconds": 60}
+    monkeypatch.setattr(publisher, "_MEDIA_GEN_FAILURES", 0)
+    monkeypatch.setattr(publisher, "_MEDIA_GEN_OPEN_UNTIL", 0.0)
+
+    publisher._record_generation_result(settings, ok=False)
+    assert not publisher._generation_circuit_open(settings)
+    publisher._record_generation_result(settings, ok=False)
+    assert publisher._generation_circuit_open(settings)
+
+
+def test_media_diagnostics_reports_checked_in_fallback(fake_fleet, monkeypatch):
+    cfg = load_site_config("alpha.com")
+    cfg.data["media"] = {"default_image": "/social-default.jpg"}
+    monkeypatch.setattr(media, "load_image", lambda ref, site: b"fallback")
+
+    result = publisher.media_diagnostics(cfg)
+
+    assert result["fallback_configured"] is True
+    assert result["fallback_available"] is True
+
+
 def test_missing_image_uses_media_gen_client(monkeypatch):
     calls = {}
 
@@ -141,6 +189,34 @@ def test_missing_image_uses_media_gen_client(monkeypatch):
     assert result and result.data == b"jpeg-bytes"
     assert calls["generate"]["site"] == "reviewtattoo"
     assert "Tattoo healing" in calls["generate"]["prompt"]
+
+
+def test_missing_image_generation_is_cached(monkeypatch, tmp_path):
+    calls = {"generate": 0}
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            pass
+
+        def generate(self, **kwargs):
+            calls["generate"] += 1
+            kwargs["dest_path"].write_bytes(b"cached-jpeg")
+
+    monkeypatch.setenv("SOCIAL_HUB_MEDIA_CACHE_DIR", str(tmp_path))
+    monkeypatch.setitem(sys.modules, "media_gen_client", types.SimpleNamespace(MediaGenClient=FakeClient))
+    cfg = type(
+        "Cfg",
+        (),
+        {"get": lambda self, key: {"generate_missing": True, "site": "reviewtattoo"} if key == "media" else None},
+    )()
+    post = {"id": 7, "site": "reviewtattoo.com", "source_id": "healing-guide"}
+    source = {"title": "Tattoo healing", "summary": "What to expect."}
+
+    first = publisher._generate_missing_image(post, source, cfg)
+    second = publisher._generate_missing_image(post, source, cfg)
+
+    assert first and second and first.data == second.data == b"cached-jpeg"
+    assert calls["generate"] == 1
 
 
 def test_replies_never_carry_the_article_cover(synced, monkeypatch):

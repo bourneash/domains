@@ -17,6 +17,8 @@ image must cost the post its picture, never its publication.
 from __future__ import annotations
 
 import io
+import hashlib
+import json
 import os
 from pathlib import Path
 
@@ -26,6 +28,60 @@ from social_hub.config import site_root
 #: One conservative ceiling keeps the resize logic in one place.
 MAX_BYTES = 950_000
 MAX_EDGE = 1600
+
+
+def _cache_root() -> Path:
+    """Use the DB directory by default so isolated workers stay self-contained."""
+    db_file = Path(os.environ.get(
+        "SOCIAL_HUB_DB",
+        str(Path(__file__).resolve().parents[2] / "data" / "hub.db"),
+    ))
+    return Path(os.environ.get("SOCIAL_HUB_MEDIA_CACHE_DIR", str(db_file.parent / "generated-media")))
+
+
+def cache_key(site: str, source_id: str, fingerprint: dict) -> str:
+    payload = json.dumps(
+        {"site": site, "source_id": source_id, **fingerprint},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def read_cached_image(key: str) -> bytes | None:
+    try:
+        data = (_cache_root() / f"{key}.jpg").read_bytes()
+    except OSError:
+        return None
+    return data if data else None
+
+
+def write_cached_image(key: str, data: bytes) -> None:
+    root = _cache_root()
+    root.mkdir(parents=True, exist_ok=True)
+    target = root / f"{key}.jpg"
+    temporary = root / f".{key}.tmp"
+    try:
+        temporary.write_bytes(data)
+        os.replace(temporary, target)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def is_local_ref(ref: str, site: str) -> bool:
+    return not ref.startswith(("http://", "https://")) or f"//{site}/" in ref
+
+
+def local_image_exists(ref: str, site: str) -> bool:
+    """Check a site-local image without fetching remote URLs."""
+    if not ref or not is_local_ref(ref, site):
+        return True
+    if ref.startswith(("http://", "https://")):
+        ref = ref.split(f"//{site}", 1)[1]
+    return any(path.is_file() for path in _candidate_paths(site, ref))
 
 
 def _candidate_paths(site: str, ref: str) -> list[Path]:

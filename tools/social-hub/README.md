@@ -215,6 +215,15 @@ picture, never its publication. Sites listed in `media.require_image_sites` fail
 closed and retry instead of publishing text-only when generation also fails.
 `SOCIAL_HUB_NO_MEDIA=1` disables attachments.
 
+Sites that publish content without per-item artwork can configure
+`media.default_image` and optionally `media.default_image_first: true` to use a
+checked-in fallback before generation. Missing-image generation is cached by
+site/source/prompt fingerprint, bounded by `media.timeout` (maximum 300 seconds),
+and protected by a shared circuit breaker (`failure_threshold` failures followed
+by `cooldown_seconds`). `social-hub doctor` validates local media and generator
+health. Nightly `social-hub maintain` automatically reschedules parked
+image-required posts once a fallback or generator becomes available.
+
 ## Engagement
 
 `social-hub metrics [--refresh]` reports likes/reposts/replies per platform

@@ -497,6 +497,19 @@ def doctor():
             elif not channel["enabled"]:
                 console.print(f"[yellow]  {name}/{platform}: channel disabled ({channel['status']})[/yellow]")
                 problems += 1
+        for issue in sources.validate_media(name, cfg):
+            console.print(f"[red]  {name}/media: {issue}[/red]")
+            problems += 1
+        diagnostics = publisher.media_diagnostics(cfg)
+        if diagnostics.get("generator_healthy") is False:
+            console.print(
+                f"[yellow]  {name}/media-gen: unavailable "
+                f"({diagnostics.get('generator_error', 'health check failed')})[/yellow]"
+            )
+            # A checked-in fallback or complete source coverage can keep this
+            # from being a publishing blocker; it is still operationally useful.
+            if not diagnostics.get("fallback_available"):
+                problems += 1
     console.print("[green]no problems found[/green]" if not problems else f"[yellow]{problems} issue(s)[/yellow]")
 
 

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from social_hub import accounts, db, generator, publisher, queue, sources, worker
+from social_hub import accounts, db, generator, maintenance, publisher, queue, scheduler, sources, worker
 from social_hub.config import load_site_config, site_root
 from tests.conftest import make_site
 
@@ -68,6 +68,37 @@ def test_collection_image_template_maps_horoscope_sign_card(fake_fleet):
     assert found[0]["image_url"] == "/og/sign/sagittarius.png"
 
 
+def test_media_validation_catches_a_broken_local_template(fake_fleet):
+    cfg = load_site_config("alpha.com")
+    cfg.data["sources"] = {
+        "collections": [{
+            "name": "horoscope",
+            "glob": "site/src/content/articles/*.md",
+            "image_template": "/og/sign/{parent}.png",
+        }]
+    }
+
+    issues = sources.validate_media("alpha.com", cfg)
+
+    assert issues and "image is missing" in issues[0]
+
+
+def test_actual_sinderella_horoscope_config_has_real_sign_cards(fake_fleet, monkeypatch):
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[3]
+    monkeypatch.setenv("DOMAINS_ROOT", str(repo))
+    cfg = load_site_config("sinderella.org")
+    horoscope = [
+        item for item in sources.discover("sinderella.org", cfg)
+        if item.get("source_type") == "horoscope"
+    ]
+
+    assert horoscope
+    assert all(item["image_url"].startswith("/og/sign/") for item in horoscope)
+    assert sources.validate_media("sinderella.org", cfg) == []
+
+
 def test_generate_creates_one_draft_per_platform_and_never_duplicates(synced):
     cfg = load_site_config("alpha.com")
     sources.ingest("alpha.com", cfg)
@@ -111,6 +142,27 @@ def test_approve_schedules_and_publish_sends_and_mirrors(synced):
     assert source_state == "done"
 
 
+def test_maintenance_recovers_parked_media_failures(fake_fleet, monkeypatch):
+    post_id = queue.create_post(
+        site="alpha.com", platform="fake", body="Needs an image.",
+        source_id="story-0", status="failed",
+    )
+    db.update(
+        "posts", post_id,
+        {"error": "alpha.com: image required for story-0"},
+    )
+    monkeypatch.setattr(
+        publisher,
+        "media_diagnostics",
+        lambda _cfg: {"fallback_available": True, "generator_healthy": False},
+    )
+
+    result = maintenance.run()
+
+    assert result["media_recovered"] == 1
+    assert queue.get(post_id)["status"] == "scheduled"
+
+
 def test_publish_appends_the_article_link(synced):
     cfg = load_site_config("alpha.com")
     sources.ingest("alpha.com", cfg)
@@ -145,6 +197,24 @@ def test_failed_publish_retries_then_parks(synced):
     assert parked["status"] == "failed"
     assert parked["attempts"] == queue.MAX_ATTEMPTS
     assert "rate limited" in parked["error"]
+
+
+def test_failed_publish_honors_dependency_specific_backoff(synced):
+    from social_hub.platforms import AdapterError
+
+    cfg = load_site_config("alpha.com")
+    sources.ingest("alpha.com", cfg)
+    generator.generate("alpha.com", cfg, limit=1)
+    post_id = queue.list_posts(site="alpha.com", status="draft")[0]["id"]
+    queue.approve(post_id, cfg=cfg)
+    db.update("posts", post_id, {"scheduled_at": db.utcnow()})
+
+    synced.fail_with = AdapterError("dependency unavailable", retry_delay_minutes=60)
+    before = datetime.now(timezone.utc)
+    publisher.publish_post(post_id)
+    scheduled = scheduler.parse(queue.get(post_id)["scheduled_at"])
+
+    assert scheduled >= before + timedelta(minutes=59)
 
 
 def test_non_retryable_failure_parks_immediately(synced):

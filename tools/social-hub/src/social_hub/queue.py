@@ -324,7 +324,13 @@ def mark_posted(post_id: int, remote_id: str, remote_url: str) -> dict | None:
     return get(post_id)
 
 
-def mark_failed(post_id: int, error: str, *, retryable: bool = True) -> dict | None:
+def mark_failed(
+    post_id: int,
+    error: str,
+    *,
+    retryable: bool = True,
+    retry_delay_minutes: int | None = None,
+) -> dict | None:
     """Back off and retry, or park the post as failed once it has burned its
     attempts. Retry delay grows 5/20/80 minutes so a flapping API doesn't get
     hammered and a genuinely broken post stops eating slots."""
@@ -336,7 +342,7 @@ def mark_failed(post_id: int, error: str, *, retryable: bool = True) -> dict | N
     attempts = int(post["attempts"]) + 1
     payload: dict[str, Any] = {"attempts": attempts, "error": error[:500]}
     if retryable and attempts < MAX_ATTEMPTS:
-        delay = 5 * (4 ** (attempts - 1))
+        delay = retry_delay_minutes or 5 * (4 ** (attempts - 1))
         payload["status"] = "scheduled"
         payload["scheduled_at"] = (
             datetime.now(timezone.utc) + timedelta(minutes=delay)

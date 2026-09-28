@@ -19,9 +19,16 @@ from typing import Optional
 class AdapterError(RuntimeError):
     """Adapter failed in a way worth surfacing (auth, rate limit, rejection)."""
 
-    def __init__(self, message: str, *, retryable: bool = True):
+    def __init__(
+        self,
+        message: str,
+        *,
+        retryable: bool = True,
+        retry_delay_minutes: int | None = None,
+    ):
         super().__init__(message)
         self.retryable = retryable
+        self.retry_delay_minutes = retry_delay_minutes
 
 
 @dataclass
