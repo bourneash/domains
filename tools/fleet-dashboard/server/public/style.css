@@ -243,6 +243,10 @@ body[data-view="agent"] main:has(.ex-shell[data-workspace="conversation"]) { max
 .ex-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
 .ex-panel h3 { margin: 3px 0 0; font-size: 16px; }
 .ex-panel h4 { margin: 0 0 10px; font-size: 13px; }
+.ex-attention { border-color: rgba(210,153,34,.34); }
+.ex-attention-intro { max-width: 720px; margin: 8px 0 0; line-height: 1.45; }
+.ex-scope-badge { margin-right: 5px; vertical-align: middle; }
+.ex-decision-request { margin: 10px 0; padding: 9px 11px; border-left: 3px solid rgba(210,153,34,.65); background: rgba(210,153,34,.08); color: var(--text); line-height: 1.45; }
 .ex-run-panel { border-color: rgba(77,163,255,.42); background: linear-gradient(145deg, rgba(24,35,52,.98), var(--panel)); }
 .ex-run-panel:has(.ex-run-detail) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 1.15fr); gap: 14px; }
 .ex-run-panel:has(.ex-run-detail) > .ex-panel-head, .ex-run-panel:has(.ex-run-detail) > .ex-run-controls, .ex-run-panel:has(.ex-run-detail) > .ex-run-output { grid-column: 1 / -1; }
@@ -264,6 +268,11 @@ body[data-view="agent"] main:has(.ex-shell[data-workspace="conversation"]) { max
 .ex-run-output b { color: var(--green); }
 .ex-run-output.ex-run-failure { border-color: rgba(248,81,73,.55); background: rgba(248,81,73,.10); }
 .ex-run-output.ex-run-failure b { color: var(--red); }
+.ex-attention .ex-approval-card { margin: 0 0 9px; padding: 13px 14px; background: var(--panel-2); border-radius: 8px; border: 1px solid var(--border); }
+.ex-attention .ex-approval-card:last-child { margin-bottom: 0; }
+.ex-attention .ex-approval-card p { margin: 8px 0; color: var(--text); font-size: 13px; line-height: 1.45; }
+.ex-attention .ex-approval-card .page-head { margin-bottom: 0; }
+.ex-attention .ex-approval-card .task-toolbar { margin: 10px 0 0; }
 .ex-compose textarea { display: block; width: 100%; min-height: 64px; resize: vertical; }
 .ex-transcript-panel { background: linear-gradient(150deg, rgba(29,36,52,.98), var(--panel)); }
 .ex-transcript-legend { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 4px 0 16px; font-size: 11px; }
