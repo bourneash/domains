@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:06:17.747Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:23:35.280Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site-factory plan: maintain a two-entry bounded launch pipeline: complicated.work and deadlymaracas.com remain parked and private with unknown audience, traffic, revenue, attribution, compliance, analytics, security, and operational health. For either future launch packet, require an owner-approved site brief, reusable template, content seed, SEO baseline, existing-telemetry analytics/affiliate mapping, compliance checklist, security review, legal disposition, measurement plan, rollback plan, and launch gate; no domains, spend, credentials, deployment, monetization, or launch changes are authorized. Strongest candidate: complicated.work, because it is queue-ready but remains blocked by the existing execution-owner gap and parked/private disposition. Exactly one next step: site-factory reconciles the existing complicated.work owner-gap item and records verified ownership status; do not create, duplicate, requeue, deploy, or change launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve complicated.work and deadlymaracas.com as parked and private. Existing owner-gap and readiness work may continue only as bounded repository evidence; no launch, DNS, credentials, analytics, monetization, or deployment changes are authorized. Smallest next step: verify the existing execution-owner records and attach dated evidence.",
+        "summary": "Handoff: verify existing execution-owner records for complicated.work and deadlymaracas.com by 2026-09-30T17:00Z while preserving parked/private status. No DNS, credentials, analytics, deployment, monetization, or launch changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

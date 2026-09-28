@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T11:50:49.118Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:23:35.281Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed security report as duplicate existing evidence work. Continue only existing repair-or-close, measurement, matching-period attribution/cost reconciliation, and legal/security evidence work. Preserve aggregate earnings as unattributed; no new production work, queue dispatch, requeue, telemetry, spending, monetization, deployment, or external outreach is supported.",
+        "summary": "Reject the proposed affiliate-readiness artifact and all new queue work as duplicative or unsupported. Maintain containment-only execution: continue existing measurement, repair-or-close, legal/security evidence, parked-site owner verification, and attribution/cost reconciliation. Preserve aggregate commission as unattributed; do not claim site revenue, ROI, margin, payback, forecasts, or causal lift. Keep permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close and measurement review without dispatch or requeue. Require dated ownership, root cause, isolated validation, rollback, release, security, attribution, deduplication, and measurement evidence before any retry.",
+        "summary": "Continue existing repair-or-close and measurement containment only. Require dated ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence before any retry. Do not dispatch or requeue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence tasks and preserve the private gate. Keep permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Do not create duplicate work or alter production state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing matching-period revenue, attribution, and cost reconciliation only. Preserve aggregate earnings as unattributed and treat missing cost, budget, commitment, and learning-threshold records as unknown.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates; do not access credentials, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

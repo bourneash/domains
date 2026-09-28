@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:06:17.748Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T12:23:35.280Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and do not authorize new production work, spend, monetization, telemetry, requeues, or forecasts this cycle. Amazon reports $4.92 commission for 2026-09-21, but it is aggregate under tracking_id 'other' and cannot support site-level revenue claims; named site rows show clicks but $0 attributed commission. AI spend is $916.91 for 2026-09-01 through 2026-09-28 across 39 instrumented sites, including $143.69 for 0daynews.com, $98.55 for americastrikes.com, and $66.06 for blackmarketapparel.com. Contribution margin, ROI, payback, budget exposure, and cost-to-learn are not calculable because matching-period infrastructure, domains, labor, marketing, experiment, commitments, budget ceilings, and learning thresholds are missing. Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Minimum measurement: site/content-level provider identifiers; a complete matching-period ledger for AI, infrastructure, domains, labor, marketing, experiments, and commitments; budget ceilings; and an explicit cost-to-learn threshold. Treat 14,410 impressions, 146 clicks, 1,002 sessions, 15 conversions, 36 awaiting measurement, and 3 proven outcomes as operating indicators—not financial results—and retain all growth opportunities as deferred backlog.",
+        "summary": "Recommendation: maintain containment-only execution. Amazon reports $4.92 aggregate commission for 2026-09-21, with $0 attributed income and $4.92 unattributed under aggregate tracking. AI spend is $916.91 from 2026-09-01 through 2026-09-28. Contribution margin, ROI, payback, budget capacity, and cost-to-learn are not calculable because matching-period infrastructure, domains, labor, marketing, experiment, commitment, and budget records are missing. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned attribution/cost reconciliation. Do not create new production work, spending, telemetry, monetization, experiments, deployments, dependencies, or requeues.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Preserve the $4.92 aggregate commission as unattributed, reconcile provider identifiers against recorded costs, and document missing budget ceilings, commitments, and learning thresholds. Do not infer site revenue, contribution margin, ROI, payback, budget capacity, forecasts, or causal lift.",
+        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile provider tracking identifiers against matching-period recorded costs. Preserve the $4.92 commission for 2026-09-21 as unattributed. Minimum measurement for contribution margin and cost-to-learn is site/content revenue identifiers, a complete matching-period cost ledger, budget ceilings and commitments, and an explicit learning threshold. Do not treat missing data as zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject vanity-metric and unsupported forecast claims. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not revenue or margin evidence. The 30-day scorecard records 3 proven outcomes and 36 improvements awaiting measurement; these do not support a portfolio forecast or causal-lift claim.",
         "requested_action": null,
         "proposal_id": null
       }
