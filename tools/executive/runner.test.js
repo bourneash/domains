@@ -206,6 +206,13 @@ test('site-factory candidates turn queue-ready parked sites into bounded launch-
   assert.match(candidates[0].title, /ready\.example\.com/);
 });
 
+test('candidate capacity distinguishes independent work lanes', () => {
+  assert.equal(runner.candidateQueueCategory({ type: 'seo' }), 'seo');
+  assert.equal(runner.candidateQueueCategory({ type: 'design' }), 'design');
+  assert.equal(runner.candidateQueueCategory({ type: 'click-uplift' }), 'marketing');
+  assert.equal(runner.candidateQueueCategory({ type: 'site-factory-build' }), 'engineering');
+});
+
 test('site-factory launch-readiness candidates require report coverage', () => {
   const brief = {
     launch_readiness: [],

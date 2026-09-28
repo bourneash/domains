@@ -93,6 +93,19 @@ function normalizeActionTitle(value) {
     .replace(/\s+/g, ' ');
 }
 
+function candidateQueueCategory(candidate = {}) {
+  const type = String(candidate.type || '')
+    .trim()
+    .toLowerCase();
+  if (type === 'site-factory-build' || type === 'execution' || type === 'engineering')
+    return 'engineering';
+  if (type === 'design' || type === 'ux' || type === 'visual') return 'design';
+  if (type === 'growth' || type === 'click-uplift' || type === 'affiliate' || type === 'revenue')
+    return 'marketing';
+  if (type === 'content') return 'content';
+  return 'seo';
+}
+
 function completedActionIndex(store) {
   const keys = new Set();
   const titles = new Set();
@@ -572,9 +585,25 @@ async function buildBrief(store, root = ROOT) {
       .map(row => String(row.site || '').toLowerCase())
       .filter(Boolean)
   );
+  // A deployed/measuring run is not a blanket site lock. It only occupies its
+  // own work lane; otherwise one SEO experiment prevents unrelated design or
+  // affiliate work for the entire measurement window and creates a fake
+  // zero-action cycle. Queued/review implementation work remains a full lock.
+  const measuredCategories = new Map();
+  const requestById = new Map(
+    store.listChangeRequests({ limit: 1000 }).map(request => [String(request.request_id), request])
+  );
   for (const run of store.listImprovements({ limit: 1000 })) {
-    if (['proposed', 'building', 'review', 'deployed', 'measuring'].includes(run.state))
+    if (['proposed', 'building', 'review'].includes(run.state))
       activeSites.add(String(run.site || '').toLowerCase());
+    if (['deployed', 'measuring'].includes(run.state)) {
+      const site = String(run.site || '').toLowerCase();
+      const category = String(requestById.get(String(run.source_id))?.category || '').toLowerCase();
+      if (site && category) {
+        if (!measuredCategories.has(site)) measuredCategories.set(site, new Set());
+        measuredCategories.get(site).add(category);
+      }
+    }
   }
   const combinedActionCandidates = [
     ...allActionCandidates,
@@ -584,12 +613,24 @@ async function buildBrief(store, root = ROOT) {
   const executableActionCandidates = [
     ...new Map(
       combinedActionCandidates
-        .filter(candidate => !activeSites.has(String(candidate.site || '').toLowerCase()))
+        .filter(candidate => {
+          const site = String(candidate.site || '').toLowerCase();
+          return (
+            !activeSites.has(site) &&
+            !measuredCategories.get(site)?.has(candidateQueueCategory(candidate))
+          );
+        })
         .map(candidate => [String(candidate.site || '').toLowerCase(), candidate])
     ).values(),
   ];
   const deferredActionCandidates = combinedActionCandidates
-    .filter(candidate => activeSites.has(String(candidate.site || '').toLowerCase()))
+    .filter(candidate => {
+      const site = String(candidate.site || '').toLowerCase();
+      return (
+        activeSites.has(site) ||
+        measuredCategories.get(site)?.has(candidateQueueCategory(candidate))
+      );
+    })
     .slice(0, 12)
     .map(candidate => ({
       ...candidate,
@@ -3153,7 +3194,7 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
           'review',
           'committed',
           'building',
-          'measuring',
+          'proposed',
         ].includes(String(item.status || item.state))
       )
       .map(item => String(item.site || '').toLowerCase())
@@ -4154,6 +4195,7 @@ module.exports = {
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,
+  candidateQueueCategory,
   siteFactoryCandidates,
   siteFactoryBuildCandidates,
   buildActionMandateFallback,
