@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:23:35.280Z",
+  "generated_at": "2026-09-28T13:06:55.173Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing repair-or-close and measurement containment through 2026-09-28T17:00Z. Require dated ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence before retry; do not dispatch or requeue new work.",
+        "summary": "Handoff: reject all new candidate dispatches and requeues this cycle. Continue existing repair-or-close and measurement containment through 2026-09-28T17:00Z; require dated ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence before retry.",
         "requested_action": null,
         "proposal_id": null
       }

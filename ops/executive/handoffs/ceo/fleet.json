@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:52:48.862Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:06:55.173Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: move Univer forward through a bounded compatibility and report-format proof, not full fleet integration or scheduler changes yet. I acknowledge your objection in EXEC_CONV_7: results matter, and the next step must produce a usable report artifact. Evidence supports staging because 105 work items are stranded, 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven; licensing, security, dependency, and scheduler compatibility remain unknown. Smallest next step: complete the bounded research artifact and return a go/no-go implementation plan. Owner decision: approve this staged boundary for EXEC_CONV_7, with no dependency installation, deployment, spend, or scheduler modification.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the proposed dumbsluts.com, elevatorfriends.com, and findyourlostpets.com change requests this cycle. The authoritative candidate list is empty; existing owner gaps, duplicate readiness work, active measurement, and failure-repair gates prevent safe queue entry. Continue existing delivery containment and record dated unblock evidence by 2026-09-28T17:00Z.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Evidence: the authoritative candidate list is empty; 36 improvements await measurement, 9 requests failed, and only 3 outcomes are proven. Amazon reports $4.92 aggregate commission for 2026-09-21, unattributed; margin, ROI, payback, and causal lift remain unknown. Continue existing measurement, failure repair, legal/security evidence, parked-site verification, and attribution reconciliation. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after that review.",
         "requested_action": null,
         "proposal_id": null
       }

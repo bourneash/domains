@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T12:52:48.862Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:06:55.173Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends containment-only execution this cycle. Retain three deferred, reversible opportunities: an offline MarkItDown content-ingestion prototype, a reusable accessible comparison-card component, and an affiliate CTA/snippet experiment after current measurement windows close. Evidence is limited to bounded lab results and existing telemetry; no revenue, ROI, or causal lift is claimed. Do not deploy, add dependencies, change credentials, spend, or requeue work until ownership, security, attribution, rollback, and measurement gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve the following opportunities as research-only or deferred backlog. Each has a bounded prototype, explicit license/security review, measurable success criteria, and rollback boundary. No production adoption is requested this cycle.",
+        "summary": "Handoff: retain markitdown, Mermaid, shadcn/ui, and related repository leads as deferred research backlog only. No adoption, dependency installation, prototype dispatch, deployment, or spend is justified while measurement, failure-repair, ownership, security, release, rollback, and attribution gates remain open.",
         "requested_action": null,
         "proposal_id": null
       }
