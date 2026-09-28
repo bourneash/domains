@@ -712,15 +712,18 @@ async function buildBrief(store, root = ROOT) {
     conversation: messages
       .slice()
       .reverse()
-      .map(({ actor, body, work_id, reply_to, message_type, metadata, created_at }) => ({
-        actor,
-        body,
-        work_id,
-        reply_to,
-        message_type,
-        metadata,
-        created_at,
-      })),
+      .map(
+        ({ actor, body, work_id, request_ref, reply_to, message_type, metadata, created_at }) => ({
+          actor,
+          body,
+          work_id,
+          request_ref,
+          reply_to,
+          message_type,
+          metadata,
+          created_at,
+        })
+      ),
     work_threads,
     handoffs: handoff.recent(root, 30),
     data_requests: executiveData.recent(store),
@@ -803,7 +806,7 @@ function ensureOwnerRequestCoverage(store, plan) {
     plan.messages.push({
       actor: 'ceo',
       body:
-        `Acknowledged owner request: ${item.summary}\n\n` +
+        `Acknowledged ${item.request_ref || item.work_id}: ${item.summary}\n\n` +
         'The executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.',
       work_id: item.work_id,
       reply_to: item.source_id || null,
@@ -1062,6 +1065,7 @@ function compactModelBrief(brief) {
       owner: item.owner,
       source_type: item.source_type,
       source_id: item.source_id,
+      request_ref: item.request_ref,
       site: item.site,
       summary: item.summary,
       next_action: item.next_action,
@@ -1135,6 +1139,7 @@ Rules:
 - Challenge blockers instead of treating them as terminal. If a managed site is private, password protected, preview-only, parked, noindex/nofollow, or otherwise unable to earn, ask why, who owns the launch decision, whether it can monetize while gated, what must be true to go live, and what opportunity cost comes from remaining private. Create an owner-facing launch-readiness/go-live or monetization proposal, or a bounded research request, unless evidence supports keeping it parked. A blocked site is an unresolved business question, not a completed decision.
 - Every cycle with an unblocked implementation candidate must contain at least one engineer-routable change_request, with a concrete site, files/scope, acceptance criteria, tests, metric, baseline, time-to-learn, and rollback. A message, proposal, research request, or report-only request does not count as execution. Use an owner-facing question only for a genuinely consequential decision or a candidate blocked by an explicit launch, legal, security, credential, spend, or missing-evidence gate.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
+- Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Follow action_mandate every hourly cycle: when actionable candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.

@@ -44,6 +44,72 @@ test('turns an owner request into a tracked executive work item and thread', () 
   db.close();
 });
 
+test('assigns stable conversation references and reopens the case for owner pushback', () => {
+  const db = store();
+  const univer = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'I would like for you and your team to implement https://github.com/dream-num/univer in fleet control and schedule regular office-format reports.',
+  });
+  assert.equal(univer.work_item.request_ref, 'EXEC_CONV_1');
+  assert.equal(db.getExecutiveWorkItem('EXEC_CONV_1').work_id, univer.work_item.work_id);
+
+  executive.message(db, {
+    actor: 'ceo',
+    body: 'Recommendation: research compatibility and security before implementation.',
+    work_id: univer.work_item.work_id,
+    reply_to: univer.message.message_id,
+  });
+  assert.equal(db.getExecutiveWorkItem(univer.work_item.work_id).lifecycle_state, 'answered');
+
+  executive.message(db, {
+    actor: 'owner',
+    body: 'I do not agree. There is no harm in bringing in this project and starting reports.',
+    work_id: univer.work_item.work_id,
+    reply_to: univer.message.message_id,
+  });
+  const reopened = db.getExecutiveWorkItem(univer.work_item.work_id);
+  assert.equal(reopened.request_ref, 'EXEC_CONV_1');
+  assert.equal(reopened.lifecycle_state, 'submitted');
+  assert.equal(reopened.status, 'waiting');
+  assert.equal(reopened.waiting_on, 'executive-team');
+  assert.equal(reopened.answered_at, null);
+
+  const second = executive.ownerRequest(db, {
+    actor: 'owner',
+    body: 'Please review the parked site launch plan.',
+  });
+  assert.equal(second.work_item.request_ref, 'EXEC_CONV_2');
+  db.close();
+});
+
+test('reconciles stale request state from the latest message in the thread', () => {
+  const db = store();
+  const request = executive.ownerRequest(db, { actor: 'owner', body: 'Please make a decision.' });
+  executive.message(db, {
+    actor: 'ceo',
+    body: 'Recommendation: defer pending evidence.',
+    work_id: request.work_item.work_id,
+  });
+  // Simulate a legacy row that was incorrectly left answered after owner follow-up.
+  db.createExecutiveMessage({
+    actor: 'owner',
+    body: 'I am pushing back; please answer this directly.',
+    work_id: request.work_item.work_id,
+    created_at: new Date(Date.now() + 1000).toISOString(),
+  });
+  db.updateExecutiveWorkItem(request.work_item.work_id, {
+    lifecycle_state: 'answered',
+    status: 'in_progress',
+    answered_at: new Date().toISOString(),
+  });
+  executive.ensureOwnerRequests(db);
+  const reconciled = db.getExecutiveWorkItem(request.work_item.work_id);
+  assert.equal(reconciled.lifecycle_state, 'submitted');
+  assert.equal(reconciled.status, 'waiting');
+  assert.equal(reconciled.answered_at, null);
+  db.close();
+});
+
 test('backfills legacy owner messages into tracked requests', () => {
   const db = store();
   const legacy = db.createExecutiveMessage({ actor: 'owner', body: 'Where is the launch plan?' });

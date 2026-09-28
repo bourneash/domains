@@ -79,20 +79,32 @@ function message(store, input = {}) {
       .find(item => item.message_id === String(input.reply_to));
     workId = parent?.work_id || null;
   }
-  if (workId && store.getExecutiveWorkItem && !store.getExecutiveWorkItem(workId))
-    throw httpErr(400, 'message references an unknown work item');
+  if (workId && store.getExecutiveWorkItem) {
+    const referenced = store.getExecutiveWorkItem(workId);
+    if (!referenced) throw httpErr(400, 'message references an unknown work item');
+    workId = referenced.work_id;
+  }
   const created = store.createExecutiveMessage({
     ...input,
     actor: String(input.actor),
     work_id: workId,
   });
-  if (created.work_id && created.actor !== 'owner' && store.getExecutiveWorkItem) {
+  if (created.work_id && store.getExecutiveWorkItem) {
     const workItem = store.getExecutiveWorkItem(created.work_id);
     if (workItem?.source_type === 'owner-request') {
-      if (
-        !['closed', 'done', 'cancelled'].includes(workItem.lifecycle_state) &&
-        workItem.lifecycle_state !== 'answered'
-      ) {
+      if (created.actor === 'owner') {
+        // A follow-up is a new turn, even when the earlier answer was valid.
+        // Reopen the case so the next executive run must address the latest
+        // owner message instead of treating historical activity as closure.
+        store.updateExecutiveWorkItem(workItem.work_id, {
+          status: 'waiting',
+          lifecycle_state: 'submitted',
+          answered_at: null,
+          waiting_on: 'executive-team',
+          next_action:
+            'Executive team to acknowledge the latest owner message and answer the open point in this thread.',
+        });
+      } else if (!['closed', 'done', 'cancelled'].includes(workItem.lifecycle_state)) {
         store.updateExecutiveWorkItem(workItem.work_id, {
           status: 'in_progress',
           lifecycle_state: 'answered',
@@ -101,22 +113,24 @@ function message(store, input = {}) {
           next_action: 'Owner review or follow-up is available in the linked thread.',
         });
       }
-      const notification = store.createExecutiveNotification?.({
-        recipient: 'owner',
-        notification_type: 'executive-response',
-        title: 'Executive team replied',
-        body: created.body,
-        work_id: workItem.work_id,
-        message_id: created.message_id,
-        dedupe_key: `executive-response:${created.message_id}`,
-      });
-      if (notification) {
-        try {
-          void require('./executive-notify')
-            .drain(store)
-            .catch(() => {});
-        } catch {
-          // External notification is optional and must never block the reply.
+      if (created.actor !== 'owner') {
+        const notification = store.createExecutiveNotification?.({
+          recipient: 'owner',
+          notification_type: 'executive-response',
+          title: 'Executive team replied',
+          body: created.body,
+          work_id: workItem.work_id,
+          message_id: created.message_id,
+          dedupe_key: `executive-response:${created.message_id}`,
+        });
+        if (notification) {
+          try {
+            void require('./executive-notify')
+              .drain(store)
+              .catch(() => {});
+          } catch {
+            // External notification is optional and must never block the reply.
+          }
         }
       }
     }
@@ -155,14 +169,29 @@ function ownerRequest(store, input = {}) {
 
 function ensureOwnerRequests(store) {
   for (const item of store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })) {
-    if (!OWNER_REQUEST_LIFECYCLE.has(item.lifecycle_state) || item.lifecycle_state === 'open') {
-      const hasResponse = store
-        .listExecutiveMessages({ work_id: item.work_id, limit: 100 })
-        .some(message => message.actor !== 'owner');
+    const messages = store.listExecutiveMessages({ work_id: item.work_id, limit: 100 });
+    const latest = [...messages]
+      .sort((a, b) => (Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0))
+      .at(-1);
+    if (latest?.actor === 'owner' && !['closed', 'done', 'cancelled'].includes(item.status)) {
       store.updateExecutiveWorkItem(item.work_id, {
-        lifecycle_state: hasResponse ? 'answered' : 'submitted',
-        answered_at: hasResponse ? item.answered_at || new Date().toISOString() : item.answered_at,
-        status: hasResponse ? 'in_progress' : item.status,
+        lifecycle_state: 'submitted',
+        answered_at: null,
+        status: 'waiting',
+        waiting_on: 'executive-team',
+        next_action:
+          'Executive team to acknowledge the latest owner message and answer the open point in this thread.',
+      });
+    } else if (
+      latest &&
+      latest.actor !== 'owner' &&
+      !['actioned', 'measured', 'closed'].includes(item.lifecycle_state) &&
+      item.lifecycle_state !== 'answered'
+    ) {
+      store.updateExecutiveWorkItem(item.work_id, {
+        lifecycle_state: 'answered',
+        answered_at: item.answered_at || latest.created_at || new Date().toISOString(),
+        status: 'in_progress',
       });
     }
   }

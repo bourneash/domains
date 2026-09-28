@@ -260,7 +260,8 @@ function open(root, { file } = {}) {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       resolved_at TEXT,
-      resolution_note TEXT
+      resolution_note TEXT,
+      request_ref TEXT
     );
     CREATE INDEX IF NOT EXISTS executive_work_items_queue ON executive_work_items(status, priority, updated_at DESC);
     CREATE INDEX IF NOT EXISTS executive_work_items_owner ON executive_work_items(owner, status, updated_at DESC);
@@ -893,6 +894,7 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_work_items', 'last_error', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'goal_id', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'parent_work_id', 'TEXT');
+  ensureColumn(db, 'executive_work_items', 'request_ref', 'TEXT');
   ensureColumn(db, 'executive_notifications', 'delivery_status', "TEXT NOT NULL DEFAULT 'pending'");
   ensureColumn(db, 'executive_notifications', 'delivery_attempts', 'INTEGER NOT NULL DEFAULT 0');
   ensureColumn(db, 'executive_notifications', 'last_error', 'TEXT');
@@ -905,7 +907,35 @@ function open(root, { file } = {}) {
   db.exec(
     'CREATE INDEX IF NOT EXISTS executive_messages_work ON executive_messages(work_id, created_at)'
   );
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS executive_work_items_request_ref ON executive_work_items(request_ref)'
+  );
 
+  // Human-facing owner-request references are deliberately separate from the
+  // UUID work key. Backfill legacy rows deterministically so an old thread
+  // remains addressable by the same reference after every restart.
+  const legacyOwnerRequests = db
+    .prepare(
+      `SELECT work_id FROM executive_work_items
+       WHERE source_type='owner-request' AND (request_ref IS NULL OR request_ref='')
+       ORDER BY created_at ASC, work_id ASC`
+    )
+    .all();
+  let nextRequestNumber = Number(
+    db
+      .prepare(
+        `SELECT MAX(CAST(SUBSTR(request_ref, 11) AS INTEGER)) AS n
+         FROM executive_work_items WHERE request_ref LIKE 'EXEC_CONV_%'`
+      )
+      .get()?.n || 0
+  );
+  for (const legacy of legacyOwnerRequests) {
+    nextRequestNumber += 1;
+    db.prepare('UPDATE executive_work_items SET request_ref=? WHERE work_id=?').run(
+      `EXEC_CONV_${nextRequestNumber}`,
+      legacy.work_id
+    );
+  }
   function record(input) {
     if (!input || !TYPES.test(String(input.event_type || '')))
       throw httpErr(400, 'invalid event_type');
@@ -2771,7 +2801,19 @@ function open(root, { file } = {}) {
       retry_at: input.retry_at || null,
       last_error: input.last_error ? String(input.last_error).trim() : null,
       organization_id: String(input.organization_id || 'fleet'),
+      request_ref: input.request_ref ? String(input.request_ref).trim() : null,
     };
+    if (row.source_type === 'owner-request' && !row.request_ref) {
+      const max = Number(
+        db
+          .prepare(
+            `SELECT MAX(CAST(SUBSTR(request_ref, 11) AS INTEGER)) AS n
+             FROM executive_work_items WHERE request_ref LIKE 'EXEC_CONV_%'`
+          )
+          .get()?.n || 0
+      );
+      row.request_ref = `EXEC_CONV_${max + 1}`;
+    }
     if (!row.title) throw httpErr(400, 'title is required');
     if (!WORK_ITEM_KINDS.has(row.kind)) throw httpErr(400, 'invalid work item kind');
     if (!WORK_ITEM_STATUSES.has(row.status)) throw httpErr(400, 'invalid work item status');
@@ -2782,8 +2824,8 @@ function open(root, { file } = {}) {
     assertWorkLineage(row);
     db.prepare(
       `INSERT INTO executive_work_items
-      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,organization_id,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+      (work_id,title,kind,status,priority,owner,source_type,source_id,site,goal_id,parent_work_id,project_id,labels_json,summary,next_action,waiting_on,due_at,evidence_json,created_by,created_at,updated_at,resolved_at,resolution_note,request_ref,lifecycle_state,acknowledged_at,answered_at,closed_at,outcome,organization_id,attempts,lease_owner,lease_expires_at,heartbeat_at,retry_at,last_error)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       row.work_id,
       row.title,
@@ -2808,6 +2850,7 @@ function open(root, { file } = {}) {
       row.updated_at,
       row.resolved_at,
       row.resolution_note,
+      row.request_ref,
       row.lifecycle_state,
       row.acknowledged_at,
       row.answered_at,
@@ -2899,6 +2942,9 @@ function open(root, { file } = {}) {
 
   function getExecutiveWorkItem(id) {
     let row = db.prepare('SELECT * FROM executive_work_items WHERE work_id = ?').get(String(id));
+    if (!row) {
+      row = db.prepare('SELECT * FROM executive_work_items WHERE request_ref = ?').get(String(id));
+    }
     // Compatibility for callers that still hold the pre-canonical approved
     // proposal key. The old row is preserved when it exists, but once it has
     // been migrated this lookup follows the canonical case.
@@ -2965,17 +3011,17 @@ function open(root, { file } = {}) {
         items: boardItems,
         links: listWorkflowLinks({ limit: 2000 }),
       });
-      const node = workflow.nodes[`work-item:${id}`];
+      const node = workflow.nodes[`work-item:${current.work_id}`];
       if (node?.blockers?.length)
         throw httpErr(409, `work item is blocked by ${node.blockers.join(', ')}`);
-      if (workflow.cycles.some(cycle => cycle.includes(`work-item:${id}`)))
+      if (workflow.cycles.some(cycle => cycle.includes(`work-item:${current.work_id}`)))
         throw httpErr(409, 'work item is part of a circular dependency');
     }
     const now = new Date().toISOString();
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
     const result = db
       .prepare(
-        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,goal_id=?,parent_work_id=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
+        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,goal_id=?,parent_work_id=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,request_ref=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
       )
       .run(
         next.title,
@@ -2996,6 +3042,7 @@ function open(root, { file } = {}) {
         now,
         resolved,
         next.resolution_note || null,
+        next.request_ref || null,
         next.lifecycle_state,
         next.acknowledged_at || null,
         next.answered_at || null,
