@@ -288,6 +288,7 @@ function launch({
         } catch {
           result = null;
         }
+        const terminalError = timedOut ? 'agent timed out' : `agent exited with code ${code}`;
         store.updateImprovement(run.run_id, {
           agent: {
             status: timedOut ? 'timed-out' : code === 0 ? 'completed' : 'failed',
@@ -307,7 +308,7 @@ function launch({
           if (request && request.status === 'running') {
             store.updateChangeRequest(run.source_id, {
               status: nextStatus,
-              error: nextStatus === 'failed' ? `agent exited with code ${code}` : null,
+              error: nextStatus === 'failed' ? terminalError : null,
               next_attempt_at:
                 nextStatus === 'failed' && request.attempts < AUTOMATIC_RETRY_ATTEMPTS
                   ? new Date(Date.now() + 15 * 60 * 1000).toISOString()
@@ -337,7 +338,7 @@ function launch({
                 phase,
                 exit_code: code,
                 timed_out: timedOut,
-                error: `agent exited with code ${code}`,
+                error: terminalError,
               },
             });
           }
