@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:52:20.253Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:08:16.772Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation. Preserve the $4.92 aggregate commission as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, or causal lift. Record missing matching-period costs, commitments, budgets, and learning thresholds.",
+        "summary": "Recommendation: approve containment-only execution and continue only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 aggregate commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items; the $4.92 provider aggregate row is not site-attributable. The 18 named tracking rows show $0 attributed commission. AI spend is $916.914544 for 2026-09-01 through 2026-09-28 across 5,009 calls, including 228 errors; no matching infrastructure, domain, labor, marketing, experiment, commitment, or budget ledger is available. Therefore contribution margin, cost-to-learn, ROI, payback, budget exposure, forecast, and causal lift are not calculable. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial outcomes. Do not create new spend, requeue work, deploy, expand monetization, or claim revenue lift. Continue existing reconciliation only and preserve missing fields as unknown rather than zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports $4.92 commission for 2026-09-21, with 6,219 clicks, 28 ordered items, and 6 shipped items; $4.92 is in an aggregate row and cannot be assigned to a site. The 18 named tracking rows show $0 attributed commission. AI usage records $916.91 across 5,009 calls from 2026-09-01 through 2026-09-28, but it is not period-matched to the one-day revenue record and infrastructure, domain, labor, marketing, and commitment costs are absent. Contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are therefore not calculable. Minimum measurement: a dated ledger matching provider/site/content revenue identifiers to AI, infrastructure, domain, labor, marketing, experiment, commitment, and budget costs, plus approved budget ceilings and an explicit cost-to-learn threshold. Do not treat missing fields as zero. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions, 36 improvements awaiting measurement, and 3 proven outcomes are operating or delivery indicators, not financial evidence. No new proposal, spend, telemetry, billing, banking, contract, or monetization action is recommended.",
+        "summary": "Attribution disposition: retain the $4.92 aggregate Amazon row as unattributed. Do not convert clicks, ordered items, shipped items, sessions, conversions, impressions, or AI calls into revenue or margin claims. The minimum reconciliation artifact is a dated period-aligned table covering all 18 named tracking rows, the aggregate provider row, site/content revenue, AI cost, infrastructure cost, other operating costs, commitments, budget ceilings, and the approved learning threshold. No additional telemetry or external financial action is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Record the reconciliation as incomplete where evidence is missing: revenue attribution is partial aggregate, matching-period operating costs are unavailable, monthly spend limits and budget fields are blank, and no learning threshold is recorded. Preserve the $4.92 aggregate commission as unattributed and do not claim site revenue, contribution margin, AI payback, cost-to-learn, budget capacity, forecast, or causal lift.",
+        "summary": "Cost-to-learn is unknown, not zero. It cannot be calculated because the brief lacks an explicit approved learning threshold, experiment-level spend allocation, matching-period revenue attribution, and complete operating-cost records. Minimum measurement: define the threshold in advance, allocate incremental AI and other costs to each experiment or site/content unit, reconcile attributable revenue for the same period, and report incremental contribution margin against the threshold before retaining or scaling work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Budget exposure is unknown. The brief leaves monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor blank, and records no commitments or infrastructure ledger. Do not infer budget capacity from the $916.914544 AI total or from the $4.92 aggregate commission. Continue report-only reconciliation through the existing finance work item; no money movement, billing change, contract, banking access, or spending action is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

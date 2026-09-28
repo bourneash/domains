@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:22:29.204Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T14:08:16.772Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Existing telemetry shows 36 improvements awaiting measurement, 9 failed requests, and only 3 proven outcomes; the actionable candidate list is empty. Continue current measurement, repair-or-close, legal and security evidence, parked-site readiness, and attribution reconciliation work. Preserve aggregate provider earnings as unattributed. Do not create or requeue implementation work until ownership, validation, rollback, security, attribution, and measurement gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain MarkItDown, Mermaid, shadcn/ui, and related repository leads as deferred research backlog only. Evidence supports fleet-specific prototypes as future opportunities, but current measurement, failure-repair, ownership, security, release, rollback, attribution, and validation gates remain open. No adoption, dependency installation, deployment, spend, or production change is requested.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain three CRO opportunities as deferred backlog: an offline content-ingestion proof using MarkItDown, a reusable accessible comparison-card prototype informed by shadcn/ui, and a CTA or snippet experiment after current measurement windows close. Each requires a reversible prototype, license and security review, existing-telemetry measurement, and isolated rollback. No revenue, ROI, or causal lift is claimed.",
+        "summary": "Handoff for EXEC_CONV_9: research official eligibility and submission requirements for Google News, Bing News, and one additional provider, including editorial standards, technical requirements, ownership verification, disclosures, and submission paths. Do not contact providers or claim approval; route unresolved privacy, claims, copyright, and editorial-policy issues to Legal.",
         "requested_action": null,
         "proposal_id": null
       }
