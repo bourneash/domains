@@ -2913,7 +2913,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
 
-  function startAutomaticReviewRepair(request, run, error) {
+  async function startAutomaticReviewRepair(request, run, error) {
     const settings = events.getChangeQueueSettings();
     if (!request || !run || request.auto_review === 0 || !settings.auto_review_enabled)
       return false;
@@ -2944,6 +2944,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         });
       }
+      // A dashboard restart or worker-image rebuild can remove the disposable
+      // container while preserving the dirty worktree. Recreate it before the
+      // repair agent starts; otherwise the model exits with "No such
+      // container" and consumes a bounded repair attempt without doing work.
+      repairRun = await ensureImprovementSandbox(repairRun);
       // The reviewer callback may still own the intermediate `reviewing`
       // projection when validation fails. Re-enter through `review` first;
       // the queue state machine intentionally does not allow reviewing →
@@ -3031,7 +3036,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     });
   }
 
-  function recordAutoReviewFailure(id, error) {
+  async function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
     const run = request.run_id ? events.getImprovement(request.run_id) : null;
@@ -3080,7 +3085,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       return;
     }
-    if (startAutomaticReviewRepair(request, run, error)) return;
+    if (await startAutomaticReviewRepair(request, run, error)) return;
     const failedRun = markImprovementFailed(run, error);
     try {
       changequeue.update(
@@ -5925,7 +5930,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           recover_reviewer: true,
         })
       ) {
-        const started = startAutomaticReviewRepair(
+        const started = await startAutomaticReviewRepair(
           existing,
           existingRun,
           new Error(existing.error || 'reviewer rejected the change; bounded repair requested')
