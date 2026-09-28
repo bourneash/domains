@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:52:22.943Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:06:46.270Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site-factory disposition: retain containment-only execution and do not create duplicate launch work. Strongest candidate is therareunicorn.com (actionability score 65.1; scaffold, parked 51 days, analytics not configured), but its bounded launch-readiness brief is already reported. Exactly one next step: site-factory reviews the existing brief and records one owner disposition—retain parked status or prepare a gated launch plan—without deployment, domain changes, spend, telemetry, or launch. Any future launch requires owner, legal, security, measurement, affiliate, compliance, rollback, and release gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Small site-factory pipeline: therareunicorn.com—brief reported, owner disposition pending; gate03.com—brief reported, disposition pending; findyourlostpets.com—brief reported, disposition pending. Keep all three bounded and private until required owner, legal, security, measurement, compliance, affiliate, and rollback gates are evidenced. Do not duplicate existing reports.",
+        "summary": "Maintain a bounded, evidence-only site-factory pipeline. Pipeline: gate03.com—reported readiness brief, strongest recorded candidate, blocked by missing execution owner; therareunicorn.com—reported readiness brief, parked scaffold with analytics not configured; findyourlostpets.com—reported readiness brief with audience, revenue, attribution, compliance, security, and operational fields preserved as unknown. Standard launch packet for each candidate: site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, owner/legal/security/measurement gates, rollback plan, and launch disposition. No deployment, domain change, spend, credential change, telemetry change, monetization change, or public launch is authorized. Exactly one next step: site-factory records the owner disposition for gate03.com’s existing readiness brief and documents whether the missing execution-owner gate remains blocked or is cleared; do not create duplicate work or alter launch state.",
         "requested_action": null,
         "proposal_id": null
       }

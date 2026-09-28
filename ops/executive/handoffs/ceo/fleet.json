@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:52:22.944Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:06:46.271Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and drain existing repair, measurement, attribution, legal, and security work. Evidence: 192 approved proposals lack execution, 39 deployed improvements await measurement, 8 requests failed, and only 2 outcomes are proven. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, payback, causal lift, and budget capacity remain unknown. The therareunicorn.com readiness brief is already reported, so no duplicate work is justified. Smallest next step: delivery-lead records dated unblock evidence and escalates overdue blockers. Owner decision: keep the Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "summary": "Recommendation: preserve containment-only execution and drain existing repair, measurement, attribution, legal, and security work. Evidence: the authoritative candidate list is empty; 39 deployed improvements await measurement, 8 requests failed, and only 2 outcomes are proven in the 30-day scorecard generated 2026-09-28. Revenue covers 2026-09-21 only: $4.92 aggregate commission, not site-attributable; AI cost is $901.90 for 2026-09-01–2026-09-28. Margin, ROI, payback, causal lift, and budget capacity remain unknown. No new implementation request is safe this cycle. Smallest next step: delivery-lead records dated unblock evidence and escalates overdue blockers. Owner decision: keep the SearchWoot permission request unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue existing repair-or-close, measurement reconciliation, and failure containment. Do not requeue failed or cancelled requests without documented root cause, isolated validation, rollback, ownership, deduplication, and reviewer evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: retain the reported launch-readiness briefs for therareunicorn.com, gate03.com, and findyourlostpets.com as evidence-only work. Record one owner disposition per site without duplicating reports, changing production, adding telemetry, spending, or altering launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the proposed fleet control-plane reconciliation product work for this cycle because it duplicates existing containment, proposal-execution, failure-review, and measurement work. Preserve it as deferred backlog until current gates clear.",
+        "summary": "Handoff: document dated ownership, root cause, validation, rollback, deduplication, and escalation deadlines for existing failed or measuring work. Do not requeue or duplicate production work until those gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

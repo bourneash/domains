@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T04:52:22.943Z",
+  "generated_at": "2026-09-28T05:06:46.271Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain containment-only execution and defer new CRO proposals. Existing telemetry supports reversible backlog hypotheses, but not new queue work: SEO reports 93 actions across 39 sites, 14,220 impressions, 143 clicks, 997 sessions, and 15 conversions; revenue remains $4.92 aggregate and unattributed. CRO backlog: prototype markitdown for source-to-SEO content extraction, shadcn/ui for accessible CTA components, and Mermaid for structured editorial visuals. Smallest reversible prototypes are one offline fixture per capability, with metrics of content-production time, CTA interaction rate, and qualified organic clicks. GitHub evidence is discovery-only: markitdown and shadcn/ui passed bounded lab checks under MIT; Mermaid fit is supported but no native checks were available. Dependency, maintenance, security, license, and adoption review remain required. Do not deploy, add dependencies, spend, add telemetry, or claim lift until existing repair, ownership, release, security, attribution, and measurement gates clear.",
+        "summary": "Maintain containment-only execution. Retain three CRO opportunities as deferred, evidence-backed backlog items: 0xroulette.com CTA hierarchy, offline content-normalization prototype using microsoft/markitdown, and affiliate-link attribution audit for allthingsmasonic.com. No deployment, spend, credential change, domain change, dependency installation, new telemetry, monetization expansion, or causal revenue claim is authorized while failure, measurement, attribution, ownership, release, and security gates remain open.",
         "requested_action": null,
         "proposal_id": null
       }
