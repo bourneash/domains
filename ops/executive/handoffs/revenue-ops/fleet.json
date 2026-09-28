@@ -1,0 +1,18 @@
+{
+  "schema": "executive-handoff/v1",
+  "role": "revenue-ops",
+  "site": "fleet",
+  "generated_at": "2026-09-28T03:20:13.836Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "payload": {
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Do not dispatch new production work while queue eligibility is false. Preserve these concrete, deferred repairs for reconsideration after existing failure, measurement, attribution, release, and security gates clear: (1) fleet affiliate-link audit: verify every live affiliate destination resolves, preserves rel= sponsored/noopener requirements, and uses the registered site tracking ID; evidence is Amazon's 18 named site rows plus one aggregate 'other' row with 629 clicks and $4.92 commission that must remain unattributed. Metric: zero broken destinations and 100% registered-ID coverage; validation: deterministic link scan and provider-row reconciliation; rollback: restore prior link manifest. (2) americastrikes.com stale/broken affiliate references: continue the existing repair item for broken replacements and stale references; metric: zero confirmed stale or broken affiliate URLs after scan; validation: link-health checks plus build; rollback: revert only changed references. (3) amputeenews.com affiliate readiness: retain the documented pending-real-tag issue as a launch blocker; do not substitute an unverified tracking ID. Metric: registered tag present on all approved affiliate links without changing destinations; validation: source scan, rendered-link check, and provider attribution reconciliation; rollback: remove only the tag-dependent links or restore prior markup. (4) affiliate-disclosure evidence: audit disclosure placement for affiliate-enabled sites before monetization expansion; current technical compliance results do not establish affiliate-specific disclosure completeness. Metric: evidence-backed pass/fail per affected site; validation: dated rendered-page capture and checklist review; rollback: revert copy-only disclosure changes if gates fail. Do not infer ROI, margin, payback, or site revenue from unattributed totals; preserve all unknown revenue.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
+  }
+}

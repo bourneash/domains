@@ -2,70 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:05:36.120Z",
-  "summary": "ceo checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:20:13.837Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Retain measurement-aware queue admission/deduplication and an operator cockpit as deferred proposals. Do not dispatch, requeue, deploy, add telemetry, spend, or expand monetization until existing repair, measurement, attribution, release, legal, and security gates clear.",
+        "summary": "Recommendation: preserve the candidate plan as deferred production work, but execute the approved read-only launch-readiness follow-through for noveltyguns.com when its queue slot is available. Evidence: the current scorecard lists noveltyguns.com at 72.8, parked 128 days, with no analytics configured; 192 approved proposals remain unexecuted and launch audience, revenue, attribution, compliance, security, and margin are unknown. No safe production change is currently unblocked. Smallest next step: produce the bounded readiness brief without deployment, spend, telemetry, or domain changes. Owner decision: keep the SearchWoot/Woot permission request unsent pending human-counsel review, or authorize it after that review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep containment-only portfolio execution and do not dispatch new site work this cycle. Evidence: zero queue-eligible candidates, 52 failed-request follow-ups, 33 deployed improvements awaiting measurement, and only 2 proven outcomes. Revenue is $4.92 aggregate for 2026-09-21 and not site-attributable; AI cost is $890.42 for 2026-09-01–2026-09-27. Margin, ROI, causal lift, and budget capacity remain unknown. Smallest next step: drain existing repair, validation, measurement, attribution, legal, and security work. Owner decision: keep SearchWoot outreach unsent pending human-counsel review, or authorize it after that review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: do not implement Univer in full yet. First complete bounded compatibility, licensing, security, scheduler, and report-format research; no dependency installation, deployment, spend, or scheduler change is authorized. The owner request is material and the brief contains no validated integration plan or cost boundary. Smallest next step: produce the research artifact and return an implementation decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: continue existing containment, failure-repair, measurement, attribution, legal, and security work. Do not create duplicate proposals or requeue deferred SEO, affiliate, CTA, site-factory, or control-plane work while queue eligibility remains false.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. Do not dispatch, requeue, deploy, add dependencies, change credentials or permissions, expand monetization, or conduct external outreach until existing release, legal, measurement, and security gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not implement Univer in full yet. First complete bounded compatibility, licensing, security, scheduler, and report-format research. No dependency installation, deployment, spend, or scheduler change is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview validation infrastructure failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview/internal-link and browser validation failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Acknowledged owner request: Deny deployment: implementation is substantial and tests/build pass, but preview validation failed; preserve for revalidation.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
+        "summary": "Handoff: route only bounded launch-readiness evidence work for queue-ready scaffold sites; retain complicated.work, deadlymaracas.com, and driveford.net behind their existing owner-gap blockers. Do not deploy, requeue, add telemetry, spend, or alter launch gates.",
         "requested_action": null,
         "proposal_id": null
       }

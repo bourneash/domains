@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:05:36.121Z",
+  "generated_at": "2026-09-28T03:20:13.837Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. No production change request or requeue is queueable this cycle: failure repair, measurement, attribution, release, ownership, operations, and security gates remain incomplete. Continue existing repair, validation, rollback, measurement, legal, security, and financial reconciliation using recorded evidence only. Retain deferred opportunities without dispatch, telemetry, spend, dependencies, deployment, or monetization expansion.",
+        "summary": "Maintain containment-only execution this cycle. Reject new production dispatch and the proposed launch-readiness routing because queue eligibility is false and failure-repair, measurement, attribution, release, ownership, and security gates remain incomplete. Continue only existing repair, validation, rollback, measurement, attribution, legal, and security work using recorded evidence. Retain SEO, UX, affiliate, CRO, and site-factory opportunities as deferred backlog. Do not create or requeue requests, add telemetry, install dependencies, deploy, spend, change credentials or domains, alter launch gates, or claim revenue, ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only bounded public research on Univer. Do not install dependencies, modify production, access credentials, deploy, spend, or change scheduler configuration. Return a compatibility, licensing, security, office-format, scheduler, and Cloudflare integration assessment before any implementation decision.",
+        "summary": "Continue existing repair-or-close, validation, rollback, measurement, attribution, legal, and security work. Do not dispatch or requeue deferred SEO, design, affiliate, CRO, or site-factory work until queue eligibility and required ownership, release, security, attribution, and measurement gates are restored.",
         "requested_action": null,
         "proposal_id": null
       }

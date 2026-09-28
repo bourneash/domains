@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:05:36.121Z",
+  "generated_at": "2026-09-28T03:20:13.837Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Approve no new spend, forecasts, commitments, monetization expansion, requeues, or unsupported revenue claims. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is provider-aggregate and not site-attributable; reported site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, including 225 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are unknown because periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget limits are blank, and no learning threshold is defined. Pilot output of 70 treatment items versus 44 controls is operational activity, not financial or causal lift. Continue only the existing period-aligned reconciliation work item using recorded telemetry.",
+        "summary": "Recommendation: maintain financial containment. Approve no new spend, forecasts, commitments, monetization expansion, or unsupported revenue claims. Revenue evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites; reported site-attributed commission of $0 does not prove zero site performance. AI usage covers 2026-09-01 through 2026-09-27: 4,892 calls and $890.42 cost, including 225 errors and 5 transient errors. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, and budget exposure are not calculable because revenue and cost periods do not align, infrastructure/domain/labor/marketing/experiment costs are incomplete, monthly budget ceilings are blank, and no learning-outcome threshold exists. The pilot result of 70 treatment outputs versus 44 controls is operational activity, not financial or causal lift; treatment also had 58 versus 40 requests and a 12.21 versus 9.39 hour average cycle. Continue only existing reconciliation, repair, validation, measurement, legal, and security work using recorded telemetry. Minimum measurement before reconsidering growth: period-aligned attributable revenue by site/content/tracking ID; reconciled AI, infrastructure, domain, labor, marketing, and experiment costs; approved budget ceilings; and a defined learning outcome with a maximum cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep financial containment in place. Minimum evidence before reconsidering growth is period-aligned revenue attributable by site, content, and tracking ID; a reconciled AI, infrastructure, domain, labor, marketing, and experiment cost ledger; approved budget ceilings; and a defined learning outcome with a maximum cost-to-learn. No new telemetry, spending, banking, billing, contracts, or external commitments are requested.",
+        "summary": "Retain SEO, design, affiliate, CRO, and site-factory items as deferred hypotheses only. Do not queue or requeue production work while financial attribution, measurement, failure-repair, release, and security gates remain incomplete. A read-only readiness brief may proceed only where already approved, requires no spend or production mutation, and reports unknown revenue, margin, attribution, and launch economics explicitly.",
         "requested_action": null,
         "proposal_id": null
       }

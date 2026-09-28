@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T03:05:36.122Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T03:20:13.838Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, production, requeue, experiment, telemetry, dependency, deployment, spending, and monetization claims. Continue only existing repair-or-close, attribution and cost reconciliation, and bounded legal/security evidence work. Preserve aggregate commission as unattributed and keep private launch gates unchanged.",
+        "summary": "Approve containment-only execution. Reject all new production dispatch, requeues, experiments, telemetry, dependencies, deployments, spending, monetization changes, and unsupported revenue or causal claims. Preserve aggregate commission as unattributed and keep revenue, margin, ROI, payback, budget capacity, and lift unknown. Continue only existing repair-or-close, attribution reconciliation, measurement, legal, and bounded security evidence work. Keep private launch gates and parked dispositions unchanged. Material concern: operations/security evidence is unavailable and existing failure and measurement work remains open.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, ROI, margin, payback, causal-lift, launch, and security-clearance claims. Approve only the six bounded metadata changes below: they are reversible, use existing telemetry, require no new tracking, spend, credentials, dependencies, or external outreach. Existing failure repair, measurement, attribution, legal, and security gates remain active; omitted candidates remain blocked by those gates or missing evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route six low-risk, reversible SEO metadata repairs to engineer across six distinct sites. Each has an observed search baseline, deterministic validation, an existing-telemetry metric, and rollback. Do not infer revenue or causal lift. All other candidates remain deferred where active work, failed-run repair, measurement, legal, security, ownership, or missing-evidence gates apply.",
         "requested_action": null,
         "proposal_id": null
       }
