@@ -82,7 +82,17 @@ try {
     .listExecutiveActions({ action_type: 'tick', limit: 20 })
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
-  const status = exitCode !== 0 ? 'failed' : checkinStatus !== 0 ? 'completed_with_warning' : 'completed';
+  const providerDeferred = /selected model is at capacity|model is at capacity|provider model is at capacity/i.test(
+    String(tickError || '')
+  );
+  const status =
+    exitCode !== 0
+      ? providerDeferred
+        ? 'completed_with_warning'
+        : 'failed'
+      : checkinStatus !== 0
+        ? 'completed_with_warning'
+        : 'completed';
   executive.finishAction(store, actionId, {
     status,
     error:
@@ -90,6 +100,8 @@ try {
         ? checkinStatus !== 0
           ? `executive handoff check-in exited with code ${checkinStatus}`
           : null
+        : providerDeferred
+          ? `executive provider deferred the leadership pass: ${tickError}`
         : tickError
           ? `executive tick failed: ${tickError}`
           : `scheduled executive dispatch exited with code ${exitCode}`,
@@ -105,8 +117,11 @@ try {
       checkin_status: checkinStatus,
       checkin_warning:
         checkinStatus === 0 ? null : 'executive handoff check-in failed; retry is required',
+      provider_deferred: providerDeferred,
       failed_stage:
-        exitCode === 0
+        providerDeferred
+          ? 'provider availability'
+          : exitCode === 0
           ? checkinStatus === 0
             ? null
             : 'executive handoff check-in'
@@ -114,7 +129,9 @@ try {
             ? 'executive tick / plan application'
             : 'scheduler wrapper',
       failure_reason:
-        tickError ||
+        providerDeferred
+          ? `provider unavailable: ${tickError}`
+          : tickError ||
         (exitCode !== 0
           ? `dispatch exited with code ${exitCode}`
           : checkinStatus !== 0
