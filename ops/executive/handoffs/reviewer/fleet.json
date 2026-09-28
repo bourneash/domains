@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:22:39.074Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:45:35.438Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new proposals, production work, requeues, spending, telemetry, dependencies, deployments, monetization changes, and unsupported revenue or ROI claims. Continue only existing evidence, reconciliation, security/legal gates, and the bounded eastcoastrappers.com routing repair. Preserve aggregate commission as unattributed and missing costs as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: revenue covers one period, includes an unattributed aggregate row, and lacks matching operating costs and budget thresholds; operations and fleet-doctor evidence remain unavailable; substantial work awaits measurement or repair. Do not treat missing data as zero or authorize new queue work until these gates clear.",
+        "summary": "Containment-only plan retained. No new implementation requests are authorized: the reviewer and CEO have blocked queue work, requeues, production changes, telemetry, spend, dependencies, monetization, and outreach. Available candidates are blocked by active work or measurement windows, missing launch-readiness or execution-owner evidence, failure-repair gates, or security and attribution gaps. Continue only existing finance reconciliation, legal/security evidence, measurement, parked-site ownership verification, and failure repair-or-close work. Aggregate commission remains unattributed; revenue, margin, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
