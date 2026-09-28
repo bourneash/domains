@@ -796,6 +796,41 @@ test('owner coverage can be applied before provider execution', async () => {
   store.close();
 });
 
+test('repeated failed runs do not duplicate owner acknowledgements', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, { body: 'Keep this request idempotent.' });
+  const first = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  const second = await runner.applyPendingOwnerRequestCoverage(store, { root });
+  assert.equal(first.messages.length, 1);
+  assert.equal(second, null);
+  assert.equal(store.listExecutiveMessages({ work_id: tracked.work_item.work_id }).length, 2);
+  store.close();
+});
+
+test('sanitizes malformed and excluded provider items while preserving safe work', () => {
+  const plan = {
+    messages: [
+      { actor: 'not-a-role', body: 'invalid' },
+      { actor: 'ceo', body: 'safe message' },
+      { actor: 'ceo', body: '3boobs.com must never be retained' },
+    ],
+    work_items: [
+      { title: 'Safe evidence item', owner: 'ceo' },
+      { title: '3boobs.com item', owner: 'ceo' },
+    ],
+  };
+  const dropped = runner.sanitizePlan(plan);
+  assert.equal(plan.messages.length, 1);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(dropped.length, 3);
+  const parsed = runner.parseOutput(
+    JSON.stringify({ messages: plan.messages, work_items: plan.work_items }),
+    { sanitize: true }
+  );
+  assert.equal(parsed.messages.length, 1);
+  assert.equal(parsed.work_items.length, 1);
+});
+
 test('owner-request acknowledgements reserve message capacity after a full provider plan', async () => {
   const { root, store } = db();
   const tracked = executive.ownerRequest(store, {
@@ -1319,6 +1354,39 @@ test('parses structured provider output and applies only explicitly enabled queu
   assert.equal(store.listChangeRequests().length, 0);
   const queued = await runner.applyPlan(store, plan, { allowQueue: true, root });
   assert.equal(queued.change_requests.length, 1);
+  store.close();
+});
+
+test('stale source work ids do not abort otherwise valid queued work', async () => {
+  const { root, store } = db();
+  const created = await runner.applyPlan(
+    store,
+    {
+      messages: [],
+      proposal_reviews: [],
+      data_requests: [],
+      proposals: [],
+      research_requests: [],
+      work_items: [],
+      knowledge: [],
+      change_requests: [
+        {
+          site: 'example.com',
+          source_work_id: 'missing-work-item-from-an-old-run',
+          title: 'Repair one measurable SEO path',
+          body: 'Update the bounded SEO target and verify the build.',
+          category: 'seo',
+          priority: 'low',
+          assigned_role: 'engineer',
+          provider: 'local',
+          delivery_mode: 'report_only',
+        },
+      ],
+    },
+    { allowQueue: true, root }
+  );
+  assert.equal(created.change_requests.length, 1);
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 1);
   store.close();
 });
 

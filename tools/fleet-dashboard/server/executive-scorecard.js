@@ -186,6 +186,18 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   );
   const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
   const failedRequests = requests.filter(row => row.status === 'failed');
+  const ownerRequests =
+    typeof store.listExecutiveWorkItems === 'function'
+      ? store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+      : [];
+  const staleOwnerRequests = ownerRequests.filter(item => {
+    if (['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(item.lifecycle_state))
+      return false;
+    const createdAt = Date.parse(item.created_at || '');
+    if (!Number.isFinite(createdAt)) return false;
+    const runsSince = ticks.filter(row => (Date.parse(row.started_at || '') || 0) >= createdAt);
+    return runsSince.length >= 1;
+  });
   const failureFollowups =
     typeof store.listExecutiveWorkItems === 'function'
       ? store
@@ -282,6 +294,10 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       requests_by_status: countBy(requests, 'status'),
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
+      owner_requests_pending: ownerRequests.filter(row =>
+        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      ).length,
+      owner_requests_stale: staleOwnerRequests.length,
       failure_followups_open: failureFollowups.length,
       failure_followups_by_owner: countBy(failureFollowups, 'owner'),
       approved_proposals: proposalExecution.approved_proposals,
@@ -316,6 +332,11 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       ...(failedTicks.length
         ? [`${failedTicks.length} executive tick failure(s) retained in the audit log`]
         : []),
+      ...(staleOwnerRequests.length
+        ? [
+            `${staleOwnerRequests.length} owner request(s) survived an executive run without a response`,
+          ]
+        : []),
       ...(accountability.escalation_required ? [accountability.escalation_reason] : []),
       ...(proposalExecution.approved_proposals_unexecuted
         ? [
@@ -329,6 +350,18 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : []),
     ],
     proposal_execution: proposalExecution,
+    owner_requests: {
+      pending: ownerRequests.filter(row =>
+        !['answered', 'actioned', 'measured', 'closed', 'snoozed'].includes(row.lifecycle_state)
+      ).length,
+      stale: staleOwnerRequests.map(item => ({
+        work_id: item.work_id,
+        title: item.title,
+        created_at: item.created_at,
+        lifecycle_state: item.lifecycle_state,
+        next_action: item.next_action,
+      })),
+    },
   };
 }
 

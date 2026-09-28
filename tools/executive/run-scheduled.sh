@@ -82,11 +82,19 @@ try {
     .listExecutiveActions({ action_type: 'tick', limit: 20 })
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
+  const ownerAcknowledged = store
+    .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+    .some(item => {
+      const answered = Date.parse(item.answered_at || '');
+      return Number.isFinite(answered) && answered >= scheduledStarted;
+    });
   const providerDeferred = /selected model is at capacity|model is at capacity|provider model is at capacity/i.test(
     String(tickError || '')
   );
   const status =
-    exitCode !== 0
+    ownerAcknowledged && exitCode !== 0
+      ? 'completed_with_warning'
+      : exitCode !== 0
       ? providerDeferred
         ? 'completed_with_warning'
         : 'failed'
@@ -96,7 +104,9 @@ try {
   executive.finishAction(store, actionId, {
     status,
     error:
-      exitCode === 0
+      ownerAcknowledged && exitCode !== 0
+        ? `executive run degraded after acknowledging owner request; ${tickError || `dispatch exited with code ${exitCode}`}`
+        : exitCode === 0
         ? checkinStatus !== 0
           ? `executive handoff check-in exited with code ${checkinStatus}`
           : null
@@ -118,6 +128,7 @@ try {
       checkin_warning:
         checkinStatus === 0 ? null : 'executive handoff check-in failed; retry is required',
       provider_deferred: providerDeferred,
+      owner_request_acknowledged: ownerAcknowledged,
       failed_stage:
         providerDeferred
           ? 'provider availability'

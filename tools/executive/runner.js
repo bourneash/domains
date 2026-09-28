@@ -815,6 +815,25 @@ function ensureOwnerRequestCoverage(store, plan) {
   }
 }
 
+function workflowEntityExists(store, type, id) {
+  if (!store || !id) return false;
+  if (type === 'work-item') return Boolean(store.getExecutiveWorkItem?.(id));
+  if (type === 'request') return Boolean(store.getChangeRequest?.(id));
+  if (type === 'proposal') return Boolean(store.getExecutiveProposal?.(id));
+  return false;
+}
+
+// Model plans may carry stale source_work_id values from a previous run. A
+// missing lineage edge must not make an otherwise valid request or proposal
+// fail atomically; the durable work remains queued and can be relinked later.
+function safeCreateWorkflowLink(store, input) {
+  if (typeof store?.createWorkflowLink !== 'function') return false;
+  if (!workflowEntityExists(store, input.from_type, input.from_id)) return false;
+  if (!workflowEntityExists(store, input.to_type, input.to_id)) return false;
+  store.createWorkflowLink(input);
+  return true;
+}
+
 function emptyPlan() {
   return {
     messages: [],
@@ -826,6 +845,53 @@ function emptyPlan() {
     knowledge: [],
     change_requests: [],
   };
+}
+
+const PLAN_ITEM_LIMITS = {
+  messages: 20,
+  proposal_reviews: 20,
+  data_requests: 10,
+  proposals: 20,
+  research_requests: 10,
+  work_items: 20,
+  knowledge: 20,
+  change_requests: 20,
+};
+
+function sanitizePlan(plan) {
+  const dropped = [];
+  const source = plan && typeof plan === 'object' ? plan : {};
+  for (const [key, limit] of Object.entries(PLAN_ITEM_LIMITS)) {
+    const rows = Array.isArray(source[key]) ? source[key] : [];
+    const prioritized =
+      key === 'messages'
+        ? rows.slice().sort((a, b) => {
+            const aCoverage = a?.metadata?.reason === 'owner-request-coverage' ? 0 : 1;
+            const bCoverage = b?.metadata?.reason === 'owner-request-coverage' ? 0 : 1;
+            return aCoverage - bCoverage;
+          })
+        : rows;
+    const kept = [];
+    for (const [index, item] of prioritized.entries()) {
+      if (index >= limit) {
+        dropped.push({ key, index, reason: 'per-tick item limit' });
+        continue;
+      }
+      if (/3boobs(?:\.com)?/i.test(JSON.stringify(item))) {
+        dropped.push({ key, index, reason: 'excluded site reference' });
+        continue;
+      }
+      const candidate = { ...emptyPlan(), [key]: [item] };
+      try {
+        validatePlan(candidate);
+        kept.push(item);
+      } catch (error) {
+        dropped.push({ key, index, reason: error.message });
+      }
+    }
+    source[key] = kept;
+  }
+  return dropped;
 }
 
 async function applyPendingOwnerRequestCoverage(store, { allowQueue = false, root = ROOT } = {}) {
@@ -1241,7 +1307,7 @@ function parseProviderJson(raw) {
   throw lastError || new Error('provider output is empty');
 }
 
-function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
+function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = false } = {}) {
   const raw = String(text || '')
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
@@ -1279,6 +1345,13 @@ function parseOutput(text, { defaultActor = '', defaultSite = '' } = {}) {
     knowledge: result.knowledge || [],
   };
   normalizeProviderProposalTypes(plan, { defaultActor, defaultSite });
+  const sanitization = sanitize ? sanitizePlan(plan) : [];
+  if (sanitize)
+    Object.defineProperty(plan, '__sanitization', {
+      value: sanitization,
+      enumerable: false,
+      configurable: true,
+    });
   validatePlan(plan);
   return plan;
 }
@@ -3233,7 +3306,7 @@ function proposalCreationBudget(store, { normal = 6, backlogThreshold = 10, back
   };
 }
 
-function runProvider(
+async function runProvider(
   prompt,
   {
     provider = process.env.EXECUTIVE_PROVIDER || 'claude',
@@ -3269,40 +3342,57 @@ function runProvider(
           ...(model ? ['--model', model] : []),
           prompt,
         ];
-  return new Promise((resolve, reject) => {
-    const child = spawn(executable, args, {
-      cwd: ROOT,
-      env: process.env,
-      stdio: [promptOnStdin ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+  const transient = /capacity|429|temporar|unavailable|timeout|timed out|502|503|504|authentication/i;
+  const attempts = Math.max(1, Math.min(3, Number(process.env.EXECUTIVE_PROVIDER_RETRIES || 2)));
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const runOnce = () =>
+    new Promise((resolve, reject) => {
+      const child = spawn(executable, args, {
+        cwd: ROOT,
+        env: process.env,
+        stdio: [promptOnStdin ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+      });
+      if (promptOnStdin) child.stdin.end(prompt);
+      let stdout = '',
+        stderr = '';
+      child.stdout.on('data', chunk => {
+        stdout += chunk;
+      });
+      child.stderr.on('data', chunk => {
+        stderr += chunk;
+      });
+      const timer = setTimeout(
+        () => child.kill('SIGTERM'),
+        Number(process.env.EXECUTIVE_TIMEOUT_MS || 15 * 60 * 1000)
+      );
+      child.on('error', reject);
+      child.on('close', code => {
+        clearTimeout(timer);
+        if (code !== 0)
+          return reject(new Error(`${provider} exited with code ${code}: ${stderr.slice(-500)}`));
+        resolve(stdout);
+      });
     });
-    if (promptOnStdin) child.stdin.end(prompt);
-    let stdout = '',
-      stderr = '';
-    child.stdout.on('data', chunk => {
-      stdout += chunk;
-    });
-    child.stderr.on('data', chunk => {
-      stderr += chunk;
-    });
-    const timer = setTimeout(
-      () => child.kill('SIGTERM'),
-      Number(process.env.EXECUTIVE_TIMEOUT_MS || 15 * 60 * 1000)
-    );
-    child.on('error', reject);
-    child.on('close', code => {
-      clearTimeout(timer);
-      if (code !== 0)
-        return reject(new Error(`${provider} exited with code ${code}: ${stderr.slice(-500)}`));
-      resolve(stdout);
-    });
-  });
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await runOnce();
+    } catch (error) {
+      lastError = error;
+      if (attempt >= attempts || !transient.test(error.message)) throw error;
+      await delay(Math.min(30000, 1000 * 2 ** (attempt - 1)));
+    }
+  }
+  throw lastError;
 }
 
 async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) {
   ensureOwnerRequestCoverage(store, plan);
+  const planSanitization = plan.__sanitization || sanitizePlan(plan);
   validatePlan(plan);
   const created = {
     messages: [],
+    plan_sanitization: planSanitization,
     skipped_messages: [],
     proposal_reviews: [],
     data_requests: [],
@@ -3562,8 +3652,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         created_at: undefined,
       });
       created.proposals.push(proposal);
-      if (item.source_work_id && store.createWorkflowLink) {
-        store.createWorkflowLink({
+      if (item.source_work_id) {
+        safeCreateWorkflowLink(store, {
           from_type: 'work-item',
           from_id: item.source_work_id,
           to_type: 'proposal',
@@ -3572,7 +3662,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           created_by: 'executive',
         });
       }
-      if (item.source_work_id) {
+      if (item.source_work_id && workflowEntityExists(store, 'work-item', item.source_work_id)) {
         executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
           downstream_type: 'proposal',
           downstream_id: proposal.proposal_id,
@@ -3702,8 +3792,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           site => installedSiteRoles(root, site)
         );
         created.change_requests.push(request);
-        if (item.source_work_id && store.createWorkflowLink) {
-          store.createWorkflowLink({
+        if (item.source_work_id) {
+          safeCreateWorkflowLink(store, {
             from_type: 'work-item',
             from_id: item.source_work_id,
             to_type: 'request',
@@ -3712,7 +3802,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
             created_by: 'executive',
           });
         }
-        if (item.source_work_id) {
+        if (item.source_work_id && workflowEntityExists(store, 'work-item', item.source_work_id)) {
           executive.acknowledgeOwnerRequestHandoff(store, item.source_work_id, {
             downstream_type: 'change-request',
             downstream_id: request.request_id,
@@ -3765,7 +3855,7 @@ async function tick({ root = ROOT, apply = false, allowQueue = false, providerOp
     const brief = await buildBrief(store, root);
     const prompt = buildPrompt(brief);
     const output = await runProvider(prompt, providerOptions);
-    const plan = parseOutput(output);
+    const plan = parseOutput(output, { sanitize: true });
     const created = apply ? await applyPlan(store, plan, { allowQueue, root }) : null;
     store.record({
       event_type: 'executive.tick',
@@ -3923,6 +4013,7 @@ module.exports = {
   prioritizeExecutiveWorkItems,
   ensureOwnerRequestCoverage,
   emptyPlan,
+  sanitizePlan,
   applyPendingOwnerRequestCoverage,
   parseOutput,
   sanitizeExcludedPlanItems,
