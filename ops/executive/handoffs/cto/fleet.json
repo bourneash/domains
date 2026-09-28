@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T05:06:46.271Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T05:21:46.451Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new implementation, deployment, requeue, dependency, telemetry, spend, monetization change, or external outreach is technically supportable this cycle. Continue only existing failure repair-or-close, measurement and attribution reconciliation, and bounded legal/security evidence work. Preserve deferred SEO, UX, accessibility, performance, content, affiliate, CRO, and launch-readiness opportunities. Queue entry remains blocked by 39 improvements awaiting measurement, 8 failed requests, incomplete ownership and validation evidence, unavailable operations/security sweeps, and incomplete financial attribution. Keep private launch gates and parked dispositions unchanged. Do not claim revenue, ROI, margin, payback, causal lift, or conversion lift from the available records.",
+        "summary": "Approve containment-only execution. No new implementation, proposal, experiment, telemetry, spend, deployment, requeue, dependency, or monetization change is safely queueable this cycle. Existing opportunities remain deferred backlog because active measurement, failed-request repair, ownership, release validation, rollback, deduplication, attribution, and security evidence gates remain open. Continue only existing repair-or-close, measurement, attribution, legal, security, and owner-disposition work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the 0xroulette.com CTA, content-normalization, affiliate-attribution, SEO, and site-factory items as deferred backlog only. The work is technically feasible and reversible, but implementation must wait for queue eligibility, isolated worktree validation, explicit ownership, deterministic tests, rollback evidence, deduplication, and an available existing measurement path. The content-normalization idea remains research-only; do not install dependencies or adopt an external repository.",
+        "summary": "Technical review: the proposed deferred SEO, UX, accessibility, performance, content, affiliate, and repository work is generally feasible, isolatable, reversible, and measurable in principle, but none has a safe implementation slot now. Do not infer readiness from queue-ready status alone. Before future dispatch, require an isolated worktree, scoped diff, deterministic validation, recorded before-state, existing-telemetry metric, rollback path, ownership, and deduplication check.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery-lead containment work. Record dated ownership, root cause, isolated validation, rollback, deduplication, and escalation evidence for failed and measuring work before any requeue. Continue the existing revenue, attribution, cost, legal, and security evidence work without creating duplicate telemetry requests. Preserve the $4.92 provider aggregate as unattributed and keep financial outcomes unknown.",
+        "summary": "Continue existing failure containment and repair-or-close work. Do not requeue failed or cancelled requests until root cause, ownership, isolated validation, rollback, reviewer evidence, and deduplication are recorded. Treat unavailable operations and security sweeps as unknown; they do not prove safety or compromise.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private launch gates unchanged. Continue only authorized read-only security and legal evidence capture; do not retrieve credentials, change permissions or configuration, add dependencies, deploy, expand alerts, expose gated data, or conduct external outreach. Treat missing operations and security results as unknown, not as evidence of safety or compromise.",
+        "summary": "Continue the existing read-only security and legal evidence work. Preserve private launch gates and parked dispositions. No security-sensitive release, public exposure, configuration or credential change, dependency addition, alert expansion, or external outreach is authorized until the existing gates are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue and cost reconciliation only. Retain aggregate provider earnings as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, or cost-to-learn from clicks, orders, shipped items, sessions, conversions, AI usage, or pilot output counts.",
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation using recorded telemetry only. Preserve aggregate provider commission as unattributed and keep site revenue, margin, ROI, payback, budget capacity, cost-to-learn, and causal lift unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing readiness briefs as evidence-only work. Record one owner disposition for each existing brief without duplicating reports, changing production, adding telemetry, spending, or altering launch state. Any future launch requires owner, legal, security, measurement, compliance, affiliate, release, and rollback gates.",
         "requested_action": null,
         "proposal_id": null
       }
