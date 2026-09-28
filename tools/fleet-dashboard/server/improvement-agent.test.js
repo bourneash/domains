@@ -106,15 +106,21 @@ test('review result requires an explicit PASS marker', () => {
   assert.deepEqual(agent.reviewResult('looks good\nFD_REVIEW_RESULT: PASS'), {
     approved: true,
     marker: 'PASS',
+    feedback: null,
   });
-  assert.deepEqual(agent.reviewResult('FD_REVIEW_RESULT: FAIL'), {
+  assert.deepEqual(agent.reviewResult('FD_REVIEW_RESULT: FAIL\nFAIL: unrelated paths changed'), {
     approved: false,
     marker: 'FAIL',
+    feedback: 'unrelated paths changed',
   });
-  assert.deepEqual(agent.reviewResult('looks good, no marker'), { approved: false, marker: null });
+  assert.deepEqual(agent.reviewResult('looks good, no marker'), {
+    approved: false,
+    marker: null,
+    feedback: null,
+  });
   assert.deepEqual(
     agent.reviewResult('prior run\nFD_REVIEW_RESULT: PASS\ncurrent run\nFD_REVIEW_RESULT: FAIL'),
-    { approved: false, marker: 'FAIL' }
+    { approved: false, marker: 'FAIL', feedback: null }
   );
 });
 

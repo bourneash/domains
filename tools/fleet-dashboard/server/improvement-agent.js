@@ -130,11 +130,20 @@ function preflight({ run, provider = 'claude', model = null }) {
 }
 
 function reviewResult(text) {
-  const matches = [...String(text || '').matchAll(/FD_REVIEW_RESULT\s*:\s*(PASS|FAIL)/gi)];
+  const source = String(text || '');
+  const matches = [...source.matchAll(/FD_REVIEW_RESULT\s*:\s*(PASS|FAIL)/gi)];
   const match = matches.at(-1);
+  const tail = match ? source.slice(match.index + match[0].length) : '';
+  const feedback = (
+    tail.match(/(?:^|\n)FAIL:\s*(.+?)(?=\n(?:FAIL:|FD_REVIEW_RESULT|tokens used)|$)/is)?.[1] || ''
+  )
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 1200);
   return {
     approved: Boolean(match && match[1].toUpperCase() === 'PASS'),
     marker: match ? match[1].toUpperCase() : null,
+    feedback: feedback || null,
   };
 }
 

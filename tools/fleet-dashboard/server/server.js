@@ -3263,9 +3263,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       recordAutoReviewFailure(
         id,
         new Error(
-          reviewerResult?.marker
-            ? 'automatic reviewer rejected the change'
-            : 'automatic reviewer did not return PASS'
+          reviewerResult?.marker === 'FAIL'
+            ? `automatic reviewer rejected the change${reviewerResult.feedback ? `: ${reviewerResult.feedback}` : ''}`
+            : reviewerResult?.marker
+              ? 'automatic reviewer rejected the change'
+              : 'automatic reviewer did not return PASS'
         )
       );
       return;
