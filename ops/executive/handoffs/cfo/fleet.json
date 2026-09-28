@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:21:51.203Z",
+  "generated_at": "2026-09-28T23:23:26.764Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned finance reconciliation. Do not approve new spend, monetization expansion, forecasts, ROI claims, margin claims, or queue work based on current financial evidence. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; $4.92 is an aggregate provider row and cannot be assigned to any site. Named tracking rows show clicks but $0 attributed commission, which is not proof of zero total revenue. AI usage cost is $922.381 for 2026-09-01 through 2026-09-28, but the revenue window covers only 2026-09-21, so AI payback, ROI, and contribution margin are not calculable. Infrastructure, labor, other operating costs, commitments, budget ceilings, monthly limits, and approved cost-to-learn thresholds are not recorded; these remain unknown, not zero. Minimum finance artifact: a dated reconciliation of all 18 named tracking rows plus the aggregate row against matching-period revenue, ordered/shipped items, AI cost, infrastructure and other costs, commitments, budget ceilings, and a learning threshold. Continue only the existing reconciliation work item; create no duplicate telemetry or proposal.",
+        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned finance reconciliation. Do not approve new spend, monetization expansion, forecasts, ROI, payback, contribution-margin claims, or queue work from current evidence. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21. The 18 named tracking rows show $0 site-attributed income, while the $4.92 aggregate row cannot be assigned to a site without inventing attribution. AI usage cost is $925.99629405 for 2026-09-01 through 2026-09-28, so it does not match the one-day revenue period. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, and forecasts are unknown—not zero. Continue only existing reconciliation, measurement, attribution, and repair-or-close work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Push back on vanity metrics: the 14,410 SEO impressions, 146 clicks, 1,002 sessions, and 15 conversions across 39 sites support prioritization only; they do not establish revenue, contribution margin, attribution, or causal lift. Do not extrapolate the one-day $4.92 commission into a monthly forecast. Preserve the existing affiliate-tag, stale-reference, attribution, measurement, and failure-repair work only when it does not expand spend or telemetry.",
+        "summary": "Minimum finance artifact: reconcile the 18 named provider tracking rows and aggregate row for 2026-09-21 against matching-period site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. The brief provides no monthly spend limit, fixed-cost baseline, marketing budget, revenue target, infrastructure ledger, labor cost, commitment schedule, or learning threshold, so margin and budget capacity cannot be calculated. The 14,410 SEO impressions, 146 clicks, 1,002 sessions, and 15 conversions across 39 sites support prioritization only; they do not support revenue, causal lift, or financial forecasts.",
         "requested_action": null,
         "proposal_id": null
       }

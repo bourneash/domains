@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:37:55.397Z",
+  "generated_at": "2026-09-28T23:23:26.764Z",
   "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta/full launch and monetization expansion; conditional for ordinary bounded reversible growth; counsel_required for upstream rights, public data display, alerts, affiliate/advertising use, trademark/image/price claims, and jurisdiction-specific privacy treatment. Recommendation: keep searchwoot.com private, keep permission outreach unsent, and do not approve a go-live gate. Evidence: Woot documentation confirms API access mechanics only; current public terms restrict the proposed commercial/public data uses. Technical compliance is only a baseline: 37 pass, 16 fail, 6 unknown. Analytics quality is yellow, operations and fleet-doctor evidence are unavailable, and revenue is partial aggregate with $4.92 unattributed. Missing telemetry is not treated as zero or as legal clearance.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; counsel_required for any Woot rights-dependent, public-display, affiliate, advertising, or alert-expansion decision. Keep searchwoot.com private. Evidence: Woot documentation establishes API access but not redistribution rights; current public terms restrict commercial/public use, storage, derivatives, prices, listings, and data mining. Security, accuracy/freshness, measurement, attribution, owner, privacy, consent, vendor, and incident gates remain incomplete. Ordinary reversible fleet growth is conditional where it preserves existing consent, disclosures, provenance, claims, platform-policy, and data boundaries; incomplete telemetry alone is not a legal blocker.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain complicated.work, deadlymaracas.com, and driveford.net as parked/private and preview-only. Continue the existing owner-gap workstream; do not publish, deploy, alter DNS, configure analytics, monetize, or spend. For each site, attach one dated launch packet with execution-owner verification, preview/build evidence, compliance result, security status, measurement boundary, rollback point, and exact blocker. For complicated.work specifically, the current technical compliance baseline fails and analytics is not configured; preserve those fields as unavailable or failed where evidenced.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 remain open. No task is closed because current evidence does not establish source rights, field-level permissions, retention/deletion/correction/access workflows, notification consent, GA4 settings, vendor coverage, incident procedures, accuracy/freshness controls, or rollback evidence. Next evidence action: attach one consolidated read-only bundle covering the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 remain open. No task is closable on current evidence. Continue the existing consolidated read-only bundle; next evidence action is to attach and review the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence. Keep outreach unsent and do not change production, tracking, credentials, configuration, alert scope, monetization, or launch state.",
+        "summary": "Data-use review decisions: Woot API deal and price-history data — blocked; user alert rules and sync results — evidence_needed; GA4 analytics — evidence_needed; operational logs and Cloudflare hosting data — evidence_needed. The checklist supports no go-live approval. Technical compliance is only a baseline: 35 pass, 18 fail, and 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is yellow because some source permissions or collector results are unavailable; revenue is partial aggregate attribution, not a basis for site-level claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review decisions: Woot API deal and price-history data — blocked. Missing current written permission or API agreement, field-level provenance, permitted storage/caching/display/derivative/alert use, attribution, freshness, correction, takedown, trademark, image, price, affiliate, and advertising terms. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized permission request. User alert rules and sync results — evidence_needed. Missing data inventory, identifiers, retention, deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce a read-only deployed/repository data-flow and retention table. GA4 analytics — evidence_needed. Missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional privacy review. Smallest next action: capture consent and GA4 configuration evidence without enabling new tracking. Operational logs and Cloudflare hosting data — evidence_needed. Missing log-field inventory, retention/access controls, vendor terms or DPA coverage, and incident/request procedures. Smallest next action: produce a read-only log/vendor/incident inventory. No item is clear or conditionally launchable yet.",
+        "summary": "Evidence boundary: analytics and revenue quality do not independently block ordinary growth. Analytics evidence is available for most configured sites, with permission or collector errors preserved as unavailable rather than zero. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row cannot be assigned to a site. Do not claim site revenue, ROI, margin, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

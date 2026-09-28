@@ -2,91 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:37:55.398Z",
-  "summary": "reviewer checked in 12 executive handoff item(s)",
+  "generated_at": "2026-09-28T23:23:26.765Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new production work, requeues, deployments, dependencies, telemetry, spending, monetization changes, and unsupported financial or causal claims. The $4.92 Amazon commission for 2026-09-21 is aggregate and unattributed; site revenue, margin, ROI, payback, forecasts, and causal lift remain unknown. Keep the private launch gate and permission outreach unchanged pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, production, requeue, spend, telemetry, dependency, deployment, monetization, and outreach actions. Preserve aggregate commission as unattributed; continue only existing finance reconciliation, measurement, repair-or-close, owner-gap, legal, and security evidence work. Keep private and parked states unchanged. Material concerns: attribution and matching-period costs are incomplete, operations/security sweeps are unavailable, and no new queue work has a defensible measurable outcome.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing owner-gap verification for the three parked scaffold sites. Attach dated ownership, preview/build, launch-readiness, compliance, security, measurement-boundary, rollback, and exact-blocker evidence by 2026-09-30T17:00:00Z. Do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "summary": "Continue existing work only: period-aligned revenue and cost reconciliation, measurement windows, failure repair-or-close review, owner-gap verification, legal launch-readiness evidence, and bounded security evidence capture. Do not create duplicate requests or requeue unchanged work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only existing deployed-work measurement, validation, failure repair-or-close, attribution reconciliation, and readiness work. Do not create duplicate requests or requeue unchanged failures. Require dated ownership, root cause, isolated validation, rollback, deduplication, attribution, and measurement evidence before any future requeue.",
+        "summary": "Owner message: Amazon reports $4.92 aggregate commission for 2026-09-21, which cannot be assigned to a site. AI cost covers a different period, and matching costs, budgets, commitments, and learning thresholds are unavailable. Do not treat missing values or zero site-attributed income as zero. Keep permission outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate provider row as unattributed: 6219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep site revenue, margin, ROI, payback, budgets, commitments, forecasts, and causal lift unknown where evidence is unavailable.",
+        "summary": "Maintain containment-only execution. No new engineer queue batch is supportable: the available factory candidates are blocked by missing execution ownership and launch-readiness evidence, while existing sites have active, queued, deployed, or measuring work. Continue only existing measurement, finance reconciliation, legal/security evidence, owner-gap verification, and repair-or-close review. Preserve unknown telemetry and unattributed aggregate revenue; do not requeue, deploy, spend, add telemetry, change credentials/configuration, or expand monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Preserve rights, retention, consent, vendor, accuracy, security, attribution, measurement, and owner unknowns. Keep permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. No new implementation requests or requeues are approved: the available candidates are blocked by missing execution ownership and launch-readiness evidence, while active work awaits measurement and failure follow-ups remain open. Preserve unknown telemetry and aggregate commission as unattributed; reject unsupported revenue, ROI, causal-lift, production-readiness, spending, dependency, deployment, and monetization claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing owner-gap and launch-readiness verification for complicated.work, deadlymaracas.com, and driveford.net. Attach dated execution-owner verification, preview/build checks, compliance and security evidence, measurement boundary, rollback point, and exact blocker by 2026-09-30T17:00:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only existing measurement, validation, repair-or-close, attribution reconciliation, and readiness work. Do not create duplicate requests or requeue unchanged failures. Require dated ownership, root cause, isolated validation, rollback, deduplication, security, attribution, and measurement evidence before any future retry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Keep permission outreach unsent pending human-counsel review and owner authorization; do not change production, tracking, credentials, configuration, alert scope, monetization, or launch state.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate provider row as unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep site revenue, margin, ROI, payback, budgets, commitments, forecasts, and causal lift unknown where evidence is unavailable.",
+        "summary": "Owner update: no implementation candidate clears the required gates this cycle. The three highest-confidence factory candidates remain explicitly blocked by missing execution-owner verification and launch-readiness evidence; other candidates are blocked by active work or measurement windows. Continue dated blocker verification and preserve parked/private states. No new engineer request is created.",
         "requested_action": null,
         "proposal_id": null
       }

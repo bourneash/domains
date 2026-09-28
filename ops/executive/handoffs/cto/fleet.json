@@ -2,21 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:37:55.396Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-28T23:23:26.764Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failed-request repair-or-close review without requeue. Before any future retry, document ownership, root cause, smallest isolated repair, deterministic validation, rollback, release, deduplication, security, attribution, and measurement evidence.",
+        "summary": "Maintain containment-only execution. No new implementation requests, requeues, deployments, dependencies, telemetry, spend, monetization changes, or external outreach are technically cleared. Continue only existing measurement, failure repair-or-close, finance and attribution reconciliation, legal/security evidence, and owner-gap readiness work. Preserve parked/private states and unavailable fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. The available factory candidates remain blocked by missing execution-owner and launch-readiness evidence, while active work is awaiting measurement and failure follow-ups remain open. Reject new production queue entries, requeues, deployments, dependencies, telemetry, spending, monetization expansion, and unsupported revenue or causal claims.",
+        "summary": "Continue the existing allthingsmasonic.com measurement window only. Validate the deployed homepage and affiliate-path change using existing checks and telemetry; do not duplicate work, requeue, add tracking, or claim conversion or revenue lift before measurement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked/private status and require dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence before any queue entry or launch decision.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing launch-readiness evidence bundle and keep searchwoot.com private. Keep permission outreach unsent pending human-counsel review and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter permissions or configuration, add dependencies, deploy, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue repair-or-close review without retrying unchanged failed or cancelled work. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
         "requested_action": null,
         "proposal_id": null
       }
