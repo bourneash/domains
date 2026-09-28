@@ -1180,7 +1180,7 @@ Return ONLY valid JSON with this shape:
   "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
   "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
+  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","owner_action_required":true,"implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
   "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
@@ -1825,6 +1825,11 @@ function validatePlan(plan) {
     else if (String(item.title).length > 300) invalid.push('title=too-long');
     if (!String(item?.summary || '').trim()) invalid.push('summary=missing');
     if (!String(item?.requested_action || '').trim()) invalid.push('requested_action=missing');
+    if (
+      item?.owner_action_required !== undefined &&
+      typeof item.owner_action_required !== 'boolean'
+    )
+      invalid.push('owner_action_required=must-be-boolean');
     if (invalid.length)
       throw new Error(
         `invalid executive proposal in provider plan at index ${index} (${invalid.join(', ')})`
@@ -3299,14 +3304,65 @@ function proposalDedupeKey(item = {}) {
     .join('|');
 }
 
+function routineProposalKey(item = {}) {
+  const text = [item.title, item.summary, item.rationale, item.requested_action]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  const site = String(item.implementation?.site || 'fleet')
+    .trim()
+    .toLowerCase();
+  const author = String(item.created_by || 'executive')
+    .trim()
+    .toLowerCase();
+  if (author === 'security' && /private|public exposure|launch gate|evidence|security/.test(text))
+    return `security-posture:${site}`;
+  if (author === 'legal' && /private|compliance|launch|legal|gate|evidence/.test(text))
+    return `legal-posture:${site}`;
+  if (/evidence matrix|read[- ]only|operational health|telemetry|reporting contract/.test(text))
+    return `evidence:${site}:${author}`;
+  return proposalDedupeKey(item);
+}
+
 function openProposalDuplicate(store, item) {
   const key = proposalDedupeKey(item);
+  const routine = !eventstore.inferExecutiveOwnerActionRequired(item);
+  const routineKey = routine ? routineProposalKey(item) : null;
   return store
     .listExecutiveProposals({ limit: 500 })
     .find(
       existing =>
-        ['proposed', 'feedback'].includes(existing.status) && proposalDedupeKey(existing) === key
+        ['proposed', 'feedback'].includes(existing.status) &&
+        (proposalDedupeKey(existing) === key ||
+          (routine &&
+            !eventstore.inferExecutiveOwnerActionRequired(existing) &&
+            routineProposalKey(existing) === routineKey))
     );
+}
+
+function routeRoutineProposalToWorkbench(store, item) {
+  const key = routineProposalKey(item);
+  const digest = crypto.createHash('sha256').update(key).digest('hex').slice(0, 24);
+  const workId = `executive-routine:${digest}`;
+  const existing = store.getExecutiveWorkItem?.(workId);
+  const payload = {
+    work_id: workId,
+    title: item.title,
+    kind: String(item.created_by || '').toLowerCase() === 'security' ? 'security' : 'research',
+    status: 'waiting',
+    priority: 'normal',
+    owner: 'project-manager',
+    source_type: 'executive-routine',
+    source_id: null,
+    site: item.implementation?.site || null,
+    summary: item.summary,
+    next_action:
+      item.requested_action || 'Update the evidence or operating status at the next check-in.',
+    waiting_on: item.created_by || 'executive-team',
+    created_by: item.created_by || 'ceo',
+  };
+  if (existing) return { ...existing, work_id: workId, deduplicated: true };
+  return store.createExecutiveWorkItem(payload);
 }
 
 function proposalCreationBudget(store, { normal = 6, backlogThreshold = 10, backlog = 2 } = {}) {
@@ -3594,6 +3650,22 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   const proposalBudget = proposalCreationBudget(store);
   let createdProposalCount = 0;
   for (const item of plan.proposals) {
+    if (!eventstore.inferExecutiveOwnerActionRequired(item)) {
+      const work = routeRoutineProposalToWorkbench(store, item);
+      created.work_items.push(work);
+      const audit = executive.action(store, {
+        actor: item.created_by || 'ceo',
+        action_type: 'observe',
+        summary: `Routed routine executive follow-through to workbench: ${item.title}`,
+        target_type: 'executive-work-item',
+        target_id: work.work_id,
+      });
+      executive.finishAction(store, audit.action_id, {
+        status: 'skipped',
+        result: { work_id: work.work_id, reason: 'owner_action_not_required' },
+      });
+      continue;
+    }
     if (isTelemetryRequestProposal(item)) {
       const audit = executive.action(store, {
         actor: item.created_by || 'ceo',

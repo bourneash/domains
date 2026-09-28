@@ -473,6 +473,7 @@ function proposal(store, input = {}) {
   // migration also backfills older proposals created before this behavior.
   const workId = `executive-proposal:${created.proposal_id}`;
   if (store.getExecutiveWorkItem && !store.getExecutiveWorkItem(workId)) {
+    const ownerActionRequired = created.owner_action_required !== false;
     store.createExecutiveWorkItem({
       work_id: workId,
       title: `Proposal thread: ${created.title}`,
@@ -489,9 +490,10 @@ function proposal(store, input = {}) {
       source_id: created.proposal_id,
       site: created.implementation?.site || null,
       summary: created.summary,
-      next_action:
-        'Owner decision required: approve, request changes, or decline. Continue discussion in this thread.',
-      waiting_on: 'owner',
+      next_action: ownerActionRequired
+        ? 'Owner decision required: approve, request changes, or decline. Continue discussion in this thread.'
+        : 'Executive team follow-through: update the evidence or status here when the next check-in is complete.',
+      waiting_on: ownerActionRequired ? 'owner' : created.created_by,
       created_by: created.created_by,
     });
   }

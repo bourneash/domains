@@ -21,6 +21,49 @@ const EXECUTIVE_EVIDENCE_TYPES = new Set([
   'preview',
 ]);
 
+// Keep the owner-facing queue deliberately small. A proposal is owner work
+// only when it asks for a consequential choice; evidence collection,
+// monitoring, and continuing a previously gated posture belong in the
+// executive workbench instead.
+function inferExecutiveOwnerActionRequired(input = {}) {
+  if (typeof input.owner_action_required === 'boolean') return input.owner_action_required;
+  const type = String(input.proposal_type || '')
+    .trim()
+    .toLowerCase();
+  const author = String(input.created_by || '')
+    .trim()
+    .toLowerCase();
+  const implementation =
+    input.implementation && typeof input.implementation === 'object' ? input.implementation : {};
+  const text = [input.title, input.summary, input.rationale, input.requested_action]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  if (['researcher', 'cro', 'domain-manager'].includes(author) || type === 'report-only')
+    return false;
+  if (implementation.owner_action_required === true) return true;
+  if (
+    ['spend', 'hiring'].includes(type) ||
+    implementation.launch_gate === 'go_live' ||
+    implementation.requires_owner_approval === true ||
+    implementation.owner_approval === true
+  )
+    return true;
+  if (
+    /\b(evidence|evidence matrix|read[- ]only|monitor(?:ing)?|telemetry|report(?:ing)?|keep (?:it|this|the site|the domain) private|continue(?: the)? (?:gate|hold|restriction)|no owner action|routine|operational health)\b/.test(
+      text
+    )
+  )
+    return false;
+  if (
+    /\b(approve|approval|authorize|permission|owner decision|owner approval|go live|launch|deploy|production change|credential|budget|spend|exception|override)\b/.test(
+      text
+    )
+  )
+    return true;
+  return Boolean(implementation.action_key || implementation.body || implementation.title);
+}
+
 function open(root, { file } = {}) {
   const dbFile = file || path.join(root, 'tools', 'fleet-dashboard', 'data', 'fleet-events.sqlite');
   fs.mkdirSync(path.dirname(dbFile), { recursive: true });
@@ -1775,10 +1818,13 @@ function open(root, { file } = {}) {
       decided_by: null,
       decided_at: null,
       linked_request_id: input.linked_request_id || null,
-      implementation:
-        input.implementation && typeof input.implementation === 'object'
+      owner_action_required: inferExecutiveOwnerActionRequired(input),
+      implementation: {
+        ...(input.implementation && typeof input.implementation === 'object'
           ? input.implementation
-          : {},
+          : {}),
+        __owner_action_required: inferExecutiveOwnerActionRequired(input),
+      },
     };
     if (!row.title || !row.summary || !row.requested_action)
       throw httpErr(400, 'title, summary and requested_action are required');
@@ -6172,11 +6218,25 @@ function decodeImprovement(row) {
   };
 }
 function decodeExecutiveProposal(row) {
+  const implementation = safeJson(row.implementation_json);
+  const explicitOwnerAction =
+    typeof implementation.__owner_action_required === 'boolean'
+      ? implementation.__owner_action_required
+      : null;
+  if (Object.prototype.hasOwnProperty.call(implementation, '__owner_action_required'))
+    delete implementation.__owner_action_required;
   return {
     ...row,
+    owner_action_required:
+      explicitOwnerAction == null
+        ? inferExecutiveOwnerActionRequired({
+            ...row,
+            implementation,
+          })
+        : explicitOwnerAction,
     expected_upside: safeJson(row.expected_upside_json),
     risks: safeJson(row.risks_json),
-    implementation: safeJson(row.implementation_json),
+    implementation,
     expected_upside_json: undefined,
     risks_json: undefined,
     implementation_json: undefined,
@@ -6198,4 +6258,4 @@ function httpErr(status, message) {
   return e;
 }
 
-module.exports = { open };
+module.exports = { open, inferExecutiveOwnerActionRequired };

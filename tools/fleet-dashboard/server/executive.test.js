@@ -309,6 +309,37 @@ test('requires owner decision and preserves feedback loop', () => {
   db.close();
 });
 
+test('classifies routine evidence separately from owner decisions', () => {
+  const db = store();
+  const routine = executive.proposal(db, {
+    title: 'Security evidence remains incomplete',
+    proposal_type: 'report-only',
+    created_by: 'security',
+    summary: 'Keep public exposure gated while the evidence matrix is completed.',
+    requested_action: 'Continue the private posture and report the next evidence check.',
+  });
+  assert.equal(routine.owner_action_required, false);
+  assert.equal(
+    db.getExecutiveWorkItem(`executive-proposal:${routine.proposal_id}`).waiting_on,
+    'security'
+  );
+
+  const decision = executive.proposal(db, {
+    title: 'Launch the approved experiment',
+    proposal_type: 'growth',
+    created_by: 'ceo',
+    summary: 'The experiment is ready for production launch.',
+    requested_action: 'Approve the production launch.',
+    implementation: { launch_gate: 'go_live' },
+  });
+  assert.equal(decision.owner_action_required, true);
+  assert.equal(
+    db.getExecutiveWorkItem(`executive-proposal:${decision.proposal_id}`).waiting_on,
+    'owner'
+  );
+  db.close();
+});
+
 test('records and completes an auditable executive action', () => {
   const db = store();
   const action = executive.action(db, {

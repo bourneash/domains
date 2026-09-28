@@ -1918,6 +1918,39 @@ test('does not create another open proposal for the same executive decision', as
   store.close();
 });
 
+test('routes routine security posture updates to one durable workbench item', async () => {
+  const { root, store } = db();
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      messages: [],
+      proposals: [
+        {
+          created_by: 'security',
+          title: 'Security evidence remains incomplete',
+          proposal_type: 'report-only',
+          summary: 'Keep public exposure gated while the evidence matrix is completed.',
+          requested_action: 'Continue the private posture and report the next evidence check.',
+        },
+      ],
+      change_requests: [],
+      research_requests: [],
+    })
+  );
+  const first = await runner.applyPlan(store, plan, { root });
+  const second = await runner.applyPlan(store, plan, { root });
+  assert.equal(first.proposals.length, 0);
+  assert.equal(first.work_items.length, 1);
+  assert.equal(second.work_items.length, 1);
+  assert.equal(
+    store
+      .listExecutiveWorkItems({ limit: 100 })
+      .filter(item => item.source_type === 'executive-routine').length,
+    1
+  );
+  assert.equal(store.listExecutiveProposals({ limit: 100 }).length, 0);
+  store.close();
+});
+
 test('accepts researcher proposals as CRO evidence handoffs', () => {
   const plan = runner.parseOutput(
     JSON.stringify({
