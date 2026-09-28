@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:06:55.173Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:22:29.204Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: retain markitdown, Mermaid, shadcn/ui, and related repository leads as deferred research backlog only. No adoption, dependency installation, prototype dispatch, deployment, or spend is justified while measurement, failure-repair, ownership, security, release, rollback, and attribution gates remain open.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Existing telemetry shows 36 improvements awaiting measurement, 9 failed requests, and only 3 proven outcomes; the actionable candidate list is empty. Continue current measurement, repair-or-close, legal and security evidence, parked-site readiness, and attribution reconciliation work. Preserve aggregate provider earnings as unattributed. Do not create or requeue implementation work until ownership, validation, rollback, security, attribution, and measurement gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain MarkItDown, Mermaid, shadcn/ui, and related repository leads as deferred research backlog only. Evidence supports fleet-specific prototypes as future opportunities, but current measurement, failure-repair, ownership, security, release, rollback, attribution, and validation gates remain open. No adoption, dependency installation, deployment, spend, or production change is requested.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain three CRO opportunities as deferred backlog: an offline content-ingestion proof using MarkItDown, a reusable accessible comparison-card prototype informed by shadcn/ui, and a CTA or snippet experiment after current measurement windows close. Each requires a reversible prototype, license and security review, existing-telemetry measurement, and isolated rollback. No revenue, ROI, or causal lift is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

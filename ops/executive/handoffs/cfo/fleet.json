@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:06:55.174Z",
+  "generated_at": "2026-09-28T13:22:29.205Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and do not authorize new spend, deployments, monetization changes, experiments, or requeues. Amazon reported $4.92 commission for 2026-09-21, but it is aggregate and unattributed; site revenue, contribution margin, ROI, payback, and forecasts are unsupported. AI spend is $916.91 for 2026-09-01 through 2026-09-28, while infrastructure, domain, labor, marketing, commitments, and budget ceilings are not provided. SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, and 15 conversions are operating indicators, not financial outcomes. Continue only the existing matching-period reconciliation, preserving missing values as unknown. Minimum measurement for contribution margin and cost-to-learn: site/content revenue identifiers, a complete matching-period cost ledger, budget ceilings and commitments, and an explicit learning threshold.",
+        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned revenue, attribution, and cost reconciliation. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; $4.92 is in aggregate tracking_id=other and cannot be assigned to a site. Contribution margin, ROI, payback, budget exposure, and cost-to-learn are not calculable. AI spend is $916.914544 from 2026-09-01 through 2026-09-28 across 5,009 calls, with 228 errors; infrastructure, domains, labor, marketing, commitments, and budget ceilings are not recorded. Do not treat missing costs as zero or treat SEO totals of 14,410 impressions, 146 clicks, 1,002 sessions, 15 conversions, 36 awaiting measurement, or 3 proven outcomes as financial results or forecasts. Continue existing work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only; create no new spend, telemetry, requeues, deployments, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing period-aligned revenue, attribution, and cost reconciliation only. Reconcile the 18 mapped tracking rows against matching-period recorded costs and preserve the aggregate provider row as unattributed. Do not treat absent infrastructure, domain, labor, marketing, commitment, or budget data as zero. The minimum finance artifact is a dated reconciliation showing provider identifiers, site/content revenue, AI and infrastructure costs, other operating costs, commitments, budget ceilings, and the approved cost-to-learn threshold.",
+        "summary": "Minimum finance measurement: reconcile all 18 named tracking rows and the aggregate provider row to matching-period site/content revenue; attach a complete cost ledger for AI, infrastructure, domains, labor, marketing, experiments, and commitments; record monthly budget ceilings and an approved cost-to-learn threshold. Until those fields exist, site contribution margin and learning efficiency remain unknown. The current $916.914544 AI total can be reported as spend, but cannot be allocated into site margin beyond the supplied partial by-site rows, and the provider's $4.92 aggregate commission cannot support revenue claims.",
         "requested_action": null,
         "proposal_id": null
       }

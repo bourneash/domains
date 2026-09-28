@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T13:06:55.174Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-28T13:22:29.205Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. No new implementation, proposal, change request, requeue, experiment, telemetry, dependency, deployment, spend, or monetization change is queue-eligible. Continue only existing measurement, repair-or-close, legal/security evidence, parked-site ownership verification, and attribution reconciliation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The proposed bounded site-factory pipeline is technically plausible but not queue-safe: the strongest named site already has active work, so a duplicate request would violate isolation and deduplication controls. Preserve the revenue intent as deferred backlog and require ownership, isolated validation, release, rollback, security, attribution, and measurement evidence before reconsideration.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain repository and CRO opportunities as research backlog only. Lab results support bounded future prototyping but do not establish production safety, dependency approval, security, measurement, or revenue impact. Do not install dependencies, prototype, adopt, deploy, or spend this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing finance boundary. Reconcile named tracking rows with matching-period costs and retain the aggregate commission as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift from SEO, AI-cost, or aggregate-provider data.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing security and launch-readiness evidence work only. Preserve private launch gates and do not authorize credentials, permissions, configuration, dependencies, public exposure, monetization expansion, deployment, or external outreach.",
+        "summary": "Maintain containment-only execution this cycle. No new implementation candidate is queue-safe: active measurement, failed-request repair, unavailable operations/security evidence, incomplete ownership, validation, rollback, attribution, and release gates remain open. Continue existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned attribution/cost reconciliation. Preserve aggregate earnings as unattributed. Do not create or requeue work, add telemetry, dependencies, credentials, deployments, spend, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
