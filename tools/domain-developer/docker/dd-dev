@@ -76,15 +76,12 @@ cmd_start() {
     # reading generated files. Sites without a built client entry continue to
     # use their production-shaped preview command below.
     local static_preview=0
-    # Worker-backed Astro sites can have dynamic routes that are intentionally
-    # absent from dist/client. If wrangler assets declares run_worker_first,
-    # keep the production-shaped Worker preview so route and binding checks
-    # exercise the actual runtime instead of a false static 404.
-    local worker_preview=0
-    if [[ -f wrangler.jsonc ]] && grep -Eq '"run_worker_first"[[:space:]]*:' wrangler.jsonc; then
-        worker_preview=1
-    fi
-    if [[ -f dist/client/index.html && "${worker_preview}" == "0" ]]; then
+    # A built client snapshot is the stable review artifact even for a
+    # Worker-backed site. Local Wrangler can hang while initializing bindings
+    # or reload a worker indefinitely, turning a valid build into a preview
+    # failure. Serve the generated client when it has an entry point; sites
+    # without one still use their production-shaped Worker preview below.
+    if [[ -f dist/client/index.html ]]; then
         dev_script="python3 -m http.server ${DD_DEV_PORT:-4321} --bind 0.0.0.0 --directory dist/client"
         static_preview=1
     fi
