@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T09:36:44.690Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T09:51:55.470Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Do not create or requeue proposals, change requests, experiments, telemetry, deployments, spend, credentials, dependencies, domains, monetization changes, or external outreach. Retain SEO, UX, accessibility, performance, content, affiliate, CRO, and site-factory opportunities as deferred backlog. Continue only existing repair-or-close, measurement, attribution/cost reconciliation, legal evidence, and security evidence work. Evidence: candidate list is empty; 36 improvements await measurement; 9 implementation requests failed; 3 outcomes are proven. Amazon commission is $4.92 aggregate for 2026-09-21 and unattributed; ROI, margin, payback, cost-to-learn, and causal lift remain unknown.",
+        "summary": "Approve containment-only execution. Retain all SEO, UX, accessibility, performance, content, affiliate, monetization, launch, and cross-site opportunities as deferred backlog. Do not create, requeue, deploy, add telemetry or dependencies, change credentials or configuration, spend, or expand monetization while existing measurement, failure-repair, ownership, release, security, attribution, and rollback gates remain open.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing delivery containment and failure-repair review. Before any dispatch or requeue, record dated ownership, root cause, isolated validation, rollback, release, deduplication, security, attribution, and measurement evidence. Do not route the proposed site-factory batch as new work this cycle.",
+        "summary": "Continue the existing totaljerks.com failed-request repair-or-close work only. Record root cause, owner, isolated validation, rollback, deduplication, release, security, attribution, and measurement boundaries before explicitly requeueing or closing; do not create a duplicate request or claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing owner-gap and launch-readiness records as deferred work. Do not dispatch ownership setup, launch preparation, production changes, telemetry, spend, credentials, domains, or monetization changes. If an existing owner-verification item is already executing, record only its completion status and evidence; otherwise leave it deferred.",
+        "summary": "Keep the deployed allthingsmasonic.com homepage refresh in measurement status. Validate deterministic behavior, hierarchy, CTA clarity, mobile layout, accessibility, consent behavior, and disclosure presentation; compare only available recorded analytics and affiliate attribution. Classify the result as proven, inconclusive, or regressed, and revert only this bounded change if validation fails or a measured regression is confirmed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep the gated product private. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not change launch state, tracking, credentials, configuration, alert scope, monetization, or deployment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed. Do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift from incomplete or mismatched records.",
+        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the $4.92 aggregate provider commission for 2026-09-21 as unattributed; do not infer site revenue, margin, ROI, payback, budget capacity, cost-to-learn, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
