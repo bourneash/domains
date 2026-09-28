@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:07:43.489Z",
+  "generated_at": "2026-09-28T20:22:39.074Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for ordinary bounded reversible growth. Concrete evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release/deployment controls, dependency and supply-chain provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. Compliance is technical-only at 37 pass, 16 fail, and 6 unknown. No certificates are reported expiring within 30 days, but this does not establish complete TLS safety. No incident or exploitation is evidenced. Exact decision: preserve private launch gates and block security-sensitive releases; permit only reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior; continue the existing read-only security evidence matrix without duplicate telemetry or production changes.",
+        "summary": "Security disposition: evidence_needed. Recommendation: block public exposure and security-sensitive releases; allow only ordinary bounded reversible growth conditionally. Evidence: fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced. Risk severity is high for public exposure or security-sensitive releases and medium for bounded growth. Exact decision: preserve private launch gates and continue only existing read-only evidence, measurement, repair-or-close, and approved work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain scaffold opportunities as preview-only and private. Do not queue implementation, deploy, publish, configure credentials or permissions, add dependencies, expand telemetry, or launch until owner, compliance, security, measurement, and rollback evidence is complete.",
+        "summary": "Retain the existing private launch gate and evidence work. The technical compliance baseline is incomplete at 37 pass, 16 fail, and 6 unknown; no certificates are reported expiring within 30 days, but this does not establish complete TLS safety. Analytics has source-permission or collector errors, and missing operational/security telemetry must remain unknown rather than being treated as clean. Do not approve launch, deployment, credential or permission changes, dependency additions, alert expansion, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

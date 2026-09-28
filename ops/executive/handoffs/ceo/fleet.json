@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:07:43.489Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:22:39.073Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing finance reconciliation, legal and security evidence, parked-site ownership verification, measurement, and failure repair-or-close work. Keep private and parked dispositions unchanged. Do not create additional production work, spend, telemetry, dependencies, deployments, monetization changes, or external outreach.",
+        "summary": "Recommendation: preserve containment and continue only existing repair, measurement, attribution, and launch-readiness work under EXEC_CONV_7. Evidence: 40 improvements await measurement, 14 requests failed, operations and fleet-doctor sweeps are unavailable, and Amazon reports $4.92 aggregate commission for 2026-09-21 that is not site-attributable; margin and causal lift remain unknown. The smallest next step is dated validation of the existing eastcoastrappers.com routing repair. Owner decision: keep the Woot permission request unsent pending human-counsel review, or authorize it after review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: complete the existing eastcoastrappers.com routing repair only. Record ownership, deterministic routing tests, duplicate-task verification, rollback evidence, and confirmation that site behavior, credentials, telemetry, dependencies, deployment, spend, and external destinations were unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

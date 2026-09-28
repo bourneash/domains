@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:38:15.818Z",
+  "generated_at": "2026-09-28T20:22:39.073Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Prototype offline document-to-content normalization for source-backed publishing",
-        "summary": "MarkItDown is an MIT-licensed, lab-supported candidate for converting source documents into Markdown before editorial review. Fleet use case: reduce formatting variance and improve repeatability for source-backed guide/news workflows without publishing automatically. Evidence: weekly trend signal at 187397 stars; CRO lab completed 8/8 bounded checks with no dependency installation or production access. Risks: repository maintenance and transitive dependency review remain unverified; conversion may lose tables, citations, or document semantics; license fit does not establish source-content rights or publishing accuracy. Expected metric: reviewer acceptance rate and median manual cleanup time, with publication quality defects as a guardrail; baseline unknown. Time-to-learn: one isolated sample batch plus review, then 14 days of existing workflow evidence. Smallest reversible prototype: run the tool offline against three non-production, rights-cleared fixtures and produce a diff report only; no repository dependency, credentials, telemetry, or publication.",
-        "requested_action": "After existing gates clear, CTO may authorize an isolated disposable-lab prototype with security and provenance review. Do not adopt the dependency or publish generated content until deterministic output checks, rights review, rollback, and measurement ownership are documented.",
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: retain the repository and market-signal opportunities as deferred research backlog only. MarkItDown could support source-to-draft SEO workflows; Mermaid could add explainers and comparison diagrams; shadcn/ui could standardize accessible CTA and affiliate-card patterns. Evidence is limited to bounded lab review: MarkItDown and shadcn/ui passed available checks, while Mermaid had supported fit but no native checks. MIT/Apache-2.0 signals do not replace dependency, security, maintenance, content-rights, or production-fit review; MinerU and Strapi remain license/fit unknown from NOASSERTION. Smallest reversible prototypes would be isolated offline samples or static mock components, with metrics limited to drafting time, publishing throughput, CTA engagement, and search clicks after existing gates clear. Do not dispatch prototypes, install dependencies, deploy, add telemetry, spend, or claim revenue or causal lift this cycle.",
+        "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Test source-backed visual explainers on high-intent editorial pages",
-        "summary": "Mermaid is an MIT-licensed, lab-supported candidate for rendering simple diagrams from reviewed text. Fleet use case: add compact process, timeline, or comparison explainers to editorial pages where visual structure may improve comprehension and onward navigation. Evidence: daily trend signal at 90456 stars; CRO lab found supported purpose fit, but no native checks were available without installing dependencies. Risks: dependency and rendering security review is incomplete; diagrams can introduce factual or accessibility errors; no causal engagement or revenue lift is evidenced. Expected metric: engaged sessions or onward CTA clicks on the treated page, with accessibility and rendering failures as guardrails; baseline varies by page and is not invented here. Time-to-learn: one preview page plus the existing 14-day or 100-relevant-impression measurement boundary. Smallest reversible prototype: generate one static SVG or text fallback offline from reviewed content, compare accessibility and page-weight behavior, and keep it outside production.",
-        "requested_action": "Retain as a deferred CTO research handoff. Reconsider only after active site work clears, dependency provenance and security review are complete, and an engineer can validate a static preview with rollback and existing-telemetry measurement.",
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: preserve the strongest revenue experiments as deferred opportunities rather than new work. The allthingsmasonic.com affiliate path has 61 clicks, 0 ordered items, and $0 site-attributed commission in the available window; amputeenews.com still has a real Amazon tag prerequisite; aggregate provider earnings remain unattributed. Candidate experiments are CTA/disclosure clarity, product relevance, and intent-matched comparison content, measured only with existing attribution and rollback controls. Retain unknown revenue, do not infer ROI, and do not create duplicate requests while current measurement, failure-repair, security, ownership, and attribution work remains open.",
+        "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Prototype an accessible CTA and comparison-card pattern for affiliate surfaces",
-        "summary": "shadcn/ui is an MIT-licensed, lab-supported component source for a reusable accessible CTA/comparison-card pattern. Fleet use case: standardize product relevance, disclosure placement, keyboard behavior, and mobile hierarchy across affiliate-led surfaces without changing destinations or tracking. Evidence: daily trend signal at 124749 stars; CRO lab completed 3/3 bounded checks with no dependency installation or production access. Risks: copied components still require code ownership, dependency and supply-chain review, visual regression testing, and site-specific disclosure validation; high popularity is not evidence of conversion impact. Expected metric: qualified outbound affiliate click-through rate or CTA click rate, with disclosure visibility, destination integrity, accessibility, and page performance as guardrails; current site-level revenue attribution is partial and aggregate income is not assignable. Time-to-learn: one isolated preview on an eligible page and the existing 14-day or 100-relevant-impression window. Smallest reversible prototype: hand-copy one minimal, dependency-free card pattern into a disposable preview using existing destinations and disclosures; do not deploy, add tracking, or alter credentials.",
-        "requested_action": "Retain as deferred CTO/CEO product research. Do not duplicate active site requests or adopt the library until queue capacity, attribution boundaries, security review, rollback, and measurement ownership are clear.",
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: preserve SEO and audience experiments as a ranked deferred backlog. Evidence-backed candidates include xxxtea.com query cannibalization, saveusfarms.com title/CTR improvement, broadwayshowgirls.com author-page CTR, marineactivity.com AIS guide reach, deeppenetrations.com review-page CTR, and greatamericanlakes.com topic-page reach. Each should use a single reversible edit, existing GA4/GSC measurement, a pre-change baseline, a defined learning window, and rollback. Current active work, failed requests, unavailable operations evidence, and measurement backlog block new dispatch this cycle.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

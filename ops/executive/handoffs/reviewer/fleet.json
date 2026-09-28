@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:07:43.489Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:22:39.074Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the candidate plan's existing eastcoastrappers.com routing repair because it is high-priority queue work and not defensible under the current containment gate. Preserve only existing read-only finance reconciliation, legal/security evidence, failure repair-or-close review without requeue, and parked-site ownership/readiness verification. Reject new proposals, change requests, research requests, deployments, dependencies, telemetry, spend, monetization, outreach, and financial or causal claims. Aggregate commission remains unattributed; missing costs, budgets, margin, ROI, and lift remain unknown.",
+        "summary": "Approve containment-only execution. Reject new proposals, production work, requeues, spending, telemetry, dependencies, deployments, monetization changes, and unsupported revenue or ROI claims. Continue only existing evidence, reconciliation, security/legal gates, and the bounded eastcoastrappers.com routing repair. Preserve aggregate commission as unattributed and missing costs as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: provider revenue is aggregate and unattributed, periods and cost coverage do not align, operational and security evidence is incomplete, and many approved items await execution or measurement. Do not treat missing values as zero or authorize production, queue, spending, monetization, or outreach work. Keep the private and parked dispositions unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Containment remains required. Route only the existing eastcoastrappers.com task-routing repair: ownership metadata and isolated routing validation, with no site behavior, credentials, telemetry, dependencies, deployment, spend, or outreach changes. Do not queue additional candidates because remaining options are blocked by missing launch-readiness, execution-owner, security, attribution, measurement, active-work, or failure-repair evidence. Preserve aggregate commission as unattributed; site revenue, margin, ROI, forecast, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Route the existing eastcoastrappers.com task-routing repair to engineer. Scope is limited to task ownership metadata and isolated routing validation. Acceptance: dated ownership evidence, deterministic routing tests pass, duplicate-task count is verified, rollback point is recorded, and an audit confirms no site behavior or external destination changed. Do not requeue unrelated work.",
+        "summary": "Material concerns: revenue covers one period, includes an unattributed aggregate row, and lacks matching operating costs and budget thresholds; operations and fleet-doctor evidence remain unavailable; substantial work awaits measurement or repair. Do not treat missing data as zero or authorize new queue work until these gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

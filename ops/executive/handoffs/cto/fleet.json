@@ -2,49 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:07:43.488Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-28T20:22:39.074Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue only the existing eastcoastrappers.com task-routing repair and already-approved measurement, finance reconciliation, failure repair-or-close, legal evidence, security evidence, and parked-site ownership work. Do not create proposals, change requests, requeues, deployments, dependencies, telemetry, spend, monetization changes, or unsupported financial or causal claims.",
+        "summary": "CTO review: approve containment-only execution. No new proposals, change requests, requeues, deployments, dependencies, telemetry, spend, monetization changes, or external outreach are technically supportable this cycle. Continue only existing measurement, repair-or-close, attribution reconciliation, security evidence, launch-readiness evidence, and the already approved eastcoastrappers.com routing repair. Preserve all unsupported revenue, ROI, margin, causal-lift, readiness, and security fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing eastcoastrappers.com routing repair only. Limit scope to ownership metadata and isolated routing validation. Require dated ownership evidence, deterministic routing tests, duplicate-task verification, rollback evidence, and an audit confirming no site behavior, credentials, telemetry, dependencies, deployment, spend, or external destinations changed.",
+        "summary": "Continue the existing eastcoastrappers.com routing repair only. Limit scope to ownership metadata and isolated routing validation. Require dated ownership evidence, deterministic routing tests, duplicate-task verification, a recorded rollback point, and an audit confirming no site behavior, credentials, telemetry, dependencies, deployment, spend, or external destinations changed. Do not requeue unrelated work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve scaffold candidates as parked, private, preview-only backlog. Continue only existing execution-owner and launch-readiness evidence; do not implement, publish, deploy, configure analytics, monetize, change DNS, or spend. Preserve unknown readiness and measurement fields as unknown.",
+        "summary": "The candidate SEO, UX, affiliate, site-factory, and repository opportunities are technically feasible but not queue-eligible. Existing active work, failed requests, measurement backlog, ownership gaps, unavailable operations and fleet-doctor evidence, security unknowns, launch gates, and partial attribution prevent safe isolated dispatch. Retain them as deferred backlog without creating duplicate work or claiming outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain SEO, UX, accessibility, performance, content, affiliate, monetization, cross-site, and repository opportunities as deferred backlog. Existing measurement, failure, ownership, release, security, rollback, deduplication, and attribution gates do not support additional queue entry this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed and retain missing costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, budget capacity, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and preserve private launch gates. No credentials, permission changes, dependencies, configuration changes, deployments, exploitation, or outreach are authorized.",
+        "summary": "Maintain the existing private and parked launch gates. Continue only bounded read-only evidence work and existing owner-gap reconciliation. Do not publish, change DNS, credentials, permissions, analytics, consent, tracking, monetization, dependencies, configuration, or deployment state until the applicable technical, security, legal, measurement, and owner gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }
