@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:07:26.220Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-28T21:23:30.699Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Continue existing deployed-work measurement, failed-request repair-or-close review, accessibility/performance validation, parked-site readiness, attribution reconciliation, and the already-approved bounded routing repair. Do not create new proposals, change requests, experiments, requeues, telemetry, dependencies, deployments, spend, or monetization changes. Preserve SEO, UX, content, affiliate, and repository opportunities as deferred backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. Treat unavailable data as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing work only: dated routing validation and rollback evidence for the approved routing repair; existing failure repair-or-close review; deployed improvement measurement; security evidence capture; finance reconciliation; and parked-site owner/readiness verification. No public launch, DNS, credentials, analytics configuration, monetization, or external outreach changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the three CRO and repository opportunities as deferred research only. No dispatch, dependency installation, production integration, telemetry change, deployment, spend, or revenue or causal-lift claim is supported until current measurement, ownership, security, release, rollback, attribution, and failure-repair gates clear.",
+        "summary": "Retain repository and CRO opportunities as deferred research backlog only. Lab results do not establish production fit, dependency approval, security clearance, measurement readiness, or revenue impact. Require isolated fixtures, dependency and license review, compatibility and security review, deterministic validation, rollback, and an existing-telemetry measurement boundary before reconsideration.",
         "requested_action": null,
         "proposal_id": null
       }
