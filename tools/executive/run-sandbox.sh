@@ -270,6 +270,30 @@ NODE
       set -e
     fi
   fi
+  # Capacity is a provider availability failure, not a malformed or partial
+  # leadership result. Retry once only when no pass started; never replay a
+  # partially completed leadership sequence.
+  if [[ "$MODEL_STATUS" -ne 0 && -s "$RUN_DIR/output/failure.json" ]] && \
+    grep -Eiq 'selected model is at capacity|model is at capacity|capacity' "$RUN_DIR/model.log"; then
+    PASSES_COMPLETED="$(node - "$RUN_DIR/output/failure.json" <<'NODE'
+const fs = require('node:fs');
+try {
+  const value = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+  process.stdout.write(String(Array.isArray(value.passes_completed) ? value.passes_completed.length : 1));
+} catch {
+  process.stdout.write('1');
+}
+NODE
+)"
+    if [[ "$PASSES_COMPLETED" == "0" ]]; then
+      echo "executive provider model is at capacity before the first pass; retrying once" >&2
+      sleep "${EXECUTIVE_CAPACITY_RETRY_DELAY_SECONDS:-15}"
+      set +e
+      run_model
+      MODEL_STATUS=$?
+      set -e
+    fi
+  fi
 fi
 
 # Preserve the model's bounded, non-secret usage estimate outside the transient
