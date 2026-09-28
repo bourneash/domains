@@ -265,6 +265,78 @@ test('uses stable lineage for chained automatic failure diagnoses', () => {
   assert.equal(key, 'arttogogh.com:arttogogh orchestration failure diagnosis');
 });
 
+test('recognizes a completed diagnosis or repair descendant', () => {
+  const requests = [
+    {
+      request_id: 'failed-1',
+      status: 'failed',
+      body: 'original',
+    },
+    {
+      request_id: 'diagnosis-1',
+      status: 'verified',
+      delivery_mode: 'report_only',
+      action_key: 'failure-diagnosis:failed-1',
+    },
+    {
+      request_id: 'failed-2',
+      status: 'failed',
+      body: 'original',
+    },
+    {
+      request_id: 'repair-2',
+      status: 'deployed',
+      body: 'Project-manager work_id: failed-change-request:failed-2',
+    },
+  ];
+  assert.equal(
+    runner.failedRequestDescendantCompleted(requests, 'failed-1').request_id,
+    'diagnosis-1'
+  );
+  assert.equal(
+    runner.failedRequestDescendantCompleted(requests, 'failed-2').request_id,
+    'repair-2'
+  );
+  assert.equal(runner.failedRequestDescendantCompleted(requests, 'missing'), null);
+});
+
+test('reconciles completed failure work items without deleting request history', () => {
+  const items = [
+    {
+      work_id: 'failed-change-request:failed-1',
+      source_type: 'failed-change-request',
+      source_id: 'failed-1',
+      status: 'open',
+      evidence: [],
+    },
+  ];
+  const requests = [
+    { request_id: 'failed-1', status: 'failed', body: 'original' },
+    {
+      request_id: 'diagnosis-1',
+      status: 'verified',
+      delivery_mode: 'report_only',
+      action_key: 'failure-diagnosis:failed-1',
+    },
+  ];
+  let updated;
+  const store = {
+    listChangeRequests: () => requests,
+    listExecutiveWorkItems: () => items,
+    getChangeRequest: id => requests.find(request => request.request_id === id),
+    updateExecutiveWorkItem: (id, patch) => {
+      updated = { id, patch };
+      return { ...items[0], ...patch };
+    },
+  };
+  const result = runner.reconcileCompletedFailureFollowups(store);
+  assert.equal(result.length, 1);
+  assert.equal(updated.patch.status, 'done');
+  assert.equal(updated.patch.lifecycle_state, 'closed');
+  assert.match(updated.patch.resolution_note, /diagnosis-1/);
+  assert.equal(requests.length, 2);
+});
+
 test('does not infer a task-routing key from a near-match', () => {
   const plan = {
     change_requests: [{ site: 'example.com', title: 'Route another content task' }],
@@ -627,6 +699,21 @@ test('stale message work links are skipped without aborting the executive plan',
       .some(action => action.status === 'skipped' && action.action_type === 'message'),
     true
   );
+  store.close();
+});
+
+test('every pending owner request receives a linked executive acknowledgement', async () => {
+  const { root, store } = db();
+  const tracked = executive.ownerRequest(store, {
+    body: 'Please review and implement the reporting capability.',
+  });
+  const plan = runner.parseOutput(JSON.stringify({ messages: [] }));
+  const created = await runner.applyPlan(store, plan, { root });
+  assert.equal(created.messages.length, 1);
+  assert.equal(created.messages[0].actor, 'ceo');
+  assert.equal(created.messages[0].work_id, tracked.work_item.work_id);
+  assert.equal(created.messages[0].reply_to, tracked.message.message_id);
+  assert.equal(store.getExecutiveWorkItem(tracked.work_item.work_id).lifecycle_state, 'answered');
   store.close();
 });
 

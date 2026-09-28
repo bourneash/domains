@@ -690,6 +690,37 @@ function prioritizeExecutiveWorkItems(items, generalLimit = 100) {
   return [...pendingOwnerRequests, ...generalWork.slice(0, Math.max(0, generalLimit))];
 }
 
+function ensureOwnerRequestCoverage(store, plan) {
+  const covered = new Set(
+    (plan.messages || [])
+      .flatMap(message => [message.work_id, message.reply_to])
+      .filter(Boolean)
+      .map(String)
+  );
+  const pendingRequests = store
+    .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+    .filter(isPendingOwnerRequest);
+
+  for (const item of pendingRequests) {
+    const workId = String(item.work_id);
+    const sourceId = item.source_id ? String(item.source_id) : null;
+    if (covered.has(workId) || (sourceId && covered.has(sourceId))) continue;
+
+    plan.messages.push({
+      actor: 'ceo',
+      body:
+        `Acknowledged owner request: ${item.summary}\n\n` +
+        'The executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.',
+      work_id: item.work_id,
+      reply_to: item.source_id || null,
+      message_type: 'update',
+      metadata: { system_generated: true, reason: 'owner-request-coverage' },
+    });
+    covered.add(workId);
+    if (sourceId) covered.add(sourceId);
+  }
+}
+
 function compactModelValue(value, depth = 0) {
   if (typeof value === 'string') {
     if (value.length <= MODEL_BRIEF_MAX_STRING_LENGTH) return value;
@@ -2423,6 +2454,78 @@ function markReportWorkItem(store, item, request, { completed = false, blocked =
   });
 }
 
+function failedRequestDescendantCompleted(requests, requestId) {
+  const marker = `failed-change-request:${String(requestId || '').trim()}`;
+  if (!marker.endsWith(':')) {
+    const diagnosis = requests.find(
+      request =>
+        request.delivery_mode === 'report_only' &&
+        request.action_key === `failure-diagnosis:${requestId}` &&
+        request.status === 'verified'
+    );
+    if (diagnosis) return diagnosis;
+    const repair = requests.find(
+      request =>
+        request.request_id !== requestId &&
+        String(request.body || '').includes(marker) &&
+        ['deployed', 'verified'].includes(request.status)
+    );
+    if (repair) return repair;
+  }
+  return null;
+}
+
+// Failure cases are durable audit records, but their workbench projections
+// must not remain open after a bounded diagnosis or a descendant repair has
+// completed. This is deliberately conservative: failed descendants do not
+// close the parent, and no request is deleted or retried here.
+function reconcileCompletedFailureFollowups(store, { limit = 1000 } = {}) {
+  const requests = store.listChangeRequests({ limit: 5000 });
+  const items = store
+    .listExecutiveWorkItems({ limit })
+    .filter(
+      item =>
+        item.source_type === 'failed-change-request' &&
+        ['open', 'in_progress', 'ready'].includes(item.status)
+    );
+  const reconciled = [];
+  for (const item of items) {
+    const original = store.getChangeRequest(item.source_id);
+    if (!original) continue;
+    const completed =
+      ['deployed', 'verified', 'cancelled'].includes(original.status) ||
+      failedRequestDescendantCompleted(requests, original.request_id);
+    if (!completed) continue;
+    const descendant =
+      original.status === 'failed'
+        ? failedRequestDescendantCompleted(requests, original.request_id)
+        : null;
+    const note = descendant
+      ? `Linked descendant ${descendant.request_id} completed as ${descendant.status}.`
+      : `Original request ${original.request_id} completed as ${original.status}.`;
+    const updated = store.updateExecutiveWorkItem(item.work_id, {
+      status: 'done',
+      lifecycle_state: 'closed',
+      closed_at: new Date().toISOString(),
+      resolved_at: new Date().toISOString(),
+      resolution_note: `${note} Closed by deterministic failure-followup reconciliation.`,
+      next_action: `Use the completed request evidence in the next executive review; no automatic retry is required.`,
+      evidence: appendWorkEvidence(item, {
+        type: descendant?.delivery_mode === 'report_only' ? 'artifact' : 'decision',
+        label: 'failure follow-up reconciled',
+        note,
+      }),
+    });
+    reconciled.push({
+      type: 'failure-followup-reconciled',
+      work_id: item.work_id,
+      request_id: original.request_id,
+    });
+    if (!updated) continue;
+  }
+  return reconciled;
+}
+
 function queueBoundedReportWork(
   store,
   item,
@@ -2957,6 +3060,7 @@ function runProvider(
 }
 
 async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) {
+  ensureOwnerRequestCoverage(store, plan);
   validatePlan(plan);
   const created = {
     messages: [],
@@ -3562,6 +3666,7 @@ module.exports = {
   compactModelBrief,
   isPendingOwnerRequest,
   prioritizeExecutiveWorkItems,
+  ensureOwnerRequestCoverage,
   parseOutput,
   isTelemetryRequestProposal,
   normalizeProviderProposalTypes,
@@ -3575,6 +3680,8 @@ module.exports = {
   failureDiagnosisLineageKey,
   drainDataQualityWork,
   drainFailureDiagnostics,
+  failedRequestDescendantCompleted,
+  reconcileCompletedFailureFollowups,
   applyPlan,
   runProvider,
   tick,
