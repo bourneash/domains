@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:54:14.872Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:36:41.879Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial evidence supports no site-level revenue, ROI, margin, payback, forecast, or causal-lift claim. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that cannot be assigned to a site. Matching-period costs, budgets, commitments, and learning thresholds remain unknown. Continue existing reconciliation only; do not approve new spend or monetization expansion.",
+        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned finance reconciliation. Do not approve new spend, monetization expansion, forecasts, ROI, payback, contribution-margin claims, or causal-lift claims. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The 18 named tracking rows show $0 site-attributed income; the aggregate row cannot be assigned to a site. AI usage cost is $928.5425623 for 2026-09-01 through 2026-09-29, which does not match the revenue period. Infrastructure, labor, other operating costs, commitments, budgets, and approved learning thresholds are unavailable, so contribution margin, cost-to-learn, AI payback, budget exposure, and forecasts are unknown—not zero. SEO totals of 14,410 impressions, 146 clicks, 998 sessions, and 15 conversions support prioritization only and do not support revenue or causal claims. Continue only existing reconciliation and measurement work; no duplicate telemetry or new implementation request is justified.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain containment-only execution. Do not create or requeue work for finance purposes. Complete the existing reconciliation using available records and preserve unknowns explicitly. The minimum finance artifact is a period-aligned table for 2026-09-21 matching provider revenue and attribution to site/content identifiers, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold.",
         "requested_action": null,
         "proposal_id": null
       }

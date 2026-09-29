@@ -2,16 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:36:21.794Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:36:41.878Z",
+  "summary": "ceo checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing preview-only readiness packet for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked/private status; attach dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence by 2026-09-30T17:00Z.",
+        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Evidence: delivery is full at 10/10 slots, 59 items are overflowed, 38 improvements await measurement, 17 requests failed, and security/operations sweeps remain unavailable. Preserve existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work; do not create or requeue implementation work. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, and causal lift remain unknown. Smallest next step: delivery-lead documents one verified completion or close within 24 hours. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue repair-or-close containment under EXEC_CONV_12. Do not retry unchanged failures or select new queue work while active delivery is full. Complete one existing item with dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence, or document a justified close within 24 hours.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep all sites private and preview-only; attach dated owner, preview/build, compliance, security, measurement, rollback, and blocker evidence by 2026-09-30T17:00Z. No build, publish, deployment, DNS, analytics, monetization, spend, dependencies, or queue entry is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-admission-control-20260929",
+        "summary": "Defer the offline admission-control prototype until one existing item is verified complete or closed and an active delivery slot opens.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-admission-control-20260929"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-markitdown-content-pipeline-20260929",
+        "summary": "Defer content conversion and adoption. The bounded lab evidence supports future research only; no dependency installation, publication, or queue work is authorized.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-markitdown-content-pipeline-20260929"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-accessible-cta-component-20260929",
+        "summary": "Defer isolated component prototyping until delivery capacity, dependency, security, accessibility, and measurement gates are available.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-accessible-cta-component-20260929"
       }
     ]
   }
