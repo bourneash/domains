@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:07:57.301Z",
+  "generated_at": "2026-09-29T17:24:41.401Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for bounded reversible growth. Fleet-doctor has no run or control results, operations deploy/uptime/error sweeps have no results, and all 59 security sitefacts are unknown. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. No incident or exploitation is evidenced, but missing telemetry is not evidence of safety. Exact decision: preserve private and parked gates; allow only reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
+        "summary": "Fleet security disposition is evidence_needed. Fleet-doctor has no run or control results, operations deploy/uptime/error sweeps have no results, and all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release/deployment controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. No incident or exploitation is evidenced; missing telemetry is not evidence of safety. Exact decision: block public exposure and security-sensitive releases, preserve private and parked gates, and permit only bounded reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix only. Use authorized metadata and retained artifacts; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct external outreach. Keep the gated product private and preview-only.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Maintain evidence-needed fleet security disposition and private launch gates",
-        "summary": "Continue the existing fleet security evidence matrix without creating duplicate work. Fleet-doctor and operations results are unavailable, and material security controls remain unevidenced.",
-        "requested_action": "Record dated, redacted evidence and explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Preserve private and parked gates. Permit only bounded reversible growth within existing consent, disclosure, provenance, claims, and data boundaries. Do not create a new implementation request.",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and all 59 security sitefacts are unknown. Preserve private launch gates and allow only bounded reversible growth while completing authorized read-only evidence capture.",
+        "requested_action": "Continue the existing security evidence matrix using authorized metadata and retained artifacts only. Document dated evidence and explicit unknowns for authentication and access boundaries, secrets handling, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Block public exposure and security-sensitive releases. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Do not retrieve credentials, access private containers, modify permissions or configuration, deploy, add dependencies, requeue unchanged work, exploit targets, or conduct external outreach.",
         "proposal_id": null
       }
     ]

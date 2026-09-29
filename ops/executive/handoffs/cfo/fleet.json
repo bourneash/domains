@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:07:57.300Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T17:24:41.400Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO review retains the content-discovery prototype only as a no-spend, disposable research concept. The MIT license, 8/8 bounded checks, and 22 keyword hits establish technical plausibility, not financial value. Before execution, require a measured time-to-brief baseline, explicitly allocated AI/infrastructure cost, a cost-to-learn ceiling, and a go/no-go threshold. Do not treat output volume, keyword hits, or repository stars as financial outcomes.",
+        "summary": "Recommend maintaining containment-only execution. Do not admit new queue work, requeue failures, expand monetization, or authorize spend. Revenue support is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to sites. AI usage is $945.2473 for 2026-09-01 through 2026-09-29, but it is not period-matched to revenue and infrastructure, labor, operating, commitment, and budget data are unavailable. Therefore contribution margin, budget exposure, ROI, payback, forecast, and cost-to-learn are unknown. Continue the existing period-aligned finance reconciliation only; do not extrapolate one-day revenue or compare September AI spend to it. Minimum evidence for a finance conclusion is a dated ledger matching revenue, AI, infrastructure, labor, operating costs, commitments, and budget ceilings to the same site/content and period, plus an approved learning threshold.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The three deferred control-plane specifications may remain deferred as non-financial concepts, but none should be admitted this cycle. They do not establish revenue, contribution margin, savings, cost-to-learn, or budget benefit. Any future prototype should remain report-only and compete for capacity only after containment clears; its success must be measured with existing records, not proposal volume or activity counts.",
         "requested_action": null,
         "proposal_id": null
       }

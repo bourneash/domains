@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:08:14.171Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T17:24:41.399Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "The three CRO control-plane concepts are preserved as deferred specifications, not implementation commitments. Reject admission this cycle because active delivery is full, failed-work containment is open, and operations/security evidence is incomplete. Reconsider after a delivery slot is cleared and the required evidence gates reopen.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the three control-plane concepts as deferred specifications only. Reject implementation admission this cycle because active delivery is full, failed-work containment is open, and operations/security evidence is incomplete. Reconsider only after a delivery slot is cleared and required evidence gates reopen.",
+        "summary": "Retain three deferred, reversible specifications only. Delivery is saturated at 10/10 slots, measurement debt and failed-work containment remain open, and operations/security evidence is incomplete. No new implementation or queue admission is recommended this cycle. The specifications below include fleet use case, evidence, risks, expected metrics, learning windows, and smallest reversible prototypes. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       }
