@@ -14155,10 +14155,9 @@ async function renderExecutive() {
                 }),
           dashboardOnly
             ? Promise.resolve({ requests: [], notifications: [] })
-            : optional(
+            : api(
                 'GET',
-                `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`,
-                { requests: [], notifications: [] }
+                `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`
               ),
           conversationOnly
             ? optional('GET', '/api/executive/draft', { draft: null })
@@ -14213,11 +14212,7 @@ async function renderExecutive() {
               : optional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
           conversationOnly
             ? Promise.resolve({ active: null, latest: null, runs: [] })
-            : optional('GET', '/api/executive/run-status', {
-                active: null,
-                latest: null,
-                runs: [],
-              }),
+            : api('GET', '/api/executive/run-status'),
           conversationOnly
             ? Promise.resolve({ cases: [] })
             : dashboardOnly

@@ -42,6 +42,12 @@ test('optional API reads do not hide authentication failures as empty data', () 
   assert.match(helper, /throw error/);
 });
 
+test('executive inbox and run history are primary reads, never optional empty fallbacks', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /: api\(\s*'GET',\s*`\/api\/executive\/inbox\?limit=50/);
+  assert.match(app, /: api\('GET', '\/api\/executive\/run-status'\)/);
+});
+
 test('site command centers are shareable first-class routes', () => {
   const route = routeFor('#site/example.test');
   assert.equal(route.view, 'site');
