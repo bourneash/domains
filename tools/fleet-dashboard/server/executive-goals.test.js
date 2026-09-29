@@ -79,6 +79,13 @@ test('normalizes legacy evidence and enforces typed work products', () => {
     evidence: [{ type: 'measurement', label: 'conversion rate', detail: '2.1%' }],
   });
   assert.equal(typed.evidence[0].type, 'measurement');
+  const security = db.createExecutiveWorkItem({
+    title: 'Record a security baseline',
+    kind: 'security',
+    owner: 'security',
+    evidence: [{ type: 'security_baseline', label: 'fleet security baseline', note: 'reviewed' }],
+  });
+  assert.equal(security.evidence[0].type, 'security_baseline');
   assert.throws(
     () =>
       db.createExecutiveWorkItem({

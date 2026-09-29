@@ -1657,9 +1657,13 @@ function open(root, { file } = {}) {
   }
 
   function getExecutiveDraft(conversationId = 'executive') {
-    return db
-      .prepare('SELECT conversation_id, body, updated_at FROM executive_drafts WHERE conversation_id = ?')
-      .get(String(conversationId)) || null;
+    return (
+      db
+        .prepare(
+          'SELECT conversation_id, body, updated_at FROM executive_drafts WHERE conversation_id = ?'
+        )
+        .get(String(conversationId)) || null
+    );
   }
 
   function upsertExecutiveDraft(input = {}) {
@@ -1680,7 +1684,9 @@ function open(root, { file } = {}) {
   }
 
   function deleteExecutiveDraft(conversationId = 'executive') {
-    const result = db.prepare('DELETE FROM executive_drafts WHERE conversation_id = ?').run(String(conversationId));
+    const result = db
+      .prepare('DELETE FROM executive_drafts WHERE conversation_id = ?')
+      .run(String(conversationId));
     return { deleted: result.changes > 0 };
   }
 
