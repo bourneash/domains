@@ -16146,16 +16146,14 @@ async function boot() {
     /* /api/auth is exempt; ignore transient errors */
   }
 
-  try {
-    STATE.sites = await api('GET', '/api/sites');
-  } catch {
-    STATE.sites = [];
-  }
-  try {
-    STATE.agents = normalizeAgentList(await api('GET', '/api/agents'));
-  } catch {
-    STATE.agents = [];
-  }
+  // These are independent navigation/bootstrap reads. Fetch them together so
+  // a slow registry cannot add its latency on top of a slow site discovery.
+  const [sites, agents] = await Promise.all([
+    apiOptional('GET', '/api/sites', []),
+    apiOptional('GET', '/api/agents', { agents: [] }),
+  ]);
+  STATE.sites = sites;
+  STATE.agents = normalizeAgentList(agents);
   const r = parseHash();
   STATE.view = r.view;
   STATE.agent = r.agent;
