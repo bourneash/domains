@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:37:01.941Z",
+  "generated_at": "2026-09-29T12:51:47.493Z",
   "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: maintain containment-only execution. Delivery is saturated at 10/10 slots, with 38 improvements awaiting measurement, 17 failed requests, 120 stranded work items, and 109 approved proposals lacking execution requests. Admit no new queue work, requeues, deployments, dependencies, telemetry, spend, schedule changes, monetization expansion, or external outreach this cycle. Continue only existing measurement, repair-or-close, period-aligned attribution reconciliation, security evidence, and parked-site readiness. Keep the control-plane concept as a future isolated prototype only after one existing failed or stranded item is verified or justifiably closed with dated ownership, isolated validation, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Existing records support measurement of approved-to-execution rate, stranded-item count, repair/close time, active-slot utilization, and measurement completion; do not invent additional telemetry or claim revenue, ROI, margin, or causal lift.",
+        "summary": "Continue only existing affiliate readiness work. For amputeenews.com, treat the Amazon Associates tag as an owner-controlled prerequisite: document the prerequisite and await authorized owner evidence; do not change credentials, provider configuration, or claim revenue. For allthingsmasonic.com, validate the already queued affiliate-path change using existing telemetry only; do not add tracking, duplicate work, or claim lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the retained repair-or-close item for saveusfarms.com request 3dd194a6-b7a1-4dce-baee-22af77d5b2e1. Before any queue admission, record dated ownership, root cause or justified close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue exactly one dated readiness packet for complicated.work. Cover ownership, available preview/build evidence, content/template scope, compliance, security, measurement boundaries, rollback, and explicit blockers. Keep the site parked, private, and preview-only; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement only using available telemetry. Preserve unknowns where sources are unavailable and do not claim revenue, conversion impact, or causal lift before measurement windows complete.",
+        "summary": "Continue deployed-change measurement only using existing telemetry. Preserve unavailable values as unknown and do not claim causal lift, revenue, conversion impact, or attribution beyond recorded evidence. Do not add tracking, duplicate work, or requeue items during containment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed; keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Retain CRO concepts as deferred research only. No dependency installation, source ingestion, production integration, queue admission, deployment, telemetry expansion, or adoption is authorized while containment is active. Reconsider at most one isolated prototype only after capacity clears and license, security, provenance, accessibility, maintenance, rollback, and measurement gates are defined.",
         "requested_action": null,
         "proposal_id": null
       }

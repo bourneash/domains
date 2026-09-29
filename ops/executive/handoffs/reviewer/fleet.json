@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:37:01.942Z",
+  "generated_at": "2026-09-29T12:51:47.494Z",
   "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new queue work, requeues, deployments, dependencies, telemetry expansion, spending, monetization changes, external outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned reconciliation, security evidence, and parked-site readiness. The only supported revenue evidence is $4.92 aggregate commission for 2026-09-21 and it is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown. Smallest next step: complete or justifiably close the retained saveusfarms.com failure with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before queue admission reopens.",
+        "summary": "Approve containment-only execution. Reject new queue work, requeues, deployments, spending, telemetry expansion, dependency additions, credential or permission changes, monetization expansion, external outreach, and unsupported financial or causal claims. Delivery is saturated at 10/10 slots; operations and security evidence are unavailable; revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable. Margin, ROI, payback, forecasts, cost-to-learn, and causal lift remain unknown. Continue only existing repair-or-close, measurement, period-aligned reconciliation, security evidence, private launch-gate, and parked-site readiness work. Owner concern: queue admission remains blocked until one existing failed item is completed or justifiably closed with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the retained saveusfarms.com repair-or-close item. Do not retry unchanged work or create a duplicate request. Record dated ownership, root cause or justified close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence.",
+        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "summary": "Continue only the existing period-aligned finance reconciliation. Preserve aggregate provider earnings as unattributed and keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 provider result as aggregate and unattributed; keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate.",
+        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unavailable values as unknown; do not claim revenue, conversion impact, attribution, or causal lift. Do not add tracking, duplicate work, or requeue items.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement only using available telemetry. Preserve unknowns where sources are unavailable and do not claim revenue, conversion impact, or causal lift before measurement windows complete.",
+        "summary": "Continue the existing bounded read-only security evidence matrix and private launch gates. Block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Keep parked scaffold properties private and preview-only. Continue existing dated readiness packets; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       }

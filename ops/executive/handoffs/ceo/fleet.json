@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:37:01.942Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T12:51:47.494Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Prototype a liveness-aware portfolio delivery control plane after containment clears",
-        "summary": "Existing records show saturated delivery, incomplete measurement, failed requests, stranded work, and approved work without execution linkage. Retain a future isolated prototype proposal to improve durable follow-through across the managed portfolio.",
-        "requested_action": "Retain as a future product proposal only. Do not queue, deploy, change schedules, add telemetry, spend, or requeue work until containment clears and one existing failed or stranded item has verified completion or justified closure. Prototype acceptance: one canonical record per approved change, explicit admission rationale, owner and next action, duplicate and overlap suppression, terminal handling for failed or cancelled requests, and a reversible disable path. Evaluate using existing records only: approved-to-execution rate, stranded-item count, failed-request repair or close time, active-slot utilization, and measurement completion. Preserve unavailable values as unknown.",
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "15594c12-19ca-4ea0-a00d-35b3993ca680",
+        "summary": "Retain as deferred research only; delivery is saturated and adoption lacks isolated prototype, security, provenance, and measurement evidence.",
+        "requested_action": "declined",
+        "proposal_id": "15594c12-19ca-4ea0-a00d-35b3993ca680"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "0c1c1f58-856a-40c8-b1ee-492457d406db",
+        "summary": "Retain as deferred research only; no production integration or dependency addition is justified while containment remains active.",
+        "requested_action": "declined",
+        "proposal_id": "0c1c1f58-856a-40c8-b1ee-492457d406db"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "1a8cf30b-84c7-40d8-b1ee-492457d406db",
+        "summary": "Retain as deferred research only; Mermaid has supported fit but no safe native checks and no capacity for prototype validation.",
+        "requested_action": "declined",
+        "proposal_id": "1a8cf30b-84c7-40d8-b1ee-492457d406db"
       }
     ]
   }
