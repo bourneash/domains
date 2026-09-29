@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:07:32.035Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T11:21:38.662Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three queued change requests and maintain containment-only execution. Delivery is full at 10/10 slots, with 60 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. The only supported revenue evidence is $4.92 aggregate commission for 2026-09-21, not site-attributable; margin, ROI, forecasts, cost-to-learn, and causal lift remain unknown. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Keep external rights outreach unsent pending human-counsel review and owner authorization. Smallest next step: complete one existing failed or stranded item, or document a justified close, with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence before queue admission reopens.",
+        "summary": "Approve containment-only execution. Reject new production work, queue admission, requeues, deployments, spending, telemetry expansion, dependencies, monetization expansion, outreach, and unsupported financial or causal claims. Continue only the existing repair-or-close, parked-site readiness, private launch/security gate, period-aligned reconciliation, and measurement work. Preserve unavailable values as unknown and keep aggregate revenue unattributed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: delivery is saturated at 10/10 active slots, with overflow, measurement backlog, failed requests, unavailable operations/security evidence, and incomplete revenue attribution. The smallest defensible next step is one verified completion or justified close with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packets only. Keep the scaffold properties parked, private, and preview-only. Preserve unknowns and do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing private launch and security gates. Keep the gated product private and preview-only; do not send rights outreach, expose it publicly, expand alerts, deploy, change credentials or configuration, add dependencies, or claim clearance without the required evidence and human-counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve the 2026-09-21 provider result as aggregate and unattributed; keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown.",
         "requested_action": null,
         "proposal_id": null
       }
