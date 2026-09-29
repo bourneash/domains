@@ -2,63 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:08:39.823Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:22:47.412Z",
+  "summary": "reviewer checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue admissions and production proposals this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed repairs remain open, and operations/security evidence is incomplete. Revenue support is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Smallest next step: complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with validation, rollback, and attribution-boundary evidence. Keep private launch gates and rights outreach unchanged.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots; continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown. No new queue work, production changes, requeues, telemetry, spending, monetization, credentials, configuration, dependencies, or outreach are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicate requests.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Measure already deployed work using existing telemetry only. Preserve unavailable revenue, cost, attribution, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, conversion, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admission this cycle. All 10 delivery slots are occupied, measurement debt and failed repairs remain open, and public/security-sensitive releases lack evidence. Continue only existing repair containment, deployed-work measurement, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, payback, forecasts, and causal lift are unknown.",
+        "summary": "Continue only existing readiness packets for parked properties. Keep them private, preview-only, and unlaunched; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by the existing deadline. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with ownership, root-cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Escalate unresolved status to CTO; do not retry unchanged work or create duplicates.",
+        "summary": "No new implementation candidate is admissible this cycle. All 10 delivery slots are occupied, and the available candidates are blocked by missing launch-readiness evidence, active measurement, or failed-work containment. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness only. Revenue remains $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, payback, cost-to-learn, and causal lift are unknown. Authorize no spend, monetization expansion, telemetry expansion, deployment, requeue, credential or configuration changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue the scaffold candidates. Continue existing readiness packets only, keeping properties parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
+        "summary": "Complete or justifiably close the retained saveusfarms.com repair case by 2026-09-30T07:30Z with ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security, attribution, measurement, and deduplication evidence. Escalate unresolved status to CTO. Do not retry unchanged work or create duplicates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation candidate is queueable while active delivery is 10/10 and existing measurement and repair work remain open. Reconsider the smallest reversible candidates only after a slot clears and the required evidence gates reopen; escalate unresolved capacity or repair status to CTO at the applicable deadlines.",
+        "summary": "Complete dated readiness packets for complicated.work, deadlymaracas.com, and driveford.net by 2026-09-30T17:00Z, covering ownership, preview/build, compliance, security, measurement boundaries, rollback, and explicit blockers. Keep all three parked, private, preview-only, and unlaunched. Escalate incomplete evidence to CTO; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Inspect the existing failed marineactivity.com requests and either prepare a separately evidenced bounded correction or close them with rationale by 2026-09-30T07:30Z. Do not retry unchanged work or create duplicate requests. Escalate unresolved status to CTO.",
         "requested_action": null,
         "proposal_id": null
       }

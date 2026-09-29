@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:08:39.822Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:22:47.411Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue the proposed preview builds. Maintain the existing parked-site readiness packets only; keep those properties private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
+        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Keep each parked, private, preview-only, and unlaunched. Readiness packets may document ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundaries, rollback points, and explicit blockers. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work. Escalate incomplete evidence to CTO at the existing deadline.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Retain the MarkItDown, shadcn/ui, and Mermaid concepts as deferred specifications only; do not queue or adopt them. Existing lab results support research interest, not production suitability, security clearance, license fit, accessibility, bundle impact, provenance, crawlability, conversion lift, or revenue impact. Any future prototype must run in an isolated disposable workspace with no dependency installation or production access, followed by fleet-specific validation, security review, measurement design, owner-approved implementation, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Measure already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift values as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "summary": "The smallest executable next step remains completion or justified closure of the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Require dated ownership, root cause or closure rationale, isolated deterministic validation, build checks, rollback point, release and security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicate requests. Continue deployed-work measurement, security evidence, finance reconciliation, and private launch gates using existing telemetry and authorized metadata only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing readiness packets for the parked scaffold properties. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by the existing deadline. Do not create implementation queue work.",
+        "summary": "Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The 2026-09-01 through 2026-09-29 AI ledger reports $945.247286 across 5,264 calls, but it is not period-matched to revenue and is not sufficient for margin, ROI, payback, forecasts, or cost-to-learn. Continue report-only reconciliation using existing records; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }
