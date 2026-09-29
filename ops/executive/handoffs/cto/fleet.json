@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T07:52:40.134Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:06:07.425Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed and keep mismatched costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate or make site-level financial claims.",
+        "summary": "Continue the existing parked-site readiness packet and preserve private, parked, preview-only status. Attach dated owner, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. No build, publish, deployment, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
