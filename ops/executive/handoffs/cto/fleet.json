@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:38:37.263Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T17:07:57.301Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. No new queue admission, unchanged requeues, deployments, spend, telemetry expansion, dependency additions, credential or permission changes, monetization expansion, or unsupported financial or causal claims. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Reassess queue admission only after a delivery slot is cleared and the retained failure has been completed or justifiably closed with dated validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "CTO disposition: maintain containment-only execution. Do not admit new site work, requeue unchanged failures, deploy, spend, add dependencies, expand telemetry, change credentials or permissions, or claim unsupported revenue, ROI, or causal lift. Continue only existing measurement, repair-or-close, readiness, finance reconciliation, legal, and security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the four delivery-control specifications as deferred, reversible designs only. They are technically feasible as future control-plane work, but implementation is not safe while delivery is full, measurement backlog and failed-request containment remain open, and operations/security evidence is incomplete. Do not create implementation requests this cycle.",
+        "summary": "Prioritize the existing saveusfarms.com repair-or-close case. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue existing 0xroulette.com CTA review only. Acceptance requires verified CTA hierarchy, destination integrity, affiliate disclosure, keyboard access, visible focus, contrast, mobile behavior, and smoke checks. Use existing GA4 and affiliate records only; conversion lift remains unknown. Roll back only the bounded CTA/layout diff if validation fails.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-work measurement and period-aligned finance reconciliation using available evidence only. Preserve unavailable revenue, cost, margin, ROI, attribution, conversion, forecast, payback, cost-to-learn, and causal-lift values as unknown. Keep the 2026-09-21 Amazon result aggregate and unattributed; authorize no spend or monetization expansion.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Complete existing readiness packets with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blockers. No queue entry, publish, deployment, DNS, analytics, monetization, spending, dependency, or telemetry change is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue deployed-work measurement using available telemetry only. Preserve unavailable revenue, attribution, conversion, cost, and causal-lift fields as unknown. Do not add tracking, duplicate work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain private launch and security gates. Continue only authorized read-only evidence capture for security, rights, data flow, consent, accuracy, attribution, and operational controls. Keep external rights outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       }
