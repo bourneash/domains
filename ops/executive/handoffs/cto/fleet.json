@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:21:38.661Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T11:36:44.272Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Do not admit new queue work, requeues, deployments, dependencies, telemetry, spend, monetization expansion, or external outreach. Continue only existing measurement, repair-or-close, security/compliance evidence, parked-site readiness, and period-aligned attribution work. Active delivery is full at 10/10 slots with 60 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Complete or justifiably close one existing failed or stranded item by 2026-09-30T07:30:00Z before queue admission is reconsidered. Require dated ownership, root cause or close rationale, isolated validation, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Preserve the 2026-09-21 Amazon result as aggregate and unattributed; do not claim site revenue, ROI, margin, forecasts, or causal lift.",
+        "summary": "CTO review: approve containment-only execution. Keep queue admission closed because all 10 active slots are occupied, overflow and measurement backlogs remain, failed requests require repair-or-close evidence, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, launch gates, and parked-site readiness. Do not create proposals, queue work, requeues, deployments, telemetry, spend, dependencies, or unsupported financial or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing repair-or-close containment item only. Do not retry unchanged failures or create new requests. Complete or justifiably close one existing failed or stranded item with dated ownership, root cause or rationale, isolated validation, rollback point, release/security disposition, attribution boundary, measurement plan, and deduplication evidence by 2026-09-30T07:30:00Z.",
+        "summary": "Continue the existing repair-or-close containment workstream. Complete or justifiably close one existing failed or stranded item by 2026-09-30T07:30:00Z, recording dated ownership, root cause or rationale, isolated validation, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged failures or admit new queue work before completion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for the parked scaffold properties only. Keep them parked, private, and preview-only. Do not create duplicate packets, build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries. Attach dated ownership, available preview/build evidence, compliance, security, measurement boundary, rollback point, and explicit blocker evidence; preserve unavailable fields as unknown.",
+        "summary": "Continue the existing readiness packets for the scaffold candidates. Keep them parked, private, and preview-only; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing reconciliation only. Preserve the 2026-09-21 result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the CRO concepts as deferred research only. Existing lab evidence does not establish adoption, security, maintenance, accessibility, measurement, revenue, or conversion impact. Reconsider only after delivery capacity clears and an isolated prototype, license review, security review, measurement plan, and rollback path are approved.",
         "requested_action": null,
         "proposal_id": null
       }

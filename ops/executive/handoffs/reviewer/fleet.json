@@ -2,44 +2,79 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:21:38.662Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T11:36:44.273Z",
+  "summary": "reviewer checked in 10 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, queue admission, requeues, deployments, spending, telemetry expansion, dependencies, monetization expansion, outreach, and unsupported financial or causal claims. Continue only the existing repair-or-close, parked-site readiness, private launch/security gate, period-aligned reconciliation, and measurement work. Preserve unavailable values as unknown and keep aggregate revenue unattributed.",
+        "summary": "Maintain containment-only execution. Delivery is full at 10/10 active slots, with 60 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security evidence. Revenue evidence is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, budgets, cost-to-learn, forecasts, and causal lift remain unknown. Complete or justifiably close one existing item before reopening queue admission.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: delivery is saturated at 10/10 active slots, with overflow, measurement backlog, failed requests, unavailable operations/security evidence, and incomplete revenue attribution. The smallest defensible next step is one verified completion or justified close with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "Continue the existing repair-or-close workstream. Complete or justifiably close one failed or stranded item by 2026-09-30T07:30:00Z, recording ownership, root cause or close rationale, isolated validation, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged failures or admit new work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing parked-site readiness packets only. Keep the scaffold properties parked, private, and preview-only. Preserve unknowns and do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Continue only the existing period-aligned reconciliation. Preserve the 2026-09-21 result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that cannot be assigned to sites or content. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing private launch and security gates. Keep the gated product private and preview-only; do not send rights outreach, expose it publicly, expand alerts, deploy, change credentials or configuration, add dependencies, or claim clearance without the required evidence and human-counsel review.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve the 2026-09-21 provider result as aggregate and unattributed; keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown.",
+        "summary": "Maintain the existing private, preview-only launch gate and consolidated evidence bundle. Keep rights outreach unsent pending human-counsel review and owner authorization. No public exposure, alert expansion, monetization, deployment, configuration change, credential change, or dependency addition is cleared.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packets only. Keep the scaffold properties parked, private, and preview-only; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-change measurement only, using available telemetry. Preserve unknowns where sources are unavailable and do not claim revenue, conversion impact, or causal lift before measurement windows complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "1a8cf30b-84c7-40d8-b1e8-a64e5dd4e281",
+        "summary": "Deferred during containment; lab evidence does not establish adoption, security, maintenance, measurement, or production readiness.",
+        "requested_action": "declined",
+        "proposal_id": "1a8cf30b-84c7-40d8-b1e8-a64e5dd4e281"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "0c1c1f58-856a-40c8-b1ee-492457d406db",
+        "summary": "Deferred until isolated validation, security, accessibility, maintenance, measurement, and rollback gates are defined.",
+        "requested_action": "declined",
+        "proposal_id": "0c1c1f58-856a-40c8-b1ee-492457d406db"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "15594c12-19ca-4ea0-a00d-35b3993ca680",
+        "summary": "Deferred during containment; no prototype, dependency installation, production access, or lift claim is justified.",
+        "requested_action": "declined",
+        "proposal_id": "15594c12-19ca-4ea0-a00d-35b3993ca680"
       }
     ]
   }
