@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:33:42.337Z",
+  "generated_at": "2026-09-29T09:36:32.520Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new implementation or queue admissions: delivery is full at 10/10 slots, with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests requiring repair-or-close evidence. Candidate work is blocked by active/measurement windows, launch-readiness gates, missing ownership, or unavailable security/operations evidence. Continue existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, legal/security evidence, and parked-site readiness. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; costs, margin, ROI, forecasts, and causal lift remain unknown. No new telemetry, spend, credentials, dependencies, deployment, requeue, or external outreach is authorized.",
+        "summary": "Reject new implementation and queue work this cycle. Active delivery is full at 10/10 slots, with 38 improvements awaiting measurement and 17 failed requests requiring repair-or-close evidence. Operations and security evidence remain unavailable, and the only revenue evidence is a one-day aggregate commission that is not site-attributable. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue production work, request duplicate telemetry, spend, change credentials/configuration, deploy, expand monetization, or claim financial or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
