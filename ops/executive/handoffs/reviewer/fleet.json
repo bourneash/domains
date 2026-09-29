@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:25:41.978Z",
+  "generated_at": "2026-09-29T08:32:32.754Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review rejects new implementation or requeue work this cycle. Delivery is full at 10/10 slots, with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and open repair-or-close containment. Continue only existing measurement, failure repair-or-close, period-aligned revenue reconciliation, security/legal evidence, and parked-site readiness. The 2026-09-21 $4.92 aggregate commission remains unattributed; costs, margin, ROI, forecasts, and causal lift are unknown. No new production work is authorized until a slot opens and required evidence is complete.",
+        "summary": "Reject new implementation routing this cycle. Active delivery is full at 10/10 slots, 59 items are overflowed, 38 improvements await measurement, 17 requests failed, and security/operations evidence remains unavailable. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, legal/security evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; keep costs, margin, ROI, forecasts, and causal lift unknown.",
         "requested_action": null,
         "proposal_id": null
       }
