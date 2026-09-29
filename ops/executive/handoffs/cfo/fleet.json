@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:39:06.822Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:51:08.502Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue admission. The only supported revenue is Amazon's 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; the $4.92 cannot be assigned to a site because it is in the aggregate “other” row. September 1-29 AI usage is $945.24728605 across 5,264 calls, but it is not period-matched to the single revenue day, so contribution margin, ROI, payback, and forecast claims are unsupported.",
+        "summary": "CFO recommendation: approve containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue admission. Supported revenue is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot support site-level revenue claims because it is an unattributed aggregate row. AI usage cost is $945.247286 for 2026-09-01 through 2026-09-29, so it is not comparable to the single revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, cost-to-learn, forecasts, and causal lift are unknown: matching-period allocated costs, infrastructure invoices, approved learning thresholds, and site/content-level revenue are unavailable. Minimum measurement is a dated ledger matching revenue, AI/infrastructure/other costs, site or content identifiers, and the same period, plus an approved learning threshold. Continue only existing period-aligned reconciliation and deployed-work measurement; do not extrapolate or treat missing data as zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO disposition: retain the existing period-aligned finance reconciliation only. Matching-period costs, infrastructure spend, fixed costs, marketing spend, budgets, and approved learning thresholds are unavailable; monthly spend limit, fixed-cost budget, marketing budget, revenue floor, and attribution materiality threshold are blank. The minimum evidence for contribution margin and cost-to-learn is a dated ledger matching each revenue and cost item to the same site or content unit and period, plus an approved learning threshold. Do not treat sessions, impressions, clicks, conversions, AI calls, output volume, or SEO opportunity scores as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The three deferred CRO proposals should remain deferred, not financially approved. Their offline prototypes may be reconsidered only after delivery capacity clears and the existing finance reconciliation establishes an approved cost boundary and measurement threshold. No revenue, savings, conversion lift, or payback should be forecast from repository fit scores, lab checks, or vanity metrics.",
+        "summary": "Retain the existing complicated.work readiness packet only. Its scaffold status, 127 parked days, unconfigured analytics, and unknown compliance/security evidence do not support a financial investment case. Continue report-only readiness evidence by 2026-09-30T17:00Z without building, publishing, deploying, configuring analytics, monetizing, spending, or creating queue work.",
         "requested_action": null,
         "proposal_id": null
       }

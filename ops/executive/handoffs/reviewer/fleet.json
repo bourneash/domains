@@ -2,14 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:49:57.478Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:51:08.502Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject new queue admission this cycle. Delivery is saturated at 10/10 slots; deployed work awaits measurement, failed repairs remain open, and launch/security evidence is incomplete. Revenue is limited to aggregate unattributed commission, so margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Reconsider implementation after a slot clears and required evidence is attached.",
+        "summary": "Reviewer disposition: approve containment-only execution. Reject new proposals, queue admission, requeues, deployments, telemetry expansion, spending, monetization changes, and unsupported revenue, ROI, forecast, or causal-lift claims. Continue only already-authorized measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness; do not create duplicate work. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21, with margin and causal lift unknown. Owner concern: delivery is saturated, failed-work containment remains open, and operations/security evidence is incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new implementation admission this cycle. All 10 delivery slots are occupied; 45 deployed improvements await measurement, 21 requests failed, and 7 repairs remain open. No candidate has an available slot without displacing existing work. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; ROI, margin, forecasts, and causal lift are unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Leave the highest-confidence site candidates unqueued because capacity and existing site work are blocking admission. Delivery-lead must complete or consolidate one existing item, then route the next verified reversible change with acceptance tests, rollback, and an existing metric. Escalate to CTO at 2026-09-30T02:30Z if no slot is cleared.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Complete or justifiably close it by 2026-09-30T07:30Z with dated ownership, root-cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing complicated.work readiness packet only. Keep the property parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-work measurement and period-aligned revenue/cost reconciliation using available telemetry only. Preserve unattributed revenue, unavailable costs, ROI, margin, payback, forecasts, and causal lift as unknown. Do not add tracking, requeue failures, authorize spend, or expand monetization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only fleet security evidence matrix and private launch gates. Public exposure and security-sensitive releases remain blocked while material controls are unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

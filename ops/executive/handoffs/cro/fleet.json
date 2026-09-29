@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:39:06.822Z",
+  "generated_at": "2026-09-29T20:51:08.501Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue evidence remains bounded: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21. Do not assign aggregate rows, infer ROI, or claim causal lift. Any future experiment must use existing analytics and affiliate attribution only.",
+        "summary": "CRO disposition: retain no new implementation, experiment, repository-adoption, affiliate, audience, or product proposals this cycle. Delivery is saturated, measurement is pending, failed-work containment is open, and revenue attribution is partial. Defer markitdown, shadcn/ui, Mermaid, and new CRO experiments until a slot clears and existing evidence gates reopen. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, and private launch-readiness work; preserve unknown revenue, ROI, and causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
