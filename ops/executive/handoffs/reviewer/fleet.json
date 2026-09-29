@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:22:43.433Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:39:38.036Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject all new implementation, queue admissions, requeues, deployments, telemetry expansion, spending, monetization changes, dependency additions, credential or configuration changes, and unsupported financial or causal claims. Delivery is saturated at 10/10; continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue evidence is limited to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate Amazon commission for 2026-09-21; the commission is unattributed. Site revenue, margin, ROI, payback, forecasts, cost-to-learn, and causal lift remain unknown. Do not compare this single-day revenue result with the separate September AI-cost total.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: preserve the private launch gate and keep rights outreach unsent pending human-counsel review. The existing saveusfarms.com repair-or-close case is the smallest gating item and must be completed or justifiably closed by 2026-09-30T07:30Z; incomplete parked-site readiness evidence must be escalated to CTO by 2026-09-30T17:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and 7 repair items open. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, payback, cost-to-learn, and causal lift are unknown. No new queue work, requeues, deployments, spend, credential changes, configuration changes, dependency additions, monetization expansion, or external outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The highest-confidence implementation candidates remain unqueued because all delivery slots are occupied. Delivery-lead must complete or justifiably close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z with ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security, attribution, measurement, and deduplication evidence; escalate unresolved work to CTO at that deadline. Site-factory must complete the existing parked-site readiness packets by 2026-09-30T17:00Z and escalate incomplete evidence to CTO. Reconsider engineer routing only after a slot clears and applicable evidence gates are satisfied.",
+        "summary": "Independent review rejects new implementation admission this cycle. All 10 delivery slots are occupied; existing repair containment, measurement, security evidence, finance reconciliation, and launch gates must complete first. Do not claim revenue, ROI, margin, payback, forecasts, or causal lift: only $4.92 aggregate unattributed commission is supported for 2026-09-21. Keep complicated.work, deadlymaracas.com, and driveford.net parked and private; site-factory must attach dated readiness packets by 2026-09-30T17:00Z, escalating incomplete packets to CTO. Delivery-lead must complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z, escalating unresolved work to CTO. Reconsider queued implementation only after a slot clears and required evidence gates reopen.",
         "requested_action": null,
         "proposal_id": null
       }
