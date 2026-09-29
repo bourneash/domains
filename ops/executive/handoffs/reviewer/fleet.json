@@ -2,84 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:08:02.699Z",
-  "summary": "reviewer checked in 11 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:11:58.193Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent reviewer disposition: maintain containment-only execution. Reject the proposed security report-only item as duplicate of the existing security evidence matrix; continue that existing work only. No new queue work, requeues, deployments, telemetry, dependencies, spending, monetization expansion, or external outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing repair-or-close case and deployed-work measurement using available telemetry. Complete or close the existing saveusfarms.com case by 2026-09-30T07:30Z with ownership, root cause or closure rationale, validation, build checks, rollback, release/security, attribution, measurement, and deduplication evidence. Do not create duplicates or retry unchanged work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix only, using authorized metadata and retained artifacts. Preserve private launch gates and block public exposure and security-sensitive releases. Do not create duplicate work, access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and unlaunched. Attach dated readiness evidence by 2026-09-30T17:00Z; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer disposition: reject new implementation admission this cycle. Active delivery is saturated at 10/10; existing repair-or-close work, measurement windows, failed requests, launch gates, and security evidence remain open. No defensible batch of new candidates can be queued without violating containment, duplicating work, or inventing missing evidence. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Owner concern: reassess after the saveusfarms.com case is completed or closed by 2026-09-30T07:30Z; escalate unresolved containment to CTO at that deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Complete or justifiably close it by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of deployed work using existing telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only existing parked-site readiness packets. Keep scaffold properties parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Independent review rejects new implementation admission this cycle. All 10 delivery slots are occupied; failed-work containment, measurement, security evidence, finance reconciliation, and launch-readiness work remain active. No candidate can be safely routed to engineer. Continue existing work only: delivery-lead resolves or closes the retained repair case by 2026-09-30T07:30Z and escalates unresolved status to CTO; site-factory completes parked-site readiness packets by 2026-09-30T17:00Z and escalates incomplete evidence to CTO. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
