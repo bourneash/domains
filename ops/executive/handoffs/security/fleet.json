@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:54:08.349Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:07:08.910Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk severity is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. No incident or exploitation is evidenced, but missing telemetry is not evidence of safety. Compliance is technical-only at 35 pass, 18 fail, and 6 unknown; no certificate is reported expiring within 30 days, which does not establish complete TLS safety. Exact decision: block public exposure and security-sensitive releases; preserve private and parked gates; permit only ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Continue the existing read-only evidence matrix without accessing credentials or private containers, changing permissions or configuration, adding dependencies, deploying, exploiting targets, requeuing unchanged work, or conducting outreach.",
+        "summary": "Security disposition: evidence_needed fleet-wide. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication, access boundaries, secrets, runtime isolation, release controls, dependency provenance, TLS completeness, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced, but missing telemetry is not evidence of safety. Exact decision: block public exposure and security-sensitive releases; preserve private and parked gates; permit only ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain containment-only execution. Do not admit new implementation work or requeue unchanged failures while security and operations evidence is unavailable and delivery remains saturated. Existing work may continue only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves release, rollback, disclosure, consent, provenance, claims, and data boundaries.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for authentication, access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep scaffold properties parked, private, and preview-only. Complete the existing dated readiness packets with security evidence, explicit unknowns, rollback point, and blocker. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Retain the CRO concepts as deferred research only. Do not prototype, install dependencies, ingest documents, alter site code, or introduce client-side components until delivery capacity clears and the existing security evidence matrix supports review. Any future prototype requires isolated execution, dependency provenance, deterministic validation, rollback, and security review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packet only. Preserve private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. No publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is cleared.",
         "requested_action": null,
         "proposal_id": null
       }

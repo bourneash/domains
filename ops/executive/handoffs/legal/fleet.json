@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:54:08.349Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:07:08.910Z",
+  "summary": "legal checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta, full launch, rights-dependent monetization, alert expansion, and security-sensitive releases; conditional for ordinary reversible growth that preserves consent, disclosures, provenance, claims, platform-policy, and data boundaries. Evidence: Woot terms do not establish redistribution or commercial display rights; 0 of 4 launch-readiness tasks are closed; accuracy, security, measurement, attribution, and owner gates remain incomplete. Compliance is technical-only at 35 pass, 18 fail, and 6 unknown. Exact decision: keep the gated product private and preview-only; keep rights outreach unsent pending human-counsel review and owner authorization. Do not claim certification, revenue, ROI, or causal lift.",
+        "summary": "Risk disposition: blocked for public exposure, rights-dependent monetization, and security-sensitive releases; conditional only for bounded reversible work preserving consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and data boundaries. Evidence: compliance is technical-only with 35 pass, 18 fail, and 6 unknown; analytics quality is yellow; operations and fleet-doctor sweeps have no results; all 59 security sitefacts are unknown; Amazon evidence is limited to 2026-09-21 aggregate commission of $4.92 and is not site-attributable. Exact decision: maintain containment-only execution, preserve private and parked gates, and reject unsupported financial, ROI, and causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Progress: 0 of 4 tasks closed; all 4 remain open. Existing evidence includes official API, terms, support, repository/configuration, privacy, cookie-policy, and draft-terms artifacts, but none satisfies its deliverable. Do not close tasks without direct evidence. Next evidence action: attach and review one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence.",
+        "summary": "Launch-readiness tracking remains active for searchwoot.com: 0 of 4 tasks closed and 4 open. Existing evidence includes official API, terms, support, repository/configuration, privacy, cookie-policy, and draft-terms artifacts, but no task has sufficient direct evidence to close. Next evidence action: attach one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence. Keep rights outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Woot API deal and price-history data: blocked. Missing written permission or API agreement, field-level provenance and permitted uses, storage/caching/display/derivative/alert rights, attribution, freshness, correction, takedown, trademark/image/price limits, and affiliate or advertising terms. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized request. User alert rules and sync results: evidence_needed; missing data inventory, identifiers, retention, deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the read-only deployed/repository data-flow and retention table. GA4 analytics: evidence_needed; missing deployed consent and withdrawal behavior, property/data-sharing settings, retention, vendor disclosure, and jurisdictional treatment. Smallest next action: capture consent and GA4 configuration evidence without enabling tracking or remarketing. Operational logs and Cloudflare hosting data: evidence_needed; missing log fields, retention/access controls, vendor coverage, incident, subpoena, and request procedures. Smallest next action: produce the read-only log/vendor/incident inventory and route unresolved legal gaps to human counsel.",
+        "summary": "SearchWoot data-use dispositions: Woot API deal and price-history data — blocked; user alert rules and sync results — evidence_needed; GA4 analytics — evidence_needed; operational logs and Cloudflare hosting data — evidence_needed. Human counsel is required before any rights-dependent public beta, affiliate use, advertising use, or owner-authorized external permission request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not block ordinary growth solely because telemetry is incomplete. Permit only bounded reversible work that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves existing consent, disclosures, affiliate disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, and preview-only until each has dated owner, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence.",
+        "summary": "Concrete launch decision for complicated.work, deadlymaracas.com, and driveford.net: remain parked, private, and preview-only. Do not publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or enter the queue. Next evidence action: attach a dated packet for each site covering execution ownership, preview/build evidence, compliance, security, measurement boundary, rollback point, and exact blocker by 2026-09-30T17:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Do not admit or requeue new SEO, affiliate, CRO, or implementation work while delivery is full. Complete one existing item or justified close with dated ownership, root cause or close rationale, isolated validation, rollback, release/security, deduplication, attribution, and measurement evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve Amazon's 2026-09-21 aggregate result of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission as unattributed. Keep site revenue, matching-period costs, margin, ROI, payback, forecasts, and causal lift unknown.",
         "requested_action": null,
         "proposal_id": null
       }
