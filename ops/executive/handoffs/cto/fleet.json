@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:20:53.563Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:36:42.032Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 aggregate provider row as unattributed and keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate one-day revenue or the available AI-cost window.",
+        "summary": "CTO review: approve containment-only execution. Active delivery is full at 10/10 slots; 62 items are overflowed, 38 improvements await measurement, and 17 implementation requests failed. Continue only existing measurement, repair-or-close, attribution and cost reconciliation, security evidence, and parked-site readiness work. Do not create or requeue implementation work, deploy, add telemetry or dependencies, spend, expand monetization, or conduct external outreach. Admit new work only after one existing item is verified or justifiably closed with ownership, isolated validation, rollback, release/security, deduplication, attribution, and measurement evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete one existing item or document a justified close before any queue admission. Record dated ownership, root cause or close rationale, isolated validation, rollback point, release/security evidence, deduplication, available measurement baseline, and attribution boundaries. Do not retry unchanged failures or create overlapping work.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -23,7 +30,14 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Preserve parked, private, preview-only status and document ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each site parked, private, and preview-only. Record owner, preview/build, compliance, security, measurement-boundary, rollback, and exact-blocker evidence by 2026-09-30T17:00Z. Do not publish, deploy, configure analytics, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and causal lift unknown; continue the existing reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       }

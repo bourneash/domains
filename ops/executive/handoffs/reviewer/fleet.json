@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:36:32.520Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:36:42.033Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation and queue work this cycle. Active delivery is full at 10/10 slots, with 38 improvements awaiting measurement and 17 failed requests requiring repair-or-close evidence. Operations and security evidence remain unavailable, and the only revenue evidence is a one-day aggregate commission that is not site-attributable. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue production work, request duplicate telemetry, spend, change credentials/configuration, deploy, expand monetization, or claim financial or causal lift.",
+        "summary": "Reviewer decision: maintain containment-only execution. Reject new production work, queue admissions, requeues, spend, telemetry, dependencies, deployments, public exposure, external outreach, and unsupported revenue, ROI, margin, forecast, or causal-lift claims. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, legal launch tracking, and parked-site readiness work. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; costs and financial outcomes remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete one existing item or document a justified close before any queue admission. Record ownership, root cause or close rationale, isolated validation, rollback, release/security, deduplication, attribution, and measurement evidence. Do not retry unchanged failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, and preview-only; attach dated owner, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z. Do not publish, deploy, configure analytics, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block public exposure and security-sensitive releases. Use authorized metadata and retained artifacts only; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       }
