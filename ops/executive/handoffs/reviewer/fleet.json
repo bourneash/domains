@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:44:46.232Z",
+  "generated_at": "2026-09-29T09:45:59.744Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production and queue work this cycle. Delivery is saturated at 10/10 active slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Available factory candidates lack verified launch-readiness evidence; other candidates are blocked by active work, review gates, or missing ownership. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, and parked-site readiness work. Revenue claims remain unsupported: the 2026-09-21 $4.92 aggregate commission is unattributed, and costs, margin, ROI, forecasts, and causal lift remain unknown.",
+        "summary": "Reviewer disposition: reject all new implementation and queue work this cycle. Delivery is saturated at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, 17 failed requests, and active repair-or-close containment. The highest-confidence candidates remain unqueued because slots are full; scaffold builds additionally lack verified launch-readiness artifacts, while other candidates are blocked by active or measuring work. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Preserve aggregate Amazon commission as unattributed; do not claim site revenue, ROI, margin, forecast, causal lift, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       }
