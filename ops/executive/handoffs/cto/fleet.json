@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:06:21.753Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:20:53.563Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment-only execution. Delivery is full at 10/10 slots; 38 improvements await measurement, 17 implementation requests failed, and operations/security evidence remains unavailable. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, parked-site readiness, and legal/security evidence work. Do not create or requeue implementation work, deploy, spend, add telemetry or dependencies, expand monetization, or claim revenue, ROI, margin, forecasts, payback, or causal lift. Preserve the 2026-09-21 aggregate commission as unattributed. Keep Woot permission outreach unsent pending human-counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair-or-close and measurement work only while delivery remains full. Complete or justifiably close one existing item by 2026-09-30T07:30Z with dated ownership, root cause or close rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence. Do not retry unchanged failures or select new queue work before a slot opens.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 aggregate provider row as unattributed and keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate one-day revenue or the available AI-cost window.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -37,14 +23,7 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate one-day revenue or September AI cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing private launch gates and keep rights outreach unsent pending human-counsel review and owner authorization. Continue the consolidated read-only evidence bundle; do not expose publicly, deploy, expand alerts, change configuration or credentials, add dependencies, or monetize rights-dependent data.",
+        "summary": "Continue existing parked-site readiness packets only. Preserve parked, private, preview-only status and document ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       }
