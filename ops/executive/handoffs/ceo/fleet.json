@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:37:27.621Z",
+  "generated_at": "2026-09-29T20:09:18.360Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery remains saturated at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair items remain open. The proposed new preview and site changes are rejected this cycle because they would add queue work despite CTO, Legal, Security, and Reviewer gates. Revenue evidence remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: delivery-lead completes or closes the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots, with 108 approved proposals lacking execution, 45 deployed improvements awaiting measurement, 21 failed requests, and 7 open repairs. Reject the five new control-plane/content proposals this cycle; retain them as deferred specifications without creating duplicate queue work. Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: delivery-lead completes or justifiably closes the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

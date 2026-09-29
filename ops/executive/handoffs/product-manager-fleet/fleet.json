@@ -2,22 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:13.524Z",
-  "summary": "product-manager-fleet checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:09:18.359Z",
+  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Add capacity-aware single-flight delivery admission",
-        "summary": "Specify a reusable admission policy that links proposals, change requests, improvements, and work items; rejects duplicates; prevents conflicting site overlap; and defers work when active capacity is full.",
-        "requested_action": "Approve a product specification for implementation through the normal engineer queue after containment clears. Reuse existing queue, proposal, improvement, and work-item records; do not add telemetry or change schedules.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Make measurement handoff a first-class delivery state",
-        "summary": "Standardize the transition from deployed work to measurement, including baseline, owner, due date, evidence window, outcome state, and explicit close-or-follow-up disposition.",
-        "requested_action": "Approve a product specification that consolidates existing measurement workflows and prevents overlapping work until the current improvement reaches a measured, regressed, inconclusive, or justified-close state. Do not request new telemetry or claim causal lift.",
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution and prioritize control-plane improvements before admitting new delivery. Current friction is concentrated in follow-through: 10/10 active slots, 108 approved proposals without execution, 45 deployed improvements awaiting measurement, 21 failed requests, 7 open repairs, 30 delivery attention items, and only 63% approved-proposal execution. Retain no new implementation work this cycle. Approve product discovery for deduplicated delivery admission, measurement-ready work packets, capability-aware routing, and evidence-state visibility. These are reversible control-plane changes using existing records and telemetry; implementation must enter the engineer queue after approval.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

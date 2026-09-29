@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:37:27.621Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:09:18.360Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommendation: retain containment-only execution. All 10 delivery slots are occupied, with 45 improvements awaiting measurement, 21 failed requests, and 7 repair items open. Do not admit new changes, requeues, telemetry, spend, dependencies, or monetization work. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve three deferred opportunities for reconsideration after capacity clears: a 0xroulette.com CTA experiment based on completed read-only CTA inspection; an allthingsmasonic.com affiliate-path refinement based on 61 Amazon clicks and no site-attributed commission in the available window; and a high-intent SEO test on an eligible search opportunity. No causal lift, revenue, or ROI is established.",
+        "summary": "CRO handoff: retain five deferred, evidence-gated opportunities only. Current delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 open repairs, so no new implementation or requeue is recommended. The retained opportunities convert existing search, affiliate, audience, GitHub-lab, and workflow evidence into reversible prototypes with explicit metrics, learning windows, rollback boundaries, and license/security review requirements. Revenue remains unattributed where provider data is aggregate; no causal lift or ROI is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

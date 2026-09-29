@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:37:27.621Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:09:18.360Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, contracts, or monetization expansion. Delivery is saturated at 10/10 slots; 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair items remain open. The only supported revenue result is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed; no site-level revenue claim is supported. September 1-29 AI usage is $945.247286 across 5,264 calls, with 229 errors, but it cannot be compared with a single revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, forecasts, and cost-to-learn are unknown because matching-period allocated costs and attributable revenue are unavailable. Treat traffic, impressions, clicks, conversions, AI calls, and affiliate clicks as activity metrics, not financial performance. Minimum finance evidence is a dated site/content ledger matching provider revenue, AI cost, infrastructure cost, domain cost, and approved labor or other operating costs to the same period, plus a predefined learning-spend threshold. Continue only existing measurement, repair-or-close, security evidence, private launch gates, parked-site readiness, and period-aligned finance reconciliation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO review rejects the proposed new preview and implementation change requests this cycle. They would add work while capacity is full and do not establish financial return, launch readiness, ownership, or measurable cost-to-learn. Reconsider only after an active slot clears, the existing saveusfarms.com repair-or-close case is completed or justifiably closed by 2026-09-30T07:30Z, and matching-period cost and revenue evidence exists.",
+        "summary": "Financial recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue admission. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; $4.92 is not site-attributable. AI usage is $945.247286 from 2026-09-01 through 2026-09-29, so it cannot be compared to one revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, cost-to-learn, forecasts, and causal lift are unknown. Reject the candidate control-plane and content proposals for implementation this cycle; continue only existing period-aligned reconciliation and measurement work.",
         "requested_action": null,
         "proposal_id": null
       }

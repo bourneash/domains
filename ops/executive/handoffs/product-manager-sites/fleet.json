@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:37:27.620Z",
+  "generated_at": "2026-09-29T20:09:18.359Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Active delivery is full at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair items open. Do not add site changes, requeues, telemetry, spend, or monetization expansion this cycle. Continue existing measurement and repair-or-close work. Site evidence supports the next priorities once capacity clears: complete the 0xroulette.com CTA review, measure the allthingsmasonic.com changes, and later address high-intent SEO opportunities such as broadwayshowgirls.com search visibility and marineactivity.com guide reach. Existing telemetry shows allthingsmasonic.com at 8 sessions and 3 conversions during the current measurement observation, but no causal lift or attributed commission is established. Preserve parked properties as private and unlaunched.",
+        "summary": "Recommendation: maintain containment-only execution for the managed websites portfolio. Delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, 7 open repairs, and 30 delivery attention items. Do not admit new site changes, requeues, telemetry, spend, or monetization expansion this cycle. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, and private launch gates. The proposed control-plane capabilities duplicate fleet-level work and are outside this portfolio remit; retain no new site proposals or work items. Once capacity clears, prioritize completing the 0xroulette.com CTA review and measuring existing allthingsmasonic.com work before selecting another reversible site improvement. Preserve unknown attribution, revenue, and causal-lift fields.",
         "requested_action": null,
         "proposal_id": null
       }
