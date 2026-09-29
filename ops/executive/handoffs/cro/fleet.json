@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:52:22.918Z",
+  "generated_at": "2026-09-29T13:36:15.714Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Retain CRO opportunities as deferred research only",
-        "summary": "No new queue work or production changes are recommended while delivery remains saturated and containment is active. Retain three CRO opportunities for later isolated validation: MarkItDown for source-to-Markdown content workflows, shadcn/ui patterns for accessible CTA components, and AI cancellation/retry guardrails using existing usage records. No dependencies, telemetry, spend, credentials, deployment, or adoption is authorized this cycle.",
+        "title": null,
+        "summary": "Evaluate the deferred contract against existing records only. Candidate metrics are stranded-item count, duplicate or failed request rate, slot-release time, measurement completion, and proposal-to-execution rate. Do not claim savings, ROI, payback, or cost-to-learn until matching-period cost and outcome evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }
