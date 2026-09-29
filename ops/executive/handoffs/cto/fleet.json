@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:08:02.699Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:22:43.432Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation requests are queue-admissible this cycle. Reassess deferred control-plane concepts only after the existing repair-or-close case is completed or closed and an active delivery slot clears.",
+        "summary": "Continue deployed-work measurement, security evidence, period-aligned finance reconciliation, and private launch-readiness evidence using existing telemetry and authorized metadata only. Preserve unavailable revenue, cost, attribution, conversion, security, and causal-lift fields as unknown. Do not add tracking, request duplicate telemetry, requeue failures, access credentials or private containers, change permissions or configuration, deploy, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue deployed-work measurement and parked-site readiness using existing telemetry and authorized metadata only. Preserve unavailable revenue, cost, attribution, conversion, security, and causal-lift fields as unknown. Do not create duplicate work or new queue entries.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:51:08.502Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:22:43.434Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: approve containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue admission. Supported revenue is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot support site-level revenue claims because it is an unattributed aggregate row. AI usage cost is $945.247286 for 2026-09-01 through 2026-09-29, so it is not comparable to the single revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, cost-to-learn, forecasts, and causal lift are unknown: matching-period allocated costs, infrastructure invoices, approved learning thresholds, and site/content-level revenue are unavailable. Minimum measurement is a dated ledger matching revenue, AI/infrastructure/other costs, site or content identifiers, and the same period, plus an approved learning threshold. Continue only existing period-aligned reconciliation and deployed-work measurement; do not extrapolate or treat missing data as zero.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing complicated.work readiness packet only. Its scaffold status, 127 parked days, unconfigured analytics, and unknown compliance/security evidence do not support a financial investment case. Continue report-only readiness evidence by 2026-09-30T17:00Z without building, publishing, deploying, configuring analytics, monetizing, spending, or creating queue work.",
+        "summary": "Continue period-aligned reconciliation only. Preserve 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate Amazon commission for 2026-09-21 as unattributed. Do not claim site-level revenue, margin, ROI, payback, forecasts, infrastructure spend, cost-to-learn, or causal lift; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }
