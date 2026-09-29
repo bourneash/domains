@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:21:57.879Z",
+  "generated_at": "2026-09-29T08:21:29.466Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Active delivery is full at 10/10 slots, with 63 overflow items, 42 improvements awaiting measurement, 17 failed implementation requests, and unavailable operations/security evidence. Continue existing measurement, repair-or-close, attribution reconciliation, accessibility/UX validation, and launch-readiness work. Retain evidence-backed SEO, CTA, content, accessibility, performance, and affiliate improvements as deferred backlog; create no new proposals, change requests, telemetry, deployments, spend, or monetization changes until gates clear. Financial and causal outcomes remain unknown; aggregate provider commission remains unattributed.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Active delivery is full at 10/10 slots, 38 improvements await measurement, 17 implementation requests failed, and operations/security evidence remains unavailable. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue implementation work, add telemetry, spend, expand monetization, deploy, or claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

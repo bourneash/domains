@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:06:07.425Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:21:29.467Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing parked-site readiness packet and preserve private, parked, preview-only status. Attach dated owner, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. No build, publish, deployment, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
+        "summary": "Approve containment-only execution. Active delivery is full at 10/10 slots, 38 improvements await measurement, 17 implementation requests have failed, and operations/security evidence remains unavailable. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, legal/security evidence, and parked-site readiness work. Do not create or requeue implementation work, deploy, add telemetry or dependencies, spend, expand monetization, or make unsupported revenue, ROI, margin, forecast, or causal-lift claims. Preserve the $4.92 aggregate commission for 2026-09-21 as unattributed and keep mismatched costs and unavailable financial fields unknown. Require one verified completion or justified close with ownership, isolated validation, rollback, security, attribution, measurement, and deduplication evidence before any queue selection.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packets only. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period AI, infrastructure, labor, operating-cost, commitment, budget, margin, ROI, payback, forecast, and learning-threshold fields unknown; do not extrapolate or claim site-level financial performance.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair-or-close and measurement work only. Do not retry unchanged failures or select new queue work while delivery remains full. Complete one existing item with dated ownership, root cause, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence, or document a justified close before any requeue.",
         "requested_action": null,
         "proposal_id": null
       }
