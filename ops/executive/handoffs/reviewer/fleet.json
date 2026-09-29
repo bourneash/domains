@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:04:30.532Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:06:21.754Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the requested new implementation batch this cycle. Delivery is full at 10/10 slots with substantial overflow, measurement backlog, failed requests, and unresolved security/operations evidence. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, and parked-site readiness work. Revenue claims remain unsupported: the available $4.92 commission is aggregate and unattributed, while matching-period costs, margin, ROI, forecasts, and causal lift are unknown. No new queue work, requeues, production changes, spend, telemetry, dependencies, credentials, configuration changes, or outreach are authorized.",
+        "summary": "Approve containment-only execution. Reject new production, queue, requeue, spend, telemetry, dependency, deployment, monetization, and unsupported financial or causal-lift claims. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, parked-site readiness, and legal/security evidence. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; matching costs, margin, ROI, forecasts, and lift remain unknown. Delivery is full at 10/10, with 38 improvements awaiting measurement and 17 failed requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair-or-close and measurement work only. Complete or justifiably close one existing item with dated ownership, root cause or close rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before any future queue selection.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the requested new implementation batch. Delivery is full at 10/10 active slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests requiring repair-or-close evidence. Existing work and explicit CTO/CEO containment instructions block new queue admissions. Candidate sites are blocked by active or measuring work, launch-readiness gates, missing execution ownership, or unavailable security evidence. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; margin, ROI, forecasts, payback, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: active delivery is full, measurement and failed-work backlogs remain, and operations/security evidence is unavailable. No candidate can be safely queued this cycle. Keep launch, parked-site, and private gates unchanged; do not add telemetry, dependencies, credentials, configuration, spending, deployments, or outreach.",
         "requested_action": null,
         "proposal_id": null
       }

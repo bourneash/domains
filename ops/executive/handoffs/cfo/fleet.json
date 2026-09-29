@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:13.523Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:06:21.753Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Do not approve new spend, monetization expansion, forecasts, ROI, payback, contribution-margin claims, or queue work. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The 18 named tracking rows show $0 site-attributed commission; the aggregate row cannot be assigned to a site without inventing attribution. AI usage cost is $928.5425623 for 2026-09-01 through 2026-09-29 across 5,097 calls and 39 instrumented sites, a mismatched period. Contribution margin, cost-to-learn, AI payback, infrastructure spend, labor cost, commitments, budget exposure, and forecasts remain unknown. Clicks, impressions, sessions, conversions, orders, shipments, and operational outcomes are not financial performance. Continue existing measurement, repair-or-close, legal/security evidence, parked-site readiness, and period-aligned finance reconciliation only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing report-only finance work. Reconcile the 18 named provider tracking rows and aggregate row for 2026-09-21 against matching-period site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable values as unknown. Do not extrapolate the one-day $4.92 commission or the 2026-09-01 through 2026-09-29 AI cost into monthly revenue, margin, payback, budget exposure, or forecasts.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the 2026-09-21 aggregate commission as unattributed. Reconcile matching-period attribution and costs only; keep commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate one-day revenue or September AI cost.",
+        "summary": "CFO recommendation: maintain containment-only execution and continue existing report-only finance reconciliation. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 is not site-attributable. AI usage from 2026-09-01 through 2026-09-29 is $928.5425623 across 5,097 calls with 229 errors, but it is not period-matched to the revenue evidence. Contribution margin, cost-to-learn, ROI, payback, budget exposure, infrastructure spend, labor, commitments, and forecasts are unknown because matching-period cost records, budget ceilings, and an approved learning threshold are absent. Do not extrapolate one-day revenue or September AI cost, or treat clicks, sessions, conversions, ordered items, shipped items, or operational outcomes as financial performance. Continue only the existing reconciliation of the 18 named tracking rows plus the aggregate row against matching-period revenue and complete cost fields; preserve unknowns as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:13.523Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:06:21.753Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new capacity-admission and measurement-state product work this cycle because existing queue, improvement, work-item, overlap, and measurement records are already authoritative, while delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue implementation work, deploy, add telemetry or dependencies, spend, expand monetization, or claim financial or causal lift.",
+        "summary": "CTO disposition: maintain containment-only execution. Delivery is full at 10/10 slots; 38 improvements await measurement, 17 implementation requests failed, and operations/security evidence remains unavailable. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, parked-site readiness, and legal/security evidence work. Do not create or requeue implementation work, deploy, spend, add telemetry or dependencies, expand monetization, or claim revenue, ROI, margin, forecasts, payback, or causal lift. Preserve the 2026-09-21 aggregate commission as unattributed. Keep Woot permission outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep new queue admission closed while active delivery remains full. Complete one existing item with dated ownership, root cause or justified close, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence before selecting new work.",
+        "summary": "Continue existing repair-or-close and measurement work only while delivery remains full. Complete or justifiably close one existing item by 2026-09-30T07:30Z with dated ownership, root cause or close rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence. Do not retry unchanged failures or select new queue work before a slot opens.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve parked, private, preview-only status for the existing scaffold readiness packets. Attach dated ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Continue existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate or claim site-level financial performance.",
+        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate one-day revenue or September AI cost.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing private launch gates and keep rights outreach unsent pending human-counsel review and owner authorization. Continue the consolidated read-only evidence bundle; do not expose publicly, deploy, expand alerts, change configuration or credentials, add dependencies, or monetize rights-dependent data.",
         "requested_action": null,
         "proposal_id": null
       }
