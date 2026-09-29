@@ -53,14 +53,22 @@ function tickFollowThroughCount(row) {
   return Number(created.follow_through || 0);
 }
 
+function tickAccountabilityActionCount(row) {
+  const created = row.result?.created_counts || {};
+  // Only explicit high-priority, owner-bound blocker escalations count here.
+  // Generic work-item updates remain non-productive control-plane chatter.
+  return Number(created.accountability_actions || 0);
+}
+
 function tickScope(row) {
   return String(row?.result?.scope || 'fleet').trim() || 'fleet';
 }
 
 // Make CEO accountability measurable without treating a deliberately disabled
 // queue as a CEO failure. A cycle is productive only when it selects
-// executable change work or records an explicit bounded follow-through item;
-// messages, reports, and work-item updates do not satisfy the obligation.
+// executable change work, records explicit bounded follow-through, or creates
+// a concrete blocker escalation; messages, reports, and generic work-item
+// updates do not satisfy the obligation.
 function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = {}) {
   const rows = (Array.isArray(ticks) ? ticks : [])
     .filter(row => row && typeof row === 'object')
@@ -68,12 +76,20 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
   const hasQueueModeMetadata = rows.some(row => typeof row.result?.allowQueue === 'boolean');
   const eligible = rows.filter(row => !hasQueueModeMetadata || row.result?.allowQueue === true);
   const productive = eligible.filter(
-    row => tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0
+    row =>
+      tickQueueCount(row) > 0 ||
+      tickFollowThroughCount(row) > 0 ||
+      tickAccountabilityActionCount(row) > 0
   );
   let noActionStreak = 0;
   for (let index = eligible.length - 1; index >= 0; index -= 1) {
     const row = eligible[index];
-    if (tickQueueCount(row) > 0 || tickFollowThroughCount(row) > 0) break;
+    if (
+      tickQueueCount(row) > 0 ||
+      tickFollowThroughCount(row) > 0 ||
+      tickAccountabilityActionCount(row) > 0
+    )
+      break;
     noActionStreak += 1;
   }
   const threshold = Math.max(1, Number(noActionEscalationStreak) || 2);
@@ -85,7 +101,7 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
     no_action_streak: noActionStreak,
     escalation_required: escalationRequired,
     escalation_reason: escalationRequired
-      ? `CEO produced no bounded queue or follow-through action for ${noActionStreak} consecutive executable cycle(s)`
+      ? `CEO produced no bounded delivery, follow-through, or blocker action for ${noActionStreak} consecutive executable cycle(s)`
       : null,
     status: escalationRequired
       ? 'escalate-ceo'

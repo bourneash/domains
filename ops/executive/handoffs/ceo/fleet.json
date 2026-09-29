@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:38:37.261Z",
+  "generated_at": "2026-09-29T16:55:07.523Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, and operations/security evidence is unavailable. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private gates, and parked-site readiness. Revenue evidence is limited to $4.92 aggregate Amazon commission for 2026-09-21 and is not site-attributable; margin, ROI, and causal lift remain unknown. Smallest next step: delivery-lead completes or justifiably closes the saveusfarms.com failure by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Recommendation: preserve private, preview-only launch gates while admitting only three bounded scaffold-preview tasks. Evidence: active delivery is saturated at 10/10, public exposure and security-sensitive releases remain blocked, and revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21. The smallest reversible step is to produce local preview artifacts for complicated.work, deadlymaracas.com, and driveford.net without publishing, DNS, analytics, monetization, spend, or dependencies. Owner decision: approve preview-only scaffold work under EXEC_CONV_12.",
         "requested_action": null,
         "proposal_id": null
       }

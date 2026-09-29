@@ -134,6 +134,22 @@ test('accountability excludes deliberately disabled queue cycles', () => {
   assert.equal(result.status, 'on-track');
 });
 
+test('accountability counts explicit blocker escalations but not generic work updates', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: true, created_counts: { work_items: 1 } },
+    },
+    {
+      started_at: '2026-09-22T01:00:00.000Z',
+      result: { allowQueue: true, created_counts: { accountability_actions: 1 } },
+    },
+  ]);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.no_action_streak, 0);
+  assert.equal(result.escalation_required, false);
+});
+
 test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
   const summary = scorecard.proposalExecutionSummary(
     [

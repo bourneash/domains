@@ -198,7 +198,50 @@ test('over-capacity fallback creates an accepted delivery-control checkpoint', (
   const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
   assert.equal(plan.work_items.length, 1);
   assert.equal(plan.work_items[0].owner, 'delivery-lead');
-  assert.equal(plan.work_items[0].kind, 'evidence');
+  assert.equal(plan.work_items[0].kind, 'implementation');
+  assert.equal(plan.work_items[0].actionability, 'blocker');
+  assert.equal(runner.actionMandateSatisfied(plan, brief), true);
+});
+
+test('action mandate rejects generic checkpoints and proposal-only plans', () => {
+  const brief = { action_mandate: { candidates: [] } };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      { proposals: [{ title: 'More research' }], work_items: [{ title: 'Checkpoint' }] },
+      brief
+    ),
+    false
+  );
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        work_items: [
+          {
+            actionability: 'blocker',
+            owner: 'delivery-lead',
+            priority: 'high',
+            summary: 'A queue dependency is blocking delivery.',
+            next_action: 'Assign the dependency and queue the next task.',
+          },
+        ],
+      },
+      brief
+    ),
+    true
+  );
+});
+
+test('empty candidate fallback creates an owner-bound delivery blocker', () => {
+  const brief = {
+    generated_at: '2026-09-29T05:00:00.000Z',
+    action_mandate: { candidates: [], deferred_candidates: [] },
+    proposal_execution: { approved_proposals_unexecuted: 2 },
+  };
+  const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(plan.work_items[0].actionability, 'blocker');
+  assert.equal(plan.work_items[0].owner, 'delivery-lead');
+  assert.match(plan.work_items[0].next_action, /approved implementation-ready/);
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 

@@ -2156,23 +2156,37 @@ function normalizeDirectChangeRequest(input = {}) {
   return { ...input, category: normalizedCategory };
 }
 
+// A work item is only an executable accountability action when it names the
+// owner, the concrete next step, and the blocked delivery condition. Generic
+// checkpoints, reports, proposals, and ordinary work-item updates are not
+// substitutes for delivery.
+function isBoundedAccountabilityWorkItem(item = {}) {
+  return (
+    String(item.actionability || '').toLowerCase() === 'blocker' &&
+    String(item.owner || '').trim() !== '' &&
+    String(item.next_action || '').trim() !== '' &&
+    String(item.summary || '').trim() !== '' &&
+    String(item.priority || '').toLowerCase() === 'high'
+  );
+}
+
+function planHasDirectImplementation(plan = {}) {
+  return (plan.change_requests || []).some(
+    item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
+  );
+}
+
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
-  if (!candidates.length) return true;
+  const hasDirect = planHasDirectImplementation(plan);
+  const hasBoundedBlocker = (plan.work_items || []).some(isBoundedAccountabilityWorkItem);
+  if (!candidates.length) return hasDirect || hasBoundedBlocker;
   const deliveryPolicy = brief.active_delivery?.policy || {};
   if (
     Number(deliveryPolicy.overflow_count || 0) > 0 ||
     Number(deliveryPolicy.active_slots || 0) >= Number(deliveryPolicy.max_active_slots || 10)
   ) {
-    const hasDirect = (plan.change_requests || []).some(
-      item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
-    );
-    const hasDeliveryControl = (plan.work_items || []).some(
-      item =>
-        ['delivery-lead', 'project-manager', 'cto'].includes(String(item.owner || '')) &&
-        ['implementation', 'incident', 'evidence'].includes(String(item.kind || ''))
-    );
-    return hasDirect || hasDeliveryControl;
+    return hasDirect || hasBoundedBlocker;
   }
   const actionableCandidates = candidates.filter(
     item =>
@@ -2192,8 +2206,7 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // pass that emits only owner messages is otherwise indistinguishable from
   // a no-op in the workbench and gives the team no measurable next action.
   if (!actionableCandidates.length) {
-    if (!launchCandidates.length)
-      return (plan.work_items || []).length > 0 || (plan.proposals || []).length > 0;
+    if (!launchCandidates.length) return hasDirect || hasBoundedBlocker;
     const launchSites = new Set(
       launchCandidates
         .map(item =>
@@ -3335,7 +3348,13 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     readiness.blocked_fleet_sites.length > 0 &&
     Array.isArray(readiness.queue_ready_fleet_sites) &&
     readiness.queue_ready_fleet_sites.length === 0;
-  if (!candidates.length && !hasFullFleetBlock) return basePlan;
+  const hasDeferredCandidate = Array.isArray(brief.action_mandate?.deferred_candidates)
+    ? brief.action_mandate.deferred_candidates.length > 0
+    : false;
+  const hasApprovedUnexecuted =
+    Number(brief.proposal_execution?.approved_proposals_unexecuted || 0) > 0;
+  if (!candidates.length && !hasFullFleetBlock && !hasDeferredCandidate && !hasApprovedUnexecuted)
+    return basePlan;
 
   const activeSites = new Set(
     [...(brief.queue || []), ...(brief.improvements || [])]
@@ -3389,6 +3408,10 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       : `executive-cycle-checkpoint:${day}`;
     const existing = (brief.work_items || []).find(item => item.work_id === checkpointId);
     if (basePlan.work_items.some(item => item.work_id === checkpointId)) return basePlan;
+    const deferred = Array.isArray(brief.action_mandate?.deferred_candidates)
+      ? brief.action_mandate.deferred_candidates[0]
+      : null;
+    const approvedUnexecuted = Number(brief.proposal_execution?.approved_proposals_unexecuted || 0);
     const blockedSummary = blockedSites
       .slice(0, 12)
       .map(
@@ -3404,20 +3427,33 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
           work_id: checkpointId,
           title: fullyBlocked
             ? `Throughput escalation: no queue-ready fleet sites ${day}`
-            : `Executive delivery checkpoint ${day}`,
-          kind: fullyBlocked ? 'implementation' : 'evidence',
+            : deferred
+              ? `Unblock delivery for ${deferred.site} ${day}`
+              : approvedUnexecuted
+                ? `Drain ${approvedUnexecuted} approved implementation case(s) ${day}`
+                : `Executive delivery checkpoint ${day}`,
+          kind: 'implementation',
           status: 'in_progress',
-          priority: fullyBlocked ? 'high' : 'normal',
+          priority: 'high',
           owner: 'delivery-lead',
           site: 'fleet',
+          actionability: 'blocker',
           summary: fullyBlocked
             ? `All discovered fleet sites are currently blocked by active work or measurement windows. Blockers: ${blockedSummary || 'see the authoritative queue readiness snapshot.'}`
-            : 'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
+            : deferred
+              ? `${deferred.site} has an evidence-backed candidate but is not queue-ready: ${deferred.deferred_reason || 'active delivery or measurement work is occupying the lane.'}`
+              : approvedUnexecuted
+                ? `${approvedUnexecuted} approved proposal(s) have no linked executable delivery request. The delivery lead must route or explicitly repair the oldest implementation-ready case.`
+                : 'No executable candidate was exposed to this cycle. The delivery lead must identify the missing queue/readiness evidence and assign the next bounded delivery action.',
           next_action: fullyBlocked
             ? 'Within six hours, identify the earliest unblock, assign the responsible owner, and queue the next safe reversible site improvement or document the specific external dependency preventing it. Escalate overdue blockers to the CEO.'
-            : 'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next delivery step or explicit no-go reason.',
+            : deferred
+              ? `Within six hours, inspect the active or measurement work on ${deferred.site}, assign the dependency owner, and queue the next safe reversible lane once the conflict clears.`
+              : approvedUnexecuted
+                ? 'Within six hours, route the oldest approved implementation-ready proposal into the engineer queue, or record the exact missing site/scope/acceptance data and owner required to repair it.'
+                : 'Within six hours, restore the missing candidate/readiness evidence, assign an owner, and queue the next safe reversible site improvement or document the exact external dependency.',
           due_at: new Date(
-            Date.parse(brief.generated_at || Date.now()) + (fullyBlocked ? 6 : 24) * 60 * 60 * 1000
+            Date.parse(brief.generated_at || Date.now()) + 6 * 60 * 60 * 1000
           ).toISOString(),
           evidence: existing?.evidence || [],
           created_by: 'delivery-lead',
@@ -3736,12 +3772,14 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     research: [],
     telemetry_satisfied: [],
     follow_through: [],
+    accountability_actions: [],
     created_refs: {
       work_items: [],
       proposals: [],
       change_requests: [],
       research_requests: [],
       messages: [],
+      accountability_actions: [],
     },
   };
   for (const item of plan.work_items) {
@@ -3759,6 +3797,20 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       work_id: workItem.work_id,
       operation: existing ? 'updated' : 'created',
     });
+    if (isBoundedAccountabilityWorkItem(payload)) {
+      const changed =
+        !existing ||
+        ['title', 'summary', 'next_action', 'owner', 'priority', 'status'].some(
+          key => String(existing[key] ?? '') !== String(payload[key] ?? '')
+        );
+      if (changed) {
+        created.accountability_actions.push({
+          work_id: workItem.work_id,
+          operation: existing ? 'updated' : 'created',
+        });
+        created.created_refs.accountability_actions.push(workItem.work_id);
+      }
+    }
     const audit = executive.action(store, {
       actor: payload.created_by,
       action_type: 'other',
@@ -4399,6 +4451,7 @@ module.exports = {
   planFingerprint,
   normalizeDirectChangeRequest,
   actionMandateSatisfied,
+  isBoundedAccountabilityWorkItem,
   reconcileApprovedProposalFollowThrough,
   approvedProposalQueuePriority,
   drainApprovedProposalQueue,
