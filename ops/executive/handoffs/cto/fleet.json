@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:08:14.172Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:24:31.414Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, 56 items await measurement, 21 implementation requests failed, and 8 failure follow-ups remain open. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not create new queue work, requeue unchanged failures, add telemetry, spend, dependencies, deploy, or expand monetization until the retained saveusfarms.com failure is completed or justifiably closed with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence. No revenue, ROI, or causal-lift claim is supported.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and launch-blocked. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the four control-plane specifications as deferred designs only. They are technically feasible as read-only views using existing records, with isolated implementation, reversible removal, and no new telemetry or dependencies. Do not admit them this cycle because delivery is full, failed-work containment is open, and operations/security evidence is incomplete. Reconsider only after capacity and evidence gates reopen.",
         "requested_action": null,
         "proposal_id": null
       }
