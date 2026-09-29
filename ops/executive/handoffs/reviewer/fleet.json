@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:13.524Z",
+  "generated_at": "2026-09-29T08:52:37.018Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new product proposals, queue admission, requeues, production work, spend, telemetry, dependency changes, monetization expansion, and unsupported financial or causal claims. Active delivery is full at 10/10; continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness. Keep external rights outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Reject new implementation routing and the proposed report-only packet this cycle. Delivery is full at 10/10 slots, measurement and failure backlogs remain, and the existing driveford.net owner-gap work already covers the proposed readiness evidence. Revenue is limited to unattributed aggregate data; financial and causal claims remain unsupported. Continue existing containment, measurement, repair-or-close, reconciliation, security/legal evidence, and parked-site readiness work only. Reconsider queue work after one existing item is verified complete or formally closed and a slot is available.",
         "requested_action": null,
         "proposal_id": null
       }

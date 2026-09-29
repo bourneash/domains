@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-29T04:10:00.169Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-29T08:52:37.018Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "81c7ed1c-b7c1-41d4-b5a8-6fb4b6f80773",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 0,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Complete driveford.net parked-site readiness packet",
+        "summary": "driveford.net is a parked scaffold with analytics unconfigured and no installed execution-owner role evidenced. Complete the existing readiness verification without changing launch state.",
+        "requested_action": "Read-only inventory of sites/driveford.net/ and sites/driveford.net/ops/roles/, documenting owner status, preview/build evidence, compliance, security, measurement boundary, rollback point, and one explicit blocker. Keep the site parked, private, and preview-only.",
+        "proposal_id": null
+      }
+    ]
   }
 }
