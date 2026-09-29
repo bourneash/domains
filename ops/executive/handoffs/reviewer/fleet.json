@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:43:41.783Z",
+  "generated_at": "2026-09-29T08:49:42.527Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation, queue, requeue, production, spend, telemetry, and monetization work this cycle. Active delivery is full at 10/10 slots, overflow remains, measurement and failed-request backlogs are material, and operations/security evidence is unavailable. Revenue is limited to a one-day $4.92 aggregate commission that is not site-attributable; matching-period costs, margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Delivery-lead must complete one existing item or document a justified close with ownership, validation, rollback, security, attribution, measurement, and deduplication evidence before queue selection resumes.",
+        "summary": "Reject new implementation and queue work this cycle. Active delivery is full at 10/10 slots, with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unresolved repair-or-close work. Existing candidates are blocked by active or measuring work, missing launch-readiness evidence, missing execution ownership, or parked/private gates. Revenue claims remain unsupported: the only commission evidence is $4.92 aggregate for 2026-09-21 and is not site-attributable; matching-period costs, margin, ROI, payback, budgets, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, legal/security evidence, and parked-site readiness work. Reconsider implementation routing after one existing item is verified complete or formally closed and a delivery slot is available.",
         "requested_action": null,
         "proposal_id": null
       }
