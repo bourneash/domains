@@ -2,49 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:20:53.564Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:22:42.950Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, queue admission, requeues, spend, telemetry, dependencies, deployments, monetization expansion, external outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, legal/security evidence, and parked-site readiness. Preserve aggregate revenue as unattributed and all unavailable cost, margin, ROI, forecast, and lift fields as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep queue admission closed while delivery is full. Complete one existing item with dated ownership, root cause or justified close, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before any requeue or new queue selection.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing 2026-09-21 period-aligned reconciliation only. Preserve aggregate commission as unattributed; keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate revenue or AI cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Preserve parked, private, preview-only status and document ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing consolidated read-only launch evidence bundle. Keep the gated product private and preview-only; keep rights outreach unsent pending human-counsel review and owner authorization. Do not expand alerts, monetize, deploy, or alter configuration.",
+        "summary": "Independent reviewer decision: reject all new implementation and queue work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and existing repair-or-close containment in progress. Candidate work is therefore explicitly blocked by queue capacity, active or measuring site work, failed-work controls, missing ownership, launch-readiness, legal, security, or missing-evidence gates. Continue only existing measurement, repair-or-close, attribution and cost reconciliation, security evidence, and parked-site readiness work. Preserve the 2026-09-21 aggregate commission as unattributed; do not claim site revenue, ROI, margin, forecast, causal lift, or production outcomes. No new deployments, requeues, spending, telemetry, dependencies, credentials, configuration changes, or outreach are approved. Owner concern: delivery must document one verified completion or justified close before any new candidate can be admitted.",
         "requested_action": null,
         "proposal_id": null
       }
