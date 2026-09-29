@@ -100,6 +100,7 @@ function mergePassPlans(previous, next) {
     'change_requests',
     'research_requests',
     'work_items',
+    'tracking_updates',
     'knowledge',
   ];
   const merged = { ...next, messages };

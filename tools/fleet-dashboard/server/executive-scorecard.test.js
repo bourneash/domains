@@ -150,6 +150,18 @@ test('accountability counts explicit blocker escalations but not generic work up
   assert.equal(result.escalation_required, false);
 });
 
+test('tracking-stream updates remain visible in audit results but never count as delivery', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: true, created_counts: { tracking_updates: 12 } },
+    },
+  ]);
+  assert.equal(result.productive_ticks, 0);
+  assert.equal(result.no_action_ticks, 1);
+  assert.equal(result.escalation_required, false);
+});
+
 test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
   const summary = scorecard.proposalExecutionSummary(
     [

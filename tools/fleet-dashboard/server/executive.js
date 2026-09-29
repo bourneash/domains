@@ -46,6 +46,7 @@ const ACTION_TYPES = new Set([
   'approve',
   'decline',
   'feedback',
+  'track',
   'tick',
   'other',
 ]);

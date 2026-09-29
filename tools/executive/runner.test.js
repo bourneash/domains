@@ -821,7 +821,7 @@ test('provides distinct fleet-tooling and managed-site product manager prompts',
   assert.equal(plan.proposals[0].created_by, 'product-manager-sites');
 });
 
-test('roles can create and update bounded workbench cases through the plan', async () => {
+test('roles create durable cases but route routine updates to the tracking stream', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(
     JSON.stringify({
@@ -855,8 +855,41 @@ test('roles can create and update bounded workbench cases through the plan', asy
     })
   );
   const updated = await runner.applyPlan(store, update, { root });
-  assert.equal(updated.work_items[0].status, 'in_progress');
-  assert.equal(store.getExecutiveWorkItem(id).owner, 'cto');
+  assert.equal(updated.work_items.length, 0);
+  assert.equal(updated.tracking_updates.length, 1);
+  assert.equal(store.getExecutiveWorkItem(id).owner, 'legal');
+  assert.equal(store.listExecutiveActions({ action_type: 'track' }).length, 1);
+  store.close();
+});
+
+test('explicit tracking updates never mutate the workbench or count as delivery', async () => {
+  const { root, store } = db();
+  const item = store.createExecutiveWorkItem({
+    work_id: 'tracking-case',
+    title: 'Existing evidence case',
+    kind: 'evidence',
+    status: 'open',
+    priority: 'normal',
+    owner: 'cto',
+    summary: 'Evidence is being collected.',
+    next_action: 'Collect the next source.',
+  });
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      tracking_updates: [
+        {
+          work_id: item.work_id,
+          actor: 'cto',
+          summary: 'The evidence source was checked; no delivery decision changed.',
+          status: 'in_progress',
+        },
+      ],
+    })
+  );
+  const result = await runner.applyPlan(store, plan, { root });
+  assert.equal(result.tracking_updates.length, 1);
+  assert.equal(store.getExecutiveWorkItem(item.work_id).status, 'open');
+  assert.equal(store.listExecutiveActions({ action_type: 'track' }).length, 1);
   store.close();
 });
 

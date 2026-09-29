@@ -941,6 +941,7 @@ function emptyPlan() {
     proposals: [],
     research_requests: [],
     work_items: [],
+    tracking_updates: [],
     knowledge: [],
     change_requests: [],
   };
@@ -953,6 +954,7 @@ const PLAN_ITEM_LIMITS = {
   proposals: 20,
   research_requests: 10,
   work_items: 20,
+  tracking_updates: 40,
   knowledge: 20,
   change_requests: 20,
 };
@@ -1237,6 +1239,7 @@ function sanitizeExcludedPlanItems(plan = {}) {
     'proposal_reviews',
     'proposals',
     'work_items',
+    'tracking_updates',
     'knowledge',
     'change_requests',
     'research_requests',
@@ -1261,6 +1264,7 @@ Rules:
 - Challenge blockers instead of treating them as terminal. If a managed site is private, password protected, preview-only, parked, noindex/nofollow, or otherwise unable to earn, ask why, who owns the launch decision, whether it can monetize while gated, what must be true to go live, and what opportunity cost comes from remaining private. Create an owner-facing launch-readiness/go-live or monetization proposal, or a bounded research request, unless evidence supports keeping it parked. A blocked site is an unresolved business question, not a completed decision.
 - Every cycle with an unblocked implementation candidate must contain at least one engineer-routable change_request, with a concrete site, files/scope, acceptance criteria, tests, metric, baseline, time-to-learn, and rollback. A message, proposal, research request, or report-only request does not count as execution. Use an owner-facing question only for a genuinely consequential decision or a candidate blocked by an explicit launch, legal, security, credential, spend, or missing-evidence gate.
 - Treat the executive passes as internal operating machinery. Do not emit routine pass-through, status, or evidence-report messages. Emit at most one concise message per role only when an owner decision, material risk, cross-role handoff, or concrete delivery blocker requires it; otherwise put the work in the queue/workbench and stay silent.
+- Routine status, evidence, progress, and unchanged work-item refreshes belong in the tracking_updates field, a separate audit stream. They do not belong in work_items, do not reopen or mutate a workbench case, and never count as delivery. Use work_items only for a new durable case or a materially changed high-priority blocker with a named owner and dated next action.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
@@ -1306,7 +1310,8 @@ Return ONLY valid JSON with this shape:
   "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
   "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","owner_action_required":true,"implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
   "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"existing id to update, or omit to create","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "work_items": [{"work_id":"omit for a new durable case; existing ids are only for materially changed high-priority blockers","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","actionability":"blocker for an owner-bound delivery escalation","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "tracking_updates": [{"work_id":"existing work item id","actor":"role","summary":"brief status/evidence change for the separate tracking stream","status":"optional status","next_action":"optional next action","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
   "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
 }
 
@@ -1459,6 +1464,7 @@ function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = fal
     'change_requests',
     'research_requests',
     'work_items',
+    'tracking_updates',
     'knowledge',
   ])
     if (result[key] !== undefined && !Array.isArray(result[key]))
@@ -1471,6 +1477,7 @@ function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = fal
     change_requests: result.change_requests || [],
     research_requests: result.research_requests || [],
     work_items: result.work_items || [],
+    tracking_updates: result.tracking_updates || [],
     knowledge: result.knowledge || [],
   };
   normalizeProviderProposalTypes(plan, { defaultActor, defaultSite });
@@ -1820,6 +1827,7 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
 
 function validatePlan(plan) {
   if (!Array.isArray(plan.knowledge)) plan.knowledge = [];
+  if (!Array.isArray(plan.tracking_updates)) plan.tracking_updates = [];
   if (
     plan.messages.length > 20 ||
     plan.proposal_reviews.length > 20 ||
@@ -1828,6 +1836,7 @@ function validatePlan(plan) {
     plan.change_requests.length > 20 ||
     plan.research_requests.length > 10 ||
     plan.work_items.length > 20 ||
+    plan.tracking_updates.length > 40 ||
     plan.knowledge.length > 20
   )
     throw new Error('provider plan exceeds per-tick item limit');
@@ -1858,6 +1867,11 @@ function validatePlan(plan) {
     )
       throw new Error('invalid research request in provider plan');
     research.validateUrl(item.url);
+  }
+  for (const item of plan.tracking_updates) {
+    const summary = String(item.summary || item.title || '').trim();
+    if (!summary) throw new Error('invalid tracking update in provider plan');
+    if (summary.length > 1000) throw new Error('tracking update is too long');
   }
   for (const [index, item] of plan.proposal_reviews.entries()) {
     if (
@@ -2179,6 +2193,31 @@ function accountabilityWorkItemChanged(item, brief = {}) {
   return ['title', 'summary', 'next_action', 'owner', 'priority', 'status', 'due_at'].some(
     key => String(existing[key] ?? '') !== String(item[key] ?? '')
   );
+}
+
+function trackingUpdate(store, item = {}, existing = null) {
+  const workId = String(item.work_id || existing?.work_id || '').trim() || null;
+  const requestedActor = String(item.actor || item.created_by || 'system').trim();
+  const actor = executive.ACTORS.includes(requestedActor) ? requestedActor : 'system';
+  const audit = executive.action(store, {
+    actor,
+    action_type: 'track',
+    summary: `Tracked workbench update: ${String(item.summary || item.title || 'status update').trim()}`,
+    target_type: 'executive-work-item-tracking',
+    target_id: workId,
+  });
+  executive.finishAction(store, audit.action_id, {
+    status: 'completed',
+    result: {
+      tracking_stream: 'executive-work-item-updates',
+      work_id: workId,
+      status: item.status || existing?.status || null,
+      next_action: item.next_action || existing?.next_action || null,
+      evidence: Array.isArray(item.evidence) ? item.evidence : [],
+      source: 'executive-plan',
+    },
+  });
+  return audit;
 }
 
 function planHasDirectImplementation(plan = {}) {
@@ -3755,6 +3794,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     proposals: [],
     change_requests: [],
     work_items: [],
+    tracking_updates: [],
     knowledge: [],
     skipped_change_requests: [],
     skipped_proposals: [],
@@ -3764,6 +3804,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     accountability_actions: [],
     created_refs: {
       work_items: [],
+      tracking_updates: [],
       proposals: [],
       change_requests: [],
       research_requests: [],
@@ -3771,8 +3812,22 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       accountability_actions: [],
     },
   };
+  for (const item of plan.tracking_updates) {
+    trackingUpdate(store, item);
+    created.tracking_updates.push(item);
+    created.created_refs.tracking_updates.push(item.work_id || null);
+  }
   for (const item of plan.work_items) {
     const existing = item.work_id ? store.getExecutiveWorkItem(item.work_id) : null;
+    // Existing ordinary work-item refreshes are audit information, not new
+    // work. Keep them in the dedicated tracking stream so the workbench only
+    // contains durable cases and explicit blocker escalations.
+    if (existing && !isBoundedAccountabilityWorkItem(item)) {
+      trackingUpdate(store, item, existing);
+      created.tracking_updates.push(item);
+      created.created_refs.tracking_updates.push(existing.work_id);
+      continue;
+    }
     const payload = {
       ...item,
       created_by: item.created_by || 'system',
