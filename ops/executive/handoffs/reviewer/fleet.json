@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:13:48.712Z",
+  "generated_at": "2026-09-29T21:20:01.949Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review rejects all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and 7 repair items open. No candidate can be safely routed until delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z; unresolved work escalates to CTO. Site-factory must complete parked-site readiness packets by 2026-09-30T17:00Z; incomplete evidence escalates to CTO. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. No new spend, telemetry, credentials, configuration, dependencies, deployment, monetization, or external outreach is authorized.",
+        "summary": "Independent review: reject all new implementation admissions this cycle. Delivery is saturated at 10/10, with failed-work containment, measurement, security evidence, finance reconciliation, and parked-site readiness active. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift are unknown. Continue existing work only. Delivery-lead must complete or close the saveusfarms.com repair-or-close case by 2026-09-30T07:30Z, escalating unresolved status to CTO. Site-factory must complete parked-site readiness packets by 2026-09-30T17:00Z, escalating incomplete evidence to CTO. Reconsider implementation only after a slot clears and required evidence, validation, rollback, security, and measurable-metric gates are documented.",
         "requested_action": null,
         "proposal_id": null
       }
