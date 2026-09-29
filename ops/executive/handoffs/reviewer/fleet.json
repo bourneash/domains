@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:28:34.542Z",
+  "generated_at": "2026-09-29T09:30:53.483Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer decision: reject all new implementation and requeue work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. Existing candidates lack a cleared measurable production path or launch-readiness evidence. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; do not claim site revenue, ROI, margin, forecasts, or causal lift.",
+        "summary": "Independent review: maintain containment-only execution. Queue no new implementation work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests requiring repair-or-close evidence. The three factory candidates remain blocked by missing launch-readiness evidence and must stay parked/private/preview-only; other candidates are blocked by active or measuring work. Do not requeue, deploy, spend, add telemetry or dependencies, expand monetization, or make financial or causal-lift claims. Continue existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, legal evidence, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; matching-period costs, margin, ROI, forecasts, and lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
