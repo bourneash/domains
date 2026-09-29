@@ -2,63 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:36:05.813Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:52:13.523Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment-only execution. Active delivery is full at 10/10 slots, measurement backlog and failed requests remain, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, attribution reconciliation, legal/security evidence, compliance evidence, and parked-site readiness work. Do not create or requeue implementation work, deploy, spend, add telemetry or dependencies, or claim revenue, ROI, or causal lift. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed.",
+        "summary": "Reject new capacity-admission and measurement-state product work this cycle because existing queue, improvement, work-item, overlap, and measurement records are already authoritative, while delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue implementation work, deploy, add telemetry or dependencies, spend, expand monetization, or claim financial or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close work only. Complete one existing item or document a justified close with dated ownership, root cause, isolated validation, rollback, deduplication, release/security, attribution, and measurement evidence before any future queue selection. Do not retry unchanged failures while delivery remains full.",
+        "summary": "Keep new queue admission closed while active delivery remains full. Complete one existing item with dated ownership, root cause or justified close, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence before selecting new work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing affiliate-path measurement item only. Validate link destinations, registered tracking-ID coverage, disclosure and consent behavior, and preview smoke checks using existing evidence. Keep revenue, conversion lift, and causal attribution unknown. Roll back only the bounded change if validation fails.",
+        "summary": "Preserve parked, private, preview-only status for the existing scaffold readiness packets. Attach dated ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing affiliate activation repair only. The real tag prerequisite remains owner-controlled; do not invent or substitute credentials. Validate only an owner-provided authorized tag, generated-link coverage, destination, disclosure, consent, and existing analytics behavior. Keep revenue and ROI unknown, and roll back the bounded link change if validation fails.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing affiliate-reference repair-or-close work without requeueing unchanged requests. Validate only the scoped reference or registry/redirect consistency change, destination integrity, disclosure, and build smoke checks. Preserve the prior redirect set on failure; financial outcomes remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing parked-site readiness packet only. Keep the site parked, private, and preview-only. Attach dated ownership, available preview/build evidence, compliance, security, measurement boundaries, rollback point, and explicit blockers to the existing work item. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix and private launch gates. Record dated, redacted evidence and explicit unknowns using authorized metadata and retained artifacts only. Block public exposure and security-sensitive releases; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate or claim site-level financial performance.",
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate or claim site-level financial performance.",
         "requested_action": null,
         "proposal_id": null
       }

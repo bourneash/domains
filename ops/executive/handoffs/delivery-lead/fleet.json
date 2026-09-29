@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:21:57.879Z",
-  "summary": "delivery-lead checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:52:13.524Z",
+  "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new change request is routed this cycle. Queue-ready fleet candidates exist, but active delivery is full at 10/10 slots with 63 overflow items; existing pilot sites are blocked by active requests or measurement windows, and scaffold candidates remain blocked by owner and launch-readiness evidence. Continue existing measurement and repair-or-close work. Delivery-lead must clear a slot with verified completion or documented close, then select the next queue-ready site from the authoritative fleet list. No new telemetry, deployment, spend, dependency, or requeue is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing measurement and repair-or-close work only under EXEC_CONV_12. Do not create new queue work or retry unchanged failures. Next action: document one verified completion or close, including ownership, validation, rollback, security, attribution, and measurement evidence, then select the next candidate only after a slot opens.",
+        "summary": "Keep admission closed while delivery remains full. Complete one existing item with ownership, root cause or justified close, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence before selecting new work.",
         "requested_action": null,
         "proposal_id": null
       }

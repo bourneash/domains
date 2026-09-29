@@ -2,15 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:21:57.878Z",
-  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:52:13.524Z",
+  "summary": "product-manager-fleet checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "The highest-leverage opportunity is a unified delivery-control experience: deduplicate proposals and tasks, expose one lifecycle from approval to measurement, enforce site/slot conflict visibility, and provide repair-or-close actions for failed work. Current evidence shows full active capacity, substantial overflow, measurement backlog, failed requests, and approved work without execution. Defer implementation until containment gates clear. Prioritize measurable reductions in duplicate work, time-to-queue, failed-request recurrence, and approval-to-execution loss. Also retain a future AI-cost guardrail capability and a release-readiness view that clearly separates observed, unknown, blocked, and approved states. No new telemetry, schedule, access, deployment, or code change is requested.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Add capacity-aware single-flight delivery admission",
+        "summary": "Specify a reusable admission policy that links proposals, change requests, improvements, and work items; rejects duplicates; prevents conflicting site overlap; and defers work when active capacity is full.",
+        "requested_action": "Approve a product specification for implementation through the normal engineer queue after containment clears. Reuse existing queue, proposal, improvement, and work-item records; do not add telemetry or change schedules.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Make measurement handoff a first-class delivery state",
+        "summary": "Standardize the transition from deployed work to measurement, including baseline, owner, due date, evidence window, outcome state, and explicit close-or-follow-up disposition.",
+        "requested_action": "Approve a product specification that consolidates existing measurement workflows and prevents overlapping work until the current improvement reaches a measured, regressed, inconclusive, or justified-close state. Do not request new telemetry or claim causal lift.",
         "proposal_id": null
       }
     ]
