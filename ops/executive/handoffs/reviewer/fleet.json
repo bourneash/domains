@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:02:41.135Z",
+  "generated_at": "2026-09-29T09:04:30.532Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation routing this cycle. Active delivery is full at 10/10 slots, measurement and failed-request backlogs remain, and operations/security evidence is unavailable. Existing candidates are blocked by active work, launch/legal/security gates, missing ownership, credentials, or unsupported measurement. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security/legal evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; do not claim site revenue, ROI, margin, forecasts, or causal lift.",
+        "summary": "Reject the requested new implementation batch this cycle. Delivery is full at 10/10 slots with substantial overflow, measurement backlog, failed requests, and unresolved security/operations evidence. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, and parked-site readiness work. Revenue claims remain unsupported: the available $4.92 commission is aggregate and unattributed, while matching-period costs, margin, ROI, forecasts, and causal lift are unknown. No new queue work, requeues, production changes, spend, telemetry, dependencies, credentials, configuration changes, or outreach are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
