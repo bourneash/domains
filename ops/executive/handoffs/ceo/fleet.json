@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:36:52.460Z",
+  "generated_at": "2026-09-29T23:07:52.545Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Active delivery is full at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair follow-ups remain open. Analytics is yellow, operations/security sweeps are unavailable, and revenue is $4.92 aggregate and unattributed for 2026-09-21; margin and causal lift are unknown. Retain the CRO execution-integrity concept as deferred; do not admit new work this cycle. Smallest next step: delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Active delivery is full at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair follow-ups remain open. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Retain the two CRO control-plane concepts as deferred specifications; do not queue them this cycle. Smallest next step: delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

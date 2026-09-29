@@ -162,6 +162,17 @@ test('tracking-stream updates remain visible in audit results but never count as
   assert.equal(result.escalation_required, false);
 });
 
+test('owner-request handoffs count as productive dispatches', () => {
+  const result = scorecard.buildExecutiveAccountability([
+    {
+      started_at: '2026-09-22T00:00:00.000Z',
+      result: { allowQueue: true, created_counts: { owner_handoffs: 1 } },
+    },
+  ]);
+  assert.equal(result.productive_ticks, 1);
+  assert.equal(result.no_action_ticks, 0);
+});
+
 test('proposal execution summary distinguishes approved work from unexecuted approvals', () => {
   const summary = scorecard.proposalExecutionSummary(
     [

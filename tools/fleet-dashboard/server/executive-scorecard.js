@@ -60,6 +60,11 @@ function tickAccountabilityActionCount(row) {
   return Number(created.accountability_actions || 0);
 }
 
+function tickOwnerHandoffCount(row) {
+  const created = row.result?.created_counts || {};
+  return Number(created.owner_handoffs || 0);
+}
+
 function tickScope(row) {
   return String(row?.result?.scope || 'fleet').trim() || 'fleet';
 }
@@ -79,7 +84,8 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
     row =>
       tickQueueCount(row) > 0 ||
       tickFollowThroughCount(row) > 0 ||
-      tickAccountabilityActionCount(row) > 0
+      tickAccountabilityActionCount(row) > 0 ||
+      tickOwnerHandoffCount(row) > 0
   );
   let noActionStreak = 0;
   for (let index = eligible.length - 1; index >= 0; index -= 1) {
@@ -87,7 +93,8 @@ function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = 
     if (
       tickQueueCount(row) > 0 ||
       tickFollowThroughCount(row) > 0 ||
-      tickAccountabilityActionCount(row) > 0
+      tickAccountabilityActionCount(row) > 0 ||
+      tickOwnerHandoffCount(row) > 0
     )
       break;
     noActionStreak += 1;

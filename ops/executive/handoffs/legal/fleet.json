@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:53:39.518Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:07:52.545Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: BLOCKED for SearchWoot public beta, full launch, alert expansion, affiliate use, or advertising. Official Woot documentation proves API access mechanics only; current public terms do not establish rights for commercial/public collection, storage, derivatives, caching, display, alerts, or monetization. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate/advertising use. Exact decision: keep SearchWoot private and preview-only; keep rights outreach unsent pending counsel review and owner authorization.",
+        "summary": "Disposition: blocked for SearchWoot public beta, full launch, alert expansion, affiliate use, or advertising. Official Woot materials establish API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data; current public terms point against the proposed public/commercial use. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep SearchWoot private and preview-only; keep rights outreach unsent pending counsel review and owner authorization. Ordinary reversible growth elsewhere remains conditional where it preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. No task is closed because direct evidence remains missing. Existing progress: official Woot API/terms/support review, partial repository/configuration evidence, privacy and cookie-policy artifacts, and draft site terms. Next evidence action: attach one consolidated read-only bundle covering field-level rights, deployed data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 configuration and retention, log fields, vendors, incident/request procedures, accuracy/freshness controls, and rollback evidence.",
+        "summary": "Technical compliance is not legal certification: 37 sites pass, 16 fail, and 6 are unknown. Open findings include banner, accept, reject, GA4, privacy, and terms checks. Analytics is yellow because some source permissions or collectors fail; revenue is limited to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21. Do not treat incomplete telemetry as zero, but do not clear launches or claims that depend on unavailable evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot API deal and price-history data is blocked; user alert rules and sync results are evidence_needed; GA4 analytics is evidence_needed but not blocked solely by incomplete telemetry; operational logs and Cloudflare hosting data are evidence_needed. Produce the consolidated read-only evidence bundle without enabling tracking, expanding alerts, changing production, or adding collection.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or new queue entry is cleared. Next evidence action: attach one dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence by the existing deadline.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Fleet legal posture: ordinary reversible growth is conditional, not blocked solely by incomplete telemetry, when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, affiliate disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Compliance is technical-only: 35 pass, 18 fail, 6 unknown. Analytics quality is yellow; do not treat unavailable sources as zero. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; do not claim site revenue, ROI, margin, or causal lift.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks are closed and 4 remain open. No task is closable because direct evidence is still missing. Existing progress is limited to official source review, partial repository/configuration flow evidence, privacy and cookie-policy artifacts, and draft terms. Next evidence action: attach one consolidated read-only bundle covering field-level rights, deployed data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 configuration and retention, log fields, vendors, incident/request procedures, accuracy/freshness controls, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       }

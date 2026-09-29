@@ -304,7 +304,9 @@ function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
   const body =
     downstreamType === 'change-request'
       ? `Acknowledged. We have queued agents to work on “${title}”${target}. I’ll report back in this thread as the work progresses.`
-      : `Acknowledged. We’re moving this into the executive ${downstreamType} track: “${title}”${target}. I’ll report back in this thread when there is a concrete outcome.`;
+      : downstreamType === 'site-factory'
+        ? `Acknowledged. Site Factory has been dispatched to onboard “${title}”${target}. I’ll report back in this thread as the readiness and implementation gates advance.`
+        : `Acknowledged. We’re moving this into the executive ${downstreamType} track: “${title}”${target}. I’ll report back in this thread when there is a concrete outcome.`;
   const response = message(store, {
     actor: 'ceo',
     body,
@@ -322,19 +324,22 @@ function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
 
   const current = store.getExecutiveWorkItem(source.work_id);
   if (current && !['closed', 'done', 'cancelled'].includes(current.lifecycle_state)) {
-    const targetState = downstreamType === 'change-request' ? 'actioned' : 'answered';
-    const patch =
-      downstreamType === 'change-request'
-        ? {
-            waiting_on: 'worker',
-            next_action:
-              'Worker execution is queued; progress and results will be posted to this thread.',
-          }
-        : {
-            waiting_on: 'executive-team',
-            next_action:
-              'Executive follow-through is linked below; review the thread for the resulting decision or implementation handoff.',
-          };
+    const targetState = ['change-request', 'site-factory'].includes(downstreamType)
+      ? 'actioned'
+      : 'answered';
+    const patch = ['change-request', 'site-factory'].includes(downstreamType)
+      ? {
+          waiting_on: downstreamType === 'site-factory' ? 'site-factory' : 'worker',
+          next_action:
+            downstreamType === 'site-factory'
+              ? 'Site Factory onboarding is dispatched; readiness, preview, and launch gates will be posted to this thread.'
+              : 'Worker execution is queued; progress and results will be posted to this thread.',
+        }
+      : {
+          waiting_on: 'executive-team',
+          next_action:
+            'Executive follow-through is linked below; review the thread for the resulting decision or implementation handoff.',
+        };
     try {
       transitionOwnerRequest(store, source.work_id, targetState, patch);
     } catch (error) {

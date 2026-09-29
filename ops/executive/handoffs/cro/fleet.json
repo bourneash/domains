@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:39:39.560Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:07:52.545Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain three CRO-owned specifications for reconsideration after delivery capacity clears: an affiliate conversion-path experiment, an SEO cannibalization repair, and a disposable MarkItDown content-discovery prototype. Current evidence supports hypotheses and reversible prototypes only; attribution, causal lift, margin, and ROI remain unknown. No new queue admission, deployment, spend, credentials, domains, or telemetry is requested.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Before any implementation, validate the smallest prototype, dependency and license posture, security boundaries, maintenance burden, deterministic tests, existing-telemetry measurement, and rollback. Keep all work preview-only until an active slot clears and current launch/security gates permit it.",
+        "summary": "Retain two CRO product specifications as deferred handoffs only. Current delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups. No new implementation, requeue, spend, telemetry, credential, configuration, dependency, domain, or monetization changes are proposed this cycle. Reconsider after containment clears and evidence gates reopen.",
         "requested_action": null,
         "proposal_id": null
       }

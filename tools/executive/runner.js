@@ -914,6 +914,115 @@ function ensureOwnerRequestCoverage(store, plan) {
   }
 }
 
+function ownerRequestDomain(summary = '') {
+  const matches = String(summary || '').match(
+    /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}\b/gi
+  );
+  return matches?.[0]?.toLowerCase() || null;
+}
+
+function ownerRequestNeedsSiteFactory(summary = '') {
+  return /\b(?:setup|set up|onboard|onboarding|launch|build|website|site|acquired the domain)\b/i.test(
+    String(summary || '')
+  );
+}
+
+function ownerRequestNeedsSafetyGate(summary = '') {
+  return /\b(?:pretend|fake|deceptive|always unavailable|escort|booking|contact form|impersonat|fabricat)\b/i.test(
+    String(summary || '')
+  );
+}
+
+function ensureOwnerRequestHandoffs(store) {
+  const result = [];
+  const requests = store
+    .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
+    .filter(item => ['answered', 'actioned'].includes(String(item.lifecycle_state || '')))
+    .filter(item => !['done', 'cancelled'].includes(String(item.status || '')));
+  const allWork = store.listExecutiveWorkItems({ limit: 2000 });
+  const proposals = store.listExecutiveProposals({ limit: 2000 });
+  const changes = store.listChangeRequests({ limit: 2000 });
+  for (const request of requests) {
+    const domain = ownerRequestDomain(request.summary);
+    if (!domain || !ownerRequestNeedsSiteFactory(request.summary)) continue;
+    const handoffId = `owner-request-onboarding:${request.work_id}`;
+    if (allWork.some(item => item.work_id === handoffId)) continue;
+    const hasDownstream =
+      proposals.some(
+        proposal =>
+          String(proposal.implementation?.site || '').toLowerCase() === domain &&
+          Date.parse(proposal.created_at || '') >= Date.parse(request.created_at || '')
+      ) ||
+      changes.some(
+        change =>
+          String(change.site || '').toLowerCase() === domain &&
+          Date.parse(change.created_at || '') >= Date.parse(request.created_at || '')
+      );
+    if (hasDownstream) continue;
+    if (ownerRequestNeedsSafetyGate(request.summary)) {
+      result.push({ request_id: request.work_id, domain, status: 'safety-gated' });
+      continue;
+    }
+    const handoff = store.createExecutiveWorkItem({
+      work_id: handoffId,
+      title: `Onboard ${domain} from ${request.request_ref || request.work_id}`,
+      kind: 'implementation',
+      status: 'ready',
+      priority: 'high',
+      owner: 'site-factory',
+      source_type: 'owner-request-handoff',
+      source_id: request.work_id,
+      site: domain,
+      summary: request.summary,
+      next_action: `Claim the Site Factory onboarding dispatch for ${domain}. Run the existing onboarding checklist: registry/scaffold setup, role installation, preview/build validation, legal/security/measurement boundaries, rollback, and the exact launch decision. Do not publish or spend until required gates pass.`,
+      waiting_on: 'site-factory',
+      due_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      created_by: 'executive-owner-request-router',
+      evidence: [
+        {
+          type: 'source',
+          label: request.request_ref || request.work_id,
+          note: 'Explicit owner request requiring new-site onboarding.',
+        },
+      ],
+    });
+    if (store.createWorkflowLink) {
+      store.createWorkflowLink({
+        from_type: 'work-item',
+        from_id: request.work_id,
+        to_type: 'work-item',
+        to_id: handoff.work_id,
+        relation: 'related_to',
+        created_by: 'executive-owner-request-router',
+      });
+    }
+    executive.acknowledgeOwnerRequestHandoff(store, request.work_id, {
+      downstream_type: 'site-factory',
+      downstream_id: handoff.work_id,
+      title: handoff.title,
+      site: domain,
+    });
+    const audit = executive.action(store, {
+      actor: 'system',
+      action_type: 'delegate',
+      summary: `Dispatched Site Factory onboarding: ${domain}`,
+      target_type: 'executive-work-item',
+      target_id: handoff.work_id,
+    });
+    executive.finishAction(store, audit.action_id, {
+      status: 'completed',
+      result: { source_work_id: request.work_id, work_id: handoff.work_id, site: domain },
+    });
+    result.push({
+      request_id: request.work_id,
+      domain,
+      status: 'dispatched',
+      work_id: handoff.work_id,
+    });
+  }
+  return result;
+}
+
 function workflowEntityExists(store, type, id) {
   if (!store || !id) return false;
   if (type === 'work-item') return Boolean(store.getExecutiveWorkItem?.(id));
@@ -3801,6 +3910,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     research: [],
     telemetry_satisfied: [],
     follow_through: [],
+    owner_handoffs: [],
     accountability_actions: [],
     created_refs: {
       work_items: [],
@@ -3810,6 +3920,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       research_requests: [],
       messages: [],
       accountability_actions: [],
+      owner_handoffs: [],
     },
   };
   for (const item of plan.tracking_updates) {
@@ -4301,6 +4412,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         )
       : 0,
   });
+  created.owner_handoffs = ensureOwnerRequestHandoffs(store);
+  created.created_refs.owner_handoffs = created.owner_handoffs;
   handoff.writePlan(root, plan, created);
   return created;
 }
@@ -4484,6 +4597,7 @@ module.exports = {
   isPendingOwnerRequest,
   prioritizeExecutiveWorkItems,
   ensureOwnerRequestCoverage,
+  ensureOwnerRequestHandoffs,
   emptyPlan,
   sanitizePlan,
   applyPendingOwnerRequestCoverage,

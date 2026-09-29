@@ -893,6 +893,45 @@ test('explicit tracking updates never mutate the workbench or count as delivery'
   store.close();
 });
 
+test('explicit new-site owner requests receive a deterministic site-factory handoff', () => {
+  const { root, store } = db();
+  const owner = executive.ownerRequest(store, {
+    body: 'I acquired howtofry.com; onboard the new site in full with an affiliate content plan.',
+  });
+  executive.transitionOwnerRequest(store, owner.work_item.work_id, 'answered', {
+    waiting_on: 'owner',
+  });
+  const handoffs = runner.ensureOwnerRequestHandoffs(store);
+  assert.equal(handoffs[0].status, 'dispatched');
+  const handoff = store.getExecutiveWorkItem(handoffs[0].work_id);
+  assert.equal(handoff.owner, 'site-factory');
+  assert.equal(handoff.site, 'howtofry.com');
+  assert.equal(handoff.status, 'ready');
+  assert.equal(store.getExecutiveWorkItem(owner.work_item.work_id).lifecycle_state, 'actioned');
+  assert.equal(
+    store
+      .listExecutiveActions({ action_type: 'delegate' })
+      .some(action => action.target_id === handoff.work_id),
+    true
+  );
+  store.close();
+});
+
+test('sensitive new-site owner requests remain visible as safety gates', () => {
+  const { root, store } = db();
+  const owner = executive.ownerRequest(store, {
+    body: 'Build a pretend escort site at magic.example.com with booking and always unavailable personalities.',
+  });
+  executive.transitionOwnerRequest(store, owner.work_item.work_id, 'answered', {
+    waiting_on: 'executive-team',
+  });
+  const handoffs = runner.ensureOwnerRequestHandoffs(store);
+  assert.equal(handoffs[0].status, 'safety-gated');
+  assert.equal(store.getExecutiveWorkItem(owner.work_item.work_id).lifecycle_state, 'answered');
+  assert.equal(store.listExecutiveWorkItems({ source_type: 'owner-request-handoff' }).length, 0);
+  store.close();
+});
+
 test('stale message work links are skipped without aborting the executive plan', async () => {
   const { root, store } = db();
   const plan = runner.parseOutput(

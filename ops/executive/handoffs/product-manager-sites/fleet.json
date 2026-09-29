@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:36:52.459Z",
+  "generated_at": "2026-09-29T23:07:52.543Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new managed-site proposals or queue work this cycle. Delivery is saturated at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair items remain open. Continue existing measurement, repair-or-close, readiness, security, and attribution-boundary work. The submitted execution-integrity control-plane concept is fleet-level and should remain outside the managed-sites plan.",
+        "summary": "Recommend containment-only execution this cycle. Existing delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Do not admit new site changes, requeues, telemetry, spend, or monetization expansion. Retain the two control-plane proposals below as deferred specifications; they address recurring portfolio friction and can be reconsidered after capacity and evidence gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
