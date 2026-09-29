@@ -2,28 +2,63 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T05:38:38.616Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T05:51:10.497Z",
+  "summary": "cto checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Do not create new implementation requests, requeue unchanged failures, deploy, add dependencies, collect telemetry, spend, expand monetization, or conduct external outreach. Continue only existing measurement, repair-or-close, attribution reconciliation, launch-readiness, and security evidence work. Preserve unavailable attribution, cost, margin, ROI, causal-lift, and readiness fields as unknown.",
+        "summary": "CTO disposition: maintain containment-only execution. Active delivery is full at 10/10 slots with 63 overflow items; measurement, failed-request, attribution, ownership, operations, and security gates remain unresolved. Continue only existing measurement, repair-or-close, finance/attribution reconciliation, owner-gap verification, and legal/security evidence. Create no new proposals, change requests, requeues, deployments, telemetry, dependencies, spending, or monetization changes. Preserve unavailable revenue, cost, ROI, margin, and causal-lift fields as unknown; preserve aggregate provider commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The three CRO concepts are technically plausible only as deferred, isolated prototypes. They are not adoption approvals, queue entries, production changes, or telemetry requests. Any future prototype requires disposable isolation, explicit input rights, dependency and security review, deterministic validation, measurable acceptance criteria, and deletion or rollback evidence.",
+        "summary": "Continue existing affiliate and attribution repair work only. For amputeenews.com, validate the owner-controlled registered tag through the existing request; do not expand scope or claim site revenue or ROI. Keep provider aggregate earnings separate from named tracking rows and preserve unavailable fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain parked/private factory candidates and existing measurement windows. No new site implementation is technically cleared while delivery is full, measurement backlog and failed requests remain open, and ownership, operations, or security evidence is incomplete.",
+        "summary": "Continue existing americastrikes.com affiliate-reference and ASIN-sync repair-or-close evidence without requeueing unchanged work. Require affected-link inventory, destination/status evidence, registered tracking-ID validation, deterministic checks, rollback point, and an available measurement boundary before any requeue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing allthingsmasonic.com measurement only. Use existing checks and telemetry to validate affiliate destinations, disclosure placement, consent behavior, CTA evidence, and rollback artifacts. Do not add tracking, overlap work, or claim conversion or revenue lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing owner-gap work for the parked scaffold candidates. Preserve parked/private status and update the existing records with dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence by the recorded deadline. Do not build, publish, deploy, configure analytics, monetize, alter DNS, add dependencies, or spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned attribution and cost reconciliation only. Keep named tracking rows separate from provider aggregate rows, require registered tracking IDs for future links, and preserve missing matching-period costs, site revenue, ROI, margin, budget capacity, and causal lift as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain SEO, UX, affiliate, and repository opportunities as deferred backlog. MarkItDown, shadcn/ui, and Mermaid remain research-only; no adoption, dependency addition, prototype queue entry, or production integration is authorized this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }
