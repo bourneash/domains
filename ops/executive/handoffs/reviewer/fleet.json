@@ -2,63 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T00:23:48.868Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-29T04:52:39.059Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue work, production changes, requeues, spend, telemetry, dependencies, deployments, monetization expansion, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, owner-gap, finance reconciliation, legal launch-readiness, and security evidence work. Preserve unknowns as unknown and keep private/parked states unchanged; keep rights outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject unsupported financial claims, new production work, requeues, spending, telemetry, dependencies, deployments, monetization expansion, and external outreach. Continue only existing measurement, repair-or-close, finance/attribution reconciliation, parked-site readiness, and legal/security evidence work. Aggregate commission remains unattributed; margin, ROI, payback, forecasts, and causal lift remain unknown. Material concerns: active measurement windows, failed repairs, full delivery capacity, missing ownership/readiness evidence, and unavailable operations/security sweeps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Update the existing owner-gap records for complicated.work, deadlymaracas.com, and driveford.net with dated owner verification, preview/build checks, readiness evidence, measurement boundaries, rollback points, and explicit blocker or queue-clear decisions by 2026-09-30T17:00:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, or create requests.",
+        "summary": "Continue existing owner-gap verification for the three parked scaffold candidates. Attach dated execution-owner, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Review existing failed and cancelled work only. Before any future retry, document ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence. Do not requeue unchanged work.",
+        "summary": "Continue repair-or-close review for failed and cancelled work without retrying unchanged requests. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reconcile the existing provider rows and aggregate row against matching-period revenue, costs, commitments, budgets, and learning thresholds. Preserve aggregate commission as unattributed and all missing fields as unknown. Do not claim site revenue, ROI, margin, payback, forecast, or causal lift.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only launch-readiness evidence bundle and keep the private gate and rights outreach unchanged. Human-counsel review remains required before any rights-dependent request, public exposure, alert expansion, affiliate use, advertising, or monetization change.",
+        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not expose, monetize, expand alerts, or change production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases; do not access credentials, change permissions or configuration, add dependencies, deploy, requeue work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No implementation candidate clears the required gates this cycle. complicated.work, deadlymaracas.com, and driveford.net remain blocked by missing execution-owner verification and launch-readiness evidence. Other candidates are blocked by active work or measurement windows. Do not queue, deploy, requeue, spend, add telemetry, change credentials/configuration, expand monetization, or claim financial or causal lift. Continue only existing reconciliation, measurement, repair-or-close, legal, security, and owner-gap work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Amazon commission is aggregate and unattributed; matching-period costs, budgets, and thresholds are unavailable. Operations and security evidence remain incomplete. Preserve unknowns as unknown, keep private and parked states unchanged, and keep external rights outreach unsent pending human-counsel review.",
+        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecasts, or budget capacity.",
         "requested_action": null,
         "proposal_id": null
       }

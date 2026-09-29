@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T00:23:48.867Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T04:52:39.058Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new production queue entry is technically cleared this cycle. Continue existing measurement, repair-or-close, owner-gap verification, finance reconciliation, and bounded legal/security evidence work. Preserve parked/private states and unknown telemetry. Do not requeue unchanged work, deploy, add dependencies or telemetry, change credentials/configuration, spend, expand monetization, or claim causal revenue lift. The $4.92 Amazon commission is aggregate for 2026-09-21 and not site-attributable; financial performance remains unknown.",
+        "summary": "Maintain containment-only execution this cycle. Do not create new queue work, requeue unchanged requests, deploy, publish, alter DNS, add telemetry or dependencies, spend, expand monetization, or claim revenue, ROI, margin, payback, forecasts, or causal lift. Active delivery is full; 42 improvements await measurement, 17 implementation requests failed, 5 failure repairs remain open, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance and attribution reconciliation, parked-site readiness, and legal/security evidence work. Preserve unavailable values as unknown and aggregate commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "For complicated.work, deadlymaracas.com, and driveford.net, update the existing owner-gap records with dated execution-owner verification, preview/build checks, compliance and security evidence, measurement boundary, rollback point, and an explicit blocker or queue-clear decision by 2026-09-30T17:00:00Z. Preserve parked/private status; do not build, publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "summary": "Continue the existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Attach dated execution-owner, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing failed and cancelled work review without requeueing unchanged requests. Require ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence before any retry.",
+        "summary": "Continue repair-or-close review for failed and cancelled work without retrying unchanged requests. Require dated ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private and permission outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only launch-readiness evidence bundle; do not expose, monetize, expand alerts, or change production.",
+        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not expose, monetize, expand alerts, or change production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not extrapolate or claim site revenue, margin, ROI, payback, forecast, or budget capacity.",
         "requested_action": null,
         "proposal_id": null
       }
