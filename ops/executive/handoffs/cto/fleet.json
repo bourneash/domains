@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:38:31.786Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:54:20.293Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Do not admit new proposals, change requests, requeues, deployments, dependencies, telemetry, spending, monetization expansion, or external outreach. Active delivery is saturated at 10/10 slots; measurement backlog, failed requests, open repair follow-ups, and unavailable operations/security evidence make new queue admission unsafe. Continue only existing repair-or-close, measurement, readiness, finance reconciliation, security evidence, and private launch-gate work. Preserve unavailable revenue, cost, margin, ROI, attribution, and causal-lift fields as unknown. Keep rights outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, measurement backlog and failed-request follow-ups remain open, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Create no new implementation requests, requeues, deployments, dependencies, telemetry, spend, or external outreach. Preserve revenue, attribution, cost, ROI, and causal-lift unknowns; Amazon earnings remain aggregate and unattributed. Queue admission may reopen only after capacity and required evidence gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Prioritize completion or justified closure of the retained saveusfarms.com failure by 2026-09-30T07:30Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "When capacity and gates reopen, use existing work first. Preserve the 0xroulette.com CTA request in review and the allthingsmasonic.com affiliate-path request without creating duplicates. Retain the xxxtea.com intent-consolidation opportunity as deferred research for one isolated preview change after repository validation. Do not claim revenue or causal lift; use existing analytics and Search Console evidence only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing complicated.work readiness packet only. Keep the site parked, private, preview-only, and launch-blocked. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence by 2026-09-30T17:00Z. No build, publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is authorized.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue only the existing readiness packets with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No build, publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue deployed-change measurement using available telemetry only. Preserve unavailable revenue, conversion, attribution, and causal-lift values as unknown. Do not add tracking, duplicate work, or requeue failures.",
+        "summary": "Keep SearchWoot private and preview-only. Continue the existing read-only legal, accuracy, measurement, and security evidence bundle. Woot rights remain blocked pending written permission and human-counsel review. Do not send outreach, expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, or claim clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate or authorize spend.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com failure by 2026-09-30T07:30:00Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       }

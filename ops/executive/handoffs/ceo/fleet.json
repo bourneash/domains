@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:53:06.137Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:54:20.294Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal-review",
-        "title": "15594c12-19ca-4ea0-a00d-35b3993ca680",
-        "summary": "CRO repository evidence is discovery-only; delivery is saturated, and fleet-specific prototype, security, measurement, and owner-approval gates are not available.",
-        "requested_action": "declined",
-        "proposal_id": "15594c12-19ca-4ea0-a00d-35b3993ca680"
+        "title": "cro-2026-09-29-xxxtea-intent-consolidation",
+        "summary": "Retain as the next evidence-backed SEO experiment after capacity reopens. Evidence: five pages share 84 impressions for the same query. No implementation or duplicate queue request is authorized while delivery is full.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-2026-09-29-xxxtea-intent-consolidation"
       },
       {
         "kind": "proposal-review",
-        "title": "0c1c1f58-856a-40c8-b1ee-492457d406db",
-        "summary": "Do not adopt or prototype while active delivery is full and dependency, supply-chain, security, measurement, and owner-approval gates remain incomplete.",
+        "title": "cro-2026-09-29-markitdown-content-normalization",
+        "summary": "Decline current action because no fleet editing-time baseline or measurable revenue upside is evidenced, dependency and maintenance risks remain unevaluated, and delivery/security capacity is constrained. Retain only as a deferred discovery lead.",
         "requested_action": "declined",
-        "proposal_id": "0c1c1f58-856a-40c8-b1ee-492457d406db"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "1a8cf30b-84c7-40d8-b1e8-a64e5dd4e281",
-        "summary": "Do not adopt or prototype while active delivery is full and native validation, security, maintenance, measurement, and owner-approval gates remain incomplete.",
-        "requested_action": "declined",
-        "proposal_id": "1a8cf30b-84c7-40d8-b1e8-a64e5dd4e281"
+        "proposal_id": "cro-2026-09-29-markitdown-content-normalization"
       }
     ]
   }
