@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:24:41.399Z",
+  "generated_at": "2026-09-29T18:07:40.371Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain three deferred, reversible specifications only. Delivery is saturated at 10/10 slots, measurement debt and failed-work containment remain open, and operations/security evidence is incomplete. No new implementation or queue admission is recommended this cycle. The specifications below include fleet use case, evidence, risks, expected metrics, learning windows, and smallest reversible prototypes. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, and parked-site readiness work.",
+        "summary": "CRO review: retain containment-only execution this cycle. Existing GitHub, market, search, affiliate, audience, and CRO-lab signals do not justify a new reversible experiment while delivery is saturated, measurement debt and failed-work repairs remain open, and security/operations evidence is incomplete. Preserve existing deployed-work measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Reconsider CRO experiments only after a delivery slot clears and the required evidence gates reopen.",
         "requested_action": null,
         "proposal_id": null
       }

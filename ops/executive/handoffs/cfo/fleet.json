@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:24:41.400Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T18:07:40.371Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend maintaining containment-only execution. Do not admit new queue work, requeue failures, expand monetization, or authorize spend. Revenue support is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to sites. AI usage is $945.2473 for 2026-09-01 through 2026-09-29, but it is not period-matched to revenue and infrastructure, labor, operating, commitment, and budget data are unavailable. Therefore contribution margin, budget exposure, ROI, payback, forecast, and cost-to-learn are unknown. Continue the existing period-aligned finance reconciliation only; do not extrapolate one-day revenue or compare September AI spend to it. Minimum evidence for a finance conclusion is a dated ledger matching revenue, AI, infrastructure, labor, operating costs, commitments, and budget ceilings to the same site/content and period, plus an approved learning threshold.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. The only supported revenue is Amazon’s 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; it is not site-attributable because $4.92 sits in an aggregate provider row. Do not present site revenue, contribution margin, ROI, payback, forecasts, or causal lift. AI usage cost is $945.247286 for 5,264 calls from 2026-09-01 through 2026-09-29, but it cannot be compared with one revenue day or allocated to contribution margin without matching-period revenue and all-in costs. Continue the existing period-aligned reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The three deferred control-plane specifications may remain deferred as non-financial concepts, but none should be admitted this cycle. They do not establish revenue, contribution margin, savings, cost-to-learn, or budget benefit. Any future prototype should remain report-only and compete for capacity only after containment clears; its success must be measured with existing records, not proposal volume or activity counts.",
+        "summary": "Continue the existing CFO reconciliation work without duplication. Minimum evidence for a calculable contribution margin or cost-to-learn result is a dated ledger matching revenue, AI spend, infrastructure spend, labor or execution cost, and other direct costs to the same site or content and period, plus an approved learning threshold. Current fleet totals are insufficient: September AI cost covers 2026-09-01 through 2026-09-29, while revenue covers only 2026-09-21. Preserve all unmatched cost, budget, margin, ROI, payback, forecast, and learning-threshold fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission. Site revenue, matching-period costs, margin, ROI, forecasts, payback, and causal lift remain unknown. Continue existing period-aligned reconciliation only.",
         "requested_action": null,
         "proposal_id": null
       }

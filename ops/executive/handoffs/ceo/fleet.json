@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:24:41.400Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T18:07:40.370Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Active delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, and 7 failed-request repairs remain open. Continue measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. The CRO control-plane concepts remain deferred; AI-usage-aware selection is rejected for lack of outcome or savings evidence. Revenue remains limited to $4.92 aggregate, unattributed Amazon commission for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: delivery-lead completes or justifiably closes the existing saveusfarms.com failure by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Acknowledged EXEC_CONV_10: I have acquired the domain howtofry.com, setup this site in the fleet in full. It should be an amazon affiliate site for frying (cooking) products. It should be guide heavy with lots of recipes. Should be visually sunning. Ensure BlueSky i setup and all of its roles are fully engaged.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair items remain open. Continue measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Smallest next step: delivery-lead completes or justifiably closes the saveusfarms.com failure by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

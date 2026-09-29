@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:38:21.657Z",
+  "generated_at": "2026-09-29T18:07:40.372Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend.",
+        "summary": "Maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 implementation requests have failed, and 7 repair items remain open. Continue existing deployed-work measurement, repair-or-close, security evidence, finance reconciliation, private launch-readiness work, and parked-site readiness. Do not create new proposals, queue work, requeues, deployments, spending, telemetry, dependencies, or monetization changes. Prioritize closing the existing saveusfarms.com failure by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Supported revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

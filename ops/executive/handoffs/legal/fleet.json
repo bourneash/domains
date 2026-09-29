@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T17:55:06.299Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T18:07:40.372Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, monetization expansion, or security-sensitive release; conditional for ordinary bounded reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Evidence: compliance is a technical baseline at 35 pass, 18 fail, and 6 unknown; security and operations evidence is unavailable; analytics quality is yellow; revenue is $4.92 aggregate unattributed commission for 2026-09-21. Exact decision: maintain containment-only execution and private launch gates; do not admit new implementation work, requeue unchanged failures, deploy, spend, expand telemetry, or claim ROI or causal lift.",
+        "summary": "Legal risk disposition: blocked for SearchWoot public beta, full launch, alert expansion, affiliate or advertising use, and security-sensitive release; conditional only for bounded reversible internal growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Evidence: Woot documentation establishes API access but not rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data; current terms restrict those uses. Security, accuracy/freshness, measurement, owner, and privacy gates remain incomplete. Exact decision: keep SearchWoot private, preview-only, and unlaunched; keep rights outreach unsent pending human-counsel review and owner authorization. Fleet ordinary growth is not blocked solely by incomplete telemetry, but public exposure remains gated where compliance or security evidence is missing. Revenue remains limited to 2026-09-21 aggregate Amazon results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission; margin, ROI, forecasts, payback, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch-readiness remains blocked and active: 0 of 4 tasks closed, 4 open. Woot API documentation proves access mechanics but not rights to store, derive, cache, display, alert on, or monetize deal and price-history data; current public terms point against the proposed public/commercial use. Keep the product private and preview-only. Keep rights outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 remain open. No task is closed because direct evidence is still missing. Next evidence action: attach one consolidated read-only bundle containing the field-level rights matrix; deployed data-flow, identifiers, retention, deletion, correction, access, notification consent, and unsubscribe table; GA4 consent, withdrawal, property, data-sharing, retention, and jurisdiction evidence; log-field, vendor, incident, subpoena, and data-subject-request inventory; accuracy/freshness controls; and rollback evidence. Then route upstream-rights and jurisdictional gaps to human counsel before any owner-authorized outreach or launch decision.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: no SearchWoot task is closed because direct evidence remains missing. Next evidence action is one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, deletion/correction/access workflow, notification consent and unsubscribe behavior, GA4 consent/configuration/retention evidence, log and vendor inventory, incident/request procedures, accuracy/freshness controls, and rollback evidence. Then route rights and jurisdictional gaps to human counsel.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "For complicated.work, deadlymaracas.com, and driveford.net, retain the concrete launch decision: parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Ordinary growth may continue only within existing evidenced boundaries. Incomplete telemetry is not by itself a growth blocker, but unavailable analytics sources must not be treated as zero, and aggregate affiliate earnings must remain unattributed. Preserve the current measurement, repair-or-close, security, finance, launch-readiness, and parked-site work; do not create duplicate telemetry or unsupported claims.",
+        "summary": "Private-site decision: keep complicated.work parked, private, preview-only, and unlaunched. Evidence shows scaffold lifecycle, parked status, no analytics configuration, unreachable compliance check, unevidenced security controls, and missing dated ownership, preview/build, measurement-boundary, rollback, and explicit-blocker evidence. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach the dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker.",
         "requested_action": null,
         "proposal_id": null
       }
