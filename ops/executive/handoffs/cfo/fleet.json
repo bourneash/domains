@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:37:01.941Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T13:22:21.570Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO review rejects retaining the proposed control-plane product proposal this cycle. Its operational metrics may describe throughput risk, but they do not establish financial return, savings, contribution margin, or cost-to-learn. Reconsider only after containment clears and a bounded prototype has a defined matching cost basis, approved learning threshold, and existing-record measurement plan.",
+        "summary": "CFO recommendation: maintain containment-only execution and reject all new site-factory work this cycle. Delivery is full at 10/10 slots, with 57 improvements awaiting measurement and 17 failed implementation requests. Financial claims are not supportable: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, but the $4.92 is not site-attributable. September 1–29 AI spend is $934.99756275 across 5,174 calls and 39 instrumented sites; do not extrapolate it into monthly economics or ROI. Continue only existing measurement, repair-or-close, and period-aligned reconciliation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing report-only finance reconciliation; do not create duplicate telemetry or proposals. Reconcile the 18 named Amazon tracking rows plus the aggregate row for 2026-09-21 against matching-period revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor, operating costs, commitments, budget ceilings, and an approved learning threshold. Minimum measurement is a period-aligned cost-and-attribution ledger. Budget exposure is not calculable because monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are blank. Contribution margin, ROI, payback, forecast, and cost-to-learn are not calculable because matching-period costs, commitments, and an approved learning threshold are absent. Infrastructure spend is not calculable because operations sweeps have no results and no infrastructure-cost ledger is supplied.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue containment-only execution. Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z before queue admission reopens. Require dated ownership, root cause or close rationale, isolated validation, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or admit new implementation requests.",
         "requested_action": null,
         "proposal_id": null
       }
