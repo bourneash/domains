@@ -2,70 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:23:51.195Z",
-  "summary": "reviewer checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-29T20:39:06.829Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject all new queue work, high-priority admissions, requeues, deployments, spending, telemetry expansion, monetization changes, and unsupported financial or causal claims. Continue only existing security evidence, measurement, finance reconciliation, launch-gate, parked-readiness, and repair-or-close work. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, payback, forecasts, and causal lift are unknown. The existing repair-or-close case remains the gating delivery item.",
+        "summary": "Approve containment-only execution. Reject the duplicate security proposal and all new queue admissions while delivery is saturated. Continue only existing repair-or-close, deployed-work measurement, period-aligned finance reconciliation, security evidence, private launch gates, and parked-site readiness. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown. Keep rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing repair-or-close case only. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release and security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Independent review rejects new queue admission this cycle. All 10 delivery slots are occupied; existing measurement, failed-request containment, security evidence, and finance reconciliation must complete first. No unsupported revenue, ROI, causal-lift, production, spend, credential, configuration, telemetry, or monetization claims are approved. Candidate work remains blocked pending delivery-lead completion or justified closure of the existing repair case by 2026-09-30T07:30Z, followed by CTO capacity review; escalate unresolved work to CTO at that deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing repair-or-close case. Complete or justifiably close it by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicate requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of deployed work using existing telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, budget exposure, and cost-to-learn unknown; authorize no spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only existing parked-site readiness packets. Keep scaffold properties private, preview-only, and unlaunched; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The requested batch of new implementation candidates is not queue-admissible: active delivery is saturated, and available site candidates are already queued, measuring, under review, or blocked by launch/readiness gates. Reconsider the highest-confidence reversible candidate batch only after the repair-or-close case is completed or closed by 2026-09-30T07:30Z and an active slot clears; escalate unresolved containment at that deadline.",
+        "summary": "Reject all new implementation admissions this cycle: delivery is saturated at 10/10, failed-work containment remains open, and security/operations evidence is incomplete. No candidate has a safe open slot. Delivery-lead must complete or close the existing repair case by 2026-09-30T07:30Z; escalate unresolved work to CTO. Site-factory must complete parked-site readiness packets by 2026-09-30T17:00Z; escalate then to CTO. Continue only existing measurement, reconciliation, security evidence, private gates, and readiness work.",
         "requested_action": null,
         "proposal_id": null
       }

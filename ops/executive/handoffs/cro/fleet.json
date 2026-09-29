@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:09:18.360Z",
+  "generated_at": "2026-09-29T20:39:06.822Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain five deferred, evidence-gated opportunities only. Current delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 open repairs, so no new implementation or requeue is recommended. The retained opportunities convert existing search, affiliate, audience, GitHub-lab, and workflow evidence into reversible prototypes with explicit metrics, learning windows, rollback boundaries, and license/security review requirements. Revenue remains unattributed where provider data is aggregate; no causal lift or ROI is claimed.",
+        "summary": "Revenue evidence remains bounded: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21. Do not assign aggregate rows, infer ROI, or claim causal lift. Any future experiment must use existing analytics and affiliate attribution only.",
         "requested_action": null,
         "proposal_id": null
       }
