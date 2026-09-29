@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:12:46.101Z",
+  "generated_at": "2026-09-29T09:13:28.647Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer decision: maintain containment-only execution. No new implementation requests or requeues are authorized: delivery is full at 10/10 slots, overflow is substantial, measurement and failed-request backlogs remain, and security/operations evidence is unavailable. Candidate implementation work is deferred because active delivery, measurement windows, missing execution ownership, or launch/security gates block admission. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, and parked-site readiness. Preserve aggregate commission as unattributed; do not claim revenue, ROI, margin, forecasts, or causal lift.",
+        "summary": "Reject new implementation work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. No unsupported revenue, causal-lift, production, requeue, spend, telemetry, dependency, deployment, or monetization claims are approved.",
         "requested_action": null,
         "proposal_id": null
       }
