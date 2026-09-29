@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:52:51.641Z",
+  "generated_at": "2026-09-29T12:22:37.874Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete one existing failed or stranded item, or document a justified close, by 2026-09-30T07:30Z. Do not retry unchanged failures or admit new work before the required evidence is recorded.",
+        "summary": "Maintain containment-only execution while active delivery is saturated. Complete the existing repair-or-close workstream for failed request 3dd194a6-b7a1-4dce-baee-22af77d5b2e1 on saveusfarms.com. Inspect the retained failure, preserve durable work, document root cause or justified closure, run isolated deterministic validation and build checks, and record an explicit requeue-or-close disposition. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       }
