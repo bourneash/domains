@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:54:36.889Z",
+  "generated_at": "2026-09-29T09:55:47.864Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation and requeue work this cycle. Delivery is full at 10/10 slots with 61 overflow items; 38 improvements await measurement and 17 implementation requests failed. Operations and security evidence remain unavailable, so production work and high-priority queue admission lack sufficient clearance. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, legal/security evidence, and parked-site readiness. Amazon revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecast, and causal lift remain unknown. Complete one existing item or justified close with ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before selecting new work.",
+        "summary": "Maintain containment-only execution. No new implementation candidates clear the gates: delivery is full, measurement and failed-work backlogs remain open, and parked-site launch, security, attribution, and cost evidence is incomplete. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and readiness packets only. Preserve aggregate revenue as unattributed and unavailable financial fields as unknown; do not create production work, requeues, spend, telemetry, credentials, dependencies, deployments, or outreach.",
         "requested_action": null,
         "proposal_id": null
       }
