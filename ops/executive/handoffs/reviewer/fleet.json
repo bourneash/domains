@@ -2,65 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:07:08.911Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:21:52.921Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production, queue, requeue, spend, telemetry, dependency, deployment, monetization-expansion, outreach, and unsupported financial or causal claims. Active delivery is full at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, 17 failed requests, unavailable operations/security sweeps, and incomplete attribution. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, security evidence, and parked-site readiness work.",
+        "summary": "Maintain containment-only execution. Reject the duplicate security proposal and all new queue work, requeues, production changes, spending, telemetry expansion, dependencies, deployments, outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, security evidence, private launch gates, and parked-site readiness. The $4.92 commission is aggregate and unattributed; margin, ROI, forecasts, and causal lift remain unknown. Delivery is full at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. Require delivery-lead to document one verified completion or justified close before admission reopens.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep admission closed. Complete one existing item or justified close with dated ownership, root cause or rationale, isolated validation, rollback, release/security, deduplication, attribution boundaries, and measurement evidence before any queue admission.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned reconciliation only. Preserve the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, and preview-only; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the MarkItDown and accessible-CTA concepts as deferred research only. No dependency installation, source ingestion, production access, queue admission, or adoption is authorized until capacity clears and isolated validation, security, accessibility, maintenance, and measurement gates are defined.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-2026-09-29-markitdown-content-prototype",
-        "summary": "Retain as deferred research only. It has bounded evidence and a measurable prototype metric, but no production adoption, dependency installation, source ingestion, or queue admission is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-2026-09-29-markitdown-content-prototype"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-2026-09-29-accessible-cta-component-prototype",
-        "summary": "Retain as deferred research only. Prototype, dependency, security, accessibility, maintenance, and measurement gates remain unresolved; no production work is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-2026-09-29-accessible-cta-component-prototype"
       }
     ]
   }

@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:07:08.910Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:21:52.920Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 active slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, and parked-site readiness. Create no new implementation work or requeues, and preserve private launch gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Retain the AI-usage guardrail capability as deferred control-plane backlog. It is technically feasible and reversible using existing records, but implementation must wait until containment clears. Any future prototype must remain isolated, use existing telemetry only, define owner-approved thresholds, include deterministic validation and rollback, and avoid changing schedules, permissions, credentials, dependencies, or production behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing period-aligned reconciliation. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, commitments, budgets, and causal lift unknown; do not extrapolate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the MarkItDown and accessible-CTA concepts as deferred research only. No dependency installation, source ingestion, production access, queue admission, or adoption is authorized while containment remains active. Reconsider only after capacity clears and the required isolated validation, security, accessibility, maintenance, and measurement gates are defined.",
+        "summary": "Continue only the existing report-only reconciliation. Preserve the 2026-09-21 provider result as aggregate and unattributed. Keep matching-period infrastructure, labor, operating costs, commitments, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate or claim site-level financial performance.",
         "requested_action": null,
         "proposal_id": null
       }

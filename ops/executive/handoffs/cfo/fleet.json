@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:36:42.031Z",
+  "generated_at": "2026-09-29T10:21:52.920Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and reject new spend, monetization expansion, revenue forecasts, ROI, margin, payback, and causal-lift claims. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The 18 named tracking rows show $0 site-attributed income; the $4.92 aggregate row cannot be assigned to a site. AI usage cost is $928.5425623 for 2026-09-01 through 2026-09-29 across 5,097 calls and 39 instrumented sites, but it is not period-matched to the revenue data and infrastructure, labor, and other operating costs are unavailable. Contribution margin, cost-to-learn, budget exposure, payback, and forecasts are therefore not calculable. Continue the existing report-only reconciliation; minimum measurement is period-aligned site/content attribution plus complete matching-period AI, infrastructure, labor, operating-cost, commitment, budget-ceiling, and approved learning-threshold fields. Do not extrapolate one-day revenue or September AI cost.",
+        "summary": "Recommendation: maintain containment-only execution and reject new implementation, spend, monetization expansion, and unsupported financial claims. Delivery is full at 10/10 slots, with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the full amount is unattributed, so site revenue is unsupported. September 1–29 AI spend is $928.54 across 5,097 calls and 39 instrumented sites, but matching-period infrastructure, labor, domain, and operating costs are unavailable. Contribution margin, ROI, payback, budget exposure, and cost-to-learn are therefore unknown. Sessions, impressions, clicks, proposal counts, and output volume are not financial performance. Continue only existing period-aligned reconciliation and measurement work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Push back on vanity metrics: clicks, impressions, sessions, conversions, ordered items, shipped items, proposal counts, and proven operational outcomes do not establish revenue quality, contribution margin, or return. Preserve the aggregate $4.92 as unattributed and treat unavailable values as unknown rather than zero.",
+        "summary": "Minimum finance artifact remains the existing report-only reconciliation: match the 18 named provider tracking rows and aggregate row for 2026-09-21 to site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor, other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable values as unknown; do not extrapolate one-day commission or September AI spend into monthly revenue, margin, forecasts, payback, or learning claims.",
         "requested_action": null,
         "proposal_id": null
       }

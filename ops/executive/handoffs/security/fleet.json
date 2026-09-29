@@ -2,36 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:07:08.910Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:21:52.920Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication, access boundaries, secrets, runtime isolation, release controls, dependency provenance, TLS completeness, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced, but missing telemetry is not evidence of safety. Exact decision: block public exposure and security-sensitive releases; preserve private and parked gates; permit only ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
+        "summary": "Disposition: evidence_needed. Risk is high for public exposure and security-sensitive releases, and medium for bounded reversible growth. Fleet-doctor has no run or control results; operations deploy-health, uptime, and error sweeps have no results; all 59 security sitefacts are unknown. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS completeness, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced; missing telemetry is not evidence of safety. Exact decision: block public exposure and security-sensitive releases, preserve private and parked gates, and permit only ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Continue only the existing read-only security evidence matrix using authorized metadata and retained artifacts. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns for authentication, access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct outreach.",
+        "summary": "Continue the existing dated, read-only evidence matrix for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Record affected scope, owner, severity, evidence timestamp, explicit unknowns, and release implications. No certification or clean security finding is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the CRO concepts as deferred research only. Do not prototype, install dependencies, ingest documents, alter site code, or introduce client-side components until delivery capacity clears and the existing security evidence matrix supports review. Any future prototype requires isolated execution, dependency provenance, deterministic validation, rollback, and security review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing parked-site readiness packet only. Preserve private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. No publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is cleared.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and all material security sitefacts remain unknown. Preserve private and parked launch gates while allowing only bounded reversible growth within existing consent, disclosure, provenance, claims, and data boundaries.",
+        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Document dated, redacted evidence and explicit unknowns for authentication and access boundaries, secrets handling, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Block public exposure and security-sensitive releases. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
         "proposal_id": null
       }
     ]

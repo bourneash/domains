@@ -2,22 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:54:08.350Z",
-  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:21:52.918Z",
+  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Deferred product capability: evidence-gated delivery lifecycle and admission control",
-        "summary": "Create a bounded control-plane lifecycle contract linking proposal, implementation request, active slot, deployment verification, measurement window, terminal outcome, failure repair, and rollback evidence. Admission must reject duplicate or site-overlapping work, distinguish reports from slot-consuming implementation, and prevent unchanged retries.",
-        "requested_action": "Retain as deferred backlog. Do not create a change request or queue entry during containment-only execution. Reconsider after one existing item has verified completion or justified close evidence and an active slot is available.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Deferred product capability: operator cockpit for blocked work and measurable outcomes",
-        "summary": "Provide a read-only view grouping active slots, overlap, failed requests, unexecuted approvals, measurement due dates, owner gaps, and launch or security gates by next safe action while preserving unknown, unavailable, aggregate, and zero states.",
-        "requested_action": "Retain as deferred read-only backlog. Do not request duplicate telemetry or create implementation work during containment. Reconsider only after existing queue and measurement backlogs materially clear.",
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: maintain containment-only execution. Prioritize existing measurement, repair-or-close, attribution reconciliation, security evidence, and parked-site readiness. Do not add new implementation work while delivery is full, 38 improvements await measurement, and 17 requests have failed. Preserve the AI-usage guardrail concept as deferred control-plane backlog; it duplicates active containment and proposal-execution work. No new telemetry, spend, deployment, monetization expansion, or unsupported revenue or causal-lift claims are warranted.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

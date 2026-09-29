@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:13.524Z",
+  "generated_at": "2026-09-29T10:21:52.919Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve parked, private, preview-only status. Continue existing readiness packets with dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Maintain containment-only execution. Delivery is saturated at 10/10 active slots, with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Keep scaffold properties parked, private, and preview-only. Do not build, publish, deploy, add domains, spend, configure analytics, monetize, or create queue entries until owner, legal, security, measurement, compliance, and rollback evidence is complete. The strongest factory candidate is complicated.work, but its launch-readiness evidence is not yet verified.",
         "requested_action": null,
         "proposal_id": null
       }
