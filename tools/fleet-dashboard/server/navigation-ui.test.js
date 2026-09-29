@@ -82,6 +82,17 @@ test('executive decisions workspace opens its decision history', () => {
   assert.match(app, /optional\('GET', '\/api\/executive\/actions\?limit=200'/);
 });
 
+test('executive run logs support focused filtering and wider detail panes', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /ex-run-log-search/);
+  assert.match(app, /value="important"/);
+  assert.match(app, /Tool pass-through/);
+  assert.match(app, /function wireExecutiveRunLogFilters\(detail, shell\)/);
+  assert.match(style, /width: min\(1320px, 97vw\)/);
+  assert.match(style, /\.ex-run-log-controls/);
+});
+
 test('product managers are first-class Agents pages with durable queues', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   for (const role of ['product-manager-fleet', 'product-manager-sites']) {

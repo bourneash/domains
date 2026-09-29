@@ -15765,17 +15765,49 @@ function renderAgent(role) {
 }
 
 let EXEC_RUN_LOG_REQUEST = 0;
+const EXEC_RUN_LOG_UI = {
+  actionId: null,
+  query: '',
+  kind: 'important',
+  sort: 'newest',
+};
 
 function executiveRunDetailContent(runDetail) {
-  const transcript = (
-    runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || []
-  )
+  const source = runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || [];
+  const classify = item => {
+    const type = String(item.message_type || 'event');
+    if (type === 'model-response') return ['response', 'Response', true];
+    if (type === 'model-prompt') return ['prompt', 'Prompt', true];
+    if (type === 'background') return ['milestone', 'Milestone', true];
+    if (type === 'tool-call' || type === 'tool-result') return ['tool', 'Tool pass-through', false];
+    return ['message', 'Message', true];
+  };
+  const needle = EXEC_RUN_LOG_UI.query.trim().toLowerCase();
+  const entries = source
+    .map(item => {
+      const [category, label, important] = classify(item);
+      return { item, category, label, important };
+    })
+    .filter(entry => EXEC_RUN_LOG_UI.kind === 'all' || (EXEC_RUN_LOG_UI.kind === 'important' ? entry.important : entry.category === EXEC_RUN_LOG_UI.kind))
+    .filter(entry => !needle || `${entry.label} ${entry.item.actor || ''} ${entry.item.body || ''}`.toLowerCase().includes(needle))
+    .sort((a, b) => {
+      const av = Date.parse(a.item.created_at || '') || 0;
+      const bv = Date.parse(b.item.created_at || '') || 0;
+      return EXEC_RUN_LOG_UI.sort === 'oldest' ? av - bv : bv - av;
+    });
+  const transcript = entries
     .map(
-      item =>
-        `<article class="ex-run-log-entry"><div class="ex-transcript-meta"><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type || 'event')} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
+      ({ item, category, label }) =>
+        `<article class="ex-run-log-entry ex-run-log-${esc(category)}"><div class="ex-transcript-meta"><span class="ex-run-log-label">${esc(label)}</span><b>${esc(executiveActorLabel(item.actor))}</b><span class="muted">${esc(item.message_type || 'event')} · ${esc(fmtDate(item.created_at))}</span></div><details><summary>Show full entry</summary><pre>${esc(item.body || '')}</pre></details></article>`
     )
     .join('');
   const actionItems = (runDetail?.action_items || [])
+    .filter(item => !needle || `${item.title || ''} ${item.summary || ''} ${item.owner || ''} ${item.next_action || ''}`.toLowerCase().includes(needle))
+    .sort((a, b) => {
+      const av = Date.parse(a.updated_at || a.created_at || '') || 0;
+      const bv = Date.parse(b.updated_at || b.created_at || '') || 0;
+      return EXEC_RUN_LOG_UI.sort === 'oldest' ? av - bv : bv - av;
+    })
     .map(
       item =>
         `<article class="ex-run-action-item"><div><b>${esc(item.title)}</b><span class="badge ${item.status === 'done' ? 'b-green' : 'b-yellow'}">${esc(item.status)}</span></div><p>${esc(item.summary || '')}</p><div class="muted">${esc(item.owner || 'unassigned')}${item.site ? ` · ${esc(item.site)}` : ''} · ${esc(item.run_operation || 'run item')}</div><div><b>Next:</b> ${esc(item.next_action || '—')}</div></article>`
@@ -15787,18 +15819,53 @@ function executiveRunDetailContent(runDetail) {
         `${action.started_at} · ${action.actor} · ${action.action_type} · ${action.summary}${action.error ? ` · ERROR: ${action.error}` : ''}`
     )
     .join('\n');
-  return `<div class="ex-run-drawer-summary"><b>${esc(runDetail?.transcript?.length || 0)} model transcript entries</b><span>·</span><b>${esc(runDetail?.conversation?.length || 0)} executive messages</b><span>·</span><b>${esc(runDetail?.action_items?.length || 0)} action items</b></div><div class="ex-run-detail-grid"><div><h4>Full conversation and agent activity</h4><div class="ex-run-log">${transcript || '<div class="ex-empty">No conversation was retained for this run.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail?.action_log?.length || 0)})</summary><pre>${esc(audit || 'No audit actions recorded.')}</pre></details></div><div><h4>Action items from this run</h4><div class="ex-run-action-list">${actionItems || '<div class="ex-empty">This run created or updated no action items.</div>'}</div></div></div>`;
+  return `<div class="ex-run-drawer-summary"><b>${esc(source.length)} log entries</b><span>·</span><b>${esc(entries.length)} shown</b><span>·</span><b>${esc(runDetail?.action_items?.length || 0)} action items</b></div><div class="ex-run-log-controls"><label class="ex-run-log-search"><span class="sr-only">Search run log</span><input id="ex-run-log-search" class="cm-input" type="search" placeholder="Search messages, actors, tools…" value="${esc(EXEC_RUN_LOG_UI.query)}"></label><select id="ex-run-log-kind" class="cm-input" aria-label="Log entry type"><option value="important" ${EXEC_RUN_LOG_UI.kind === 'important' ? 'selected' : ''}>Important only</option><option value="all" ${EXEC_RUN_LOG_UI.kind === 'all' ? 'selected' : ''}>Everything</option><option value="response" ${EXEC_RUN_LOG_UI.kind === 'response' ? 'selected' : ''}>Responses</option><option value="prompt" ${EXEC_RUN_LOG_UI.kind === 'prompt' ? 'selected' : ''}>Prompts</option><option value="milestone" ${EXEC_RUN_LOG_UI.kind === 'milestone' ? 'selected' : ''}>Milestones</option><option value="tool" ${EXEC_RUN_LOG_UI.kind === 'tool' ? 'selected' : ''}>Tool pass-through</option><option value="message" ${EXEC_RUN_LOG_UI.kind === 'message' ? 'selected' : ''}>Messages</option></select><select id="ex-run-log-sort" class="cm-input" aria-label="Log sort order"><option value="newest" ${EXEC_RUN_LOG_UI.sort === 'newest' ? 'selected' : ''}>Newest first</option><option value="oldest" ${EXEC_RUN_LOG_UI.sort === 'oldest' ? 'selected' : ''}>Oldest first</option></select><button class="btn sm" type="button" id="ex-run-log-reset">Reset</button></div><div class="ex-run-detail-grid"><div><div class="ex-run-section-head"><h4>Conversation and milestones</h4><span class="muted">Tool pass-through is hidden by default</span></div><div class="ex-run-log">${transcript || '<div class="ex-empty">No log entries match these filters.</div>'}</div><details class="ex-run-activity"><summary>Audit actions (${esc(runDetail?.action_log?.length || 0)})</summary><pre>${esc(audit || 'No audit actions recorded.')}</pre></details></div><div><div class="ex-run-section-head"><h4>Action items</h4><span class="muted">${esc((runDetail?.action_items || []).length)} total</span></div><div class="ex-run-action-list">${actionItems || '<div class="ex-empty">No action items match this search.</div>'}</div></div></div>`;
+}
+
+function wireExecutiveRunLogFilters(detail, shell) {
+  const rerender = () => {
+    $('.ex-run-drawer-body', shell).innerHTML = executiveRunDetailContent(detail);
+    wireExecutiveRunLogFilters(detail, shell);
+  };
+  $('#ex-run-log-search', shell)?.addEventListener('input', event => {
+    EXEC_RUN_LOG_UI.query = event.target.value;
+    rerender();
+    const input = $('#ex-run-log-search', shell);
+    input?.focus();
+    input?.setSelectionRange(input.value.length, input.value.length);
+  });
+  $('#ex-run-log-kind', shell)?.addEventListener('change', event => {
+    EXEC_RUN_LOG_UI.kind = event.target.value;
+    rerender();
+  });
+  $('#ex-run-log-sort', shell)?.addEventListener('change', event => {
+    EXEC_RUN_LOG_UI.sort = event.target.value;
+    rerender();
+  });
+  $('#ex-run-log-reset', shell)?.addEventListener('click', () => {
+    EXEC_RUN_LOG_UI.query = '';
+    EXEC_RUN_LOG_UI.kind = 'important';
+    EXEC_RUN_LOG_UI.sort = 'newest';
+    rerender();
+  });
 }
 
 function closeExecutiveRunLog() {
   EXEC_RUN_LOG_REQUEST += 1;
   $('#ex-run-log-drawer')?.remove();
   EXEC_RUN_UI.selected = null;
+  EXEC_RUN_LOG_UI.actionId = null;
 }
 
 async function openExecutiveRunLog(actionId) {
   const requestId = ++EXEC_RUN_LOG_REQUEST;
   EXEC_RUN_UI.selected = actionId;
+  if (EXEC_RUN_LOG_UI.actionId !== actionId) {
+    EXEC_RUN_LOG_UI.actionId = actionId;
+    EXEC_RUN_LOG_UI.query = '';
+    EXEC_RUN_LOG_UI.kind = 'important';
+    EXEC_RUN_LOG_UI.sort = 'newest';
+  }
   $('#ex-run-log-drawer')?.remove();
   document.body.insertAdjacentHTML(
     'beforeend',
@@ -15817,6 +15884,7 @@ async function openExecutiveRunLog(actionId) {
       `${run.source || (run.target_type === 'manual-executive-run' ? 'manual' : 'scheduled')} run · ${fmtDate(run.started_at)}`;
     $('#ex-run-drawer-status').textContent = 'Retained transcript and action history';
     $('.ex-run-drawer-body', shell).innerHTML = executiveRunDetailContent(detail);
+    wireExecutiveRunLogFilters(detail, shell);
   } catch (error) {
     if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
     $('#ex-run-drawer-title').textContent = 'Run log unavailable';
