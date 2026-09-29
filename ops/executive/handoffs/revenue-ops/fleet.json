@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.371Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:07:36.108Z",
+  "summary": "revenue-ops checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Continue existing measurement, repair-or-close, affiliate attribution reconciliation, compliance evidence, and monetization-readiness work. Do not add queue work, requeue unchanged failures, deploy, spend, expand telemetry, or infer ROI. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission; site-level revenue, costs, margin, ROI, forecasts, payback, and causal lift remain unknown.",
+        "summary": "Affiliate readiness remains incomplete for amputeenews.com because the authoritative context records Amazon Associates as pending a real tag. Continue the existing activation work only; do not treat unavailable revenue as zero or infer monetization lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Attribution reconciliation must retain Amazon's aggregate row as unattributed. The available report contains 18 named tracking rows and one aggregate tracking ID of other with $4.92 commission; no site may be assigned that income without direct evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing affiliate activation, attribution reconciliation, deployed-work measurement, and repair-or-close work using available evidence only. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission. Site revenue, ROI, margin, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

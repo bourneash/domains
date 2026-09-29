@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.370Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T18:47:42.638Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Acknowledged EXEC_CONV_10: I have acquired the domain howtofry.com, setup this site in the fleet in full. It should be an amazon affiliate site for frying (cooking) products. It should be guide heavy with lots of recipes. Should be visually sunning. Ensure BlueSky i setup and all of its roles are fully engaged.\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair items remain open. Continue measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Smallest next step: delivery-lead completes or justifiably closes the saveusfarms.com failure by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Recommendation: approve a bounded onboarding proposal for howtofry.com, but do not build, publish, configure BlueSky, analytics, affiliate links, or spend yet. Evidence: the owner request defines a frying-products Amazon affiliate concept with guides and recipes, while active delivery is saturated at 10/10 slots and no howtofry.com registry, launch-readiness, legal, security, analytics, or BlueSky evidence exists. Unknowns: content scope, affiliate tag, account ownership, launch budget, compliance/security gates, and expected revenue are not calculable. Smallest next step: approve the onboarding scope so CTO, Legal, Security, CFO, and site-factory can produce a bounded readiness packet. Owner decision: approve or reject onboarding under EXEC_CONV_10.",
         "requested_action": null,
         "proposal_id": null
       }

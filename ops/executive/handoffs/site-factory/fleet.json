@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.371Z",
-  "summary": "site-factory checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:07:36.109Z",
+  "summary": "site-factory checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the site-factory pipeline as readiness-only. Strongest candidate is complicated.work (scaffold, score 84), but ownership, preview/build, compliance, security, measurement, and rollback evidence are incomplete. Keep it parked, private, preview-only, and unlaunched. Do not add domains, spend, deploy, configure analytics, monetize, add dependencies, or create queue work.",
+        "summary": "Maintain containment-only execution. Keep complicated.work parked, private, preview-only, and unlaunched. The repeatable launch packet must cover site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement boundary, owner, rollback, and launch gate. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work until required gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing readiness packet for complicated.work only. Keep it parked, private, preview-only, and unlaunched; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. No build, deployment, DNS, analytics, monetization, spend, dependency addition, or queue entry is authorized.",
+        "summary": "Reject the duplicate complicated.work readiness item. Continue the existing packet only; keep the property parked, private, preview-only, and unlaunched until ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packet for complicated.work only. Keep it parked, private, preview-only, and unlaunched; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. No build, deployment, DNS, analytics, monetization, spend, dependency addition, or queue entry is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing readiness packet only. Keep the scaffold property parked, private, preview-only, and unlaunched until dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence exists. No implementation queue entry is authorized.",
+        "summary": "Continue the existing complicated.work readiness packet only. Keep the property parked, private, preview-only, and unlaunched until ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence is attached. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       }

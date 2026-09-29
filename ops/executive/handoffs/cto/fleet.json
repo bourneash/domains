@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.372Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T18:47:42.639Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 implementation requests have failed, and 7 repair items remain open. Continue existing deployed-work measurement, repair-or-close, security evidence, finance reconciliation, private launch-readiness work, and parked-site readiness. Do not create new proposals, queue work, requeues, deployments, spending, telemetry, dependencies, or monetization changes. Prioritize closing the existing saveusfarms.com failure by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Supported revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown.",
+        "summary": "CTO review: retain containment-only execution. Do not admit new implementation, preview, deployment, analytics, affiliate, BlueSky, spending, dependency, credential, DNS, or telemetry work while all 10 delivery slots are occupied and failed-work, measurement, security, and operations evidence remain unresolved. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The howtofry.com revenue concept is technically feasible in principle, but onboarding cannot safely enter the existing queue: the domain is absent from the authoritative registry and no ownership, repository, worker, role, affiliate tag, BlueSky account, compliance, security, analytics, cost, or rollback evidence is present. Preserve the owner decision as a deferred readiness decision. If approved, the next bounded artifact is an internal readiness packet only; it must not build, publish, configure accounts, add telemetry, spend, or create implementation work until registry and ownership evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }

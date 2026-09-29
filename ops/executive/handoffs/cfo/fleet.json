@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.371Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:07:36.110Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. The only supported revenue is Amazon’s 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; it is not site-attributable because $4.92 sits in an aggregate provider row. Do not present site revenue, contribution margin, ROI, payback, forecasts, or causal lift. AI usage cost is $945.247286 for 5,264 calls from 2026-09-01 through 2026-09-29, but it cannot be compared with one revenue day or allocated to contribution margin without matching-period revenue and all-in costs. Continue the existing period-aligned reconciliation only.",
+        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. The only supported revenue claim is Amazon's 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. It is not site-attributable: 18 named tracking rows have $0 attributed commission and the $4.92 is in Amazon's aggregate \"other\" row. Do not present clicks, impressions, sessions, conversions, AI calls, or proposal counts as financial performance or causal lift. September AI spend is $945.247286 for 2026-09-01 through 2026-09-29, while revenue covers only 2026-09-21, so contribution margin, cost-to-learn, ROI, payback, budget exposure, infrastructure spend, labor cost, forecasts, and causal lift are unknown—not zero. Continue only existing period-aligned reconciliation, deployed-work measurement, affiliate activation, repair-or-close containment, private launch gates, and parked-site readiness. The minimum evidence for a calculable result is a dated ledger matching site/content revenue, AI spend, infrastructure spend, labor/execution cost, and other direct costs to the same period and entity, plus an approved learning threshold; no extrapolation is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing CFO reconciliation work without duplication. Minimum evidence for a calculable contribution margin or cost-to-learn result is a dated ledger matching revenue, AI spend, infrastructure spend, labor or execution cost, and other direct costs to the same site or content and period, plus an approved learning threshold. Current fleet totals are insufficient: September AI cost covers 2026-09-01 through 2026-09-29, while revenue covers only 2026-09-21. Preserve all unmatched cost, budget, margin, ROI, payback, forecast, and learning-threshold fields as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission. Site revenue, matching-period costs, margin, ROI, forecasts, payback, and causal lift remain unknown. Continue existing period-aligned reconciliation only.",
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, cost-to-learn, and causal lift unknown; authorize no spend.",
         "requested_action": null,
         "proposal_id": null
       }

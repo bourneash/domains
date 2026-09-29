@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.371Z",
+  "generated_at": "2026-09-29T19:07:36.109Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review: retain containment-only execution this cycle. Existing GitHub, market, search, affiliate, audience, and CRO-lab signals do not justify a new reversible experiment while delivery is saturated, measurement debt and failed-work repairs remain open, and security/operations evidence is incomplete. Preserve existing deployed-work measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Reconsider CRO experiments only after a delivery slot clears and the required evidence gates reopen.",
+        "summary": "Maintain containment-only execution this cycle. No new CRO proposals or queue work are retained because delivery is saturated at 10/10 slots, 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair items remain open. Continue existing measurement, affiliate activation, attribution reconciliation, repair-or-close containment, private launch gates, and parked-site readiness using existing evidence only. Preserve Amazon revenue as $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, cost-to-learn, and causal lift remain unknown. Revisit reversible revenue experiments after a delivery slot clears and the required measurement, security, compliance, and attribution gates reopen.",
         "requested_action": null,
         "proposal_id": null
       }

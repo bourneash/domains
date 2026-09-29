@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:07:40.371Z",
+  "generated_at": "2026-09-29T19:07:36.109Z",
   "summary": "delivery-lead checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: continue the existing saveusfarms.com repair-or-close case only. Record dated ownership, root-cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Do not retry unchanged work or create duplicates; record root cause or closure, isolated validation, rollback, release/security boundary, attribution limits, and measurement limits by 2026-09-30T07:30Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Record dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Do not retry unchanged work or create duplicates. Record root cause or closure, isolated validation, rollback, release and security boundary, attribution limits, and measurement limits by 2026-09-30T07:30Z.",
         "requested_action": null,
         "proposal_id": null
       }
