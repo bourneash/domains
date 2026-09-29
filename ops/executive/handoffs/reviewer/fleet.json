@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:21:52.921Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:52:51.641Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject the duplicate security proposal and all new queue work, requeues, production changes, spending, telemetry expansion, dependencies, deployments, outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, security evidence, private launch gates, and parked-site readiness. The $4.92 commission is aggregate and unattributed; margin, ROI, forecasts, and causal lift remain unknown. Delivery is full at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. Require delivery-lead to document one verified completion or justified close before admission reopens.",
+        "summary": "Maintain containment-only execution. Reject the proposed security report-only proposal as duplicate existing work, and admit no new queue work, requeues, production changes, spending, telemetry, dependencies, deployments, outreach, or unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, security evidence, and parked-site readiness. Amazon commission remains aggregate and unattributed; matching-period costs, margin, ROI, forecasts, and lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: delivery is full at 10/10 active slots, overflow and measurement backlogs remain, failed work requires repair-or-close evidence, operations and security telemetry are unavailable, and revenue attribution is incomplete. The smallest defensible next step is one verified completion or justified close with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. No implementation batch is eligible: delivery is full at 10/10 slots, with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Existing candidates are blocked by active or measuring work, launch-readiness gates, missing ownership, or failed-work containment. Do not admit new queue work or requeue unchanged failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, and parked-site readiness. Preserve the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; it is not site-attributable. Keep costs, margin, ROI, payback, forecasts, and causal lift unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner update: the requested implementation batch cannot be safely routed this cycle. Available candidates are blocked by full delivery capacity, active measurement, launch/legal/security gates, missing execution ownership, or failed-work containment. Complete or close one existing item with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence before reopening admission.",
         "requested_action": null,
         "proposal_id": null
       }

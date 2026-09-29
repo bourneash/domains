@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:37:11.568Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:52:51.640Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend maintaining containment-only execution. Amazon revenue evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The commission is not site-attributable because the provider supplied an aggregate row. AI usage covers 2026-09-01 through 2026-09-29: 5,097 calls, 229 errors, and $928.542562 in cost. These periods do not match, so revenue, contribution margin, ROI, payback, budget exposure, cost-to-learn, and forecasts are unsupported. Monthly budgets, fixed costs, infrastructure costs, labor, commitments, and approved learning thresholds are unavailable. Continue only the existing period-aligned finance reconciliation; do not approve spend, requeues, monetization expansion, or unsupported financial claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reconcile the 18 named provider tracking rows and aggregate row for 2026-09-21 against matching-period content/site revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor, other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable values as unknown; do not extrapolate one-day commission or September AI cost.",
+        "summary": "Finance review: retain the existing reconciliation work item only; do not create duplicate finance telemetry or a new proposal. Preserve unavailable values as unknown. Budget exposure cannot be calculated because monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are blank in the brief. Cost-to-learn cannot be calculated because no approved learning threshold, complete matching-period cost base, or attributable outcome is present. Infrastructure spend cannot be calculated because operations sweeps have no results and no infrastructure-cost ledger is supplied.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:21:52.919Z",
+  "generated_at": "2026-09-29T10:52:51.641Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: keep admission closed while delivery remains saturated. Complete one existing item or justified close with dated ownership, root cause or rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence by 2026-09-30T07:30Z.",
+        "summary": "Complete one existing failed or stranded item, or document a justified close, by 2026-09-30T07:30Z. Do not retry unchanged failures or admit new work before the required evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       }
