@@ -1260,6 +1260,7 @@ Rules:
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
 - Challenge blockers instead of treating them as terminal. If a managed site is private, password protected, preview-only, parked, noindex/nofollow, or otherwise unable to earn, ask why, who owns the launch decision, whether it can monetize while gated, what must be true to go live, and what opportunity cost comes from remaining private. Create an owner-facing launch-readiness/go-live or monetization proposal, or a bounded research request, unless evidence supports keeping it parked. A blocked site is an unresolved business question, not a completed decision.
 - Every cycle with an unblocked implementation candidate must contain at least one engineer-routable change_request, with a concrete site, files/scope, acceptance criteria, tests, metric, baseline, time-to-learn, and rollback. A message, proposal, research request, or report-only request does not count as execution. Use an owner-facing question only for a genuinely consequential decision or a candidate blocked by an explicit launch, legal, security, credential, spend, or missing-evidence gate.
+- Treat the executive passes as internal operating machinery. Do not emit routine pass-through, status, or evidence-report messages. Emit at most one concise message per role only when an owner decision, material risk, cross-role handoff, or concrete delivery blocker requires it; otherwise put the work in the queue/workbench and stay silent.
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
@@ -1274,6 +1275,7 @@ Rules:
 - Prefer reversible, measurable actions with a clear expected upside and time-to-learn.
 - Treat actionability as a hard operating signal: inspect the scorecard before proposing more ideas. If work is queued, finish it; if work is deployed, measure it; if work is proven, compare the actual metric delta with the expected upside. Do not count a proposal, message, or research result as a business improvement by itself.
 - The CEO is accountable for throughput, not just risk disposition. Every cycle must either (a) commit a small batch of safe, reversible, measurable implementation work across the finish-sites, growth-revenue, and site-factory lanes, or (b) create/update one named delivery-lead work item with a dated unblock action, owner, and escalation deadline. “The fleet has enough to manage” is not an acceptable terminal disposition while ready work, unfinished sites, measurable SEO/design/affiliate work, or validated new-site candidates exist.
+- Operate with commercial urgency: unfinished sites, weak conversion paths, neglected SEO, missing monetization, and stale launches are business problems to solve. Prefer the smallest shippable improvement with a measurable upside over another analysis cycle. Every pass-through artifact should serve a live delivery decision; otherwise do not create it.
 - Use the productivity pilot cohorts when present. Prefer treatment-site work that can ship within 72 hours, keep a comparable control cohort untouched for measurement, and record the lane, acceptance test, before/after metric, rollback, and completion evidence on every selected item. Do not add a new site to production until the site-factory launch checklist is complete; do not let that gate suppress unrelated reversible work on existing sites.
 - Treat approved proposals as commitments, not accomplishments. Inspect proposal_execution before creating more ideas. For each approved proposal without an execution request, either create the smallest safe engineer/principal-engineer request when its implementation is ready, convert a clearly site-specific and explicitly report-only proposal into a bounded report request, or create/update a work_item with an owner, evidence, next action, and explicit blocker. Do not create a duplicate proposal to avoid following through.
 - When the approved-execution backlog is high, prioritize draining it over generating new proposals. The trusted control plane applies a small proposal budget and records any suppressed ideas for audit; use messages, work items, and execution requests to move existing commitments instead.
@@ -2170,6 +2172,15 @@ function isBoundedAccountabilityWorkItem(item = {}) {
   );
 }
 
+function accountabilityWorkItemChanged(item, brief = {}) {
+  if (!isBoundedAccountabilityWorkItem(item)) return false;
+  const existing = (brief.work_items || []).find(row => row.work_id === item.work_id);
+  if (!existing) return true;
+  return ['title', 'summary', 'next_action', 'owner', 'priority', 'status', 'due_at'].some(
+    key => String(existing[key] ?? '') !== String(item[key] ?? '')
+  );
+}
+
 function planHasDirectImplementation(plan = {}) {
   return (plan.change_requests || []).some(
     item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
@@ -2179,7 +2190,9 @@ function planHasDirectImplementation(plan = {}) {
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
   const hasDirect = planHasDirectImplementation(plan);
-  const hasBoundedBlocker = (plan.work_items || []).some(isBoundedAccountabilityWorkItem);
+  const hasBoundedBlocker = (plan.work_items || []).some(item =>
+    accountabilityWorkItemChanged(item, brief)
+  );
   if (!candidates.length) return hasDirect || hasBoundedBlocker;
   const deliveryPolicy = brief.active_delivery?.policy || {};
   if (
@@ -2194,11 +2207,6 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
       String(item.type || '').toLowerCase() !== 'site-factory' &&
       !isPrivateLaunchGate(item.site, brief.launch_readiness)
   );
-  const launchCandidates = candidates.filter(
-    item =>
-      String(item.type || '').toLowerCase() === 'site-factory' &&
-      String(item.delivery_mode || '').toLowerCase() === 'report_only'
-  );
   // Baseline-only or explicitly gated cohorts can remain report/research
   // work. Concrete SEO/content/design/engineering candidates must create
   // actual work for the engineer, not merely a recommendation.
@@ -2206,29 +2214,10 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   // pass that emits only owner messages is otherwise indistinguishable from
   // a no-op in the workbench and gives the team no measurable next action.
   if (!actionableCandidates.length) {
-    if (!launchCandidates.length) return hasDirect || hasBoundedBlocker;
-    const launchSites = new Set(
-      launchCandidates
-        .map(item =>
-          String(item.site || '')
-            .trim()
-            .toLowerCase()
-        )
-        .filter(Boolean)
-    );
-    const coveredLaunchSites = new Set(
-      (plan.change_requests || [])
-        .filter(item => String(item.delivery_mode || '').toLowerCase() === 'report_only')
-        .map(item =>
-          String(item.site || '')
-            .trim()
-            .toLowerCase()
-        )
-    );
-    const requiredLaunchSites = Math.min(3, launchSites.size);
-    return (
-      [...launchSites].filter(site => coveredLaunchSites.has(site)).length >= requiredLaunchSites
-    );
+    // Launch-readiness reports are useful background plumbing, but they do
+    // not satisfy the CEO's executable-cycle obligation. The model must ship
+    // unrelated work or create/advance a new concrete blocker action.
+    return hasDirect || hasBoundedBlocker;
   }
   const candidateSites = new Set(
     actionableCandidates

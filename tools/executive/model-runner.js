@@ -262,7 +262,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, or report-only request does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state that blocker in the owner update.`;
+    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, report-only request, or unchanged checkpoint does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state the exact owner, dated unblock action, and escalation deadline. Keep routine pass-through reporting internal and silent.`;
     const repairedOutput = await runTracked(
       repairPrompt,
       usage,
@@ -306,7 +306,7 @@ async function main() {
       });
     }
     if (!runner.actionMandateSatisfied(plan, brief)) {
-      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, or report-only request for routine reversible implementation.`;
+      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, report-only request, or unchanged checkpoint for routine reversible implementation. If every candidate is genuinely blocked, create or materially advance one high-priority delivery-lead blocker with the exact owner, dated unblock action, evidence, and escalation deadline.`;
       const finalRepairOutput = await runTracked(
         finalRepairPrompt,
         usage,

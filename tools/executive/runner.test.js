@@ -290,7 +290,7 @@ test('approved report-only commitments are queueable unless explicitly disabled'
   );
 });
 
-test('site-factory launch-readiness candidates require report coverage', () => {
+test('site-factory launch-readiness reports do not satisfy the delivery mandate', () => {
   const brief = {
     launch_readiness: [],
     action_mandate: {
@@ -319,7 +319,7 @@ test('site-factory launch-readiness candidates require report coverage', () => {
       },
       brief
     ),
-    true
+    false
   );
 });
 
