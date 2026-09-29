@@ -15773,7 +15773,9 @@ const EXEC_RUN_LOG_UI = {
 };
 
 function executiveRunDetailContent(runDetail) {
-  const source = runDetail?.transcript?.length ? runDetail.transcript : runDetail?.conversation || [];
+  const source = runDetail?.transcript?.length
+    ? runDetail.transcript
+    : runDetail?.conversation || [];
   const classify = item => {
     const type = String(item.message_type || 'event');
     if (type === 'model-response') return ['response', 'Response', true];
@@ -15788,8 +15790,20 @@ function executiveRunDetailContent(runDetail) {
       const [category, label, important] = classify(item);
       return { item, category, label, important };
     })
-    .filter(entry => EXEC_RUN_LOG_UI.kind === 'all' || (EXEC_RUN_LOG_UI.kind === 'important' ? entry.important : entry.category === EXEC_RUN_LOG_UI.kind))
-    .filter(entry => !needle || `${entry.label} ${entry.item.actor || ''} ${entry.item.body || ''}`.toLowerCase().includes(needle))
+    .filter(
+      entry =>
+        EXEC_RUN_LOG_UI.kind === 'all' ||
+        (EXEC_RUN_LOG_UI.kind === 'important'
+          ? entry.important
+          : entry.category === EXEC_RUN_LOG_UI.kind)
+    )
+    .filter(
+      entry =>
+        !needle ||
+        `${entry.label} ${entry.item.actor || ''} ${entry.item.body || ''}`
+          .toLowerCase()
+          .includes(needle)
+    )
     .sort((a, b) => {
       const av = Date.parse(a.item.created_at || '') || 0;
       const bv = Date.parse(b.item.created_at || '') || 0;
@@ -15802,7 +15816,13 @@ function executiveRunDetailContent(runDetail) {
     )
     .join('');
   const actionItems = (runDetail?.action_items || [])
-    .filter(item => !needle || `${item.title || ''} ${item.summary || ''} ${item.owner || ''} ${item.next_action || ''}`.toLowerCase().includes(needle))
+    .filter(
+      item =>
+        !needle ||
+        `${item.title || ''} ${item.summary || ''} ${item.owner || ''} ${item.next_action || ''}`
+          .toLowerCase()
+          .includes(needle)
+    )
     .sort((a, b) => {
       const av = Date.parse(a.updated_at || a.created_at || '') || 0;
       const bv = Date.parse(b.updated_at || b.created_at || '') || 0;
