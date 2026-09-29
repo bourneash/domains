@@ -70,6 +70,11 @@ Key views include:
   change requests, proposals, approval/review gates, worker capacity, and the recent audit
   stream. It writes through to the existing durable queues rather than creating a parallel task
   system.
+- **Active Delivery** — the `#delivery` control view exposes the ten-slot implementation
+  portfolio. Direct engineering work occupies slots; report-only work does not. It shows lane
+  balance, overflow, review/measurement attention, and today’s implementation-versus-reporting
+  flow. Executive automation uses the same read model to stop adding direct work when the
+  portfolio is full and to prioritize delivery attention before more reporting.
 - Workbench cases also expose compact threaded handoffs, keeping role communication attached to the next action instead of flooding the executive page.
 
 - **Priorities** — a cross-fleet decision queue that joins canonical lifecycle

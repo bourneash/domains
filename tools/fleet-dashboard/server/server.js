@@ -86,6 +86,7 @@ const domainReports = require('./domain-reports');
 const domainDispatcher = require('./domain-dispatcher');
 const fleetTask = require('./fleet-task');
 const workflowBoard = require('./workflow-board');
+const activeDelivery = require('./active-delivery');
 const executiveLiveness = require('./executive-liveness');
 const productivityProgram = require('./productivity-program');
 const executiveRunRecovery = require('./executive-run-recovery');
@@ -3502,6 +3503,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/workflow-board', (_req, res) => {
     try {
       res.json(workflowBoard.snapshot(events));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.get('/api/executive/active-delivery', (req, res) => {
+    try {
+      const maxSlots = Math.max(
+        1,
+        Math.min(
+          Number(req.query.max_slots) || activeDelivery.MAX_ACTIVE_SLOTS,
+          activeDelivery.MAX_ACTIVE_SLOTS
+        )
+      );
+      res.json(activeDelivery.snapshot(events, { max_slots: maxSlots }));
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

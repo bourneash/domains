@@ -15,6 +15,7 @@ const executiveData = require('../fleet-dashboard/server/executive-data');
 const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
 const launchReadiness = require('./launch-readiness');
 const productivityProgram = require('../fleet-dashboard/server/productivity-program');
+const activeDelivery = require('../fleet-dashboard/server/active-delivery');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -564,6 +565,7 @@ async function buildBrief(store, root = ROOT) {
       }))
     : [];
   const fleetQueueReadiness = productivityProgram.queueReadiness(store, sites);
+  const activeDeliverySnapshot = activeDelivery.snapshot(store);
   const completedActions = completedActionIndex(store);
   const allActionCandidates = actionCandidates(intel.intelligence, sites, completedActions, 100);
   const launchReadinessCandidates = siteFactoryCandidates(
@@ -707,12 +709,13 @@ async function buildBrief(store, root = ROOT) {
         'Measure verified/deployed work, cycle time, design/SEO/affiliate output, and treatment-versus-control lift. Proposals and messages are not productivity outcomes.',
       lanes: productivityProgram.LANES,
     },
+    active_delivery: activeDeliverySnapshot,
     proposal_execution: proposalExecution,
     action_mandate: {
       cadence: 'hourly',
       minimum_evidence_backed_action: 1,
       maximum_queued_actions: 6,
-      rule: 'When an evidence-backed, low-risk and reversible implementation candidate exists, the CEO/CTO pass must queue it for the engineer. A recommendation, proposal, research request, or report-only request does not satisfy this rule; explain rejection only when the candidate is genuinely blocked or lacks an implementable next step.',
+      rule: 'Maintain ten meaningful active implementation slots. When slots are open, queue bounded reversible work to fill them across site improvements, growth/revenue, new-site factory, and fleet tooling. A recommendation, proposal, research request, or report-only request does not fill a slot; explain rejection only when the candidate is genuinely blocked or lacks an implementable next step.',
       candidates: executableActionCandidates,
       deferred_candidates: deferredActionCandidates,
     },
@@ -1169,6 +1172,32 @@ function compactModelBrief(brief) {
     summary[item.status] = (summary[item.status] || 0) + 1;
     return summary;
   }, {});
+  compact.active_delivery = {
+    generated_at: brief?.active_delivery?.generated_at || null,
+    policy: brief?.active_delivery?.policy || {},
+    lane_counts: brief?.active_delivery?.lane_counts || {},
+    today: brief?.active_delivery?.today || {},
+    next_actions: brief?.active_delivery?.next_actions || [],
+    slots: (brief?.active_delivery?.slots || []).slice(0, 10).map(item => ({
+      id: item.id,
+      site: item.site,
+      title: item.title,
+      state: item.state,
+      lane: item.lane,
+      owner: item.owner,
+      priority: item.priority,
+      next_action: item.next_action,
+      measurement_due: item.measurement_due,
+    })),
+    attention: (brief?.active_delivery?.attention || []).slice(0, 20).map(item => ({
+      id: item.id,
+      site: item.site,
+      title: item.title,
+      state: item.state,
+      attention: item.attention,
+      next_action: item.next_action,
+    })),
+  };
   compact.handoffs = (brief?.handoffs || []).slice(0, 12).map(handoff => ({
     handoff_id: handoff.handoff_id,
     site: handoff.site,
@@ -1234,7 +1263,7 @@ Rules:
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
-- Follow action_mandate every hourly cycle: when actionable candidates are present, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes.
+- Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. When slots are open, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites and lanes. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -1254,7 +1283,7 @@ Rules:
 - Treat Legal/Compliance as a required launch and risk pass. Use the compliance baseline and history to identify privacy, consent, terms, disclosure, data-rights, claims, copyright/trademark, platform-policy, and age/regulated-content questions when supported by evidence. Legal performs risk triage, not legal advice or certification; escalate material uncertainty to the owner or counsel. Do not let incomplete telemetry block ordinary growth, but do not recommend a go-live proposal without a concrete legal review and launch checklist.
 - Treat an active launch_readiness checklist as an ongoing workstream, not a one-time question. Review open tasks every cycle, report the evidence found or the exact blocker, and identify the smallest next evidence action. Do not repeatedly ask the owner to restate the same decision while checklist work remains open; the default disposition remains the current safe state unless the owner explicitly changes it.
 - Treat Security as a required production and supply-chain risk pass. Use intelligence.decision_support.security, operations, compliance, and data_quality to identify authentication, isolation, secrets, TLS, release, dependency, data exposure, and incident risks. Security performs read-only triage, not penetration testing or certification; never exploit a target or access credentials. Do not block ordinary growth for optional hardening alone, but do not recommend a go-live or security-sensitive change without a concrete Security review and rollback plan.
-- Treat domain managers as recurring site specialists. Every managed site receives a lightweight review on the staggered queue; deeper work and implementation still require evidence, proposals, and the normal approval gates. The CEO owns portfolio prioritization and prevents one site from consuming disproportionate attention without evidence.
+- Treat domain managers as accountable site managers, not report generators. Each manager owns a bounded group of sites, maintains a ready queue, selects and advances concrete design, usability, SEO, content, monetization, and launch work, and reports only the decision/blocker/outcome that leadership needs. Every managed site receives a lightweight review on the staggered queue, but the manager's success metric is verified delivery and measured improvement, not report volume. The CEO owns portfolio prioritization and prevents one site from consuming disproportionate attention without evidence.
 - Treat the Principal Engineer as the CTO's senior right hand. Route urgent technical investigations, incidents, architecture fixes, and emergency site work to assigned_role: principal-engineer; route ordinary bounded implementation to assigned_role: engineer. Include acceptance criteria, risk, tests, and rollback notes in every task.
 - Use task_queue to avoid duplicating work. Review queued, active, review, and failed requests before creating another task. Domain managers should report task progress and surface blocked work back to fleet leadership.
 - Use the experiment system for competing variants: state a hypothesis, primary metric, guardrails, sample threshold, and stop/ship decision. Do not recommend a winner before the sample threshold is met.
@@ -1321,7 +1350,7 @@ function buildPassPrompt(brief, role, candidate = null) {
                             : role === 'security'
                               ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
                               : role === 'domain-manager'
-                                ? 'You are an on-demand domain manager for the managed site named in domain_manager. Focus on that site’s audience, content, analytics, monetization, health, and backlog. Return evidence-backed site proposals to fleet leadership; do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager. Report-only proposals must include a concrete title, body, acceptance artifact, and rollback/follow-up boundary so they can enter the worker queue.'
+                                ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
                                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
   return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target any [excluded-site]. Do not invent telemetry.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
@@ -2130,6 +2159,21 @@ function normalizeDirectChangeRequest(input = {}) {
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
   if (!candidates.length) return true;
+  const deliveryPolicy = brief.active_delivery?.policy || {};
+  if (
+    Number(deliveryPolicy.overflow_count || 0) > 0 ||
+    Number(deliveryPolicy.active_slots || 0) >= Number(deliveryPolicy.max_active_slots || 10)
+  ) {
+    const hasDirect = (plan.change_requests || []).some(
+      item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
+    );
+    const hasDeliveryControl = (plan.work_items || []).some(
+      item =>
+        ['delivery-lead', 'project-manager', 'cto'].includes(String(item.owner || '')) &&
+        ['implementation', 'incident', 'evidence'].includes(String(item.kind || ''))
+    );
+    return hasDirect || hasDeliveryControl;
+  }
   const actionableCandidates = candidates.filter(
     item =>
       String(item.type || '').toLowerCase() !== 'portfolio-baseline' &&
@@ -2583,6 +2627,11 @@ function reconcileApprovedProposalFollowThrough(
       activeSites.add(String(row.site || '').toLowerCase());
   }
   let queued = 0;
+  const implementationCapacity = Math.max(
+    0,
+    activeDelivery.MAX_ACTIVE_SLOTS - activeDelivery.buildDeliveryItems(store).length
+  );
+  let implementationQueued = 0;
   for (const proposal of proposals) {
     const workId = `${FOLLOW_THROUGH_WORK_PREFIX}${proposal.proposal_id}`;
     let existing = store.getExecutiveWorkItem(workId);
@@ -2650,6 +2699,7 @@ function reconcileApprovedProposalFollowThrough(
     }
     const implementation = normalizeApprovedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
+    const directImplementation = String(implementation.delivery_mode || 'direct') !== 'report_only';
     const queueDecision = approvedFollowThroughQueueDecision(proposal, implementation);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
@@ -2700,6 +2750,8 @@ function reconcileApprovedProposalFollowThrough(
     }
     if (terminalRequest)
       blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
+    if (directImplementation && implementationQueued >= implementationCapacity)
+      blockers.push(`active delivery capacity is full (${activeDelivery.MAX_ACTIVE_SLOTS} slots)`);
 
     if (
       !currentRequest &&
@@ -2755,6 +2807,7 @@ function reconcileApprovedProposalFollowThrough(
           });
           activeSites.add(site);
           queued += 1;
+          if (directImplementation) implementationQueued += 1;
           result.push({
             type: 'queued',
             proposal_id: proposal.proposal_id,
@@ -3302,8 +3355,15 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   const plannedSites = new Set(
     basePlan.change_requests.map(item => String(item.site || '').toLowerCase())
   );
+  const deliveryCapacity = Math.max(
+    0,
+    Number(brief.active_delivery?.policy?.max_active_slots || activeDelivery.MAX_ACTIVE_SLOTS) -
+      Number(brief.active_delivery?.policy?.active_slots || 0) -
+      Number(brief.active_delivery?.policy?.overflow_count || 0)
+  );
   const selected = [];
   for (const candidate of candidates) {
+    if (deliveryCapacity <= 0) break;
     const site = String(candidate.site || '')
       .trim()
       .toLowerCase();
@@ -3311,7 +3371,7 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     if (plannedSites.has(site)) continue;
     selected.push({ ...candidate, site });
     plannedSites.add(site);
-    if (selected.length >= 6) break;
+    if (selected.length >= Math.min(6, deliveryCapacity)) break;
   }
   if (!selected.length) {
     const day = String(brief.generated_at || new Date().toISOString()).slice(0, 10);
@@ -3991,7 +4051,12 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       1,
       Math.min(6, Number(process.env.EXECUTIVE_MAX_QUEUED_ACTIONS || 6))
     );
+    const implementationCapacity = Math.max(
+      0,
+      activeDelivery.MAX_ACTIVE_SLOTS - activeDelivery.buildDeliveryItems(store).length
+    );
     let queuedCount = 0;
+    let directQueuedCount = 0;
     for (const rawItem of plan.change_requests) {
       const item = normalizeDirectChangeRequest(rawItem);
       if (!item.site || !item.title || !item.body)
@@ -4038,14 +4103,20 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         });
         continue;
       }
-      if (queuedCount >= queueLimit || activeSites.has(site)) {
+      if (
+        queuedCount >= queueLimit ||
+        activeSites.has(site) ||
+        (directImplementation && directQueuedCount >= implementationCapacity)
+      ) {
         created.skipped_change_requests.push({
           site: item.site,
           title: item.title,
           reason:
             queuedCount >= queueLimit
               ? `per-tick queue limit reached (${queueLimit})`
-              : 'site already has queued or active implementation work',
+              : activeSites.has(site)
+                ? 'site already has queued or active implementation work'
+                : `active delivery capacity reached (${activeDelivery.MAX_ACTIVE_SLOTS} slots)`,
         });
         const skipped = executive.action(store, {
           actor: 'system',
@@ -4106,6 +4177,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
           });
         }
         queuedCount += 1;
+        if (directImplementation) directQueuedCount += 1;
         activeSites.add(site);
         executive.finishAction(store, audit.action_id, {
           status: 'completed',

@@ -114,11 +114,13 @@ roles:
       - security_control_changes
       - incident_response_or_disclosure
   domain_manager:
-    mission: maximize the performance of one managed site while reporting to fleet leadership
+    mission: maximize the performance of one managed site by continuously advancing measurable design, usability, growth, monetization, content, and launch work
     can:
       - read_site_context_and_telemetry
       - research_site_opportunities
       - propose_site_work
+      - maintain_a_ready_site_queue
+      - create_bounded_implementation_handoffs
       - create_messages
       - create_proposals
     approval_required_for:
@@ -155,7 +157,9 @@ schedule:
 action_mandate:
   enabled: true
   cadence: hourly
+  active_delivery_slots: 10
   minimum_evidence_backed_action_when_candidate_exists: 1
+  reporting_policy: report_only_for_blocker_evidence_or_owner_decision
   fallback: explain_rejection_with_evidence
   routing: engineer_for_normal_work_principal_engineer_for_urgent_technical_work
 legal_review:

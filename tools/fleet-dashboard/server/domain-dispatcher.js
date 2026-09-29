@@ -239,7 +239,10 @@ async function runOne(
   const result = await new Promise(resolve => {
     const child = spawn(command, [job.site], {
       cwd: root,
-      env: { ...process.env, EXECUTIVE_ALLOW_QUEUE: '0' },
+      // Site managers are delivery owners, not report-only observers. Their
+      // bounded direct work still passes through the ten-slot capacity guard,
+      // isolated worktree, reviewer, validation, and deployment gates.
+      env: { ...process.env, EXECUTIVE_ALLOW_QUEUE: '1' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stderr = '';

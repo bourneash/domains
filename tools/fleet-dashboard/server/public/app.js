@@ -11234,6 +11234,7 @@ function topViews() {
     'control',
     'priorities',
     'improvements',
+    'delivery',
     'workbench',
     'knowledge',
     'executive',
@@ -12971,6 +12972,46 @@ function workBoardItems(data) {
   return items;
 }
 
+async function renderActiveDelivery() {
+  if (FRESH) app.innerHTML = '<div class="loading">Loading active delivery…</div>';
+  try {
+    const data = await api('GET', '/api/executive/active-delivery');
+    const policy = data.policy || {};
+    const laneLabels = {
+      'finish-sites': 'Site improvements',
+      'growth-revenue': 'Growth / revenue',
+      'site-factory': 'New-site factory',
+      fleet: 'Fleet tooling',
+    };
+    const slotRows = (data.slots || [])
+      .map(
+        (item, index) =>
+          `<tr><td><strong>${index + 1}</strong></td><td><strong>${esc(item.title)}</strong><small class="muted">${esc(item.site)}</small></td><td>${esc(laneLabels[item.lane] || item.lane)}</td><td><span class="badge ${item.state === 'review' ? 'b-yellow' : item.state === 'measuring' ? 'b-blue' : item.state === 'deployed' ? 'b-green' : 'b-purple'}">${esc(item.state)}</span></td><td>${esc(item.owner || 'engineer')}</td><td class="muted">${esc(item.next_action)}</td></tr>`
+      )
+      .join('');
+    const attentionRows = (data.attention || [])
+      .slice(0, 12)
+      .map(
+        item =>
+          `<tr><td><span class="badge b-yellow">${esc(item.attention)}</span></td><td><strong>${esc(item.title)}</strong><small class="muted">${esc(item.site)}</small></td><td>${esc(item.state)}</td><td>${esc(item.next_action)}</td></tr>`
+      )
+      .join('');
+    const today = data.today || {};
+    const lanes = Object.entries(data.lane_counts || {})
+      .map(
+        ([lane, count]) =>
+          `<span class="badge b-gray">${esc(laneLabels[lane] || lane)}: ${count}</span>`
+      )
+      .join(' ');
+    app.innerHTML = `<div class="page-head"><div><div class="cq-eyebrow">PORTFOLIO DELIVERY CONTROL</div><h2 class="page-title">Active Delivery</h2><div class="crumbs">Ten meaningful initiatives stay in motion; reporting does not consume delivery capacity.</div></div><button class="btn" id="delivery-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${policy.active_slots || 0}/${policy.max_active_slots || 10}</div><div class="seo-stat-label">Active slots</div></div><div class="seo-stat"><div class="seo-stat-value">${policy.open_slots || 0}</div><div class="seo-stat-label">Open slots</div></div><div class="seo-stat"><div class="seo-stat-value">${(data.attention || []).length}</div><div class="seo-stat-label">Needs attention</div></div><div class="seo-stat"><div class="seo-stat-value">${today.implementation_requests_completed || 0}</div><div class="seo-stat-label">Implementation completions today</div></div><div class="seo-stat"><div class="seo-stat-value">${today.report_only_requests_created || 0}</div><div class="seo-stat-label">Reports created today</div></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">ACTIVE PORTFOLIO</div><h3>What engineers are actually working on</h3><p class="muted">Only direct implementation work occupies these slots. Completed reports remain available in the Work Board and executive history.</p></div><div>${lanes}</div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>#</th><th>Initiative</th><th>Lane</th><th>State</th><th>Owner</th><th>Next action</th></tr></thead><tbody>${slotRows || '<tr><td colspan="6" class="muted">No active implementation work. Fill the delivery slots.</td></tr>'}</tbody></table></div>${(data.overflow || []).length ? `<div class="muted" style="margin-top:12px">${data.overflow.length} additional implementation item(s) are beyond the ten-slot limit and should be triaged before new work is created.</div>` : ''}</section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY ATTENTION</div><h3>Resolve before generating more reports</h3></div><span class="badge ${(data.attention || []).length ? 'b-yellow' : 'b-green'}">${(data.attention || []).length ? `${data.attention.length} flagged` : 'all clear'}</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Reason</th><th>Initiative</th><th>State</th><th>Next action</th></tr></thead><tbody>${attentionRows || '<tr><td colspan="4" class="muted">No delivery blockers or pending gates.</td></tr>'}</tbody></table></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">TODAY’S FLOW</div><h3>Execution over activity</h3></div></div><div class="muted">${today.implementation_requests_created || 0} implementation requests created · ${today.implementation_requests_completed || 0} completed · ${today.implementation_requests_failed_or_cancelled || 0} failed/cancelled · ${today.report_only_requests_created || 0} report-only requests created${today.reporting_to_delivery_ratio == null ? '' : ` · reporting/completion ratio ${today.reporting_to_delivery_ratio}:1`}.</div></section></div>`;
+    $('#delivery-refresh').onclick = () => renderActiveDelivery();
+    if (!FRESH) applyUISnap();
+    stamp();
+  } catch (e) {
+    renderViewError(app, e.message);
+  }
+}
+
 async function renderWorkflowBoard() {
   if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
   try {
@@ -14040,9 +14081,15 @@ async function renderExecutive() {
     calendar;
   const conversationOnly = STATE.agentPage === 'conversation';
   try {
-    const loadKey = conversationOnly ? 'conversation' : `workspace:${STATE.agentPage || 'overview'}`;
+    const loadKey = conversationOnly
+      ? 'conversation'
+      : `workspace:${STATE.agentPage || 'overview'}`;
     const now = Date.now();
-    if (!EXECUTIVE_LOAD_CACHE || EXECUTIVE_LOAD_CACHE.key !== loadKey || EXECUTIVE_LOAD_CACHE.expires <= now) {
+    if (
+      !EXECUTIVE_LOAD_CACHE ||
+      EXECUTIVE_LOAD_CACHE.key !== loadKey ||
+      EXECUTIVE_LOAD_CACHE.expires <= now
+    ) {
       EXECUTIVE_LOAD_CACHE = {
         key: loadKey,
         expires: now + 1000,
@@ -14059,27 +14106,71 @@ async function renderExecutive() {
             ? Promise.resolve({ work_items: [] })
             : api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
           api('GET', `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`),
-          conversationOnly ? Promise.resolve({ proposals: [] }) : api('GET', '/api/executive/proposals?limit=100'),
-          conversationOnly ? Promise.resolve({ actions: [] }) : api('GET', '/api/executive/actions?limit=200'),
-          conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
+          conversationOnly
+            ? Promise.resolve({ proposals: [] })
+            : api('GET', '/api/executive/proposals?limit=100'),
+          conversationOnly
+            ? Promise.resolve({ actions: [] })
+            : api('GET', '/api/executive/actions?limit=200'),
+          conversationOnly
+            ? Promise.resolve({ settings: {} })
+            : api('GET', '/api/executive/settings'),
           conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
           conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
           conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
-          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
-          conversationOnly ? Promise.resolve({ reports: [] }) : api('GET', '/api/executive/reports?limit=20'),
-          conversationOnly ? Promise.resolve({ queue: {} }) : api('GET', '/api/executive/domain-manager-queue'),
-          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
-          conversationOnly ? Promise.resolve({ runs: [] }) : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-          conversationOnly ? Promise.resolve({ active: null, latest: null, runs: [] }) : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
-          conversationOnly ? Promise.resolve({ cases: [] }) : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
-          conversationOnly ? Promise.resolve({ events: [], calendar: { events: [] } }) : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
+          conversationOnly
+            ? Promise.resolve({ summary: {} })
+            : api('GET', '/api/campaigns/summary'),
+          conversationOnly
+            ? Promise.resolve({ reports: [] })
+            : api('GET', '/api/executive/reports?limit=20'),
+          conversationOnly
+            ? Promise.resolve({ queue: {} })
+            : api('GET', '/api/executive/domain-manager-queue'),
+          conversationOnly
+            ? Promise.resolve({ summary: {} })
+            : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+          conversationOnly
+            ? Promise.resolve({ runs: [] })
+            : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+          conversationOnly
+            ? Promise.resolve({ active: null, latest: null, runs: [] })
+            : apiOptional('GET', '/api/executive/run-status', {
+                active: null,
+                latest: null,
+                runs: [],
+              }),
+          conversationOnly
+            ? Promise.resolve({ cases: [] })
+            : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+          conversationOnly
+            ? Promise.resolve({ events: [], calendar: { events: [] } })
+            : apiOptional('GET', '/api/executive/calendar', {
+                events: [],
+                calendar: { events: [] },
+              }),
         ]),
       };
     }
     [
-      messages, transcript, requests, inbox, proposals, actions, settings, brief, revops,
-      experiments, campaigns, reports, managerQueue, principalQueue, croLabRuns, runStatus,
-      cases, calendar,
+      messages,
+      transcript,
+      requests,
+      inbox,
+      proposals,
+      actions,
+      settings,
+      brief,
+      revops,
+      experiments,
+      campaigns,
+      reports,
+      managerQueue,
+      principalQueue,
+      croLabRuns,
+      runStatus,
+      cases,
+      calendar,
     ] = await EXECUTIVE_LOAD_CACHE.promise;
   } catch (e) {
     renderViewError(app, `Executive control plane failed: ${e.message}`);
@@ -15452,6 +15543,7 @@ function render() {
   if (STATE.view === 'control') return renderControl();
   else if (STATE.view === 'priorities') return renderPriorities();
   else if (STATE.view === 'improvements') return renderImprovements();
+  else if (STATE.view === 'delivery') return renderActiveDelivery();
   else if (STATE.view === 'workbench') return renderWorkbench();
   else if (STATE.view === 'knowledge') return renderKnowledge();
   else if (STATE.view === 'site') return renderSiteDetail();
@@ -15528,6 +15620,8 @@ const NAV_ITEM_DESCRIPTIONS = {
     'Queue human site changes with explicit AI, budget, priority, and review controls.',
   'workflow-board':
     'Operate the combined fleet backlog, agent queue, approval gates, and delivery flow.',
+  delivery:
+    'Keep ten meaningful implementation initiatives moving and resolve delivery attention before more reporting.',
   compliance: 'Check the live technical privacy baseline.',
   lint: 'Run fleet-wide parse and formatting checks.',
   health: 'Monitor uptime and service health.',
