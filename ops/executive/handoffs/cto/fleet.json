@@ -2,28 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:24:31.414Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:38:31.786Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "summary": "CTO review: approve containment-only execution. Do not admit new proposals, change requests, requeues, deployments, dependencies, telemetry, spending, monetization expansion, or external outreach. Active delivery is saturated at 10/10 slots; measurement backlog, failed requests, open repair follow-ups, and unavailable operations/security evidence make new queue admission unsafe. Continue only existing repair-or-close, measurement, readiness, finance reconciliation, security evidence, and private launch-gate work. Preserve unavailable revenue, cost, margin, ROI, attribution, and causal-lift fields as unknown. Keep rights outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and launch-blocked. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Prioritize completion or justified closure of the retained saveusfarms.com failure by 2026-09-30T07:30Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the four control-plane specifications as deferred designs only. They are technically feasible as read-only views using existing records, with isolated implementation, reversible removal, and no new telemetry or dependencies. Do not admit them this cycle because delivery is full, failed-work containment is open, and operations/security evidence is incomplete. Reconsider only after capacity and evidence gates reopen.",
+        "summary": "Continue the existing complicated.work readiness packet only. Keep the site parked, private, preview-only, and launch-blocked. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence by 2026-09-30T17:00Z. No build, publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue deployed-change measurement using available telemetry only. Preserve unavailable revenue, conversion, attribution, and causal-lift values as unknown. Do not add tracking, duplicate work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate or authorize spend.",
         "requested_action": null,
         "proposal_id": null
       }

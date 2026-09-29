@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:08:14.172Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:38:31.786Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the $4.92 aggregate commission as unattributed for 2026-09-21; matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown. Do not extrapolate or authorize spend.",
+        "summary": "Recommendation: maintain containment-only execution, authorize no spend or monetization expansion, and continue only the existing report-only finance reconciliation. Amazon evidence is limited to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; the commission is not site-attributable, so revenue claims, contribution margin, ROI, payback, and forecasts are unsupported. AI usage cost is $934.99756275 for 2026-09-01 through 2026-09-29 across 5,174 calls, including 229 errors; it must not be compared with one day of revenue or treated as a monthly run rate. Budget exposure is not calculable because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank; minimum measurement is an approved budget and commitment ledger by period. Infrastructure spend is not calculable because no infrastructure-cost ledger is supplied and operations sweeps have no results; minimum measurement is a matching-period hosting, domain, tooling, and deployment-cost ledger. Cost-to-learn is not calculable because no approved threshold, complete matching-period cost base, or attributable outcome exists; minimum measurement is an approved threshold plus experiment-level cost and attributable outcome identifiers. Preserve all unavailable fields as unknown and do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution and do not authorize spend, new monetization, requeues, or new queue work. Supported revenue is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is not site-attributable because it is under aggregate tracking ID other; the 18 named tracking rows show $0 attributed commission. Contribution margin, ROI, payback, and revenue forecast are not calculable because matching-period labor, infrastructure, operating, and other costs are absent. AI usage cost is $934.99756275 for 2026-09-01 through 2026-09-29 and must not be compared with one day of revenue or extrapolated as monthly spend. Budget exposure is not calculable because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank. Infrastructure spend is not calculable because no infrastructure-cost ledger is supplied and operations sweeps have no results. Cost-to-learn is not calculable because no approved threshold, complete matching-period cost base, or attributable outcome exists. Continue only the existing reconciliation, deployed-work measurement, failed-work containment, security evidence, and parked-site readiness work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing report-only reconciliation. Match the 18 named tracking rows and one aggregate provider row for 2026-09-21 against revenue, orders, shipped items, commission, AI cost, infrastructure cost, labor, operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve aggregate earnings as unattributed and unavailable cost, margin, ROI, payback, forecast, infrastructure-spend, budget-exposure, and cost-to-learn fields as unknown. Do not extrapolate one-day revenue or September AI cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate or authorize spend.",
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate or authorize spend.",
         "requested_action": null,
         "proposal_id": null
       }
