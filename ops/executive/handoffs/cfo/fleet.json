@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:52:22.919Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T12:37:01.941Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": "Maintain containment-only execution and retain finance reconciliation",
-        "summary": "Recommendation: maintain containment-only execution and admit no new work, requeues, spend, telemetry, dependencies, deployments, or monetization expansion. The only supported revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 includes a 629-click aggregate provider row and cannot be assigned to sites; named site-attributed commission is $0 in the snapshot. September 1-29 AI usage is $934.99756275 across 5,174 calls with 229 errors, but it is not period-matched to the one-day revenue result and cannot support revenue, contribution margin, ROI, payback, forecast, or cost-to-learn claims. Budget exposure is unknown because monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are blank. Infrastructure spend is unknown because no infrastructure-cost ledger or operations sweep is supplied. Retain only the existing report-only reconciliation, matching the 18 named tracking rows and aggregate row to same-period revenue, AI/infrastructure/labor/operating costs, commitments, budget ceilings, and an approved learning threshold. Do not request duplicate telemetry or make financial claims until those fields exist.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": "Reject unsupported finance and CRO expansion proposals",
-        "summary": "Do not retain the proposed CRO product work this cycle. Delivery is full at 10/10 slots, with 24 overflow items, 36 improvements measuring, and 17 failed requests. MarkItDown, shadcn/ui, and AI guardrails may remain as non-executing future ideas only; they do not establish savings, revenue, margin, or cost-to-learn. Reconsider only after containment clears and a bounded prototype has an approved measurement threshold and matching cost basis.",
+        "title": null,
+        "summary": "CFO review rejects retaining the proposed control-plane product proposal this cycle. Its operational metrics may describe throughput risk, but they do not establish financial return, savings, contribution margin, or cost-to-learn. Reconsider only after containment clears and a bounded prototype has a defined matching cost basis, approved learning threshold, and existing-record measurement plan.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:22:37.873Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T12:37:01.941Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing period-aligned finance reconciliation only. Keep the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Preserve missing costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn as unknown; do not infer leakage, zero revenue, or causal impact.",
+        "summary": "CTO review: maintain containment-only execution. Delivery is saturated at 10/10 slots, with 38 improvements awaiting measurement, 17 failed requests, 120 stranded work items, and 109 approved proposals lacking execution requests. Admit no new queue work, requeues, deployments, dependencies, telemetry, spend, schedule changes, monetization expansion, or external outreach this cycle. Continue only existing measurement, repair-or-close, period-aligned attribution reconciliation, security evidence, and parked-site readiness. Keep the control-plane concept as a future isolated prototype only after one existing failed or stranded item is verified or justifiably closed with dated ownership, isolated validation, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Existing records support measurement of approved-to-execution rate, stranded-item count, repair/close time, active-slot utilization, and measurement completion; do not invent additional telemetry or claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement, security/compliance evidence, and parked-site readiness work using available evidence only. Preserve unknowns where telemetry or control evidence is unavailable. Keep private and parked launch gates unchanged; do not create duplicate work, requeue unchanged work, deploy, alter credentials or permissions, add dependencies, expand data collection, or conduct external outreach.",
+        "summary": "Continue the retained repair-or-close item for saveusfarms.com request 3dd194a6-b7a1-4dce-baee-22af77d5b2e1. Before any queue admission, record dated ownership, root cause or justified close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing Woot rights and launch evidence work. Keep the product private and preview-only; rights outreach remains unsent pending human-counsel review and owner authorization. Do not close gates without direct evidence of rights, data flow, retention, consent, security, accuracy, attribution, measurement, and rollback requirements.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-change measurement only using available telemetry. Preserve unknowns where sources are unavailable and do not claim revenue, conversion impact, or causal lift before measurement windows complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed; keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not extrapolate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       }

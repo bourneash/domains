@@ -2,22 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T11:52:22.918Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T12:37:01.942Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery is full at 10/10 slots, with 24 overflow items, 36 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness. The only supported revenue evidence is $4.92 aggregate Amazon commission for 2026-09-21 and it is not site-attributable; margin, ROI, and causal lift remain unknown. Smallest next step: delivery-lead verifies or justifiably closes one existing failed item by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review, or authorize it only after that review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: complete one existing failed or stranded item, or document a justified close, before queue admission reopens. Record dated ownership, root cause or rationale, isolated validation, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged failures.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Prototype a liveness-aware portfolio delivery control plane after containment clears",
+        "summary": "Existing records show saturated delivery, incomplete measurement, failed requests, stranded work, and approved work without execution linkage. Retain a future isolated prototype proposal to improve durable follow-through across the managed portfolio.",
+        "requested_action": "Retain as a future product proposal only. Do not queue, deploy, change schedules, add telemetry, spend, or requeue work until containment clears and one existing failed or stranded item has verified completion or justified closure. Prototype acceptance: one canonical record per approved change, explicit admission rationale, owner and next action, duplicate and overlap suppression, terminal handling for failed or cancelled requests, and a reversible disable path. Evaluate using existing records only: approved-to-execution rate, stranded-item count, failed-request repair or close time, active-slot utilization, and measurement completion. Preserve unavailable values as unknown.",
         "proposal_id": null
       }
     ]
