@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:22:42.950Z",
+  "generated_at": "2026-09-29T09:28:34.542Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent reviewer decision: reject all new implementation and queue work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and existing repair-or-close containment in progress. Candidate work is therefore explicitly blocked by queue capacity, active or measuring site work, failed-work controls, missing ownership, launch-readiness, legal, security, or missing-evidence gates. Continue only existing measurement, repair-or-close, attribution and cost reconciliation, security evidence, and parked-site readiness work. Preserve the 2026-09-21 aggregate commission as unattributed; do not claim site revenue, ROI, margin, forecast, causal lift, or production outcomes. No new deployments, requeues, spending, telemetry, dependencies, credentials, configuration changes, or outreach are approved. Owner concern: delivery must document one verified completion or justified close before any new candidate can be admitted.",
+        "summary": "Reviewer decision: reject all new implementation and requeue work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unavailable operations/security sweeps. Existing candidates lack a cleared measurable production path or launch-readiness evidence. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed; do not claim site revenue, ROI, margin, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
