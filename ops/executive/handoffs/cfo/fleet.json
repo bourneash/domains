@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:22:35.362Z",
+  "generated_at": "2026-09-29T19:37:27.621Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, or monetization expansion. Revenue is supported only for 2026-09-21: 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed, so site revenue claims, contribution margin, ROI, payback, and forecasts are unsupported. The 2026-09-01 through 2026-09-29 AI ledger records $945.24728605 across 5,264 calls and 39 instrumented sites, but it cannot be compared with one revenue day or allocated to profitable outcomes. Do not retain the proposed 0xroulette.com CTA or markitdown work this cycle; neither has an evidenced financial return, and delivery is already saturated at 10/10 slots.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, contracts, or monetization expansion. Delivery is saturated at 10/10 slots; 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair items remain open. The only supported revenue result is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed; no site-level revenue claim is supported. September 1-29 AI usage is $945.247286 across 5,264 calls, with 229 errors, but it cannot be compared with a single revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, forecasts, and cost-to-learn are unknown because matching-period allocated costs and attributable revenue are unavailable. Treat traffic, impressions, clicks, conversions, AI calls, and affiliate clicks as activity metrics, not financial performance. Minimum finance evidence is a dated site/content ledger matching provider revenue, AI cost, infrastructure cost, domain cost, and approved labor or other operating costs to the same period, plus a predefined learning-spend threshold. Continue only existing measurement, repair-or-close, security evidence, private launch gates, parked-site readiness, and period-aligned finance reconciliation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial measurement disposition: contribution margin, budget exposure, infrastructure spend, cost-to-learn, ROI, payback, and forecasts are unknown. The minimum evidence is a dated ledger matching each revenue item and allocated AI, infrastructure, domain, and operating cost to the same site or content and period, plus an approved learning threshold per experiment. Monthly spend limit, fixed costs, marketing budget, and revenue floor are blank in the brief; no budget variance or exposure can be calculated. Continue the existing period-aligned reconciliation only and preserve aggregate Amazon income as unattributed.",
+        "summary": "CFO review rejects the proposed new preview and implementation change requests this cycle. They would add work while capacity is full and do not establish financial return, launch readiness, ownership, or measurable cost-to-learn. Reconsider only after an active slot clears, the existing saveusfarms.com repair-or-close case is completed or justifiably closed by 2026-09-30T07:30Z, and matching-period cost and revenue evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }

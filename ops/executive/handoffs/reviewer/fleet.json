@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:22:35.363Z",
+  "generated_at": "2026-09-29T19:37:27.622Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Revenue, ROI, margin, forecasts, and causal lift remain unsupported because the only revenue result is $4.92 aggregate and unattributed for 2026-09-21; operations/security evidence is incomplete; and delivery is saturated at 10/10. Route only one low-risk, measurable, reversible CTA preview request; reject new high-priority work, spend, telemetry, credentials, dependencies, requeues, production launches, and unsupported financial claims. Owner concern: clear one active slot and complete the existing saveusfarms.com repair-or-close evidence by 2026-09-30T07:30Z before admitting further work.",
+        "summary": "Approve containment-only execution. Reject all new queue work, requeues, deployments, telemetry expansion, spending, dependencies, monetization expansion, and unsupported financial or causal claims. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, payback, forecasts, and causal lift are unknown. Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Keep rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

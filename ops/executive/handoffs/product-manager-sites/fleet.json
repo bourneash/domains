@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:22:35.361Z",
+  "generated_at": "2026-09-29T19:37:27.620Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Existing telemetry already provides lifecycle, capacity, overlap, blocker, execution, and measurement status; a new fleet delivery control-plane proposal would duplicate available capabilities. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and open repair, security-evidence, finance-reconciliation, and parked-site readiness work. Continue only existing bounded work and use the current approval and engineer queue after capacity clears. No new proposal, deployment, spend, telemetry, or unsupported revenue claim is recommended.",
+        "summary": "Recommendation: maintain containment-only execution. Active delivery is full at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair items open. Do not add site changes, requeues, telemetry, spend, or monetization expansion this cycle. Continue existing measurement and repair-or-close work. Site evidence supports the next priorities once capacity clears: complete the 0xroulette.com CTA review, measure the allthingsmasonic.com changes, and later address high-intent SEO opportunities such as broadwayshowgirls.com search visibility and marineactivity.com guide reach. Existing telemetry shows allthingsmasonic.com at 8 sessions and 3 conversions during the current measurement observation, but no causal lift or attributed commission is established. Preserve parked properties as private and unlaunched.",
         "requested_action": null,
         "proposal_id": null
       }
