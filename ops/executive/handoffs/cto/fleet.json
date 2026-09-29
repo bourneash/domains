@@ -2,42 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T05:08:06.969Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T05:21:02.208Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing SEO, UX, affiliate, and monetization-path measurement where already deployed, but do not add overlapping work, telemetry, dependencies, credentials, configuration changes, deployments, spend, or requeues this cycle. Preserve aggregate revenue and unavailable attribution, cost, and causal-lift fields as unknown. No new production queue entry is technically cleared.",
+        "summary": "Maintain containment-only execution this cycle. Active delivery is full at 10/10 slots with 63 overflow items; 42 improvements await measurement, 17 implementation requests failed, and operations/security evidence is unavailable. Create no new proposals, change requests, requeues, deployments, telemetry, spend, dependencies, monetization changes, or repository adoption. Continue only existing measurement, repair-or-close, attribution/finance reconciliation, owner-gap verification, and legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the available provider period and AI-cost period without extrapolation. Preserve aggregate commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
+        "summary": "Preserve the existing revenue and SEO opportunities as deferred backlog. Do not treat clicks, sessions, conversions, affiliate clicks, or provider aggregate earnings as financial performance or causal lift. Preserve unavailable values as unknown and aggregate commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Continue existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Require dated execution-owner, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Preserve parked/private status; do not build, publish, deploy, alter DNS, configure analytics, monetize, or spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing owner-gap and launch-readiness verification for complicated.work, deadlymaracas.com, and driveford.net. Attach dated execution-owner verification, preview/build checks, compliance and security evidence, measurement boundary, rollback point, and explicit blocker or queue-clear decision by 2026-09-30T17:00:00Z. Preserve parked/private status; do not build, publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "summary": "Continue repair-or-close review for failed and cancelled work without retrying unchanged requests. Require dated ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private and external rights outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only evidence bundle for rights, data flow, retention, consent, vendors, accuracy, security, attribution, measurement, and rollback. Do not expose, monetize, expand alerts, or change production.",
+        "summary": "Continue existing period-aligned reconciliation only. Reconcile the 2026-09-21 provider rows and aggregate commission against matching-period costs, commitments, budgets, and learning thresholds. Preserve the $4.92 aggregate commission as unattributed and all missing financial fields as unknown; do not claim site revenue, ROI, margin, payback, forecasts, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the gated product private and rights outreach unsent pending human-counsel review and owner authorization. Continue the existing read-only launch-readiness evidence bundle; do not expose publicly, expand alerts, monetize, deploy, or change production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }
