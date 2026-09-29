@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T07:36:41.879Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:52:40.135Z",
+  "summary": "reviewer checked in 10 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new production work, queue work, requeues, spend, telemetry, dependencies, deployments, monetization expansion, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, legal launch evidence, and parked-site readiness. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; costs, margin, ROI, forecasts, and lift remain unknown. Keep rights outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Active delivery is full at 10/10, overflow and measurement backlogs remain, failed requests require repair-or-close evidence, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, and parked-site readiness. Do not create or requeue work, deploy, spend, add telemetry or dependencies, expand monetization, or claim financial or causal lift. Owner concern: the 2026-09-21 $4.92 commission is aggregate and unattributed; matching costs, margin, ROI, forecasts, and payback remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close and measurement work only. Document one verified completion or justified close with ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue or new queue selection.",
+        "summary": "Continue existing repair-or-close containment only. Complete one verified completion or documented close with dated ownership, root cause, isolated validation, rollback, deduplication, release/security evidence, attribution boundaries, and measurement readiness before any queue admission or requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed and keep matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate or claim site-level financial performance.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed. Keep matching-period revenue, provider payout, AI, infrastructure, labor, commitments, budgets, cost-to-learn, margin, ROI, payback, forecasts, and site-level financial outcomes unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
@@ -37,7 +37,42 @@
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing dated readiness packets for parked scaffold sites. Preserve private and preview-only status; attach ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or enter the queue.",
+        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Do not create or requeue implementation work this cycle: delivery is full at 10/10 slots, overflow and measurement backlogs remain, failed work requires repair-or-close evidence, and operations/security evidence is unavailable. The three factory candidates remain blocked by missing launch-readiness evidence and ownership artifacts. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, legal evidence, and parked-site readiness work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: the requested implementation batch cannot be safely routed. Active delivery is full, and the available factory candidates lack verified ownership, preview/build, compliance, security, measurement, rollback, and launch-gate evidence. Keep the candidates unqueued until those blockers clear and a delivery slot opens. Preserve all unavailable financial, attribution, cost, margin, ROI, forecast, and causal-lift fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair-or-close containment only. Complete one verified completion or documented close with dated ownership, root cause, isolated validation, rollback, deduplication, release/security evidence, attribution boundaries, and measurement readiness before admitting new queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed and keep mismatched costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate or make site-level financial claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing parked-site readiness packets only. Preserve parked, private, preview-only status and attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       }
