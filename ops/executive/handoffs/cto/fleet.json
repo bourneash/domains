@@ -2,21 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T22:36:52.460Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:53:39.517Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technically feasible as an isolated operator-workflow improvement, but not safe to admit while all 10 delivery slots are occupied and repair, measurement, security, and readiness work remain active. Preserve it as deferred. Any future implementation must use existing control-plane records only, avoid new telemetry, dependencies, credentials, permissions, schedules, or queue behavior changes, and ship behind a reversible feature boundary with deterministic tests and rollback.",
+        "summary": "CTO disposition: maintain containment-only execution. Do not admit new implementation work, create duplicate requests, requeue unchanged failures, add telemetry, change credentials or permissions, add dependencies, deploy, spend, or conduct external outreach. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, launch-gate, and parked-site readiness work. Reassess new control-plane or content proposals only after capacity clears and retained work has dated validation, rollback, ownership, and measurement evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create a change request or queue work this cycle. Continue the existing saveusfarms.com repair-or-close case, deployed-work measurement, parked-site readiness packets, security evidence, private launch gates, and period-aligned reconciliation. Reconsider the control-plane work only after capacity clears and its acceptance criteria, isolation boundary, implementation estimate, baseline metrics, and rollback point are recorded.",
+        "summary": "Continue existing delivery containment. Complete or close the retained saveusfarms.com repair case by 2026-09-30T07:30Z with ownership, root-cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing readiness packets for scaffold properties. Keep them parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the already queued allthingsmasonic.com and amputeenews.com work without creating duplicates or requeueing unchanged failures. Preserve unavailable revenue and causal lift as unknown; require deterministic validation, rollback evidence, and owner-controlled prerequisites before any monetization claim or release.",
         "requested_action": null,
         "proposal_id": null
       }
