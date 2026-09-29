@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:17:40.839Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T10:10:00.174Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Reconcile oventoheaven.com queue before admitting new work",
-        "summary": "New implementation admission is blocked because fleet delivery is full at 10/10 active slots with 59 overflow items and existing repair-or-close containment. Reconcile only the authoritative oventoheaven.com queue and identify the smallest non-overlapping next implementation step.",
-        "requested_action": "Review existing oventoheaven.com requests, improvements, measurements, and failures; select exactly one already-supported implementation candidate or record the specific blocker. Do not create, requeue, deploy, request telemetry, or modify production.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "ec5d4798-4831-47b6-a394-5224fd65bf3d",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
