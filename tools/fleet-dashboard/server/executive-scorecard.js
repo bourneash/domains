@@ -45,9 +45,12 @@ function tickQueueCount(row) {
 
 function tickFollowThroughCount(row) {
   const created = row.result?.created_counts || {};
-  return (
-    Number(created.work_items || 0) + Number(created.research || 0) + Number(created.proposals || 0)
-  );
+  // Updating an existing work item, emitting a proposal, or writing a report
+  // is not delivery. The runner records this explicit field only when it
+  // creates a new dated follow-through obligation with an owner and next
+  // action. Keep the KPI honest instead of treating control-plane chatter as
+  // productive work.
+  return Number(created.follow_through || 0);
 }
 
 function tickScope(row) {
@@ -55,9 +58,9 @@ function tickScope(row) {
 }
 
 // Make CEO accountability measurable without treating a deliberately disabled
-// queue as a CEO failure. A cycle is productive when it selects executable
-// change work or records a bounded follow-through item; repeated eligible
-// cycles with neither require an explicit escalation.
+// queue as a CEO failure. A cycle is productive only when it selects
+// executable change work or records an explicit bounded follow-through item;
+// messages, reports, and work-item updates do not satisfy the obligation.
 function buildExecutiveAccountability(ticks, { noActionEscalationStreak = 2 } = {}) {
   const rows = (Array.isArray(ticks) ? ticks : [])
     .filter(row => row && typeof row === 'object')

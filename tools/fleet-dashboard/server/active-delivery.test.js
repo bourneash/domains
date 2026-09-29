@@ -78,3 +78,20 @@ test('improvement runs enrich the corresponding request instead of duplicating i
   assert.equal(result.slots[0].run_id, 'run1');
   assert.equal(result.attention.length, 1);
 });
+
+test('measuring improvements continue showing as measurement work without consuming implementation slots', () => {
+  const runs = Array.from({ length: 10 }, (_, index) => ({
+    run_id: `measure-${index}`,
+    site: `measure-${index}.com`,
+    title: `Measure improvement ${index}`,
+    state: 'measuring',
+    measurement_due: '2026-10-12',
+  }));
+  const result = delivery.snapshot(store([], runs), {
+    now: new Date('2026-09-29T12:00:00.000Z'),
+  });
+  assert.equal(result.policy.active_slots, 0);
+  assert.equal(result.policy.open_slots, 10);
+  assert.equal(result.policy.measurement_count, 10);
+  assert.equal(result.measuring.length, 10);
+});

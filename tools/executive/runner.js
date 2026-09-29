@@ -4053,7 +4053,9 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     );
     const implementationCapacity = Math.max(
       0,
-      activeDelivery.MAX_ACTIVE_SLOTS - activeDelivery.buildDeliveryItems(store).length
+      activeDelivery.MAX_ACTIVE_SLOTS -
+        activeDelivery.buildDeliveryItems(store).filter(activeDelivery.occupiesImplementationSlot)
+          .length
     );
     let queuedCount = 0;
     let directQueuedCount = 0;

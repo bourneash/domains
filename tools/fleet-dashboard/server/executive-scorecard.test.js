@@ -104,7 +104,7 @@ test('accountability escalates repeated executable no-op cycles', () => {
     },
     {
       started_at: '2026-09-22T01:00:00.000Z',
-      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 0 } },
+      result: { allowQueue: true, created_counts: { change_requests: 0, work_items: 1 } },
     },
     {
       started_at: '2026-09-22T02:00:00.000Z',
@@ -125,7 +125,7 @@ test('accountability excludes deliberately disabled queue cycles', () => {
     },
     {
       started_at: '2026-09-22T01:00:00.000Z',
-      result: { allowQueue: true, created_counts: { work_items: 1 } },
+      result: { allowQueue: true, created_counts: { work_items: 1, follow_through: 1 } },
     },
   ]);
   assert.equal(result.eligible_ticks, 1);

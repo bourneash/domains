@@ -17,6 +17,13 @@ const ACTIVE_REQUEST_STATUSES = new Set([
 const ACTIVE_RUN_STATES = new Set(['proposed', 'building', 'review', 'deployed', 'measuring']);
 const TERMINAL_RUN_STATES = new Set(['proven', 'inconclusive', 'failed', 'cancelled']);
 
+// Measurement is an observation lane, not an implementation worker slot. A
+// deployed change must continue collecting evidence, but it must not prevent
+// the executive team from starting the next bounded improvement.
+function occupiesImplementationSlot(item = {}) {
+  return String(item.state || '').toLowerCase() !== 'measuring';
+}
+
 function siteOf(row) {
   return String(row?.site || '')
     .trim()
@@ -126,8 +133,10 @@ function buildDeliveryItems(store, { limit = 1000 } = {}) {
 
 function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}) {
   const active = buildDeliveryItems(store);
-  const slots = active.slice(0, max_slots);
-  const overflow = active.slice(max_slots);
+  const capacityActive = active.filter(occupiesImplementationSlot);
+  const measuring = active.filter(item => !occupiesImplementationSlot(item));
+  const slots = capacityActive.slice(0, max_slots);
+  const overflow = capacityActive.slice(max_slots);
   const laneCounts = { 'finish-sites': 0, 'growth-revenue': 0, 'site-factory': 0, fleet: 0 };
   for (const item of slots) laneCounts[item.lane] = (laneCounts[item.lane] || 0) + 1;
 
@@ -177,11 +186,13 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
       active_slots: slots.length,
       open_slots: Math.max(0, max_slots - slots.length),
       overflow_count: overflow.length,
+      measurement_count: measuring.length,
       excluded_sites: [...EXCLUDED_SITES],
       rule: 'Reports inform delivery; they do not occupy an active delivery slot.',
     },
     slots,
     overflow,
+    measuring,
     attention,
     lane_counts: laneCounts,
     today: {
@@ -216,6 +227,7 @@ module.exports = {
   ACTIVE_REQUEST_STATUSES,
   ACTIVE_RUN_STATES,
   TERMINAL_RUN_STATES,
+  occupiesImplementationSlot,
   laneFor,
   isImplementationRequest,
   buildDeliveryItems,
