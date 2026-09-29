@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:48:36.344Z",
+  "generated_at": "2026-09-29T09:52:36.453Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation queue work this cycle. Delivery is full at 10/10 slots with substantial overflow, measurement backlog, failed-request containment, and unavailable operations/security evidence. Existing repair-or-close, measurement, attribution reconciliation, legal/security evidence, and parked-site readiness work must clear first. No unsupported revenue, ROI, causal-lift, production, deployment, spend, credential, configuration, telemetry, dependency, or outreach action is approved.",
+        "summary": "Reject new implementation queue work this cycle. Delivery is saturated at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Existing candidates are blocked by active or measuring work, repair-or-close containment, missing execution ownership, launch-readiness evidence, or unavailable security evidence. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecast, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
