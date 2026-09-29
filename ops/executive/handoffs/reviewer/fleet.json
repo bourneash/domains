@@ -2,70 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:54:08.349Z",
-  "summary": "reviewer checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:54:36.889Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Preserve parked, private, preview-only status and document ownership, preview/build evidence, compliance, security, measurement boundaries, rollback points, and explicit blockers. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing measurement and repair-or-close work only. Do not admit or requeue work while delivery is full. Complete one existing item or justified close with dated ownership, root cause or rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence first.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds unknown; do not extrapolate or claim site-level financial performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new implementation admission, requeues, high-priority queue work, production changes, spending, telemetry changes, dependencies, deployments, monetization expansion, and unsupported financial or causal claims. Delivery is full at 10/10 slots with substantial overflow, pending measurement, and failed-request containment. Continue only existing measurement, repair-or-close, attribution reconciliation, legal/security evidence, and parked-site readiness work. The three highest-confidence factory candidates remain blocked by missing launch-readiness evidence and execution ownership; document those blockers rather than queueing work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete one existing item or justified close with dated ownership, root cause or rationale, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before any queue admission. Do not retry unchanged failures while delivery is full.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the 2026-09-21 aggregate commission as unattributed. Continue matching-period attribution and cost reconciliation only; keep site revenue, margin, ROI, payback, forecast, budget exposure, and learning thresholds unknown. Do not compare one day of aggregate revenue with the September AI-cost total.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing readiness packets for the parked scaffold sites. Preserve parked, private, preview-only status and document ownership, preview/build evidence, compliance, security, measurement boundaries, rollback, and explicit blockers. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No implementation candidate clears admission. The highest-confidence candidates are blocked by missing launch-readiness artifacts, missing execution ownership, full delivery capacity, or existing overlapping work. Preserve them as deferred; no candidate is queued this cycle.",
+        "summary": "Reject new implementation and requeue work this cycle. Delivery is full at 10/10 slots with 61 overflow items; 38 improvements await measurement and 17 implementation requests failed. Operations and security evidence remain unavailable, so production work and high-priority queue admission lack sufficient clearance. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, legal/security evidence, and parked-site readiness. Amazon revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecast, and causal lift remain unknown. Complete one existing item or justified close with ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence before selecting new work.",
         "requested_action": null,
         "proposal_id": null
       }
