@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:52:54.175Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:10:00.152Z",
+  "summary": "six_hour domain-manager report for 59 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Improve click-through for /reviews/liquid-wrench",
-        "summary": "After the current deeppenetrations.com improvement finishes measurement, update only the title, meta description, and above-the-fold editorial CTA for /reviews/liquid-wrench. Existing SEO evidence records 98 impressions, position 2.8, and 0 clicks; do not overlap the active measuring work.",
-        "requested_action": "Queue one engineer implementation only after the active improvement closes and a delivery slot is available.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "fef8f282-56c6-4ef9-a2c7-aad33a3c1b61",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 59,
+      "sites_reported": 59,
+      "exceptions": 1,
+      "deep_dive_candidates": 59,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
