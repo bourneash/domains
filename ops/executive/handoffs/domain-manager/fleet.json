@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:47:50.606Z",
+  "generated_at": "2026-09-29T21:52:54.175Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resolve wetslit.com measurement-readiness blocker",
-        "summary": "wetslit.com lacks configured analytics evidence in the authoritative snapshot, so no measurable site improvement can be safely selected without inventing telemetry.",
-        "requested_action": "Create a timestamped wetslit.com readiness artifact using existing registry, repository, compliance, SEO, and operations evidence only. Record lifecycle, public/preview state, exact available site surfaces, analytics status, one reversible next implementation candidate, baseline, and blocker. Do not request duplicate telemetry, deploy, modify production, add tracking, spend, or change credentials.",
+        "title": "Improve click-through for /reviews/liquid-wrench",
+        "summary": "After the current deeppenetrations.com improvement finishes measurement, update only the title, meta description, and above-the-fold editorial CTA for /reviews/liquid-wrench. Existing SEO evidence records 98 impressions, position 2.8, and 0 clicks; do not overlap the active measuring work.",
+        "requested_action": "Queue one engineer implementation only after the active improvement closes and a delivery slot is available.",
         "proposal_id": null
       }
     ]

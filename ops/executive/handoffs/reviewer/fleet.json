@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:49:11.934Z",
+  "generated_at": "2026-09-29T21:52:54.174Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review blocks all new implementation admission this cycle: delivery is saturated at 10/10 slots, with failed-work containment, measurement, security evidence, finance reconciliation, and launch-readiness work active. No new candidate can be safely queued without displacing existing work. Delivery-lead must complete or close the retained saveusfarms.com repair case by 2026-09-30T07:30Z and escalate unresolved status to CTO; site-factory must complete parked-site readiness packets by 2026-09-30T17:00Z and escalate incomplete evidence to CTO. Revenue remains limited to $4.92 aggregate, unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. No new production work, requeue, spend, telemetry, credentials, configuration, dependencies, deployment, or outreach is authorized.",
+        "summary": "Reject new implementation admission this cycle. All 10 delivery slots are occupied, 45 improvements await measurement, and failed-work containment remains open. Keep the deeppenetrations.com candidate deferred; delivery-lead must complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z, escalating unresolved status to CTO. Reconsider this candidate after a slot clears and its measurement window closes on 2026-10-12.",
         "requested_action": null,
         "proposal_id": null
       }
