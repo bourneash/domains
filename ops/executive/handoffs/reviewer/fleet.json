@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:41:33.916Z",
+  "generated_at": "2026-09-29T08:43:41.783Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation routing this cycle. Delivery is saturated at 10/10 active slots with substantial overflow, measurement backlog, failed requests, and unavailable operations/security evidence. Revenue remains limited to an unattributed aggregate provider result; matching-period costs, margin, ROI, forecasts, and causal lift are unknown. Continue only existing measurement, repair-or-close, period-aligned reconciliation, legal/security evidence, and parked-site readiness work. Reconsider queue selection only after one existing item is verified complete or formally closed with ownership, validation, rollback, security, attribution, measurement, and deduplication evidence.",
+        "summary": "Reject all new implementation, queue, requeue, production, spend, telemetry, and monetization work this cycle. Active delivery is full at 10/10 slots, overflow remains, measurement and failed-request backlogs are material, and operations/security evidence is unavailable. Revenue is limited to a one-day $4.92 aggregate commission that is not site-attributable; matching-period costs, margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Delivery-lead must complete one existing item or document a justified close with ownership, validation, rollback, security, attribution, measurement, and deduplication evidence before queue selection resumes.",
         "requested_action": null,
         "proposal_id": null
       }
