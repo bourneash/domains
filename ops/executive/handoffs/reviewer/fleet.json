@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:34:44.075Z",
+  "generated_at": "2026-09-29T15:36:50.096Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject new queue work this cycle. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and 8 open repairs. Operations/security evidence is unavailable, and revenue is limited to $4.92 aggregate, unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. No candidate has a safe, unblocked production path with sufficient evidence and capacity.",
+        "summary": "Reject new implementation and production work this cycle. Active delivery is saturated at 10/10 slots, with 56 items awaiting measurement, 21 failed requests, open repair-or-close containment, and incomplete operations/security evidence. Existing candidates are blocked by active or measuring work, launch/security gates, missing ownership, or failed-work containment. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown. Do not create new queue work, requeue unchanged failures, deploy, spend, add telemetry, change credentials/configuration, or expand monetization.",
         "requested_action": null,
         "proposal_id": null
       }
