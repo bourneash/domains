@@ -4659,6 +4659,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/draft', (req, res) => {
+    try {
+      res.json({ draft: events.getExecutiveDraft(req.query.conversation_id || 'executive') });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.put('/api/executive/draft', (req, res) => {
+    try {
+      res.json({ draft: events.upsertExecutiveDraft({
+        conversation_id: req.body?.conversation_id || 'executive',
+        body: req.body?.body,
+      }) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.delete('/api/executive/draft', (req, res) => {
+    try {
+      res.json(events.deleteExecutiveDraft(req.query.conversation_id || 'executive'));
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.post('/api/executive/requests', (req, res) => {
     try {
       res.status(201).json({ request: executive.ownerRequest(events, req.body || {}) });

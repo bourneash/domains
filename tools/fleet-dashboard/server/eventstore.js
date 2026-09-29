@@ -19,6 +19,8 @@ const EXECUTIVE_EVIDENCE_TYPES = new Set([
   'decision',
   'diff',
   'preview',
+  'security_baseline',
+  'compliance_baseline',
 ]);
 
 // Keep the owner-facing queue deliberately small. A proposal is owner work
@@ -156,6 +158,11 @@ function open(root, { file } = {}) {
       metadata_json TEXT NOT NULL DEFAULT '{}'
     );
     CREATE INDEX IF NOT EXISTS executive_messages_conversation ON executive_messages(conversation_id, created_at);
+    CREATE TABLE IF NOT EXISTS executive_drafts (
+      conversation_id TEXT PRIMARY KEY,
+      body TEXT NOT NULL DEFAULT '',
+      updated_at TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS executive_notifications (
       notification_id TEXT PRIMARY KEY,
       recipient TEXT NOT NULL,
@@ -1647,6 +1654,34 @@ function open(root, { file } = {}) {
         ...(work_id ? [String(conversation_id), String(work_id), n] : [String(conversation_id), n])
       )
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
+  }
+
+  function getExecutiveDraft(conversationId = 'executive') {
+    return db
+      .prepare('SELECT conversation_id, body, updated_at FROM executive_drafts WHERE conversation_id = ?')
+      .get(String(conversationId)) || null;
+  }
+
+  function upsertExecutiveDraft(input = {}) {
+    const conversationId = String(input.conversation_id || 'executive').trim();
+    const body = String(input.body || '');
+    if (!conversationId) throw httpErr(400, 'conversation_id is required');
+    if (body.length > 20000) throw httpErr(400, 'draft is too long');
+    if (!body.trim()) {
+      db.prepare('DELETE FROM executive_drafts WHERE conversation_id = ?').run(conversationId);
+      return null;
+    }
+    const updatedAt = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO executive_drafts (conversation_id, body, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(conversation_id) DO UPDATE SET body=excluded.body, updated_at=excluded.updated_at`
+    ).run(conversationId, body, updatedAt);
+    return { conversation_id: conversationId, body, updated_at: updatedAt };
+  }
+
+  function deleteExecutiveDraft(conversationId = 'executive') {
+    const result = db.prepare('DELETE FROM executive_drafts WHERE conversation_id = ?').run(String(conversationId));
+    return { deleted: result.changes > 0 };
   }
 
   function purgeExecutiveTranscriptBefore(cutoff) {
@@ -6019,6 +6054,9 @@ function open(root, { file } = {}) {
     updateExecutiveSettings,
     createExecutiveMessage,
     listExecutiveMessages,
+    getExecutiveDraft,
+    upsertExecutiveDraft,
+    deleteExecutiveDraft,
     purgeExecutiveTranscriptBefore,
     updateExecutiveMessage,
     createExecutiveNotification,

@@ -30,6 +30,18 @@ test('persists owner/CEO conversation messages', () => {
   db.close();
 });
 
+test('persists the shared executive composer draft without creating a message', () => {
+  const db = store();
+  assert.equal(db.getExecutiveDraft(), null);
+  const saved = db.upsertExecutiveDraft({ body: 'Draft this across sessions.' });
+  assert.equal(saved.body, 'Draft this across sessions.');
+  assert.equal(db.getExecutiveDraft().body, saved.body);
+  assert.equal(db.listExecutiveMessages().length, 0);
+  assert.deepEqual(db.deleteExecutiveDraft(), { deleted: true });
+  assert.equal(db.getExecutiveDraft(), null);
+  db.close();
+});
+
 test('turns an owner request into a tracked executive work item and thread', () => {
   const db = store();
   const tracked = executive.ownerRequest(db, {
