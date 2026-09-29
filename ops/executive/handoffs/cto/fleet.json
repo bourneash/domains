@@ -2,56 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T05:21:02.208Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-29T05:38:38.616Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Active delivery is full at 10/10 slots with 63 overflow items; 42 improvements await measurement, 17 implementation requests failed, and operations/security evidence is unavailable. Create no new proposals, change requests, requeues, deployments, telemetry, spend, dependencies, monetization changes, or repository adoption. Continue only existing measurement, repair-or-close, attribution/finance reconciliation, owner-gap verification, and legal/security evidence work.",
+        "summary": "Approve containment-only execution. Do not create new implementation requests, requeue unchanged failures, deploy, add dependencies, collect telemetry, spend, expand monetization, or conduct external outreach. Continue only existing measurement, repair-or-close, attribution reconciliation, launch-readiness, and security evidence work. Preserve unavailable attribution, cost, margin, ROI, causal-lift, and readiness fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing revenue and SEO opportunities as deferred backlog. Do not treat clicks, sessions, conversions, affiliate clicks, or provider aggregate earnings as financial performance or causal lift. Preserve unavailable values as unknown and aggregate commission as unattributed.",
+        "summary": "The three CRO concepts are technically plausible only as deferred, isolated prototypes. They are not adoption approvals, queue entries, production changes, or telemetry requests. Any future prototype requires disposable isolation, explicit input rights, dependency and security review, deterministic validation, measurable acceptance criteria, and deletion or rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Require dated execution-owner, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Preserve parked/private status; do not build, publish, deploy, alter DNS, configure analytics, monetize, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue repair-or-close review for failed and cancelled work without retrying unchanged requests. Require dated ownership, root cause, smallest isolated repair, deterministic validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned reconciliation only. Reconcile the 2026-09-21 provider rows and aggregate commission against matching-period costs, commitments, budgets, and learning thresholds. Preserve the $4.92 aggregate commission as unattributed and all missing financial fields as unknown; do not claim site revenue, ROI, margin, payback, forecasts, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and rights outreach unsent pending human-counsel review and owner authorization. Continue the existing read-only launch-readiness evidence bundle; do not expose publicly, expand alerts, monetize, deploy, or change production.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Maintain parked/private factory candidates and existing measurement windows. No new site implementation is technically cleared while delivery is full, measurement backlog and failed requests remain open, and ownership, operations, or security evidence is incomplete.",
         "requested_action": null,
         "proposal_id": null
       }
