@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:45:59.744Z",
+  "generated_at": "2026-09-29T09:48:36.344Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation and queue work this cycle. Delivery is saturated at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, 17 failed requests, and active repair-or-close containment. The highest-confidence candidates remain unqueued because slots are full; scaffold builds additionally lack verified launch-readiness artifacts, while other candidates are blocked by active or measuring work. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Preserve aggregate Amazon commission as unattributed; do not claim site revenue, ROI, margin, forecast, causal lift, or production readiness.",
+        "summary": "Reject all new implementation queue work this cycle. Delivery is full at 10/10 slots with substantial overflow, measurement backlog, failed-request containment, and unavailable operations/security evidence. Existing repair-or-close, measurement, attribution reconciliation, legal/security evidence, and parked-site readiness work must clear first. No unsupported revenue, ROI, causal-lift, production, deployment, spend, credential, configuration, telemetry, dependency, or outreach action is approved.",
         "requested_action": null,
         "proposal_id": null
       }
