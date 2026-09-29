@@ -2629,7 +2629,9 @@ function reconcileApprovedProposalFollowThrough(
   let queued = 0;
   const implementationCapacity = Math.max(
     0,
-    activeDelivery.MAX_ACTIVE_SLOTS - activeDelivery.buildDeliveryItems(store).length
+    activeDelivery.MAX_ACTIVE_SLOTS -
+      activeDelivery.buildDeliveryItems(store).filter(activeDelivery.occupiesImplementationSlot)
+        .length
   );
   let implementationQueued = 0;
   for (const proposal of proposals) {

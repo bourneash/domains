@@ -16,12 +16,21 @@ const ACTIVE_REQUEST_STATUSES = new Set([
 ]);
 const ACTIVE_RUN_STATES = new Set(['proposed', 'building', 'review', 'deployed', 'measuring']);
 const TERMINAL_RUN_STATES = new Set(['proven', 'inconclusive', 'failed', 'cancelled']);
+const IMPLEMENTATION_STATES = new Set([
+  'proposed',
+  'building',
+  'claimed',
+  'running',
+  'reviewing',
+  'review',
+  'committed',
+]);
 
 // Measurement is an observation lane, not an implementation worker slot. A
 // deployed change must continue collecting evidence, but it must not prevent
 // the executive team from starting the next bounded improvement.
 function occupiesImplementationSlot(item = {}) {
-  return String(item.state || '').toLowerCase() !== 'measuring';
+  return IMPLEMENTATION_STATES.has(String(item.state || '').toLowerCase());
 }
 
 function siteOf(row) {

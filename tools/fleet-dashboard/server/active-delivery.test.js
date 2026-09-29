@@ -12,7 +12,7 @@ function store(requests, runs) {
   };
 }
 
-test('active delivery excludes reports and excluded sites and caps the portfolio at ten', () => {
+test('active delivery excludes reports and queued work from implementation slots', () => {
   const requests = Array.from({ length: 12 }, (_, index) => ({
     request_id: `r${index}`,
     site: `site-${index}.com`,
@@ -41,10 +41,29 @@ test('active delivery excludes reports and excluded sites and caps the portfolio
   const result = delivery.snapshot(store(requests, []), {
     now: new Date('2026-09-28T12:00:00.000Z'),
   });
-  assert.equal(result.policy.active_slots, 10);
-  assert.equal(result.policy.overflow_count, 2);
+  assert.equal(result.policy.active_slots, 0);
+  assert.equal(result.policy.overflow_count, 0);
+  assert.equal(result.policy.open_slots, 10);
   assert.equal(result.today.report_only_requests_created, 1);
   assert.ok(result.slots.every(row => row.site !== '3boobs.com'));
+});
+
+test('active delivery caps started implementation work at ten slots', () => {
+  const requests = Array.from({ length: 12 }, (_, index) => ({
+    request_id: `r${index}`,
+    site: `site-${index}.com`,
+    title: `Ship improvement ${index}`,
+    status: 'running',
+    delivery_mode: 'direct',
+    priority: 'normal',
+    created_at: `2026-09-28T0${index}:00:00.000Z`,
+    updated_at: `2026-09-28T0${index}:00:00.000Z`,
+  }));
+  const result = delivery.snapshot(store(requests, []), {
+    now: new Date('2026-09-28T12:00:00.000Z'),
+  });
+  assert.equal(result.policy.active_slots, 10);
+  assert.equal(result.policy.overflow_count, 2);
 });
 
 test('improvement runs enrich the corresponding request instead of duplicating it', () => {
