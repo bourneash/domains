@@ -2,15 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T13:36:15.714Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:24:19.939Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Evaluate the deferred contract against existing records only. Candidate metrics are stranded-item count, duplicate or failed request rate, slot-release time, measurement completion, and proposal-to-execution rate. Do not claim savings, ROI, payback, or cost-to-learn until matching-period cost and outcome evidence exists.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Build deterministic fleet admission, deduplication, and slot-accounting controls",
+        "summary": "Create a control-plane capability that reconciles approved proposals, implementation requests, active slots, measuring work, failed work, and site overlap before admission. Existing evidence shows 108 approved proposals without execution, 45 improvements awaiting measurement, 21 failed requests, 8 open failure follow-ups, and delivery at 10/10 active slots.",
+        "requested_action": "After containment ends, route an engineer-routable specification requiring idempotent admission, explicit rejection reasons, site-overlap protection, previewable state transitions, rollback, deterministic fixtures, and ten-slot compatibility. Use existing records only.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Create a measurement aging, ownership, and closure lane",
+        "summary": "Create a reusable lifecycle for deployed improvements that assigns measurement ownership, shows due dates and source availability, distinguishes unknown from zero, and closes or defers work when its measurement window is complete or blocked.",
+        "requested_action": "After capacity reopens, route an engineer-routable change request requiring aging buckets, owner handoff, evidence links, explicit inconclusive status, rollback boundaries, and no new tracking. Start with read-only compatibility over existing records.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Standardize failed-work repair-or-close containment",
+        "summary": "Define one canonical failure record and repair-or-close workflow for build, validation, reviewer, infrastructure, and checkout failures. Existing evidence shows 21 failed requests, 8 open failure follow-ups, repeated reviewer failures, and explicit direction not to retry unchanged work.",
+        "requested_action": "Retain as a deferred control-plane design until current containment clears. Route implementation only through the normal engineer queue with new-evidence requeue eligibility, one canonical repair record, deterministic validation, rollback points, and an auditable close decision.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Run a bounded affiliate CTA clarity experiment on allthingsmasonic.com",
+        "summary": "Test whether clearer product-entry language and disclosure-safe CTA hierarchy improve affiliate-intent clicks. Existing evidence records 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; current site work and measurement windows require deferral.",
+        "requested_action": "After site overlap and active measurement work clear, prepare one preview-only variant of the existing commercial entry surface. Preserve destinations, disclosures, consent behavior, tracking IDs, and rollback; do not add tracking or claim lift before the measurement window completes.",
         "proposal_id": null
       }
     ]

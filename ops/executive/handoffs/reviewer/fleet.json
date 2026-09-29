@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:07:52.261Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:24:19.938Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue work, requeues, deployments, spending, telemetry expansion, dependency or permission changes, monetization expansion, external outreach, and unsupported financial or causal claims. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, and operations/security evidence is unavailable. Continue only existing repair-or-close, measurement, period-aligned reconciliation, security evidence, and parked-site readiness work. The only supported revenue result is $4.92 aggregate Amazon commission for 2026-09-21, not site-attributable; margin, ROI, forecasts, budget exposure, cost-to-learn, and causal lift remain unknown. Smallest next step: complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Keep rights outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject new queue work, requeues, deployments, spending, telemetry expansion, dependency additions, monetization expansion, and unsupported financial or causal claims. Continue only existing repair-or-close, measurement, period-aligned reconciliation, security evidence, private launch-gate, and parked-site readiness work. Revenue remains limited to $4.92 aggregate, unattributed commission for 2026-09-21; costs, margin, ROI, payback, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the retained saveusfarms.com failure. Record dated ownership, root cause or close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30:00Z. Record dated ownership, root cause or close rationale, isolated validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns. Preserve private and parked gates; do not create duplicate work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the $4.92 aggregate commission as unattributed and keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown. Do not extrapolate one-day revenue or September AI cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete the existing readiness packet only. Keep the site parked, private, and preview-only. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
+        "summary": "Complete only the existing complicated.work readiness packet by 2026-09-30T17:00:00Z. Keep it parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
         "requested_action": null,
         "proposal_id": null
       }

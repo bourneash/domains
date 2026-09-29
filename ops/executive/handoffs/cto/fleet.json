@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:07:52.260Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:24:19.938Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: maintain containment-only execution. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, 8 failure follow-ups remain open, and operations/security evidence is unavailable. Do not admit new implementation work, requeue unchanged failures, add telemetry, add dependencies, deploy, or expand monetization. Continue only existing repair-or-close, measurement, period-aligned reconciliation, security evidence, parked-site readiness, and private launch-gate work. The three control-plane proposals may remain as deferred designs, but must not enter the implementation queue until capacity and the required evidence gates reopen.",
+        "summary": "Recommendation: retain containment-only execution. Do not admit new queue work or requeue unchanged failures while delivery is saturated at 10/10 slots, measurement backlog remains, failed-work follow-ups remain open, and operations/security evidence is unavailable. Continue existing measurement, reconciliation, security evidence, launch gates, and parked-site readiness using available evidence only. Do not add telemetry, spend, dependencies, permissions, credentials, deployments, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z. Require dated ownership, root cause or close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30:00Z. Record dated ownership, root cause or close rationale, isolated deterministic validation, build evidence, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence before queue admission is reconsidered. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing complicated.work readiness packet by 2026-09-30T17:00Z. Keep the scaffold parked, private, and preview-only. Attach dated ownership, available preview/build evidence, compliance baseline, security evidence and unknowns, measurement boundary, rollback point, and explicit blocker. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
+        "summary": "Complete the existing complicated.work readiness packet by 2026-09-30T17:00:00Z. Keep it parked, private, and preview-only. Attach only dated ownership, available preview/build evidence, compliance baseline, security evidence and unknowns, measurement boundary, rollback point, and explicit blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the three control-plane designs as deferred proposals only: deterministic admission and deduplication, measurement aging and closure, and canonical failed-work repair-or-close. Their prototypes are technically feasible and reversible, but implementation must wait until containment clears and an active slot is available. Do not create queue work, add telemetry, or claim operational lift before measurement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve aggregate Amazon earnings as unattributed and keep matching-period costs, margin, ROI, payback, forecasts, budget exposure, infrastructure spend, cost-to-learn, and causal lift unknown. Continue only the existing period-aligned reconciliation.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:07:52.260Z",
+  "generated_at": "2026-09-29T14:24:19.937Z",
   "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and admit no new work, spend, billing changes, or monetization expansion. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, and 8 failure follow-ups remain open. Continue only existing repair-or-close, measurement, reconciliation, security evidence, and parked-site readiness work. The only supported revenue result is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate Amazon commission for 2026-09-21; the commission is not site-attributable. Site margin, ROI, payback, forecasts, budget exposure, cost-to-learn, infrastructure spend, and causal lift remain unknown.",
+        "summary": "CFO recommendation: retain containment-only execution and reject new queue admission, spend, monetization expansion, or financial claims. Supported revenue is limited to 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; the commission is not site-attributable. September 1–29 AI cost is $934.99756275 and cannot be compared with one day of revenue or used as a monthly forecast. Margin, ROI, payback, budget exposure, infrastructure spend, labor cost, forecasts, and cost-to-learn are unknown. Continue only the existing period-aligned reconciliation, measurement, repair-or-close, security evidence, launch-gate, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the retained saveusfarms.com failure before queue admission reopens. Require dated ownership, root cause or close rationale, isolated validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Minimum finance artifact remains the existing report-only reconciliation: match the 18 named tracking rows and one aggregate provider row for 2026-09-21 against orders, shipped items, commission, AI cost, infrastructure cost, labor, operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Do not create duplicate telemetry or extrapolate one-day revenue or September AI spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned finance reconciliation only. Match the 18 named tracking rows and one aggregate provider row for 2026-09-21 against revenue, orders, shipped items, commission, AI cost, infrastructure cost, labor, operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve the $4.92 aggregate commission as unattributed. The $934.99756275 AI cost covers 2026-09-01 through 2026-09-29 and cannot be compared with one-day revenue or used as a monthly forecast. Budget exposure is not calculable because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank. Infrastructure spend is not calculable because no infrastructure-cost ledger is supplied and operations sweeps have no results. Cost-to-learn is not calculable because no approved threshold, complete matching-period cost base, or attributable outcome exists.",
+        "summary": "Before queue admission is reconsidered, complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30:00Z with dated ownership, validation, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. No unchanged retry or duplicate request is financially supportable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing parked-site readiness packet only. Keep complicated.work parked, private, and preview-only. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
+        "summary": "Complete only the existing complicated.work readiness packet by 2026-09-30T17:00:00Z. Keep the site parked, private, and preview-only; do not build, publish, deploy, configure analytics, monetize, spend, or create a queue entry.",
         "requested_action": null,
         "proposal_id": null
       }
