@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T04:52:39.059Z",
+  "generated_at": "2026-09-29T05:08:06.970Z",
   "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject unsupported financial claims, new production work, requeues, spending, telemetry, dependencies, deployments, monetization expansion, and external outreach. Continue only existing measurement, repair-or-close, finance/attribution reconciliation, parked-site readiness, and legal/security evidence work. Aggregate commission remains unattributed; margin, ROI, payback, forecasts, and causal lift remain unknown. Material concerns: active measurement windows, failed repairs, full delivery capacity, missing ownership/readiness evidence, and unavailable operations/security sweeps.",
+        "summary": "Reject new production work, requeues, spending, telemetry, dependencies, deployments, monetization expansion, and unsupported financial claims. Active delivery is full, measurement and failure backlogs remain material, and revenue attribution and matching-period costs are incomplete. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and owner-gap verification. Keep private and parked states unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing owner-gap verification for the three parked scaffold candidates. Attach dated execution-owner, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "summary": "Continue the existing bounded read-only security evidence matrix and private launch gates. The submitted proposal duplicates active work and creates no new queue entry. Record dated evidence or explicit unknowns; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue repair-or-close review for failed and cancelled work without retrying unchanged requests. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any requeue.",
+        "summary": "Reject the requested engineer batch this cycle. Active delivery is full at 10/10 slots with 63 overflow items; 42 improvements await measurement and 17 requests failed. Existing candidates are blocked by active or measuring work, failed-work containment, missing execution ownership, launch-readiness evidence, or unavailable security evidence. Do not create new implementation requests or requeue unchanged work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
+        "summary": "Reject unsupported financial, ROI, margin, payback, forecast, and causal-lift claims. Amazon evidence is limited to $4.92 aggregate commission for 2026-09-21 and cannot be assigned to a site. Matching-period costs, budgets, commitments, and learning thresholds remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle and keep the private gate unchanged. Keep permission outreach unsent pending human-counsel review and owner authorization. Do not expose, monetize, expand alerts, or change production.",
+        "summary": "Continue existing measurement, repair-or-close, attribution reconciliation, legal/security evidence, and owner-gap verification only. Do not add telemetry, dependencies, credentials, configuration changes, deployments, spending, monetization expansion, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Preserve aggregate provider commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecasts, or budget capacity.",
+        "summary": "Preserve parked/private status for complicated.work, deadlymaracas.com, and driveford.net. They remain unqueued because execution-owner verification and launch-readiness evidence are missing. Require dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence before reconsideration.",
         "requested_action": null,
         "proposal_id": null
       }
