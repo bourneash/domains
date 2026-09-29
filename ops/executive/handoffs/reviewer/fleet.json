@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:21:29.467Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T08:25:41.978Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new production work, queue work, requeues, spend, telemetry, dependencies, deployments, monetization expansion, unsupported financial claims, and causal-lift claims. Continue only existing measurement, repair-or-close, period-aligned finance reconciliation, legal/security evidence, and parked-site readiness. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; costs, margin, ROI, forecasts, and lift remain unknown. Keep rights outreach unsent pending human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing repair-or-close and measurement work only. Require ownership, root cause, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence before any requeue or queue selection. Complete one verified item or justified close first.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing read-only legal, security, finance, and parked-site evidence work. Preserve private and parked gates; do not publish, deploy, alter DNS, configure analytics, add dependencies, access credentials, spend, or conduct external outreach.",
+        "summary": "Independent review rejects new implementation or requeue work this cycle. Delivery is full at 10/10 slots, with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and open repair-or-close containment. Continue only existing measurement, failure repair-or-close, period-aligned revenue reconciliation, security/legal evidence, and parked-site readiness. The 2026-09-21 $4.92 aggregate commission remains unattributed; costs, margin, ROI, forecasts, and causal lift are unknown. No new production work is authorized until a slot opens and required evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }
