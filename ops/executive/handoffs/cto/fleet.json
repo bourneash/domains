@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T13:36:15.714Z",
+  "generated_at": "2026-09-29T13:52:53.978Z",
   "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Admit no new queue work, requeues, deployments, spending, telemetry expansion, dependency additions, monetization expansion, or external outreach this cycle. Delivery remains saturated at 10/10 slots. Reopen admission only after one existing failed item is verified complete or justifiably closed with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "Complete or justifiably close the retained failed work item before queue admission reopens. Record dated ownership, root cause or close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence by 2026-09-30T07:30:00Z. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request. Record root cause or close rationale, deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence.",
+        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unavailable values as unknown and distinguish unknown from zero. Do not add tracking, duplicate work, requeue unchanged failures, or claim revenue, conversion impact, attribution, or causal lift before measurement windows complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Measure deployed work using available telemetry only. Preserve unavailable revenue, attribution, conversion, and causal-lift values as unknown. Do not add tracking, duplicate work, requeue items, or claim lift before measurement windows complete.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing reconciliation only. Preserve the 2026-09-21 provider result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
+        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing readiness packets for parked scaffold properties. Preserve private and preview-only status. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Retain the MarkItDown, hand-authored CTA, and read-only measurement-workbench concepts as deferred research notes only. They are not adoption approvals and must not become proposals, queue entries, dependency changes, production work, telemetry expansion, or deployments until containment clears and a slot is released.",
         "requested_action": null,
         "proposal_id": null
       }
