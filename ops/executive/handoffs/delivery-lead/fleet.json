@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T12:22:37.874Z",
-  "summary": "delivery-lead checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:08:14.172Z",
+  "summary": "delivery-lead checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution while active delivery is saturated. Complete the existing repair-or-close workstream for failed request 3dd194a6-b7a1-4dce-baee-22af77d5b2e1 on saveusfarms.com. Inspect the retained failure, preserve durable work, document root cause or justified closure, run isolated deterministic validation and build checks, and record an explicit requeue-or-close disposition. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Do not retry unchanged work or create a duplicate. Record dated ownership, root cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-09-30T07:30Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unavailable revenue, attribution, conversion, and causal-lift fields as unknown. Do not add tracking, duplicate work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       }

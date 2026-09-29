@@ -2,49 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:53:06.136Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T15:08:14.172Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Prioritize completion or justified closure of the retained saveusfarms.com failure by 2026-09-30T07:30:00Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release and security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing deployed-change measurement for allthingsmasonic.com and broadwayshowgirls.com using available checks and telemetry only. Preserve unknown revenue, conversion, attribution, and causal-lift fields; do not add tracking or requeue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work parked, private, and preview-only. Complete the existing readiness packet by 2026-09-30T17:00:00Z with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No build, publish, deployment, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and private launch gates using authorized metadata and retained artifacts only. Block public exposure and security-sensitive releases. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred CRO, repository-adoption, new-site-build, and new affiliate or SEO opportunities remain technically plausible but are not queue-admissible this cycle. Reassess only after delivery capacity opens, the retained failure is resolved or closed, and required security, measurement, ownership, and launch gates are evidenced.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, 56 items await measurement, 21 implementation requests failed, and 8 failure follow-ups remain open. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not create new queue work, requeue unchanged failures, add telemetry, spend, dependencies, deploy, or expand monetization until the retained saveusfarms.com failure is completed or justifiably closed with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence. No revenue, ROI, or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }
