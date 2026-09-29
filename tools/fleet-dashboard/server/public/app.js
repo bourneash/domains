@@ -15033,6 +15033,9 @@ async function renderExecutive() {
     button.disabled = true;
     try {
       await api('POST', '/api/executive/requests', { actor: 'owner', body });
+      // Clear the composer before the refresh so a successful submission
+      // behaves like a normal message box and never looks duplicated.
+      $('#ex-message').value = '';
       toast('Conversation started; the executive team will see it on its next run');
       softRender();
     } catch (e) {

@@ -132,6 +132,7 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(app, /const threadSection =\s*thread\.length > 1/);
   assert.doesNotMatch(app, /ex-request-response/);
   assert.match(app, /api\('POST', '\/api\/executive\/requests', \{ actor: 'owner', body \}\)/);
+  assert.match(app, /\$\('#ex-message'\)\.value = ''/);
   assert.match(app, /class="btn sm primary ex-work-reply-send"/);
   assert.match(app, /Reply added; the executive team will see it on its next run/);
 });
