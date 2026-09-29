@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.918Z",
-  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T06:21:57.879Z",
+  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new site proposals or implementation requests this cycle. Existing evidence supports continuing deployed-work measurement, failed-request repair-or-close review, attribution reconciliation, accessibility/performance validation, and the single already-approved bounded routing repair. Current portfolio evidence shows 40 improvements awaiting measurement, 14 failed requests, unavailable operations/fleet-doctor sweeps, partial revenue attribution, and only 3 proven outcomes. Preserve all deferred SEO, UX, content, monetization, cross-site, and repository opportunities as backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. No unsupported revenue, ROI, causal-lift, or monetization claims; no site edits, deployment, spend, telemetry changes, or new dependencies.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommend no new SEO or growth implementation requests this cycle. Continue deployed-work measurement, failed-request repair-or-close review, attribution reconciliation, accessibility/performance validation, and the single already-approved bounded routing repair. Preserve deferred SEO, UX, content, monetization, cross-site, and repository opportunities as backlog until ownership, validation, rollback, security, attribution, and measurement gates clear. Do not claim unsupported revenue, ROI, causal lift, or monetization outcomes; make no site edits, deployment, spend, telemetry changes, or dependency additions.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Active delivery is full at 10/10 slots, with 63 overflow items, 42 improvements awaiting measurement, 17 failed implementation requests, and unavailable operations/security evidence. Continue existing measurement, repair-or-close, attribution reconciliation, accessibility/UX validation, and launch-readiness work. Retain evidence-backed SEO, CTA, content, accessibility, performance, and affiliate improvements as deferred backlog; create no new proposals, change requests, telemetry, deployments, spend, or monetization changes until gates clear. Financial and causal outcomes remain unknown; aggregate provider commission remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

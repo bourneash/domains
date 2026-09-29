@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:06:43.121Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T06:21:57.880Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing launch-readiness evidence bundle. Keep the gated product private and rights outreach unsent; close no checklist item without direct evidence and required human-counsel review.",
+        "summary": "No new implementation work clears review this cycle. Active delivery is full at 10/10 slots with 63 overflow items; 42 improvements await measurement, 17 implementation requests failed, and operations/security evidence remains unavailable. Continue only existing measurement, repair-or-close, finance/attribution reconciliation, legal/security evidence, and parked-site readiness work. Do not create proposals, change requests, requeues, deployments, telemetry, dependencies, spending, or monetization changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue owner and launch-readiness verification for the parked scaffold pipeline. Preserve parked/private status and collect dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence before reconsidering queue entry.",
+        "summary": "Retain the unified delivery-control experience as deferred backlog only. Its proposed benefits are operational hypotheses, not measured outcomes, and the current queue cannot safely absorb implementation. Reconsider after containment clears and existing records support measurable baselines for duplicate work, approval-to-execution loss, failed-request recurrence, and cycle time. Do not add telemetry solely for this proposal.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Document one verified completion or documented close from existing work, including ownership, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence. Do not retry unchanged failures or select new queue work until a slot is actually available.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing readiness packets for the parked scaffold sites. Preserve parked/private status and attach dated owner, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue reconciling the 2026-09-21 provider revenue period with matching-period attribution and costs. Preserve the $4.92 aggregate commission as unattributed; keep missing infrastructure, labor, operating-cost, commitment, budget, and learning-threshold fields unknown. Do not claim site revenue, margin, ROI, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

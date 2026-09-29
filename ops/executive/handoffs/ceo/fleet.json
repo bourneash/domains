@@ -2,37 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T05:08:06.970Z",
-  "summary": "ceo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T06:21:57.879Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: route three bounded reversible SEO/UX changes under EXEC_CONV_12. Evidence: saveusfarms.com has 1,668 impressions at position 10.5 with 0 clicks; fishhooklabs.com has 130 impressions and 0 clicks; 0xroulette.com has completed CTA inspection evidence. The 30-day scorecard has 14 measured outcomes and $4.92 aggregate, unattributed, for 2026-09-21; margin and causal lift remain unknown. Smallest next step: preview, validate, and measure each change using existing telemetry. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel review.",
+        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Evidence: active delivery is full at 10/10 slots, 63 items overflow, 42 improvements await measurement, and 17 implementation requests failed; operations and security sweeps remain unavailable. Preserve existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, and causal lift are unknown. Smallest next step: delivery-lead clears a slot with verified completion or documented close. Owner decision: keep Woot permission outreach unsent pending human-counsel review, or authorize it after review.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-affiliate-path-validation",
-        "summary": "Useful evidence-backed lead, but no action is justified now because the relevant sites already have active or measuring work and delivery is full. Preserve the validation plan in the existing deferred CRO register.",
-        "requested_action": "declined",
-        "proposal_id": "cro-deferred-affiliate-path-validation"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-intent-card-pattern",
-        "summary": "Retain as deferred research only. Existing measurement, zero completed experiments, and pending technical adoption gates do not support a new prototype this cycle.",
-        "requested_action": "declined",
-        "proposal_id": "cro-deferred-intent-card-pattern"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cro-deferred-content-brief-pipeline",
-        "summary": "Retain as deferred research only. Lab evidence supports feasibility, not production fit or financial upside; current delivery and measurement backlog takes priority.",
-        "requested_action": "declined",
-        "proposal_id": "cro-deferred-content-brief-pipeline"
       }
     ]
   }

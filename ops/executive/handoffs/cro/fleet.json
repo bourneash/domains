@@ -2,29 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-28T21:07:26.221Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T06:21:57.879Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Test clearer affiliate merchandising CTA on allthingsmasonic.com",
-        "summary": "A reversible affiliate conversion experiment is warranted after current active work and measurement gates clear. Available evidence records 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; public inspection documented existing CTA hierarchy, destinations, disclosure, and accessibility evidence. This supports testing clarity, not a revenue claim.",
-        "requested_action": "Retain as a CEO/CTO handoff only. Later prototype one existing merchandising surface with clearer product relevance, CTA copy, and disclosure placement; preserve destinations, consent, and attribution boundaries.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Prototype offline document-to-content workflow with MarkItDown",
-        "summary": "microsoft/markitdown is a plausible fleet utility for turning source documents into Markdown drafts, structured briefs, and reusable SEO inputs. The repository signal is persistent across daily, weekly, and monthly trend windows; the CRO lab found MIT licensing, 194 files, 22 purpose-specific keyword hits, and 8 bounded checks passed. This is feasibility evidence only.",
-        "requested_action": "Retain as a disposable, offline prototype brief. Later test on synthetic or already-authorized fixture documents only; do not connect production sources, publish generated copy, install dependencies in production, or add a runtime dependency without CTO/security review.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Prototype a reusable accessible CTA and comparison-card pattern",
-        "summary": "shadcn-ui/ui offers customizable accessible components that could standardize CTA, disclosure, comparison-card, and navigation patterns across affiliate and editorial sites. The CRO lab found MIT licensing and passed all 3 available bounded checks; adoption remains unapproved.",
-        "requested_action": "Retain as a CTO review brief only. Later build a standalone preview using existing fleet styling tokens and no production integration; require dependency, security, accessibility, bundle-size, and maintenance review before any adoption.",
+        "kind": "message",
+        "title": null,
+        "summary": "CRO recommends containment-only execution. Active delivery is full at 10/10 slots, with 63 overflow items, 42 improvements awaiting measurement, 17 failed implementation requests, and unavailable operations/security evidence. Do not create proposals, change requests, experiments, telemetry, deployments, spend, dependencies, or requeues this cycle.\n\nRetain these deferred, reversible opportunities for CEO/CTO review after gates clear:\n1) Affiliate-path clarity on allthingsmasonic.com: evidence includes 61 Amazon clicks and 0 site-attributed orders or commission for the available window; prototype one existing commercial-page CTA/disclosure arrangement. Metric: affiliate click-through and attributed orders, with revenue remaining unknown until attribution resolves. Learn in 14 days or 100 relevant impressions/clicks. Risks: attribution is partial and the site already has active work; MIT/shadcn-style UI components are optional inspiration only and require dependency/security review.\n2) Search-intent content module using microsoft/markitdown: convert one rights-cleared source document into a reviewed Markdown draft for an existing SEO page. Evidence: MIT license, 8/8 bounded lab checks passed, and 22 purpose-specific keyword hits. Metric: indexed impressions, CTR, and qualified sessions versus the existing page. Smallest prototype is an offline conversion of one fixture with human review; no production dependency or automated publishing. Risks: source rights, parsing accuracy, prompt/content quality, maintenance, and dependency provenance.\n3) Accessible comparison/diagram block using mermaid-js/mermaid or shadcn-ui/ui: prototype one static, locally rendered component for a high-intent page after current measurement windows clear. Evidence: MIT licenses and supported CRO-lab fit; Mermaid had no safe native checks without dependency installation, while shadcn/ui passed 3/3 bounded checks. Metric: CTA engagement or affiliate-path continuation, measured with existing telemetry only. Risks: bundle weight, accessibility, dependency maintenance, and no demonstrated causal lift.\n\nThese remain backlog hypotheses, not approvals. Each requires owner-approved implementation, CTO/security review, license and dependency validation, a preview, deterministic tests, rollback, and an existing-telemetry measurement plan. Financial outcomes, ROI, and causal lift remain unknown; provider aggregate commission remains unattributed.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

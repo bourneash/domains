@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-28T14:51:16.193Z",
+  "generated_at": "2026-09-29T06:21:57.878Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: maintain containment-only execution this cycle. The highest-leverage friction is control-plane throughput: 193 approved proposals lack execution requests, 36 deployed improvements await measurement, 9 requests failed, and ownership/deduplication/release evidence is incomplete. Continue existing measurement, repair-or-close, security/legal evidence, parked-site verification, and attribution reconciliation. Retain deferred product opportunities for a future gated cycle; do not create duplicate proposals, work items, change requests, requeues, telemetry, deployments, spend, or external outreach.",
+        "summary": "The highest-leverage opportunity is a unified delivery-control experience: deduplicate proposals and tasks, expose one lifecycle from approval to measurement, enforce site/slot conflict visibility, and provide repair-or-close actions for failed work. Current evidence shows full active capacity, substantial overflow, measurement backlog, failed requests, and approved work without execution. Defer implementation until containment gates clear. Prioritize measurable reductions in duplicate work, time-to-queue, failed-request recurrence, and approval-to-execution loss. Also retain a future AI-cost guardrail capability and a release-readiness view that clearly separates observed, unknown, blocked, and approved states. No new telemetry, schedule, access, deployment, or code change is requested.",
         "requested_action": null,
         "proposal_id": null
       }

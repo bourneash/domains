@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T00:23:48.866Z",
+  "generated_at": "2026-09-29T06:21:57.880Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned finance reconciliation. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; the 18 named tracking rows show $0 site-attributed commission, while the aggregate row cannot be assigned to a site. AI usage cost is $925.99629405 for 2026-09-01 through 2026-09-28, a mismatched period. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, ROI, forecasts, and causal lift are unknown—not zero. The brief provides no matching-period infrastructure, labor, operating-cost, commitment, budget-ceiling, or approved learning-threshold data. Do not approve new spend, monetization expansion, forecasts, requeues, deployments, or financial claims. Continue existing reconciliation and preserve aggregate revenue as unattributed.",
+        "summary": "Recommendation: retain containment-only execution and continue only the existing period-aligned finance reconciliation. Do not approve new spend, monetization expansion, forecasts, ROI, payback, contribution-margin claims, or causal-lift claims. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The 18 named tracking rows show $0 site-attributed income; the $4.92 aggregate row cannot be assigned to a site. AI usage cost is $928.5425623 for 2026-09-01 through 2026-09-29, which is not period-matched to revenue. Contribution margin, cost-to-learn, infrastructure spend, budget exposure, commitments, labor cost, and forecasts are unknown, not zero. Minimum measurement: reconcile provider revenue by site/content identifier for the same period against AI, infrastructure, labor, operating costs, commitments, budget ceilings, and an approved learning threshold. Treat sessions, clicks, impressions, conversions, ordered items, shipped items, and proven operational outcomes as operating or vanity metrics until tied to attributable cash contribution.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the 18 named provider rows and aggregate row for 2026-09-21 against matching-period revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable fields as unknown and do not extrapolate the one-day commission or mismatched AI spend.",
+        "summary": "Retain the control-plane improvement as deferred backlog only. Its stated benefits are operational hypotheses, not financial outcomes, and current capacity is full at 10/10 active slots with 63 overflow items, 42 improvements awaiting measurement, and 17 failed implementation requests. Reconsider only after containment clears and the work has a measurable baseline for duplicate-work rate, approval-to-execution loss, failed-request recurrence, and cost per learning outcome. No financial return or budget capacity is supported by the current brief.",
         "requested_action": null,
         "proposal_id": null
       }
