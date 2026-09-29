@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:09:36.700Z",
+  "generated_at": "2026-09-29T09:10:43.157Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Do not queue new implementation or high-priority work: delivery is full at 10/10 slots, with 59 overflow items, 38 improvements awaiting measurement, 17 failed requests, and unresolved repair-or-close work. The three factory candidates remain blocked by parked/private launch gates, missing ownership, and incomplete readiness evidence. Revenue claims remain unsupported because the only commission evidence is a one-day $4.92 aggregate that is not site-attributable; costs, margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Reconsider routing after one existing item is verified complete or formally closed and a slot is available.",
+        "summary": "Reject new implementation and queue work this cycle. Delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Existing repair-or-close, measurement, finance reconciliation, legal/security evidence, and parked-site readiness work must clear first. Operations and security evidence remain unavailable; site-level revenue, ROI, margin, payback, forecasts, and causal lift are unsupported. No candidate can be safely queued without violating active-capacity, evidence, or launch/security gates.",
         "requested_action": null,
         "proposal_id": null
       }
