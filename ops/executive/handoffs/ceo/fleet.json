@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:07:52.545Z",
+  "generated_at": "2026-09-29T23:22:38.601Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Active delivery is full at 10/10 slots; 45 deployed improvements await measurement, 21 requests failed, and 7 repair follow-ups remain open. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Retain the two CRO control-plane concepts as deferred specifications; do not queue them this cycle. Smallest next step: delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Owner decision: keep Woot rights outreach unsent pending human-counsel review.",
+        "summary": "Acknowledged EXEC_CONV_11: I have acquired the domain MagicEscorts.com, setup this site in the fleet in full. It should be a cheesy escort style site that looks really good, but, the catch is, the escorts do magic tricks during your time together. Should be visually sunning. Ensure BlueSky i setup and all of its roles are fully engaged. Setup personalities, use our media_gen to create graphics. This is a legit endevour, put a contact form on it, maybe build in a booking request. They should look like professional magic performing escorts, should be options between low key, card tricks options, etc... like, when requesting, could put something like a checkbox for absolutely no rope tricks... lmao.\n\nThen, add AWS Affiliate links for magic tricks. What we want to do, is not operate a magic escorts sites, rather pretend we do, except that the personalities will always be unavailable and what we will do is generate revenue off the affiliates when people buy magic tricks instead... We are turning tricks away for tricks. Good luck with this one and feel free to flesh it out!\n\nThe executive team has received this direction. We will record the feasibility, scope, safety gates, and delivery path in this thread before any implementation or scheduling changes are made.",
         "requested_action": null,
         "proposal_id": null
       }

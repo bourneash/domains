@@ -2,21 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:07:52.545Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:22:38.602Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Do not admit new implementation, requeue, deployment, telemetry, spend, dependency, credential, permission, configuration, domain, or monetization work while delivery is saturated and repair, measurement, security, and launch gates remain open. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Retain both control-plane concepts as deferred specifications; they are technically feasible as read-only, isolated prototypes after capacity clears, but are not queue-admissible this cycle.",
+        "summary": "CTO disposition: approve containment-only execution. Do not create queue work, change requests, requeues, deployments, telemetry, dependencies, permissions, credentials, spending, or monetization expansion this cycle. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Keep each parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by the existing deadline. Do not create queue entries or change production, DNS, analytics, monetization, spending, or dependencies.",
+        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift values as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix and period-aligned finance reconciliation. Preserve explicit unknowns; keep public exposure and security-sensitive releases blocked while controls remain unevidenced. Authorize no spend or external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete existing parked-site readiness packets by 2026-09-30T17:00Z. Keep scaffold properties parked, private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the CRO and site-factory concepts as deferred specifications only. Reconsider admission only after an active delivery slot clears and each candidate has an isolated implementation boundary, effort estimate, available baseline metric, deterministic acceptance tests, and rollback point.",
         "requested_action": null,
         "proposal_id": null
       }

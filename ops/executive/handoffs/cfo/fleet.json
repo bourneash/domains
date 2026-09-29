@@ -2,35 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:07:52.545Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:22:38.601Z",
+  "summary": "cfo checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution and no new spend, monetization expansion, billing changes, or queue admission this cycle. Supported revenue is limited to 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; the $4.92 is in an aggregate provider row and is not site-attributable. Contribution margin, ROI, payback, forecasts, infrastructure spend, budget exposure, and cost-to-learn are unknown because matching-period allocated costs and approved learning thresholds are unavailable. September 1-29 AI usage is $947.39859535 across 5,289 calls, but it cannot be compared to one revenue day or treated as financial performance. Continue only existing period-aligned reconciliation and deployed-work measurement using existing telemetry.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. The only supported revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to a site. September 1–29 AI usage is $947.40 across 5,289 calls, but it is not period-matched to revenue, so margin, ROI, payback, and forecasts must not be inferred.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The minimum evidence to calculate contribution margin and cost-to-learn is a dated ledger matching each revenue item and allocable cost item to the same site or content identifier and period, including AI, infrastructure, domain, and other operating costs, plus an approved learning threshold and outcome definition. Until then, do not use clicks, ordered items, shipped items, sessions, impressions, proposal counts, or delivery throughput as revenue, profit, ROI, or learning claims. The 63% approved-proposal execution rate and 5 proven improvements are operational indicators only.",
+        "summary": "Contribution margin is unknown: matching-period site-attributed revenue and allocated costs are unavailable. The minimum measurement is a dated ledger matching each revenue item and cost item to the same site or content and period, including AI, infrastructure, domains, hosting, and other operating costs. Do not subtract the $947.40 AI total from $4.92 revenue because the periods and attribution scopes do not match.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI usage cost is known only for 2026-09-01 through 2026-09-29: $947.39859535, 5,289 calls, 229 errors, and 5 transient errors across 39 instrumented sites. Average AI cost per call is approximately $0.1792, but cost per learning or acquisition is not calculable because learning outcomes, attributable revenue, and approved thresholds are absent. Infrastructure spend is unknown because operations deploy, uptime, and error sweeps have no results; fixed monthly costs, marketing budget, and revenue floor are blank. Authorize no spend until these fields are reconciled.",
+        "summary": "Cost-to-learn is not calculable because no approved learning threshold, experiment denominator, or attributable outcome value is recorded. The minimum measurement is an approved per-test learning budget or threshold, test scope and dates, incremental AI/infrastructure cost, exposure count, and a measurable outcome tied to the tested site or content. Existing clicks, impressions, sessions, and proposals are not financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject both deferred control-plane proposals for CFO retention this cycle. Their operational metrics—duplicate admissions, execution rate, repair backlog, and cycle time—do not establish financial return, contribution margin, or cost-to-learn. They may remain CEO/CTO operational considerations, but no CFO proposal is created because the existing finance reconciliation work already covers the evidence gap.",
+        "summary": "Budget exposure is unknown because monthly spend, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank in the owner strategy. The minimum measurement is a dated approved budget register plus committed and incurred spend by cost category. Until then, retain containment and authorize no discretionary spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing period-aligned reconciliation only. Preserve aggregate provider earnings as unattributed; do not use named tracking-row clicks with zero site commission as revenue, and do not extrapolate the single 2026-09-21 revenue day into a monthly forecast. Continue deployed-work measurement and existing repair-or-close and readiness work without adding telemetry or duplicate requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing saveusfarms.com repair-or-close case and complete or close it by 2026-09-30T07:30Z with dated ownership, root-cause or closure rationale, validation, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. This is containment work, not a basis for a financial claim.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing parked-site readiness packets by 2026-09-30T17:00Z. Keep the scaffold properties parked, private, preview-only, and unlaunched; do not publish, deploy, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       }
