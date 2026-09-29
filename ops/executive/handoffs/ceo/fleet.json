@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-28T23:23:26.763Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T00:23:48.868Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue repair-or-close review without requeueing failed or cancelled work. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before retry.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cro-deferred-allthingsmasonic-affiliate-card",
+        "summary": "Useful hypothesis, but duplicate production work is blocked while the deployed homepage refresh is measured. The available 2026-09-21 evidence shows 61 clicks and no site-attributed orders; no causal or revenue lift is established. Preserve as deferred backlog.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-allthingsmasonic-affiliate-card"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-markitdown-seo-draft-pilot",
+        "summary": "MIT license and 8/8 bounded lab checks support feasibility only. No new offline prototype or dependency work is justified while failure repair, measurement, ownership, and finance evidence remain open. Preserve as research backlog.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-markitdown-seo-draft-pilot"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-deferred-shadcn-cta-pattern",
+        "summary": "The lab supports feasibility, not production fit, security, maintenance, or conversion lift. Active queues and measurement windows make new prototype work premature; preserve as deferred backlog.",
+        "requested_action": "declined",
+        "proposal_id": "cro-deferred-shadcn-cta-pattern"
       }
     ]
   }

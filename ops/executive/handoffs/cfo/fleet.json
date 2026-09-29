@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T00:07:25.565Z",
+  "generated_at": "2026-09-29T00:23:48.866Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Pushback: do not treat clicks, impressions, sessions, conversions, ordered items, shipped items, or three proven operational outcomes as financial performance. No experiment outcomes are recorded, and the available revenue row is aggregate and unattributed. Continue existing finance reconciliation only; preserve unavailable values as unknown and do not extrapolate the one-day $4.92 commission or the 2026-09-01 through 2026-09-28 AI cost into monthly revenue, margin, payback, or budget forecasts.",
+        "summary": "Recommendation: maintain containment-only execution and continue only the existing period-aligned finance reconciliation. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; the 18 named tracking rows show $0 site-attributed commission, while the aggregate row cannot be assigned to a site. AI usage cost is $925.99629405 for 2026-09-01 through 2026-09-28, a mismatched period. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, ROI, forecasts, and causal lift are unknown—not zero. The brief provides no matching-period infrastructure, labor, operating-cost, commitment, budget-ceiling, or approved learning-threshold data. Do not approve new spend, monetization expansion, forecasts, requeues, deployments, or financial claims. Continue existing reconciliation and preserve aggregate revenue as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Do not claim site revenue, ROI, margin, payback, forecast, budget capacity, or causal lift; missing matching-period costs, commitments, budgets, and learning thresholds remain unknown.",
+        "summary": "Continue work item 67ebb985-a7b8-47f4-9792-b4d727275c4a only. Reconcile the 18 named provider rows and aggregate row for 2026-09-21 against matching-period revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable fields as unknown and do not extrapolate the one-day commission or mismatched AI spend.",
         "requested_action": null,
         "proposal_id": null
       }
