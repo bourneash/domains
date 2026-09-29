@@ -11951,7 +11951,7 @@ function cqAge(value) {
 }
 
 function cqAgeTone(value, status) {
-  if (['claimed', 'running', 'reviewing', 'review'].includes(status)) return 'working';
+  if (['claimed', 'running', 'reviewing', 'delivery_pending'].includes(status)) return 'working';
   const ms = Date.now() - new Date(value || 0).getTime();
   if (!Number.isFinite(ms) || ms < 0) return '';
   return ms >= 60 * 60 * 1000 ? 'old' : ms >= 15 * 60 * 1000 ? 'aging' : '';
@@ -11962,7 +11962,10 @@ function cqWorkLabel(r) {
     return r.work.state === 'claimed' ? 'Claimed · starting' : `Working · ${r.work.state}`;
   if (r.status === 'queued')
     return r.queue_block?.blocked ? 'Waiting · blocked' : 'Waiting · eligible';
-  return r.status === 'review' ? 'Waiting · review' : `Finished · ${r.status}`;
+  if (r.status === 'review') return 'Waiting · review';
+  if (r.status === 'needs_repair') return 'Waiting · repair';
+  if (r.status === 'blocked_infrastructure') return 'Blocked · infrastructure';
+  return `Finished · ${r.status}`;
 }
 
 function cqStatusClass(status) {
@@ -11970,7 +11973,8 @@ function cqStatusClass(status) {
   if (['failed', 'cancelled'].includes(status)) return 'b-red';
   if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(status))
     return 'b-yellow';
-  if (['review', 'reviewing'].includes(status)) return 'b-yellow';
+  if (['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(status))
+    return 'b-yellow';
   return 'b-blue';
 }
 
@@ -11986,6 +11990,8 @@ function cqNextAction(r, settings) {
   if (r.status === 'running') return 'Monitor implementation and lease';
   if (r.status === 'reviewing') return 'Wait for quality gates';
   if (r.status === 'review') return 'Run review and deliver';
+  if (r.status === 'delivery_pending') return 'Run deterministic delivery';
+  if (r.status === 'needs_repair') return 'Repair implementation, then review again';
   if (r.status === 'failed') return 'Inspect failure, then retry';
   if (r.status === 'blocked_owner') return 'Install or assign a site owner';
   if (r.status === 'blocked_infrastructure') return 'Repair infrastructure, then retry';
@@ -12028,13 +12034,15 @@ function cqActionButtons(r) {
   const manage = `<button class="btn sm cq-detail" data-id="${id}" title="Open inline actions, request details, and timeline">Actions</button>`;
   if (r.status === 'queued')
     return `${manage} <button class="btn sm primary cq-pick" data-id="${id}">Dispatch</button> <button class="btn sm cq-reevaluate" data-id="${id}" title="Re-check capacity and site locks without bypassing safety rules">Re-evaluate</button>`;
-  if (r.status === 'review')
+  if (['review', 'needs_repair'].includes(r.status))
     return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
   if (r.status === 'failed')
     return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
   if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(r.status))
     return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
-  if (['queued', 'claimed', 'running', 'reviewing', 'review'].includes(r.status))
+  if (
+    ['queued', 'claimed', 'running', 'reviewing', 'delivery_pending', 'review'].includes(r.status)
+  )
     return `${manage} <button class="btn sm danger cq-cancel" data-id="${id}">Cancel</button>`;
   return manage;
 }
@@ -12086,12 +12094,16 @@ async function renderChangeQueue({ background = false } = {}) {
   const queued = requests.filter(r => r.status === 'queued');
   const blocked = queued.filter(r => r.queue_block?.blocked).length;
   const active = requests.filter(r =>
-    ['claimed', 'running', 'reviewing', 'review'].includes(r.status)
+    ['claimed', 'running', 'reviewing', 'delivery_pending', 'review', 'needs_repair'].includes(
+      r.status
+    )
   );
   const working = requests.filter(r => r.work?.active);
   // Only surface recoverable exceptions here. Cancelled requests are historical
   // outcomes, not active interventions; failed requests have a direct retry path.
-  const attention = requests.filter(r => ['failed', 'needs_human_review'].includes(r.status));
+  const attention = requests.filter(r =>
+    ['failed', 'blocked_infrastructure', 'needs_repair', 'needs_human_review'].includes(r.status)
+  );
   const deliveryMetrics = data.delivery_metrics || { windows: {} };
   const throughput = deliveryMetrics.windows || {};
   const capacity = Number(data.settings.max_concurrent || 1);
@@ -12109,8 +12121,18 @@ async function renderChangeQueue({ background = false } = {}) {
     if (CHANGE_QUEUE_VIEW === 'all') return true;
     if (CHANGE_QUEUE_VIEW === 'queued') return r.status === 'queued';
     if (CHANGE_QUEUE_VIEW === 'active')
-      return ['claimed', 'running', 'reviewing', 'review'].includes(r.status);
-    if (CHANGE_QUEUE_VIEW === 'failed') return ['failed', 'needs_human_review'].includes(r.status);
+      return [
+        'claimed',
+        'running',
+        'reviewing',
+        'delivery_pending',
+        'review',
+        'needs_repair',
+      ].includes(r.status);
+    if (CHANGE_QUEUE_VIEW === 'failed')
+      return ['failed', 'blocked_infrastructure', 'needs_repair', 'needs_human_review'].includes(
+        r.status
+      );
     if (CHANGE_QUEUE_VIEW === 'shipped')
       return ['deployed', 'verified', 'committed'].includes(r.status);
     return r.status === 'failed' || isStale(r) || (r.priority === 'high' && isOpen(r));
@@ -12150,7 +12172,7 @@ async function renderChangeQueue({ background = false } = {}) {
         ? 4
         : r.priority === 'high'
           ? 3
-          : ['review', 'reviewing'].includes(r.status)
+          : ['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(r.status)
             ? 2
             : r.status === 'queued'
               ? 1
@@ -12202,7 +12224,9 @@ async function renderChangeQueue({ background = false } = {}) {
     [
       'review',
       'Review',
-      requests.filter(r => ['review', 'reviewing'].includes(r.status)).length,
+      requests.filter(r =>
+        ['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(r.status)
+      ).length,
       'var(--a2)',
     ],
     ['done', 'Shipped (month)', throughput.month_to_date?.shipped || 0, 'var(--green)'],
@@ -12771,7 +12795,7 @@ function wbCol(item) {
       : item.status === 'declined'
         ? 'done'
         : 'ready';
-  return ['review', 'reviewing'].includes(item.status)
+  return ['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(item.status)
     ? 'approval'
     : item.status === 'failed'
       ? 'blocked'
@@ -12921,8 +12945,10 @@ function workBoardColumn(item) {
       : item.status === 'declined'
         ? 'done'
         : 'ready';
-  if (['review', 'reviewing'].includes(item.status)) return 'approval';
-  if (item.status === 'failed') return 'blocked';
+  if (['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(item.status))
+    return 'approval';
+  if (['failed', 'blocked_infrastructure', 'needs_human_review'].includes(item.status))
+    return 'blocked';
   if (['queued', 'claimed'].includes(item.status)) return 'ready';
   if (item.status === 'running') return 'active';
   return 'done';

@@ -261,7 +261,9 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
     const escalated = blockers.length > 0 && blockedAgeMs >= FAIRNESS_ESCALATION_MS;
     const nextRetry = request.next_attempt_at && Date.parse(request.next_attempt_at);
     const run = request.run_id ? improvementsById.get(request.run_id) || null : null;
-    const isWorking = ['claimed', 'running', 'reviewing'].includes(request.status);
+    const isWorking = ['claimed', 'running', 'reviewing', 'delivery_pending'].includes(
+      request.status
+    );
     const workingSince = request.claimed_at || run?.created_at || null;
     const heartbeatAt = request.heartbeat_at || run?.updated_at || null;
     return {

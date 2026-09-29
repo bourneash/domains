@@ -114,3 +114,29 @@ test('measuring improvements continue showing as measurement work without consum
   assert.equal(result.policy.measurement_count, 10);
   assert.equal(result.measuring.length, 10);
 });
+
+test('delivery handoffs and blocked reviews do not consume implementation slots', () => {
+  const result = delivery.snapshot(
+    store(
+      [
+        {
+          request_id: 'pending',
+          site: 'pending.example.com',
+          title: 'Ready for deterministic delivery',
+          status: 'delivery_pending',
+          delivery_mode: 'direct',
+        },
+        {
+          request_id: 'blocked',
+          site: 'blocked.example.com',
+          title: 'Needs infrastructure repair',
+          status: 'blocked_infrastructure',
+          delivery_mode: 'direct',
+        },
+      ],
+      []
+    )
+  );
+  assert.equal(result.policy.active_slots, 0);
+  assert.equal(result.policy.open_slots, 10);
+});

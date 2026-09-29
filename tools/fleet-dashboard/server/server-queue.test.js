@@ -186,7 +186,7 @@ test('versioned validation fixes reopen each preserved infrastructure review at 
 
 test('preserved infrastructure reviews do not re-submit the same lifecycle status', () => {
   const patch = infrastructureReviewProjectionPatch(
-    { status: 'review' },
+    { status: 'blocked_infrastructure' },
     'implementation preserved; validation infrastructure blocked revalidation'
   );
   assert.equal(Object.hasOwn(patch, 'status'), false);
@@ -195,7 +195,7 @@ test('preserved infrastructure reviews do not re-submit the same lifecycle statu
 
   assert.equal(
     infrastructureReviewProjectionPatch({ status: 'reviewing' }, 'blocked').status,
-    'review'
+    'blocked_infrastructure'
   );
 });
 

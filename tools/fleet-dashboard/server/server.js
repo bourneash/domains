@@ -271,7 +271,7 @@ function shouldAutoRevalidateInfrastructureReview(
     Number(run.agent?.exit_code) === 0;
   return Boolean(
     request &&
-    request.status === 'review' &&
+    ['review', 'blocked_infrastructure'].includes(request.status) &&
     run &&
     (run.state === 'review' || completedReviewerHandoff) &&
     run.outcome?.infrastructure_blocked === true &&
@@ -294,7 +294,7 @@ function shouldPreserveCompletedReviewerHandoff(request, run) {
 // when the durable row is already in review.
 function infrastructureReviewProjectionPatch(request, queueError) {
   return {
-    ...(request?.status === 'review' ? {} : { status: 'review' }),
+    ...(request?.status === 'blocked_infrastructure' ? {} : { status: 'blocked_infrastructure' }),
     error: queueError,
     next_attempt_at: null,
     lease_owner: null,
@@ -1225,7 +1225,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               events,
               request.request_id,
               {
-                status: 'review',
+                status: 'blocked_infrastructure',
                 error: null,
                 next_attempt_at: null,
                 lease_owner: null,
@@ -2951,7 +2951,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         events,
         request.request_id,
         {
-          status: 'review',
+          status: 'blocked_infrastructure',
           error: queueError,
           next_attempt_at: null,
           lease_owner: null,
@@ -2970,7 +2970,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         payload: {
           run_id: reviewed.run_id,
           previous_state: run.state,
-          status: 'review',
+          status: 'blocked_infrastructure',
           preserved_for_revalidation: true,
           error: message,
         },
@@ -3024,7 +3024,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // projection when validation fails. Re-enter through `review` first;
       // the queue state machine intentionally does not allow reviewing →
       // running, while review → running is the bounded repair transition.
-      const recoveryStatus = ['failed', 'reviewing'].includes(request.status)
+      const recoveryStatus = ['failed', 'reviewing', 'needs_repair', 'delivery_pending'].includes(
+        request.status
+      )
         ? 'review'
         : 'running';
       changequeue.update(
@@ -3076,7 +3078,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         changequeue.update(
           events,
           request.request_id,
-          { status: 'review', error: `automatic repair could not start: ${repairError.message}` },
+          {
+            status: 'needs_repair',
+            error: `automatic repair could not start: ${repairError.message}`,
+          },
           site => isKnownTarget(root, site)
         );
       } catch {
@@ -3107,6 +3112,25 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     });
   }
 
+  async function reviewWorkspacePreflight(run) {
+    if (!run?.workspace_path || !fs.existsSync(run.workspace_path))
+      throw Object.assign(new Error('improvement worktree is missing'), { httpStatus: 409 });
+    const marker = path.join(run.workspace_path, '.git');
+    let gitDir = marker;
+    if (fs.existsSync(marker) && fs.statSync(marker).isFile()) {
+      const match = fs.readFileSync(marker, 'utf8').match(/^gitdir:\s*(.+)$/m);
+      if (match) gitDir = path.resolve(run.workspace_path, match[1].trim());
+    }
+    if (
+      fs.existsSync(path.join(gitDir, 'rebase-merge')) ||
+      fs.existsSync(path.join(gitDir, 'rebase-apply'))
+    )
+      throw Object.assign(new Error('improvement worktree has an active rebase'), {
+        httpStatus: 409,
+      });
+    return git.worktreeSnapshot(run.workspace_path);
+  }
+
   async function recordAutoReviewFailure(id, error) {
     const request = events.getChangeRequest(id);
     if (!request || ['cancelled', 'deployed', 'verified'].includes(request.status)) return;
@@ -3132,7 +3156,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events,
           id,
           {
-            status: failedRun?.state === 'failed' ? 'failed' : 'review',
+            status: failedRun?.state === 'failed' ? 'failed' : 'blocked_infrastructure',
             error: message,
             next_attempt_at: retryable ? new Date(Date.now() + 15 * 60 * 1000).toISOString() : null,
             lease_owner: null,
@@ -3163,7 +3187,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         events,
         id,
         {
-          status: failedRun?.state === 'failed' ? 'failed' : 'review',
+          status: failedRun?.state === 'failed' ? 'failed' : 'needs_repair',
           error: message,
           lease_owner: null,
           lease_expires_at: null,
@@ -3195,7 +3219,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function recoverAutomaticReviewHandoffs() {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
-      if (!['reviewing', 'review'].includes(request.status)) continue;
+      if (!['reviewing', 'review', 'blocked_infrastructure'].includes(request.status)) continue;
       // A reviewer PASS whose delivery hit a repository-state problem is
       // intentionally parked for an operator. Do not rediscover the PASS and
       // repeat the same deployment attempt on every recovery sweep.
@@ -3371,6 +3395,30 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           },
         });
       }
+      const handoff = changequeue.update(
+        events,
+        id,
+        {
+          status: 'delivery_pending',
+          error: null,
+          lease_owner: queueWorkerId,
+          lease_expires_at: leaseExpiry(events.getChangeQueueSettings().lease_minutes),
+          heartbeat_at: new Date().toISOString(),
+        },
+        site => isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.delivery_pending',
+        source: 'fleet-dashboard',
+        site_id: `site:${handoff.site}`,
+        entity_type: 'change-request',
+        entity_id: id,
+        correlation_id: `change-request:${id}`,
+        payload: {
+          run_id: latest.run_id,
+          reason: 'reviewer approved; deterministic delivery pending',
+        },
+      });
       let snapshot = await git.worktreeSnapshot(latest.workspace_path);
       if (snapshot.dirty)
         snapshot = await git.commitWorktree(latest.workspace_path, `feat: ${latest.title}`);
@@ -3426,7 +3474,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (activeAutomaticReviews.has(id)) return { status: 'already-running' };
     const request = events.getChangeRequest(id);
     if (!request) throw Object.assign(new Error('change request not found'), { httpStatus: 404 });
-    if (!['review', 'reviewing', 'running'].includes(request.status))
+    if (
+      !['review', 'reviewing', 'running', 'needs_repair', 'blocked_infrastructure'].includes(
+        request.status
+      )
+    )
       throw Object.assign(new Error(`request is ${request.status}, not awaiting review`), {
         httpStatus: 409,
       });
@@ -3471,9 +3523,51 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           httpStatus: 409,
         });
       run = await ensureImprovementSandbox(run);
+      await reviewWorkspacePreflight(run);
     } catch (error) {
       activeAutomaticReviews.delete(id);
-      recordAutoReviewFailure(id, error);
+      const latest = events.getImprovement(run.run_id);
+      const message = String(error.message || error);
+      if (!isInfrastructureEvidence(message) && !/(sandbox|worktree|rebase)/i.test(message)) {
+        recordAutoReviewFailure(id, error);
+        throw error;
+      }
+      if (latest) {
+        events.updateImprovement(latest.run_id, {
+          outcome: {
+            ...(latest.outcome || {}),
+            infrastructure_blocked: true,
+            infrastructure_error: message,
+            review_preflight_failed_at: new Date().toISOString(),
+          },
+        });
+      }
+      try {
+        const updated = changequeue.update(
+          events,
+          id,
+          {
+            status: 'blocked_infrastructure',
+            error: message,
+            next_attempt_at: null,
+            lease_owner: null,
+            lease_expires_at: null,
+            heartbeat_at: null,
+          },
+          site => isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.review_preflight_blocked',
+          source: 'fleet-dashboard',
+          site_id: `site:${updated.site}`,
+          entity_type: 'change-request',
+          entity_id: id,
+          correlation_id: `change-request:${id}`,
+          payload: { error: message },
+        });
+      } catch {
+        /* preserve the original preflight failure */
+      }
       throw error;
     }
     const task = findImprovementTask(root, run);
@@ -4288,9 +4382,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         requests,
         summary: {
           queued: requests.filter(row => row.status === 'queued').length,
-          active: requests.filter(row => ['claimed', 'running', 'reviewing'].includes(row.status))
-            .length,
-          review: requests.filter(row => row.status === 'review').length,
+          active: requests.filter(row =>
+            ['claimed', 'running', 'reviewing', 'delivery_pending'].includes(row.status)
+          ).length,
+          review: requests.filter(row =>
+            ['review', 'reviewing', 'delivery_pending', 'needs_repair'].includes(row.status)
+          ).length,
           failed: requests.filter(row => row.status === 'failed').length,
         },
       });

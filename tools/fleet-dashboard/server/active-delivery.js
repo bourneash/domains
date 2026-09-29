@@ -11,7 +11,7 @@ const ACTIVE_REQUEST_STATUSES = new Set([
   'claimed',
   'running',
   'reviewing',
-  'review',
+  'delivery_pending',
   'committed',
 ]);
 const ACTIVE_RUN_STATES = new Set(['proposed', 'building', 'review', 'deployed', 'measuring']);
