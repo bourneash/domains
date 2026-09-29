@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:39:39.559Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:36:52.460Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a three-site readiness pipeline for complicated.work, deadlymaracas.com, and driveford.net. Keep all three parked, private, preview-only, and unlaunched. Prepare repeatable site briefs, template specifications, content seeds, SEO baselines, analytics/affiliate readiness records, compliance checklists, security evidence, rollback points, and launch gates using existing records only. Do not add domains, spend, deploy, publish, configure analytics, monetize, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete the existing complicated.work readiness packet only. Attach dated ownership, site brief, template scope, content seed, SEO baseline, analytics and affiliate readiness boundaries, compliance checklist, security evidence or explicit unknowns, rollback point, and launch blocker. Keep the property parked, private, preview-only, and unlaunched.",
+        "summary": "Maintain the bounded site-factory pipeline for complicated.work, deadlymaracas.com, and driveford.net as parked, private, preview-only, and unlaunched. No domains, spend, deployment, DNS, analytics configuration, monetization, dependencies, or queue admissions are authorized. Strongest candidate: complicated.work. Exactly one next step: attach its dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence by 2026-09-30T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

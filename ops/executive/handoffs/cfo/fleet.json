@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:39:39.560Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:36:52.460Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, or monetization expansion. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to sites because it is in Amazon's aggregate \"other\" row. AI usage is $945.247 from 2026-09-01 through 2026-09-29 across 5,264 calls and 39 instrumented sites, with 229 errors, but it is not period-matched to the single revenue day. Contribution margin, infrastructure spend, budget exposure, ROI, payback, forecasts, cost-to-learn, and causal lift are unknown because allocated costs, budgets, matching-period revenue, and approved learning thresholds are unavailable. Continue only the existing period-aligned finance reconciliation, deployed-work measurement, repair containment, security evidence, and private launch-gate work. Do not retain the proposed CRO experiments or prototype as finance-approved proposals this cycle; active delivery is already 10/10 slots and financial evidence does not support expansion.",
+        "summary": "Recommend containment-only execution this cycle. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; $4.92 is aggregate and cannot be assigned to a site. AI usage is $945.25 for 2026-09-01 through 2026-09-29 across 5,264 calls, but matching-period revenue and infrastructure costs are unavailable. Contribution margin, budget exposure, ROI, payback, cost-to-learn, forecasts, and causal lift are therefore unknown. Do not extrapolate revenue, treat aggregate earnings as site revenue, or authorize spend, billing changes, monetization expansion, or new work. Continue only existing period-aligned reconciliation and measurement using current telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum evidence required for a calculable financial review is a dated ledger matching each revenue item and cost item to the same site or content identifier and period, including AI, infrastructure, domains, and other operating costs, plus an approved dollar learning threshold and measurement window. Until then, report aggregate revenue and AI spend separately without calculating margin, ROI, payback, cost-to-learn, or forecasts.",
+        "summary": "Minimum evidence for contribution margin and cost-to-learn is a dated ledger matching each revenue and cost item to the same site or content identifier and period, including AI and infrastructure allocations, plus an approved learning threshold and measured outcome. The current brief lacks matching-period infrastructure spend, fixed costs, marketing budget, revenue target, revenue floor, and approved learning threshold. Do not treat 45 pending measurements, 21 failed requests, 127 stranded work items, or 63% approved-proposal execution as financial performance.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Defer the execution-integrity control-plane concept this cycle. Its operational rationale is credible, but no incremental financial benefit, avoided cost, or implementation cost is evidenced, and delivery is saturated at 10/10 slots. Reconsider only after capacity clears and a bounded business case specifies baseline cost, implementation effort, measurable savings or throughput benefit, and rollback.",
         "requested_action": null,
         "proposal_id": null
       }
