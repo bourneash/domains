@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:39:39.560Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:53:14.639Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked for public launches, public beta, security-sensitive releases, alert expansion, affiliate expansion, and advertising expansion; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Evidence: compliance is technical-only with 35 pass, 18 fail, and 6 unknown; security and operations evidence is unavailable; analytics quality is yellow; Amazon evidence is limited to 2026-09-21 aggregate results of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission. Exact decision: maintain containment-only execution, authorize no new spend or monetization expansion, admit no new queue work, and keep private or parked launch gates in place until evidence and owner decisions are complete.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 remain open. No task is closed because direct evidence is still missing. Progress is limited to official API, terms, and support review; partial repository/configuration data-flow evidence; privacy and cookie-policy artifacts; and draft site terms. Next evidence action: attach and review one consolidated read-only bundle covering field-level rights, deployed data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 configuration and retention, log fields, vendors, incident/request procedures, accuracy/freshness controls, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot is blocked for public beta, full launch, alert expansion, affiliate use, and advertising. Woot documentation proves API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data; current public terms restrict the proposed use. Keep SearchWoot private and preview-only. Human counsel is required for upstream data rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep rights outreach unsent pending counsel review and owner authorization.",
+        "summary": "Data-use review dispositions: Woot API deal and price-history data is blocked pending written rights or an API agreement plus field-level limits for storage, derivatives, caching, display, alerts, attribution, freshness, correction, takedown, trademarks, images, prices, affiliate use, and advertising; smallest next action is to complete the internal counsel packet and obtain human-counsel review. User alert rules and sync results are evidence_needed pending data inventory, identifiers, retention, deletion/correction/access, processor terms, notification consent, and unsubscribe behavior; smallest next action is a read-only deployed/repository data-flow and retention table. GA4 analytics is evidence_needed, conditionally supportable for consent-gated measurement only, pending deployed consent/withdrawal behavior, GA4 property/data-sharing settings, retention, and jurisdictional review; smallest next action is a read-only consent/configuration capture without enabling tracking. Operational logs and Cloudflare hosting data are evidence_needed for operational use only, pending log fields, retention/access controls, vendor coverage, incident handling, subpoena handling, and data-subject-request procedures; smallest next action is a read-only log/vendor/incident/request inventory. No secondary sharing or monetization is cleared.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence.",
+        "summary": "Fleet compliance and data-quality disposition: ordinary reversible growth is conditional, not blocked solely by incomplete telemetry, provided it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, cookie/analytics disclosure, affiliate disclosure, provenance and rights, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. The compliance scan is a technical baseline only: 35 pass, 18 fail, and 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics quality is yellow because source permissions or collector errors exist; revenue is partial aggregate, with $4.92 not assignable to a site. Do not treat unavailable telemetry as zero or claim legal certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or new queue entry is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence.",
         "requested_action": null,
         "proposal_id": null
       }
