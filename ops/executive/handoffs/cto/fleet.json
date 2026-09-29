@@ -2,49 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:37:37.493Z",
+  "generated_at": "2026-09-29T14:53:06.136Z",
   "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots, deployed work awaits measurement, failed requests and repair follow-ups remain open, and operations/security evidence is unavailable. Continue only existing repair-or-close, deployed-change measurement, period-aligned reconciliation, bounded security evidence, private launch gates, and parked-site readiness. Reject new queue work, unchanged requeues, deployments, spend, telemetry expansion, dependency changes, external outreach, and unsupported financial or causal claims. Queue admission remains blocked until the retained saveusfarms.com failure is completed or justifiably closed with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "Prioritize completion or justified closure of the retained saveusfarms.com failure by 2026-09-30T07:30:00Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback point, release and security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the retained saveusfarms.com repair-or-close work through 2026-09-30T07:30:00Z. Do not retry unchanged work or create a duplicate. Record dated ownership, root cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence before reconsidering queue admission.",
+        "summary": "Continue existing deployed-change measurement for allthingsmasonic.com and broadwayshowgirls.com using available checks and telemetry only. Preserve unknown revenue, conversion, attribution, and causal-lift fields; do not add tracking or requeue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing complicated.work readiness packet only. Keep the scaffold parked, private, preview-only, and launch-blocked. Attach dated ownership, available preview/build evidence, compliance baseline, security evidence and unknowns, measurement boundary, rollback point, and explicit blocker. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Keep complicated.work parked, private, and preview-only. Complete the existing readiness packet by 2026-09-30T17:00:00Z with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No build, publish, deployment, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unavailable revenue, attribution, conversion, and causal-lift values as unknown. Do not add tracking, duplicate work, requeue failures, or claim lift before measurement windows complete.",
+        "summary": "Continue the existing read-only security evidence matrix and private launch gates using authorized metadata and retained artifacts only. Block public exposure and security-sensitive releases. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, exploit targets, or conduct outreach.",
+        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown where evidence is absent; do not extrapolate.",
+        "summary": "Deferred CRO, repository-adoption, new-site-build, and new affiliate or SEO opportunities remain technically plausible but are not queue-admissible this cycle. Reassess only after delivery capacity opens, the retained failure is resolved or closed, and required security, measurement, ownership, and launch gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

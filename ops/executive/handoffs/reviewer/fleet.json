@@ -2,16 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T14:45:51.348Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:53:06.137Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject all new queue work, requeues, deployments, spending, telemetry expansion, dependency or permission changes, monetization expansion, and unsupported financial or causal claims. Delivery is saturated at 10/10 slots, with substantial measurement backlog, failed requests, and unavailable operations/security evidence. Continue only existing repair-or-close, deployed-change measurement, period-aligned finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. The only supported revenue result is $4.92 aggregate Amazon commission for 2026-09-21; it is not site-attributable. Margin, ROI, forecasts, cost-to-learn, and causal lift remain unknown. Complete or justifiably close the retained saveusfarms.com failure with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence before reconsidering queue admission. No additional research request is justified because existing telemetry and evidence work already cover the identified gaps.",
+        "summary": "Approve containment-only execution. Reject new queue work, requeues, deployments, spending, telemetry expansion, monetization expansion, external outreach, and unsupported financial or causal claims. Continue only existing reconciliation, measurement, repair-or-close, security evidence, private launch-gate, and parked-site readiness work. Supported revenue is limited to $4.92 aggregate Amazon commission for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30:00Z. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unknown revenue, conversion, attribution, and causal-lift fields; do not add tracking or requeue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve aggregate earnings as unattributed and keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue bounded read-only security evidence capture using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete the existing complicated.work readiness packet only. Keep it parked, private, and preview-only; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "legal-2026-09-29-maintain-private-launch-gates",
+        "summary": "Duplicate of the existing private launch-gate and legal evidence work; continue that existing work without creating another proposal or request.",
+        "requested_action": "declined",
+        "proposal_id": "legal-2026-09-29-maintain-private-launch-gates"
       }
     ]
   }
