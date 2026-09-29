@@ -14106,6 +14106,12 @@ async function renderExecutive() {
     cases,
     calendar;
   const conversationOnly = STATE.agentPage === 'conversation';
+  const dashboardOnly = STATE.agentPage === 'dashboard';
+  // The dashboard is the first-paint surface. Do not make it wait for data
+  // belonging to hidden workspace tabs (transcripts, cases, CRO lab, etc.).
+  // Auxiliary reads are deliberately bounded so a sick collector degrades to
+  // an empty panel instead of taking the entire control plane down.
+  const optional = (method, url, fallback) => apiOptional(method, url, fallback, 1500);
   try {
     const loadKey = conversationOnly
       ? 'conversation'
@@ -14124,54 +14130,91 @@ async function renderExecutive() {
           // does not need a second copy of the same messages/work items.
           conversationOnly
             ? Promise.resolve({ messages: [] })
-            : api('GET', '/api/executive/messages?limit=100'),
+            : dashboardOnly
+              ? Promise.resolve({ messages: [] })
+              : optional('GET', '/api/executive/messages?limit=100', { messages: [] }),
           conversationOnly
             ? Promise.resolve({ messages: [], retention_days: 90 })
-            : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
+            : dashboardOnly
+              ? Promise.resolve({ messages: [], retention_days: 90 })
+              : optional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
           conversationOnly
             ? Promise.resolve({ work_items: [] })
-            : api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
-          api('GET', `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`),
+            : dashboardOnly
+              ? Promise.resolve({ work_items: [] })
+              : optional('GET', '/api/executive/work-items?source_type=owner-request&limit=50', {
+                  work_items: [],
+                }),
+          dashboardOnly
+            ? Promise.resolve({ requests: [], notifications: [] })
+            : optional(
+                'GET',
+                `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`,
+                { requests: [], notifications: [] }
+              ),
           conversationOnly
             ? Promise.resolve({ proposals: [] })
-            : api('GET', '/api/executive/proposals?limit=100'),
+            : dashboardOnly
+              ? Promise.resolve({ proposals: [] })
+              : optional('GET', '/api/executive/proposals?limit=100', { proposals: [] }),
           conversationOnly
             ? Promise.resolve({ actions: [] })
-            : api('GET', '/api/executive/actions?limit=200'),
+            : dashboardOnly
+              ? Promise.resolve({ actions: [] })
+              : optional('GET', '/api/executive/actions?limit=200', { actions: [] }),
           conversationOnly
             ? Promise.resolve({ settings: {} })
-            : api('GET', '/api/executive/settings'),
-          conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
-          conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
-          conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
+            : dashboardOnly
+              ? Promise.resolve({ settings: {} })
+              : optional('GET', '/api/executive/settings', { settings: {} }),
+          conversationOnly
+            ? Promise.resolve({ brief: {} })
+            : optional('GET', '/api/executive/brief', { brief: {} }),
+          conversationOnly || dashboardOnly
+            ? Promise.resolve({ summary: {} })
+            : optional('GET', '/api/revops/summary', { summary: {} }),
+          conversationOnly || dashboardOnly
+            ? Promise.resolve({ experiments: [] })
+            : optional('GET', '/api/experiments', { experiments: [] }),
           conversationOnly
             ? Promise.resolve({ summary: {} })
-            : api('GET', '/api/campaigns/summary'),
+            : dashboardOnly
+              ? Promise.resolve({ summary: {} })
+              : optional('GET', '/api/campaigns/summary', { summary: {} }),
           conversationOnly
             ? Promise.resolve({ reports: [] })
-            : api('GET', '/api/executive/reports?limit=20'),
+            : dashboardOnly
+              ? Promise.resolve({ reports: [] })
+              : optional('GET', '/api/executive/reports?limit=20', { reports: [] }),
           conversationOnly
             ? Promise.resolve({ queue: {} })
-            : api('GET', '/api/executive/domain-manager-queue'),
+            : optional('GET', '/api/executive/domain-manager-queue', { queue: {}, jobs: [] }),
           conversationOnly
             ? Promise.resolve({ summary: {} })
-            : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+            : optional('GET', '/api/executive/task-queue?role=principal-engineer&limit=100', {
+                summary: {},
+                requests: [],
+              }),
           conversationOnly
             ? Promise.resolve({ runs: [] })
-            : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+            : dashboardOnly
+              ? Promise.resolve({ runs: [] })
+              : optional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
           conversationOnly
             ? Promise.resolve({ active: null, latest: null, runs: [] })
-            : apiOptional('GET', '/api/executive/run-status', {
+            : optional('GET', '/api/executive/run-status', {
                 active: null,
                 latest: null,
                 runs: [],
               }),
           conversationOnly
             ? Promise.resolve({ cases: [] })
-            : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+            : dashboardOnly
+              ? Promise.resolve({ cases: [] })
+              : optional('GET', '/api/cases?limit=300', { cases: [] }),
           conversationOnly
             ? Promise.resolve({ events: [], calendar: { events: [] } })
-            : apiOptional('GET', '/api/executive/calendar', {
+            : optional('GET', '/api/executive/calendar', {
                 events: [],
                 calendar: { events: [] },
               }),

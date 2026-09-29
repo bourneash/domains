@@ -58,10 +58,13 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(app, /Low — conservative/);
   assert.match(app, /class="ex-operating-modes"/);
   assert.match(style, /body\[data-view="agent"\] main:has\(\.ex-shell\) \{ max-width: none; \}/);
-  assert.match(style, /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/);
+  assert.match(
+    style,
+    /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/
+  );
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
-  assert.match(app, /apiOptional\('GET', '\/api\/cases\?limit=300'/);
+  assert.match(app, /optional\('GET', '\/api\/cases\?limit=300'/);
   assert.match(app, /UNIFIED CASE/);
 });
 
@@ -74,8 +77,8 @@ test('executive decisions workspace opens its decision history', () => {
   assert.match(decisionsWorkspace, /hide\(layout\)/);
   assert.match(decisionsWorkspace, /show\(decisions\)/);
   assert.match(decisionsWorkspace, /decisions\.open\s*=\s*true/);
-  assert.match(app, /api\('GET', '\/api\/executive\/proposals\?limit=100'\)/);
-  assert.match(app, /api\('GET', '\/api\/executive\/actions\?limit=200'\)/);
+  assert.match(app, /optional\('GET', '\/api\/executive\/proposals\?limit=100'/);
+  assert.match(app, /optional\('GET', '\/api\/executive\/actions\?limit=200'/);
 });
 
 test('product managers are first-class Agents pages with durable queues', () => {
@@ -130,11 +133,11 @@ test('executive conversation route skips unrelated control-plane requests', () =
   );
   assert.match(
     app,
-    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*dashboardOnly\s*\?\s*Promise\.resolve\(\{ proposals: \[\]\s*\}\)\s*:\s*optional\('GET', '\/api\/executive\/proposals\?limit=100'/
   );
   assert.match(
     app,
-    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300'/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*dashboardOnly\s*\?\s*Promise\.resolve\(\{ cases: \[\]\s*\}\)\s*:\s*optional\('GET', '\/api\/cases\?limit=300'/
   );
 });
 
