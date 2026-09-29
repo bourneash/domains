@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-28T20:36:51.918Z",
+  "generated_at": "2026-09-29T11:52:22.918Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": null,
-        "summary": "Continue evidence-backed repair only. Preserve the $4.92 aggregate commission as unattributed; do not infer site revenue, ROI, or causal lift. Prioritize existing affiliate-tag, CTA-path, attribution-reconciliation, disclosure, and link-health validation work. No new spend, telemetry, dependencies, deployment, or monetization expansion.",
+        "title": "Maintain containment-only affiliate execution",
+        "summary": "Do not admit new affiliate or monetization work this cycle. Continue existing measurement, repair-or-close, compliance evidence, and attribution reconciliation. The available 2026-09-21 Amazon result is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the aggregate row cannot be assigned to a site. Preserve unknown revenue, ROI, margin, and causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

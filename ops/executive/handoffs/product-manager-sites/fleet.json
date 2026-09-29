@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:21:52.918Z",
+  "generated_at": "2026-09-29T11:52:22.917Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Prioritize existing measurement, repair-or-close, attribution reconciliation, security evidence, and parked-site readiness. Do not add new implementation work while delivery is full, 38 improvements await measurement, and 17 requests have failed. Preserve the AI-usage guardrail concept as deferred control-plane backlog; it duplicates active containment and proposal-execution work. No new telemetry, spend, deployment, monetization expansion, or unsupported revenue or causal-lift claims are warranted.",
+        "title": "Maintain containment-only site execution",
+        "summary": "Recommend no new managed-site queue work this cycle. Delivery is full at 10/10 slots, with 24 overflow items, 36 improvements measuring, 17 failed requests, and active overlap on priority sites. Continue existing measurement, repair-or-close, compliance/security evidence, and attribution reconciliation. Reassess admission after one existing failed or stranded item is verified or justifiably closed with ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Do not claim revenue or causal lift; the available $4.92 commission is aggregate and unattributed.",
         "requested_action": null,
         "proposal_id": null
       }
