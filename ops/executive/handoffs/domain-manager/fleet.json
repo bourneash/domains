@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:56:47.438Z",
+  "generated_at": "2026-09-29T09:07:51.906Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete elevatorfriends.com execution-owner and launch-readiness packet",
-        "summary": "elevatorfriends.com is a scaffold with analytics not configured, and the existing owner-gap work records no installed design role under sites/elevatorfriends.com/ops/roles/. Active delivery is full, so no new implementation or requeue is appropriate.",
-        "requested_action": "Continue the existing site-owner-gap:elevatorfriends.com work item only. Verify the role inventory, attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence, and keep the site parked/private/preview-only. Do not create duplicate queue work, publish, deploy, alter DNS, configure analytics, add dependencies, spend, or claim telemetry.",
+        "title": "Complete gate03.com execution-owner installation",
+        "summary": "Retain the existing gate03.com owner-gap work. The authoritative snapshot records no installed execution owner, blocking any site-specific queue work. Install and verify only the required site role; do not start unrelated implementation or deployment.",
+        "requested_action": "Complete the existing owner-gap item for gate03.com, then reassess the blocked request only after verification. Do not create additional queue work while delivery containment remains active.",
         "proposal_id": null
       }
     ]
