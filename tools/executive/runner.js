@@ -3402,23 +3402,23 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
           work_id: checkpointId,
           title: fullyBlocked
             ? `Throughput escalation: no queue-ready fleet sites ${day}`
-            : `Executive evidence checkpoint ${day}`,
+            : `Executive delivery checkpoint ${day}`,
           kind: fullyBlocked ? 'implementation' : 'evidence',
           status: 'in_progress',
           priority: fullyBlocked ? 'high' : 'normal',
-          owner: fullyBlocked ? 'delivery-lead' : 'ceo',
+          owner: 'delivery-lead',
           site: 'fleet',
           summary: fullyBlocked
             ? `All discovered fleet sites are currently blocked by active work or measurement windows. Blockers: ${blockedSummary || 'see the authoritative queue readiness snapshot.'}`
             : 'Review the latest bounded executive evidence and record a clear queue, blocker, or completion disposition.',
           next_action: fullyBlocked
             ? 'Within six hours, identify the earliest unblock, assign the responsible owner, and queue the next safe reversible site improvement or document the specific external dependency preventing it. Escalate overdue blockers to the CEO.'
-            : 'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next step or explicit no-go reason.',
+            : 'Review this cycle’s evidence, preserve launch and safety gates, and record the smallest measurable next delivery step or explicit no-go reason.',
           due_at: new Date(
             Date.parse(brief.generated_at || Date.now()) + (fullyBlocked ? 6 : 24) * 60 * 60 * 1000
           ).toISOString(),
           evidence: existing?.evidence || [],
-          created_by: fullyBlocked ? 'delivery-lead' : 'ceo',
+          created_by: 'delivery-lead',
         },
       ],
     };

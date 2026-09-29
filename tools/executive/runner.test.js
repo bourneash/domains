@@ -185,6 +185,23 @@ test('action-mandate fallback routes trusted candidates instead of producing a n
   assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
+test('over-capacity fallback creates an accepted delivery-control checkpoint', () => {
+  const brief = {
+    generated_at: '2026-09-29T05:00:00.000Z',
+    queue: [{ site: 'busy.example.com', status: 'queued' }],
+    improvements: [],
+    active_delivery: {
+      policy: { max_active_slots: 10, active_slots: 10, overflow_count: 3 },
+    },
+    action_mandate: { candidates: [{ site: 'new.example.com', type: 'seo' }] },
+  };
+  const plan = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(plan.work_items[0].owner, 'delivery-lead');
+  assert.equal(plan.work_items[0].kind, 'evidence');
+  assert.equal(runner.actionMandateSatisfied(plan, brief), true);
+});
+
 test('site-factory candidates turn queue-ready parked sites into bounded launch-readiness reports', () => {
   const candidates = runner.siteFactoryCandidates(
     [

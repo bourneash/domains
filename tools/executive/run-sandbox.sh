@@ -318,7 +318,7 @@ fi
 # store before the transient exchange directory is removed. Prompts and JSON
 # responses are retained for audit; hidden provider chain-of-thought is not
 # requested or persisted.
-if [[ -s "$RUN_DIR/output/transcript.json" ]]; then
+if [[ -n "${RUN_ACTION_ID:-}" && -s "$RUN_DIR/output/transcript.json" ]]; then
   node - "$ROOT" "$RUN_ACTION_ID" "$RUN_DIR/output/transcript.json" <<'NODE'
 const fs = require('node:fs');
 const root = process.argv[2];
