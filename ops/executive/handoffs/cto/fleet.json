@@ -2,49 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:52:51.641Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T11:07:32.035Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Active delivery is full at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, compliance evidence, and parked-site readiness. Admit no new proposals, change requests, requeues, deployments, dependencies, telemetry, spend, domains, or monetization expansion.",
+        "summary": "Approve containment-only execution. Reject all new and queued implementation requests this cycle because delivery is full at 10/10 slots, overflow and measurement backlogs remain, failed requests require repair-or-close evidence, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, launch gates, and parked-site readiness. Preserve unknown revenue, cost, attribution, ROI, and causal-lift fields.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close one existing failed item before any queue admission. Require dated ownership, root cause or close rationale, isolated validation, rollback point, release and security disposition, attribution boundary, measurement plan, and deduplication evidence. Do not retry unchanged failures.",
+        "summary": "Keep queue admission closed. Complete one existing failed or stranded item, or document a justified close, with dated ownership, root cause or rationale, isolated validation, rollback point, release/security boundary, attribution and measurement boundary, and deduplication evidence. Do not retry unchanged failures or admit new work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement only for allthingsmasonic.com, broadwayshowgirls.com, xxxtea.com, amputeenews.com, and deeppenetrations.com using available telemetry. Preserve unknowns where sources are unavailable; do not claim causal lift, revenue, or conversion impact before the measurement window completes.",
+        "summary": "Continue existing deployed-change measurement only for allthingsmasonic.com, broadwayshowgirls.com, amputeenews.com, deeppenetrations.com, and xxxtea.com using available telemetry. Validate existing builds, smoke checks, accessibility, destinations, disclosures, and rollback evidence; preserve unknowns and do not claim causal lift, revenue, or conversion impact before the measurement window completes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct outreach.",
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing parked-site readiness packets only. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that is not site-attributable. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown; do not extrapolate.",
+        "summary": "Retain AI-usage guardrails, the fixture-only MarkItDown harness, and the dependency-free accessible-CTA concept as deferred research backlog. When containment clears, validate them in isolated environments with deterministic tests, security and maintenance review, owner-approved thresholds where applicable, existing-telemetry measurement only, and rollback artifacts. Do not install dependencies, access production data, expand telemetry, or admit queue work now.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-change measurement only for allthingsmasonic.com, broadwayshowgirls.com, amputeenews.com, deeppenetrations.com, and xxxtea.com using available telemetry. Preserve unknowns; do not requeue, add tracking, or claim revenue, conversion, or causal lift before measurement completes.",
         "requested_action": null,
         "proposal_id": null
       }

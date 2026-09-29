@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:52:51.640Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T11:07:32.034Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance review: retain the existing reconciliation work item only; do not create duplicate finance telemetry or a new proposal. Preserve unavailable values as unknown. Budget exposure cannot be calculated because monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are blank in the brief. Cost-to-learn cannot be calculated because no approved learning threshold, complete matching-period cost base, or attributable outcome is present. Infrastructure spend cannot be calculated because operations sweeps have no results and no infrastructure-cost ledger is supplied.",
+        "summary": "Continue only the existing period-aligned revenue, attribution, and cost reconciliation. Reconcile the 18 named Amazon tracking rows and aggregate row for 2026-09-21 against matching-period site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor, other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. Preserve unavailable fields as unknown; do not create duplicate telemetry, spend, queue work, requeues, or unsupported financial claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing period-aligned revenue and cost reconciliation. Preserve the 2026-09-21 provider result as aggregate and unattributed, and keep matching-period costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn unknown. Do not create duplicate telemetry, spend, queue work, or unsupported financial claims.",
         "requested_action": null,
         "proposal_id": null
       }
