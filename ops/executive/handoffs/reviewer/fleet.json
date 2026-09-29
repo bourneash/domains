@@ -2,84 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-28T23:36:23.615Z",
-  "summary": "reviewer checked in 11 executive handoff item(s)",
+  "generated_at": "2026-09-29T00:07:25.566Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue work, requeues, deployments, spending, telemetry changes, monetization expansion, and unsupported financial or causal claims. Continue only existing measurement, finance/attribution reconciliation, failure repair-or-close, security evidence, legal launch-readiness, and scaffold owner-gap verification. The proposed factory candidate remains blocked and is not an executable production plan.",
+        "summary": "Approve containment-only execution. Continue only existing measurement, repair-or-close, finance and attribution reconciliation, parked preview-readiness, and legal/security evidence work. Reject new production work, requeues, spend, dependencies, telemetry, monetization expansion, and unsupported revenue, ROI, margin, payback, forecast, or causal-lift claims. Preserve aggregate commission as unattributed and all missing cost, ownership, security, launch, and measurement fields as unknown. Keep private launch gates and parked dispositions unchanged; keep rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net. Attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence by 2026-09-30T17:00:00Z. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
+        "summary": "Material concern: the available revenue period is one day and includes an unattributed aggregate row; costs are not period-matched, telemetry is low-volume or unavailable in places, and operations/security sweeps remain unevidenced. These gaps block financial claims and production proposals but do not justify inventing telemetry or creating duplicate evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation. Preserve the 2026-09-21 aggregate commission as unattributed and keep matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and causal lift unknown. Do not approve spend or monetization expansion.",
+        "summary": "Maintain containment-only execution. No new engineer requests or requeues are approved: the available factory candidates are blocked by missing execution ownership and launch-readiness evidence, while other candidates are already active, queued, deployed, or measuring. Missing attribution, period-matched costs, operations/security sweeps, and low-volume telemetry block unsupported financial claims and new production work. Continue only existing measurement, repair-or-close, finance/attribution reconciliation, and legal/security evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and preserve private launch gates. Record dated evidence and explicit unknowns; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing consolidated read-only launch-readiness evidence bundle. Keep the private gate and permission outreach unchanged pending human-counsel review and completion of rights, privacy, accuracy, security, attribution, measurement, and owner gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the requested new engineer batch. All actionable candidates are blocked by active measurement, failed-work containment, missing execution ownership/readiness, unavailable operations/security evidence, or incomplete attribution. Do not create queue work, requeue, deploy, change telemetry, spend, expand monetization, or claim revenue or causal lift. Continue only existing evidence, measurement, repair-or-close, and readiness work. Aggregate commission remains unattributed; missing financial and telemetry fields remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue owner-gap verification for complicated.work, deadlymaracas.com, and driveford.net through 2026-09-30T17:00:00Z. Attach dated ownership, preview/build, compliance, security, measurement, rollback, and blocker evidence. Preserve parked/private status; do not publish, deploy, alter DNS, configure analytics, monetize, or spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue repair-or-close review without requeueing unchanged failed or cancelled work. Require ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any future retry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts. Preserve private launch gates and block security-sensitive releases; do not access credentials, alter permissions or configuration, add dependencies, deploy, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing revenue, attribution, and cost reconciliation. Preserve aggregate commission as unattributed and missing matching-period costs, budgets, commitments, and learning thresholds as unknown. Do not claim site revenue, margin, ROI, payback, forecasts, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep searchwoot.com private and permission outreach unsent. Continue the existing consolidated read-only evidence bundle; rights, retention, consent, vendor, accuracy, security, attribution, measurement, and owner gates remain incomplete.",
+        "summary": "Owner update: the requested batch of up to six engineer candidates cannot be safely routed this cycle. The three authoritative factory candidates remain blocked by missing execution-owner verification and launch-readiness evidence; all other actionable candidates are explicitly blocked by existing active work, measurement windows, failed-request containment, or missing evidence. Preserve parked/private states and require dated ownership, preview/build checks, compliance and security evidence, measurement boundary, rollback point, and exact blocker before queue entry.",
         "requested_action": null,
         "proposal_id": null
       }

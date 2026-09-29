@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-28T22:07:25.732Z",
+  "generated_at": "2026-09-29T00:07:25.567Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing containment work only: measurement, repair-or-close review, attribution reconciliation, parked-site readiness, and legal/security evidence. Do not create duplicate requests or requeue failed work.",
+        "summary": "Continue repair-or-close review without requeueing failed or cancelled work. Require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before any retry.",
         "requested_action": null,
         "proposal_id": null
       }

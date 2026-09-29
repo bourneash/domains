@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-28T23:23:26.764Z",
+  "generated_at": "2026-09-29T00:07:25.565Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and continue the existing period-aligned finance reconciliation. Do not approve new spend, monetization expansion, forecasts, ROI, payback, contribution-margin claims, or queue work from current evidence. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21. The 18 named tracking rows show $0 site-attributed income, while the $4.92 aggregate row cannot be assigned to a site without inventing attribution. AI usage cost is $925.99629405 for 2026-09-01 through 2026-09-28, so it does not match the one-day revenue period. Contribution margin, cost-to-learn, AI payback, infrastructure burden, budget exposure, and forecasts are unknown—not zero. Continue only existing reconciliation, measurement, attribution, and repair-or-close work.",
+        "summary": "Pushback: do not treat clicks, impressions, sessions, conversions, ordered items, shipped items, or three proven operational outcomes as financial performance. No experiment outcomes are recorded, and the available revenue row is aggregate and unattributed. Continue existing finance reconciliation only; preserve unavailable values as unknown and do not extrapolate the one-day $4.92 commission or the 2026-09-01 through 2026-09-28 AI cost into monthly revenue, margin, payback, or budget forecasts.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance artifact: reconcile the 18 named provider tracking rows and aggregate row for 2026-09-21 against matching-period site/content revenue, ordered and shipped items, commission, AI cost, infrastructure cost, labor and other operating costs, commitments, budget ceilings, and an approved cost-to-learn threshold. The brief provides no monthly spend limit, fixed-cost baseline, marketing budget, revenue target, infrastructure ledger, labor cost, commitment schedule, or learning threshold, so margin and budget capacity cannot be calculated. The 14,410 SEO impressions, 146 clicks, 1,002 sessions, and 15 conversions across 39 sites support prioritization only; they do not support revenue, causal lift, or financial forecasts.",
+        "summary": "Continue period-aligned revenue, attribution, and cost reconciliation only. Preserve the 2026-09-21 aggregate commission as unattributed. Do not claim site revenue, ROI, margin, payback, forecast, budget capacity, or causal lift; missing matching-period costs, commitments, budgets, and learning thresholds remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
