@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:30:53.483Z",
+  "generated_at": "2026-09-29T09:31:45.743Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: maintain containment-only execution. Queue no new implementation work this cycle. Active delivery is full at 10/10 slots with 59 overflow items, 38 improvements awaiting measurement, and 17 failed requests requiring repair-or-close evidence. The three factory candidates remain blocked by missing launch-readiness evidence and must stay parked/private/preview-only; other candidates are blocked by active or measuring work. Do not requeue, deploy, spend, add telemetry or dependencies, expand monetization, or make financial or causal-lift claims. Continue existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, legal evidence, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; matching-period costs, margin, ROI, forecasts, and lift remain unknown.",
+        "summary": "Maintain containment-only execution this cycle. Reject new implementation or queue work: all 10 delivery slots are occupied, 61 items are overflowed, 38 improvements await measurement, and 17 requests failed. Existing candidates are blocked by active work, measurement windows, failed-work containment, missing ownership, launch gates, or unavailable security evidence. Preserve aggregate commission as unattributed; matching costs, margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, legal/security evidence, and parked-site readiness work. Do not create, requeue, deploy, spend, add telemetry or dependencies, expand monetization, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }
