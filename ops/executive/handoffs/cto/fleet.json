@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T07:06:35.549Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:22:48.098Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing preview-only readiness packets for scaffold sites. Preserve parked/private status and document dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Keep the gated product private and keep rights outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only evidence bundle; no public exposure, alert expansion, monetization, deployment, configuration change, or credential change is cleared.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation for 2026-09-21. Preserve the $4.92 aggregate commission as unattributed and keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate or claim site-level financial or causal performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and rights outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only evidence bundle; no public exposure, alert expansion, monetization, deployment, configuration change, or credential change is cleared.",
+        "summary": "Continue existing parked-site readiness packets only. Preserve parked/private status and record dated ownership, available preview/build evidence, compliance, security, measurement boundary, rollback point, and explicit blocker. Reconsider factory implementation only after those gates are evidenced and a delivery slot is available.",
         "requested_action": null,
         "proposal_id": null
       }

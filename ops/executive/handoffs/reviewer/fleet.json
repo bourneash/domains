@@ -2,84 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T07:06:35.550Z",
-  "summary": "reviewer checked in 11 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:22:48.099Z",
+  "summary": "reviewer checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: maintain containment-only execution. Reject new production or queue work, requeues, spend, telemetry, dependencies, deployments, monetization expansion, and unsupported financial or causal claims. Active delivery is saturated at 10/10 slots; measurement backlog, failed requests, and unavailable operations/security evidence remain material concerns. Revenue is limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and lift remain unknown. Keep rights outreach unsent pending human-counsel review.",
+        "summary": "Approve containment-only execution. Reject new production work, queue work, requeues, spend, telemetry, dependencies, deployments, monetization expansion, unsupported financial claims, and causal-lift claims. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, legal evidence, and parked-site readiness work. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed and all mismatched costs, margin, ROI, payback, forecasts, and lift as unknown. Material concerns: delivery is full, measurement and failure backlogs remain, operations/security evidence is unavailable, and attribution is incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing measurement and repair-or-close work only. Document one verified completion or documented close with ownership, isolated validation, rollback, release/security evidence, attribution boundaries, and measurement readiness before selecting new queue work.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private and parked launch gates; block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue unchanged work, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve aggregate commission as unattributed and missing matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds as unknown. Do not extrapolate or make site-level financial claims.",
+        "summary": "Continue existing period-aligned revenue, attribution, and cost reconciliation only. Keep the 2026-09-21 aggregate commission unattributed; the 2026-09-01 through 2026-09-29 AI cost is not period-matched. Do not claim site revenue, margin, ROI, payback, budget capacity, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Owner concern: active delivery is full, measurement backlog and failed work remain unresolved, and material operations/security telemetry is unavailable. Delivery-lead must document one verified completion or documented close with ownership, root cause, isolated validation, rollback, release, security, attribution, and measurement evidence before any new queue selection or requeue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing preview-only readiness packets for scaffold sites. Preserve parked/private status and attach dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Maintain containment-only execution. Reject new implementation requests, requeues, deployments, spending, telemetry, dependencies, monetization expansion, and unsupported financial or causal claims. Active delivery is full at 10/10 slots, with substantial measurement backlog and failed work requiring repair-or-close evidence. Continue only existing measurement, repair-or-close, attribution/cost reconciliation, security evidence, legal launch-readiness, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the requested implementation batch this cycle. Active delivery is full at 10/10 slots, overflow and measurement backlogs remain, failed requests require repair-or-close evidence, and operations/security evidence is unavailable. Continue only existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work. Do not create change requests, requeue work, deploy, spend, add telemetry or dependencies, expand monetization, or claim financial or causal lift.",
+        "summary": "The requested batch cannot be routed because all active delivery capacity is occupied and no candidate has a cleared isolated implementation path. Before any new queue work, delivery-lead must document one verified completion or documented close with ownership, root cause, isolated validation, rollback, release, security, attribution, measurement, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not select or requeue new implementation work. Complete one existing verification or documented close with ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence before reconsidering queue work.",
+        "summary": "Continue existing measurement only using available telemetry. Preserve unavailable values as unknown; do not treat low-volume data, missing attribution, aggregate commission, or unavailable costs as evidence of revenue, ROI, margin, payback, forecast, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing period-aligned reconciliation for 2026-09-21. Preserve the $4.92 aggregate commission as unattributed; matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and learning thresholds remain unknown. Do not extrapolate or make site-level financial claims.",
+        "summary": "Continue existing repair-or-close, security evidence, legal launch-readiness, attribution reconciliation, and parked-site readiness work. Do not retry unchanged failures, create overlapping work, publish, deploy, alter DNS, configure analytics, add dependencies, spend, expand monetization, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the gated product private and rights outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only evidence bundle; no public exposure, alert expansion, monetization, deployment, configuration change, or credential change is cleared.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing preview-only readiness packets for scaffold sites. Preserve parked/private status and document dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Owner concern: delivery capacity is saturated, measurement windows are incomplete, failed requests remain open, operations and security evidence are unavailable, revenue is only a one-day aggregate provider result, attribution is incomplete for financial conclusions, and matching-period costs are unknown. Keep private and parked dispositions unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
