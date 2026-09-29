@@ -312,7 +312,7 @@ function shouldRecoverStaleDeliveryClaim(
   const claimedAt = Date.parse(run?.outcome?.delivery_claimed_at || '');
   return Boolean(
     request &&
-    ['reviewing', 'review'].includes(request.status) &&
+    ['reviewing', 'review', 'delivery_pending'].includes(request.status) &&
     run?.state === 'review' &&
     run.validation?.passed === true &&
     run.outcome?.delivery_claimed === true &&
@@ -1225,7 +1225,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
               events,
               request.request_id,
               {
-                status: 'blocked_infrastructure',
+                status: 'review',
                 error: null,
                 next_attempt_at: null,
                 lease_owner: null,
