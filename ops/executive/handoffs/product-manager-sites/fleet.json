@@ -2,15 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:21:29.466Z",
-  "summary": "product-manager-sites checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:54:08.350Z",
+  "summary": "product-manager-sites checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Active delivery is full at 10/10 slots, 38 improvements await measurement, 17 implementation requests failed, and operations/security evidence remains unavailable. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue implementation work, add telemetry, spend, expand monetization, deploy, or claim revenue, ROI, or causal lift.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Deferred product capability: evidence-gated delivery lifecycle and admission control",
+        "summary": "Create a bounded control-plane lifecycle contract linking proposal, implementation request, active slot, deployment verification, measurement window, terminal outcome, failure repair, and rollback evidence. Admission must reject duplicate or site-overlapping work, distinguish reports from slot-consuming implementation, and prevent unchanged retries.",
+        "requested_action": "Retain as deferred backlog. Do not create a change request or queue entry during containment-only execution. Reconsider after one existing item has verified completion or justified close evidence and an active slot is available.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Deferred product capability: operator cockpit for blocked work and measurable outcomes",
+        "summary": "Provide a read-only view grouping active slots, overlap, failed requests, unexecuted approvals, measurement due dates, owner gaps, and launch or security gates by next safe action while preserving unknown, unavailable, aggregate, and zero states.",
+        "requested_action": "Retain as deferred read-only backlog. Do not request duplicate telemetry or create implementation work during containment. Reconsider only after existing queue and measurement backlogs materially clear.",
         "proposal_id": null
       }
     ]

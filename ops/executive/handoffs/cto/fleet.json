@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:36:42.032Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:54:08.348Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Active delivery is full at 10/10 slots; 62 items are overflowed, 38 improvements await measurement, and 17 implementation requests failed. Continue only existing measurement, repair-or-close, attribution and cost reconciliation, security evidence, and parked-site readiness work. Do not create or requeue implementation work, deploy, add telemetry or dependencies, spend, expand monetization, or conduct external outreach. Admit new work only after one existing item is verified or justifiably closed with ownership, isolated validation, rollback, release/security, deduplication, attribution, and measurement evidence.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete one existing item or document a justified close before any queue admission. Record dated ownership, root cause or close rationale, isolated validation, rollback point, release/security evidence, deduplication, available measurement baseline, and attribution boundaries. Do not retry unchanged failures or create overlapping work.",
+        "summary": "Continue the existing readiness packets for the parked scaffold sites. Preserve parked, private, preview-only status and document ownership, preview/build evidence, compliance, security, measurement boundaries, rollback, and explicit blockers. Do not create queue entries, build, publish, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each site parked, private, and preview-only. Record owner, preview/build, compliance, security, measurement-boundary, rollback, and exact-blocker evidence by 2026-09-30T17:00Z. Do not publish, deploy, configure analytics, add dependencies, or create queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, and causal lift unknown; continue the existing reconciliation only.",
+        "summary": "Continue the existing report-only reconciliation for the provider revenue period and matching-period costs. Preserve aggregate commission as unattributed and keep unavailable cost, margin, ROI, payback, forecast, budget, and learning-threshold fields unknown. Do not extrapolate or claim site-level financial performance.",
         "requested_action": null,
         "proposal_id": null
       }
