@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:39:39.678Z",
+  "generated_at": "2026-09-29T09:40:39.614Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and queue work this cycle. Delivery is full at 10/10 slots, with substantial measurement backlog and failed requests requiring repair-or-close evidence. Revenue claims remain unsupported: the only provider result is $4.92 aggregate commission for 2026-09-21, not site-attributable, with matching-period costs, margin, ROI, forecasts, and causal lift unknown. Continue existing measurement, containment, finance reconciliation, legal/security evidence, and parked-site readiness. Leave candidates unqueued because active delivery, missing ownership, launch-readiness, security, or evidence gates block admission.",
+        "summary": "Maintain containment-only execution this cycle. Reject all new implementation, queue, requeue, deployment, spend, credential/configuration, dependency, telemetry, monetization-expansion, and unsupported financial or causal-lift work. Delivery is saturated at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue only existing measurement, repair-or-close, period-aligned attribution/cost reconciliation, legal/security evidence, and parked-site readiness. Preserve the 2026-09-21 aggregate commission as unattributed; matching-period costs, margin, ROI, forecasts, and causal lift remain unknown. No bounded research request is admitted because existing evidence paths cover the identified gaps and additional research would not unblock production work.",
         "requested_action": null,
         "proposal_id": null
       }
