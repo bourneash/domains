@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-29T15:38:31.785Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T16:25:19.409Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing complicated.work readiness packet. Keep it parked, private, preview-only, and launch-blocked; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Continue the existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and launch-blocked; attach ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. No build, publish, deploy, DNS, analytics, monetization, spending, dependency, or queue entry is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and launch-blocked. Attach ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence before reconsidering implementation. No build, publish, deploy, DNS, analytics configuration, monetization, spending, dependency addition, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:08:49.098Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T16:25:19.410Z",
+  "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep queue admission and monetization expansion blocked until existing repair-or-close containment is completed or justifiably closed with dated validation, rollback, release/security, attribution, measurement, and deduplication evidence. Finance supports only existing report-only reconciliation and measurement work.",
+        "summary": "Continue period-aligned reconciliation only. Preserve 2026-09-21 Amazon results as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown; authorize no spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution and authorize no spend, billing changes, money movement, new queue work, or monetization expansion. Do not treat September AI usage or operational volume as comparable financial performance against one revenue day. Continue only existing period-aligned finance reconciliation, measurement, repair-or-close, security-evidence, and private launch-gate work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial disposition: contribution margin, budget exposure, infrastructure spend, cost-to-learn, ROI, payback, forecasts, and causal lift remain unknown because matching-period attributed revenue and allocated costs are unavailable. Minimum evidence is a dated ledger matching revenue and cost items to the same site or content and period, plus an approved learning threshold.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Clicks, sessions, impressions, ordered items, shipped items, AI calls, proposal counts, repository popularity, and delivery output do not establish revenue, margin, or learning value. Preserve these as operating metrics only until attributable realized revenue and matching costs are available.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown; authorize no spend.",
         "requested_action": null,
         "proposal_id": null
       }

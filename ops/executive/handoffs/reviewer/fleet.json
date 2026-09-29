@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:08:49.099Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T16:25:19.410Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution under EXEC_CONV_12. Reject new queue work, unchanged requeues, deployments, spending, telemetry expansion, dependency additions, credential or permission changes, monetization expansion, and unsupported financial or causal claims. Active delivery is full, measurement and failed-work containment remain open, and operations/security evidence is incomplete.",
+        "summary": "Maintain containment-only execution. Reject duplicate security admission and all new production work, requeues, spending, telemetry expansion, monetization expansion, and unsupported financial claims. Continue only existing security evidence, private launch-gate, repair-or-close, measurement, and period-aligned reconciliation work. Amazon commission remains $4.92 aggregate for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the retained saveusfarms.com repair-or-close case only. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence before capacity is reconsidered. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Reject new implementation admission this cycle. Delivery is saturated at 10/10 slots, measurement backlog and failed-work containment remain open, and operations/security evidence is incomplete. The three scaffold candidates are blocked by missing launch-readiness evidence; live-site candidates are active, queued, measuring, or under repair. Continue only existing containment, measurement, reconciliation, security-evidence, private-launch, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue deployed-work measurement using available telemetry only. Preserve unavailable revenue, conversion, attribution, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; do not extrapolate or authorize spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: the plan is defensible only as containment. Revenue is not site-attributable, costs are mismatched or unavailable, production capacity is saturated, and security/operations controls remain unevidenced. Keep rights outreach unsent pending human-counsel review and do not admit production work until retained failure containment produces dated evidence.",
+        "summary": "Owner concern: the portfolio action mandate cannot be satisfied safely without violating current gates. No implementation candidate is queueable: complicated.work, deadlymaracas.com, and driveford.net lack verified launch-readiness evidence; remaining actionable sites have active delivery, measurement, or failed-work containment. Do not create new requests, requeue unchanged work, deploy, spend, expand telemetry, change credentials or permissions, or claim financial or causal outcomes. Reconsider after a slot is cleared and the applicable evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }
