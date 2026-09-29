@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T09:55:47.864Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T09:56:55.334Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. No new implementation candidates clear the gates: delivery is full, measurement and failed-work backlogs remain open, and parked-site launch, security, attribution, and cost evidence is incomplete. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and readiness packets only. Preserve aggregate revenue as unattributed and unavailable financial fields as unknown; do not create production work, requeues, spend, telemetry, credentials, dependencies, deployments, or outreach.",
+        "summary": "Reject all new implementation and queue work this cycle. Delivery is full at 10/10 slots, with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests requiring repair-or-close evidence. Operations and security evidence remain unavailable; revenue is limited to a one-day $4.92 aggregate commission that is not site-attributable. Continue existing measurement, repair-or-close, finance reconciliation, legal/security evidence, and parked-site readiness work only. Do not create or requeue production work, add telemetry or dependencies, deploy, spend, change credentials or configuration, expand monetization, or claim financial or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The three available site-factory candidates remain unqueued because launch-readiness, ownership, measurement, compliance, and security evidence are incomplete. Preserve each site as parked, private, and preview-only; continue the existing dated readiness packets and do not build, publish, deploy, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       }
