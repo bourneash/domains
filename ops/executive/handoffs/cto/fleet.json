@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:39:39.560Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-29T22:08:39.822Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. No new queue admission is safe while all 10 delivery slots are occupied, repair-or-close work remains open, measurement debt persists, and operations/security evidence is incomplete. Continue only existing measurement, repair, reconciliation, security evidence, private launch gates, and parked-site readiness work using available records.",
+        "summary": "Do not queue the proposed preview builds. Maintain the existing parked-site readiness packets only; keep those properties private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not assign unverified execution owners or create duplicate requests. Complete or consolidate existing delivery work, resolve the retained repair-or-close case with isolated validation and rollback evidence, then recheck authoritative readiness before admitting one bounded reversible change.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Record ownership prerequisites and blockers without asserting owner installation. Keep each property parked, private, preview-only, and unlaunched; do not build, deploy, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Measure already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift values as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the affiliate experiment, search-intent consolidation, and MarkItDown concept as deferred specifications only. Reconsider after capacity clears and required gates reopen. No implementation, dependency addition, production integration, new telemetry, spend, or deployment is authorized this cycle.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing readiness packets for the parked scaffold properties. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by the existing deadline. Do not create implementation queue work.",
         "requested_action": null,
         "proposal_id": null
       }

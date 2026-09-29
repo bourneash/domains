@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:53:14.640Z",
+  "generated_at": "2026-09-29T22:08:39.823Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Fleet-doctor has no run or results, operations deploy/uptime/error sweeps are unavailable, and all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No incident or exploit signal is evidenced, which is not a clean bill of health. Compliance is technical-only: 35 pass, 18 fail, 6 unknown. TLS shows no certificate expiring within 30 days only. Exact decision: retain private and parked launch gates; allow only bounded reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior and preserves existing consent, disclosures, provenance, claims, and data boundaries. Continue the existing read-only evidence matrix using authorized metadata and retained artifacts only.",
+        "summary": "Disposition: evidence_needed fleet-wide; blocked for public exposure and security-sensitive releases; conditional for ordinary reversible growth. Evidence: fleet-doctor has no run or results; operations deploy, uptime, and error sweeps are unavailable; all 59 security sitefacts are unknown. Authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, complete TLS posture, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. No incident or exploitation is evidenced, but absence of telemetry is not clearance. Compliance is technical-only at 35 pass, 18 fail, and 6 unknown; analytics quality is yellow due source permission or collector errors. No certificate is reported expiring within 30 days, which does not establish complete TLS safety. Exact decision: retain private launch gates and block public exposure and security-sensitive releases; allow only bounded reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior and preserves existing consent, disclosure, provenance, claims, and rollback boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix. Record dated, redacted evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release/deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Preserve private launch gates and do not create duplicate work.",
+        "summary": "Continue the existing authorized read-only evidence matrix. Record dated, redacted evidence or explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, change permissions or configuration, add dependencies, deploy, exploit targets, requeue work, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "For parked scaffold properties, attach dated security evidence or explicit unknowns to the existing readiness packets. Keep them private, preview-only, and unlaunched; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve private launch gates while continuing bounded read-only evidence work and permitting only ordinary reversible growth within existing consent, disclosure, data-handling, claims, and rollback boundaries.",
+        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked. Document evidence timestamps, scope, owners, severity, and release implications for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incidents, and disclosure readiness. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, exploit targets, requeue failures, or conduct external outreach.",
         "proposal_id": null
       }
     ]
