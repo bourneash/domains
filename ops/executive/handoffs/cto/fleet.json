@@ -2,56 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T06:54:14.871Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-29T07:06:35.549Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Queue readiness does not override active owner-gap and launch-readiness work. Preserve parked/private status; continue the existing dated readiness packets covering ownership, preview/build evidence, compliance, security, measurement, rollback, and explicit blockers. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies.",
+        "summary": "Continue existing preview-only readiness packets for scaffold sites. Preserve parked/private status and document dated ownership, preview/build, compliance, security, measurement, rollback, and explicit blocker evidence. Do not publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close work without retrying unchanged failures. Before any future requeue, require dated ownership, root cause, isolated validation, rollback, deduplication, release, security, attribution, and measurement evidence. The immediate delivery objective is one verified completion or documented close to open a slot.",
+        "summary": "Continue the existing period-aligned reconciliation for 2026-09-21. Preserve the $4.92 aggregate commission as unattributed and keep matching-period costs, commitments, budgets, margin, ROI, payback, forecasts, and learning thresholds unknown. Do not extrapolate or claim site-level financial or causal performance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 $4.92 aggregate commission as unattributed. Matching-period costs, budgets, commitments, margin, ROI, payback, forecasts, and causal lift remain unknown; do not extrapolate or claim site-level financial performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing monetization-readiness work only: resolve the recorded affiliate-tag prerequisite, validate registered tracking identifiers within the existing release process, and measure the existing affiliate-path change. Do not add tracking, expand monetization, or claim conversion, revenue, ROI, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue work, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the private launch gate for the gated product. Continue the existing consolidated evidence bundle; keep rights outreach unsent pending human-counsel review and owner authorization. No public exposure, alert expansion, monetization, deployment, configuration change, or credential change is technically cleared.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Defer CRO and repository-adoption ideas until capacity and evidence gates clear. Bounded lab results support research only; they do not authorize dependencies, prototypes, production adoption, or new measurement. Preserve those ideas as backlog without creating implementation requests.",
+        "summary": "Keep the gated product private and rights outreach unsent pending human-counsel review and owner authorization. Continue the existing consolidated read-only evidence bundle; no public exposure, alert expansion, monetization, deployment, configuration change, or credential change is cleared.",
         "requested_action": null,
         "proposal_id": null
       }
