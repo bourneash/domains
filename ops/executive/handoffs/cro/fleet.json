@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T10:21:52.919Z",
+  "generated_at": "2026-09-29T10:37:11.567Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Delivery is full at 10/10 slots with 61 overflow items, 38 improvements awaiting measurement, and 17 failed requests. Continue only existing measurement, repair-or-close, period-aligned attribution and cost reconciliation, security evidence, and parked-site readiness. Retain AI-usage guardrails, MarkItDown content processing, and accessible CTA patterns as deferred research only; do not queue, install dependencies, deploy, expand telemetry, spend, or claim revenue or causal lift.",
+        "summary": "No new implementation or queue admission is recommended while delivery is full at 10/10 slots, 61 items overflowed, 38 improvements await measurement, and 17 requests have failed. Retain three CRO proposals as deferred, reversible research: structured-document-to-content qualification, accessible CTA pattern validation, and AI-usage-to-work outcome review. Each has a bounded prototype, existing-data metric, license/security/maintenance review, and explicit no-deploy boundary.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff accepted as deferred backlog only. Retain AI-usage guardrails, MarkItDown, and accessible-CTA concepts for later isolated research; do not install dependencies, admit queue work, deploy, expand telemetry, or claim lift while containment remains active.",
+        "summary": "Retain the CRO proposals as deferred backlog only. Do not create change requests, install dependencies, deploy, add telemetry, spend, requeue, or expand monetization until containment clears and the CEO/CTO gates permit implementation.",
         "requested_action": null,
         "proposal_id": null
       }
