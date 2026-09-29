@@ -2,50 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T13:52:53.979Z",
-  "summary": "legal checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:07:52.261Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal/compliance disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible growth that preserves existing consent, disclosures, provenance, claims, platform-policy, and data-handling boundaries. Evidence: Woot API access is documented, but no rights permit storage, derivatives, public display, caching, alerts, affiliate use, or advertising; public terms restrict relevant uses. Human counsel is required before rights-dependent launch, monetization, or external outreach. Keep the product private and preview-only.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional only for bounded internal/read-only work that preserves existing consent, disclosures, provenance, claims, and data boundaries. Recommendation: keep SearchWoot private and preview-only. Evidence: Woot documentation establishes API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize returned data; current public terms restrict relevant uses. All four launch-readiness legal tasks remain open. Human counsel is required before any rights-dependent launch, affiliate/advertising use, or external rights request. Fleet compliance is a technical baseline, not certification: 36 pass, 17 fail, 6 unknown. Do not block ordinary reversible growth solely for incomplete telemetry, but do not permit public exposure or security-sensitive release while material gates remain incomplete. Revenue evidence is limited to $4.92 aggregate Amazon commission for 2026-09-21 and is not site-attributable; no ROI or causal claim is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance and data-quality review: the compliance scan is a technical baseline only, with 36 pass, 17 fail, and 6 unknown; open findings include banner, consent accept/reject, GA4, privacy, and terms checks. Analytics quality is yellow because some GA4/GSC permissions or collectors fail. Revenue evidence is limited to 2026-09-21 aggregate Amazon commission of $4.92 that is not site-attributable. Do not treat incomplete telemetry as zero or as legal clearance.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. Progress is evidenced by official Woot API, terms, support, repository/configuration, privacy, cookie-policy, and draft-terms artifacts, but no task meets its closure deliverable. Next evidence action: attach one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence. Keep rights outreach unsent pending human-counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks closed and 4 open. Existing official API, terms, support, repository/configuration, privacy, cookie-policy, and draft-terms artifacts show progress but do not satisfy task deliverables. Exact decision: keep private; do not send rights outreach or close tasks. Next evidence action: attach one consolidated read-only bundle containing the field-level rights matrix, deployed data-flow and retention table, log/vendor/incident inventory, consent and GA4 configuration evidence, accuracy/freshness controls, and rollback evidence.",
+        "summary": "Concrete launch decision: keep complicated.work parked, private, and preview-only. Complete the existing readiness packet by 2026-09-30T17:00:00Z with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete the next evidence action for the active launch-readiness workstream: produce and attach a read-only bundle covering Woot field rights, deployed data flow, retention, deletion/correction/access, notification behavior, log fields, vendor terms/DPA coverage, incident/request procedures, consent withdrawal, GA4 settings, accuracy/freshness, and rollback. Do not enable tracking, change configuration, expand alerts, or send outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, and preview-only. No public launch, build admission, DNS change, analytics configuration, monetization, spend, dependency addition, or queue entry is cleared. Next evidence action: attach a dated readiness packet for complicated.work covering brief, provenance-safe content seed, compliance, security, owner, measurement boundary, rollback, and explicit blocker.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private launch gate and complete legal evidence work",
-        "summary": "Keep SearchWoot private and preview-only while rights, privacy, consent, data-flow, vendor, security, accuracy, attribution, measurement, and owner gates remain incomplete. Ordinary reversible work may continue only within existing consent, disclosure, provenance, claims, platform-policy, and data-handling boundaries.",
-        "requested_action": "Continue the four existing launch-readiness tasks and attach the consolidated read-only evidence bundle. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not publish, monetize, expand alerts, enable tracking, deploy, add dependencies, change credentials, or claim clearance.",
         "proposal_id": null
       }
     ]

@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T13:52:53.979Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T14:07:52.261Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the duplicate report-only launch proposal and all new queue work, requeues, deployments, spending, telemetry expansion, dependency changes, external outreach, and unsupported financial or causal claims. Continue only existing repair-or-close, deployed-change measurement, period-aligned reconciliation, security evidence, private launch gates, and parked-site readiness. Aggregate provider earnings remain unattributed; margin, ROI, payback, forecasts, cost-to-learn, and causal lift remain unknown. Queue admission stays blocked until one retained failed item is completed or justifiably closed with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "Reject new queue work, requeues, deployments, spending, telemetry expansion, dependency or permission changes, monetization expansion, external outreach, and unsupported financial or causal claims. Delivery is saturated at 10/10 slots; 45 improvements await measurement, 21 requests failed, and operations/security evidence is unavailable. Continue only existing repair-or-close, measurement, period-aligned reconciliation, security evidence, and parked-site readiness work. The only supported revenue result is $4.92 aggregate Amazon commission for 2026-09-21, not site-attributable; margin, ROI, forecasts, budget exposure, cost-to-learn, and causal lift remain unknown. Smallest next step: complete or justifiably close the retained saveusfarms.com failure by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence. Keep rights outreach unsent pending human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the retained saveusfarms.com repair-or-close work through 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request; require dated ownership, root cause or justified closure, isolated deterministic validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence.",
+        "summary": "Complete or justifiably close the retained saveusfarms.com failure. Record dated ownership, root cause or close rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-change measurement using available telemetry only. Preserve unavailable revenue, attribution, conversion, and causal-lift values as unknown; do not add tracking, duplicate work, or requeue failures.",
+        "summary": "Continue the existing bounded read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated, redacted evidence and explicit unknowns. Preserve private and parked gates; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned finance reconciliation only. Preserve aggregate provider earnings as unattributed and keep matching-period costs, budgets, margin, ROI, payback, forecasts, cost-to-learn, and infrastructure spend unknown. Do not extrapolate.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the $4.92 aggregate commission as unattributed and keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown. Do not extrapolate one-day revenue or September AI cost.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing bounded read-only security evidence capture and private launch gates. Block public exposure and security-sensitive releases; do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep scaffold properties parked, private, and preview-only. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence; do not build, publish, deploy, configure analytics, monetize, spend, add dependencies, or create queue entries.",
+        "summary": "Complete the existing readiness packet only. Keep the site parked, private, and preview-only. Attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create a queue entry.",
         "requested_action": null,
         "proposal_id": null
       }
