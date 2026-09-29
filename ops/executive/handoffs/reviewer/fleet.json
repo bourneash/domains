@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.110Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:22:35.363Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the new security report-only proposal as duplicate of the existing security evidence work. Continue only existing measurement, repair-or-close containment, period-aligned reconciliation, private launch gates, parked-site readiness, and security evidence. Preserve aggregate Amazon commission as unattributed; site revenue, costs, margin, ROI, forecasts, payback, cost-to-learn, and causal lift remain unknown. Do not create queue work, requeues, deployments, spending, telemetry, monetization changes, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new implementation routing this cycle. All 10 delivery slots are occupied; active measurement, queued work, failed-request containment, and existing site overlap block every evidenced candidate. Preserve only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Unblock routing when delivery-lead clears one slot and closes or justifiably closes the saveusfarms.com failure by 2026-09-30T07:30Z; escalate to CTO at that deadline if unresolved. The three scaffold candidates remain blocked by site-factory ownership and launch-readiness evidence; site-factory must attach dated readiness packets by 2026-09-30T17:00Z, with CTO escalation then. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown.",
+        "summary": "Maintain containment-only execution. Revenue, ROI, margin, forecasts, and causal lift remain unsupported because the only revenue result is $4.92 aggregate and unattributed for 2026-09-21; operations/security evidence is incomplete; and delivery is saturated at 10/10. Route only one low-risk, measurable, reversible CTA preview request; reject new high-priority work, spend, telemetry, credentials, dependencies, requeues, production launches, and unsupported financial claims. Owner concern: clear one active slot and complete the existing saveusfarms.com repair-or-close evidence by 2026-09-30T07:30Z before admitting further work.",
         "requested_action": null,
         "proposal_id": null
       }

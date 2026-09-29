@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.110Z",
+  "generated_at": "2026-09-29T19:22:35.362Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. The only supported revenue claim is Amazon's 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. It is not site-attributable: 18 named tracking rows have $0 attributed commission and the $4.92 is in Amazon's aggregate \"other\" row. Do not present clicks, impressions, sessions, conversions, AI calls, or proposal counts as financial performance or causal lift. September AI spend is $945.247286 for 2026-09-01 through 2026-09-29, while revenue covers only 2026-09-21, so contribution margin, cost-to-learn, ROI, payback, budget exposure, infrastructure spend, labor cost, forecasts, and causal lift are unknown—not zero. Continue only existing period-aligned reconciliation, deployed-work measurement, affiliate activation, repair-or-close containment, private launch gates, and parked-site readiness. The minimum evidence for a calculable result is a dated ledger matching site/content revenue, AI spend, infrastructure spend, labor/execution cost, and other direct costs to the same period and entity, plus an approved learning threshold; no extrapolation is authorized.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, or monetization expansion. Revenue is supported only for 2026-09-21: 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed, so site revenue claims, contribution margin, ROI, payback, and forecasts are unsupported. The 2026-09-01 through 2026-09-29 AI ledger records $945.24728605 across 5,264 calls and 39 instrumented sites, but it cannot be compared with one revenue day or allocated to profitable outcomes. Do not retain the proposed 0xroulette.com CTA or markitdown work this cycle; neither has an evidenced financial return, and delivery is already saturated at 10/10 slots.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, cost-to-learn, and causal lift unknown; authorize no spend.",
+        "summary": "Financial measurement disposition: contribution margin, budget exposure, infrastructure spend, cost-to-learn, ROI, payback, and forecasts are unknown. The minimum evidence is a dated ledger matching each revenue item and allocated AI, infrastructure, domain, and operating cost to the same site or content and period, plus an approved learning threshold per experiment. Monthly spend limit, fixed costs, marketing budget, and revenue floor are blank in the brief; no budget variance or exposure can be calculated. Continue the existing period-aligned reconciliation only and preserve aggregate Amazon income as unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

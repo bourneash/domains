@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.108Z",
-  "summary": "revenue-ops checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:22:35.362Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Affiliate readiness remains incomplete for amputeenews.com because the authoritative context records Amazon Associates as pending a real tag. Continue the existing activation work only; do not treat unavailable revenue as zero or infer monetization lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Attribution reconciliation must retain Amazon's aggregate row as unattributed. The available report contains 18 named tracking rows and one aggregate tracking ID of other with $4.92 commission; no site may be assigned that income without direct evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing affiliate activation, attribution reconciliation, deployed-work measurement, and repair-or-close work using available evidence only. Preserve the 2026-09-21 Amazon result as 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission. Site revenue, ROI, margin, and causal lift remain unknown.",
+        "summary": "Recommendation: preserve containment-only execution. Delivery is saturated at 10/10 active slots, so affiliate repairs should reconcile with existing queued, measuring, or failed work rather than create duplicate queue entries. Revenue remains partially attributable: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, including an aggregate row that cannot be assigned to a site. Do not infer ROI, site revenue, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

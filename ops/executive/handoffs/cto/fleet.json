@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T18:47:42.639Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:22:35.362Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: retain containment-only execution. Do not admit new implementation, preview, deployment, analytics, affiliate, BlueSky, spending, dependency, credential, DNS, or telemetry work while all 10 delivery slots are occupied and failed-work, measurement, security, and operations evidence remain unresolved. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness only.",
+        "summary": "CTO review: maintain containment-only execution. Existing telemetry and queue controls are sufficient; no new control-plane proposal, telemetry, deployment, spend, dependency, credential, permission, requeue, or external outreach is technically justified this cycle. Delivery is saturated at 10/10 active slots, with 45 improvements awaiting measurement and 21 failed requests. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The howtofry.com revenue concept is technically feasible in principle, but onboarding cannot safely enter the existing queue: the domain is absent from the authoritative registry and no ownership, repository, worker, role, affiliate tag, BlueSky account, compliance, security, analytics, cost, or rollback evidence is present. Preserve the owner decision as a deferred readiness decision. If approved, the next bounded artifact is an internal readiness packet only; it must not build, publish, configure accounts, add telemetry, spend, or create implementation work until registry and ownership evidence exists.",
+        "summary": "CTO disposition: retain the 0xroulette.com CTA concept as a deferred specification only. It is technically feasible as an isolated preview after capacity clears, but current active work, absent experiment records, and unsupported causal or revenue claims prevent queue admission. Any future implementation must preserve existing links, disclosures, consent, accessibility, and rollback boundaries without adding tracking, dependencies, credentials, or cross-site behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO disposition: do not commission the markitdown prototype this cycle. The disposable-lab concept is technically bounded, but it is not an execution-ready fleet change: no dependency installation, production data, network access, repository modification, deployment, or adoption approval is supported. Reconsider only after capacity clears and an owner-authorized isolated prototype has explicit fixtures, reproducibility, resource limits, provenance, security review, and rollback evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO confirms the current revenue boundary: retain the 2026-09-21 Amazon result as aggregate and unattributed—6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not infer site revenue, margin, ROI, payback, forecasts, cost-to-learn, or causal lift. Continue period-aligned reconciliation using existing evidence only.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.110Z",
+  "generated_at": "2026-09-29T19:22:35.361Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Delivery is saturated at 10/10 slots. Do not add site proposals, queue work, telemetry, monetization changes, or unsupported revenue claims. Prioritize the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z, continue measurement of deployed work, and preserve private or parked launch gates.",
+        "summary": "Recommendation: maintain containment-only execution. Existing telemetry already provides lifecycle, capacity, overlap, blocker, execution, and measurement status; a new fleet delivery control-plane proposal would duplicate available capabilities. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and open repair, security-evidence, finance-reconciliation, and parked-site readiness work. Continue only existing bounded work and use the current approval and engineer queue after capacity clears. No new proposal, deployment, spend, telemetry, or unsupported revenue claim is recommended.",
         "requested_action": null,
         "proposal_id": null
       }

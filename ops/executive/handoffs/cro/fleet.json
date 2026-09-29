@@ -2,15 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.109Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T19:22:35.362Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. No new CRO proposals or queue work are retained because delivery is saturated at 10/10 slots, 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair items remain open. Continue existing measurement, affiliate activation, attribution reconciliation, repair-or-close containment, private launch gates, and parked-site readiness using existing evidence only. Preserve Amazon revenue as $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, cost-to-learn, and causal lift remain unknown. Revisit reversible revenue experiments after a delivery slot clears and the required measurement, security, compliance, and attribution gates reopen.",
+        "summary": "CRO recommendation: retain containment-only execution this cycle. Delivery is saturated at 10/10 active slots, with 45 improvements awaiting measurement, 21 failed requests, open repair work, incomplete security evidence, finance reconciliation, and parked-site readiness work. Do not admit new implementation, spend, credentials, domains, dependencies, telemetry, or requeues. Preserve the two deferred CRO opportunities below for CEO/CTO review after capacity clears.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: current revenue evidence is partial and period-limited: 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21. The commission is not site-attributable. Treat conversion, ROI, margin, payback, and causal lift as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Prototype intent-led affiliate CTA block for 0xroulette.com after capacity clears",
+        "summary": "Use the completed read-only inspection of 0xroulette.com to test whether clearer separation between the primary product entry point and affiliate destination improves qualified outbound intent. Evidence confirms an observable CTA hierarchy and destination surface, but does not establish traffic, revenue, conversion, or production readiness.",
+        "requested_action": "After an active delivery slot clears and CTO confirms the existing architecture, prepare an isolated preview-only variant on the existing entry surface. Preserve current destinations, disclosures, accessibility, and consent behavior. Do not add tracking, credentials, dependencies, affiliate relationships, or production exposure until the normal review gates pass.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Evaluate markitdown for evidence-backed content discovery in a disposable lab",
+        "summary": "Explore whether microsoft/markitdown can convert permitted internal documents into normalized Markdown for editorial gap detection, metadata review, and reusable SEO brief generation across the fleet. This is a research lead, not an adoption approval.",
+        "requested_action": "CEO/CTO may commission a disposable, read-only fleet-specific prototype after delivery capacity clears. Use only synthetic or already-authorized local fixtures; do not ingest production content, install dependencies, connect credentials, modify repositories, or deploy.",
         "proposal_id": null
       }
     ]
