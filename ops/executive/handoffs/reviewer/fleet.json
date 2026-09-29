@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:11:58.193Z",
+  "generated_at": "2026-09-29T21:13:48.712Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review rejects new implementation admission this cycle. All 10 delivery slots are occupied; failed-work containment, measurement, security evidence, finance reconciliation, and launch-readiness work remain active. No candidate can be safely routed to engineer. Continue existing work only: delivery-lead resolves or closes the retained repair case by 2026-09-30T07:30Z and escalates unresolved status to CTO; site-factory completes parked-site readiness packets by 2026-09-30T17:00Z and escalates incomplete evidence to CTO. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown.",
+        "summary": "Independent review rejects all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 45 improvements awaiting measurement, 21 failed requests, and 7 repair items open. No candidate can be safely routed until delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z; unresolved work escalates to CTO. Site-factory must complete parked-site readiness packets by 2026-09-30T17:00Z; incomplete evidence escalates to CTO. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. No new spend, telemetry, credentials, configuration, dependencies, deployment, monetization, or external outreach is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
