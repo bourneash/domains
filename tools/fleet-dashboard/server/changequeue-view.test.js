@@ -140,6 +140,22 @@ test('independent explicit delivery categories can proceed during measurement', 
   );
 });
 
+test('independent lanes are not held by a stale measurement retry date', () => {
+  const request = {
+    site: 'example.com',
+    category: 'design',
+    delivery_mode: 'direct',
+    title: 'Ship a bounded design improvement',
+    next_attempt_at: '2026-10-12T00:00:00.000Z',
+  };
+  const run = {
+    site: 'example.com',
+    state: 'measuring',
+    baseline: { request_category: 'seo' },
+  };
+  assert.equal(view.measurementConflict(request, run), false);
+});
+
 test('report-only work can proceed while an implementation is active', () => {
   const blockers = view.queueBlockers(
     { status: 'queued', site: 'example.com', delivery_mode: 'report_only' },

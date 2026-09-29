@@ -1992,11 +1992,36 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const runs = events.listImprovements({ limit: 1000 }).filter(run => run.state === 'measuring');
     const now = new Date().toISOString();
     const reclassified = [];
+    const released = [];
     const duplicateGroups = new Map();
     for (const request of queued) {
       const conflicts = runs.some(
         run => run.site === request.site && changequeueView.measurementConflict(request, run)
       );
+      // Older queue records stored the measurement due date in
+      // next_attempt_at. That made an unrelated lane wait until the entire
+      // experiment ended even when measurementConflict() says it is safe to
+      // proceed. Reconcile that stale retry gate before pickup; genuine
+      // same-lane measurement conflicts retain their hold date.
+      const retryAt = Date.parse(request.next_attempt_at || '');
+      if (!conflicts && Number.isFinite(retryAt) && retryAt > Date.now()) {
+        const updated = changequeue.update(
+          events,
+          request.request_id,
+          { next_attempt_at: now, error: null },
+          site => isKnownTarget(root, site)
+        );
+        events.record({
+          event_type: 'change-request.measurement-released',
+          source: 'fleet-dashboard',
+          site_id: `site:${updated.site}`,
+          entity_type: 'change-request',
+          entity_id: updated.request_id,
+          correlation_id: `change-request:${updated.request_id}`,
+          payload: { reason: 'independent delivery lane is not measurement-conflicted' },
+        });
+        released.push(updated.request_id);
+      }
       if (!conflicts) {
         if (
           changequeueView.isMeasurementSafe(request) &&
@@ -2065,7 +2090,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         }
       }
     }
-    return { reclassified, cancelled_duplicates: cancelledDuplicates };
+    return { reclassified, released, cancelled_duplicates: cancelledDuplicates };
   }
 
   async function pickupChangeRequests(max) {
