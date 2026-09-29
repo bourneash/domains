@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T08:52:37.018Z",
+  "generated_at": "2026-09-29T08:53:54.496Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation routing and the proposed report-only packet this cycle. Delivery is full at 10/10 slots, measurement and failure backlogs remain, and the existing driveford.net owner-gap work already covers the proposed readiness evidence. Revenue is limited to unattributed aggregate data; financial and causal claims remain unsupported. Continue existing containment, measurement, repair-or-close, reconciliation, security/legal evidence, and parked-site readiness work only. Reconsider queue work after one existing item is verified complete or formally closed and a slot is available.",
+        "summary": "Maintain containment-only execution. No new implementation candidates are authorized: delivery is full at 10/10 slots, overflow and measurement backlogs remain, failed requests require repair-or-close evidence, and security/operations evidence is unavailable. Continue existing measurement, failure repair-or-close, period-aligned finance reconciliation, legal/security evidence, and parked-site readiness. Preserve aggregate commission as unattributed; costs, margin, ROI, forecasts, and causal lift remain unknown. No requeues, deployments, spend, telemetry, dependencies, credentials, configuration changes, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
