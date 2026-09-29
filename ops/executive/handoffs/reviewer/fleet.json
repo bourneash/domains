@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:25:19.410Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-29T16:38:37.263Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject duplicate security admission and all new production work, requeues, spending, telemetry expansion, monetization expansion, and unsupported financial claims. Continue only existing security evidence, private launch-gate, repair-or-close, measurement, and period-aligned reconciliation work. Amazon commission remains $4.92 aggregate for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new implementation admission this cycle. Delivery is saturated at 10/10 slots, measurement backlog and failed-work containment remain open, and operations/security evidence is incomplete. The three scaffold candidates are blocked by missing launch-readiness evidence; live-site candidates are active, queued, measuring, or under repair. Continue only existing containment, measurement, reconciliation, security-evidence, private-launch, and parked-site readiness work. Revenue remains limited to $4.92 aggregate commission for 2026-09-21 and is not site-attributable; margin, ROI, forecasts, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: the portfolio action mandate cannot be satisfied safely without violating current gates. No implementation candidate is queueable: complicated.work, deadlymaracas.com, and driveford.net lack verified launch-readiness evidence; remaining actionable sites have active delivery, measurement, or failed-work containment. Do not create new requests, requeue unchanged work, deploy, spend, expand telemetry, change credentials or permissions, or claim financial or causal outcomes. Reconsider after a slot is cleared and the applicable evidence is complete.",
+        "summary": "Maintain containment-only execution. Reject new queue work, requeues, deployments, spending, telemetry expansion, dependency or permission changes, monetization expansion, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, period-aligned reconciliation, security evidence, private launch gates, and parked-site readiness. The only supported revenue evidence is $4.92 aggregate, unattributed commission for 2026-09-21; costs, margin, ROI, forecasts, and causal lift remain unknown. Complete or justifiably close the retained failure before queue admission reopens.",
         "requested_action": null,
         "proposal_id": null
       }

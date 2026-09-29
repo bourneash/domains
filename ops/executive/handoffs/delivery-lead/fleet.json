@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:25:19.410Z",
+  "generated_at": "2026-09-29T16:38:37.262Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Record dated ownership, root cause or closure rationale, deterministic validation, build checks, rollback, release/security boundary, attribution and measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create duplicate requests.",
         "requested_action": null,
         "proposal_id": null
       }

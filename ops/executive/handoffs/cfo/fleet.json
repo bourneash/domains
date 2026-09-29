@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T16:25:19.410Z",
-  "summary": "cfo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-29T16:38:37.262Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve 2026-09-21 Amazon results as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown; authorize no spend.",
+        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. Revenue support is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all aggregate and not site-attributable. Do not extrapolate this one-day result or compare it to September AI spend of $934.99756275 for 2026-09-01 through 2026-09-29. Contribution margin, budget exposure, infrastructure spend, ROI, payback, forecasts, and cost-to-learn are unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution and authorize no spend, billing changes, money movement, new queue work, or monetization expansion. Do not treat September AI usage or operational volume as comparable financial performance against one revenue day. Continue only existing period-aligned finance reconciliation, measurement, repair-or-close, security-evidence, and private launch-gate work.",
+        "summary": "Continue only the existing period-aligned finance reconciliation and deployed-work measurement. The minimum evidence for contribution margin and cost-to-learn is a dated ledger matching each revenue and cost item to the same site or content and period, including AI, infrastructure, labor, operating costs, commitments, and budget ceilings, plus an approved learning threshold and outcome metric. Preserve unavailable values as unknown; do not treat missing revenue or telemetry as zero.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial disposition: contribution margin, budget exposure, infrastructure spend, cost-to-learn, ROI, payback, forecasts, and causal lift remain unknown because matching-period attributed revenue and allocated costs are unavailable. Minimum evidence is a dated ledger matching revenue and cost items to the same site or content and period, plus an approved learning threshold.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Clicks, sessions, impressions, ordered items, shipped items, AI calls, proposal counts, repository popularity, and delivery output do not establish revenue, margin, or learning value. Preserve these as operating metrics only until attributable realized revenue and matching costs are available.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, budgets, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown; authorize no spend.",
+        "summary": "AI usage is a material exposure signal, not proof of performance: 5,174 calls, 229 errors, and $934.99756275 total cost across 39 instrumented sites during 2026-09-01 through 2026-09-29. The arithmetic average is approximately $0.18 per call, but cost-to-learn is not calculable because no approved learning threshold, attributable outcome, matching-period revenue, or infrastructure allocation exists. Retain AI guardrail review as deferred report-only analysis; do not change models, schedules, credentials, billing, or spend.",
         "requested_action": null,
         "proposal_id": null
       }
