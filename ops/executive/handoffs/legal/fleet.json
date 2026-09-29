@@ -2,70 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:22:43.433Z",
-  "summary": "legal checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:39:39.560Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal risk disposition: BLOCKED for SearchWoot public beta, full launch, alert expansion, affiliate use, or advertising. Official Woot documentation establishes API access mechanics only; current public terms restrict commercial/public collection, display, derivative use, and data mining. No written permission or field-level rights are evidenced. Human counsel is required for upstream data rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep the product private and preview-only; keep outreach unsent pending counsel review and owner authorization.",
+        "summary": "Disposition: blocked for public launches, public beta, security-sensitive releases, alert expansion, affiliate expansion, and advertising expansion; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Evidence: compliance is technical-only with 35 pass, 18 fail, and 6 unknown; security and operations evidence is unavailable; analytics quality is yellow; Amazon evidence is limited to 2026-09-21 aggregate results of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission. Exact decision: maintain containment-only execution, authorize no new spend or monetization expansion, admit no new queue work, and keep private or parked launch gates in place until evidence and owner decisions are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 tasks are closed and 4 remain open. No task is closed because direct evidence is still missing. Progress is limited to official API/terms/support review, partial repository/configuration data-flow evidence, privacy and cookie-policy artifacts, and draft site terms. Next evidence action: attach one consolidated read-only bundle covering field-level rights, deployed data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 configuration and retention, log fields, vendors, incident/request procedures, accuracy/freshness controls, and rollback evidence.",
+        "summary": "SearchWoot is blocked for public beta, full launch, alert expansion, affiliate use, and advertising. Woot documentation proves API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data; current public terms restrict the proposed use. Keep SearchWoot private and preview-only. Human counsel is required for upstream data rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep rights outreach unsent pending counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is BLOCKED. Missing current written permission or API agreement, field-level provenance, and limits for storage, derivatives, caching, public display, alerts, attribution, freshness, correction, takedown, trademarks, images, prices, affiliate use, and advertising. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized outreach or launch decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: user alert rules and sync results are EVIDENCE_NEEDED. The purpose and processing are understandable, but data inventory, identifiers, retention, deletion, correction, access, Slack/email processor terms, notification consent, and unsubscribe behavior are not evidenced. Smallest next action: produce a read-only deployed/repository data-flow and retention table; do not expand alerts.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: GA4 analytics is EVIDENCE_NEEDED, not blocked solely by incomplete telemetry. The stated measurement-only purpose and consent-gated processing are conditionally acceptable if implemented as described, but deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment are not evidenced. Smallest next action: capture consent and GA4 configuration evidence without enabling new tracking, remarketing, or advertising.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: operational logs and Cloudflare hosting data are EVIDENCE_NEEDED. Operational use is conditionally supportable, but log fields, retention/access controls, vendor coverage, incident response, subpoena handling, and data-subject-request procedures are not evidenced. Smallest next action: produce a read-only log, vendor, incident, and request inventory. No secondary disclosure or monetization is cleared.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Fleet legal disposition: ordinary reversible growth is CONDITIONAL, not blocked solely by incomplete telemetry, when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Public exposure and security-sensitive releases remain blocked where compliance, security, launch, accuracy, or measurement evidence is incomplete. Technical compliance baseline is 35 pass, 18 fail, and 6 unknown; revenue is $4.92 aggregate and unattributed for 2026-09-21. Do not treat unavailable telemetry as zero or as legal clearance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and preview-only. Rights outreach remains unsent pending human-counsel review and owner authorization; no public display, alert expansion, affiliate use, advertising, deployment, configuration change, or credential change is cleared. Continue the existing consolidated read-only evidence bundle.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence.",
         "requested_action": null,
         "proposal_id": null
       }

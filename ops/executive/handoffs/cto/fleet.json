@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T21:22:43.432Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:39:39.560Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue deployed-work measurement, security evidence, period-aligned finance reconciliation, and private launch-readiness evidence using existing telemetry and authorized metadata only. Preserve unavailable revenue, cost, attribution, conversion, security, and causal-lift fields as unknown. Do not add tracking, request duplicate telemetry, requeue failures, access credentials or private containers, change permissions or configuration, deploy, or conduct external outreach.",
+        "summary": "Maintain containment-only execution. No new queue admission is safe while all 10 delivery slots are occupied, repair-or-close work remains open, measurement debt persists, and operations/security evidence is incomplete. Continue only existing measurement, repair, reconciliation, security evidence, private launch gates, and parked-site readiness work using available records.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue deployed-work measurement and parked-site readiness using existing telemetry and authorized metadata only. Preserve unavailable revenue, cost, attribution, conversion, security, and causal-lift fields as unknown. Do not create duplicate work or new queue entries.",
+        "summary": "Do not assign unverified execution owners or create duplicate requests. Complete or consolidate existing delivery work, resolve the retained repair-or-close case with isolated validation and rollback evidence, then recheck authoritative readiness before admitting one bounded reversible change.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Record ownership prerequisites and blockers without asserting owner installation. Keep each property parked, private, preview-only, and unlaunched; do not build, deploy, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the affiliate experiment, search-intent consolidation, and MarkItDown concept as deferred specifications only. Reconsider after capacity clears and required gates reopen. No implementation, dependency addition, production integration, new telemetry, spend, or deployment is authorized this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

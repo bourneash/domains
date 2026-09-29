@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:51:08.501Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T21:39:39.560Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new implementation, experiment, repository-adoption, affiliate, audience, or product proposals this cycle. Delivery is saturated, measurement is pending, failed-work containment is open, and revenue attribution is partial. Defer markitdown, shadcn/ui, Mermaid, and new CRO experiments until a slot clears and existing evidence gates reopen. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, and private launch-readiness work; preserve unknown revenue, ROI, and causal lift.",
+        "summary": "Retain three CRO-owned specifications for reconsideration after delivery capacity clears: an affiliate conversion-path experiment, an SEO cannibalization repair, and a disposable MarkItDown content-discovery prototype. Current evidence supports hypotheses and reversible prototypes only; attribution, causal lift, margin, and ROI remain unknown. No new queue admission, deployment, spend, credentials, domains, or telemetry is requested.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Before any implementation, validate the smallest prototype, dependency and license posture, security boundaries, maintenance burden, deterministic tests, existing-telemetry measurement, and rollback. Keep all work preview-only until an active slot clears and current launch/security gates permit it.",
         "requested_action": null,
         "proposal_id": null
       }
