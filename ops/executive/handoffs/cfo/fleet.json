@@ -2,56 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:22:38.601Z",
-  "summary": "cfo checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:39:20.986Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. The only supported revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to a site. September 1–29 AI usage is $947.40 across 5,289 calls, but it is not period-matched to revenue, so margin, ROI, payback, and forecasts must not be inferred.",
+        "summary": "Do not treat scorecard entries showing revenue_usd=0 and AI cost as contribution-margin losses. Those entries lack matching-period site-attributed revenue and complete non-AI cost allocation; they are spend-versus-unobserved-revenue indicators only. Contribution margin requires attributable revenue minus variable AI, infrastructure, affiliate, and other directly allocable costs for the same site and period.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin is unknown: matching-period site-attributed revenue and allocated costs are unavailable. The minimum measurement is a dated ledger matching each revenue item and cost item to the same site or content and period, including AI, infrastructure, domains, hosting, and other operating costs. Do not subtract the $947.40 AI total from $4.92 revenue because the periods and attribution scopes do not match.",
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation work item only. Preserve unknowns for infrastructure spend, fixed costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn because no matching-period cost ledger or monthly budget limits are present in the brief. The minimum financial control artifact is a dated site/content ledger reconciling provider earnings, AI spend, infrastructure spend, and other variable costs to the same measurement window.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Cost-to-learn is not calculable because no approved learning threshold, experiment denominator, or attributable outcome value is recorded. The minimum measurement is an approved per-test learning budget or threshold, test scope and dates, incremental AI/infrastructure cost, exposure count, and a measurable outcome tied to the tested site or content. Existing clicks, impressions, sessions, and proposals are not financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Budget exposure is unknown because monthly spend, fixed costs, marketing budget, revenue floor, and attribution materiality threshold are blank in the owner strategy. The minimum measurement is a dated approved budget register plus committed and incurred spend by cost category. Until then, retain containment and authorize no discretionary spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned reconciliation only. Preserve aggregate provider earnings as unattributed; do not use named tracking-row clicks with zero site commission as revenue, and do not extrapolate the single 2026-09-21 revenue day into a monthly forecast. Continue deployed-work measurement and existing repair-or-close and readiness work without adding telemetry or duplicate requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing saveusfarms.com repair-or-close case and complete or close it by 2026-09-30T07:30Z with dated ownership, root-cause or closure rationale, validation, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. This is containment work, not a basis for a financial claim.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing parked-site readiness packets by 2026-09-30T17:00Z. Keep the scaffold properties parked, private, preview-only, and unlaunched; do not publish, deploy, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Retain containment-only execution while delivery is full at 10/10 slots, 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair follow-ups remain open. No financial case supports adding work before existing measurement and repair obligations produce dated evidence. Reconsider only after a slot clears and the retained finance reconciliation has matched-period cost and revenue evidence.",
         "requested_action": null,
         "proposal_id": null
       }

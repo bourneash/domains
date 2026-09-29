@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:22:38.602Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:39:20.987Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Do not create queue work, change requests, requeues, deployments, telemetry, dependencies, permissions, credentials, spending, or monetization expansion this cycle. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness work.",
+        "summary": "Approve containment-only execution. Continue existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not admit new implementation work, requeue unchanged failures, add telemetry, dependencies, credentials, permissions, deployments, spending, monetization expansion, or external outreach. Complete or close the existing saveusfarms.com case by 2026-09-30T07:30Z with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence; escalate unresolved status to CTO.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Require dated ownership, root-cause or closure rationale, isolated deterministic validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Retain the fleet execution-integrity control-plane concept as deferred specification only. It is technically feasible as a read-only reconciliation report using existing records, but implementation must wait until delivery capacity clears and retained repairs have dated dispositions. No new telemetry, dependencies, production mutation, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift values as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue only existing readiness packets; do not build, publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and period-aligned finance reconciliation. Preserve explicit unknowns; keep public exposure and security-sensitive releases blocked while controls remain unevidenced. Authorize no spend or external outreach.",
+        "summary": "Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, margin, ROI, forecasts, payback, cost-to-learn, and causal lift remain unknown; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete existing parked-site readiness packets by 2026-09-30T17:00Z. Keep scaffold properties parked, private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the CRO and site-factory concepts as deferred specifications only. Reconsider admission only after an active delivery slot clears and each candidate has an isolated implementation boundary, effort estimate, available baseline metric, deterministic acceptance tests, and rollback point.",
+        "summary": "Keep SearchWoot private and preview-only. Continue the existing consolidated read-only evidence bundle; rights outreach remains unsent pending human-counsel review and owner authorization. Public exposure, security-sensitive release, alert expansion, deployment, configuration or credential changes, dependency additions, and monetization remain blocked.",
         "requested_action": null,
         "proposal_id": null
       }

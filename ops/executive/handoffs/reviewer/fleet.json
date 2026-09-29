@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:22:38.602Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-29T23:39:20.988Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: approve containment-only execution. Reject new queue work, production changes, requeues, telemetry expansion, spending, monetization expansion, credential or permission changes, dependency additions, external outreach, and unsupported financial or causal claims. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, payback, forecasts, and causal lift remain unknown. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Owner concern: active delivery is saturated, failed-work containment remains open, and operations/security evidence is unavailable.",
+        "summary": "Approve containment-only execution. Reject all new proposals, queue admissions, requeues, deployments, spend, telemetry expansion, credential or permission changes, monetization expansion, and external outreach. Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, cost-to-learn, and causal lift are unknown. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with dated ownership, validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new implementation admission this cycle. Delivery is full at 10/10 slots, measurement debt and failed repairs remain open, and high-priority queue work is unsupported. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial and causal claims. Supported evidence is limited to $4.92 aggregate, unattributed Amazon commission for 2026-09-21; matching-period costs, margin, ROI, payback, forecasts, cost-to-learn, and causal lift remain unknown. Authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence; escalate unresolved status to CTO.",
         "requested_action": null,
         "proposal_id": null
       }
