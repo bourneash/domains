@@ -245,7 +245,13 @@ function apiOptional(method, url, fallback, timeoutMs = 2500) {
   return Promise.race([
     api(method, url),
     new Promise(resolve => setTimeout(() => resolve(fallback), timeoutMs)),
-  ]).catch(() => fallback);
+  ]).catch(error => {
+    // A stale/rotated browser session must not look like a healthy empty
+    // dataset. `api()` has already opened the login overlay for 401s; let the
+    // error propagate so the caller cannot render misleading zero counts.
+    if (error?.message === 'authentication required') throw error;
+    return fallback;
+  });
 }
 
 /* ---- auth gate (F1) ---- */

@@ -32,6 +32,16 @@ test('agent navigation tolerates both bare-list and enveloped API responses', ()
   assert.match(app, /apiOptional\('GET', '\/api\/agents', \{ agents: \[\] \}\)/);
 });
 
+test('optional API reads do not hide authentication failures as empty data', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function apiOptional(');
+  const end = app.indexOf('/* ---- auth gate', start);
+  assert.ok(start >= 0 && end > start);
+  const helper = app.slice(start, end);
+  assert.match(helper, /error\?\.message === 'authentication required'/);
+  assert.match(helper, /throw error/);
+});
+
 test('site command centers are shareable first-class routes', () => {
   const route = routeFor('#site/example.test');
   assert.equal(route.view, 'site');
