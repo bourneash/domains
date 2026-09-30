@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:50:53.737Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:52:48.774Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Revenue claims remain limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, payback, forecasts, and causal lift are unknown. Preserve existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Escalate the overdue saveusfarms.com repair-or-close case to CTO immediately; CTO must record ownership, root cause or closure rationale, validation, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Reconsider distinct-site implementation candidates only after a slot clears, with CTO escalation by 2026-10-01T09:00Z if capacity remains blocked.",
+        "summary": "Reject all new queue admissions, production changes, spend, telemetry changes, deployments, dependencies, outreach, and unchanged requeues. Delivery is saturated at 10/10; 54 improvements await measurement, 21 requests failed, and revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Escalate the overdue saveusfarms.com repair-or-close case to CTO and keep SearchWoot private pending counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10, with 54 improvements measuring, 21 failed requests, and 7 open repairs. No candidate may be queued until an active slot is released and its required gates are satisfied. Preserve aggregate Amazon revenue as unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; site revenue, margin, ROI, payback, forecasts, and causal lift remain unknown. No spend, telemetry changes, deployment, credentials, configuration, dependencies, or outreach are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Escalate the overdue saveusfarms.com repair-or-close case to CTO. Complete or close the existing case with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue only the existing readiness packets; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00:00Z, then escalate incomplete packets to CTO. Do not queue, build, publish, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The available actionable candidates remain unqueued because capacity is saturated or required launch/security evidence is incomplete. Reassess only after a slot clears, the overdue repair is resolved, and the relevant gate evidence is attached. The allthingsmasonic.com CTA refinement remains the first post-capacity candidate; no causal or revenue lift is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:08:04.648Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:52:48.773Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: containment-only this cycle. Delivery is saturated at 10/10 slots, with 54 improvements awaiting measurement, 21 failed requests, and 7 open repairs. No new experiment, product prototype, research request, change request, deployment, spend, telemetry, credential, or domain action is recommended. Preserve the existing allthingsmasonic.com affiliate CTA improvement as the next slot-gated CRO experiment. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. After a slot clears, test only a reversible CTA hierarchy and adjacent disclosure-clarity pass, preserving destinations and existing measurement. Primary metric: affiliate clicks and attributable outcomes; causal lift remains unknown. Smallest prototype: one merchandising-surface CTA treatment with keyboard, contrast, responsive-layout, and link-integrity validation; rollback is revert-only. CEO/CTO handoff: admit only after capacity and existing-work conflicts clear.",
+        "summary": "CRO handoff: preserve containment and retain two deferred, reversible opportunities for CEO/CTO sequencing after capacity clears. 1) allthingsmasonic.com affiliate CTA experiment: existing evidence is 61 site-attributed Amazon clicks, 0 ordered items, and $0 commission for 2026-09-21; no lift or ROI is claimed. Fleet use case: clarify one primary CTA per product card on the highest-intent merchandising surface while preserving destinations, disclosures, tracking, keyboard access, contrast, tap targets, and mobile layout. Smallest prototype: presentation-only CTA-label and focus-state diff on one existing surface, with deterministic link checks, accessibility checks, build/smoke validation, and revert-only rollback. Metric: existing outbound affiliate clicks, ordered items, and site-attributed commission when available; learn over 14 days after verified deployment or preserve as unknown. Risk: current delivery is saturated at 10/10 and the site has overlapping work, so do not admit duplicate queue work. 2) SEO/content discovery prototype using microsoft/markitdown: the CRO lab found MIT licensing, 194 files, 22 purpose-specific keyword hits, and 8/8 bounded checks passed; dependency installation and production access were not used. Fleet use case: convert a small set of existing approved source documents into structured Markdown briefs to test whether editorial production and internal-link planning become faster and more consistent. Smallest reversible prototype: offline conversion of 3 representative, non-sensitive fixtures into draft-only Markdown, with provenance retained and no publishing, new dependencies, external crawling, or telemetry changes. Metric: validated brief completion rate and analyst time-to-draft versus the current documented process; time-to-learn is one working session. Risks: repository maintenance and parser behavior require CTO review; MIT applies to code, not necessarily input-document rights or generated content; security review is required before any dependency adoption. No implementation, spend, credentials, deployment, domain change, or new telemetry is requested. Next CRO action: keep both as slot-gated specifications and let CEO/CTO select only after existing repair, measurement, security, finance, and readiness work clears.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO disposition: no new proposal, change request, research request, or queue admission this cycle. Existing telemetry supports prioritization but not causal revenue claims: Amazon reporting is aggregate for 2026-09-21 with $4.92 unattributed commission, while site-level revenue, margin, ROI, payback, and cost-to-learn remain unknown. Continue only existing repair-or-close, deployed-work measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       }

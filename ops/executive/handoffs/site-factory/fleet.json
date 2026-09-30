@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:08:04.648Z",
+  "generated_at": "2026-09-30T08:52:48.773Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only site-factory disposition. Maintain the existing parked-site readiness pipeline for complicated.work, deadlymaracas.com, and driveford.net; do not create duplicate queue work. The repeatable packet covers site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, security evidence, owner/legal/measurement gates, rollback point, and preview-only launch gate. All three remain parked, private, preview-only, and unlaunched. Exactly one next step: complete and attach the existing readiness packet for complicated.work by 2026-09-30T17:00Z, then escalate any missing owner, legal, security, measurement, or rollback evidence to CTO. No domains, DNS, spending, deployment, analytics configuration, monetization, dependencies, or public launch are authorized.",
+        "summary": "Exactly one next step: attach the dated readiness packet for complicated.work to the existing parked-site readiness work item, covering ownership, preview/build evidence, reusable template scope, initial content seed, metadata and crawlability baseline, analytics and affiliate readiness status, compliance findings, security unknowns, measurement boundary, rollback point, and explicit blockers. Do not build, publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       }

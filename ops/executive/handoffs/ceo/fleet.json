@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:39:52.595Z",
+  "generated_at": "2026-09-30T08:52:48.774Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12 and reject all new admissions this cycle. Evidence: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, 7 repairs remain open, and revenue is $4.92 aggregate/unattributed for 2026-09-21; margin and causal lift are unknown. The CRO CTA experiment remains slot-gated. Smallest next step: resolve the overdue saveusfarms.com repair-or-close case. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel review.",
+        "summary": "Recommendation: preserve containment and escalate the overdue saveusfarms.com repair-or-close case to CTO. Evidence: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and the 07:30Z deadline passed without closure evidence. Complete or close the existing case with root cause, validation, build checks, rollback, and measurement limits; do not retry unchanged work or admit new queue items.",
         "requested_action": null,
         "proposal_id": null
       }
