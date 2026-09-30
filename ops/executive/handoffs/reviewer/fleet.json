@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:23:35.776Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T16:38:24.323Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, prototype, site-factory, and duplicate security work this cycle. Fleet capacity is saturated at 10/10; analytics is unavailable; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so revenue, ROI, margin, and causal lift remain unknown. Preserve only existing queued work: complete or close the saveusfarms.com repair-or-close case with validation and rollback evidence, release one slot, then execute the already-queued allthingsmasonic.com CTA refinement against its existing affiliate baseline. Keep gated launches and public exposure blocked where required. No new telemetry, credentials, configuration, spending, schedules, deployment, or external outreach is authorized.",
+        "summary": "Reject all new queue admissions and duplicate report/proposal work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence remains incomplete. Preserve existing work only, including the slot-gated allthingsmasonic.com CTA refinement and current repair/measurement cases. Supported revenue is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; do not claim revenue, ROI, margin, or causal lift. CTO must complete or close the existing saveusfarms.com repair-or-close case with root cause, validation, build checks, rollback, and release-boundary evidence before releasing one slot. Keep private launch gates unchanged and external rights outreach unsent pending required review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation, prototype, site-factory, and production admissions this cycle. Capacity is saturated at 10/10, analytics is unavailable fleet-wide, and site-level revenue/ROI/causal lift are unsupported. CTO must complete or close the existing saveusfarms.com repair with validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then release one slot. Execute only the already-queued allthingsmasonic.com CTA refinement afterward. Keep private launch and security gates unchanged.",
+        "summary": "Material concerns: unsupported financial and causal claims are blocked by unavailable analytics and aggregate-only revenue attribution; production and high-priority queue additions are blocked by saturated delivery capacity; security and operations evidence remains incomplete. Please maintain containment, preserve existing gated work, and keep private launch gates and unsent rights outreach unchanged until the existing evidence and capacity blockers are resolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Leave rc-9.com blocked with CTO owning the failed-repair root-cause and capacity release; escalate unresolved status by 2026-10-01T09:00Z. Leave complicated.work, deadlymaracas.com, and driveford.net parked and unlaunched with site-factory owning dated launch-readiness, ownership, compliance, security, measurement, rollback, and preview evidence by 2026-09-30T17:00Z; escalate any missing artifact immediately. Leave blackmarketapparel.com blocked behind measurement and usable attribution evidence; delivery-lead owns reassessment after its measurement window. Leave magicescorts.com blocked pending Legal, Security, privacy, and owner disposition; no production or public exposure.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, spend, credential, configuration, and production claims. Analytics is unavailable fleet-wide; supported revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21. Keep security-sensitive releases and new public exposure gated. Route only the bounded web-vitals repairs below; execution remains capacity-gated until CTO releases a slot.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00:00Z. Release one delivery slot only after that evidence is recorded; unresolved capacity escalates to the owner by the same deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The smallest defensible plan is three reversible web-vitals repairs across distinct sites, queued only as slot-gated engineer work. No new site-factory builds, spend, telemetry changes, credentials, configuration, or public launches are approved. Keep private launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
