@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:24:55.322Z",
+  "generated_at": "2026-09-30T09:25:53.140Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and an overdue saveusfarms.com repair-or-close case. Pokererotic.com analytics work is additionally blocked by unavailable authorized property access. CTO must release one slot and document acceptance criteria, tests, metric, rollback, and the dated unblock decision by 2026-10-01T09:00:00Z; escalate unresolved capacity to the owner. Preserve existing measurement, repair, security evidence, finance reconciliation, launch-gate, and parked-readiness work only. Revenue claims remain unsupported because the available $4.92 commission is aggregate and unattributed.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and an overdue saveusfarms.com repair-or-close case. Revenue claims remain unsupported: $4.92 is aggregate and unattributed to sites, while matching-period costs and causal lift are unknown. Existing candidates remain unqueued until CTO releases a slot by 2026-10-01T09:00:00Z; delivery-lead/CTO must complete or close the saveusfarms.com case with root cause, validation, build, rollback, attribution limits, and measurement limits. Site-factory readiness packets remain due 2026-09-30T17:00:00Z, with CTO escalation if incomplete. No new production, spend, credentials, configuration, telemetry, or research work is authorized this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
