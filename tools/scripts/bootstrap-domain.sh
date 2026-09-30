@@ -45,16 +45,20 @@ echo "  GitHub repo : ${GITHUB_REPO}"
 echo ""
 
 if gh repo view "${GITHUB_REPO}" --json nameWithOwner >/dev/null 2>&1; then
-  remote_commits="$(gh api "repos/${GITHUB_REPO}/commits?per_page=1" --jq 'length' 2>/dev/null || true)"
-  if [ "${remote_commits}" = "0" ]; then
+  remote_commits="$(gh api "repos/${GITHUB_REPO}/commits?per_page=1" --jq 'length' 2>&1 || true)"
+  if printf '%s' "${remote_commits}" | grep -q 'Git Repository is empty'; then
     echo "NOTICE: GitHub repo exists but is empty: ${GITHUB_REPO}"
     echo "        Resuming the interrupted scaffold push."
     REPO_EXISTS=1
-  else
+  elif printf '%s' "${remote_commits}" | grep -Eq '^[[:space:]]*[1-9][0-9]*[[:space:]]*$'; then
     echo "NOTICE: GitHub repo already exists for ${DOMAIN}: ${GITHUB_REPO}"
     echo "        Treating it as a partial existing setup."
     echo "        Use 'tools/scripts/domain-manager-cli.sh repair ${DOMAIN}' to continue safely."
     exit 2
+  else
+    echo "ERROR: could not determine whether ${GITHUB_REPO} is empty:" >&2
+    echo "${remote_commits}" >&2
+    exit 1
   fi
 fi
 
