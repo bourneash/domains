@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:52:59.890Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:58:07.758Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new proposals, production work, prototypes, duplicate telemetry, and unsupported revenue or ROI claims. Delivery is saturated at 10/10 slots; keep existing security and private-launch gates unchanged. Preserve the existing security evidence matrix and complete or close the existing saveusfarms.com repair-or-close case before releasing one slot for the already-queued allthingsmasonic.com CTA refinement. Amazon commission remains aggregate and unattributed; site revenue, margin, ROI, and causal lift are unsupported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Then release one slot and admit at most one of the queued SEO changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Amazon evidence supports only 2026-09-21 aggregate commission of $4.92; it is unattributed. Site revenue, ROI, margin, payback, and causal lift remain unsupported. Monthly spend and fixed-cost fields are unavailable. Keep security-sensitive releases and private launch gates unchanged; no new spend, credentials, configuration, deployment, or external outreach is authorized.",
+        "summary": "Reviewer disposition: reject the dumbsluts.com readiness proposal and do not admit new production work while delivery is saturated at 10/10 slots. Route only three bounded SEO changes as capacity-gated engineer work; CTO must release a slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair case, or escalate unresolved capacity to the owner. Revenue, ROI, margin, and causal lift remain unsupported by current attribution.",
         "requested_action": null,
         "proposal_id": null
       }
