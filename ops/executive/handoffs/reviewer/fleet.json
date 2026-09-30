@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:44:52.058Z",
+  "generated_at": "2026-09-30T08:50:53.737Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open; new production work would violate capacity and duplicate existing work. Revenue supports only the 2026-09-21 aggregate Amazon result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission. Keep site revenue, margin, ROI, forecasts, and causal lift unknown; authorize no spend or monetization expansion. CTO must resolve the overdue saveusfarms.com repair-or-close case with root cause or closure rationale, isolated validation, build checks, rollback, security boundary, attribution limits, measurement limits, and deduplication evidence; escalation is active and no unchanged retry is allowed. Site-factory must attach dated readiness packets for the three parked scaffold properties by 2026-09-30T17:00Z or escalate to CTO. Legal must keep SearchWoot private and rights outreach unsent pending counsel review and owner authorization.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Revenue claims remain limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, payback, forecasts, and causal lift are unknown. Preserve existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Escalate the overdue saveusfarms.com repair-or-close case to CTO immediately; CTO must record ownership, root cause or closure rationale, validation, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Reconsider distinct-site implementation candidates only after a slot clears, with CTO escalation by 2026-10-01T09:00Z if capacity remains blocked.",
         "requested_action": null,
         "proposal_id": null
       }
