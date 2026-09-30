@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.002Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:07:55.120Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends retaining no new proposal or queue admission this cycle. Delivery is saturated at 10/10 slots, 170 work items are stranded, 54 improvements await measurement, and 21 requests have failed. Existing repair, measurement, readiness, security-evidence, and private-gate work should continue. After the existing repair-or-close case releases capacity, the preserved allthingsmasonic.com CTA refinement is the next CRO experiment: use the recorded 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission baseline; measure affiliate clicks, orders, and commission without claiming causal lift. GitHub candidates remain research-only: MarkItDown has MIT licensing and bounded lab checks, while shadcn/ui and Mermaid have plausible use cases but require fleet-specific prototypes, dependency review, security review, and owner-approved implementation. No deployment, spend, credential, domain, telemetry, or external-outreach action is requested.",
+        "summary": "CRO disposition: retain no new proposals, change requests, experiments, research requests, or queue items this cycle. Evidence supports containment: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 implementation requests failed, 7 repairs remain open, analytics is unavailable across configured sites, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. Preserve the existing allthingsmasonic.com affiliate CTA refinement as the next reversible experiment after CTO releases capacity and completes or closes the existing saveusfarms.com repair-or-close case. Its recorded baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Acceptance should remain unchanged destination and disclosure, accessible CTA/link behavior, deterministic tests, successful build, registered affiliate-click measurement, explicit attribution limits, and single-diff rollback. Keep MarkItDown, shadcn/ui, Mermaid, and related CRO concepts as research-only deferred specifications; repo-lab evidence supports fit signals only, with MIT licensing observed for MarkItDown, shadcn/ui, and Mermaid, no dependency installation, no production access, and no security or maintenance approval. Smallest reversible prototype, when capacity opens, is a single existing-surface CTA variant or isolated preview using current dependencies only. Do not claim revenue, ROI, conversion lift, or causal impact before measurement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: do not admit new CRO work while capacity is saturated. When one slot is released, recheck overlap and route only the already-preserved allthingsmasonic.com CTA refinement. Require a single isolated diff, existing dependency set, focused accessibility/link/build validation, registered affiliate tracking, documented rollback, and a measurement window bounded by available telemetry. Keep repository candidates research-only until a fleet-specific prototype, security review, maintenance assessment, and owner-approved implementation exist.",
         "requested_action": null,
         "proposal_id": null
       }

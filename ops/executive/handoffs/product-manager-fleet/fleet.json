@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.990Z",
+  "generated_at": "2026-09-30T13:07:55.119Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet recommendation: preserve containment-only execution until one delivery slot is released and existing repair, measurement, security-evidence, and readiness work is resolved. Highest-leverage product investment is execution integrity: consolidate duplicate work, link every approved proposal to one routable request, and automatically surface stranded or overlap-blocked items. This targets 108 approved proposals without execution, 164 stranded work items, 10/10 delivery slots occupied, 21 failed requests, and a 63% approved-proposal execution rate. No new production work, telemetry, spend, credentials, schedules, or deployments are recommended this cycle. Keep the existing CTA candidate slot-gated and retain current private launch gates.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Highest-leverage friction is control-plane throughput: 10/10 delivery slots occupied, 54 improvements awaiting measurement, 21 failed requests, 7 repairs open, 108 approved proposals without execution, and only 63% approved-proposal execution. Do not create duplicate proposals, telemetry requests, experiments, or queue items. First release one slot by completing or closing the existing repair-or-close case, then admit the preserved affiliate CTA refinement with its existing baseline, validation, measurement window, and rollback. Retain deferred product concepts for execution-integrity/deduplication, capacity-aware admission, measurement-readiness gating, and AI-cost guardrails; implementation requires the existing approval and engineer queue. Keep private launch and security gates unchanged. Revenue claims remain limited to the observed $4.92 aggregate unattributed commission for 2026-09-21.",
         "requested_action": null,
         "proposal_id": null
       }

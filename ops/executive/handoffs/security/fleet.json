@@ -2,22 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.003Z",
+  "generated_at": "2026-09-30T13:07:55.121Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Severity: high for release-clearance uncertainty, not evidence of compromise. Evidence: fleet-doctor is unavailable (ok=false, last_run=null); operations deploy, uptime, and error sweeps have no results; all 59 security sitefacts are unknown; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no recorded expirations within 30 days, but complete TLS posture is unknown. Exact decision: keep security-sensitive releases, new public exposure, and gated-product launches blocked; continue only existing read-only security evidence work and permit ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Missing evidence is not evidence of a vulnerability or a clean bill of health.",
+        "summary": "Security disposition: evidence_needed fleet-wide. Recommendation: block security-sensitive releases and new public exposure; conditionally allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Evidence: fleet-doctor has no run; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS reports no certificates expiring within 30 days, but certificate and configuration coverage remain unverified. Compliance is 37 pass, 16 fail, and 8 unknown; analytics is unavailable for 38 expected sites. No active vulnerability or compromise is established. Risk severity is high evidence uncertainty, not a confirmed incident. Exact decision: continue existing bounded read-only evidence capture, preserve private launch gates, and issue no security-sensitive go-live approval or clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and private exposure gates",
-        "summary": "Retain the fleet security evidence-needed disposition because material controls cannot be cleared from the current read-only baseline. Keep security-sensitive releases, new public exposure, and gated-product launches blocked while allowing ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
-        "requested_action": "Continue the existing authorized evidence matrix using retained artifacts and metadata only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure and handling, container/runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration and coverage, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
+        "kind": "message",
+        "title": null,
+        "summary": "Retain existing security evidence work without creating duplicate telemetry or queue items. Required evidence remains: authentication and access boundaries; secret storage and exposure controls; runtime/container isolation; release and deployment approvals, rollback, and provenance; dependency and supply-chain inventory; TLS configuration coverage; data flows and exposure; monitoring and incident response signals; and security.txt/disclosure readiness. Ordinary growth may proceed only within existing consent, disclosure, data-handling, claims, and rollback boundaries.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

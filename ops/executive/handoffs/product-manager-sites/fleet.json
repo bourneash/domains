@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.001Z",
+  "generated_at": "2026-09-30T13:07:55.119Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the three new fleet proposals this cycle and create no duplicate work. Evidence shows delivery is saturated at 10/10 slots, with 170 stranded work items, 108 approved proposals lacking execution, 21 failed requests, and 54 improvements awaiting measurement. Continue existing repair, measurement, readiness, security-evidence, and private-gate work. After CTO resolves or closes the existing saveusfarms.com repair-or-close case and releases one slot, admit only the already-preserved allthingsmasonic.com CTA refinement with its existing baseline, validation, measurement window, and rollback. Revenue evidence remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, and causal lift are unknown.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and 108 approved proposals without execution. Create no duplicate proposals, telemetry requests, experiments, queue items, deployments, or spend. After CTO releases one slot and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, reconsider only the preserved allthingsmasonic.com affiliate CTA refinement using its existing baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21, with accessibility/link tests, unchanged disclosure and destination, measurement limits, and single-diff rollback. Keep private launch and security gates unchanged. Revenue remains limited to the observed $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
       }

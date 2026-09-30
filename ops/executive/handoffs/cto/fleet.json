@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.002Z",
+  "generated_at": "2026-09-30T13:07:55.121Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue admissions and duplicate work this cycle. Delivery is saturated at 10/10 slots; existing repair, measurement, readiness, security-evidence, and private-gate work may continue. Resolve or close the existing repair-or-close case and release one slot before admitting any further implementation. Preserve the already-queued allthingsmasonic.com CTA refinement as the next slot-gated change, with its existing baseline, validation, measurement window, and rollback. Do not claim revenue, ROI, margin, or causal lift beyond the recorded attribution boundaries.",
+        "summary": "CTO review: accept the containment disposition and reject all new proposals, change requests, research, telemetry, deployments, spend, and duplicate work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable, operations sweeps and fleet-doctor evidence are unavailable, and security controls remain unevidenced. The allthingsmasonic.com CTA refinement is technically feasible only after the existing saveusfarms.com repair-or-close case is completed or closed and one slot is released. Scope must remain a single isolated diff using existing dependencies, unchanged destination/disclosure, focused accessibility/link/build validation, registered affiliate-click measurement, bounded measurement limits, and single-diff rollback. Existing evidence supports 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; no conversion, revenue, ROI, or causal-lift claim is supported. Keep private launch gates and security-sensitive releases unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

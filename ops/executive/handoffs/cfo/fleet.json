@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.002Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:07:55.120Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment-only execution and reject all new admissions this cycle. Delivery is saturated at 10/10 slots, with 170 stranded work items, 108 approved proposals lacking execution, 21 failed requests, and 54 improvements awaiting measurement. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is not site-attributable because it is under an aggregate provider row; named site rows show $0 attributable commission. Do not present site-level revenue, ROI, contribution margin, forecasts, or causal lift as proven.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "September AI usage is recorded at $988.9074759 for 2026-09-01 through 2026-09-30, across 5,470 calls with 233 errors and 5 transient errors. A valid contribution margin cannot be calculated because revenue covers one day only, AI spend covers the full month, and infrastructure, domain, labor, hosting, and marketing costs are not supplied. The minimum measurement is a dated cost ledger aligned to the same period and site identifiers, plus revenue attribution at the same period/site granularity. Until then, treat current contribution margin, CAC, payback, and AI cost-to-revenue as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not call the revenue attribution complete without qualification. Named tracking rows are mapped, but the provider supplied one aggregate row containing $4.92 and 28 ordered items that cannot be assigned to a site without inventing attribution. The current defensible statement is: $0 site-attributed commission and $4.92 aggregate unattributed commission for 2026-09-21. Clicks, impressions, sessions, conversions, and ordered items are vanity or operating metrics until tied to attributable commission and matched costs.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No monthly spend limit, fixed-cost budget, marketing budget, revenue target, or revenue floor is populated in the brief. Therefore budget headroom, burn rate, monthly contribution, and forecast attainment are not calculable. Do not infer financial safety from parked-domain renewal dates, traffic, SEO impressions, AI calls, or affiliate clicks. Continue existing read-only reconciliation only; no spending, billing, banking, contracts, or external financial commitments are authorized.",
+        "summary": "CFO recommendation: maintain containment-only execution and make no new spend, production admission, or revenue forecast. AI usage cost was $995.61 for 2026-09-01 through 2026-09-30 across 5,502 calls, including 234 errors; Amazon evidence covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites, and analytics is unavailable for all 38 expected sites, so contribution margin, ROI, cost-to-learn, conversion rates, and causal lift are not calculable. Do not present clicks, orders, shipped items, AI calls, proposals, or impressions as financial outcomes. Monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor fields are blank, so budget exposure and variance are also unknown. Retain only the existing slot-gated allthingsmasonic.com CTA refinement after capacity and repair gates clear; require registered site attribution and period-aligned revenue/cost evidence before any ROI or margin claim.",
         "requested_action": null,
         "proposal_id": null
       }
