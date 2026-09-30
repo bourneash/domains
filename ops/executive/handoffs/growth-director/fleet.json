@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.120Z",
+  "generated_at": "2026-09-30T14:37:18.043Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Do not create duplicate SEO work, telemetry requests, experiments, deployments, or spend. After CTO releases one slot and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, reconsider only the preserved allthingsmasonic.com affiliate CTA refinement. Existing baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Acceptance requires clearer CTA hierarchy, unchanged destination and disclosure, deterministic link/accessibility tests, successful build, registered affiliate-click measurement, and single-diff rollback. Make no revenue, ROI, or causal-lift claim before measurement. Keep private launch and security gates unchanged.",
+        "summary": "No new SEO or growth admission is warranted while delivery is saturated. Preserve existing work and the queued allthingsmasonic.com CTA refinement. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; analytics telemetry is currently unavailable fleet-wide. After CTO releases a slot, ship only the bounded CTA change, preserve destinations and disclosures, and measure existing affiliate clicks and ordered items for 14 days or the established measurement window. Treat unavailable telemetry and causal lift as unknown; do not claim improvement without evidence.",
         "requested_action": null,
         "proposal_id": null
       }

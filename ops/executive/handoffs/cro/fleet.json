@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:23:46.670Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:37:18.043Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends containment-only execution this cycle. Retain the following evidence-backed opportunities as deferred specifications or existing-work handoffs; create no duplicate queue admissions while delivery is saturated at 10/10 slots. Revenue, ROI, conversion lift, and causal impact remain unknown where telemetry is unavailable or aggregate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: preserve the existing allthingsmasonic.com CTA refinement as the next affiliate experiment after capacity release. Do not create a duplicate request. Its smallest reversible change is CTA copy, relevance, disclosure placement, and destination validation on one existing commercial surface.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: retain GitHub-derived product opportunities as research-only specifications. No dependency installation, production access, credential changes, schedule changes, spending, or deployment is authorized. Each requires a fleet-specific prototype and CTO/security review before adoption.",
+        "summary": "CRO recommends no new proposal, prototype, or delivery admission this cycle. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; causal lift, ROI, and margin remain unknown. Preserve GitHub-derived concepts as deferred research specifications: MarkItDown for bounded SEO/content transformation and shadcn/ui for reusable UX components. Their MIT licenses and bounded lab evidence support research only; dependency, security, maintenance, integration, and fleet-specific outcome risks remain unresolved. After CTO releases a slot, execute only the existing allthingsmasonic.com CTA refinement with current baseline, deterministic validation, measurement window, and rollback. No new CRO work item is warranted.",
         "requested_action": null,
         "proposal_id": null
       }

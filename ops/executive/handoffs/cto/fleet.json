@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:23:46.670Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:37:18.044Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Hold all new proposals and prototypes. Resolve or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z; then execute the already-queued allthingsmasonic.com CTA refinement. Keep rc-9.com performance repair slot-gated until capacity is released.",
+        "summary": "Approve the containment disposition with no new queue admissions this cycle. Delivery is saturated at 10/10 slots, analytics coverage is unavailable, and operations/fleet-doctor evidence is absent; do not claim revenue, ROI, margin, or causal lift. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause, isolated validation, build evidence, rollback point, and release/security boundary. After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. It is technically feasible, isolated to the existing commercial surface, reversible as a single diff, and requires no credentials, dependencies, tracking, data collection, or cross-site behavior. Measure only existing affiliate clicks and ordered items; unavailable analytics and site-attributed revenue remain unknown. Keep private launch, security, and owner gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve containment-only execution. Reject new control-plane, scheduler, AI-cost, Site Factory, and component-prototype admissions this cycle because all 10 delivery slots are occupied and existing repair, validation, and measurement work remains open. Preserve the existing allthingsmasonic.com CTA refinement as the next site action after one slot is released. Keep private-launch, security, attribution, and analytics boundaries unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Route one isolated rc-9.com performance repair change request, but hold implementation until CTO releases a delivery slot. All other new candidates remain deferred or rejected for capacity, active-work overlap, measurement, launch, or security reasons.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve existing private and preview-only launch gates, read-only security evidence work, and attribution boundaries. Do not add telemetry, credentials, dependencies, permissions, configuration, spending, public exposure, or external outreach.",
+        "summary": "The proposed execution-integrity capability is a valid future control-plane specification but is not an implementation admission this cycle. Existing queue, liveness, repair, measurement, and review records already provide the available evidence; do not create duplicate telemetry or report-only work. Preserve deferred CRO and site-factory concepts as specifications only. Keep the private launch gate and security evidence matrix active without treating missing evidence as clearance.",
         "requested_action": null,
         "proposal_id": null
       }

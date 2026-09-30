@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:23:46.670Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:37:18.043Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment-only execution and reject all new product, scheduler, AI-cost, and Site Factory admissions this cycle. Delivery is saturated at 10/10 slots, with 108 approved proposals lacking execution, 21 failed requests, 7 repair follow-ups, and 54 improvements awaiting measurement. Financially, the only supported revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site rows show $0 attributable commission. September AI usage is 5,509 calls costing $996.71149775, including 234 errors and 5 transient errors. Contribution margin, ROI, CAC, payback, revenue forecast, and cost-to-learn are not calculable because revenue and AI cost cover different periods, analytics has 0 configured sites out of 38 expected, and no infrastructure, domain, hosting, marketing, labor, or other cost ledger is supplied. Do not treat clicks, orders, impressions, sessions, conversions, AI calls, or social counts as revenue or margin. Preserve the existing allthingsmasonic.com CTA refinement only after CTO releases a slot; require 2026-09-21-aligned site-attributed commission and direct-cost evidence before judging it financially.",
+        "summary": "Recommendation: maintain containment-only execution, admit no new delivery work, and make no scaling or monetization decision until finance-grade attribution and cost coverage exist. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The full $4.92 is in aggregate tracking_id \"other\"; named site rows show $0 attributed commission, so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage was $996.71149775 from 2026-09-01 through 2026-09-30 across 5,509 calls and 39 instrumented sites, implying $0.1809 per call; this is not contribution margin because infrastructure, domain, hosting, labor, and other costs are unavailable. Analytics is unavailable for all 38 expected sites, so cost-to-learn and revenue efficiency are not calculable. Budget ceilings are blank, creating unbounded exposure. Retain only existing work, release capacity through the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, and execute the queued allthingsmasonic.com CTA refinement only after that slot clears. Do not claim revenue or lift from clicks, impressions, ordered items, shipped items, conversions, or proposals.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Release one delivery slot only by completing or closing the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, rollback point, and release boundary by 2026-10-01T09:00:00Z. Do not admit duplicate finance, AI-cost, scheduler, or control-plane work. After release, the existing allthingsmasonic.com CTA refinement may proceed with its current baseline and rollback path.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Minimum measurement required before any contribution-margin or cost-to-learn claim: a common reporting window linking site/content identifiers to recognized commission income, ordered and shipped status, affiliate clicks, AI cost, infrastructure/hosting, domain, marketing, and labor or agency cost. Existing telemetry is insufficient: Amazon revenue is one day old relative to the September AI-cost window, aggregate commission is not site-attributed, analytics is unavailable fleet-wide, and no non-AI cost ledger is present. Until those fields exist, report revenue as $4.92 aggregate commission only, site-attributed revenue as $0, and margin and ROI as unknown.",
+        "summary": "Finance disposition: the only calculable AI-only difference is $4.92 aggregate commission minus $996.71149775 AI cost = -$991.79149775, but it must not be labeled contribution margin because the periods differ and non-AI costs are missing. Cost-to-learn is not calculable: the 5 proven outcomes are not established incremental learnings, and 43 improvements await measurement. Minimum measurement is a dated ledger joining site/content identifier, experiment exposure, attributable revenue and commission, AI cost, infrastructure cost, domain/hosting cost, and outcome status for the same window; separately restore GA4/GSC coverage for the 38 expected analytics sites. Until then, use clicks and impressions only as activity metrics, not financial performance.",
         "requested_action": null,
         "proposal_id": null
       }

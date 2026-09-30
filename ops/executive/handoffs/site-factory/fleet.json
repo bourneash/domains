@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:23:46.670Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:37:18.043Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only Site Factory planning. Strongest candidate: complicated.work, because it has an existing scaffold and an explicit readiness-only path, but security, legal, measurement, ownership, and launch evidence remain incomplete. Do not build, deploy, add domains, spend, or launch. Reuse the existing readiness case and do not create duplicate queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete the existing complicated.work readiness packet with: site brief and audience hypothesis; reusable template contract for homepage, navigation, article/detail, disclosure, privacy, terms, and error states; non-claimed content seed with provenance fields; SEO baseline for titles, descriptions, canonical, robots, sitemap, internal links, and web-vitals acceptance; analytics and affiliate readiness recorded as unconfigured/unknown until authorized access and registered identifiers exist; compliance checklist for consent, withdrawal, privacy, terms, affiliate disclosure, claims, copyright/trademark, platform policy, and age-sensitive safeguards; security checklist for access, secrets, isolation, release integrity, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness; and a launch gate requiring named owner, Legal clearance, Security clearance, measurement/attribution plan, rollback artifact, and reviewer approval. Keep the result preview-only and attach exactly one owner decision or blocker.",
+        "summary": "Maintain the small readiness pipeline of complicated.work, deadlymaracas.com, and driveford.net. All remain private and preview-only; no domain additions, spend, deployment, publication, monetization, or telemetry changes are authorized. Use one reusable launch packet covering site brief, audience and positioning, bounded template, content seed, SEO baseline, analytics readiness, affiliate readiness, compliance checklist, security checklist, measurement boundary, rollback point, owner/legal/security/measurement gates, and explicit launch gate. Analytics, operations, and material security evidence remain unavailable or incomplete; preserve unknowns and do not invent telemetry. Exactly one next step: site-factory completes the existing complicated.work readiness packet with dated ownership, preview/build evidence, compliance and security dispositions, measurement boundaries, rollback, and a private-preview launch decision.",
         "requested_action": null,
         "proposal_id": null
       }

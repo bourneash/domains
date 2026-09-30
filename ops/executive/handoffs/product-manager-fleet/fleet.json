@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.119Z",
+  "generated_at": "2026-09-30T14:37:18.042Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution this cycle. Highest-leverage friction is control-plane throughput: 10/10 delivery slots occupied, 54 improvements awaiting measurement, 21 failed requests, 7 repairs open, 108 approved proposals without execution, and only 63% approved-proposal execution. Do not create duplicate proposals, telemetry requests, experiments, or queue items. First release one slot by completing or closing the existing repair-or-close case, then admit the preserved affiliate CTA refinement with its existing baseline, validation, measurement window, and rollback. Retain deferred product concepts for execution-integrity/deduplication, capacity-aware admission, measurement-readiness gating, and AI-cost guardrails; implementation requires the existing approval and engineer queue. Keep private launch and security gates unchanged. Revenue claims remain limited to the observed $4.92 aggregate unattributed commission for 2026-09-21.",
+        "summary": "Recommendation: retain containment-only execution and admit no new delivery work this cycle. Evidence shows 10/10 active slots, 54 improvements awaiting measurement, 21 failed requests, 7 open repairs, 108 approved proposals without execution, and 63% approved-proposal execution. Analytics is unavailable for all configured sites; operations and fleet-doctor sweeps have no results, so revenue lift, ROI, margin, and causal impact remain unknown. Highest-leverage capability is an execution-integrity control plane that deduplicates approved work, binds each item to an owner, slot, acceptance test, rollback point, measurement window, and terminal disposition, while automatically escalating stranded or failed work. Next action remains CTO completion or closure of the existing saveusfarms.com repair-or-close case and release of one delivery slot by 2026-10-01T09:00Z; then execute the already-queued allthingsmasonic.com CTA refinement. Preserve existing analytics, security evidence, private-launch, social-link, and AI-cost work; do not request duplicate telemetry or create new admissions.",
         "requested_action": null,
         "proposal_id": null
       }

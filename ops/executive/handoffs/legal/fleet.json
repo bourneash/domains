@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:23:46.670Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:37:18.044Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta, full launch, affiliate/advertising expansion, and external rights outreach; conditional for ordinary reversible work that adds no new data collection, permissions, credentials, dependencies, cross-site behavior, or unsupported claims. Evidence: Woot public terms do not establish public/commercial redistribution rights; source, privacy, consent, security, accuracy, measurement, and owner gates remain incomplete. Fleet compliance is technical baseline only: 35 pass, 20 fail, 6 unknown, with open banner, consent, reject, GA4, privacy, and terms findings. Analytics is unavailable for all expected sites and must remain unknown, not zero. Revenue evidence is limited to 2026-09-21 Amazon data with $4.92 aggregate unattributed commission; no revenue, ROI, margin, forecast, or causal-lift claim is supported. Exact decision: keep SearchWoot private and preview-only; do not send rights outreach or change the gate. Continue only existing evidence work and require human counsel for upstream rights, jurisdictional privacy, and any public monetization or advertising decision.",
+        "summary": "Risk disposition: blocked, with counsel_required issues. Keep searchwoot.com private and preview-only; do not change the launch gate, send rights outreach, expose Woot-derived data, add affiliate/advertising use, or expand notifications. Evidence: Woot public terms do not establish commercial redistribution, storage, derivative, display, price/image, or alert rights; all four launch-readiness legal tasks remain open; accuracy/freshness, measurement, security, and owner gates are blocked. Fleet compliance is incomplete: 35 pass, 20 fail, 6 unknown, with 20 banner/accept/reject/GA4 findings and 4 privacy/terms findings. Analytics is unavailable for all 38 expected sites, operations and fleet-doctor sweeps have no results, and Amazon revenue is only partially attributable. Ordinary reversible growth may continue only where it adds no new data collection, credentials, permissions, dependencies, cross-site behavior, or unreviewed claims. Next evidence action: complete the existing read-only SearchWoot evidence bundle and route Woot rights, jurisdictional privacy, notification, and vendor-processing questions to human counsel before any outreach or launch decision.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Tracking remains active with 0 of 4 SearchWoot legal tasks closed and 4 open. Existing evidence has advanced source-rights review to a documented blocked disposition, data-flow review to partial, consent/analytics review to partial, and public terms to draft-only. No task should close yet because direct evidence is incomplete. Next actions: attach the authoritative Woot permission or terms record; produce the repository/configuration data-flow and retention table; capture deployed consent and GA4 settings; and produce the operator/vendor log inventory with incident and request procedures. Keep public exposure, monetization changes, and rights outreach blocked pending evidence and human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }
