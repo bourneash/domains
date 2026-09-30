@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:08:41.334Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:22:15.679Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new execution-cockpit implementation this cycle and maintain containment-only execution. Revenue evidence is limited to 2026-09-21: 6,219 Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; 629 clicks and all commission are in aggregate tracking ID other, so site revenue claims are unsupported. September AI spend is $950.44418695 across 5,316 calls and 39 instrumented sites, but it is not period-comparable to one revenue day. Contribution margin, ROI, payback, cost-to-learn, budget exposure, infrastructure spend, forecasts, and causal lift are not calculable because matching-period attributed revenue and allocated costs are unavailable. Minimum evidence is a dated ledger matching revenue, AI, infrastructure, and other costs to the same site/content and period, plus a pre-approved learning threshold. Authorize no spend, billing change, money movement, monetization expansion, or new telemetry. Continue only existing period-aligned finance reconciliation and measurement work.",
+        "summary": "Financial recommendation: reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work and maintain containment-only execution. Authorize no spend, billing changes, money movement, monetization expansion, or new queue admissions. The only supported revenue result is Amazon data for 2026-09-21: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; it is unattributed, so site revenue claims are unsupported. September 1-30 AI usage was $950.44 across 5,316 calls with 229 errors, but it cannot be compared with one revenue day. Contribution margin, ROI, payback, forecasts, infrastructure spend, total budget exposure, and cost-to-learn are unknown because matching-period allocated revenue and costs, budget limits, and an approved learning threshold are absent. Minimum measurement: a dated same-period ledger mapping revenue, AI, infrastructure, domain, labor, and other costs to site/content identifiers, plus an approved learning threshold. Continue the existing period-aligned reconciliation only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only the existing period-aligned finance reconciliation. Preserve the 2026-09-21 Amazon aggregate result as unattributed; do not extrapolate September AI spend into revenue, margin, ROI, payback, or forecast claims. No duplicate finance request or new telemetry is needed.",
         "requested_action": null,
         "proposal_id": null
       }

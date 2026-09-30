@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:52:48.774Z",
+  "generated_at": "2026-09-30T09:22:15.679Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment and escalate the overdue saveusfarms.com repair-or-close case to CTO. Evidence: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and the 07:30Z deadline passed without closure evidence. Complete or close the existing case with root cause, validation, build checks, rollback, and measurement limits; do not retry unchanged work or admit new queue items.",
+        "summary": "Reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work. Preserve current containment: 10/10 delivery slots occupied, 54 improvements measuring, 21 failed requests, and 7 repairs open. Continue existing repair-or-close, measurement, security, finance, and readiness work; admit no new queue work until a slot clears.",
         "requested_action": null,
         "proposal_id": null
       }

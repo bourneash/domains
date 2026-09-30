@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:08:41.334Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:22:15.679Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new execution-cockpit proposal this cycle. It is a control-plane product, not a revenue experiment, and delivery is saturated at 10/10 slots with 54 improvements measuring, 21 failed requests, and 7 repairs open. Preserve the concept as deferred backlog only; do not create duplicate queue work. Continue existing 0xroulette.com CTA, allthingsmasonic.com affiliate-path, and amputeenews.com tag-prerequisite work under their current requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue experiments remain measurement-first and slot-gated. Existing evidence supports: 0xroulette.com CTA clarity as a reversible outbound-click experiment; allthingsmasonic.com affiliate-path repair with 61 clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; and amputeenews.com affiliate activation only after an owner-supplied registered tag. Do not infer uplift, ROI, or revenue from aggregate data.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "GitHub signals remain research-only. microsoft/markitdown passed 8/8 bounded checks under MIT and may support a disposable content-discovery prototype; shadcn-ui/ui passed 3/3 under MIT and may support isolated UX prototyping; mermaid-js/mermaid is MIT but had no native lab checks. No dependency installation, adoption, deployment, or new research request is recommended while capacity and repair backlogs remain constrained.",
+        "summary": "CRO disposition: reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work. Existing containment, execution tracking, repair-or-close, measurement, and overlap controls already cover the stated use case. Preserve the allthingsmasonic.com affiliate CTA refinement as the next slot-gated revenue experiment after the overdue saveusfarms.com repair-or-close case is completed or closed. Do not add proposals, queue work, telemetry, spend, dependencies, credentials, deployments, or domains this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:23:56.511Z",
+  "generated_at": "2026-09-30T09:22:15.678Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing allthingsmasonic.com homepage refresh and CTA work as one bounded workstream. Verify SEO-safe navigation, CTA destinations, affiliate disclosure visibility, accessibility, responsive behavior, build, links, and smoke checks. Record the available baseline and preserve unknown revenue, attribution, cost, conversion, and causal-lift fields.",
+        "summary": "Reject new fleet control-plane proposal as duplicate existing execution tracking. Preserve containment while delivery remains saturated at 10/10 slots. Retain the existing allthingsmasonic.com CTA refinement as the next bounded growth implementation after a slot clears and the existing saveusfarms.com repair-or-close case is completed or closed. No new telemetry, spend, dependencies, or queue admission this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
