@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.403Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:38:21.993Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation, proposal, research, telemetry, spend, deployment, credential, configuration, and external-outreach actions this cycle. Delivery is saturated at 10/10 slots; active measurement, failed requests, repairs, and launch gates remain open. Revenue, ROI, margin, forecasts, and causal lift are unsupported because the available commission is aggregate and unattributed. Preserve existing work only: complete or close the saveusfarms.com repair-or-close case, release one slot by 2026-10-01T09:00Z, keep private launch and security gates unchanged, and retain slot-gated candidates without duplicate queue entries.",
+        "summary": "Reviewer disposition: reject all new production, queue, prototype, telemetry, spend, credential, configuration, schedule, deployment, and external-outreach work this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs, and 164 stranded work items. Amazon revenue is $4.92 aggregate and unattributed for the available 2026-09-21 window; site revenue, ROI, margin, forecasts, and causal lift are unsupported. Continue only existing repair, measurement, security-evidence, readiness, and private-gate work. CTO must release or close one delivery slot after resolving the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the requested batch of engineer-routed production work. Capacity is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and active site overlap. New admissions would violate capacity containment and duplicate existing work. Revenue supports only $4.92 aggregate, unattributed commission for 2026-09-21; ROI, margin, forecasts, and causal lift remain unsupported. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00Z; delivery-lead may then admit at most one distinct-site candidate with acceptance tests, an existing metric, and rollback criteria. Escalate unresolved capacity or repair status to the owner by that deadline. Keep private launch, security, credential, spend, configuration, deployment, and outreach gates unchanged.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, forecast, and causal-lift claims. Route six low-risk, reversible, measurable candidates to engineer only as capacity-gated requests; do not execute while delivery remains saturated at 10/10 slots. CTO must release one slot and complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00:00Z; delivery-lead must resolve site-overlap blockers by that deadline. Preserve private launch gates and existing security evidence work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Six distinct-site candidates are routed to engineer with acceptance criteria, deterministic tests, existing metrics, and rollback boundaries. They remain capacity-gated and must not execute until the stated blockers clear. No new telemetry, credentials, configuration, spend, schedules, deployment, or external outreach is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

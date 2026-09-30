@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.399Z",
+  "generated_at": "2026-09-30T10:38:21.991Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new implementation admissions this cycle. Delivery is full at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Preserve existing site candidates only: allthingsmasonic.com CTA refinement, xxxtea.com cannibalization fix, and 0xroulette.com CTA clarification. Admit at most one after a slot clears and overlap is resolved. Revenue remains aggregate/unattributed; do not claim ROI or causal lift.",
+        "summary": "Site portfolio recommendation: preserve containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 164 stranded work items. Do not admit new site changes, telemetry, spend, credentials, schedules, or deployments. Resolve existing repair and overlap blockers first; retain the allthingsmasonic.com affiliate CTA refinement as the next slot-gated candidate, with 0xroulette.com CTA work likewise blocked by active queued work. Preserve private and preview-only launch gates. No revenue, ROI, or causal-lift claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.402Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:38:21.992Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new spend, billing changes, monetization expansion, forecasts, ROI claims, and queue admissions this cycle. Amazon evidence covers only 2026-09-21: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed income is $0 because the commission is provider-aggregate. September AI spend is $950.44418695 across 5,316 calls, or approximately $0.178911 per call. Contribution margin, infrastructure spend, budget exposure, cost-to-learn, payback, and causal lift are not calculable from the brief. Complete the existing saveusfarms.com repair-or-close case and release one delivery slot by 2026-10-01T09:00:00Z. Retain the allthingsmasonic.com experiment as slot-gated only.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no new discretionary spend, production work, or monetization forecasts this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all $4.92 is an aggregate provider row, so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is $950.44 across 5,316 calls, including 229 errors and 5 transient errors. Against recorded AI cost alone, the observable fleet contribution is at most $4.92 - $950.44 = -$945.52 before infrastructure, domain, labor, or other costs; this is not a complete margin statement. Hold new spend until attribution and cost coverage are reconciled. Existing repair, measurement, security-evidence, readiness, and private-gate work should continue; no new implementation admission while delivery is 10/10 occupied.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not treat clicks, ordered items, shipped items, sessions, impressions, conversions, or AI calls as revenue, margin, or ROI. The minimum finance measurement is a period-aligned ledger mapping each site and work item to registered-ID revenue, AI cost, infrastructure/domain/hosting cost, labor allocation, and an approved learning threshold. Existing telemetry is sufficient for the evidence review; no duplicate telemetry or spend is authorized.",
+        "summary": "CFO attribution disposition: reject revenue, ROI, margin, payback, and forecast claims at site level. The named Amazon tracking rows have zero attributed commission, while the single aggregate row contains all $4.92 and cannot be assigned without inventing attribution. The minimum measurement needed is a dated reconciliation keyed by site and tracking ID covering affiliate clicks, ordered items, shipped items, commission, refunds or reversals if applicable, and the reporting window. Use existing revenue and analytics records; do not create duplicate telemetry or change billing.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO cost-control disposition: AI spend is measurable at $950.44 for September 2026, but infrastructure and fixed-cost spend are not present, so full contribution margin and budget exposure cannot be calculated. The minimum additional measurement is a read-only monthly ledger for hosting/runtime, domains/registrars, analytics/data services, and any other recurring platform charges, mapped to fleet or site and dated to the same revenue window. Until that ledger exists, treat total cost, burn rate, runway, and budget variance as unknown; do not infer them from AI cost alone.",
         "requested_action": null,
         "proposal_id": null
       }

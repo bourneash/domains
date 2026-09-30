@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-29T19:07:36.109Z",
-  "summary": "delivery-lead checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:38:21.991Z",
+  "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Do not retry unchanged work or create duplicates; record root cause or closure, isolated validation, rollback, release/security boundary, attribution limits, and measurement limits by 2026-09-30T07:30Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Do not retry unchanged work or create duplicates. Record root cause or closure, isolated validation, rollback, release and security boundary, attribution limits, and measurement limits by 2026-09-30T07:30Z.",
+        "summary": "Delivery escalation: no new change request can be admitted this cycle because active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Queue-ready fleet candidates exist, but the next safe admission must wait for capacity release. Delivery-lead owns blocked-site reconciliation; CTO owns release of one slot by 2026-10-01T09:00:00Z. Next action: complete or close the existing saveusfarms.com repair-or-close case, resolve 0xroulette.com and allthingsmasonic.com overlap, and then select the next queue-ready site from the authoritative queue-ready fleet list. Preserve private preview gates for complicated.work, deadlymaracas.com, and driveford.net until readiness evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }

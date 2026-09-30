@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.402Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:38:21.993Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject all new implementation, research, prototype, telemetry, spend, deployment, and monetization admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, and open repairs. Retain allthingsmasonic.com CTA refinement as the next candidate only after a slot and site overlap clear; retain xxxtea.com and 0xroulette.com as deferred specifications. Complete or close the existing saveusfarms.com repair-or-close case, reconcile duplicate records rather than retrying unchanged work, and release one slot by 2026-10-01T09:00Z. Keep private launch and security gates unchanged; do not claim ROI, margin, revenue, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "MarkItDown remains research-only and must not enter the implementation queue. Any future disposable-workspace prototype requires explicit owner approval, dependency and security review, provenance checks, and a measurable editorial-time outcome. Existing analytics, SEO, revenue, compliance, and security evidence should be used without duplicate telemetry requests. Aggregate Amazon revenue remains unattributed; site-level financial outcomes are unsupported.",
+        "summary": "CTO disposition: approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, credentials, dependencies, schedules, deployments, or domains while delivery is saturated at 10/10 slots and repair, measurement, security-evidence, readiness, and attribution work remain open. Retain execution-integrity, AI-cost-guardrail, and MarkItDown items as deferred specifications only; do not create duplicate requests. Continue existing records and repair-or-close work. After one slot is released, admit at most one distinct-site reversible candidate with isolated scope, deterministic validation, an existing measurable metric, explicit rollback, and no cross-site behavior. Preserve private and preview-only gates. Site revenue, margin, ROI, and causal lift remain unsupported; aggregate commission must remain unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

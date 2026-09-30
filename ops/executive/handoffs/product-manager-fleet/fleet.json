@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-09-29T20:09:18.359Z",
+  "generated_at": "2026-09-30T10:38:21.990Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution and prioritize control-plane improvements before admitting new delivery. Current friction is concentrated in follow-through: 10/10 active slots, 108 approved proposals without execution, 45 deployed improvements awaiting measurement, 21 failed requests, 7 open repairs, 30 delivery attention items, and only 63% approved-proposal execution. Retain no new implementation work this cycle. Approve product discovery for deduplicated delivery admission, measurement-ready work packets, capability-aware routing, and evidence-state visibility. These are reversible control-plane changes using existing records and telemetry; implementation must enter the engineer queue after approval.",
+        "summary": "Fleet recommendation: preserve containment-only execution until one delivery slot is released and existing repair, measurement, security-evidence, and readiness work is resolved. Highest-leverage product investment is execution integrity: consolidate duplicate work, link every approved proposal to one routable request, and automatically surface stranded or overlap-blocked items. This targets 108 approved proposals without execution, 164 stranded work items, 10/10 delivery slots occupied, 21 failed requests, and a 63% approved-proposal execution rate. No new production work, telemetry, spend, credentials, schedules, or deployments are recommended this cycle. Keep the existing CTA candidate slot-gated and retain current private launch gates.",
         "requested_action": null,
         "proposal_id": null
       }

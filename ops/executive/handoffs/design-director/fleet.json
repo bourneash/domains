@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.400Z",
+  "generated_at": "2026-09-30T10:38:21.991Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new production admission this cycle: all 10 delivery slots are occupied, with active measurement and repair work open. Preserve the existing allthingsmasonic.com CTA refinement as the first slot-gated design change after capacity clears. Scope: existing commercial surface only; clarify primary affiliate CTA, preserve disclosure and registered tracking ID, improve keyboard/focus/mobile behavior, and keep a single-commit rollback. Metric: outbound affiliate CTR, ordered items, shipped items, and site-attributed commission where available. Baseline evidence is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; no conversion or revenue lift is claimed.",
+        "summary": "Containment remains active: do not admit new implementation while all 10 delivery slots are occupied. Preserve the existing allthingsmasonic.com CTA request as the next design-led candidate after a slot clears; do not duplicate it. Scope: improve the highest-intent commercial surface with clearer product-card hierarchy, one explicit affiliate CTA, visible disclosure placement, keyboard-visible focus, 44px minimum targets, and responsive mobile spacing. No conversion lift is claimed before measurement.",
         "requested_action": null,
         "proposal_id": null
       }
