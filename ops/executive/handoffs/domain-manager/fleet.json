@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:13:58.843Z",
+  "generated_at": "2026-09-30T20:48:18.202Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete magicescorts.com private launch-readiness gate",
-        "summary": "Create one bounded readiness artifact for magicescorts.com documenting the owner-approved entertainment/editorial scope, prohibited functionality, legal/privacy/security prerequisites, preview-only boundary, measurement limits, and exact next owner decision. The site remains parked, private, and unlaunched.",
-        "requested_action": "In bourneash/magicescorts.com, create or update docs/launch-readiness.md only. Record audience and positioning, preview scope, excluded booking/contact/affiliate behavior, compliance and security checklist, analytics and attribution boundary, rollback point, and one owner decision: approve isolated preview brief or keep parked. Do not build, deploy, alter DNS, add dependencies, configure analytics, collect data, monetize, spend, or publish.",
+        "title": "Complete the existing 0xroulette.com primary CTA clarity change",
+        "summary": "Retain and complete the canonical existing request for the root entry surface. Do not create duplicate work while the current request remains in review and delivery capacity is saturated.",
+        "requested_action": "Use existing request 0e8c19fe-2c42-4d44-83f4-a7d81e7da734. On `/`, improve CTA hierarchy and destination clarity only. Edit only the root-route template/component and its co-located stylesheet; enumerate exact paths in the implementation diff before editing. Preserve existing destinations, disclosures, analytics consent, and all other routes.",
         "proposal_id": null
       }
     ]

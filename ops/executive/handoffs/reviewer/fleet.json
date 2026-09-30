@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:38:16.929Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:48:18.202Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, prototypes, duplicate telemetry, spending, unsupported revenue or causal claims, and high-priority queue admissions. Delivery is saturated at 10/10 slots. Keep private-launch and security gates unchanged. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z; only then may one slot be released for the existing canonical allthingsmasonic.com CTA request, measured solely by registered affiliate clicks. Aggregate commission remains unattributed; ROI, margin, and causal lift are unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root-cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Do not admit duplicate work or prototypes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing consolidated read-only security evidence matrix and retain private-launch and security-sensitive release gates. Do not create duplicate work or request telemetry already present in the shared snapshot.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject unsupported financial, causal-lift, production, spend, duplicate, and high-priority claims. Route three bounded SEO candidates to engineer as capacity-gated work across distinct sites. Delivery remains saturated at 10/10 slots; CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z. Keep private-launch and security gates unchanged.",
+        "summary": "Independent review rejects the duplicate 0xroulette.com proposal: its canonical request already exists and capacity is saturated at 10/10 slots. Three bounded SEO changes are routed as capacity-gated engineer work across distinct sites. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence; unresolved capacity escalates to the owner. No revenue, ROI, margin, or causal-lift claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
