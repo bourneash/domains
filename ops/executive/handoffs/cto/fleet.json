@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:39:38.750Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:53:08.807Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and unlaunched until dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence is attached. Do not create duplicate queue work.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing allthingsmasonic.com affiliate-path refinement as the next candidate only after a delivery slot clears and queue gates reopen. Its bounded scope is technically feasible and reversible: clarify product-card hierarchy and CTA labels, keep disclosure adjacent, preserve destinations and consent behavior, and validate responsive layout, keyboard focus, links, disclosure checks, build, and visual preview. Measure only existing sessions, available affiliate CTA clicks, conversions, and site-attributed outcomes; revenue ownership and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
