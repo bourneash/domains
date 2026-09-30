@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:23:56.512Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:38:41.806Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. Do not create or route new implementation requests: active delivery is saturated at 10/10 slots, measurement and repair backlogs remain open, and existing site overlap requires reconciliation. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, launch-gate, and parked-site readiness work. Preserve unavailable revenue, cost, attribution, conversion, and causal-lift values as unknown; authorize no spend, telemetry, credentials, dependencies, deployment, DNS, or external outreach.",
+        "summary": "Continue the existing readiness packets for the parked scaffold properties only. Keep them private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics or affiliate systems, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue the three proposed executable changes or any duplicate site work. Before any future admission, require a distinct site, a cleared active slot, no queued/active/review/measuring conflict, named owner, isolated validation, metric using existing telemetry, and rollback evidence. Continue existing repair-or-close and deployed-work measurement only; do not requeue unchanged failures or add telemetry.",
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Record dated evidence or explicit unknowns for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for the parked scaffold properties. Keep them private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by the existing deadline. Do not create queue work, build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing read-only security evidence matrix using authorized metadata and retained artifacts. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       }

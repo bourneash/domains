@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:23:56.512Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:38:41.807Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Overall disposition: blocked for public launch, public beta, alert expansion, affiliate use, or advertising use where rights or material controls are unresolved; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Evidence: Woot API documentation establishes access mechanics but not redistribution rights; current public terms point against the proposed public/commercial use. Compliance is a technical baseline only: 37 pass, 16 fail, 6 unknown. Security, accuracy/freshness, measurement, and owner gates remain incomplete. Revenue is limited to 2026-09-21 aggregate Amazon results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, not site-attributable. Exact decision: keep rights-dependent products private and keep external rights outreach unsent pending human-counsel review and owner authorization. Next evidence action: attach and review the consolidated read-only launch evidence bundle; do not request duplicate telemetry or create new production work.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta, full launch, alert expansion, affiliate use, or advertising. Keep private and preview-only. Official Woot documentation confirms API access mechanics but not rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data; current public terms point against those uses. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use. Ordinary reversible growth elsewhere remains conditional when it preserves consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries and adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Existing evidence does not support publication, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO at the deadline.",
+        "summary": "Fleet compliance is a technical baseline, not legal certification: 37 sites pass, 16 fail, and 6 are unknown; open findings include banner, accept, reject, GA4, privacy, and terms checks. Do not treat incomplete telemetry alone as a growth blocker, but do not clear public launch or rights-dependent monetization where compliance, privacy, disclosure, provenance, claims, copyright/trademark, platform-policy, or age-sensitive evidence is missing. Continue only bounded reversible work within existing boundaries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue and data-quality disposition: analytics coverage is healthy for configured sites; scaffold properties remain unconfigured and must not be treated as zero. Amazon evidence is limited to 2026-09-21 aggregate results of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, which cannot be assigned to a site. Preserve revenue, ROI, margin, cost, and causal-lift fields as unknown; authorize no monetization expansion or spend.",
         "requested_action": null,
         "proposal_id": null
       }
