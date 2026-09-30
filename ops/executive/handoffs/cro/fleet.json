@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:07:52.545Z",
+  "generated_at": "2026-09-30T00:07:20.869Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain two CRO product specifications as deferred handoffs only. Current delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups. No new implementation, requeue, spend, telemetry, credential, configuration, dependency, domain, or monetization changes are proposed this cycle. Reconsider after containment clears and evidence gates reopen.",
+        "summary": "Maintain containment-only execution. CRO signals support deferred opportunities for measurable affiliate CTA testing, SEO content transformation, and reusable accessible UX components, but active delivery is saturated at 10/10 slots and existing measurement, repair, security, finance, launch-readiness, and parked-site obligations remain open. Retain no new proposals or queue work this cycle. Reconsider only after capacity clears and each opportunity has an isolated prototype, license/security review, baseline metric, time-to-learn, acceptance test, and rollback point.",
         "requested_action": null,
         "proposal_id": null
       }

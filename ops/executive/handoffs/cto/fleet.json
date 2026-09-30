@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:39:20.987Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:07:20.869Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Continue existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not admit new implementation work, requeue unchanged failures, add telemetry, dependencies, credentials, permissions, deployments, spending, monetization expansion, or external outreach. Complete or close the existing saveusfarms.com case by 2026-09-30T07:30Z with dated ownership, isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence; escalate unresolved status to CTO.",
+        "summary": "Approve containment-only execution. Active delivery is saturated at 10/10 slots, with 45 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, launch-readiness, and parked-site readiness work. Do not create proposals, queue work, telemetry, spend, monetization expansion, deployments, requeues, or external outreach. Keep public exposure and security-sensitive releases blocked; preserve unknown revenue, cost, margin, ROI, and causal-lift fields.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the fleet execution-integrity control-plane concept as deferred specification only. It is technically feasible as a read-only reconciliation report using existing records, but implementation must wait until delivery capacity clears and retained repairs have dated dispositions. No new telemetry, dependencies, production mutation, or queue entry is authorized.",
+        "summary": "The existing parked-site readiness packets remain the sole next-step priority for scaffold properties. Continue the already-open packets through dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Keep those properties parked, private, preview-only, and unlaunched; do not create duplicate work or production changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue only existing readiness packets; do not build, publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation using available evidence only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed, and do not infer site revenue, margin, ROI, payback, forecasts, or causal lift. Record unavailable infrastructure, fixed-cost, budget, and learning-threshold fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, margin, ROI, forecasts, payback, cost-to-learn, and causal lift remain unknown; authorize no spend or monetization expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and preview-only. Continue the existing consolidated read-only evidence bundle; rights outreach remains unsent pending human-counsel review and owner authorization. Public exposure, security-sensitive release, alert expansion, deployment, configuration or credential changes, dependency additions, and monetization remain blocked.",
+        "summary": "Continue the existing read-only security evidence matrix and private launch gates. Record dated evidence or explicit unknowns from authorized metadata and retained artifacts only. Do not access credentials or private containers, modify permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-29T23:39:20.986Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:07:20.869Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not treat scorecard entries showing revenue_usd=0 and AI cost as contribution-margin losses. Those entries lack matching-period site-attributed revenue and complete non-AI cost allocation; they are spend-versus-unobserved-revenue indicators only. Contribution margin requires attributable revenue minus variable AI, infrastructure, affiliate, and other directly allocable costs for the same site and period.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing period-aligned revenue and cost reconciliation work item only. Preserve unknowns for infrastructure spend, fixed costs, budgets, margin, ROI, payback, forecasts, and cost-to-learn because no matching-period cost ledger or monthly budget limits are present in the brief. The minimum financial control artifact is a dated site/content ledger reconciling provider earnings, AI spend, infrastructure spend, and other variable costs to the same measurement window.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain containment-only execution while delivery is full at 10/10 slots, 45 deployed improvements await measurement, 21 implementation requests failed, and 7 repair follow-ups remain open. No financial case supports adding work before existing measurement and repair obligations produce dated evidence. Reconsider only after a slot clears and the retained finance reconciliation has matched-period cost and revenue evidence.",
+        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. Amazon revenue evidence is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the income is unattributed and cannot support site revenue, margin, ROI, payback, or forecasts. AI usage from 2026-09-01 through 2026-09-29 cost $947.39859535 across 5,289 calls, but it cannot be compared to one revenue day or treated as contribution-margin loss. Infrastructure spend, fixed costs, budgets, affiliate costs, and other variable costs are unknown. Continue only the existing period-aligned finance reconciliation and deployed-work measurement. The minimum finance artifact is a dated site/content ledger matching provider earnings, AI cost, infrastructure cost, affiliate cost, and other allocable variable costs to the same period, plus an approved learning threshold for cost-to-learn. Preserve the existing parked-site readiness work as non-financial containment; do not create a duplicate work item.",
         "requested_action": null,
         "proposal_id": null
       }
