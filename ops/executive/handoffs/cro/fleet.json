@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:37:24.968Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:48:10.259Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new CRO admissions this cycle. Delivery is saturated at 10/10 slots, with 43 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered affiliate clicks only; revenue, ROI, and causal lift remain unknown.",
+        "summary": "CRO disposition: preserve containment this cycle. Delivery is saturated at 10/10 slots, with active measurement and failed-request repair work already consuming capacity. Retain the existing allthingsmasonic.com CTA refinement as the sole next revenue experiment after CTO releases a slot by completing or closing the saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Expected metric: outbound affiliate clicks on changed pages over 14 days or 100 relevant impressions/clicks; revenue, ROI, margin, and causal lift remain unknown. Prototype scope: CTA hierarchy, adjacent disclosure, preserved tracking ID and destination, keyboard focus, and responsive spacing. GitHub candidates remain research-only: bounded lab evidence supports plausible fit for MarkItDown, Mermaid, and shadcn/ui, but does not establish maintenance, security, dependency, license-fit, or revenue suitability. No new prototype, proposal, telemetry, deployment, spend, credential, domain, or duplicate queue work should be admitted this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Use the existing queued request; do not duplicate it. Prototype scope: improve CTA hierarchy and disclosure placement on the highest-intent merchandising surface while preserving destinations and registered tracking IDs. Acceptance: destination resolution, tracking-ID match, disclosure visibility, keyboard/mobile accessibility, build/link checks, and single-diff rollback. Measurement: 14 days or 100 relevant new impressions/clicks, using registered affiliate clicks as the primary metric. Do not add telemetry, change credentials, spend, or alter launch/security gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain three research-backed opportunities without prototype admission until capacity and security gates clear. MarkItDown (MIT; lab passed 8/8 bounded checks) could normalize source documents into draft SEO/content inputs; smallest prototype is a disposable-workspace batch over existing non-production documents, measured by valid draft acceptance rate and editor time. Risks: parser coverage, malformed or adversarial files, dependency provenance, and no production adoption without CTO/security review. shadcn/ui (MIT; lab passed 3/3) could standardize accessible conversion components; smallest prototype is one isolated component rendered against an existing site fixture, measured by accessibility/build pass rate and CTA interaction proxy, not revenue. Risks: framework/runtime compatibility, styling drift, dependency maintenance, and supply-chain review. Mermaid (MIT; lab fit supported, no native checks) could add structured diagrams to high-intent guides; smallest prototype is one static diagram in a disposable preview, measured by render stability and page engagement proxy. Risks: client-side payload, accessibility/SEO semantics, rendering security, and unsupported causal lift. These remain research-only and must not be queued this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not admit new CRO, site-factory, telemetry, or duplicate queue work while all ten delivery slots are occupied. Existing revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; no site-level revenue, margin, ROI, payback, or causal-lift claim is supported. Keep private-launch and security-sensitive release gates unchanged.",
+        "summary": "CRO handoff: the smallest reversible product opportunity remains a reusable affiliate-CTA pattern validated first on allthingsmasonic.com, then considered for other eligible sites only after measured evidence and capacity clearance. Acceptance requires deterministic build and smoke checks, link and destination validation, keyboard focus and responsive checks, visible disclosure before interaction, preserved registered tracking ID, and isolated rollback. Do not generalize from aggregate Amazon results: the available provider row contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, but it is unattributed.",
         "requested_action": null,
         "proposal_id": null
       }

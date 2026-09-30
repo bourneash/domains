@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:37:24.969Z",
+  "generated_at": "2026-09-30T22:48:10.260Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, prototypes, site-factory admissions, telemetry changes, duplicate queue items, and unsupported revenue or ROI claims. Delivery is saturated at 10/10 slots; existing measurement and repair work must be contained. Keep launch and security-sensitive release gates unchanged, keep SearchWoot private, and leave rights outreach unsent. The only next step is completion or closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, followed by release of one slot before the already-queued allthingsmasonic.com CTA refinement is considered.",
+        "summary": "Reject all new production, queue, site-factory, CRO, telemetry, spend, and duplicate-work admissions this cycle. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, forecast, and causal lift remain unsupported. Keep existing launch and security gates unchanged. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z, then release one slot before the already-queued allthingsmasonic.com CTA refinement can proceed. Owner: confirm the private-launch disposition remains unchanged and rights outreach remains unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Use the existing saveusfarms.com repair-or-close case; do not create duplicate work. Record dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one delivery slot only after that evidence is recorded.",
+        "summary": "Containment disposition: reject unsupported revenue, ROI, margin, forecast, causal-lift, security-clearance, spend, credential, configuration, launch, duplicate-work, and high-priority queue claims. Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue and financial returns are unknown. Delivery is saturated at 10/10 slots. Route only the three distinct-site reversible SEO candidates below as capacity-gated engineer work; do not execute or deploy until CTO releases a slot and the measurement gate is satisfied. CTO must complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, then release one slot or escalate unresolved capacity to the owner. Preserve private launch and security gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, launch, security-clearance, spend, and production claims. Delivery remains saturated at 10/10 slots; no new work may start until CTO completes or closes the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z. Route only the three reversible SEO candidates below as capacity-gated engineer work; keep launch and security gates unchanged.",
+        "summary": "Owner message: Three low-risk SEO candidates are routed to engineer but remain blocked from production by saturated capacity and measurement safeguards. No new spend, credentials, configuration, telemetry, public launch, or duplicate work is authorized. Confirm the keep-private launch disposition remains unchanged for the gated product.",
         "requested_action": null,
         "proposal_id": null
       }

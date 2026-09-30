@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:29:01.846Z",
+  "generated_at": "2026-09-30T22:48:10.259Z",
   "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment: delivery is saturated at 10/10 slots, so reject new site builds and preserve existing launch gates. Keep a three-item site-factory pipeline—complicated.work, deadlymaracas.com, and driveford.net—as deferred preview candidates. Strongest candidate is complicated.work, supported by scaffold status, existing repository/worker, and a site-factory score of 84; analytics is not configured and launch readiness is not yet evidenced. Exactly one next step: site-factory completes a read-only launch-readiness packet for complicated.work before any build admission.",
+        "summary": "Containment plan: keep the site-factory pipeline limited to complicated.work, deadlymaracas.com, and driveford.net. All remain deferred preview candidates; no domain, spend, deployment, publication, or launch action is authorized. Standard launch packet for each candidate must include: site brief and audience hypothesis; reusable template and bounded preview scope; content seed with provenance and claims limits; SEO baseline covering metadata, sitemap, crawlability, and web-vitals checks; analytics and affiliate readiness with registered identifiers only; compliance checklist covering consent, privacy, terms, disclosures, copyright/trademark, platform policy, and age-sensitive boundaries; security checklist covering access, secrets, isolation, dependencies, TLS, monitoring, incident readiness, and disclosure; named owner; Legal, Security, CTO, CFO/measurement, and reviewer dispositions; and a rollback and launch-gate record. Unknown telemetry remains unknown. Strongest candidate is complicated.work, supported by scaffold status, existing repository and worker, and site-factory score 84; analytics is not configured and launch readiness is not evidenced. Exactly one next step: site-factory completes the existing read-only complicated.work launch-readiness packet, recording the owner decision and every required gate before any preview build is considered.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit a new site-factory implementation while all delivery slots are occupied. After capacity is released, review the existing complicated.work launch-readiness packet first; only then consider a preview-only build with no publication or deployment until owner, legal, security, measurement, and rollback gates pass.",
+        "summary": "After the existing packet is complete and capacity is released, consider only a preview-only build for complicated.work. Admission requires an owner, Legal clearance or documented counsel disposition, Security clearance, measurement and affiliate identifiers where applicable, reviewer approval, deterministic validation, and an explicit rollback point. Public exposure and launch remain blocked until all gates pass.",
         "requested_action": null,
         "proposal_id": null
       }
