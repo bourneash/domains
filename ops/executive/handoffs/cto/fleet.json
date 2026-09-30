@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T05:23:57.665Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T05:38:17.149Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Do not admit new implementation, prototypes, telemetry, spend, or duplicate proposals while delivery is saturated at 10/10 slots and repair/measurement work remains open. Retain the existing allthingsmasonic.com affiliate-path refinement as the next candidate only after a slot clears and queue gates reopen. Keep public exposure and security-sensitive releases blocked where evidence is incomplete.",
+        "summary": "Approve containment-only execution. Reject new queue admission, implementation requests, research requests, spending, deployment, and telemetry changes this cycle because all 10 delivery slots are occupied, 43 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com CTA opportunity as slot-gated only. Keep the MarkItDown concept research-only; its bounded lab evidence does not establish dependency, supply-chain, source-document rights, maintenance, or production suitability.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing period-aligned reconciliation work item; do not create a duplicate proposal or work item. Report Amazon's 2026-09-21 result only as aggregate and unattributed, and report September AI usage separately. Preserve margin, ROI, payback, forecasts, infrastructure costs, budgets, and causal lift as unknown.",
+        "summary": "Retain the CTA opportunity as a deferred specification without duplicating the existing request. Do not commission the MarkItDown prototype yet: the available lab run used no dependency installation and does not establish rights to source documents or generated content. Reconsider only with an isolated disposable sample, verified input rights, dependency and security review, explicit owner approval, and no production access or publication.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing measurement and repair-or-close work only. Do not requeue unchanged failures or admit new work until a delivery slot clears and the relevant validation, rollback, release, security, attribution, and measurement evidence is complete.",
+        "summary": "Continue only existing measurement and repair-or-close work. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing readiness packets. Keep scaffold properties parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       }
