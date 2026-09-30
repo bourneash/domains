@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:39:09.269Z",
+  "generated_at": "2026-09-30T03:51:44.557Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve revenue intent through attribution integrity and existing affiliate repair, but admit no new implementation while delivery is saturated at 10/10 with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Hold the drivegm.net preview concept outside the queue until capacity and site-readiness evidence clear.",
+        "summary": "Continue existing parked-site readiness packets only. Keep parked scaffold properties private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       }
