@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:38:00.902Z",
+  "generated_at": "2026-09-30T09:42:12.578Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Reconcile unsupervisedmedia.com homepage opportunity before implementation admission",
-        "summary": "Site-specific page, backlog, and active-work evidence needed to select a non-overlapping reversible homepage, UX, SEO, or monetization change is not present in the supplied snapshot. Global delivery capacity is saturated at 10/10 slots, so no implementation admission is appropriate this cycle.",
-        "requested_action": "Review the existing unsupervisedmedia.com homepage route/template, stylesheet, active queue, analytics, SEO, compliance, and revenue evidence; select exactly one reversible next change or document the blocker. Do not request duplicate telemetry, modify production, deploy, add tracking, spend, or claim lift.",
+        "title": "Prepare a bounded homepage CTA and affiliate-disclosure improvement for weirdassstuff.com",
+        "summary": "The site has existing analytics and affiliate evidence but exact homepage template and stylesheet paths are not available in the authoritative snapshot. Global delivery capacity is saturated, so implementation is slot-gated. Preserve existing telemetry and do not create duplicate queue work.",
+        "requested_action": "Inspect the existing weirdassstuff.com repository read-only, identify the exact homepage template, stylesheet/component files, current primary CTA destination, affiliate disclosure placement, and the smallest reversible CTA/disclosure improvement. Record one implementation-ready change after capacity clears.",
         "proposal_id": null
       }
     ]
