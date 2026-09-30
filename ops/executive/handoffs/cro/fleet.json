@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:53:36.805Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:23:55.437Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain the already-queued allthingsmasonic.com CTA refinement as the next revenue experiment, but admit no duplicate implementation while delivery is saturated at 10/10 slots. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; aggregate Amazon revenue remains unattributed. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then execute the existing change.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO recommends retaining two deferred control-plane opportunities: canonical execution-ledger integrity and AI usage guardrails. They address 108 approved proposals without execution, 21 failed requests, 7 open repairs, 5522 AI calls, 234 AI errors, and $997.52 recorded AI cost. No implementation or prototype should be admitted until capacity clears; use existing records only and preserve rollback and authority boundaries.",
+        "summary": "CRO recommends retaining two deferred control-plane product opportunities, with no admission while delivery is saturated: execution-ledger integrity and AI usage guardrails. Both can use existing records only and should begin with read-only or dry-run prototypes after capacity clears.",
         "requested_action": null,
         "proposal_id": null
       }

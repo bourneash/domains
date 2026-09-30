@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:08:34.890Z",
+  "generated_at": "2026-09-30T18:23:55.438Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Before admitting finance-sensitive growth work, retain the existing capacity gate and complete the saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. No new infrastructure, AI, analytics, or billing changes are authorized. Finance cannot calculate contribution margin because infrastructure spend, fixed costs, labor cost, and comparable revenue-period data are absent.",
+        "summary": "CFO recommendation: maintain containment-only execution and reject new spend, forecasts, prototypes, and production admissions this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; all income is in tracking_id \"other\", so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 was 5,522 calls, 234 errors, and $997.51762695 recorded cost, approximately $0.18 per call; this is not a causal unit-cost measure. Infrastructure, hosting, domains, labor, marketing, fixed-cost, and budget-limit data are absent, so total spend, budget exposure, contribution margin, break-even, and payback are not calculable. Preserve the existing capacity gate, saveusfarms.com repair-or-close case, and queued allthingsmasonic.com CTA refinement; do not claim revenue lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve provider attribution boundaries. Report site-attributed revenue as $0 for the available 2026-09-21 rows and keep the $4.92 aggregate row unallocated. Do not convert clicks, ordered items, shipped items, impressions, sessions, or conversions into revenue forecasts. New affiliate links must use registered site tracking identifiers.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00:00Z with root cause or closure rationale, deterministic validation, build evidence, rollback point, release boundary, and attribution limits. Release one delivery slot only after evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement against its baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Do not infer revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The candidate allthingsmasonic.com CTA refinement is financially acceptable only as a bounded reportable experiment after capacity release: baseline 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Use affiliate clicks as the leading operational metric; revenue, margin, payback, and causal lift remain unknown until a comparable provider-reported window exists.",
+        "summary": "Preserve Amazon aggregate rows as explicitly unattributed. For future reporting, require each new affiliate link to use a registered site tracking ID and retain provider date, clicks, ordered items, shipped items, commission, tracking ID, and site/content identifier. Do not assign the existing $4.92 aggregate commission to any site.",
         "requested_action": null,
         "proposal_id": null
       }

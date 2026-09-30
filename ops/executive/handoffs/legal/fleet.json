@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:08:34.890Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:23:55.438Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: conditional for ordinary reversible growth; blocked for new public exposure, security-sensitive releases, and SearchWoot public beta. Evidence: compliance baseline is 35 pass, 20 fail, and 6 unknown across 61 checked sites, with open banner, consent accept/reject, GA4, privacy, and terms findings; security controls and operations sweeps remain unevidenced; revenue includes $4.92 aggregate unattributed commission only. Permit growth only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Keep SearchWoot private, preview-only, and unlaunched. Human counsel is required for Woot rights, privacy/jurisdiction, and future affiliate or advertising use.",
+        "summary": "Legal disposition: BLOCKED for SearchWoot public beta or full launch; keep private and preview-only. Woot documentation confirms API access but not commercial/public redistribution, historical derivatives, cached display, alerts, images, prices, or affiliate/advertising use. Current public terms point against the proposed use. Human counsel is required before any rights outreach, jurisdictional privacy decision, affiliate use, or public exposure.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active with four open legal tasks and no evidenced closures. Next evidence action: produce the read-only SearchWoot data-flow and retention table from repository and deployed configuration, covering alert rules, identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior. Do not enable tracking, expand notifications, or change the private gate.",
+        "summary": "Compliance baseline is mixed: 35 pass, 20 fail, and 6 unknown across 61 checked sites. Ordinary reversible growth may continue only on sites with evidenced consent, disclosures, provenance, claims, and platform-policy boundaries; incomplete telemetry alone is not a blocker. Do not add tracking, monetization, cross-site data use, or unsupported claims where compliance status is failed or unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing security gate. Fleet-doctor, deployment, uptime, and error sweeps have no results; authentication, secrets, isolation, release, dependency, monitoring, incident, and disclosure evidence remain unknown. Continue dated read-only evidence capture; do not clear public exposure or security-sensitive releases.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "For private or parked properties, retain the concrete decision: keep them parked, private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, or add queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit blocker evidence is attached.",
+        "summary": "Keep complicated.work parked, private, preview-only, and unlaunched. The existing readiness packet must record dated ownership, preview/build evidence, compliance and security unknowns, analytics/affiliate boundaries, rollback evidence, and the explicit launch decision before any build, deploy, DNS, monetization, or queue admission.",
         "requested_action": null,
         "proposal_id": null
       }
