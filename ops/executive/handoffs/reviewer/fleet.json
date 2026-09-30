@@ -2,28 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.333Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:39:38.751Z",
+  "summary": "reviewer checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new proposals, queue work, requeues, production changes, telemetry expansion, spending, and unsupported revenue or causal-lift claims. Continue existing saveusfarms.com repair-or-close, deployed-work measurement, security evidence, finance reconciliation, and parked-site readiness work only. Owner: preserve the $4.92 aggregate, unattributed 2026-09-21 commission as the sole supported revenue fact; keep margin, ROI, forecasts, and causal lift unknown. Complete the repair case by 2026-09-30T07:30Z and readiness packets by 2026-09-30T17:00Z.",
+        "summary": "Approve containment-only execution. Reject new implementation, production, spending, monetization, and duplicate evidence work this cycle. Continue existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and readiness packets. Revenue remains aggregate and unattributed; margin, ROI, payback, forecasts, and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route three low-risk, reversible SEO candidates to engineer as slot-gated work only: marineactivity.com, greatamericanlakes.com, and xxxtea.com. Do not execute until delivery capacity is released. Preserve unknown revenue, attribution, causal lift, and unavailable telemetry. Owner: delivery-lead; release a slot by completing or closing existing work, escalating unresolved containment to CTO by 2026-09-30T07:30Z.",
+        "summary": "Retain the existing security evidence work only. Public exposure and security-sensitive releases remain blocked until material controls are evidenced. Use authorized metadata and retained artifacts; do not access credentials or private containers, change configuration, add dependencies, deploy, requeue failures, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep parked properties private and unlaunched; continue only existing readiness packets. No build, deployment, DNS, analytics, affiliate configuration, spending, dependency addition, or queue admission is cleared until dated readiness evidence is attached by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
+        "summary": "Preserve Amazon's 2026-09-21 result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not claim site revenue, margin, ROI, payback, forecasts, cost-to-learn, or causal lift; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close existing repair and measurement work with dated validation, rollback, attribution limits, measurement limits, and deduplication evidence before reconsidering new admissions. Do not retry unchanged failures or create duplicate requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new implementation admissions this cycle. Active delivery is saturated at 10/10 slots, with overlapping work, 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups. Preserve existing measurement, repair, security, finance, private-launch, and readiness work only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No implementation candidate can be safely routed to engineer while delivery capacity is full and existing repairs remain unresolved. Reassess only after a slot clears and the relevant evidence gate is complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep scaffold properties private, preview-only, and unlaunched. Do not route builds until dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence is attached. Escalate incomplete readiness packets to CTO by 2026-09-30T17:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial or monetization claims. Preserve the 2026-09-21 Amazon result only as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Costs, margin, ROI, payback, forecasts, and causal lift remain unknown; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private and preview-only. Public beta, full launch, alert expansion, affiliate use, advertising, and external rights outreach remain blocked pending human-counsel review and completion of the existing evidence bundle.",
         "requested_action": null,
         "proposal_id": null
       }

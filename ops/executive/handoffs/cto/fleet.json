@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.332Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:39:38.750Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with deployed work awaiting measurement, failed requests, and open repair follow-ups. Reject the proposed three new queue actions and do not create duplicate work, requeues, telemetry, spend, credentials, DNS changes, dependencies, or production changes. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, launch gates, and parked-site readiness. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z and attach parked-site readiness evidence by 2026-09-30T17:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO correction: retain the existing allthingsmasonic.com affiliate request without creating a proposal or duplicate queue item. If a delivery slot is released, implement one isolated presentation-only CTA/disclosure/accessibility refinement on the existing surface, preserving destinations and consent behavior. Do not introduce an A/B test or new tracking unless existing instrumentation already supports it. Measure only currently available analytics and affiliate-attribution fields; preserve CTA-level lift, revenue causality, and unavailable fields as unknown. Roll back the changed block only if validation fails.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO disposition: keep parked scaffold properties private, preview-only, and unlaunched. Continue existing readiness packets only; do not build, publish, deploy, alter DNS, configure analytics or affiliate links, spend, add dependencies, or create queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence is complete.",
+        "summary": "Continue the existing parked-site readiness packets only. Keep scaffold properties private, preview-only, and unlaunched until dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence is attached. Do not create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       }
