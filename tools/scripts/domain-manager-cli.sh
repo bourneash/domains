@@ -119,6 +119,16 @@ run_add_full() {
   # repair instead of asking the queue to repeat an add that must refuse.
   if gh repo view "bourneash/${domain}" --json nameWithOwner >/dev/null 2>&1 \
     && [ ! -e "${DOMAINS_ROOT}/sites/${domain}" ]; then
+    local remote_commits
+    remote_commits="$(gh api "repos/bourneash/${domain}/commits?per_page=1" --jq 'length' 2>/dev/null || true)"
+    if [ "${remote_commits}" = "0" ]; then
+      # The repo was created but the prior runner died before its first push.
+      # Let bootstrap publish the scaffold, then continue the full flow.
+      run_bootstrap "${domain}" "$@"
+      run_deploy "${domain}"
+      run_bind "${domain}"
+      return 0
+    fi
     local repair_flags=()
     if printf '%s\n' "$@" | grep -qx -- '--no-email'; then
       repair_flags+=(--no-email)
