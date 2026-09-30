@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:10:19.306Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:23:22.150Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new queue work. Revenue evidence is limited to Amazon’s 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; $0 is site-attributed and $4.92 remains unattributed because the provider aggregate row cannot be assigned to sites. September 2026 AI usage is $950.44 across 5,316 calls, but it cannot be compared to that one revenue day. Contribution margin, ROI, payback, cost-to-learn, infrastructure spend, budget exposure, forecasts, and causal lift are unknown. Continue only the existing period-aligned finance reconciliation and measurement work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Finance disposition: reject vanity-metric or forecast claims based on 14,734 impressions, 150 clicks, 1,010 sessions, 15 conversions, 6,219 affiliate clicks, shipped output, or AI call volume alone. Minimum evidence for a contribution-margin decision is a dated ledger matching revenue, AI cost, infrastructure cost, domain/hosting cost, labor or execution cost, and other direct costs to the same site/content and period, plus a defined learning threshold. Preserve unavailable fields as unknown and do not extrapolate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Budget exposure cannot be calculated because monthly spend limit, fixed costs, marketing budget, and revenue floor are blank in the 2026-09-30 brief. Infrastructure spend is not present in the authoritative snapshot. Cost-to-learn cannot be calculated because experiment-level allocated costs, exposure windows, incremental outcomes, and an approved learning threshold are absent. Continue reconciliation using existing records only; do not request duplicate telemetry or authorize spend.",
+        "summary": "Continue existing attribution reconciliation only. Preserve the aggregate provider row as unattributed and validate registered tracking-ID coverage for new affiliate links. Do not assign aggregate earnings to sites or claim site revenue, margin, ROI, payback, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

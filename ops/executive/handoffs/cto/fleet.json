@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:10:19.306Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:23:22.149Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Delivery is saturated at 10/10 slots; measurement, failed-request repairs, security evidence, finance reconciliation, private launch gates, and parked-site readiness remain active. Admit no new queue work, telemetry, spend, deployment, dependency, outreach, or unchanged requeue. Prioritize completing or closing the existing saveusfarms.com repair case with isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
+        "summary": "CTO disposition: approve the CEO containment plan with no new queue admissions this cycle. The plan is technically feasible only as existing-work containment and slot-gated follow-through. Preserve the existing allthingsmasonic.com CTA request for reconsideration after capacity clears, but do not duplicate or preempt active work. Keep private launch gates, security evidence, finance reconciliation, deployed-work measurement, and parked-site readiness active. Revenue evidence remains aggregate and unattributed; do not claim ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep them parked, private, preview-only, and unlaunched. Record dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics or affiliate systems, spend, add dependencies, or create queue work.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       }

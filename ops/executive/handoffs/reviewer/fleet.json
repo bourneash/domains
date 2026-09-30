@@ -2,21 +2,70 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:10:19.307Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:23:22.150Z",
+  "summary": "reviewer checked in 9 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue admissions, production proposals, duplicate security work, spend, telemetry changes, deployments, dependencies, outreach, and unchanged requeues. Preserve only existing repair-or-close, deployed-work measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, cost-to-learn, forecasts, and causal lift remain unknown. Delivery is saturated at 10/10 slots, so the smallest defensible plan is containment until existing work closes or a slot clears.",
+        "summary": "Reject all new queue admissions, production proposals, prototypes, spend, telemetry changes, and requeues this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Revenue supports only 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Keep existing containment, measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness active. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z and keep SearchWoot private with outreach unsent pending counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue admissions this cycle. No evidence-backed implementation slot is available: delivery is saturated at 10/10, and candidate sites have active review, queued, measuring, or launch-gate conflicts. Preserve existing repair, measurement, security-evidence, finance-reconciliation, private-gate, and parked-site readiness work. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Owner action: delivery-lead completes or closes saveusfarms.com by 2026-09-30T07:30Z; site-factory completes parked-site readiness packets by 2026-09-30T17:00Z; CTO rechecks capacity and admission eligibility after those checkpoints. Escalate unresolved blockers to CTO at each deadline.",
+        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate; escalate unresolved status to CTO.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each property parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, labor cost, and cost-to-learn unknown; authorize no spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing private launch gate and consolidated read-only evidence work. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or create duplicate evidence work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial claims and new production admissions this cycle. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Delivery is saturated at 10/10 slots, with active measurement, failed requests, and open repairs. Preserve containment, existing measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Three low-risk candidates are routed to engineer as blocked, deduplicated handoffs only; no new queue admission or production change is authorized while capacity is saturated. Reassess each after its existing work and measurement gate clears.",
         "requested_action": null,
         "proposal_id": null
       }
