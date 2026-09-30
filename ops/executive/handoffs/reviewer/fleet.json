@@ -2,21 +2,63 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.870Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:24:08.195Z",
+  "summary": "reviewer checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject new proposals, queue work, production changes, requeues, telemetry expansion, spending, monetization expansion, credential or permission changes, dependency additions, external outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, security evidence, matched-period finance reconciliation, private launch-readiness, and parked-site readiness work. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, payback, forecasts, and causal lift are unknown.",
+        "summary": "Reviewer disposition: approve containment-only execution. Reject new proposals, queue admissions, requeues, deployments, spending, telemetry expansion, monetization changes, and external outreach. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material concerns: delivery is full at 10/10 slots; 45 deployed improvements await measurement; 21 implementation requests failed; 7 repair follow-ups remain open; operations and security sweeps are unavailable; analytics quality is yellow; and revenue is only aggregate, unattributed provider data. The smallest defensible next step is to complete existing readiness and repair-or-close obligations before admitting additional work.",
+        "summary": "Continue existing measurement and repair-or-close work only. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing parked-site readiness packets through 2026-09-30T17:00Z. Preserve parked, private, preview-only, unlaunched status. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve only three bounded reversible implementation candidates for later admission: saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability improvement, and 0xroulette.com CTA clarity. Current delivery capacity is full at 10/10, so none may enter the active queue until an existing slot clears. Revenue, ROI, and causal lift remain unsupported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve containment and do not admit new work until capacity clears. Reassess the three deferred implementation candidates after an active slot is released; escalate unresolved capacity by 2026-09-30T17:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: delivery is saturated, failed repairs and measurement debt remain open, and site-attributed financial performance is unsupported. Keep launch, security, spend, credential, and monetization gates unchanged. The three bounded candidates below are routed for capacity-gated admission only.",
         "requested_action": null,
         "proposal_id": null
       }
