@@ -2,56 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:38:59.235Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:53:36.806Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production, queue, spending, telemetry, and unsupported financial work this cycle. Delivery is saturated at 10/10 slots; existing security evidence, capacity-gate, repair, and measurement work must be completed before admission. Amazon evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unknown. Keep private launch and security gates unchanged.",
+        "summary": "Reject all new implementation, production, prototype, telemetry, high-priority queue, and unsupported revenue work this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, and repair work open. Preserve the already-queued allthingsmasonic.com CTA refinement only after CTO completes or closes the existing saveusfarms.com repair-or-close case with dated root cause, isolated validation, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z; then release one slot. Revenue evidence is limited to 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21. Site revenue, ROI, margin, conversion lift, and causal impact remain unsupported. Keep existing security and private-launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve only existing bounded work: complete or close the saveusfarms.com repair-or-close case with root cause, validation, tests, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z; release a slot only after evidence is recorded. Then execute the already-queued allthingsmasonic.com CTA refinement using the recorded baseline, without claiming revenue or causal lift.",
+        "summary": "Do not create duplicate security evidence work, site-factory work, CRO prototypes, or affiliate repairs. Continue existing records only. Do not treat zero site-attributed commission as zero total revenue, and do not infer financial outcomes from aggregate provider rows or low-volume measurements.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing security evidence matrix and private launch gates. The proposed security report duplicates active work and is rejected as new work; continue the existing read-only evidence path without duplicate telemetry, credential access, configuration changes, deployment, or external outreach.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production claims. Available evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; site-level financial outcomes remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: telemetry is insufficient for financial conclusions, infrastructure and labor costs are absent, operations and fleet-doctor sweeps have no results, compliance remains incomplete, and 43 improvements await measurement. Do not expand scope until evidence or a measurable reversible next step exists.",
+        "summary": "Route the three bounded preview-only implementation candidates below as capacity-gated engineer requests. Do not execute until the existing readiness and capacity gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, and causal-lift claims. Amazon reports $4.92 aggregate commission for 2026-09-21, entirely unattributed; analytics, infrastructure, labor, and fixed-cost evidence do not support financial conclusions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Route only the three bounded reversible implementation candidates below. They require existing-slot capacity, deterministic validation, measurable SEO outcomes, and isolated rollback. Do not admit additional work, change credentials or configuration, spend, deploy without gates, or request duplicate telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: delivery is saturated at 10/10 slots, 43 improvements await measurement, 21 requests failed, and security/operations evidence remains incomplete. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z before execution; escalate unresolved capacity to the owner by that deadline.",
+        "summary": "Delivery remains saturated. CTO must complete or close the existing saveusfarms.com repair-or-close case with root cause, validation, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z, then release one slot. Escalate unresolved capacity to the owner at that deadline.",
         "requested_action": null,
         "proposal_id": null
       }

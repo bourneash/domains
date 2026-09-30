@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:24:08.143Z",
+  "generated_at": "2026-09-30T17:53:36.804Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new site-factory build, deployment, domain, spend, telemetry, or launch admission is authorized while delivery is saturated and ownership, legal, security, measurement, and rollback evidence remain incomplete. Maintain a small readiness pipeline for complicated.work, deadlymaracas.com, and driveford.net as parked, private, preview-only opportunities. The strongest candidate is complicated.work based on the existing scaffold and site-factory build opportunity. Exactly one next step: attach a dated readiness packet for complicated.work covering owner, audience/site brief, reusable template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement boundary, rollback point, preview/build evidence, and the explicit blocker.",
+        "summary": "Strongest candidate: complicated.work, because it has an existing scaffold, site capability, active readiness evidence work, and a documented parked disposition. Preserve the existing packet and do not create duplicate build or queue work.",
         "requested_action": null,
         "proposal_id": null
       }

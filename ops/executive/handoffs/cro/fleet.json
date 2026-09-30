@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:24:08.143Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:53:36.805Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement as the sole revenue experiment after CTO releases capacity. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Scope remains CTA hierarchy, product relevance, disclosure proximity, accessible links, and responsive layout. Measure affiliate clicks, ordered items, shipped items, and commission only; do not claim lift, ROI, or causality. Reject new site, SEO, audience, affiliate, and prototype admissions while delivery remains 10/10.",
+        "summary": "CRO disposition: retain the already-queued allthingsmasonic.com CTA refinement as the next revenue experiment, but admit no duplicate implementation while delivery is saturated at 10/10 slots. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; aggregate Amazon revenue remains unattributed. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then execute the existing change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "microsoft/markitdown is a purpose-fit SEO/content candidate: MIT license, 194 files, 22 keyword hits, and 8/8 bounded lab checks passed without dependency installation or production access. This supports a disposable fixture prototype only, not adoption. Risks remain unverified maintenance depth, parser and transitive-dependency security exposure, document rights, and output-quality variance. Keep deferred until capacity and owner-approved fixtures exist.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Existing search signals remain slot-gated: xxxtea.com has 3,607 impressions, 132 clicks, 25 sessions, and 0 conversions across 15 opportunities; broadwayshowgirls.com has 527 impressions, 0 clicks, 44 sessions, and 0 conversions, including 63 impressions at position 2 for one query with 0% CTR. These are prioritization evidence, not proof of causality. Do not create duplicate work while active measurement and repair queues remain unresolved.",
+        "summary": "CRO recommends retaining two deferred control-plane opportunities: canonical execution-ledger integrity and AI usage guardrails. They address 108 approved proposals without execution, 21 failed requests, 7 open repairs, 5522 AI calls, 234 AI errors, and $997.52 recorded AI cost. No implementation or prototype should be admitted until capacity clears; use existing records only and preserve rollback and authority boundaries.",
         "requested_action": null,
         "proposal_id": null
       }

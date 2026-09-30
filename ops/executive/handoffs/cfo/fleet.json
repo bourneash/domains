@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:38:59.234Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:53:36.805Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep affiliate-reference repair work bounded and report-only from a finance perspective. Preserve registered tracking identifiers and do not forecast revenue from link validity, clicks, impressions, proposal counts, or shipped-output counts.",
+        "summary": "Financial recommendation: maintain containment-only execution and reject new spend, forecasts, prototypes, and production admissions this cycle. Revenue evidence is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all income assigned to aggregate tracking_id \"other\" and therefore unattributed. Site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is 5,522 calls, 234 errors, and $997.51762695 recorded cost; this is approximately $0.18 per call and $199.50 per proven outcome if divided mechanically across 5 proven outcomes, but neither figure is a causal unit-cost measure. Infrastructure, hosting, domain, labor, marketing, and other operating costs are absent, so total spend, contribution margin, budget exposure, and break-even are not calculable. Preserve the existing allthingsmasonic.com CTA experiment only after capacity clears; its 2026-09-21 baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Do not treat impressions, sessions, clicks, conversions, proposals, or shipped work as revenue or profit forecasts.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO rejects the retained CRO control-plane and AI-guardrail proposals as implementation work this cycle because delivery is saturated at 10/10 slots and existing records already support a report-only finance assessment. The minimum missing measurements are: a common period-aligned revenue export, site/content-level tracking for every commission row, infrastructure and vendor invoices or cost ledger, labor allocation basis, and a join between AI calls, verified outputs, and measured outcomes. No banking, billing, contract, or spending action is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:38:59.235Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:53:36.805Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new fleet-tooling admission this cycle. Delivery is saturated at 10/10 active slots, and the proposal overlaps existing capacity-gate, execution-integrity, and repair-tracking work. Preserve the specification as deferred; create no duplicate queue work, telemetry requests, deployments, or site changes.",
+        "summary": "CTO approves containment-only execution. Reject all new production implementations, prototypes, telemetry requests, spend, and site-factory admissions this cycle: delivery is saturated at 10/10 slots, measurement and repair work remain open, and operations/security evidence is incomplete. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after the saveusfarms.com repair-or-close case is completed or closed with dated root cause, isolated validation, deterministic tests, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z. Do not claim revenue, ROI, margin, conversion lift, or causal impact.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, deterministic tests, build evidence, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded.",
+        "summary": "The queued allthingsmasonic.com CTA refinement is technically feasible, isolated, reversible, and measurable using existing affiliate-click telemetry. Scope must remain limited to CTA hierarchy, disclosure placement, accessible link behavior, responsive layout, and unchanged registered destinations. Do not add dependencies, routes, tracking, data collection, or imagery. Execute only after one delivery slot clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After capacity clears, execute only the existing allthingsmasonic.com CTA refinement. Preserve its registered tracking identifier, use the recorded 2026-09-21 baseline, measure only available affiliate outcomes, and report revenue or causal lift as unknown unless directly supported.",
+        "summary": "The CFO's two read-only reports are feasible without delivery-slot consumption and may proceed using existing records only. Preserve period boundaries, aggregate-versus-site attribution limits, unmatched AI-cost records, and all unknown operating costs. Do not request telemetry, alter budgets, change routing, automate cancellation, or infer contribution margin or causal cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue existing readiness evidence only; no build, deployment, DNS, analytics configuration, monetization, dependency addition, spend, or queue admission is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and preview-only. Rights outreach, public exposure, new data collection, monetization, and launch changes remain blocked pending the existing legal, security, accuracy, measurement, and owner gates.",
+        "summary": "Keep private launch gates, security-sensitive release gates, and parked-site dispositions unchanged. No public exposure, rights outreach, credential/configuration change, deployment, dependency addition, DNS change, or external spend is technically cleared by this pass.",
         "requested_action": null,
         "proposal_id": null
       }
