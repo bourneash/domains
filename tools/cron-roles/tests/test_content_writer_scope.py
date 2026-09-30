@@ -29,6 +29,19 @@ def test_offshorehookup_content_writer_scope_allows_hero_prompt_only():
     assert result.returncode == 0, result.stderr
 
 
+def test_offshorehookup_non_content_roles_do_not_require_bubblewrap():
+    text = SCRIPT.read_text(encoding="utf-8")
+    sandbox_call = 'writer_sandbox_exec /work/.monorepo-tools/scripts/claude-tracked.sh'
+    generic_call = '"$CLAUDE_TRACKED" "$(cat "$ROLE_FILE")'
+
+    assert f'if [[ "$ROLE" == "content-writer" ]]; then\n      {sandbox_call}' in text
+    assert generic_call in text
+    assert text.index(sandbox_call) < text.index(generic_call)
+
+    result = subprocess.run(["bash", "-n", str(SCRIPT)], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+
+
 def test_content_writer_policy_is_behavioral_and_task_specific():
     task = "ops/tasks/in-progress/remaining-hero-images.md"
 
