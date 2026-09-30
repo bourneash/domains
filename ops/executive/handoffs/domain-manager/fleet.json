@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:13:00.615Z",
+  "generated_at": "2026-09-30T09:14:57.825Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Restore girlpain.com Search Console measurement access",
-        "summary": "Google Analytics is healthy, but Search Console access returns 403 insufficient permission, blocking search-performance evidence. Existing homepage CTA work is still measuring, so no overlapping site implementation should be queued.",
-        "requested_action": "Have the authorized Search Console property owner grant or verify access, then rerun the existing read-only verification. Do not change site code, production behavior, credentials outside the approved property workflow, telemetry, or deployment.",
+        "title": "Prepare infrainnovator.com preview-ready homepage surface after capacity clears",
+        "summary": "Retain one bounded, reversible implementation candidate for infrainnovator.com. Fleet delivery is saturated at 10/10, so do not admit or queue this work until an existing slot clears.",
+        "requested_action": "After capacity clears, inspect the existing infrainnovator.com scaffold and implement only its primary homepage surface: branded hero, concise audience statement, one primary CTA, metadata, responsive layout, and existing disclosure/footer components. Do not deploy directly, add dependencies, configure analytics, add monetization, or change DNS.",
         "proposal_id": null
       }
     ]
