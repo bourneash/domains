@@ -79,6 +79,51 @@ const DEFAULT_AGENTS = [
   ],
 ];
 
+const ACCOUNTABILITY_ROLES = new Set([
+  'operations-manager',
+  'engineering-manager',
+  'growth-manager',
+  'design-manager',
+  'site-factory-manager',
+]);
+const DELIVERY_FAILURE_PAUSE_THRESHOLD = 2;
+const DELIVERY_FAILURE_PAUSE_MS = 60 * 60 * 1000;
+
+function accountabilityState(agent) {
+  return agent?.workspace?.accountability && typeof agent.workspace.accountability === 'object'
+    ? agent.workspace.accountability
+    : {};
+}
+
+function recordAccountabilityOutcome(store, run, { delivered, reason = null } = {}) {
+  const agent = store.getAgent(run.agent_id);
+  if (!agent || !ACCOUNTABILITY_ROLES.has(agent.role)) return agent;
+  const current = accountabilityState(agent);
+  const now = new Date();
+  const consecutiveFailures = delivered ? 0 : Number(current.consecutive_failures || 0) + 1;
+  const shouldPause = !delivered && consecutiveFailures >= DELIVERY_FAILURE_PAUSE_THRESHOLD;
+  const nextAccountability = {
+    ...current,
+    consecutive_failures: consecutiveFailures,
+    total_failures: Number(current.total_failures || 0) + (delivered ? 0 : 1),
+    total_deliveries: Number(current.total_deliveries || 0) + (delivered ? 1 : 0),
+    last_outcome: delivered ? 'delivered' : 'failed_to_deliver',
+    last_failure_reason: delivered ? current.last_failure_reason || null : reason,
+    last_outcome_at: now.toISOString(),
+    suspended_until: shouldPause
+      ? new Date(now.getTime() + DELIVERY_FAILURE_PAUSE_MS).toISOString()
+      : current.suspended_until || null,
+  };
+  const patch = {
+    workspace: { ...(agent.workspace || {}), accountability: nextAccountability },
+  };
+  if (shouldPause && agent.status === 'active') {
+    patch.status = 'paused';
+    patch.pause_reason = `Automatic performance pause: ${consecutiveFailures} consecutive failed-to-deliver runs. Recovery requires concrete executable output or operator unpause.`;
+  }
+  return store.updateAgent(agent.agent_id, patch);
+}
+
 const OVERWATCH_WORKSPACE = {
   mode: 'control-plane',
   overwatch: {
@@ -87,7 +132,7 @@ const OVERWATCH_WORKSPACE = {
     lookback_runs: 4,
     aggression: 'aggressive',
     prompt:
-      'You are Exec Overwatch. Inspect the last four 15-minute executive cycles and the downstream manager/worker output. Determine whether real work shipped or only discussion occurred. Repair stuck or failed handoffs, then create the smallest high-confidence changes that improve execution throughput, prompt quality, routing, measurement, or strategic growth. Every turn must either make a concrete repair/improvement or record an evidence-backed blocker with an owner and next action. Never count acknowledgements, unchanged checkpoints, reports, or updates to old work as new output. Preserve legal, security, spend, credential, and deployment gates.',
+      'You are Exec Overwatch. Inspect the last four executive cycles and the downstream manager/worker output. Determine whether real work shipped or only discussion occurred. Repair stuck or failed handoffs, then create the smallest high-confidence changes that improve execution throughput, prompt quality, routing, measurement, or strategic growth. Every turn must either make a concrete repair/improvement or record an evidence-backed blocker with an owner and next action. Never count acknowledgements, unchanged checkpoints, reports, or updates to old work as new output. Preserve legal, security, spend, credential, and deployment gates.',
     goals: [
       'Increase verified implementation work and completed downstream handoffs.',
       'Reduce stuck, failed, duplicate, and pass-through-only executive work.',
@@ -234,6 +279,14 @@ function finish(
     output_tokens,
     total_tokens: Number(input_tokens) + Number(output_tokens),
   });
+  const hasDeliverySignal =
+    status !== 'succeeded' || Object.prototype.hasOwnProperty.call(result || {}, 'delivery_status');
+  if (hasDeliverySignal) {
+    recordAccountabilityOutcome(store, current, {
+      delivered: status === 'succeeded' && result?.delivery_status !== 'failed_to_deliver',
+      reason: error || result?.delivery_error || (status === 'failed' ? `Run ${status}.` : null),
+    });
+  }
   if (store.completeAgentDispatchForRun) store.completeAgentDispatchForRun(runId, status, error);
   // Every completed run gets a small, machine-generated outcome signal. Human
   // or model-quality evaluations can be added separately without making the
@@ -268,6 +321,8 @@ module.exports = {
   DEFAULT_AGENTS,
   ensureRegistry,
   requireAgent,
+  accountabilityState,
+  recordAccountabilityOutcome,
   beginRun,
   heartbeat,
   finish,

@@ -225,7 +225,13 @@ function repairHandoffs(store) {
   const now = Date.now();
   for (const dispatch of store.listAgentDispatches({ status: 'failed', limit: 2000 })) {
     const agent = store.getAgent(dispatch.agent_id);
-    if (!agent || !MANAGER_SLUGS.has(agent.slug) || Number(dispatch.attempts || 0) >= 5) continue;
+    if (
+      !agent ||
+      agent.status !== 'active' ||
+      !MANAGER_SLUGS.has(agent.slug) ||
+      Number(dispatch.attempts || 0) >= 5
+    )
+      continue;
     store.completeAgentDispatch(dispatch.dispatch_id, {
       status: 'queued',
       error: `Exec Overwatch requeued failed ${agent.slug} handoff for supervised retry`,
@@ -356,6 +362,10 @@ async function main() {
       status: deliveryStatus === 'failed_to_deliver' ? 'failed' : completed.status,
       error: deliveryStatus === 'failed_to_deliver' ? report.delivery_error : completed.error,
       result: { ...(completed.result || {}), overwatch_report: reportPath, repairs },
+    });
+    runtime.recordAccountabilityOutcome(store, completed, {
+      delivered: deliveryStatus !== 'failed_to_deliver',
+      reason: report.delivery_error,
     });
     if (deliveryStatus === 'failed_to_deliver') {
       store.completeAgentDispatchForRun(started.run.run_id, 'failed', report.delivery_error);

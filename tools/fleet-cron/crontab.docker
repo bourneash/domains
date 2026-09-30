@@ -123,11 +123,11 @@
 # --- Job 10b: autonomous executive leadership tick ---
 # Every minute, reconcile and dispatch durable executive calendar events.
 * * * * * /home/jesse/projects/domains/tools/executive/run-calendar.sh
-# Every 15 minutes, single-flight, and hard-bounded by run-sandbox.sh. The
+# Every 10 minutes, single-flight, and hard-bounded by run-sandbox.sh. The
 # shared lock means a long tick is skipped rather than overlapped by the next
 # cron fire. Queue execution is separately gated by the dashboard's reviewed
 # change-queue settings.
-*/15 * * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
+*/10 * * * * /home/jesse/projects/domains/tools/executive/run-scheduled.sh
 # Cheap hourly progress heartbeat. It does not invoke a model; it records the
 # delivery state and measured outcomes so activity cannot masquerade as impact.
 0 * * * * /home/jesse/projects/domains/tools/executive/run-heartbeat.sh
@@ -140,8 +140,8 @@
 20 * * * * /home/jesse/projects/domains/tools/executive/run-measurements.sh
 # Domain managers publish cheap exception-first reports separately from model ticks.
 10 */6 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence six_hour
-# One new manager every minute, with a two-manager concurrency cap.
-# This keeps the queue moving without creating an AI request burst.
+# One new manager every minute, with a four-manager concurrency cap.
+# This keeps the queue moving while bounded parallelism drains real work.
 * * * * * /home/jesse/projects/domains/tools/executive/run-domain-manager-dispatch.sh
 # Consume one Site Factory manager dispatch per minute and hand it to the
 # existing host-side domain-job-runner queue. The worker is role-filtered and

@@ -70,6 +70,9 @@ function runSandbox(root, role, task) {
       site: task.site || null,
       next_action: task.next_action,
       owner: task.owner,
+      attempts: task.attempts || 0,
+      labels: task.labels || [],
+      last_error: task.last_error || null,
     }),
     { mode: 0o600 }
   );
@@ -358,7 +361,7 @@ async function processOperatingManager(
 
 function queuedManagerCandidate(store) {
   const agents = MANAGER_ROLES.map(role => ({ role, agent: store.getAgent(role.slug) })).filter(
-    item => item.agent
+    item => item.agent && item.agent.status === 'active'
   );
   const queued = agents.flatMap(({ role, agent }) =>
     store

@@ -47,6 +47,7 @@ tools/scripts/*.log
 tools/scripts/*.lock
 tools/executive/data/overwatch*.lock
 tools/executive/data/.overwatch-task-*.json
+tools/executive/data/operating-worker.lock.*
 tools/scripts/.ensure-fleet-cron-alerts/
 tools/scripts/.check-claude-auth-state
 tools/scripts/.check-claude-auth-alerted

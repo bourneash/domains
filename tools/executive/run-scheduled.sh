@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# One-shot scheduler entrypoint. The fleet scheduler runs this hourly;
+# One-shot scheduler entrypoint. The fleet scheduler runs this every ten minutes;
 # the sandbox wrapper supplies the single-flight lock and bounded container.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT/tools/executive/logs"
@@ -34,7 +34,7 @@ fi
 # bounded, and run-sandbox.sh applies the hard wall-clock/container cap.
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-product-manager-fleet,product-manager-sites,delivery-lead,design-director,growth-director,revenue-ops,site-factory,cro,ceo,cfo,cto,legal,security,reviewer}"
 export EXECUTIVE_PASS_TIMEOUT_MS="${EXECUTIVE_PASS_TIMEOUT_MS:-120000}"
-export EXECUTIVE_CONTAINER_TIMEOUT="${EXECUTIVE_CONTAINER_TIMEOUT:-14m}"
+export EXECUTIVE_CONTAINER_TIMEOUT="${EXECUTIVE_CONTAINER_TIMEOUT:-9m}"
 RUN_ACTION_ID="$(node - "$ROOT" "${EXECUTIVE_ACTION_ID:-}" <<'NODE'
 const root = process.argv[2];
 const existingActionId = process.argv[3];
@@ -83,6 +83,46 @@ try {
     .listExecutiveActions({ action_type: 'tick', limit: 20 })
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
+  const windowStart = scheduledStarted - 1000;
+  const executableKinds = new Set(['implementation', 'content', 'design', 'engineering', 'seo']);
+  const newRequests = store
+    .listChangeRequests({ limit: 2000 })
+    .filter(row => (Date.parse(row.created_at || '') || 0) >= windowStart);
+  const newExecutableWork = store
+    .listExecutiveWorkItems({ limit: 2000, quiet: 0 })
+    .filter(row => {
+      const created = Date.parse(row.created_at || '') || 0;
+      return (
+        created >= windowStart &&
+        executableKinds.has(String(row.kind)) &&
+        row.site &&
+        !['blocked', 'waiting', 'cancelled', 'done'].includes(String(row.status)) &&
+        !['blocker', 'report-only', 'tracking'].includes(String(row.actionability || ''))
+      );
+    });
+  const failedToDeliver =
+    exitCode === 0 &&
+    tick?.status === 'completed' &&
+    newRequests.length === 0 &&
+    newExecutableWork.length === 0;
+  const ceo = store.getAgent('fleet-ceo');
+  const ceoRun = ceo
+    ? store
+        .listAgentRuns({ agent_id: ceo.agent_id, limit: 100 })
+        .find(row => (Date.parse(row.started_at || '') || 0) >= windowStart)
+    : null;
+  if (failedToDeliver && ceoRun && !['failed', 'cancelled'].includes(ceoRun.status)) {
+    store.updateAgentRun(ceoRun.run_id, {
+      status: 'failed',
+      error: 'executive failed_to_deliver: no executable change request or work item was created',
+      result: { ...(ceoRun.result || {}), delivery_status: 'failed_to_deliver' },
+    });
+    store.completeAgentDispatchForRun(
+      ceoRun.run_id,
+      'failed',
+      'executive failed_to_deliver: no executable change request or work item was created'
+    );
+  }
   const ownerAcknowledged = store
     .listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
     .some(item => {
@@ -93,7 +133,9 @@ try {
     String(tickError || '')
   );
   const status =
-    ownerAcknowledged && exitCode !== 0
+    failedToDeliver
+      ? 'failed'
+      : ownerAcknowledged && exitCode !== 0
       ? 'completed_with_warning'
       : exitCode !== 0
       ? providerDeferred
@@ -105,7 +147,9 @@ try {
   executive.finishAction(store, actionId, {
     status,
     error:
-      ownerAcknowledged && exitCode !== 0
+      failedToDeliver
+        ? 'executive failed_to_deliver: no executable change request or work item was created'
+        : ownerAcknowledged && exitCode !== 0
         ? `executive run degraded after acknowledging owner request; ${tickError || `dispatch exited with code ${exitCode}`}`
         : exitCode === 0
         ? checkinStatus !== 0
@@ -129,6 +173,9 @@ try {
       checkin_warning:
         checkinStatus === 0 ? null : 'executive handoff check-in failed; retry is required',
       provider_deferred: providerDeferred,
+      delivery_status: failedToDeliver ? 'failed_to_deliver' : 'delivered_or_blocked',
+      new_change_requests: newRequests.length,
+      new_executable_work_items: newExecutableWork.length,
       owner_request_acknowledged: ownerAcknowledged,
       failed_stage:
         providerDeferred
