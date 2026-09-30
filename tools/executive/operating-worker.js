@@ -253,20 +253,24 @@ async function processOperatingManager(
         const task = currentStore.getExecutiveWorkItem(run.work_id);
         if (!task || task.owner !== role.owner)
           throw new Error(`dispatch task is not owned by ${role.owner}`);
-        const startedAt = Date.now();
+        const beforeChangeRequests = new Set(
+          currentStore.listChangeRequests({ limit: 2000 }).map(item => item.request_id)
+        );
+        const beforeWorkItems = new Set(
+          currentStore.listExecutiveWorkItems({ limit: 2000 }).map(item => item.work_id)
+        );
         const sandbox = await runSandbox(root, role, task);
         if (sandbox.code === 75) {
           const error = new Error('executive sandbox is busy; manager dispatch deferred');
           error.defer = true;
           throw error;
         }
-        const createdAt = new Date(startedAt).toISOString();
         const changeRequests = currentStore
-          .listChangeRequests({ limit: 1000 })
-          .filter(item => item.created_at >= createdAt);
+          .listChangeRequests({ limit: 2000 })
+          .filter(item => !beforeChangeRequests.has(item.request_id));
         const workItems = currentStore
-          .listExecutiveWorkItems({ limit: 1000 })
-          .filter(item => item.created_at >= createdAt && item.work_id !== task.work_id);
+          .listExecutiveWorkItems({ limit: 2000 })
+          .filter(item => !beforeWorkItems.has(item.work_id) && item.work_id !== task.work_id);
         const actionable =
           sandbox.code === 0 && (changeRequests.length > 0 || workItems.length > 0);
         const result = {
