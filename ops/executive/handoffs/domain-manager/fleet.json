@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:05:00.179Z",
-  "summary": "daily domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-30T14:47:21.147Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "2257e6aa-853a-44d0-8f06-6034b1f465b0",
-    "cadence": "daily",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 1,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Resolve arttogogh.com measurement and reachability blocker",
+        "summary": "The existing arttogogh.com improvement is measuring, but analytics is unavailable and the compliance check is unreachable. Complete one bounded evidence reconciliation before selecting further site work.",
+        "requested_action": "Review the existing improvement run for arttogogh.com and the homepage route (/). Record whether deployment and validation completed, preserve analytics and compliance values as unavailable/unknown, and identify exactly one next action: continue measurement, repair validation, or close the run. Do not request duplicate telemetry, change production, or claim lift.",
+        "proposal_id": null
+      }
+    ]
   }
 }
