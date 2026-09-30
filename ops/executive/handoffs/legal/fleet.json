@@ -2,29 +2,43 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:23:55.438Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:38:54.021Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: BLOCKED for SearchWoot public beta or full launch; keep private and preview-only. Woot documentation confirms API access but not commercial/public redistribution, historical derivatives, cached display, alerts, images, prices, or affiliate/advertising use. Current public terms point against the proposed use. Human counsel is required before any rights outreach, jurisdictional privacy decision, affiliate use, or public exposure.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta/full launch; keep private and preview-only. Woot documentation proves API access but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; current public terms point against the proposed use. Security, accuracy/freshness, measurement, attribution, and owner gates are also incomplete. Human counsel is required before any rights outreach or launch change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is mixed: 35 pass, 20 fail, and 6 unknown across 61 checked sites. Ordinary reversible growth may continue only on sites with evidenced consent, disclosures, provenance, claims, and platform-policy boundaries; incomplete telemetry alone is not a blocker. Do not add tracking, monetization, cross-site data use, or unsupported claims where compliance status is failed or unknown.",
+        "summary": "Fleet compliance disposition: conditional for ordinary reversible growth, blocked for new public exposure or security-sensitive releases. Compliance baseline is 35 pass, 20 fail, 6 unknown, with 20 open banner/consent/GA4 findings and 4 privacy/terms findings. Do not treat incomplete telemetry as a general growth blocker, but preserve site-specific disclosure, consent, affiliate, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work parked, private, preview-only, and unlaunched. The existing readiness packet must record dated ownership, preview/build evidence, compliance and security unknowns, analytics/affiliate boundaries, rollback evidence, and the explicit launch decision before any build, deploy, DNS, monetization, or queue admission.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deploy, DNS, analytics configuration, monetization, spend, dependency addition, or queue entry is cleared. Next evidence action: attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence to each existing readiness packet.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No go-live proposal is supported. Retain the existing allthingsmasonic.com CTA refinement as capacity-gated only; preserve disclosures and accessibility and measure affiliate clicks only after CTO releases a slot. Do not claim revenue, ROI, margin, or causal lift from the available aggregate Amazon data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain SearchWoot private gate and complete launch evidence",
+        "summary": "Keep SearchWoot private and preview-only while rights, privacy, consent, data-flow, security, accuracy, attribution, measurement, and owner evidence remain incomplete.",
+        "requested_action": "Approve continuation of existing report-only evidence work; keep public beta and full launch blocked until the decision rule is satisfied.",
         "proposal_id": null
       }
     ]

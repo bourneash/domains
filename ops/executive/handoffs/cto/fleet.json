@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:23:55.438Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:38:54.021Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution. Delivery is saturated at 10/10 slots, so reject new queue work, duplicate implementations, prototypes, telemetry changes, and new financial-ledger work this cycle. Preserve the existing saveusfarms.com repair-or-close case and release a slot only after dated root-cause or closure rationale, deterministic validation, build evidence, rollback point, release boundary, and attribution limits are recorded. Then execute the already-queued allthingsmasonic.com CTA refinement. Keep private launch, security, compliance, and measurement gates unchanged.",
+        "summary": "Approve containment-only execution. Admit no new implementation while delivery remains saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA refinement as slot-gated; execute only after the existing saveusfarms.com repair-or-close case is completed or closed with dated root cause or closure rationale, isolated validation, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new implementation work while all ten delivery slots are occupied. After the existing saveusfarms.com repair-or-close case releases a slot, execute the already-queued allthingsmasonic.com CTA refinement first. Preserve its recorded baseline, deterministic tests, accessibility and disclosure checks, measurable affiliate-click boundary, and single-commit rollback.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, and deduplication evidence by 2026-10-01T09:00Z. Release one delivery slot only after the evidence is recorded; escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing complicated.work readiness packet only. Keep the property parked, private, preview-only, and unlaunched. Record dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "After one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement on one recorded commercial URL. Preserve disclosures, accessibility, and existing affiliate behavior; run deterministic tests, build and link validation; record the rollback point; measure only available affiliate-click outcomes. Roll back the single diff if validation or disclosure/link behavior regresses.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and preserve all current private-launch and security-sensitive release gates. Do not create duplicate reports, request duplicate telemetry, access credentials, modify configuration, deploy, or conduct external outreach.",
+        "summary": "Continue only the existing parked-site readiness packets. Keep scaffold properties private, preview-only, and unlaunched. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and launch-gate evidence is complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the existing attribution boundary. Keep the provider aggregate row unassigned and require registered tracking identifiers for any existing affiliate implementation. Do not infer site revenue, ROI, margin, forecasts, or causal lift from aggregate rows or engagement metrics.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain existing security and private-launch gates. Fleet-doctor and operations sweeps have no results, and material control evidence remains incomplete. Permit only bounded reversible work that changes no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       }
