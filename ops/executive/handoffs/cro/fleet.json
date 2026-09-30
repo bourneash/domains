@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.043Z",
+  "generated_at": "2026-09-30T14:55:38.818Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends no new proposal, prototype, or delivery admission this cycle. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; causal lift, ROI, and margin remain unknown. Preserve GitHub-derived concepts as deferred research specifications: MarkItDown for bounded SEO/content transformation and shadcn/ui for reusable UX components. Their MIT licenses and bounded lab evidence support research only; dependency, security, maintenance, integration, and fleet-specific outcome risks remain unresolved. After CTO releases a slot, execute only the existing allthingsmasonic.com CTA refinement with current baseline, deterministic validation, measurement window, and rollback. No new CRO work item is warranted.",
+        "summary": "Keep the three fleet-control opportunities as deferred specifications. If capacity clears, prototype only one isolated control-plane change at a time in a disposable or non-production path; do not alter deployment authority, schedules, credentials, permissions, or telemetry collection.",
         "requested_action": null,
         "proposal_id": null
       }

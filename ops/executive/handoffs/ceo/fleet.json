@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.043Z",
+  "generated_at": "2026-09-30T14:55:38.819Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; analytics is unavailable fleet-wide, so ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair-or-close case with validation and rollback evidence, then releases one slot by 2026-10-01T09:00Z. After that, execute the already-queued allthingsmasonic.com CTA refinement. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
+        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Reject new fleet-control proposals, the MarkItDown prototype, and additional queue admissions this cycle: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after capacity clears. Evidence supports only $4.92 aggregate unattributed Amazon commission for 2026-09-21; analytics is unavailable fleet-wide, so ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or closes saveusfarms.com and releases one slot by 2026-10-01T09:00Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -1,6 +1,6 @@
 # Fleet registry — merge report
 
-`sites/` directories merged: **60** (live 40, scaffold 19, parked 0, redirect 1)
+`sites/` directories merged: **62** (live 40, scaffold 21, parked 1, redirect 0)
 
 ## Coverage per roster
 
@@ -10,12 +10,12 @@ provenance only; absence there is a choice, not drift.
 
 | Roster | Kind | Covers | Missing live sites |
 |---|---|---|---|
-| `site-tracker/sites.yml` | fleet-wide | 59/60 | — |
-| `data-hub/sites-analytics.yaml` | fleet-wide | 40/60 | — |
-| `DOMAINS_INDEX.md` | fleet-wide | 60/60 | — |
-| `social registry` | fleet-wide | 35/60 | 3boobs.com, blackmarketapparel.com, deeppenetrations.com, marineactivity.com, saltwaternews.com |
-| `data-hub/subscriptions.yaml` | opt-in | 8/60 | n/a |
-| `product-feed/subscriptions.yaml` | opt-in | 2/60 | n/a |
+| `site-tracker/sites.yml` | fleet-wide | 59/62 | — |
+| `data-hub/sites-analytics.yaml` | fleet-wide | 40/62 | — |
+| `DOMAINS_INDEX.md` | fleet-wide | 60/62 | — |
+| `social registry` | fleet-wide | 35/62 | 3boobs.com, blackmarketapparel.com, deeppenetrations.com, marineactivity.com, saltwaternews.com |
+| `data-hub/subscriptions.yaml` | opt-in | 8/62 | n/a |
+| `product-feed/subscriptions.yaml` | opt-in | 2/62 | n/a |
 
 ## Gaps on live sites
 
@@ -36,7 +36,9 @@ Sites the index files under a bucket that contradicts disk evidence:
 - `dumbsluts.com` — indexed **parked**, actually **scaffold**
 - `elevatorfriends.com` — indexed **parked**, actually **scaffold**
 - `failbunny.com` — indexed **parked**, actually **scaffold**
+- `howtofry.com` — **absent** from the index, actually **scaffold**
 - `infrainnovator.com` — indexed **parked**, actually **scaffold**
+- `magicescorts.com` — **absent** from the index, actually **scaffold**
 - `mynewgm.com` — indexed **parked**, actually **scaffold**
 - `mynewgm.info` — indexed **parked**, actually **scaffold**
 - `nsfwpixels.com` — indexed **parked**, actually **scaffold**

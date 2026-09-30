@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.044Z",
+  "generated_at": "2026-09-30T14:55:38.820Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Severity: high for release-clearance uncertainty; no compromise is evidenced. Fleet-doctor is unavailable (ok=false, last_run=null), operations deploy/uptime/error sweeps have no results, and security sitefacts are unknown. Authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no recorded expirations within 30 days, but complete TLS posture remains unknown. Exact decision: keep security-sensitive releases, new public exposure, and gated-product launches blocked. Continue only existing read-only evidence work and ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Missing evidence is not evidence of a vulnerability or certification.",
+        "summary": "Security disposition: evidence_needed. Block security-sensitive releases and new public exposure because fleet-doctor has no completed run, operations deploy/uptime/error sweeps are unavailable, and authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and disclosure readiness are unevidenced. No active vulnerability or compromise is established. Severity is high control-evidence uncertainty. Allow ordinary reversible growth only if it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing read-only security evidence matrix without duplicate work. Record dated authorized evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "summary": "Retain the existing fleet security evidence work; do not create duplicate requests. Complete one consolidated read-only evidence record covering authentication and access boundaries, secrets exposure controls, container/runtime isolation, release and deployment provenance, dependency and supply-chain controls, TLS configuration, data exposure, monitoring and incident response, and security.txt/disclosure readiness. Preserve unknowns as unknowns; do not retrieve credentials, access private containers, exploit targets, modify permissions, add dependencies, deploy, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and private exposure gates",
-        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve private launch and security-sensitive release gates while continuing bounded read-only evidence work and allowing ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
-        "requested_action": "Continue the existing security evidence matrix using authorized metadata and retained artifacts only. Document evidence timestamps, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets handling, runtime isolation, release and deployment controls, TLS, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Keep gated-product public exposure blocked. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or conduct external outreach.",
+        "title": "Maintain evidence-needed fleet security disposition and release gates",
+        "summary": "Fleet security clearance is not supportable from the current read-only baseline. Maintain blocked security-sensitive releases and new public exposure while continuing the existing evidence matrix. Permit ordinary reversible growth only within existing consent, disclosure, provenance, claims, data-handling, and release boundaries.",
+        "requested_action": "Continue the existing security evidence work without duplicate telemetry or new queue admission. Record dated authorized evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, incident response, and security.txt/disclosure readiness. Reassess only after the evidence bundle is complete.",
         "proposal_id": null
       }
     ]

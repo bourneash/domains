@@ -29,10 +29,13 @@ function validatePilotCohorts(
   const excluded = new Set(normalizeSites(excluded_sites));
   const known = known_sites === null ? null : new Set(normalizeSites(known_sites));
   const errors = [];
-  if (!treatment.length || !control.length) errors.push('pilot requires treatment and control sites');
+  if (!treatment.length || !control.length)
+    errors.push('pilot requires treatment and control sites');
   const overlap = treatment.filter(site => control.includes(site));
   if (overlap.length) errors.push(`pilot cohorts overlap: ${overlap.join(', ')}`);
-  const excludedInCohort = [...new Set([...treatment, ...control].filter(site => excluded.has(site)))];
+  const excludedInCohort = [
+    ...new Set([...treatment, ...control].filter(site => excluded.has(site))),
+  ];
   if (excludedInCohort.length)
     errors.push(`pilot cohort includes excluded site(s): ${excludedInCohort.join(', ')}`);
   if (known) {

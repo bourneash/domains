@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:47:21.144Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:55:38.820Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the report-only arttogogh.com proposal because it duplicates existing measurement work and cannot resolve unavailable analytics or compliance reachability. Route only three normal-priority, reversible web-vitals repairs as slot-gated engineer work; no revenue, ROI, causal-lift, telemetry, credential, configuration, spend, deployment, or external-outreach claims are supported. Capacity is 10/10, so execution remains blocked until CTO releases a slot by 2026-10-01T09:00Z; delivery-lead must first resolve active-work overlap on the two affected sites.",
+        "summary": "Reject all new queue admissions, production work, prototypes, telemetry requests, and financial forecasts this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence is incomplete; and existing repair, readiness, and measurement work remains open. Preserve only existing work, including the security evidence matrix, private launch gates, and the slot-gated allthingsmasonic.com CTA refinement after the existing saveusfarms.com repair-or-close case releases capacity. Revenue evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence. Release one delivery slot only after that disposition is recorded. Do not admit duplicate work or prototypes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing fleet security evidence matrix and private launch gates. Do not create a duplicate security proposal or request telemetry already covered by the shared snapshot. Reassess only after dated authorized evidence or explicit unknowns are recorded for the required control areas.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewer disposition: reject revenue, ROI, causal-lift, spend, credential/configuration, deployment, and external-outreach claims. Analytics is unavailable fleet-wide; Amazon evidence supports only $4.92 aggregate unattributed commission for 2026-09-21. Delivery is saturated at 10/10 slots, so new work is slot-gated only. Route three bounded web-vitals repairs to engineer with no execution until capacity and site-overlap gates clear. Preserve existing repair, measurement, readiness, security, and private-launch work.",
         "requested_action": null,
         "proposal_id": null
       }

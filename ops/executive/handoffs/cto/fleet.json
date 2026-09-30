@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.044Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:55:38.819Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the containment disposition with no new queue admissions this cycle. Delivery is saturated at 10/10 slots, analytics coverage is unavailable, and operations/fleet-doctor evidence is absent; do not claim revenue, ROI, margin, or causal lift. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause, isolated validation, build evidence, rollback point, and release/security boundary. After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. It is technically feasible, isolated to the existing commercial surface, reversible as a single diff, and requires no credentials, dependencies, tracking, data collection, or cross-site behavior. Measure only existing affiliate clicks and ordered items; unavailable analytics and site-attributed revenue remain unknown. Keep private launch, security, and owner gates unchanged.",
+        "summary": "Handoff: complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one delivery slot, then execute the already-queued allthingsmasonic.com CTA refinement. Do not admit duplicate work or prototypes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed execution-integrity capability is a valid future control-plane specification but is not an implementation admission this cycle. Existing queue, liveness, repair, measurement, and review records already provide the available evidence; do not create duplicate telemetry or report-only work. Preserve deferred CRO and site-factory concepts as specifications only. Keep the private launch gate and security evidence matrix active without treating missing evidence as clearance.",
+        "summary": "CTO review: approve containment-only execution. Reject new fleet-control prototypes, finance reconciliation admission, site-factory builds, and duplicate queue work this cycle. Delivery remains saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence is incomplete; existing repair, readiness, and measurement work remains open. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair-or-close case is completed or closed and one delivery slot is released.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing allthingsmasonic.com CTA refinement as slot-gated work. Implementation may proceed only after capacity release and existing queue review. Preserve the registered affiliate identifier and disclosure; limit changes to CTA copy, destination references, focus states, mobile tap targets, and isolated styling. Require deterministic destination, accessibility, build, smoke, disclosure, and link checks. Measure only registered affiliate outbound clicks; conversion, commission, revenue lift, ROI, and causal impact remain unknown. Roll back only the isolated diff if validation fails.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep private launch gates, security evidence work, readiness packets, and existing repair-or-close work active. Do not deploy security-sensitive changes, expose new public surfaces, alter credentials or permissions, add dependencies, modify telemetry, spend money, or conduct external outreach. Preserve unavailable telemetry and incomplete operational evidence as unknown rather than zero.",
         "requested_action": null,
         "proposal_id": null
       }
