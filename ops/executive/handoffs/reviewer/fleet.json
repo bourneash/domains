@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:13:58.842Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T16:23:35.776Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects the proposed magicescorts.com readiness artifact as duplicate report-only work. No new implementation is admitted: delivery capacity is saturated at 10/10, analytics is unavailable fleet-wide, and existing measurement/repair work remains open. Preserve the already-queued allthingsmasonic.com CTA refinement as the next implementation after CTO releases one slot. CTO must complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00:00Z, then release one slot; unresolved status escalates to the owner. Keep magicescorts.com parked and private pending legal, security, owner, and launch-readiness evidence.",
+        "summary": "Reject new production, prototype, site-factory, and duplicate security work this cycle. Fleet capacity is saturated at 10/10; analytics is unavailable; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so revenue, ROI, margin, and causal lift remain unknown. Preserve only existing queued work: complete or close the saveusfarms.com repair-or-close case with validation and rollback evidence, release one slot, then execute the already-queued allthingsmasonic.com CTA refinement against its existing affiliate baseline. Keep gated launches and public exposure blocked where required. No new telemetry, credentials, configuration, spending, schedules, deployment, or external outreach is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new implementation, prototype, site-factory, and production admissions this cycle. Capacity is saturated at 10/10, analytics is unavailable fleet-wide, and site-level revenue/ROI/causal lift are unsupported. CTO must complete or close the existing saveusfarms.com repair with validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then release one slot. Execute only the already-queued allthingsmasonic.com CTA refinement afterward. Keep private launch and security gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Leave rc-9.com blocked with CTO owning the failed-repair root-cause and capacity release; escalate unresolved status by 2026-10-01T09:00Z. Leave complicated.work, deadlymaracas.com, and driveford.net parked and unlaunched with site-factory owning dated launch-readiness, ownership, compliance, security, measurement, rollback, and preview evidence by 2026-09-30T17:00Z; escalate any missing artifact immediately. Leave blackmarketapparel.com blocked behind measurement and usable attribution evidence; delivery-lead owns reassessment after its measurement window. Leave magicescorts.com blocked pending Legal, Security, privacy, and owner disposition; no production or public exposure.",
         "requested_action": null,
         "proposal_id": null
       }

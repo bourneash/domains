@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:38:07.580Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T16:23:35.776Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Block security-sensitive releases and new public exposure across the managed fleet. Evidence shows fleet-doctor has no completed run, operations deploy/uptime/error sweeps are unavailable, and authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No active vulnerability or compromise is established. Severity: high control-evidence uncertainty. Allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Retain the existing read-only security evidence matrix; do not request duplicate telemetry, access credentials or private containers, exploit targets, modify permissions, add dependencies, deploy, or claim certification.",
+        "summary": "Security disposition is evidence_needed fleet-wide, not clear or a clean bill of health. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security site facts are unknown for all 61 managed sites; and the available baseline does not evidence authentication boundaries, secrets handling, isolation, release controls, dependency provenance, monitoring, incident readiness, or security.txt/disclosure readiness. Exact decision: block security-sensitive releases, new public exposure, and gated-product launch changes pending evidence; allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior and preserves existing compliance boundaries. This is a control-evidence gap, not proof of exploitation or vulnerability.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Use authorized retained artifacts only to document authentication and access boundaries, secrets exposure controls, runtime isolation, release/deploy gates, TLS, dependency and supply-chain provenance, data exposure, incident and monitoring signals, and security.txt/disclosure readiness. Record evidence timestamps, scope, owner, severity, unknowns, and release implications. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations evidence are unavailable and material controls remain unevidenced. Preserve security-sensitive release and new-public-exposure gates while allowing only bounded reversible growth that does not expand authority, dependencies, data collection, or cross-site behavior.",
-        "requested_action": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure controls, container/runtime isolation, release and deployment provenance, dependency and supply-chain controls, TLS, data exposure, monitoring and incident response, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "title": "Maintain evidence-needed fleet security disposition and conditional growth boundary",
+        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations security-relevant sweeps have no results and material controls remain unevidenced. The security baseline explicitly limits this review to read-only triage and reports no credentials, private source, container shell, exploit, or production mutation. Risk severity is high for security-sensitive releases and new public exposure because authentication, secrets, isolation, release controls, dependency provenance, TLS evidence beyond the compliance HTTPS check, data exposure, incident signals, and disclosure readiness cannot be verified. This is not evidence of compromise. Ordinary reversible growth should remain conditional rather than blocked when it preserves current consent, disclosures, data handling, and claims boundaries.",
+        "requested_action": "Continue one consolidated read-only security evidence matrix using authorized metadata and retained artifacts. Keep security-sensitive releases, new public exposure, and gated-product launches blocked until material controls are evidenced. Permit ordinary reversible growth only when it introduces no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

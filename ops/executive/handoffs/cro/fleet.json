@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:38:07.579Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T16:23:35.764Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment remains the correct operating disposition. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, 56 improvements are measuring, 21 requests failed, and 7 repairs remain open. Reject the three new site-factory admissions and all new prototypes or telemetry requests. Preserve existing work only. After CTO completes or closes the saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence, execute the already-queued allthingsmasonic.com CTA refinement.",
+        "summary": "CRO recommends no new queue admission this cycle. Preserve the existing allthingsmasonic.com CTA refinement as the smallest reversible revenue experiment after one delivery slot clears. Evidence baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; fleet analytics is unavailable, so traffic, conversion, revenue, ROI, and causal lift remain unknown. Measure affiliate clicks, ordered items, and site-attributed commission only; rollback is a single-diff revert. Do not duplicate the queued request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the allthingsmasonic.com affiliate CTA refinement as the next revenue experiment after capacity release. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the 2026-09-21 window. Hypothesis: clearer commercial-card hierarchy, CTA labels, disclosure adjacency, focus states, contrast, and mobile spacing will improve qualified affiliate engagement without changing destinations, tracking, dependencies, or data collection. Smallest reversible prototype: one existing commercial-card treatment. Metric: affiliate clicks, ordered items, and site-attributed commission; time-to-learn: 14 days or the established measurement threshold. License/security risk: none from the UI change; retain existing dependency and disclosure boundaries. Rollback: revert the isolated card treatment.",
+        "summary": "Execute the existing allthingsmasonic.com CTA refinement only after capacity release. Limit scope to commercial-card hierarchy, CTA clarity, disclosure placement, keyboard focus, accessible link names, mobile spacing, and responsive layout. Preserve destinations, registered tracking, dependencies, data collection, and existing disclosures. Validate deterministic tests, build, link behavior, and rollback point before release; no new dependencies or telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the americastrikes.com affiliate-reference repair within existing ownership; do not create duplicate work. Evidence: the retained task set identifies stale or broken affiliate references and a required redirect-to-registry synchronization check; the 2026-09-21 site row records 129 clicks, 0 ordered items, and $0 site-attributed commission. Fleet use case: preserve monetization-path integrity and attribution correctness before any conversion claim. Metric: all affected destinations resolve correctly and use the registered tracking ID; revenue lift remains unknown. Time-to-learn: immediate validation for technical integrity, then the existing measurement window. Smallest reversible prototype: repair only the enumerated references and validate final URLs, tracking IDs, links, build, and redirects. Rollback: revert only those references and synchronization changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain a deferred fleet product opportunity for AI-cost guardrails, without admitting implementation this cycle. Evidence: AI usage is $997.46 across 5,514 calls for the September window, including materially higher-cost sites, while revenue attribution is incomplete and analytics is unavailable. Fleet use case: prevent content or automation spend from outrunning measurable commercial output. Metric: AI cost per eligible published or verified outcome, blocked-call rate, and attributable commission where available; do not invent a revenue baseline. Time-to-learn: one reporting cycle after an owner-approved prototype. Smallest reversible prototype: read-only threshold report for one site and one workflow, with no credential, schedule, dependency, or production changes. Risks: false savings from suppressing useful work, incomplete attribution, and provider/API licensing or model-policy changes. Rollback: disable the report rule without affecting execution.",
+        "summary": "microsoft/markitdown is a research lead for converting approved source documents into structured Markdown for SEO/content workflows. Evidence: MIT license, bounded CRO lab fit supported, 8/8 available checks passed, no dependency installation or production access; repository maintenance, transitive dependencies, parser fidelity, source rights, and content-quality risk remain unvalidated. Smallest reversible prototype, when capacity and gates clear: convert a small owner-approved fixture set in a disposable workspace, compare heading/link/table fidelity and editorial preparation time against the current workflow, and discard artifacts after review. No production adoption, external content ingestion, or deployment is recommended now.",
         "requested_action": null,
         "proposal_id": null
       }

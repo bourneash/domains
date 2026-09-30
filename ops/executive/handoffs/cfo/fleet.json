@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:38:07.580Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T16:23:35.775Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution and reject new financial or production admissions this cycle. Delivery is saturated at 10/10 slots, analytics is unavailable across all 38 expected sites, and existing measurement and repair work remains open. Revenue claims are limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is unattributed to sites, so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is $997.46 across 5,514 calls, but a valid margin comparison is not calculable because the revenue and AI windows differ and infrastructure, labor, domain, and other operating costs are absent. Do not forecast revenue or savings. Preserve the existing allthingsmasonic.com CTA refinement only as the next slot-gated implementation after the saveusfarms.com repair-or-close case releases capacity. Minimum finance measurement for future approval: same-period site-attributed revenue, AI and infrastructure cost by site/workflow, implementation cost, and verified conversion or commission outcomes.",
+        "summary": "Recommendation: maintain containment-only execution, reject new production or prototype admissions, and preserve only the already-queued allthingsmasonic.com CTA refinement after one slot clears. September AI spend is $997.4992 across 5,521 calls, while Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, of which $0 is site-attributed. A fleet contribution margin is not calculable because infrastructure, domain, labor, and other operating costs are absent, and the revenue and AI-cost windows do not align. Do not forecast ROI, revenue lift, or causal impact.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "After capacity release, execute only the existing allthingsmasonic.com CTA refinement. Treat it as a learning experiment, not an approved revenue investment: incremental cost-to-learn is unknown because experiment-level AI, infrastructure, and labor cost attribution is unavailable. Record the existing baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim margin improvement or ROI.",
         "requested_action": null,
         "proposal_id": null
       }
