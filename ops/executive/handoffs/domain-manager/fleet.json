@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:02:51.855Z",
+  "generated_at": "2026-09-30T09:04:16.537Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Map active work and select one non-overlapping SEO or UX implementation",
-        "summary": "eastcoastrappers.com has active measuring work and three overlapping delivery items, so no new production change can be safely admitted. Produce a bounded repository-and-queue review to identify the active change scope, untouched page/files, and the smallest next reversible improvement without requesting duplicate telemetry.",
-        "requested_action": "Inspect the existing eastcoastrappers.com queue and repository. Record the active change scope, exact affected files/pages, one untouched implementation target, existing measurable baseline if present, acceptance criteria, focused tests, metric, due date, and rollback point. Do not deploy, modify production, add tracking, or create duplicate implementation work.",
+        "title": "Improve findyourlostpets.com homepage primary-action clarity",
+        "summary": "Queue one reversible homepage UX improvement for findyourlostpets.com after an active delivery slot clears. Existing public research supports a bounded homepage positioning and conversion-path improvement; no site telemetry is available because analytics is not configured.",
+        "requested_action": "After capacity clears, inspect the repository homepage route and directly imported styles, then make the smallest reversible change that gives the primary visitor action one clear label, destination, focus state, and mobile layout. Do not add tracking, dependencies, data collection, or cross-site behavior.",
         "proposal_id": null
       }
     ]
