@@ -282,6 +282,7 @@ async function processOperatingManager(
           'tools',
           'executive',
           'data',
+          'reports',
           `${task.work_id.replace(/[^a-zA-Z0-9._-]/g, '_')}.json`
         );
         fs.mkdirSync(path.dirname(reportPath), { recursive: true });
