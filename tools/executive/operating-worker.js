@@ -11,6 +11,7 @@ const path = require('node:path');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const dispatcher = require('./agent-dispatcher');
 const domains = require('../fleet-dashboard/server/domains');
+const executive = require('../fleet-dashboard/server/executive');
 
 const DOMAIN_RE = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)\b/gi;
 const IGNORED_DOMAINS = new Set(['github.com', 'example.com', 'localhost']);
@@ -58,6 +59,71 @@ function enqueueSiteFactory(root, task) {
     spool_path: domains.spoolDir(root),
     status: job.status,
   };
+}
+
+function reconcileSiteFactory(store, root) {
+  const results = [];
+  const tasks = store
+    .listExecutiveWorkItems({ source_type: 'operating-task', limit: 1000 })
+    .filter(
+      task =>
+        task.owner === 'site-factory-manager' && ['in_progress', 'blocked'].includes(task.status)
+    );
+  for (const task of tasks) {
+    const domain = task.site || extractDomain(task.summary);
+    if (!domain) continue;
+    const job = domains
+      .listJobs(root)
+      .filter(item => item.domain === domain && ['done', 'failed'].includes(item.status))
+      .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))[0];
+    if (!job) continue;
+    const evidence = [
+      ...(Array.isArray(task.evidence) ? task.evidence : []),
+      {
+        type: 'artifact',
+        label: `Domain onboarding job ${job.id} ${job.status}`,
+        uri: path.join(domains.spoolDir(root), `${job.id}.json`),
+        note: `The host-side domain-job-runner recorded ${job.status} for ${job.command} ${domain}.`,
+      },
+    ];
+    if (job.status === 'done') {
+      const updated = store.updateExecutiveWorkItem(task.work_id, {
+        status: 'done',
+        waiting_on: null,
+        next_action: `Verify the live ${domain} site and continue the requested content, design, SEO, and role setup work.`,
+        outcome: `Host onboarding completed successfully for ${domain}; job ${job.id} passed its smoke test.`,
+        evidence,
+      });
+      let parent = null;
+      if (task.parent_work_id) {
+        try {
+          parent = executive.transitionOwnerRequest(store, task.parent_work_id, 'closed', {
+            outcome: `Site Factory completed onboarding for ${domain}; job ${job.id} passed its smoke test.`,
+          });
+        } catch (error) {
+          parent = { error: error.message };
+        }
+      }
+      results.push({
+        work_id: task.work_id,
+        domain,
+        job_id: job.id,
+        status: 'done',
+        updated,
+        parent,
+      });
+    } else {
+      const updated = store.updateExecutiveWorkItem(task.work_id, {
+        status: 'blocked',
+        waiting_on: 'domain-job-runner',
+        next_action: `Repair the failed host onboarding job ${job.id} for ${domain}, then rerun the Site Factory handoff.`,
+        last_error: job.error || `domain onboarding job ${job.id} failed`,
+        evidence,
+      });
+      results.push({ work_id: task.work_id, domain, job_id: job.id, status: 'failed', updated });
+    }
+  }
+  return results;
 }
 
 async function processSiteFactory(
@@ -109,7 +175,9 @@ async function processSiteFactory(
 async function runOnce(root, { workerId } = {}) {
   const store = eventstore.open(root);
   try {
-    return await processSiteFactory(store, root, { workerId });
+    const reconciled = reconcileSiteFactory(store, root);
+    const processed = await processSiteFactory(store, root, { workerId });
+    return { ...processed, reconciled };
   } finally {
     store.close();
   }
@@ -128,4 +196,10 @@ if (require.main === module) {
     });
 }
 
-module.exports = { extractDomain, enqueueSiteFactory, processSiteFactory, runOnce };
+module.exports = {
+  extractDomain,
+  enqueueSiteFactory,
+  reconcileSiteFactory,
+  processSiteFactory,
+  runOnce,
+};

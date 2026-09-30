@@ -177,3 +177,9 @@
 [submodule "sites/blackmarketapparel.com"]
 	path = sites/blackmarketapparel.com
 	url = git@github-bourneash:bourneash/blackmarketapparel.com.git
+[submodule "sites/howtofry.com"]
+	path = sites/howtofry.com
+	url = git@github-bourneash:bourneash/howtofry.com.git
+[submodule "sites/magicescorts.com"]
+	path = sites/magicescorts.com
+	url = git@github-bourneash:bourneash/magicescorts.com.git

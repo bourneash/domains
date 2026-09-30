@@ -5,7 +5,8 @@
 # tools apply). Consumers read this instead of keeping their own roster.
 #
 # Derived fields are refreshed by tools/fleet-registry/build_registry.py
-# --write. Hand-owned fields (status, tags, notes, capabilities_override)
+# --write. Hand-owned fields (status, tags, notes, capabilities_override,
+# access_gated)
 # survive a rebuild — edit those here freely.
 sites:
   0daynews.com:
@@ -23,10 +24,6 @@ sites:
     - analytics
     - social
     - data-hub
-    # 0daynews uses news-writer for all editorial work; fleet-wide
-    # content-writer routing is not a valid task owner for this site.
-    disabled_task_roles:
-    - content-writer
     analytics:
       ga4_property_id: '544645637'
       ga4_measurement_id: G-F9JRVHH3MW
@@ -38,6 +35,8 @@ sites:
     - domains-index
     - site-tracker
     - social
+    disabled_task_roles:
+    - content-writer
   0xroulette.com:
     status: live
     repo: bourneash/0xroulette.com
@@ -519,6 +518,13 @@ sites:
     - domains-index
     - site-tracker
     - social
+  howtofry.com:
+    status: scaffold
+    repo: bourneash/howtofry.com
+    worker: howtofry-com
+    cf_zone: howtofry.com
+    capabilities:
+    - site
   infrainnovator.com:
     status: scaffold
     repo: bourneash/infrainnovator.com
@@ -530,6 +536,13 @@ sites:
     registered_in:
     - domains-index
     - site-tracker
+  magicescorts.com:
+    status: scaffold
+    repo: bourneash/magicescorts.com
+    worker: magicescorts-com
+    cf_zone: magicescorts.com
+    capabilities:
+    - site
   marineactivity.com:
     status: live
     repo: bourneash/marineactivity.com
@@ -626,6 +639,8 @@ sites:
   nsfwpixles.com:
     status: redirect
     cf_zone: nsfwpixles.com
+    capabilities:
+    - ops
     registered_in:
     - domains-index
   offshorehookup.com:
@@ -830,7 +845,6 @@ sites:
     - social
   searchwoot.com:
     status: live
-    visibility: private-preview
     repo: bourneash/searchwoot.com
     worker: searchwoot-com
     cf_zone: searchwoot.com
@@ -853,6 +867,7 @@ sites:
     - domains-index
     - site-tracker
     - social
+    visibility: private-preview
   seedstosauce.com:
     status: live
     repo: bourneash/seedstosauce.com
@@ -1108,7 +1123,6 @@ sites:
     - domains-index
     - site-tracker
   weapontester.com:
-    access_gated: true
     status: live
     repo: bourneash/weapontester.com
     worker: weapontester
@@ -1134,6 +1148,7 @@ sites:
     - domains-index
     - site-tracker
     - social
+    access_gated: true
   weirdassstuff.com:
     status: live
     repo: bourneash/weirdassstuff.com

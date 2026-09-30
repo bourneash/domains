@@ -47,3 +47,31 @@ test('consumer fails closed for unsupported manager lanes', async () => {
   assert.equal(store.getAgentDispatch(request.execution.run.run_id).status, 'queued');
   store.close();
 });
+
+test('reconciles the newest completed host job and closes the owner request', async () => {
+  const { root, store } = fixture();
+  const request = executive.ownerRequest(store, {
+    body: 'Build and onboard a new website at reconciliation.test for the fleet.',
+  });
+  const queued = await worker.processSiteFactory(store, root, {
+    workerId: 'test-operating-worker',
+  });
+  const jobPath = path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'domain-jobs',
+    `${queued.result.job_id}.json`
+  );
+  const job = JSON.parse(fs.readFileSync(jobPath, 'utf8'));
+  job.status = 'done';
+  job.finishedAt = new Date().toISOString();
+  job.exitCode = 0;
+  fs.writeFileSync(jobPath, JSON.stringify(job, null, 2));
+  const reconciled = worker.reconcileSiteFactory(store, root);
+  assert.equal(reconciled[0].status, 'done');
+  assert.equal(store.getExecutiveWorkItem(request.execution.task.work_id).status, 'done');
+  assert.equal(store.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'closed');
+  store.close();
+});
