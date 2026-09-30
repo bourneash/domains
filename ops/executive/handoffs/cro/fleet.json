@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:09:30.802Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:23:46.670Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review: retain containment-only execution. No new production queue admissions are recommended while delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and analytics is unavailable for 38 expected sites. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible experiment after CTO releases one slot and resolves or closes the existing saveusfarms.com repair case. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Prototype: one isolated CTA hierarchy/accessibility diff preserving destinations, disclosures, consent behavior, and tracking IDs. Metric: registered clicks and available downstream attribution only. Learn in 14 days or 100 relevant impressions/clicks. Rollback: single-diff revert.",
+        "summary": "CRO recommends containment-only execution this cycle. Retain the following evidence-backed opportunities as deferred specifications or existing-work handoffs; create no duplicate queue admissions while delivery is saturated at 10/10 slots. Revenue, ROI, conversion lift, and causal impact remain unknown where telemetry is unavailable or aggregate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO product opportunities retained as deferred specifications for CEO/CTO review after capacity recovers: execution-integrity controls linking approved work to one deduplicated request, owner, acceptance test, rollback, and terminal outcome; capacity-aware site-overlap admission; measurement states distinguishing unavailable telemetry from zero outcomes; scheduler/role health visibility; and AI-cost guardrails using existing usage data. GitHub evidence supports research only: microsoft/markitdown is MIT with 8/8 bounded checks and a plausible content-discovery use case; shadcn-ui/ui is MIT with 3/3 bounded checks and a plausible reusable UX-component use case; mermaid is MIT with supported SEO/content fit but no native checks. No dependencies were installed, production was not accessed, and security, maintenance, integration, and adoption risks remain unresolved. Smallest reversible prototypes are disposable-workspace evaluations or isolated preview components; no deployment or dependency adoption is authorized.",
+        "summary": "CRO handoff: preserve the existing allthingsmasonic.com CTA refinement as the next affiliate experiment after capacity release. Do not create a duplicate request. Its smallest reversible change is CTA copy, relevance, disclosure placement, and destination validation on one existing commercial surface.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: retain GitHub-derived product opportunities as research-only specifications. No dependency installation, production access, credential changes, schedule changes, spending, or deployment is authorized. Each requires a fleet-specific prototype and CTO/security review before adoption.",
         "requested_action": null,
         "proposal_id": null
       }

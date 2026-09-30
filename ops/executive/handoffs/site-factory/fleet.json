@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:09:30.802Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:23:46.670Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only site-factory disposition. Maintain a small readiness pipeline of complicated.work, deadlymaracas.com, and driveford.net; all remain private, preview-only, and unlaunched. Use one reusable launch packet covering: owner and legal disposition; audience and positioning; bounded template; content seed; SEO metadata, sitemap, and crawlability baseline; analytics and affiliate readiness without inventing telemetry; compliance disclosures and consent; security and release evidence; measurement boundaries; rollback point; and explicit launch gate. Current analytics, operations, and material security evidence are unavailable or incomplete, so unknowns remain unknown. Do not add domains, spend, deploy, publish, configure telemetry, add credentials, or monetize. Exactly one next step: site-factory completes the already-existing complicated.work readiness packet with dated ownership, preview/build evidence, compliance, security, measurement boundary, rollback, and explicit blocker evidence; no duplicate request is created.",
+        "summary": "Maintain containment-only Site Factory planning. Strongest candidate: complicated.work, because it has an existing scaffold and an explicit readiness-only path, but security, legal, measurement, ownership, and launch evidence remain incomplete. Do not build, deploy, add domains, spend, or launch. Reuse the existing readiness case and do not create duplicate queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete the existing complicated.work readiness packet with: site brief and audience hypothesis; reusable template contract for homepage, navigation, article/detail, disclosure, privacy, terms, and error states; non-claimed content seed with provenance fields; SEO baseline for titles, descriptions, canonical, robots, sitemap, internal links, and web-vitals acceptance; analytics and affiliate readiness recorded as unconfigured/unknown until authorized access and registered identifiers exist; compliance checklist for consent, withdrawal, privacy, terms, affiliate disclosure, claims, copyright/trademark, platform policy, and age-sensitive safeguards; security checklist for access, secrets, isolation, release integrity, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness; and a launch gate requiring named owner, Legal clearance, Security clearance, measurement/attribution plan, rollback artifact, and reviewer approval. Keep the result preview-only and attach exactly one owner decision or blocker.",
         "requested_action": null,
         "proposal_id": null
       }

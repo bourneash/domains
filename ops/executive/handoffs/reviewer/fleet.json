@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:09:30.803Z",
+  "generated_at": "2026-09-30T14:23:46.671Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the candidate plan’s three waiting work items: delivery is saturated at 10/10 slots, analytics is unavailable for 38 expected sites, security and operations evidence is incomplete, and existing repair and measurement work remains open. Preserve existing readiness, repair-or-close, private-gate, and security evidence work only. Do not create production work, high-priority queue admissions, telemetry requests, proposals, research, deployments, spend, credential/configuration changes, or external outreach. Revenue claims remain unsupported: available evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; ROI, margin, revenue lift, and causal impact are unknown. Reconsider the existing allthingsmasonic.com CTA refinement only after the existing saveusfarms.com repair-or-close case is completed or closed and one delivery slot is released.",
+        "summary": "Reject new production and queue admissions this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; aggregate affiliate revenue is unattributed; and low-volume measurements do not support financial or causal claims. Preserve only existing repair, measurement, security-evidence, and private-launch work. CTO must complete or close the existing saveusfarms.com repair and release one slot by 2026-10-01T09:00Z. Keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route only three bounded, reversible web-vitals repairs as queued, slot-gated engineer work. Do not execute while delivery is saturated at 10/10. Reject revenue, ROI, conversion, causal-lift, spend, telemetry, credential, configuration, deployment, and external-outreach claims. Analytics is unavailable for 38 expected sites; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. CTO must release one slot by 2026-10-01T09:00Z; unresolved capacity escalates to the owner. Preserve existing private, security, repair, readiness, and measurement gates.",
+        "summary": "Do not admit the rc-9.com change request or any other new production work while capacity is full and telemetry remains insufficient. Resolve or close the existing saveusfarms.com repair with root cause, isolated validation, rollback, and release-boundary evidence, then reassess the already-documented rc-9.com candidate without creating duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Leave site-factory builds and revenue-readiness baselines unqueued because launch-readiness, security, capacity, or measurable-outcome evidence is incomplete. Site-factory owns the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net by 2026-09-30T17:00Z; CTO owns capacity release by 2026-10-01T09:00Z; unresolved blockers escalate to the owner. No production or telemetry changes are authorized.",
+        "summary": "Continue the existing read-only security evidence matrix and preserve all security-sensitive release and public-exposure gates. Do not create duplicate telemetry requests or claim certification.",
         "requested_action": null,
         "proposal_id": null
       }

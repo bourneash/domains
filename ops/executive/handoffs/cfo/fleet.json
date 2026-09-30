@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:09:30.802Z",
+  "generated_at": "2026-09-30T14:23:46.670Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: maintain containment-only execution and approve no new spend, scale-up, or production admission this cycle. Revenue support is insufficient for ROI or forecast claims: Amazon evidence covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, of which $0 is site-attributed and the full $4.92 is unassigned. September AI spend is $995.6520482 across 5,504 calls, but its monthly period does not match the one-day revenue window; therefore fleet contribution margin, ROI, CAC, payback, and cost-to-learn are not calculable. A naive comparison would be $4.92 minus $995.6520482 = -$990.7320482 before infrastructure or other costs, but it is not a valid margin result because revenue is unattributed and periods do not align. Analytics is unavailable for 38 expected sites, so missing conversions and revenue must remain unknown rather than zero. Preserve the existing allthingsmasonic.com CTA refinement only as a slot-gated test after the existing repair-or-close case releases capacity; its 2026-09-21 baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Minimum finance measurement: a matched-period ledger by site/content identifier containing provider commission, ordered and shipped items, affiliate clicks, AI cost, infrastructure cost, and deployment/change cost, plus working analytics coverage for the affected sites. Until then, reject vanity metrics such as clicks, impressions, calls, proposals, and shipped output as financial proof.",
+        "summary": "Recommendation: retain containment-only execution and reject all new product, scheduler, AI-cost, and Site Factory admissions this cycle. Delivery is saturated at 10/10 slots, with 108 approved proposals lacking execution, 21 failed requests, 7 repair follow-ups, and 54 improvements awaiting measurement. Financially, the only supported revenue evidence is Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site rows show $0 attributable commission. September AI usage is 5,509 calls costing $996.71149775, including 234 errors and 5 transient errors. Contribution margin, ROI, CAC, payback, revenue forecast, and cost-to-learn are not calculable because revenue and AI cost cover different periods, analytics has 0 configured sites out of 38 expected, and no infrastructure, domain, hosting, marketing, labor, or other cost ledger is supplied. Do not treat clicks, orders, impressions, sessions, conversions, AI calls, or social counts as revenue or margin. Preserve the existing allthingsmasonic.com CTA refinement only after CTO releases a slot; require 2026-09-21-aligned site-attributed commission and direct-cost evidence before judging it financially.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO disposition: do not treat provider aggregate earnings, affiliate clicks, ordered items, shipped items, AI calls, impressions, proposal counts, or implementation output as evidence of profitable growth. Named site rows currently show $0 commission, while the $4.92 provider aggregate cannot be assigned without inventing attribution. Infrastructure spend, domain costs, labor cost, and other operating costs are not present, so full contribution margin and budget exposure are unknown. The minimum control is a matched-period finance reconciliation using existing read-only revenue and AI records plus authorized infrastructure-cost records when available; no banking access, billing changes, contracts, or money movement are authorized.",
+        "summary": "Release one delivery slot only by completing or closing the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, rollback point, and release boundary by 2026-10-01T09:00:00Z. Do not admit duplicate finance, AI-cost, scheduler, or control-plane work. After release, the existing allthingsmasonic.com CTA refinement may proceed with its current baseline and rollback path.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing revenue and attribution containment boundaries. For the preserved allthingsmasonic.com CTA test, report only registered affiliate clicks and provider-attributed downstream results after the 14-day or 100-relevant-impression/click window; do not claim revenue lift, ROI, causal impact, or payback from the current baseline. Do not create duplicate telemetry requests while the authoritative snapshot already records the analytics outage and partial aggregate attribution.",
+        "summary": "Minimum measurement required before any contribution-margin or cost-to-learn claim: a common reporting window linking site/content identifiers to recognized commission income, ordered and shipped status, affiliate clicks, AI cost, infrastructure/hosting, domain, marketing, and labor or agency cost. Existing telemetry is insufficient: Amazon revenue is one day old relative to the September AI-cost window, aggregate commission is not site-attributed, analytics is unavailable fleet-wide, and no non-AI cost ledger is present. Until those fields exist, report revenue as $4.92 aggregate commission only, site-attributed revenue as $0, and margin and ROI as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

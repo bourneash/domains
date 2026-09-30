@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:09:30.801Z",
+  "generated_at": "2026-09-30T14:23:46.670Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only execution remains active at 10/10 delivery slots. Retain existing repair work and admit no duplicate production changes until one slot is released. Validate all affiliate repairs in preview with deterministic link, disclosure, build, and rollback checks.",
+        "summary": "Hold all new proposals and prototypes. Resolve or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z; then execute the already-queued allthingsmasonic.com CTA refinement. Keep rc-9.com performance repair slot-gated until capacity is released.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: accept containment-only execution. Reject the candidate plan's three new work items as duplicate or capacity-blocked; create no new proposals, change requests, research requests, telemetry requests, deployments, spend, credentials, or configuration changes. Delivery is saturated at 10/10 slots, analytics is unavailable for 38 expected sites, operations and fleet-doctor evidence are unavailable, and security controls remain unevidenced. Preserve existing repair, measurement, readiness, and private-gate work. Retain the existing allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair-or-close case is completed or closed and one delivery slot is released. Its scope remains one isolated reversible diff using existing dependencies, unchanged destinations and disclosures, focused accessibility/link/build/smoke validation, registered affiliate-click measurement, explicit unknowns for unavailable telemetry, and single-diff rollback. Keep parked site-factory work preview-only and readiness-only. Keep SearchWoot private with external rights outreach unsent pending counsel and owner authorization.",
+        "summary": "CTO review: preserve containment-only execution. Reject new control-plane, scheduler, AI-cost, Site Factory, and component-prototype admissions this cycle because all 10 delivery slots are occupied and existing repair, validation, and measurement work remains open. Preserve the existing allthingsmasonic.com CTA refinement as the next site action after one slot is released. Keep private-launch, security, attribution, and analytics boundaries unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: the proposed execution-integrity, capacity-aware admission, measurement-state, scheduler-health, and AI-cost guardrail concepts are feasible as future control-plane work, but they are deferred specifications only. Do not prototype, add dependencies, alter scheduler behavior, or create duplicate queue items while capacity and existing repair work remain unresolved. AI-usage data may inform later review, but no cost threshold or financial outcome is asserted without an approved implementation and matched evidence.",
+        "summary": "Route one isolated rc-9.com performance repair change request, but hold implementation until CTO releases a delivery slot. All other new candidates remain deferred or rejected for capacity, active-work overlap, measurement, launch, or security reasons.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing amputeenews.com affiliate prerequisite and americastrikes.com affiliate-reference repairs within their current queue ownership. Do not deploy or broaden either item: the first requires owner-controlled registered-tag evidence, and the second is limited to verified broken or stale references with unchanged registered tracking IDs and disclosures.",
+        "summary": "Preserve existing private and preview-only launch gates, read-only security evidence work, and attribution boundaries. Do not add telemetry, credentials, dependencies, permissions, configuration, spending, public exposure, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

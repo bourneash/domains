@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.120Z",
+  "generated_at": "2026-09-30T14:23:46.669Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution while capacity is saturated at 10/10. Existing evidence identifies affiliate and attribution risks: allthingsmasonic.com has 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; amputeenews.com has a pending real Amazon Associates tag prerequisite; americastrikes.com has existing blocked stale/broken affiliate-reference repair tasks; provider data includes 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission that cannot be assigned to a site. Analytics is unavailable for all configured sites, so conversion and ROI remain unknown. Do not infer revenue, lift, or missing telemetry. Complete or close the existing saveusfarms.com repair-or-close case, release one slot, then admit only the preserved allthingsmasonic.com CTA refinement after overlap and validation checks. Keep disclosures, registered tracking IDs, attribution boundaries, private launch gates, and rollback requirements unchanged.",
+        "summary": "Hold new affiliate implementation until CTO releases a delivery slot. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation and retain americastrikes.com and amputeenews.com repairs as scoped prerequisites.",
         "requested_action": null,
         "proposal_id": null
       }
