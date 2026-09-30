@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:33:15.622Z",
+  "generated_at": "2026-09-30T15:36:06.221Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the rodhat.com report-only proposal and admit no new production queue work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence remains incomplete. Route only the three bounded web-vitals repairs below as capacity-gated engineer work. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case; unresolved capacity escalates to the owner. Revenue, ROI, and causal-lift claims remain unsupported.",
+        "summary": "Containment remains necessary: delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, security and operations evidence is incomplete, and only $4.92 aggregate unattributed commission is supported for 2026-09-21. Three reversible web-vitals repairs are routed to engineer but remain slot-gated; no production execution or financial claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
