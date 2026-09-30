@@ -95,14 +95,18 @@ async function processOne(store, { workerId, adapters = {}, claimOptions = {} } 
             run,
             context
           );
+    const deliveryFailed = result?.delivery_status === 'failed_to_deliver';
     runtime.finish(store, dispatch.run_id, {
-      status: 'succeeded',
+      status: deliveryFailed ? 'failed' : 'succeeded',
+      error: deliveryFailed
+        ? result.delivery_error || 'agent failed to deliver executable work'
+        : null,
       result: result || {},
       cost_usd: Number(result?.cost_usd || 0),
       input_tokens: Number(result?.input_tokens || 0),
       output_tokens: Number(result?.output_tokens || 0),
     });
-    return { processed: true, dispatch, result: result || {} };
+    return { processed: true, dispatch, result: result || {}, delivery_failed: deliveryFailed };
   } catch (error) {
     runtime.finish(store, dispatch.run_id, { status: 'failed', error: error.message });
     if (error.defer) {

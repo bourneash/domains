@@ -332,11 +332,17 @@ async function main() {
   const queued =
     finalEvidence.real_work.new_change_requests > 0 ||
     finalEvidence.real_work.new_executable_work_items > 0;
+  const deliveryStatus = verified || queued ? 'delivered_to_downstream' : 'failed_to_deliver';
   const report = {
     generated_at: new Date().toISOString(),
     agent: AGENT_SLUG,
     run_id: started.run.run_id,
     sandbox_status: sandbox.code,
+    delivery_status: deliveryStatus,
+    delivery_error:
+      deliveryStatus === 'failed_to_deliver'
+        ? 'Overwatch completed without verified delivery or executable downstream work.'
+        : null,
     repairs,
     before: evidence,
     after: finalEvidence,
@@ -347,8 +353,13 @@ async function main() {
   const completed = store.getAgentRun(started.run.run_id);
   if (completed) {
     store.updateAgentRun(started.run.run_id, {
+      status: deliveryStatus === 'failed_to_deliver' ? 'failed' : completed.status,
+      error: deliveryStatus === 'failed_to_deliver' ? report.delivery_error : completed.error,
       result: { ...(completed.result || {}), overwatch_report: reportPath, repairs },
     });
+    if (deliveryStatus === 'failed_to_deliver') {
+      store.completeAgentDispatchForRun(started.run.run_id, 'failed', report.delivery_error);
+    }
     store.createAgentArtifact({
       run_id: started.run.run_id,
       agent_id: agent.agent_id,
@@ -369,14 +380,12 @@ async function main() {
       run_id: started.run.run_id,
       evaluator: 'exec-overwatch-deterministic',
       dimension: 'real-work-output',
-      score: verified ? 100 : queued ? 60 : repairs.length ? 40 : 0,
+      score: verified ? 100 : queued ? 60 : 0,
       feedback: verified
         ? 'Verified a delivered request, completed work item, or implementation artifact in this run.'
         : queued
           ? 'Created executable downstream work, but delivery is not verified yet.'
-          : repairs.length
-            ? 'No executable delivery was verified; repaired or escalated stuck handoffs.'
-            : 'No verified work product and no repair was available.',
+          : 'Run failed to deliver executable work; repaired or escalated stuck handoffs.',
       evidence: report.real_work_delta,
     });
   }

@@ -300,6 +300,10 @@ async function processOperatingManager(
           created_work_item_ids: workItems.map(item => item.work_id),
           change_request_ids: changeRequests.map(item => item.request_id),
           actionable,
+          delivery_status: actionable ? 'delivered_to_downstream' : 'failed_to_deliver',
+          delivery_error: actionable
+            ? null
+            : `${role.owner} completed a sandbox run without an executable change request or work item`,
         };
         const reportPath = path.join(
           root,

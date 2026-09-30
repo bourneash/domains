@@ -8,6 +8,8 @@ const path = require('node:path');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
 const worker = require('./operating-worker');
+const dispatcher = require('./agent-dispatcher');
+const runtime = require('./agent-runtime');
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-operating-worker-'));
@@ -45,6 +47,38 @@ test('consumer fails closed for unsupported manager lanes', async () => {
   });
   assert.equal(result.processed, false);
   assert.equal(store.getAgentDispatch(request.execution.run.run_id).status, 'queued');
+  store.close();
+});
+
+test('a clean sandbox with no executable output is a failed delivery', async () => {
+  const { store } = fixture();
+  runtime.ensureRegistry(store);
+  const agent = store.createAgent({
+    slug: 'test-delivery-manager',
+    name: 'Test Delivery Manager',
+    title: 'Test Delivery Manager',
+    role: 'manager',
+    provider: 'chatgpt',
+    adapter: 'codex',
+  });
+  const started = runtime.beginRun(store, {
+    agent_id: agent.agent_id,
+    work_id: 'failed-delivery-test',
+    idempotency_key: 'failed-delivery-test',
+  });
+  const result = await dispatcher.processOne(store, {
+    workerId: 'failed-delivery-test-worker',
+    claimOptions: { agent_id: agent.agent_id, adapter: 'codex' },
+    adapters: {
+      codex: async () => ({
+        delivery_status: 'failed_to_deliver',
+        delivery_error: 'no executable output',
+      }),
+    },
+  });
+  assert.equal(result.delivery_failed, true);
+  assert.equal(store.getAgentRun(started.run.run_id).status, 'failed');
+  assert.equal(store.getAgentDispatch(started.run.run_id).status, 'failed');
   store.close();
 });
 
