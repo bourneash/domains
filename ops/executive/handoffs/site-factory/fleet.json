@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.332Z",
+  "generated_at": "2026-09-30T05:23:57.664Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: continue the existing parked-site readiness pipeline only. Strongest factory candidate is complicated.work, but it remains private, preview-only, and unlaunched because ownership, compliance, security, measurement, and rollback evidence are incomplete. Do not build, deploy, alter DNS, configure analytics or affiliate links, spend, add dependencies, or create duplicate queue work.",
+        "summary": "Maintain containment-only Site Factory execution. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Preserve the small pipeline as existing readiness packets only; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work. The strongest candidate is complicated.work based on the authoritative site-factory score of 84, but launch remains blocked until owner, legal, security, measurement, compliance, SEO, affiliate, rollback, and preview/build evidence are complete. Exactly one next step: attach the dated complicated.work readiness packet to the existing work item by 2026-09-30T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

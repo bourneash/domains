@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T05:08:37.137Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T05:23:57.665Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Delivery is saturated at 10/10 slots, operational and security evidence is incomplete, and existing measurement, repair, and readiness work must finish before new production admission. Preserve unknown revenue, attribution, margin, ROI, and causal lift. No new queue work is cleared this cycle.",
+        "summary": "CTO review: approve containment-only execution. Do not admit new implementation, prototypes, telemetry, spend, or duplicate proposals while delivery is saturated at 10/10 slots and repair/measurement work remains open. Retain the existing allthingsmasonic.com affiliate-path refinement as the next candidate only after a slot clears and queue gates reopen. Keep public exposure and security-sensitive releases blocked where evidence is incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit the proposed SEO, design, or affiliate changes while all delivery slots are occupied. Continue existing measurement and repair-or-close work only; release a slot through dated completion or closure evidence before reconsidering any candidate. Do not requeue unchanged work or add telemetry.",
+        "summary": "Retain the existing period-aligned reconciliation work item; do not create a duplicate proposal or work item. Report Amazon's 2026-09-21 result only as aggregate and unattributed, and report September AI usage separately. Preserve margin, ROI, payback, forecasts, infrastructure costs, budgets, and causal lift as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Keep them parked, private, preview-only, and unlaunched. Do not create duplicate queue work, publish, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts. Keep public exposure and security-sensitive releases blocked while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Continue existing measurement and repair-or-close work only. Do not requeue unchanged failures or admit new work until a delivery slot clears and the relevant validation, rollback, release, security, attribution, and measurement evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       }

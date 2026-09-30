@@ -2,14 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T05:08:37.138Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T05:23:57.665Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production, queue, CRO, site-factory, and slot-gated work this cycle. Delivery is saturated, failed-work containment remains open, and revenue evidence is only $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Keep SearchWoot private and rights outreach unsent pending counsel review.",
+        "summary": "Approve containment-only execution. Reject new production, queue, spending, monetization, duplicate telemetry, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing measurement and repair-or-close work only. Do not requeue unchanged failures or create duplicate requests. Record dated validation, rollback, attribution limits, measurement limits, and closure or escalation evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve Amazon's 2026-09-21 result only as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep margin, ROI, payback, forecasts, cost-to-learn, and causal lift unknown; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 items measuring, 21 failed requests, and 7 open repairs. Revenue remains aggregate and unattributed for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Continue only existing measurement, repair-or-close, finance reconciliation, security evidence, private launch gates, and parked-site readiness. No spend, production expansion, or unsupported financial or causal claims are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close existing delivery and repair work before any new admission. Finish the saveusfarms.com repair-or-close case by 2026-09-30T07:30Z and escalate unresolved status to CTO. Resolve marineactivity.com retained failures by 2026-09-30T07:30Z. Do not retry unchanged failures, create duplicates, or add telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep them parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate for SearchWoot. Continue the existing consolidated read-only evidence bundle; keep rights outreach unsent pending human-counsel review and owner authorization. Public beta, full launch, alert expansion, affiliate use, advertising, deployment, and configuration changes remain blocked.",
         "requested_action": null,
         "proposal_id": null
       }
