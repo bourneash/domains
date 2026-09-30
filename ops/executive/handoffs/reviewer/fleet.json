@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:19:58.176Z",
+  "generated_at": "2026-09-30T09:22:02.390Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the proposed nsfwpixles.com report-only work and all new implementation admissions this cycle. Delivery is saturated at 10/10, with active measurement, repairs, security evidence, finance reconciliation, and launch-gate work open. CTO must release or close one slot and confirm acceptance criteria, tests, metric, and rollback by 2026-10-01T09:00:00Z; unresolved capacity remains escalated to CTO. Preserve revenue and attribution unknowns; authorize no production change, telemetry, spend, deployment, dependency, or outreach.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, margin, ROI, forecasts, and causal lift are unknown. Continue existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. CTO must release a slot and document capacity clearance by 2026-10-01T09:00:00Z before the allthingsmasonic.com candidate can be reconsidered.",
         "requested_action": null,
         "proposal_id": null
       }
