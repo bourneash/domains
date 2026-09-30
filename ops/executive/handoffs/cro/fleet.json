@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:23:55.437Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:53:24.172Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends retaining two deferred control-plane product opportunities, with no admission while delivery is saturated: execution-ledger integrity and AI usage guardrails. Both can use existing records only and should begin with read-only or dry-run prototypes after capacity clears.",
+        "summary": "Retain two deferred product opportunities for CEO/CTO review after capacity clears: an execution-ledger integrity layer and AI-usage guardrails. Both begin as read-only or dry-run prototypes using existing records, require no deployment, spend, credentials, domains, or new telemetry, and must remain outside the active queue until a delivery slot is released.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "GitHub evidence supports research leads only. microsoft/markitdown has MIT licensing, 8/8 bounded checks passed, and a supported SEO/content fit; shadcn-ui/ui has MIT licensing and 3/3 bounded checks passed for reusable accessible UX. No adoption is recommended without a disposable fleet-specific prototype, dependency/security review, and measurable acceptance criteria.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:38:54.021Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:53:24.173Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Admit no new implementation while delivery remains saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA refinement as slot-gated; execute only after the existing saveusfarms.com repair-or-close case is completed or closed with dated root cause or closure rationale, isolated validation, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z.",
+        "summary": "CTO disposition: admit no new implementation this cycle. Delivery is saturated at 10/10 slots, with active measurement and open repairs. Preserve the existing allthingsmasonic.com CTA refinement as the next isolated, reversible implementation only after the saveusfarms.com repair-or-close case is completed or closed with root cause, deterministic tests, build validation, rollback point, and release boundary by 2026-10-01T09:00Z. The CTA change is technically feasible, measurable through registered affiliate clicks, and reversible without changing destinations, identifiers, credentials, telemetry, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, and deduplication evidence by 2026-10-01T09:00Z. Release one delivery slot only after the evidence is recorded; escalate unresolved capacity to the owner.",
+        "summary": "Do not admit the fleet-wide affiliate-attribution guardrail as active queue work yet. Preserve it as a deferred specification because it requires shared-registry coverage, repository/build integration, fixture coverage, and validation across sites; current capacity is full and registry completeness is not established. After capacity clears, prototype it in an isolated worktree with no production mutation, no provider attribution reassignment, and rollback by removing the validation hook.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement on one recorded commercial URL. Preserve disclosures, accessibility, and existing affiliate behavior; run deterministic tests, build and link validation; record the rollback point; measure only available affiliate-click outcomes. Roll back the single diff if validation or disclosure/link behavior regresses.",
+        "summary": "Keep site-factory candidates readiness-only and unlaunched. Missing execution ownership, parked/private gates, and absent measurement or security evidence make public build or preview admission unsupported this cycle. Continue existing readiness artifacts only; do not add dependencies, domains, analytics, credentials, spend, or queue entries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing parked-site readiness packets. Keep scaffold properties private, preview-only, and unlaunched. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and launch-gate evidence is complete.",
+        "summary": "Preserve existing security, compliance, accuracy, and attribution gates. Do not request duplicate telemetry or infer revenue, ROI, margin, or causal lift from aggregate affiliate data. New public exposure and security-sensitive releases remain blocked pending the existing evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing attribution boundary. Keep the provider aggregate row unassigned and require registered tracking identifiers for any existing affiliate implementation. Do not infer site revenue, ROI, margin, forecasts, or causal lift from aggregate rows or engagement metrics.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain existing security and private-launch gates. Fleet-doctor and operations sweeps have no results, and material control evidence remains incomplete. Permit only bounded reversible work that changes no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Deferred control-plane concepts remain research specifications only. Any future execution-ledger or AI-cost guardrail prototype must use existing records, run isolated and read-only or dry-run validation, define rollback and measurable acceptance criteria, and wait for an available delivery slot.",
         "requested_action": null,
         "proposal_id": null
       }
