@@ -2,29 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:53:30.447Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:09:20.658Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and reject new spend, monetization forecasts, ROI claims, margin claims, and revenue projections this cycle. AI usage for 2026-09-01 through 2026-09-30 is $997.51762695 across 5,522 calls, or approximately $0.18065 per recorded call, with 234 errors and 5 transient errors. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all commission remaining in an aggregate unattributed row. Site-attributed commission is $0. Therefore revenue is supported only as $4.92 aggregate provider revenue, not as site revenue, and contribution margin, ROI, cost-to-learn, and payback are not calculable. The AI and revenue windows differ, and infrastructure, domains, labor, and other direct costs are absent. Minimum measurement is a dated ledger keyed by site, request, and experiment that reconciles AI, infrastructure, domain, labor, and external spend to site/content identifiers, affiliate clicks, ordered items, shipped items, commission, and measurement windows. Preserve the existing allthingsmasonic.com CTA refinement as click-only and slot-gated after the CTO releases capacity; do not claim revenue or lift.",
+        "summary": "Maintain containment and authorize no incremental spend, prototypes, monetization claims, or new implementation this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 7 repair follow-ups. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 and the aggregate cannot be assigned to a site. Revenue, contribution margin, ROI, payback, and causal lift are unsupported. September AI spend is $997.51762695 across 5,522 calls, including 234 errors and 5 transient errors; approximately $0.18065 per call, but cost-to-learn and cost per conversion are not calculable. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Measure registered affiliate clicks only; baseline is 61 clicks for 2026-09-21. Do not claim orders, commission, margin, ROI, or causal lift without named site-level revenue and comparable exposure/outcome evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial disposition: retain the existing revenue-attribution boundary. Require every new affiliate link to use a registered site tracking ID; keep provider aggregate rows explicitly unattributed; do not assign the $4.92 aggregate commission to any site or use 6,219 clicks, 28 orders, or 6 shipped items as proof of profitable growth. The monthly AI total of $997.52 cannot be compared directly with the one-day revenue extract to produce margin because the periods and cost coverage do not match.",
+        "summary": "After capacity release, permit only the existing allthingsmasonic.com CTA refinement. Preserve the registered destination, tracking ID, and disclosure. Measure registered affiliate clicks for 14 days or 100 relevant impressions. Minimum evidence for financial claims is a provider export with site tracking ID, dates, clicks, orders, shipped items, and commission; current aggregate provider rows remain explicitly unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new finance, AI-optimization, site-factory, prototype, or marketing work while delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 implementation requests have failed. The existing saveusfarms.com repair-or-close case remains the capacity gate; after one slot is released, the existing allthingsmasonic.com CTA refinement may proceed with affiliate-click measurement only. Forecasts based on impressions, sessions, conversions, proposal counts, or AI call volume remain unsupported without attributable revenue and complete direct-cost coverage.",
+        "summary": "Known portfolio evidence is 14,734 impressions, 150 clicks, 1,021 sessions, and 17 conversions across the SEO snapshot, but these metrics are not linked to attributable revenue or incremental cost. Contribution margin cannot be calculated because fixed infrastructure, labor, domain, marketing, and other operating costs are absent; AI cost alone is not contribution cost. Minimum additional measurement is monthly infrastructure/domain spend by site or fleet, labor hours or approved labor cost by change, marketing spend, and experiment-level exposure linked to attributable revenue.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Establish finance attribution and unit-economics baseline",
+        "summary": "Document known revenue, AI spend, attribution coverage, and financial unknowns without inventing site allocation or forecasts. Current evidence supports $4.92 aggregate Amazon commission for 2026-09-21, 6,219 clicks, 28 ordered items, 6 shipped items, $0 site-attributed commission, and $997.51762695 of AI spend for 2026-09-01 through 2026-09-30. Contribution margin, cost-to-learn, ROI, payback, and cost per conversion are not calculable.",
+        "requested_action": "Produce one timestamped finance baseline from existing authoritative snapshots, explicitly separating known values from unavailable values. Record the minimum measurement contract needed before any revenue, margin, ROI, or forecast claim: provider-level site tracking ID and date, attributable commission, experiment exposure and outcome linkage, infrastructure/domain cost, labor cost or hours, and marketing spend. Do not request duplicate telemetry, move money, change billing, access banking, sign contracts, or make legal or tax claims.",
         "proposal_id": null
       }
     ]

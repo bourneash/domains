@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.579Z",
+  "generated_at": "2026-09-30T20:09:20.657Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new design work while delivery is saturated at 10/10 slots. After the existing saveusfarms.com repair-or-close case releases one slot, execute the already-queued allthingsmasonic.com improvement on one recorded commercial URL. Scope: clarify the primary affiliate CTA, preserve disclosure placement, improve keyboard/focus behavior and responsive spacing, validate destination/link integrity, and retain existing affiliate behavior. Measure affiliate clicks only; do not claim revenue or causal lift. Roll back the single diff if tests, disclosure, accessibility, or link checks fail.",
+        "summary": "Do not admit duplicate work while delivery is saturated. After CTO releases one slot by completing or closing the existing saveusfarms.com repair case, execute the already-queued allthingsmasonic.com CTA refinement. Scope: existing homepage/highest-intent merchandising surface; improve CTA hierarchy, responsive layout, keyboard focus, disclosure placement, and clarity while preserving the registered affiliate destination and tracking ID. Measure registered affiliate clicks only; baseline is 61 clicks for 2026-09-21. Orders, commission, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

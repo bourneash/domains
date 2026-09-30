@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:25:15.680Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:09:20.658Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment. Do not admit new site-factory builds, deployments, domains, spending, analytics configuration, or monetization while delivery is saturated and launch evidence is incomplete. Preserve the existing parked-site readiness packets and keep them private, preview-only, and unlaunched.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The strongest site-factory candidate is complicated.work, based on the existing scaffold and verified build-candidate score. Exactly one next step: attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence to the existing readiness packet. Do not create duplicate work.",
+        "summary": "Maintain a small pipeline of complicated.work, deadlymaracas.com, and driveford.net as parked, private, preview-only candidates. Do not add domains, spend, deploy, configure analytics, monetize, or launch. Keep each candidate blocked until ownership, site brief, template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and owner gates are evidenced. Delivery is saturated, so do not create duplicate implementation work.",
         "requested_action": null,
         "proposal_id": null
       }

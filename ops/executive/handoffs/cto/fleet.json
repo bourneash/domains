@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:53:30.447Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:09:20.659Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Admit no new implementation, prototype, telemetry, spend, deployment, or duplicate work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement and measure affiliate clicks only against its recorded baseline. Keep security and private-launch gates unchanged.",
+        "summary": "Approve containment. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, 7 repair follow-ups, and 193 stranded work items. Do not admit new implementation, prototypes, site-factory work, telemetry changes, spend, credentials, configuration changes, deployment, or duplicate queue work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, and release boundary. Only after that evidence is recorded may one slot be released for the existing allthingsmasonic.com CTA request. Keep private-launch and security gates unchanged. Preserve revenue uncertainty: available Amazon evidence is limited to 2026-09-21 aggregate data; do not claim site revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the existing allthingsmasonic.com CTA refinement slot-gated. After one delivery slot is released, apply only the existing bounded change to one recorded commercial URL: clarify CTA hierarchy, preserve disclosure and affiliate behavior, improve keyboard/focus behavior and responsive spacing, validate destination integrity, run deterministic tests and build/link checks, and record a single-diff rollback point. Measure affiliate clicks only; do not claim revenue, ROI, margin, or causal lift.",
+        "summary": "After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. Preserve the registered affiliate destination, tracking ID, disclosure, and existing architecture. Run deterministic tests, build, link, responsive, keyboard, focus, contrast, overflow, and disclosure checks; capture the before-and-after diff; roll back only this bounded change if validation fails. Measure registered affiliate clicks using existing telemetry for 14 days or 100 relevant impressions. Baseline: 61 clicks for 2026-09-21. Orders, commission, revenue, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing owner-controlled affiliate activation work for amputeenews.com and existing affiliate repair work for americastrikes.com. Do not guess tracking IDs, affected URLs, replacement destinations, or recovered revenue. Execute only after capacity clears and retained task evidence identifies the exact bounded change.",
+        "summary": "Do not create the proposed finance report-only request or new affiliate-tag work item as new queue entries. The authoritative snapshots already contain the relevant revenue, AI-usage, attribution, and queue evidence, and existing affiliate requests already cover the prerequisites. Preserve the existing records and consolidate only through their current owners. The aggregate Amazon row remains unattributed; AI spend is known exposure, not evidence of return.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing readiness packet for complicated.work and the other parked-site dispositions. Keep parked properties private, preview-only, and unlaunched. Do not create duplicate queue work, build, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies until ownership, compliance, security, measurement, rollback, and launch-gate evidence is complete.",
+        "summary": "Retain the capacity-aware execution-integrity control plane as a deferred specification only. Any future implementation must be isolated from production queue behavior, use existing records without inventing telemetry, reconcile one canonical request per approved change, enforce site-overlap and capacity gates, and provide auditable approval-to-delivery status with reversible rollout. Do not prototype or deploy while capacity is saturated.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the current attribution and compliance boundaries. Provider aggregate revenue remains explicitly unattributed; require registered tracking IDs for new affiliate links. Do not assert site-specific compliance failures from aggregate findings or ship monetization changes without affected-site evidence and validation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private-launch and security-sensitive release gates unchanged. Continue only the existing bounded read-only evidence work using authorized metadata and retained artifacts. No credentials, permissions, configuration changes, exploitation, deployment, external rights outreach, or duplicate telemetry requests are authorized.",
+        "summary": "Keep all private-launch and security-sensitive release gates unchanged. Continue the existing consolidated read-only security evidence work using authorized metadata and retained artifacts only. Do not retrieve credentials, modify permissions or configuration, add dependencies, deploy, spend, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

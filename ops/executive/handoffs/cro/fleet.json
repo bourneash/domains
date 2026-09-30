@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:53:30.446Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:09:20.658Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO product pipeline disposition: retain complicated.work only as an existing parked, private, preview-only readiness packet; retain other site-factory candidates as deferred. No build, deployment, domain change, spending, analytics configuration, monetization, dependency addition, or queue admission is authorized while capacity and launch evidence gates remain incomplete.",
+        "summary": "Delivery remains saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 7 repair follow-ups. Do not admit duplicate work, new prototypes, spend, telemetry changes, or unsupported revenue claims. After CTO releases one slot by completing or closing the existing saveusfarms.com repair-or-close case, execute the existing allthingsmasonic.com CTA refinement. Measure registered affiliate clicks only; baseline is 61 clicks for 2026-09-21. Orders, commission, ROI, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain two reversible, evidence-backed opportunities as deferred specifications: a capacity-aware execution-integrity control plane and an isolated MarkItDown content-normalization prototype. Neither is admitted while capacity is saturated. Preserve security, attribution, measurement, private-launch, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       }
