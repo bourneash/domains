@@ -5362,6 +5362,94 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/agents/:id/overwatch', (req, res) => {
+    try {
+      const agent = events.getAgent(req.params.id);
+      if (!agent || agent.role !== 'exec-overwatch')
+        return res.status(404).json({ error: 'Exec Overwatch agent not found' });
+      const routine = events
+        .listAgentRoutines({ agent_id: agent.agent_id, limit: 50 })
+        .find(row => row.routine_id === 'routine:exec-overwatch-hourly');
+      res.json({
+        agent,
+        routine: routine || null,
+        runs: events.listAgentRuns({ agent_id: agent.agent_id, limit: 40 }),
+        artifacts: events.listAgentArtifacts({ agent_id: agent.agent_id, limit: 40 }),
+        evaluations: events.listAgentEvals({ agent_id: agent.agent_id, limit: 80 }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.patch('/api/agents/:id/overwatch/settings', (req, res) => {
+    try {
+      const agent = events.getAgent(req.params.id);
+      if (!agent || agent.role !== 'exec-overwatch')
+        return res.status(404).json({ error: 'Exec Overwatch agent not found' });
+      const current = agent.workspace?.overwatch || {};
+      const next = {
+        ...current,
+        ...(typeof req.body?.prompt === 'string' ? { prompt: req.body.prompt.trim() } : {}),
+        ...(Array.isArray(req.body?.goals)
+          ? {
+              goals: req.body.goals
+                .map(String)
+                .map(x => x.trim())
+                .filter(Boolean),
+            }
+          : {}),
+        ...(req.body?.aggression ? { aggression: String(req.body.aggression) } : {}),
+        ...(req.body?.lookback_runs
+          ? { lookback_runs: Math.max(1, Math.min(12, Number(req.body.lookback_runs))) }
+          : {}),
+      };
+      const enabled =
+        req.body?.enabled === undefined ? agent.status === 'active' : Boolean(req.body.enabled);
+      const updated = events.updateAgent(agent.agent_id, {
+        status: enabled ? 'active' : 'paused',
+        workspace: {
+          ...(agent.workspace || {}),
+          mode: 'control-plane',
+          overwatch: { ...next, enabled },
+        },
+      });
+      const routine = events
+        .listAgentRoutines({ agent_id: agent.agent_id, limit: 50 })
+        .find(row => row.routine_id === 'routine:exec-overwatch-hourly');
+      if (routine)
+        events.touchAgentRoutine(routine.routine_id, { status: enabled ? 'active' : 'paused' });
+      res.json({
+        agent: updated,
+        routine:
+          events
+            .listAgentRoutines({ agent_id: agent.agent_id, limit: 50 })
+            .find(row => row.routine_id === 'routine:exec-overwatch-hourly') || null,
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
+  app.post('/api/agents/:id/overwatch/run', (req, res) => {
+    try {
+      const agent = events.getAgent(req.params.id);
+      if (!agent || agent.role !== 'exec-overwatch')
+        return res.status(404).json({ error: 'Exec Overwatch agent not found' });
+      const child = require('node:child_process').spawn(
+        'bash',
+        [path.join(root, 'tools', 'executive', 'run-overwatch.sh')],
+        {
+          cwd: root,
+          detached: true,
+          stdio: 'ignore',
+          env: { ...process.env, FD_DOMAINS_ROOT: root },
+        }
+      );
+      child.unref();
+      res.status(202).json({ accepted: true, agent_id: agent.agent_id });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/agent-runs', (req, res) => {
     try {
       res.json({ runs: events.listAgentRuns(req.query) });

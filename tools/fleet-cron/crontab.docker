@@ -131,6 +131,9 @@
 # Cheap hourly progress heartbeat. It does not invoke a model; it records the
 # delivery state and measured outcomes so activity cannot masquerade as impact.
 0 * * * * /home/jesse/projects/domains/tools/executive/run-heartbeat.sh
+# Independent hourly execution-improvement controller. It has its own lock and
+# sandbox so a long CEO/CTO tick cannot starve the audit and repair loop.
+0 * * * * /home/jesse/projects/domains/tools/executive/run-overwatch.sh
 # Measure deployed executive/site improvements before the next CEO tick. This
 # is deterministic telemetry work, not an AI invocation: 14 days or 100 new
 # impressions closes the result window.

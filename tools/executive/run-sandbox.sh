@@ -79,6 +79,9 @@ trap 'rm -rf "$RUN_DIR"' EXIT
 # record observability must not grant or alter execution authority, so the
 # legacy executive path remains available if the runtime database is briefly
 # unavailable.
+if [[ -n "${EXECUTIVE_RUNTIME_RUN_ID:-}" ]]; then
+  RUNTIME_RUN_ID="$EXECUTIVE_RUNTIME_RUN_ID"
+else
 RUNTIME_RUN_ID="$(node - "$ROOT" "${EXECUTIVE_RUN_ID:-sandbox-$$}" <<'NODE' 2>/dev/null || true
 const root = process.argv[2];
 const key = process.argv[3];
@@ -87,7 +90,7 @@ const runtime = require(`${root}/tools/executive/agent-runtime`);
 const store = eventstore.open(root);
 try {
   runtime.ensureRegistry(store);
-  const agent = store.getAgent('fleet-ceo');
+  const agent = store.getAgent(process.env.EXECUTIVE_RUNTIME_AGENT_SLUG || 'fleet-ceo');
   const started = runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: key, work_id: 'executive-tick' });
   if (!started.reused) {
     store.createAgentWatchdog({
@@ -101,6 +104,7 @@ try {
 } finally { store.close(); }
 NODE
 )"
+fi
 
 finish_runtime_run() {
   local status="$1"
@@ -141,6 +145,17 @@ const briefFile = process.argv[2];
 const taskFile = process.argv[3];
 const brief = JSON.parse(fs.readFileSync(briefFile, 'utf8'));
 brief.operating_manager_task = JSON.parse(fs.readFileSync(taskFile, 'utf8'));
+fs.writeFileSync(briefFile, JSON.stringify(brief));
+NODE
+fi
+
+if [[ -n "${EXECUTIVE_OVERWATCH_TASK_FILE:-}" ]]; then
+  node - "$RUN_DIR/input/brief.json" "$EXECUTIVE_OVERWATCH_TASK_FILE" <<'NODE'
+const fs = require('node:fs');
+const briefFile = process.argv[2];
+const taskFile = process.argv[3];
+const brief = JSON.parse(fs.readFileSync(briefFile, 'utf8'));
+brief.overwatch_directive = JSON.parse(fs.readFileSync(taskFile, 'utf8'));
 fs.writeFileSync(briefFile, JSON.stringify(brief));
 NODE
 fi

@@ -45,6 +45,8 @@ __pycache__/
 # Cron/script run logs (never sweep these in via git add -A)
 tools/scripts/*.log
 tools/scripts/*.lock
+tools/executive/data/overwatch*.lock
+tools/executive/data/.overwatch-task-*.json
 tools/scripts/.ensure-fleet-cron-alerts/
 tools/scripts/.check-claude-auth-state
 tools/scripts/.check-claude-auth-alerted

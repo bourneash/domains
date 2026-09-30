@@ -203,7 +203,10 @@ async function main() {
     const operatingDirective = brief.operating_manager_task
       ? `\n\nOPERATING MANAGER TASK:\nYou are executing this specific durable manager task now. Produce concrete downstream work for it or an explicit evidence-backed blocker. Do not merely acknowledge it, repeat it, or create generic fleet commentary.\n${JSON.stringify(brief.operating_manager_task)}`
       : '';
-    const prompt = `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}`;
+    const overwatchDirective = brief.overwatch_directive
+      ? `\n\nEXEC OVERWATCH DIRECTIVE:\nYou are the independent execution-improvement controller. Evaluate the supplied evidence from the last four 15-minute cycles. Repair stuck or failed handoffs first. Then produce concrete, bounded, evidence-backed improvements to prompts, routing, process, or implementation work. A status update, unchanged checkpoint, duplicate, or report-only item is not an improvement. If no safe change can be made, state the exact blocker, owner, and next action.\n${JSON.stringify(brief.overwatch_directive)}`
+      : '';
+    const prompt = `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}${overwatchDirective}`;
     let output = await runTracked(prompt, usage, role, false, transcript);
     let repaired = false;
     try {
