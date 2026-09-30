@@ -158,17 +158,12 @@ main() {
     # Existence-checked first: not every site's package.json defines these.
     if npm run | grep -q "security:audit:prod"; then
       if ! npm run security:audit:prod; then
-        log "production audit failed — attempting npm's non-breaking automatic remediation..."
-        npm audit fix --omit=dev || true
-        if npm run security:audit:prod; then
-          log "production audit remediated automatically; continuing deploy"
-        else
-          AUDIT_KEY="$(sha256sum package-lock.json 2>/dev/null | cut -c1-12 || echo unknown)"
-          log "FAIL: production audit remains high+ after safe remediation"
-          notify_role --status fail --headline "Deploy blocked — production npm vulnerability; automatic repair started"
-          emit_incident --class npm-audit-high --key "$AUDIT_KEY" --summary "production npm audit remains high+ after npm audit fix (lock $AUDIT_KEY); repair requires a dependency upgrade"
-          exit 42
-        fi
+        AUDIT_KEY="$(sha256sum package-lock.json 2>/dev/null | cut -c1-12 || echo unknown)"
+        log "FAIL: production audit found high+ severity; refusing to mutate package-lock.json in cron"
+        notify_role --status fail --headline "Deploy blocked — production npm vulnerability; reviewed dependency update required" \
+          --detail "Audit lock fingerprint: $AUDIT_KEY"
+        emit_incident --class npm-audit-high --key "$AUDIT_KEY" --summary "production npm audit remains high+ (lock $AUDIT_KEY); update dependencies in a reviewed commit"
+        exit 42
       fi
     fi
     if npm run | grep -q "security:audit"; then
@@ -331,12 +326,12 @@ except Exception: print("(could not fetch build log)")' 2>/dev/null)"
         emit_incident --class cf-build-fail --summary "CF Workers Build failed: $FAIL_TAIL"
         exit 1
       else
-        log "WARN: no resolved CF build found for ${PUSHED_SHA:0:8} within timeout — falling back to sleep+smoke"
+        log "WARN: no resolved CF build found for ${PUSHED_SHA:0:8} within timeout"
       fi
     fi
   fi
 
-  if [ "$BUILD_CONFIRMED" != "1" ] && [ "${DEPLOY_ALLOW_UNCONFIRMED_BUILD:-0}" != "1" ]; then
+  if [ "$BUILD_CONFIRMED" != "1" ]; then
     log "FAIL: could not confirm a successful Cloudflare build for ${PUSHED_SHA:0:8} — refusing to smoke-test an unknown deployment"
     notify_role --status fail \
       --headline "Cloudflare build confirmation timed out after 12m — deployment status unknown; next deployer tick will retry" \
@@ -346,11 +341,6 @@ except Exception: print("(could not fetch build log)")' 2>/dev/null)"
     emit_incident --class cf-build-unconfirmed --summary "no successful Cloudflare build confirmed for ${PUSHED_SHA:0:8}"
     exit 1
   fi
-  if [ "$BUILD_CONFIRMED" = "0" ]; then
-    log "sleeping 60s for CF Workers propagation (no build-status confirmation available)..."
-    sleep 60
-  fi
-
   # ---- 4. Smoke tests ----
   log "running smoke tests..."
   if ! {{SMOKE_TEST_CMD}}; then

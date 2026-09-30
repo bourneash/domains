@@ -102,9 +102,9 @@ recovered_for() {
       local code; code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$BASE_URL/" 2>/dev/null || echo 000)"
       [[ "$code" =~ ^2|^3 ]] ;;
     deploy-stuck)
-      [[ ! -f .deploy-needed && ! -f .deploy-needed.failed ]] && return 0
+      [[ ! -f .deploy-needed && ! -f .deploy-needed.failed && ! -f .deploy-needed.audit-blocked ]] && return 0
       local f mt now age; now="$(date +%s)"
-      for f in .deploy-needed .deploy-needed.failed; do
+      for f in .deploy-needed .deploy-needed.failed .deploy-needed.audit-blocked; do
         [[ -f "$f" ]] || continue
         mt="$(stat -c %Y "$f" 2>/dev/null || echo "$now")"; age=$(( now - mt ))
         [[ "$age" -gt "$DEPLOY_STUCK_AGE" ]] && return 1
@@ -139,7 +139,7 @@ probe() {
 
   # deploy-stuck: .deploy-needed (or .failed) lingering past threshold.
   local flag="" age=0 now; now="$(date +%s)"
-  for f in .deploy-needed .deploy-needed.failed; do
+  for f in .deploy-needed .deploy-needed.failed .deploy-needed.audit-blocked; do
     if [[ -f "$f" ]]; then
       local mt; mt="$(stat -c %Y "$f" 2>/dev/null || echo "$now")"
       age=$(( now - mt ))

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -29,6 +30,14 @@ NUMERIC_FIELDS = (
     "cache_creation_input_tokens",
     "cache_read_input_tokens",
 )
+LEDGER_SCHEMA_VERSION = 1
+TRANSIENT_FAILURE_CLASSES = frozenset({
+    "zero_cost_failure", "parse_error", "network_preflight_failed",
+})
+KNOWN_SUBTYPES = frozenset({
+    "success", "error_max_turns", "error_during_execution", "parse_error",
+    "network_preflight_failed", "account_usage_exhausted", "authentication_failed",
+})
 
 DIRECT_CLAUDE_CALL = re.compile(r"\btimeout\b.*\bclaude\s+-p\b")
 PYTHON_CLAUDE_CALL = re.compile(r"[\[\(]\s*['\"]claude['\"]\s*,\s*['\"]-p['\"]")
@@ -43,11 +52,6 @@ LOCAL_MODEL_CALL = re.compile(r"(?:chat\.completions\.create|/api/chat|/v1/chat/
 # (a stuck deploy, a bad diagnosis, a genuine account/auth problem) makes a
 # healthy fleet look like it has a reliability problem when it doesn't
 # (2026-08-27 audit: weirdgirlstore/amputeenews "errors" were entirely this).
-TRANSIENT_FAILURE_CLASSES = frozenset({
-    "zero_cost_failure", "parse_error", "network_preflight_failed",
-})
-
-
 def _empty_totals() -> dict:
     return {
         "calls": 0,
@@ -149,7 +153,7 @@ def coverage_row(site_dir: Path, has_ledger: bool) -> dict:
     }
 
 
-def read_ledger_records(ledger: Path) -> list[dict]:
+def read_ledger_records(ledger: Path, diagnostics: dict | None = None) -> list[dict]:
     records = []
     for line in ledger.read_text(encoding="utf-8", errors="ignore").splitlines():
         line = line.strip()
@@ -158,8 +162,81 @@ def read_ledger_records(ledger: Path) -> list[dict]:
         try:
             records.append(json.loads(line))
         except json.JSONDecodeError:
+            if diagnostics is not None:
+                diagnostics["malformed_json"] = diagnostics.get("malformed_json", 0) + 1
             continue
     return records
+
+
+def _validate_record(record: object) -> tuple[dict | None, str | None]:
+    """Validate the producer contract without rejecting legacy v1 rows."""
+    if not isinstance(record, dict):
+        return None, "not_object"
+    version = record.get("schema_version", LEDGER_SCHEMA_VERSION)
+    if version != LEDGER_SCHEMA_VERSION:
+        return None, f"unsupported_schema_version:{version}"
+    for field in ("site", "role"):
+        if not isinstance(record.get(field), str) or not record[field].strip():
+            return None, f"missing_{field}"
+    # Rows written before subtype was added are ordinary successful calls.
+    if "subtype" not in record:
+        record = {**record, "subtype": "success"}
+    if "is_error" in record and not isinstance(record["is_error"], bool):
+        return None, "is_error_not_bool"
+    if "exit_status" in record and (
+        isinstance(record["exit_status"], bool)
+        or not isinstance(record["exit_status"], int)
+    ):
+        return None, "exit_status_not_int"
+    for field in ("requested_max_turns", "recorded_at_unix"):
+        value = record.get(field)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int)):
+            return None, f"{field}_not_int"
+    if "model_drift" in record and not isinstance(record["model_drift"], bool):
+        return None, "model_drift_not_bool"
+    for field in (*NUMERIC_FIELDS, "total_cost_usd", "duration_ms", "num_turns"):
+        value = record.get(field)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, (int, float))):
+            return None, f"{field}_not_numeric"
+        if isinstance(value, (int, float)):
+            if isinstance(value, float) and not math.isfinite(value):
+                return None, f"{field}_not_finite"
+            if value < 0:
+                return None, f"{field}_negative"
+    return record, None
+
+
+def classify_alert(record: dict) -> dict:
+    """Return stable alert semantics for one validated ledger record."""
+    subtype = record.get("subtype") or "unknown"
+    failure_class = record.get("failure_class") or subtype
+    requested_turns = record.get("requested_max_turns")
+    hit_max_turns = bool(
+        isinstance(requested_turns, int) and not isinstance(requested_turns, bool)
+        and requested_turns > 1 and subtype == "error_max_turns"
+    )
+    inconsistent_failure = record.get("exit_status", 0) != 0 and not record.get("is_error", False)
+    is_error = bool(record.get("is_error")) or inconsistent_failure
+    transient = failure_class in TRANSIENT_FAILURE_CLASSES
+    model_drift = bool(record.get("model_drift"))
+    if hit_max_turns:
+        kind, severity = "max_turns", 2
+    elif model_drift:
+        kind, severity = "model_drift", 2
+    elif is_error:
+        kind, severity = "transient_failure" if transient else "failure", 1 if transient else 3
+    else:
+        kind, severity = None, 0
+    return {
+        "alert_kind": kind,
+        "severity": severity,
+        "actionable": bool(kind and not transient),
+        "hit_max_turns": hit_max_turns,
+        "is_error": is_error,
+        "inconsistent_failure": inconsistent_failure,
+        "model_drift": model_drift,
+        "failure_class": failure_class,
+    }
 
 
 def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
@@ -179,6 +256,9 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_site_role_drift: dict[tuple[str, str], dict] = {}
     by_site_role_mixed_compaction: dict[tuple[str, str], dict] = {}
     alerts: list[dict] = []
+    incidents: dict[tuple[str, str, str], dict] = {}
+    diagnostics = {"malformed_json": 0, "invalid_records": 0, "invalid_record_reasons": {},
+                   "unknown_subtypes": {}}
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
 
@@ -202,7 +282,14 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 continue
             if end_day and day > end_day:
                 continue
-            for record in read_ledger_records(ledger):
+            for raw_record in read_ledger_records(ledger, diagnostics):
+                record, invalid_reason = _validate_record(raw_record)
+                if invalid_reason:
+                    diagnostics["invalid_records"] += 1
+                    reasons = diagnostics["invalid_record_reasons"]
+                    reasons[invalid_reason] = reasons.get(invalid_reason, 0) + 1
+                    continue
+                assert record is not None
                 site = record.get("site") or site_name
                 role = record.get("role") or "unknown"
                 instrumented_sites.add(site)
@@ -223,44 +310,49 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                     _add(by_requested_model.setdefault(requested_model, _empty_totals()), record)
                 requested_turns = record.get("requested_max_turns")
                 turns = record.get("num_turns") or 0
-                is_error = bool(record.get("is_error"))
-                # requested_turns == 1 means the role is deliberately single-shot
-                # (e.g. broadwayshowgirls' llm-writer) — num_turns will always
-                # equal that cap on a normal, successful call, so it's not a
-                # runaway signal and would otherwise fire an alert on every
-                # single call the role ever makes. Only flag a real budget
-                # squeeze: a cap that allows more than one turn.
-                #
-                # num_turns is NOT a model-turn count: it counts tool-result
-                # messages, and a model that issues several parallel tool calls
-                # per turn inflates it far past --max-turns (verified 2026-09-29:
-                # a 55-num_turns success was 19 assistant turns under a cap of
-                # 25). So `success` with num_turns >= cap is not a near-miss.
-                # Only a run that actually exhausted the cap (error_max_turns,
-                # always reported as cap+1) is a real squeeze.
-                hit_max_turns = bool(
-                    isinstance(requested_turns, int) and requested_turns > 1
-                    and record.get("subtype") == "error_max_turns"
-                )
-                is_model_drift = bool(record.get("model_drift"))
+                alert = classify_alert(record)
+                subtype = record.get("subtype")
+                if subtype not in KNOWN_SUBTYPES:
+                    diagnostics["unknown_subtypes"][subtype] = diagnostics["unknown_subtypes"].get(subtype, 0) + 1
+                is_error = alert["is_error"]
+                hit_max_turns = alert["hit_max_turns"]
+                is_model_drift = alert["model_drift"]
                 if is_model_drift:
                     _add(by_site_role_drift.setdefault((site, role), _empty_totals()), record)
                 if record.get("model_drift_kind") == "mixed_compaction":
                     _add(by_site_role_mixed_compaction.setdefault((site, role), _empty_totals()), record)
-                if is_error or hit_max_turns or is_model_drift:
-                    alerts.append({
+                if alert["alert_kind"]:
+                    alert_row = {
                         "day": day, "site": site, "role": role, "provider": provider,
                         "model": model, "requested_model": requested_model,
                         "num_turns": turns, "requested_max_turns": requested_turns,
-                        "is_error": is_error,
-                        "hit_max_turns": hit_max_turns,
-                        "model_drift": is_model_drift,
+                        "recorded_at_unix": record.get("recorded_at_unix"),
+                        "is_error": is_error, "exit_status": record.get("exit_status", 0),
+                        "hit_max_turns": hit_max_turns, "model_drift": is_model_drift,
                         "model_drift_kind": record.get("model_drift_kind") or (
                             "family_drift" if is_model_drift else None
                         ),
-                        "subtype": record.get("subtype"),
+                        "subtype": subtype, "failure_class": alert["failure_class"],
+                        "alert_kind": alert["alert_kind"], "severity": alert["severity"],
+                        "actionable": alert["actionable"],
+                        "inconsistent_failure": alert["inconsistent_failure"],
                         "total_cost_usd": record.get("total_cost_usd") or 0.0,
+                    }
+                    alerts.append(alert_row)
+                    incident_key = (alert_row["alert_kind"], alert_row["failure_class"],
+                                    alert_row["model"] if alert_row["alert_kind"] == "model_drift" else "")
+                    incident = incidents.setdefault(incident_key, {
+                        "alert_kind": alert_row["alert_kind"], "failure_class": alert_row["failure_class"],
+                        "model": incident_key[2] or None, "severity": alert_row["severity"],
+                        "calls": 0, "sites": set(), "roles": set(), "total_cost_usd": 0.0,
+                        "first_day": day, "last_day": day,
                     })
+                    incident["calls"] += 1
+                    incident["sites"].add(site)
+                    incident["roles"].add(role)
+                    incident["total_cost_usd"] += alert_row["total_cost_usd"]
+                    incident["first_day"] = min(incident["first_day"], day)
+                    incident["last_day"] = max(incident["last_day"], day)
 
     site_rows = []
     for site, totals in sorted(by_site.items()):
@@ -353,6 +445,9 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             "model_drift_cost_usd": model_drift_cost_usd,
             "mixed_compaction_calls": mixed_compaction_calls,
             "mixed_compaction_cost_usd": mixed_compaction_cost_usd,
+            "ledger_malformed_json": diagnostics["malformed_json"],
+            "ledger_invalid_records": diagnostics["invalid_records"],
+            "ledger_unknown_subtypes": diagnostics["unknown_subtypes"],
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
@@ -373,9 +468,15 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         # outage was invisible for exactly the reason it was severe. A failed
         # call is the cheapest and the worst thing in this list, so is_error
         # leads the sort and cost only breaks ties within each group.
-        "alerts": sorted(
-            alerts, key=lambda row: (not row["is_error"], -row["total_cost_usd"], row["day"])
-        ),
+        "alerts": sorted(alerts, key=lambda row: (
+            -row["severity"], -row["total_cost_usd"], row["day"], row["site"], row["role"]
+        )),
+        "incidents": sorted(({
+            **row, "sites": sorted(row["sites"]), "roles": sorted(row["roles"]),
+        } for row in incidents.values()), key=lambda row: (
+            -row["severity"], -row["calls"], row["first_day"], row["failure_class"]
+        )),
+        "diagnostics": diagnostics,
         "filters": {"from": start_day, "to": end_day},
         "coverage": coverage,
     }

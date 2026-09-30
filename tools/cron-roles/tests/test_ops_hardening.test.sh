@@ -86,6 +86,19 @@ for script in "${deployers[@]}"; do
     || fail "retry-cap mtime reset missing: $script"
 done
 
+# Production publishing must remain on the connected GitHub -> Cloudflare
+# Workers Builds path. Deployer scripts must fail closed when the matching
+# Workers Build cannot be confirmed; they may not upload directly with Wrangler
+# or mutate dependency locks during an automated retry.
+bma_deploy="$ROOT/sites/blackmarketapparel.com/ops/scripts/deploy.sh"
+for script in "$bma_deploy" "$ROOT/tools/cron-roles/archetypes/deployer/scripts/deploy.sh.tmpl"; do
+  grep -q 'CF Workers Build' "$script" || fail "missing Workers Builds gate: $script"
+  ! grep -qE '(^|[[:space:]])(npx[[:space:]]+)?wrangler[[:space:]]+deploy' "$script" \
+    || fail "direct Wrangler publish fallback present: $script"
+  ! grep -q 'npm audit fix' "$script" \
+    || fail "deployer mutates dependency lock during audit remediation: $script"
+done
+
 for script in "${watchdogs[@]}" "${emitters[@]}"; do
   bash -n "$script" || fail "syntax error: $script"
   grep -q 'redact_guardrail_terms' "$script" || fail "metadata writer missing redactor: $script"

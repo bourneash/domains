@@ -83,8 +83,12 @@ set -e
 
 if [ "$deploy_exit" -eq 42 ]; then
   mv .deploy-needed .deploy-needed.audit-blocked
+  touch .deploy-needed.audit-blocked
   echo 0 > .deploy-attempts
-  echo "[$(date -Iseconds)] production npm audit blocked deploy — parked for watchdog remediation" >> "$LOG"
+  echo "[$(date -Iseconds)] production npm audit blocked deploy — parked for owner remediation" >> "$LOG"
+  [[ -x "$NOTIFY" ]] && "$NOTIFY" "$CHANNEL" \
+    ":warning: *{{DOMAIN}}* deploy blocked by production dependency audit — parked as `.deploy-needed.audit-blocked`. Review dependencies and clear the marker after a tested commit." \
+    "warning" 2>/dev/null || true
   exit 0
 fi
 

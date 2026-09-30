@@ -1720,6 +1720,8 @@ async function renderAIUsage() {
     .slice()
     .sort((a, b) => b.total_cost_usd - a.total_cost_usd);
   const usageAlerts = (data.alerts || []).slice(0, 10);
+  const usageIncidents = data.incidents || [];
+  const ledgerDiagnostics = data.diagnostics || {};
   const modelDriftCalls = rawSummary.model_drift_calls || 0;
   const modelDriftCostUsd = rawSummary.model_drift_cost_usd || 0;
   const modelDriftRows = (data.by_site_role_model_drift || [])
@@ -1799,10 +1801,11 @@ async function renderAIUsage() {
     )
     .join('');
   const alertOutcomeBadge = r => {
+    if (r.hit_max_turns) return '<span class="badge b-gray">turn cap</span>';
     if (r.model_drift)
       return `<span class="badge b-red">model drift</span>${r.is_error ? ' <span class="badge b-red">failed</span>' : ''}`;
-    if (r.is_error) return '<span class="badge b-red">failed</span>';
-    return '<span class="badge b-gray">turn cap</span>';
+    if (r.actionable) return '<span class="badge b-red">failed</span>';
+    return '<span class="badge b-gray">transient</span>';
   };
   const alertRows = usageAlerts
     .map(
@@ -1812,6 +1815,18 @@ async function renderAIUsage() {
     <td>${alertOutcomeBadge(r)}</td>
     <td class="mono">${r.model_drift ? `${esc(r.requested_model || '?')} → ${esc(r.model || '?')}` : `${r.num_turns || 0}/${r.requested_max_turns || '—'}`}</td>
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+  </tr>`
+    )
+    .join('');
+  const incidentRows = usageIncidents
+    .map(
+      r => `<tr>
+    <td><span class="badge ${r.severity >= 3 ? 'b-red' : 'b-gray'}">${esc(r.alert_kind)}</span></td>
+    <td class="mono">${esc(r.failure_class || '—')}</td>
+    <td>${r.calls}</td>
+    <td>${r.sites.length}</td>
+    <td class="mono">${fmtUSD(r.total_cost_usd)}</td>
+    <td class="mono">${esc(r.first_day)} → ${esc(r.last_day)}</td>
   </tr>`
     )
     .join('');
@@ -1827,7 +1842,13 @@ async function renderAIUsage() {
     )
     .join('');
 
-  const diagnosticsCount = usageAlerts.length + notWired.length + modelDriftRows.length;
+  const diagnosticsCount =
+    usageAlerts.length +
+    usageIncidents.length +
+    notWired.length +
+    modelDriftRows.length +
+    (ledgerDiagnostics.malformed_json || 0) +
+    (ledgerDiagnostics.invalid_records || 0);
   const diagnosticsBadge = diagnosticsCount
     ? `<span class="badge b-red">${diagnosticsCount}</span>`
     : `<span class="badge b-green">clean</span>`;
@@ -1930,9 +1951,16 @@ async function renderAIUsage() {
       <summary><strong>Alerts &amp; coverage</strong> ${diagnosticsBadge} <span class="muted">cost-control alerts, wiring gaps, and which sites are/aren't instrumented</span></summary>
       <div class="aiu-diagnostics-body">
         ${
+          usageIncidents.length
+            ? `
+        <div class="task-toolbar" style="margin-top:12px"><strong>Alert incidents</strong><span class="muted">Grouped by failure category so fleet-wide outages remain visible above the individual-call sample.</span></div>
+        <table><thead><tr>${aiuTh('Category', 'Normalized alert category.')}${aiuTh('Failure class', 'Producer failure classification.')}${aiuTh('Calls', 'Number of affected calls.')}${aiuTh('Sites', 'Number of affected sites.')}${aiuTh('Cost', 'Total cost of affected calls.')}${aiuTh('Window', 'First and last ledger day.')}</tr></thead><tbody>${incidentRows}</tbody></table>`
+            : ''
+        }
+        ${
           usageAlerts.length
             ? `
-        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — most expensive first, last 10</span></div>
+        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — highest severity first, last 10</span></div>
         <table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Outcome', 'Why this call is flagged: hit the turn cap, errored, or resolved to a different model than requested.')}${aiuTh('Detail', 'Model drift shows requested → actual model; otherwise shows turns used / requested max turns.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for this call.')}</tr></thead><tbody>${alertRows}</tbody></table>`
             : ''
         }
@@ -1946,6 +1974,7 @@ async function renderAIUsage() {
         ${notWired.length ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
         ${wiredAwaiting.length ? `<div class="empty" style="margin-top:12px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
         ${noAiRole.length ? `<div class="empty" style="margin-top:12px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
+        ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
         <div class="task-toolbar" style="margin-top:16px"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
         <table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table>
       </div>

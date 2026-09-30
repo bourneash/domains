@@ -262,6 +262,7 @@ function editorialTelemetry(cwd, role) {
   }
   const deployNeeded = fs.existsSync(path.join(cwd, '.deploy-needed'));
   const deployFailed = fs.existsSync(path.join(cwd, '.deploy-needed.failed'));
+  const deployAuditBlocked = fs.existsSync(path.join(cwd, '.deploy-needed.audit-blocked'));
   const latestText = latest?.text || '';
   const source = /cache:\s*OK|source[s]?\s+(?:ok|ready|fresh)/i.test(latestText)
     ? { state: 'ok', detail: 'source/cache reported healthy' }
@@ -281,10 +282,14 @@ function editorialTelemetry(cwd, role) {
   if (outcomeIsFailure(latestText))
     alerts.push({ type: 'run-failed', message: 'latest editorial run failed' });
   if (source.state === 'degraded') alerts.push({ type: 'source-degraded', message: source.detail });
-  if (deployNeeded || deployFailed)
+  if (deployNeeded || deployFailed || deployAuditBlocked)
     alerts.push({
-      type: 'deploy-pending',
-      message: deployFailed ? 'deployment is parked after failure' : 'deployment is waiting',
+      type: deployAuditBlocked ? 'deploy-audit-blocked' : 'deploy-pending',
+      message: deployAuditBlocked
+        ? 'deployment is parked by a production dependency audit'
+        : deployFailed
+          ? 'deployment is parked after failure'
+          : 'deployment is waiting',
     });
   if (publicationAge > publicationLimit)
     alerts.push({
@@ -307,8 +312,8 @@ function editorialTelemetry(cwd, role) {
     alerts,
     publication,
     deploy: deploy
-      ? { ...deploy, pending: deployNeeded, failedMarker: deployFailed }
-      : { pending: deployNeeded, failedMarker: deployFailed },
+      ? { ...deploy, pending: deployNeeded, failedMarker: deployFailed, auditBlocked: deployAuditBlocked }
+      : { pending: deployNeeded, failedMarker: deployFailed, auditBlocked: deployAuditBlocked },
   };
 }
 

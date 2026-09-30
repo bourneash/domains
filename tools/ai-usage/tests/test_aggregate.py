@@ -92,6 +92,52 @@ class AggregateTests(unittest.TestCase):
         report = aggregate.collect(root)
 
         self.assertEqual(report["summary"]["calls"], 1)
+        self.assertEqual(report["summary"]["ledger_malformed_json"], 1)
+
+    def test_successful_parallel_tools_at_high_num_turns_is_not_alerted(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [record(
+            requested_max_turns=10, num_turns=55, subtype="success", is_error=False,
+        )])
+        report = aggregate.collect(root)
+        self.assertEqual(report["alerts"], [])
+
+    def test_invalid_records_are_diagnosed_and_nonfatal(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(input_tokens="not-a-number"),
+            {"site": "example.com", "role": "writer", "subtype": "future_event",
+             "is_error": False, "exit_status": 0},
+        ])
+        report = aggregate.collect(root)
+        self.assertEqual(report["summary"]["ledger_invalid_records"], 1)
+        self.assertEqual(report["summary"]["ledger_unknown_subtypes"], {"future_event": 1})
+        self.assertEqual(report["summary"]["calls"], 1)
+
+    def test_nonzero_exit_status_cannot_hide_as_success(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [record(
+            is_error=False, exit_status=7, subtype="success", total_cost_usd=0,
+        )])
+        report = aggregate.collect(root)
+        self.assertTrue(report["alerts"][0]["inconsistent_failure"])
+        self.assertTrue(report["alerts"][0]["is_error"])
+
+    def test_alerts_include_deterministic_incident_rollup(self):
+        root = self.root()
+        self.write_ledger(root, "a.com", "2026-07-29", [record(
+            site="a.com", role="writer", is_error=True, subtype="authentication_failed",
+            failure_class="authentication_failed", total_cost_usd=0,
+        )])
+        self.write_ledger(root, "b.com", "2026-07-29", [record(
+            site="b.com", role="writer", is_error=True, subtype="authentication_failed",
+            failure_class="authentication_failed", total_cost_usd=0,
+        )])
+        report = aggregate.collect(root)
+        incident = report["incidents"][0]
+        self.assertEqual(incident["failure_class"], "authentication_failed")
+        self.assertEqual(incident["calls"], 2)
+        self.assertEqual(incident["sites"], ["a.com", "b.com"])
 
     def test_cache_hit_ratio_none_when_no_tokens(self):
         totals = aggregate._empty_totals()

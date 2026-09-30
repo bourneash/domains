@@ -85,6 +85,7 @@ known_variants:
 gitignore:
   - "ops/.deploy-attempts"
   - "ops/.deploy-needed.failed"
+  - "ops/.deploy-needed.audit-blocked"
 
 placeholders:
   - DOMAIN
