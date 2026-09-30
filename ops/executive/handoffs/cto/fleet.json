@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:48:43.362Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:58:38.008Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment. Do not admit new implementation, telemetry, schedule, access, dependency, spend, or site-factory work while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release a slot only after that evidence is recorded; otherwise escalate to the owner.",
+        "summary": "Technically feasible work remains capacity-gated. Delivery is saturated at 10/10 slots, so reject new implementation, prototypes, site-factory admissions, duplicate queue work, and new telemetry. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, and measurement limits. Only then admit the existing allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the already-queued allthingsmasonic.com CTA refinement as the sole next implementation after capacity clears. Scope is limited to CTA hierarchy, existing destinations and disclosure, keyboard focus, contrast, tap targets, responsive behavior, deterministic validation, build, link validation, and smoke testing. Use a single-diff rollback. Measure only the existing site-level registered affiliate-click telemetry for 14 days or 100 relevant new impressions or clicks; surface-level lift, revenue, conversion, ROI, and causal lift are unknown because no surface-specific telemetry is evidenced.",
+        "summary": "After one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement. Keep scope to CTA hierarchy, adjacent disclosure, unchanged destinations, keyboard focus, contrast, tap targets, responsive layout, deterministic tests, build, link validation, smoke, accessibility checks, and single-diff rollback. Add no routes, dependencies, credentials, permissions, telemetry, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Correct the launch-readiness handoff: readiness packets are bounded report-only evidence work and do not occupy implementation slots or authorize production launch. Keep preview-only dispositions, analytics and affiliate setup, public exposure, domain changes, dependencies, spend, and deployment gated until the existing legal, compliance, security, measurement, owner, and rollback evidence is complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the routed SEO candidates capacity-gated and non-duplicative. Admit at most one only after a slot is released and existing queue state is reconciled. Acceptance must use the existing GSC baseline, verify indexability, canonical and sitemap behavior, internal-link resolution, absence of new broken links, deterministic build checks, and a declared rollback point. Do not request duplicate telemetry or claim revenue, conversion, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain all private-launch and security-sensitive release gates. Existing evidence does not establish authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, complete TLS controls, monitoring, or incident readiness. Continue authorized read-only evidence work only; do not clear gates, retrieve credentials, modify permissions or configuration, deploy, add dependencies, or conduct external outreach.",
+        "summary": "Do not create the proposed CFO report-only requests this cycle. Existing revenue and AI-usage telemetry already provide the stated evidence, while the queue is saturated and report-only work does not release delivery capacity. Preserve the attribution boundary: the $4.92 aggregate commission remains unassigned; margin, ROI, and cost-to-learn remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }

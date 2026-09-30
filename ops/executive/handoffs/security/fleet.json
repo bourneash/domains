@@ -2,22 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:48:43.362Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:58:38.009Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Recommend blocking new public exposure, go-live, and security-sensitive releases; no clean bill of health or certification is supported. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, complete TLS controls, data exposure, monitoring, incident readiness, and disclosure readiness remain unknown. Compliance reports 36 pass, 19 fail, and 6 unknown; HTTPS checks alone do not establish complete TLS control evidence. SearchWoot remains private pending completion of its existing legal, security, accuracy, measurement, and owner gates. Ordinary reversible growth may continue only when it adds no credentials, permissions, dependencies, data collection, cross-site behavior, or new public exposure.",
+        "summary": "Disposition: evidence_needed. Risk severity is high for go-live and security-sensitive releases, and medium for ordinary reversible growth. Fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets handling, runtime isolation, release/deploy controls, dependency provenance, monitoring, incident readiness, broader TLS evidence, data-exposure controls, and security.txt/disclosure readiness remain unevidenced. Compliance is only a technical baseline: 36 pass, 19 fail, and 6 unknown. Decision: keep private-launch and security-sensitive release gates unchanged. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. This is not evidence of compromise, certification, or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing read-only security evidence matrix; do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or conduct external outreach. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for authentication, access boundaries, secrets, isolation, release and deployment controls, dependency and supply-chain risk, TLS, data exposure, monitoring, incident response, and security.txt or disclosure readiness.",
+        "summary": "Retain the existing consolidated security evidence matrix and do not create duplicate telemetry or security work. Use authorized metadata and retained artifacts only to document authentication, access boundaries, secrets, isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or clear security-sensitive release gates.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot remains private and blocked for beta or full launch. Security evidence is incomplete across access control, secrets, isolation, release/deploy controls, dependencies, TLS, monitoring, incident handling, data exposure, and disclosure readiness. Retain the existing read-only evidence bundle; do not send outreach, change production, enable tracking, add credentials, or add dependencies.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Preserve the existing evidence-needed security disposition because fleet-doctor and operations security evidence are unavailable and material controls remain unevidenced. Keep private-launch and security-sensitive release gates unchanged while allowing ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
+        "requested_action": "Record this disposition against the existing security evidence work. Continue bounded read-only evidence capture from authorized metadata and retained artifacts only. Do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or claim certification.",
         "proposal_id": null
       }
     ]

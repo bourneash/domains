@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:48:43.362Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:58:38.008Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment and approve no incremental AI, infrastructure, marketing, or launch spend this cycle. The fleet has $1,002.46 of AI cost for 2026-09-01 through 2026-09-30 across 5,531 calls, versus only $4.92 of Amazon commission reported for 2026-09-21; these windows do not support a margin calculation, but the economics are plainly unproven. Delivery is saturated at 10/10 slots, so do not admit new finance or implementation work until the existing capacity gate clears.",
+        "summary": "Recommendation: retain containment and approve no new finance-driven spend or monetization forecast. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is in an aggregate provider row and cannot be assigned to a site; named site rows show $0 attributed commission. Do not convert clicks, orders, shipped items, SEO conversions, or AI output into revenue, ROI, contribution margin, or causal lift. AI usage for 2026-09-01 through 2026-09-30 is $1,002.45979265 across 5,531 calls, including 234 errors and 5 transient errors; this is not comparable to the one-day revenue window and is not a margin calculation. Keep the existing capacity gate and queued CTA refinement unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue claims must remain limited to the evidence: Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21. All $4.92 is in the aggregate tracking row 'other'; named site rows total $0 commission. Therefore site revenue, contribution margin, ROI, forecast revenue, and causal lift are unsupported. Do not use sessions, impressions, clicks, conversions, ordered items, or opportunity scores as revenue proxies.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Finance measurement disposition: cost-to-learn is not calculable because AI cost is available by site but not joined to experiment/change exposure, incremental outcomes, or attributable revenue; infrastructure spend is absent because operations/deploy sweeps have no results. Minimum measurement needed before ROI or margin claims: a dated site/change cost ledger joining AI spend, infrastructure cost, exposure, baseline/control outcome, affiliate clicks, ordered and shipped items, commission, and implementation status. Until that exists, retain AI-cost guardrails as a deferred specification and report AI cost separately from revenue.",
+        "summary": "Contribution margin is not calculable because site-level revenue is unavailable for the aggregate $4.92, and infrastructure, domain, vendor, labor, and other operating costs are not supplied. Cost-to-learn is also not calculable because AI calls and dollars are not linked to a defined learning outcome, delivered artifact, experiment exposure, or measured incremental result. Minimum measurement: same-period site/content identifier, registered affiliate tracking ID, clicks, ordered items, shipped items, commission, AI cost, infrastructure/vendor cost, and a defined verified outcome. Until then, report gross provider totals and AI spend separately and label margin, ROI, CAC, payback, and forecast revenue unknown.",
         "requested_action": null,
         "proposal_id": null
       }
