@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:16:17.294Z",
+  "generated_at": "2026-09-30T21:22:26.737Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the noveltyguns.com report-only proposal as non-delivery work. Route three low-risk SEO implementations across distinct sites as capacity-gated engineer work. No revenue, ROI, causal-lift, spend, telemetry, credential, configuration, launch, or security claims are supported. Delivery remains saturated at 10/10; CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence, or escalate unresolved capacity to the owner.",
+        "summary": "Reject the offshorehookup.com proposal as a new medium-priority admission: delivery is saturated at 10/10, existing work is measuring or queued, and site-attributed revenue remains unsupported. Preserve only three low-priority, reversible SEO changes as capacity-gated engineer work across distinct sites. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence; unresolved capacity escalates to the owner. No revenue, ROI, margin, or causal-lift claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

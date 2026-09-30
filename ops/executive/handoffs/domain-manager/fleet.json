@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:16:17.294Z",
+  "generated_at": "2026-09-30T21:22:26.737Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish noveltyguns.com implementation baseline before bounded site work",
-        "summary": "The authoritative snapshot does not provide noveltyguns.com page, repository-file, audience, SEO, health, monetization, or analytics evidence sufficient to select a safe implementation. Create one bounded read-only baseline artifact and identify exactly one reversible next implementation.",
-        "requested_action": "Inspect only the existing noveltyguns.com repository and public entry surface. Record the actual homepage route, exact source files, content/CTA structure, compliance disclosures, build/test commands, analytics state, and one safe implementation candidate. Do not deploy, modify production, request duplicate telemetry, add tracking, spend, or change credentials/configuration.",
+        "title": "Improve offshorehookup.com homepage affiliate CTA clarity",
+        "summary": "Queue one reversible homepage conversion improvement for offshorehookup.com after delivery capacity clears. Existing revenue evidence records 320 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; no causal lift is claimed.",
+        "requested_action": "Implement on the homepage (/): clarify the primary affiliate CTA, preserve the existing affiliate destination and disclosure, improve keyboard focus and mobile layout, and avoid new tracking, credentials, spend, or unrelated route changes. Keep capacity-gated until one active delivery slot is released.",
         "proposal_id": null
       }
     ]
