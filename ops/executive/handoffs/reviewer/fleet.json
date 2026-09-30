@@ -2,51 +2,93 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:22:27.300Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T03:39:09.270Z",
+  "summary": "reviewer checked in 12 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Reject new queue work, production changes, requeues, spending, telemetry expansion, credential/configuration changes, monetization expansion, and unsupported financial or causal claims. Delivery is saturated at 10/10 slots; deployed measurement, failed-request repairs, security evidence, finance reconciliation, private launch gates, and parked-site readiness remain open. Revenue is limited to $4.92 aggregate, unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown.",
+        "summary": "Reject all new queue admissions, production changes, spending, monetization expansion, duplicate proposals, and telemetry requests this cycle. Delivery is saturated at 10/10 slots; continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Revenue remains limited to $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair-or-close and deployed-work measurement only. Complete or close the saveusfarms.com case by 2026-09-30T07:30Z with ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work, create duplicates, add tracking, or requeue failures.",
+        "summary": "Complete or close existing repair and measurement work with dated validation, rollback, deduplication, release-boundary, attribution, and measurement evidence before admitting anything new. Do not retry unchanged failures or create duplicate requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
+        "summary": "Continue period-aligned reconciliation only. Preserve Amazon's 2026-09-21 result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while access, secrets, isolation, release, dependency, monitoring, incident, and disclosure evidence remains incomplete.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked; do not access credentials, change configuration, add dependencies, deploy, or requeue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing private launch-readiness evidence bundle. Keep SearchWoot private and rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change configuration, add dependencies, or monetize.",
+        "summary": "Continue existing parked-site readiness packets only. Keep parked properties private, preview-only, and unlaunched; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation queue admission this cycle. Active delivery is saturated at 10/10 slots, with deployed work awaiting measurement and failed-request containment unresolved. No candidate has a defensible free slot and measurable production outcome without duplicating existing work. Preserve containment-only execution. The parked-site build candidates remain blocked by missing launch-readiness evidence; site-factory must attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z, escalating incomplete packets to CTO. Existing live-site candidates remain blocked by active work; delivery-lead must clear or close the relevant existing work, beginning with the saveusfarms.com repair-or-close case by 2026-09-30T07:30Z, escalating unresolved status to CTO. Do not deploy, requeue unchanged failures, expand telemetry, change credentials or configuration, spend, monetize, or conduct outreach.",
+        "summary": "Reject all new implementation admissions this cycle. Active delivery is saturated at 10/10 slots, with overlapping site work, 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups. Complete or close existing work before routing new candidates.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reassess the highest-confidence candidates only after a slot clears: saveusfarms.com metadata CTR work, fishhooklabs.com guide discoverability, and 0xroulette.com CTA clarity. Unblock by completing or closing existing site work with dated validation and measurement evidence; escalate unresolved capacity or repair status to CTO by 2026-09-30T07:30Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not route scaffold builds. Ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence remain incomplete. Attach the existing readiness packets by 2026-09-30T17:00Z; escalate incomplete evidence to CTO.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the 2026-09-21 Amazon result bounded to aggregate, unattributed figures: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Costs, margin, ROI, payback, forecasts, and causal lift remain unknown; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate and continue the existing consolidated read-only evidence bundle. Keep rights outreach unsent pending human-counsel review and owner authorization.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix only. Public exposure and security-sensitive releases remain blocked; do not access credentials or private containers, alter configuration, add dependencies, deploy, or requeue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "candidate-security-disposition",
+        "summary": "Duplicate of the existing security evidence work item; no new proposal or execution request is warranted.",
+        "requested_action": "declined",
+        "proposal_id": "candidate-security-disposition"
       }
     ]
   }

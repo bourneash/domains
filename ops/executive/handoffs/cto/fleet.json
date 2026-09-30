@@ -2,56 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:22:27.299Z",
-  "summary": "cto checked in 7 executive handoff item(s)",
+  "generated_at": "2026-09-30T03:39:09.269Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment-only execution this cycle. Do not admit new queue work, create proposals, deploy, requeue unchanged failures, expand telemetry, change credentials or configuration, spend, monetize, or conduct outreach. Continue only existing deployed-work measurement, repair-or-close containment, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Reassess after capacity clears and required evidence is complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain existing repair-or-close and measurement work only. Complete or close the saveusfarms.com case by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicate requests; escalate unresolved status to CTO.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, cost, conversion, attribution, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while access, secrets, isolation, release, dependency, monitoring, incident, and disclosure evidence remains incomplete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, and causal lift unknown; authorize no spend or monetization expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing private launch-readiness evidence bundle. Keep SearchWoot private and rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change configuration, add dependencies, or monetize.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net only. Keep each parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics or affiliate systems, spend, add dependencies, or create queue work.",
+        "summary": "CTO disposition: preserve revenue intent through attribution integrity and existing affiliate repair, but admit no new implementation while delivery is saturated at 10/10 with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Hold the drivegm.net preview concept outside the queue until capacity and site-readiness evidence clear.",
         "requested_action": null,
         "proposal_id": null
       }

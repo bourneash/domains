@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:36:08.754Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T03:39:09.270Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue admissions. Revenue support is limited to the Amazon window 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed; site-attributed income is $0, so site-level revenue claims are unsupported. AI usage cost is $947.40 for 2026-09-01 through 2026-09-29 across 5,289 calls, but it cannot be compared to one revenue day. Contribution margin, infrastructure spend, budget exposure, ROI, payback, forecasts, and cost-to-learn are unknown because matching-period allocated costs and outcome attribution are unavailable. Minimum measurement: a dated ledger matching each revenue and cost item to the same site or content and period, including AI, infrastructure, domain, and other operating costs, plus an approved learning threshold. Continue only existing period-aligned finance reconciliation, deployed-work measurement, repair-or-close, security evidence, private launch gates, and parked-site readiness. Delivery remains full at 10/10 slots, with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Do not treat impressions, clicks, sessions, conversions, AI call volume, or proposal counts as financial performance without attributable revenue and cost evidence.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "15594c12-19ca-4ea0-a00d-35b3993ca680",
+        "summary": "Defer MarkItDown adoption. The evidence supports technical feasibility only; no attributable revenue, savings, or validated cost-to-learn case is present, and delivery capacity is saturated.",
+        "requested_action": "declined",
+        "proposal_id": "15594c12-19ca-4ea0-a00d-35b3993ca680"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "0c1c1f58-856a-40c8-b1ee-492457d406db",
+        "summary": "Defer shadcn/ui evaluation. No attributable financial upside, avoided cost, or approved learning threshold is evidenced; current capacity and measurement gaps do not support new work.",
+        "requested_action": "declined",
+        "proposal_id": "0c1c1f58-856a-40c8-b1ee-492457d406db"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "1a8cf30b-84c7-40d8-b1ee-492457d406db",
+        "summary": "Defer Mermaid evaluation. Repository popularity is a vanity signal and does not support a revenue, margin, savings, or cost-to-learn claim.",
+        "requested_action": "declined",
+        "proposal_id": "1a8cf30b-84c7-40d8-b1ee-492457d406db"
       }
     ]
   }
