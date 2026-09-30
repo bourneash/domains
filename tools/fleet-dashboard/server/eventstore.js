@@ -3113,7 +3113,7 @@ function open(root, { file } = {}) {
     const resolved = ['done', 'cancelled'].includes(next.status) ? next.resolved_at || now : null;
     const result = db
       .prepare(
-        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,goal_id=?,parent_work_id=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,request_ref=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
+        `UPDATE executive_work_items SET title=?,kind=?,status=?,priority=?,owner=?,source_type=?,source_id=?,site=?,goal_id=?,parent_work_id=?,labels_json=?,summary=?,next_action=?,waiting_on=?,due_at=?,evidence_json=?,updated_at=?,resolved_at=?,resolution_note=?,request_ref=?,lifecycle_state=?,acknowledged_at=?,answered_at=?,closed_at=?,outcome=?,attempts=?,lease_owner=?,lease_expires_at=?,heartbeat_at=?,retry_at=?,last_error=? WHERE work_id=? AND updated_at=?`
       )
       .run(
         next.title,
@@ -3126,6 +3126,7 @@ function open(root, { file } = {}) {
         next.site || null,
         next.goal_id || null,
         next.parent_work_id || null,
+        JSON.stringify(Array.isArray(next.labels) ? next.labels : []),
         String(next.summary || ''),
         String(next.next_action || ''),
         next.waiting_on || null,

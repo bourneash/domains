@@ -23,6 +23,17 @@ const MANAGER_SLUGS = new Set([
   'fleet-design-manager',
   'fleet-site-factory-manager',
 ]);
+const MANAGER_AGENT_BY_OWNER = new Map(
+  [...MANAGER_SLUGS].map(slug => [slug.replace(/^fleet-/, ''), slug])
+);
+const TERMINAL_REQUEST_STATUSES = new Set(['committed', 'deployed', 'verified', 'completed']);
+const EXECUTABLE_WORK_KINDS = new Set([
+  'implementation',
+  'content',
+  'design',
+  'engineering',
+  'seo',
+]);
 
 function iso(value) {
   return new Date(value).toISOString();
@@ -33,35 +44,70 @@ function parseDate(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function collectEvidence(store) {
+function captureSnapshot(store) {
+  return {
+    work: new Map(
+      store.listExecutiveWorkItems({ limit: 1000, quiet: 0 }).map(item => [item.work_id, item])
+    ),
+    requests: new Map(
+      store.listChangeRequests({ limit: 1000 }).map(item => [item.request_id, item])
+    ),
+    artifacts: new Set(store.listAgentArtifacts({ limit: 1000 }).map(item => item.artifact_id)),
+  };
+}
+
+function isExecutableWork(item) {
+  return (
+    EXECUTABLE_WORK_KINDS.has(String(item.kind)) &&
+    Boolean(item.site) &&
+    !['blocked', 'waiting', 'cancelled', 'done'].includes(String(item.status)) &&
+    !['blocker', 'report-only', 'tracking'].includes(String(item.actionability || ''))
+  );
+}
+
+function collectEvidence(store, { baseline = null, since = null } = {}) {
   const now = Date.now();
   const fourWindowsAgo = now - 60 * 60 * 1000;
+  const windowStart = since || fourWindowsAgo;
   const ticks = store
     .listExecutiveActions({ action_type: 'tick', limit: 40 })
-    .filter(row => parseDate(row.started_at) >= fourWindowsAgo)
+    .filter(row => parseDate(row.started_at) >= windowStart)
     .slice(0, 4);
-  const since = ticks.length
-    ? Math.min(...ticks.map(row => parseDate(row.started_at)).filter(Boolean))
-    : fourWindowsAgo;
-  const workItems = store
-    .listExecutiveWorkItems({ limit: 2000, quiet: 0 })
-    .filter(row => parseDate(row.created_at) >= since);
-  const requests = store
-    .listChangeRequests({ limit: 2000 })
-    .filter(row => parseDate(row.created_at) >= since);
+  const snapshot = captureSnapshot(store);
+  const workItems = baseline
+    ? [...snapshot.work.values()].filter(item => !baseline.work.has(item.work_id))
+    : [...snapshot.work.values()].filter(item => parseDate(item.created_at) >= windowStart);
+  const requests = baseline
+    ? [...snapshot.requests.values()].filter(item => !baseline.requests.has(item.request_id))
+    : [...snapshot.requests.values()].filter(item => parseDate(item.created_at) >= windowStart);
+  const progressedRequests = baseline
+    ? [...snapshot.requests.values()].filter(item => {
+        const before = baseline.requests.get(item.request_id);
+        return (
+          before &&
+          !TERMINAL_REQUEST_STATUSES.has(String(before.status)) &&
+          TERMINAL_REQUEST_STATUSES.has(String(item.status)) &&
+          parseDate(item.updated_at) >= windowStart
+        );
+      })
+    : [];
+  const newArtifacts = baseline
+    ? store
+        .listAgentArtifacts({ limit: 1000 })
+        .filter(item => !baseline.artifacts.has(item.artifact_id))
+    : [];
   const managerDispatches = store
     .listAgentDispatches({ limit: 2000 })
     .filter(row => MANAGER_SLUGS.has(store.getAgent(row.agent_id)?.slug));
-  const completedWork = workItems.filter(row =>
-    ['done', 'completed', 'verified', 'deployed', 'committed'].includes(String(row.status))
+  const verifiedArtifacts = newArtifacts.filter(item =>
+    ['diff', 'preview', 'test', 'deployment'].includes(String(item.kind))
   );
-  const realRequests = requests.filter(row =>
-    ['queued', 'in_progress', 'committed', 'deployed', 'verified', 'completed'].includes(
-      String(row.status)
-    )
+  const executableWorkItems = workItems.filter(isExecutableWork);
+  const verifiedDeliveries = [...progressedRequests, ...workItems].filter(row =>
+    TERMINAL_REQUEST_STATUSES.has(String(row.status))
   );
   return {
-    window_start: iso(since),
+    window_start: iso(windowStart),
     window_end: iso(now),
     cycles_observed: ticks.length,
     cycles: ticks.map(row => ({
@@ -74,10 +120,14 @@ function collectEvidence(store) {
     })),
     real_work: {
       new_work_items: workItems.length,
-      completed_work_items: completedWork.length,
-      new_change_requests: realRequests.length,
+      new_executable_work_items: executableWorkItems.length,
+      completed_work_items: verifiedDeliveries.length,
+      new_change_requests: requests.length,
+      verified_artifacts: verifiedArtifacts.length,
+      verified_deliveries: verifiedDeliveries.length,
       blocked_work_items: workItems.filter(row => row.status === 'blocked').length,
-      actionable: completedWork.length > 0 || realRequests.length > 0,
+      actionable:
+        executableWorkItems.length > 0 || requests.length > 0 || verifiedDeliveries.length > 0,
     },
     manager_queue: {
       queued: managerDispatches.filter(row => row.status === 'queued').length,
@@ -90,6 +140,84 @@ function collectEvidence(store) {
           .sort((a, b) => parseDate(a.created_at) - parseDate(b.created_at))[0]?.created_at || null,
     },
   };
+}
+
+function hasExecutableHandoff(store, task) {
+  const links = store.listWorkflowLinks({ entity_type: 'work-item', entity_id: task.work_id });
+  if (links.some(link => link.to_type === 'request' || link.from_type === 'request')) return true;
+  return store
+    .listChangeRequests({ limit: 1000 })
+    .some(request =>
+      [request.source_work_id, request.source_work_item_id, request.work_id].includes(task.work_id)
+    );
+}
+
+function repairStuckManagerTasks(store, { max = 2, staleMs = 30 * 60 * 1000 } = {}) {
+  const repaired = [];
+  const cutoff = Date.now() - staleMs;
+  const tasks = store
+    .listExecutiveWorkItems({ source_type: 'operating-task', limit: 1000, quiet: 0 })
+    .filter(
+      task =>
+        task.status === 'in_progress' &&
+        (task.waiting_on === 'downstream-queue' ||
+          /no executable work product/i.test(task.last_error || '')) &&
+        parseDate(task.updated_at) <= cutoff &&
+        !hasExecutableHandoff(store, task)
+    )
+    .sort((a, b) => parseDate(a.updated_at) - parseDate(b.updated_at));
+  for (const task of tasks.slice(0, max)) {
+    const agentSlug = MANAGER_AGENT_BY_OWNER.get(task.owner);
+    const agent = agentSlug ? store.getAgent(agentSlug) : null;
+    if (!agent || agent.status !== 'active') continue;
+    const retryCount = (task.labels || []).filter(label =>
+      String(label).startsWith('overwatch-retry-')
+    ).length;
+    if (retryCount >= 2) {
+      store.updateExecutiveWorkItem(task.work_id, {
+        status: 'blocked',
+        waiting_on: task.owner,
+        last_error:
+          'Manager produced no executable downstream handoff after two Overwatch repairs.',
+        next_action: `Escalate ${task.owner} performance; produce a concrete change request or explain the evidence-backed blocker with an owner and deadline.`,
+        labels: [...(task.labels || []), 'overwatch-escalated'],
+      });
+      repaired.push({ work_id: task.work_id, action: 'escalated_after_retries' });
+      continue;
+    }
+    const attempt = retryCount + 1;
+    try {
+      const started = runtime.beginRun(store, {
+        agent_id: agent.agent_id,
+        work_id: task.work_id,
+        idempotency_key: `overwatch-repair:${task.work_id}:${attempt}`,
+      });
+      const dispatch = store.getAgentDispatch(started.run.run_id);
+      store.updateExecutiveWorkItem(task.work_id, {
+        status: 'in_progress',
+        waiting_on: task.owner,
+        attempts: Number(task.attempts || 0) + 1,
+        last_error: null,
+        next_action: `Overwatch repair ${attempt}/2 queued dispatch ${dispatch.dispatch_id}; manager must create an executable change request or explicit blocker.`,
+        labels: [...(task.labels || []), `overwatch-retry-${attempt}`],
+      });
+      repaired.push({
+        work_id: task.work_id,
+        action: 'requeued_stuck_manager',
+        attempt,
+        dispatch_id: dispatch.dispatch_id,
+      });
+    } catch (error) {
+      store.updateExecutiveWorkItem(task.work_id, {
+        status: 'blocked',
+        waiting_on: 'system',
+        last_error: error.message,
+        next_action: `Repair failed manager redispatch for ${task.owner}, then retry this task.`,
+      });
+      repaired.push({ work_id: task.work_id, action: 'repair_failed', error: error.message });
+    }
+  }
+  return repaired;
 }
 
 function repairHandoffs(store) {
@@ -153,6 +281,7 @@ async function main() {
     return { skipped: true, reason: 'overwatch is paused or disabled' };
   }
   const runId = crypto.randomUUID();
+  const auditStartedAt = Date.now();
   const started = runtime.beginRun(store, {
     agent_id: agent.agent_id,
     work_id: `exec-overwatch-cycle:${runId}`,
@@ -160,8 +289,9 @@ async function main() {
     provider: agent.provider,
     model: agent.model,
   });
-  const evidence = collectEvidence(store);
-  const repairs = repairHandoffs(store);
+  const baseline = captureSnapshot(store);
+  const evidence = collectEvidence(store, { since: auditStartedAt - 60 * 60 * 1000 });
+  const repairs = [...repairHandoffs(store), ...repairStuckManagerTasks(store)];
   const taskFile = path.join(ROOT, 'tools', 'executive', 'data', `.overwatch-task-${runId}.json`);
   const reportPath = path.join(
     ROOT,
@@ -195,7 +325,13 @@ async function main() {
       fs.unlinkSync(taskFile);
     } catch {}
   }
-  const finalEvidence = collectEvidence(store);
+  const finalEvidence = collectEvidence(store, { baseline, since: auditStartedAt });
+  const verified =
+    finalEvidence.real_work.verified_deliveries > 0 ||
+    finalEvidence.real_work.verified_artifacts > 0;
+  const queued =
+    finalEvidence.real_work.new_change_requests > 0 ||
+    finalEvidence.real_work.new_executable_work_items > 0;
   const report = {
     generated_at: new Date().toISOString(),
     agent: AGENT_SLUG,
@@ -204,11 +340,7 @@ async function main() {
     repairs,
     before: evidence,
     after: finalEvidence,
-    real_work_delta: {
-      new_work_items: finalEvidence.real_work.new_work_items - evidence.real_work.new_work_items,
-      new_change_requests:
-        finalEvidence.real_work.new_change_requests - evidence.real_work.new_change_requests,
-    },
+    real_work_delta: finalEvidence.real_work,
     output: sandbox.output,
   };
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), { mode: 0o600 });
@@ -228,6 +360,8 @@ async function main() {
         repairs: repairs.length,
         real_work_delta: report.real_work_delta,
         actionable: finalEvidence.real_work.actionable,
+        verified,
+        queued,
       },
     });
     store.createAgentEval({
@@ -235,12 +369,14 @@ async function main() {
       run_id: started.run.run_id,
       evaluator: 'exec-overwatch-deterministic',
       dimension: 'real-work-output',
-      score: finalEvidence.real_work.actionable ? 100 : repairs.length ? 60 : 0,
-      feedback: finalEvidence.real_work.actionable
-        ? 'Verified new downstream work or completed work in the audit window.'
-        : repairs.length
-          ? 'No verified new work yet; repaired at least one failed handoff.'
-          : 'No verified work product and no repair was available.',
+      score: verified ? 100 : queued ? 60 : repairs.length ? 40 : 0,
+      feedback: verified
+        ? 'Verified a delivered request, completed work item, or implementation artifact in this run.'
+        : queued
+          ? 'Created executable downstream work, but delivery is not verified yet.'
+          : repairs.length
+            ? 'No executable delivery was verified; repaired or escalated stuck handoffs.'
+            : 'No verified work product and no repair was available.',
       evidence: report.real_work_delta,
     });
   }
@@ -264,4 +400,10 @@ if (require.main === module) {
     });
 }
 
-module.exports = { collectEvidence, repairHandoffs, main };
+module.exports = {
+  captureSnapshot,
+  collectEvidence,
+  repairHandoffs,
+  repairStuckManagerTasks,
+  main,
+};

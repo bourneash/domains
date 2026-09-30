@@ -24,6 +24,22 @@ const MANAGER_ROLES = [
   { owner: 'design-manager', slug: 'fleet-design-manager', promptRole: 'design-director' },
 ];
 const MANAGER_BY_AGENT = new Map(MANAGER_ROLES.map(role => [role.slug, role]));
+const EXECUTABLE_WORK_KINDS = new Set([
+  'implementation',
+  'content',
+  'design',
+  'engineering',
+  'seo',
+]);
+
+function isExecutableWork(item) {
+  return (
+    EXECUTABLE_WORK_KINDS.has(String(item.kind)) &&
+    Boolean(item.site) &&
+    !['blocked', 'waiting', 'cancelled', 'done'].includes(String(item.status)) &&
+    !['blocker', 'report-only', 'tracking'].includes(String(item.actionability || ''))
+  );
+}
 
 function extractDomain(summary = '') {
   for (const match of String(summary).matchAll(DOMAIN_RE)) {
@@ -271,14 +287,18 @@ async function processOperatingManager(
         const workItems = currentStore
           .listExecutiveWorkItems({ limit: 2000 })
           .filter(item => !beforeWorkItems.has(item.work_id) && item.work_id !== task.work_id);
+        const executableWorkItems = workItems.filter(isExecutableWork);
         const actionable =
-          sandbox.code === 0 && (changeRequests.length > 0 || workItems.length > 0);
+          sandbox.code === 0 && (changeRequests.length > 0 || executableWorkItems.length > 0);
         const result = {
           lane: role.owner,
           task_id: task.work_id,
           sandbox_status: sandbox.code,
           change_requests: changeRequests.length,
           work_items: workItems.length,
+          executable_work_items: executableWorkItems.length,
+          created_work_item_ids: workItems.map(item => item.work_id),
+          change_request_ids: changeRequests.map(item => item.request_id),
           actionable,
         };
         const reportPath = path.join(
