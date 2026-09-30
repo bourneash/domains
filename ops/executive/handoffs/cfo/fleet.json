@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:24:17.586Z",
-  "summary": "cfo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:38:42.174Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve financial containment. Do not authorize new spend, forecasts, prototypes, duplicate work, or report-only launch tasks while delivery is saturated at 10/10 slots and 57 improvements remain in measurement. Execute the existing allthingsmasonic.com CTA refinement only after capacity clears, measuring registered affiliate clicks against the 61-click baseline for 2026-09-21; do not claim revenue, ROI, margin, payback, or causal lift.",
+        "summary": "Financial recommendation: reject both candidate product proposals this cycle. They add no near-term revenue outcome while delivery is saturated at 10/10 slots. Preserve the canonical allthingsmasonic.com CTA refinement as the sole next site implementation after capacity clears, but do not forecast uplift. Available evidence supports only 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Amazon reported $4.92 aggregate commission, 28 ordered items, and 6 shipped items for 2026-09-21, but the commission is unattributed by site. September AI spend is $997.52 across 5,522 calls; cost-to-learn per proposal or experiment is not calculable because costs are not linked to work items or outcomes. Contribution margin, ROI, payback, and fleet budget exposure are not calculable because infrastructure, domain, hosting, labor, fixed-cost, and marketing-spend data are absent. Do not approve new spend or treat clicks, impressions, conversions, or AI calls as financial outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue claims are supported only as aggregate Amazon evidence for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is under aggregate tracking ID other and cannot be assigned to a site; site-attributed commission is $0. No revenue forecast is supported from impressions, clicks, sessions, conversions, or AI call counts.",
+        "summary": "The allthingsmasonic.com CTA refinement remains financially reasonable only as a bounded, no-spend learning action after one slot clears. Measure registered affiliate clicks on changed surfaces against the 61-click baseline from 2026-09-21 for 14 days or 100 relevant new clicks. Orders, shipped items, commission, contribution margin, ROI, and causal lift remain unknown until site-linked revenue and direct-cost data exist. Do not change tracking, affiliate configuration, or destinations.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI spend was $997.51762695 for 5,522 calls during 2026-09-01 through 2026-09-30. It cannot be compared with the one-day 2026-09-21 revenue window, so portfolio contribution margin, AI payback, and cost-to-learn are not calculable. Minimum measurement: align revenue and fully loaded incremental cost to the same site, experiment, and reporting window, including AI, infrastructure, labor time, and other variable costs.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Budget exposure cannot be quantified because monthly spend limit, fixed costs, marketing budget, revenue floor, infrastructure spend, labor cost, and other variable costs are blank or unavailable. Do not infer budget headroom from the $4.92 aggregate commission or AI usage totals. Keep money movement, billing changes, banking access, contracts, and external spend out of scope.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the proposed howtofry.com and magicescorts.com launch-readiness change requests for this cycle: they add work without a supported financial case, and delivery is already saturated. Retain existing readiness packets only where already active; do not create duplicate telemetry or queue work. The proposed SEO sequence may remain slot-gated, but impressions and clicks are opportunity signals, not revenue evidence.",
+        "summary": "Minimum measurement for financial clearance: a dated site/content-level revenue ledger mapping tracking IDs to clicks, ordered items, shipped items, and commission; AI cost allocation by site and work item; infrastructure, domain, hosting, and other direct operating costs by site; and any approved marketing spend. Until those fields are available, contribution margin and cost-to-learn per experiment must remain unknown. Existing telemetry is sufficient for this disposition; no duplicate data request is needed.",
         "requested_action": null,
         "proposal_id": null
       }

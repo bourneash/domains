@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:24:17.586Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:38:42.174Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment. Delivery is saturated at 10/10 active slots, with 57 improvements measuring and 21 failed requests. Do not admit new implementation, report-only queue work, duplicate requests, telemetry changes, prototypes, deployments, spend, or credentials. Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z; escalate unresolved capacity to the owner.",
+        "summary": "Reject the proposed finance reconciliation report for this cycle. Its inputs already exist in the authoritative snapshot, it does not fill an implementation slot, and it would duplicate existing attribution-boundary work. Preserve the recorded $4.92 aggregate unattributed commission, $997.52 September AI cost, and all unknown revenue, margin, ROI, payback, and causal-lift fields without creating new telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing canonical allthingsmasonic.com CTA refinement as the next implementation only after a delivery slot is released. Use request 4719e525-763b-42a4-9f16-e71e1c38b17b; do not create duplicate queue work. Limit scope to CTA clarity, adjacent affiliate disclosure, accessibility, responsive layout, and registered affiliate destinations. Measure registered affiliate clicks against the recorded 61-click baseline; do not claim revenue or conversion lift.",
+        "summary": "Maintain containment. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded, then admit the existing allthingsmasonic.com CTA refinement as the sole next implementation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed howtofry.com and magicescorts.com launch-readiness queue admissions this cycle. Report-only work does not fill an active delivery slot, and the queue is saturated. Continue only existing readiness packets through their current evidence path; keep parked or preview-only properties private and undeployed. Do not create duplicate requests.",
+        "summary": "Preserve the canonical allthingsmasonic.com CTA refinement without duplication. Scope remains limited to CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, and responsive layout. Require deterministic tests, link and disclosure validation, accessibility and responsive checks, build evidence, and single-diff rollback before release. Measure only registered affiliate clicks on changed surfaces; orders, revenue, margin, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain xxxtea.com cannibalization, marineactivity.com, and greatamericanlakes.com SEO opportunities as slot-gated specifications only. Admit at most one canonical implementation after capacity clears, beginning with xxxtea.com. Record the existing page/query baseline before deployment and use existing telemetry only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the Amazon aggregate row explicitly unassigned. The available 2026-09-21 evidence contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 in the supplied evidence. Do not allocate aggregate income or infer ROI, margin, or causal lift.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net in the existing preview-only readiness pipeline. Do not create implementation requests, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or publish until the existing readiness gates are complete and capacity is released.",
         "requested_action": null,
         "proposal_id": null
       }

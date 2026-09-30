@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.743Z",
+  "generated_at": "2026-09-30T21:38:42.173Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Prioritize evidence-backed monetization repairs without inferring ROI: preserve the $4.92 aggregate unattributed Amazon commission as unknown by site, repair known affiliate-reference issues, resolve the amputeenews.com tag prerequisite, and execute the existing allthingsmasonic.com CTA refinement only after capacity clears.",
+        "summary": "Disclosure and attribution readiness remain incomplete where evidence is unavailable or compliance checks are unknown. Preserve unknowns, use existing compliance artifacts, and do not request duplicate telemetry. No revenue, conversion, margin, ROI, or causal-lift claim is supported beyond the recorded aggregate provider row.",
         "requested_action": null,
         "proposal_id": null
       }

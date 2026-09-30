@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:24:17.585Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:38:42.173Z",
+  "summary": "site-factory checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small site-factory pipeline: complicated.work remains the strongest build candidate but is readiness-gated; deadlymaracas.com and driveford.net remain secondary scaffold candidates requiring the same readiness artifact before implementation. No candidate is approved for public launch.",
+        "summary": "Maintain a three-site preview-only launch pipeline: complicated.work, deadlymaracas.com, and driveford.net. For each, retain a bounded packet covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, owner, rollback, and launch gate. No domain changes, spending, deployment, analytics configuration, monetization, or public launch is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Strongest candidate is complicated.work based on the validated site-factory build score of 84 and existing scaffold. Its build remains blocked until the existing readiness packet contains dated owner assignment, preview/build evidence, content and SEO seed, measurement boundary, compliance baseline, security disposition, rollback point, and explicit blocker evidence. Capacity is saturated, so no implementation request should be admitted.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The repeatable launch gate is: owner confirmed; legal/compliance disposition recorded; security and release evidence recorded; preview/build quality checks pass; SEO metadata, sitemap, and crawlability baseline documented; analytics and affiliate measurement boundaries documented without inventing telemetry; rollback point recorded; then explicit owner approval for launch. Until all gates pass, keep each candidate parked, private, preview-only, and unlaunched.",
         "requested_action": null,
         "proposal_id": null
       }
