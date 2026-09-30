@@ -33,6 +33,7 @@ GITHUB_REPO="bourneash/${DOMAIN}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOMAINS_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 SUBMODULE_PATH="sites/${DOMAIN}"
+REPO_EXISTS=0
 
 set -a; . "${DOMAINS_ROOT}/.env"; set +a
 export PATH="/home/jesse/.nvm/versions/node/v23.7.0/bin:${PATH}"
@@ -44,10 +45,17 @@ echo "  GitHub repo : ${GITHUB_REPO}"
 echo ""
 
 if gh repo view "${GITHUB_REPO}" --json nameWithOwner >/dev/null 2>&1; then
-  echo "NOTICE: GitHub repo already exists for ${DOMAIN}: ${GITHUB_REPO}"
-  echo "        Treating this as a partial existing setup."
-  echo "        Use 'tools/scripts/domain-manager-cli.sh repair ${DOMAIN}' to continue safely."
-  exit 2
+  remote_commits="$(gh api "repos/${GITHUB_REPO}/commits?per_page=1" --jq 'length' 2>/dev/null || true)"
+  if [ "${remote_commits}" = "0" ]; then
+    echo "NOTICE: GitHub repo exists but is empty: ${GITHUB_REPO}"
+    echo "        Resuming the interrupted scaffold push."
+    REPO_EXISTS=1
+  else
+    echo "NOTICE: GitHub repo already exists for ${DOMAIN}: ${GITHUB_REPO}"
+    echo "        Treating it as a partial existing setup."
+    echo "        Use 'tools/scripts/domain-manager-cli.sh repair ${DOMAIN}' to continue safely."
+    exit 2
+  fi
 fi
 
 if [ -e "${DOMAINS_ROOT}/${SUBMODULE_PATH}" ] || git ls-files --error-unmatch -- "${SUBMODULE_PATH}" >/dev/null 2>&1; then
@@ -335,7 +343,9 @@ git add -A
 git -c user.name="Fleet Domain Manager" \
   -c user.email="fleet-domain-manager@domains.local" \
   -c commit.gpgsign=false commit -q -m "Initial scaffold — coming soon"
-gh repo create "${GITHUB_REPO}" --private --description "${DOMAIN} — coming soon"
+if [ "${REPO_EXISTS}" = "0" ]; then
+  gh repo create "${GITHUB_REPO}" --private --description "${DOMAIN} — coming soon"
+fi
 git remote add origin "git@github-bourneash:${GITHUB_REPO}.git"
 git push -u origin main
 echo "--- Pushed to github.com/${GITHUB_REPO} ---"
