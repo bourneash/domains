@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:23:48.115Z",
+  "generated_at": "2026-09-30T09:24:55.322Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare pervypotion.com evidence-gated backlog and launch baseline",
-        "summary": "pervypotion.com is the managed site, but the supplied snapshot does not provide site-specific repository, analytics, SEO, revenue, compliance, or operations evidence. Existing delivery capacity is saturated, so no production implementation should be admitted until the evidence blocker is resolved.",
-        "requested_action": "Create one timestamped read-only baseline covering the public entry page, repository entry files, current audience positioning, primary CTA, disclosures, analytics/SEO availability, monetization readiness, health signals, and existing queue conflicts. Select exactly one reversible next implementation step only if evidence supports it; otherwise record the blocker and defer all other opportunities. Do not request duplicate telemetry, deploy, change production, add tracking, spend, or claim lift.",
+        "title": "Restore pokererotic.com analytics readiness",
+        "summary": "pokererotic.com is live but analytics configuration is unavailable in the authoritative snapshot, so audience, SEO, conversion, and monetization outcomes cannot be measured without inventing telemetry.",
+        "requested_action": "Owner-authorize the existing analytics property binding, then update only pokererotic.com’s existing analytics integration and consent configuration. Do not deploy or add tracking until authorized property access is available. Keep this deferred while delivery capacity is saturated.",
         "proposal_id": null
       }
     ]
