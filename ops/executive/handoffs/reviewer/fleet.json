@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:27:51.161Z",
+  "generated_at": "2026-09-30T23:37:57.278Z",
   "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, production, prototype, and duplicate-work claims. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site economics remain unknown. Keep SearchWoot private and rights outreach unsent. Delivery is saturated at 10/10 slots; CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z. Only then may the already-queued allthingsmasonic.com CTA refinement proceed. No new research request is necessary because existing public evidence and shared telemetry cover the stated gaps.",
+        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, and measurement limits. Do not admit new work while capacity is 10/10. If one slot clears, execute only the existing allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, new production, duplicate queue, prototype, and site-factory claims. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site economics remain unknown. Delivery is saturated at 10/10 slots, so no new implementation can be safely admitted. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the existing allthingsmasonic.com CTA refinement.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, launch, security-clearance, spend, prototype, site-factory, duplicate, and new production claims. Amazon commission remains $4.92 aggregate and unattributed; site revenue and financial returns are unknown. Keep private-launch and security-sensitive release gates unchanged. Owner message: confirm SearchWoot remains private and rights outreach unsent pending counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Only after one slot is released may the existing allthingsmasonic.com CTA refinement proceed. Escalate unresolved capacity to the owner at the deadline.",
+        "summary": "If capacity clears, use only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Limit scope to CTA clarity, adjacent disclosure visibility, keyboard focus, and responsive behavior; preserve destination and registered tracking ID. Require deterministic build, link, disclosure, accessibility, and responsive checks. Measure outbound clicks only and do not claim orders, revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Confirm that SearchWoot remains private and rights outreach remains unsent. No new production, spend, credentials, configuration, security-sensitive release, or unsupported financial claim is approved. Current delivery capacity is 10/10; the next implementation is the existing allthingsmasonic.com CTA refinement after CTO releases one slot.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, launch, security-clearance, spend, prototype, site-factory, duplicate, and new production claims. Amazon evidence remains $4.92 aggregate unattributed for 2026-09-21; site revenue and financial outcomes are unknown. Delivery is saturated at 10/10 slots. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z. Keep SearchWoot private and rights outreach unsent. Three bounded SEO candidates are routed as capacity-gated engineer work; no execution occurs until capacity is released.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:27:51.160Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:37:57.277Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Do not claim site revenue, contribution margin, ROI, payback, or causal lift. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all commission in aggregate tracking ID `other`; site-attributed income is $0. September AI usage is $1,002.46 across 5,531 calls and 39 instrumented sites. These periods and attribution scopes do not support ROI. AI spend alone is not contribution margin; infrastructure, domains, labor, vendor, and other operating costs are absent. Keep new spend and new monetization work blocked. After capacity clears, the existing allthingsmasonic.com CTA refinement may proceed only as a measurement experiment against 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Do not treat clicks, impressions, sessions, ordered items, or proposals as financial outcomes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain aggregate Amazon commission as explicitly unattributed. Require every new affiliate link to use its registered site tracking ID and preserve provider aggregate rows separately. Do not allocate the $4.92 aggregate commission to sites or infer revenue from 6,219 clicks, 28 ordered items, or 6 shipped items. The minimum evidence for site contribution margin is period-aligned site revenue, shipped-item commission, AI cost, infrastructure/vendor cost, domain cost, and any directly attributable labor or production cost.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The queued allthingsmasonic.com CTA refinement is financially acceptable only as a bounded, reportable experiment after capacity release. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission; require destination integrity and click measurement, with no revenue or ROI claim. Do not add spending, tracking, dependencies, credentials, or infrastructure commitments.",
+        "summary": "Retain the existing attribution boundary: keep the $4.92 Amazon aggregate row unassigned and do not convert named tracking-row clicks into revenue. For future reporting, require each new affiliate link to use its registered tracking ID and reconcile clicks, ordered items, shipped items, commission, site/content identifier, and reporting period before publishing financial claims. Do not request duplicate telemetry or create new queue work.",
         "requested_action": null,
         "proposal_id": null
       }

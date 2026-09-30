@@ -2,21 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:27:51.161Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:37:57.278Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the containment posture and revenue intent. Reject new site-factory admission, prototypes, scheduler/control-plane work, duplicate queue items, new telemetry, and unsupported revenue or ROI claims. Delivery remains saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Only after a slot is released may the existing allthingsmasonic.com CTA refinement proceed.",
+        "summary": "Delivery remains saturated at 10/10 active slots. Do not admit new implementation, duplicate work, prototypes, or site-factory publication. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, and measurement limits. If a slot clears, admit only the existing non-duplicative allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing capacity gate. Do not create a new request. After the saveusfarms.com case is completed or justifiably closed, execute only the already-queued allthingsmasonic.com CTA refinement. Keep scope limited to CTA hierarchy, adjacent disclosure, unchanged destinations, keyboard focus, contrast, tap targets, and responsive layout. Require deterministic tests, build, link validation, smoke, accessibility checks, and single-diff rollback.",
+        "summary": "After capacity clears, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Limit scope to CTA clarity, adjacent disclosure visibility, keyboard focus, and responsive layout. Preserve the existing destination and registered tracking ID allthingsmasonic-20; add no dependencies, credentials, telemetry, or cross-site behavior. Validate destination and tracking-ID integrity, disclosure visibility, responsive behavior, keyboard focus, build, link, and deterministic tests. Measure available outbound affiliate-click data against the recorded site-level baseline without claiming page-level attribution, orders, revenue, ROI, or causal lift. Roll back the single bounded diff if validation fails.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing amputeenews.com affiliate activation prerequisite. Keep monetization disabled until the owner provides or confirms the registered Amazon Associates tag through the existing authorized process. Do not retrieve credentials or invent a tag. Validate that generated outbound links use the confirmed tag, preserve disclosure copy, and emit no placeholder or missing ID. If validation fails, retain the prior non-monetized behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing americastrikes.com affiliate repair items for broken replacements and stale references; create no duplicates. Validate each changed destination, the registered americastrikes-20 tracking ID, adjacent disclosure, and link/build checks. Measure valid-link rate and available outbound clicks only; conversion, orders, commission, ROI, and causal lift remain unknown. Roll back only affected content or registry entries if validation fails.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing affiliate-disclosure evidence gate. Reconcile the authoritative per-site compliance scan before any monetization change; do not infer site-specific failures from fleet totals. Require disclosure visibility, consent behavior, privacy/terms links, and affiliate-declaration validation. Keep any unvalidated monetization surface unchanged or disable only that surface.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep complicated.work deferred and parked. Do not publish or add affiliate links while analytics, disclosure, legal, security, launch-readiness, and measurement gates remain incomplete. Preview-only checklist work may continue through existing work items; retain parked status and make no production exposure.",
         "requested_action": null,
         "proposal_id": null
       }

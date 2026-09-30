@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:27:51.161Z",
+  "generated_at": "2026-09-30T23:37:57.278Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk severity is high for go-live and security-sensitive releases because fleet-doctor has no run or findings, operations deploy/uptime/error sweeps have no results, and authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, broader TLS evidence, data exposure controls, and security.txt/disclosure readiness are unevidenced. This is not evidence of compromise or certification. Decision: keep private-launch and security-sensitive release gates unchanged; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not create duplicate security work.",
+        "summary": "Security disposition: evidence_needed, not clear. Risk is high for new public exposure or security-sensitive releases and unknown for ordinary reversible growth. Evidence: fleet-doctor has no run or findings; operations has no deploy, uptime, or error sweep results; security sitefacts are unknown for all 61 in-scope sites; authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No compromise evidence is present. TLS has no certificates reported expiring within 30 days, but complete TLS configuration is not evidenced. Compliance reports 36 pass, 19 fail, and 6 unknown and is not certification. Exact decision: keep private-launch and security-sensitive release gates unchanged; permit only existing ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior and preserves disclosure, consent, destination, tracking-ID, validation, and rollback boundaries. Continue the existing security evidence matrix; do not create duplicate telemetry or work, access credentials or private containers, exploit targets, modify permissions/configuration, deploy, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditional security approval for the existing queued CTA refinement only after capacity is released. Scope must remain limited to CTA hierarchy, adjacent disclosure, responsive layout, keyboard focus, contrast, tap targets, destination integrity, and validation. Require deterministic tests, build, link validation, smoke, accessibility checks, rollback evidence, and confirmation of no new routes, dependencies, telemetry, credentials, permissions, data collection, or cross-site behavior. Do not admit duplicate work or clear fleet security gates.",
+        "summary": "Continue the existing security-fleet-control-evidence work item. Attach one dated read-only evidence bundle covering authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Record explicit unknowns, affected scope, owners, severity, and release implications. Reconsider clearance only after dated evidence and an owner-approved disposition exist; do not create duplicate work or mutate production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains private and blocked for beta or full launch. Security evidence is incomplete across access control, secrets, isolation, release/deploy controls, dependencies, TLS, monitoring, incident handling, data exposure, and disclosure readiness. Retain the existing read-only evidence bundle and do not send outreach, change production, enable tracking, add credentials, or add dependencies.",
+        "summary": "Retain the existing capacity-gated allthingsmasonic.com CTA refinement as conditional ordinary reversible growth only. Before execution, preserve the registered destination and tracking ID allthingsmasonic-20, adjacent disclosure, keyboard focus, responsive behavior, and single-diff rollback; add no credentials, permissions, dependencies, telemetry, or cross-site behavior. This is not a security-sensitive release or public-launch clearance.",
         "requested_action": null,
         "proposal_id": null
       }
