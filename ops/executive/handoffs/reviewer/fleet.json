@@ -2,63 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:24:51.502Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:38:16.929Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: approve containment-only execution. Reject unsupported revenue, ROI, margin, payback, causal-lift, spend, telemetry, prototype, launch, and duplicate-work claims. Delivery is saturated at 10/10 slots. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z before releasing one slot. Keep private-launch and security gates unchanged.",
+        "summary": "Reject new production work, prototypes, duplicate telemetry, spending, unsupported revenue or causal claims, and high-priority queue admissions. Delivery is saturated at 10/10 slots. Keep private-launch and security gates unchanged. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z; only then may one slot be released for the existing canonical allthingsmasonic.com CTA request, measured solely by registered affiliate clicks. Aggregate commission remains unattributed; ROI, margin, and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not admit new work until one slot is released.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root-cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Do not admit duplicate work or prototypes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After CTO records release of one delivery slot, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Measure affiliate clicks only against the recorded baseline; preserve disclosures, destination, affiliate identifier, accessibility, tests, build/link validation, and rollback evidence. Do not claim revenue or causal lift.",
+        "summary": "Continue the existing consolidated read-only security evidence matrix and retain private-launch and security-sensitive release gates. Do not create duplicate work or request telemetry already present in the shared snapshot.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and keep new public exposure and security-sensitive releases blocked. Do not request duplicate telemetry, access credentials, change configuration, deploy, exploit targets, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve containment with three low-risk implementation candidates routed to engineer as capacity-gated only. No production admission occurs while all 10 delivery slots are occupied. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, payback, and causal lift are unsupported. Keep private-launch and security gates unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after completion; escalate unresolved capacity to the owner at the deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Three bounded reversible SEO candidates are routed as capacity-gated only. Do not start, deploy, change telemetry, spend, or modify credentials/configuration until CTO records one released slot and confirms the candidate is admitted.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private-launch and security-sensitive release gates unchanged. Continue existing read-only evidence work using authorized metadata and retained artifacts only; do not request duplicate telemetry or mutate production.",
+        "summary": "Reject unsupported financial, causal-lift, production, spend, duplicate, and high-priority claims. Route three bounded SEO candidates to engineer as capacity-gated work across distinct sites. Delivery remains saturated at 10/10 slots; CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z. Keep private-launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

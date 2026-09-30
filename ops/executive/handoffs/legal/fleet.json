@@ -2,44 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:24:51.502Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:38:16.929Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep searchwoot.com private, preview-only, and unlaunched. Evidence shows Woot API access and rate limits, but no permission to store, derive, cache, publicly display, alert on, or monetize returned data; public terms point against the proposed commercial/public use. Security, accuracy/freshness, measurement, and launch-owner gates are also incomplete. Human counsel is required before rights outreach, public exposure, affiliate use, advertising, or any exception.",
+        "summary": "Disposition: blocked for new public launches and counsel_required for rights-dependent monetization. SearchWoot remains private; no Woot outreach or public beta is authorized. Existing reversible growth may continue only within evidenced consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Compliance evidence is mixed: 35 pass, 20 fail, 6 unknown; missing banner/accept/reject/GA4 evidence affects 20 sites, and privacy/terms evidence affects 4. Do not treat incomplete telemetry alone as a blocker for ordinary growth.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance baseline is technical triage only: 35 pass, 20 fail, and 6 unknown across 61 checked properties. Twenty findings each remain for banner, consent accept, consent reject, and GA4 checks; four privacy and four terms findings remain. Do not treat incomplete telemetry as a standalone growth blocker, but do not clear affected launch or monetization gates without site-specific evidence.",
+        "summary": "Keep launch gates unchanged. For SearchWoot, capture the read-only data-flow, retention, deletion, access, correction, notification, log-field, vendor, and consent evidence already identified; do not enable tracking, expand notifications, send outreach, or deploy. For complicated.work, attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence before any publish decision.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "For parked or gated properties, retain the concrete decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Next evidence action: attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or new queue entry is cleared.",
+        "summary": "The exact current decision is keep SearchWoot private and keep complicated.work parked, private, preview-only, and unlaunched. Human counsel is required for Woot redistribution rights, jurisdictional privacy treatment, and any future affiliate or advertising use. No go-live proposal is supported by the evidence.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "dd8f371b-4e50-4cd3-acc9-cf10bfacf9f9",
-        "summary": null,
-        "requested_action": "accepted_research",
-        "proposal_id": "dd8f371b-4e50-4cd3-acc9-cf10bfacf9f9"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "3943617d-d299-4fe7-94da-08645d281e65",
-        "summary": null,
-        "requested_action": "accepted_research",
-        "proposal_id": "3943617d-d299-4fe7-94da-08645d281e65"
       }
     ]
   }

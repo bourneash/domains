@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:24:51.501Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:38:16.928Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Budget exposure is unknown because monthly spend, fixed costs, marketing budget, and revenue-floor fields are blank, while only AI cost is measured. Do not approve financial forecasts or new spend from current evidence. Retain only a report-only finance reconciliation to define missing measurements; no money movement, billing changes, banking access, contracts, or external commitments are authorized.",
+        "summary": "Recommend retaining financial containment. Do not admit the deferred affiliate CTA component as a new proposal or infer revenue, ROI, contribution margin, forecast, or causal lift. AI usage cost is $997.51762695 for 2026-09-01 through 2026-09-30 across 5,522 calls; Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under an unattributed provider row. Site-attributed income is $0. Infrastructure, registrar, labor, and other direct costs are not present, so contribution margin and cost-to-learn are not calculable. Keep existing capacity containment and require a finance reconciliation before further monetization claims or scale decisions.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The canonical allthingsmasonic.com CTA request may remain capacity-gated, but CFO does not support a new shared-component proposal or cross-site rollout. Measure only registered affiliate clicks against the 61-click 2026-09-21 baseline. Do not claim orders, commission, revenue, ROI, margin, or causal lift. Before any scale decision, attach aligned site-level revenue, AI cost, and infrastructure-cost evidence.",
         "requested_action": null,
         "proposal_id": null
       }
