@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:10:19.306Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:08:04.648Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Continue existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Retain only slot-gated CRO specifications; do not admit new queue work, add telemetry, spend, deploy, add dependencies, or requeue unchanged failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain two deferred CRO specifications for later capacity review: an affiliate CTA refinement on allthingsmasonic.com and a control-plane execution reconciliation guard. Neither is an implementation request. Reassess only after a delivery slot clears, site conflicts resolve, and existing measurement or repair work is closed.",
+        "summary": "CRO disposition: containment-only this cycle. Delivery is saturated at 10/10 slots, with 54 improvements awaiting measurement, 21 failed requests, and 7 open repairs. No new experiment, product prototype, research request, change request, deployment, spend, telemetry, credential, or domain action is recommended. Preserve the existing allthingsmasonic.com affiliate CTA improvement as the next slot-gated CRO experiment. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. After a slot clears, test only a reversible CTA hierarchy and adjacent disclosure-clarity pass, preserving destinations and existing measurement. Primary metric: affiliate clicks and attributable outcomes; causal lift remains unknown. Smallest prototype: one merchandising-surface CTA treatment with keyboard, contrast, responsive-layout, and link-integrity validation; rollback is revert-only. CEO/CTO handoff: admit only after capacity and existing-work conflicts clear.",
         "requested_action": null,
         "proposal_id": null
       }

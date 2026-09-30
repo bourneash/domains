@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:53:05.793Z",
+  "generated_at": "2026-09-30T08:08:04.649Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the Amazon result as aggregate and unattributed. Do not convert clicks, ordered items, shipped items, sessions, conversions, impressions, proposal counts, or AI calls into revenue or ROI claims. Continue the existing tracking-ID audit and affiliate repair work only, using registered site/content identifiers.",
+        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, or monetization expansion. Supported revenue is limited to Amazon's 2026-09-21 aggregate result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The 629-click tracking_id=other row cannot be assigned to a site, so site revenue and revenue claims remain unsupported. September 2026 AI usage was $950.44418695 across 5,316 calls, but it cannot be compared with one revenue day; contribution margin, budget exposure, infrastructure spend, cost-to-learn, ROI, payback, forecasts, and causal lift are unknown. Continue only the existing period-aligned finance reconciliation using available records; do not extrapolate or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement-only handling for deployed work. Cost-to-learn requires a dated experiment or work-item ledger linking site/content, treatment, exposure window, allocated AI and infrastructure cost, and an approved learning threshold; these fields are absent. Do not create telemetry or requeue work.",
+        "summary": "Minimum evidence for a calculable finance view is a dated ledger aligned to the same period and site or content identifier, reconciling provider revenue, attributed clicks/orders/commission, AI cost, infrastructure cost, domain and other operating cost, plus an approved learning threshold. Until that exists: contribution margin = unknown because matching revenue and allocated costs are unavailable; cost-to-learn = unknown because no approved learning threshold and attributable outcome cost exist; budget exposure = unknown because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank; infrastructure spend = unknown because no infrastructure-cost ledger is present. Preserve these as unknown rather than zero.",
         "requested_action": null,
         "proposal_id": null
       }

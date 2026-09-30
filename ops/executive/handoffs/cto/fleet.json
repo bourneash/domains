@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:53:05.793Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:08:04.649Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: do not admit new implementation, research, telemetry, spending, deployment, or monetization work this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 134 stranded work items. Retain the single-flight execution-integrity concept as a deferred specification. It is technically feasible and reversible, but implementation must wait for capacity and use an isolated control-plane worktree. First resolve the existing overdue saveusfarms.com repair-or-close case and preserve current launch, security, finance, and measurement gates.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, measurement and repair work remain active, and no new queue admission is technically safe this cycle. Continue existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work only. Preserve the existing allthingsmasonic.com affiliate CTA improvement as a slot-gated candidate; do not duplicate or preempt current work. Use existing affiliate-click and attributable-outcome telemetry only, preserve causal lift as unknown, and require isolated validation, accessibility/link-integrity checks, and bounded rollback before implementation. Keep revenue at $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Escalate the overdue saveusfarms.com repair-or-close case for dated root-cause or closure evidence, validation, rollback, release/security boundaries, attribution limits, and measurement limits. No deployments, spending, new telemetry, credentials, domains, dependencies, outreach, or unsupported monetization claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing repair, measurement, security-evidence, finance-reconciliation, and launch-gate work only. Do not create duplicate queue requests. When capacity clears, reassess the deferred single-flight control-plane specification before admitting any implementation.",
+        "summary": "Maintain the existing parked-site readiness packets only. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Complete the existing readiness evidence covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blockers; do not create duplicate queue work or authorize publishing, DNS, analytics configuration, monetization, spending, dependency additions, or deployment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue intent is preserved through existing affiliate repair and attribution work. Keep the 2026-09-21 Amazon result aggregate and unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift. Prioritize existing registered-tag, affiliate-reference, and CTA work only after queue capacity and site-level gates permit it.",
+        "summary": "Continue the existing private launch gates and security evidence matrix. Public exposure and security-sensitive releases remain blocked while rights, privacy, accuracy, measurement, access boundaries, secrets handling, isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure evidence remain incomplete. Use authorized metadata and retained artifacts only; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned finance reconciliation and deployed-work measurement using available telemetry only. Preserve aggregate provider revenue as unattributed and retain unavailable costs, margin, ROI, payback, forecasts, attribution, conversion, and causal-lift fields as unknown. Authorize no spend, billing changes, monetization expansion, tracking changes, or extrapolation.",
         "requested_action": null,
         "proposal_id": null
       }
