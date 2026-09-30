@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:53:36.805Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:08:34.890Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: maintain containment-only execution and reject new spend, forecasts, prototypes, and production admissions this cycle. Revenue evidence is limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all income assigned to aggregate tracking_id \"other\" and therefore unattributed. Site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is 5,522 calls, 234 errors, and $997.51762695 recorded cost; this is approximately $0.18 per call and $199.50 per proven outcome if divided mechanically across 5 proven outcomes, but neither figure is a causal unit-cost measure. Infrastructure, hosting, domain, labor, marketing, and other operating costs are absent, so total spend, contribution margin, budget exposure, and break-even are not calculable. Preserve the existing allthingsmasonic.com CTA experiment only after capacity clears; its 2026-09-21 baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Do not treat impressions, sessions, clicks, conversions, proposals, or shipped work as revenue or profit forecasts.",
+        "summary": "Before admitting finance-sensitive growth work, retain the existing capacity gate and complete the saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. No new infrastructure, AI, analytics, or billing changes are authorized. Finance cannot calculate contribution margin because infrastructure spend, fixed costs, labor cost, and comparable revenue-period data are absent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO rejects the retained CRO control-plane and AI-guardrail proposals as implementation work this cycle because delivery is saturated at 10/10 slots and existing records already support a report-only finance assessment. The minimum missing measurements are: a common period-aligned revenue export, site/content-level tracking for every commission row, infrastructure and vendor invoices or cost ledger, labor allocation basis, and a join between AI calls, verified outputs, and measured outcomes. No banking, billing, contract, or spending action is authorized.",
+        "summary": "Preserve provider attribution boundaries. Report site-attributed revenue as $0 for the available 2026-09-21 rows and keep the $4.92 aggregate row unallocated. Do not convert clicks, ordered items, shipped items, impressions, sessions, or conversions into revenue forecasts. New affiliate links must use registered site tracking identifiers.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The candidate allthingsmasonic.com CTA refinement is financially acceptable only as a bounded reportable experiment after capacity release: baseline 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Use affiliate clicks as the leading operational metric; revenue, margin, payback, and causal lift remain unknown until a comparable provider-reported window exists.",
         "requested_action": null,
         "proposal_id": null
       }

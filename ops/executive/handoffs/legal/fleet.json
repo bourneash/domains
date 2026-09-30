@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:53:36.805Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:08:34.890Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or go-live; counsel_required for upstream rights, jurisdictional privacy, and future affiliate/advertising use. Keep SearchWoot private and preview-only. Evidence: Woot documentation confirms API access but not redistribution rights; public terms restrict commercial/public use of listings, prices, and derivatives. All four launch-readiness legal tasks remain open. Technical compliance is incomplete fleet-wide: 35 pass, 20 fail, 6 unknown; operations and fleet-doctor evidence are unavailable. Exact decision: no public exposure, affiliate/advertising expansion, notification expansion, or rights outreach until owner authorizes counsel-reviewed outreach and the rights, privacy, security, accuracy, and measurement gates are evidenced. Ordinary reversible growth elsewhere is not blocked solely by incomplete telemetry.",
+        "summary": "Legal disposition: conditional for ordinary reversible growth; blocked for new public exposure, security-sensitive releases, and SearchWoot public beta. Evidence: compliance baseline is 35 pass, 20 fail, and 6 unknown across 61 checked sites, with open banner, consent accept/reject, GA4, privacy, and terms findings; security controls and operations sweeps remain unevidenced; revenue includes $4.92 aggregate unattributed commission only. Permit growth only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Keep SearchWoot private, preview-only, and unlaunched. Human counsel is required for Woot rights, privacy/jurisdiction, and future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: the Woot rights packet and counsel packet are evidenced, and repository/configuration artifacts exist for data flow and privacy pages. No task is closed because authoritative permission, retention/deletion controls, GA4 settings, vendor/DPA review, and jurisdictional review remain missing. Next evidence action: assemble one dated read-only bundle containing the four task artifacts, then route the rights and jurisdictional gaps to human counsel before any owner-authorized outreach or disposition change.",
+        "summary": "Launch-readiness tracking remains active with four open legal tasks and no evidenced closures. Next evidence action: produce the read-only SearchWoot data-flow and retention table from repository and deployed configuration, covering alert rules, identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior. Do not enable tracking, expand notifications, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Private or parked properties retain a concrete decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. The next evidence action is to attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No publish, deploy, DNS, analytics configuration, monetization, spending, dependency addition, or new queue admission is cleared.",
+        "summary": "Maintain the existing security gate. Fleet-doctor, deployment, uptime, and error sweeps have no results; authentication, secrets, isolation, release, dependency, monitoring, incident, and disclosure evidence remain unknown. Continue dated read-only evidence capture; do not clear public exposure or security-sensitive releases.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For private or parked properties, retain the concrete decision: keep them parked, private, preview-only, and unlaunched. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, or add queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit blocker evidence is attached.",
         "requested_action": null,
         "proposal_id": null
       }

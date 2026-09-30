@@ -2,35 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:53:36.805Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T18:08:34.890Z",
+  "summary": "cto checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO approves containment-only execution. Reject all new production implementations, prototypes, telemetry requests, spend, and site-factory admissions this cycle: delivery is saturated at 10/10 slots, measurement and repair work remain open, and operations/security evidence is incomplete. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after the saveusfarms.com repair-or-close case is completed or closed with dated root cause, isolated validation, deterministic tests, build evidence, rollback point, and release boundary by 2026-10-01T09:00Z. Do not claim revenue, ROI, margin, conversion lift, or causal impact.",
+        "summary": "CTO disposition: admit no new implementation, prototype, site-factory, telemetry, dependency, spend, or deployment work this cycle. Delivery is saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair-or-close case releases a slot with root-cause, deterministic-test, build, rollback, and release-boundary evidence. Do not claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The queued allthingsmasonic.com CTA refinement is technically feasible, isolated, reversible, and measurable using existing affiliate-click telemetry. Scope must remain limited to CTA hierarchy, disclosure placement, accessible link behavior, responsive layout, and unchanged registered destinations. Do not add dependencies, routes, tracking, data collection, or imagery. Execute only after one delivery slot clears.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record dated root cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, and measurement limits. Release one delivery slot only after that evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The CFO's two read-only reports are feasible without delivery-slot consumption and may proceed using existing records only. Preserve period boundaries, aggregate-versus-site attribution limits, unmatched AI-cost records, and all unknown operating costs. Do not request telemetry, alter budgets, change routing, automate cancellation, or infer contribution margin or causal cost-to-learn.",
+        "summary": "Retain the existing allthingsmasonic.com CTA and disclosure refinement as waiting and slot-gated. After capacity release, capture the existing baseline, implement only the bounded CTA/disclosure/accessibility diff, preserve registered tracking identifiers, run deterministic tests, build, link, disclosure, accessibility, preview, and rollback checks, then measure using existing telemetry. Do not add dependencies, tracking, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private launch gates, security-sensitive release gates, and parked-site dispositions unchanged. No public exposure, rights outreach, credential/configuration change, deployment, dependency addition, DNS change, or external spend is technically cleared by this pass.",
+        "summary": "Keep the Site Factory pipeline deferred. Continue only existing readiness packets for parked properties; do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work until ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "A report-only finance reconciliation may proceed using existing telemetry only. Keep AI cost and Amazon revenue windows separate, preserve aggregate provider income as unattributed, and do not calculate contribution margin, ROI, payback, budget exposure, or cost-to-learn without matching-period revenue and cost inputs.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No launch or public-exposure change is approved. Preserve all existing legal and privacy gates, including private launch dispositions and affiliate/disclosure boundaries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No security-sensitive release or new public exposure is approved. Continue the existing read-only security evidence matrix and preserve unknowns; do not retrieve credentials, change permissions, add dependencies, or modify configuration.",
         "requested_action": null,
         "proposal_id": null
       }
