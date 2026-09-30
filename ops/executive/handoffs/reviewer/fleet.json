@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.680Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:23:48.114Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work. Preserve containment-only execution: all 10 delivery slots are occupied, existing measurements, failures, repairs, security evidence, finance reconciliation, and readiness work remain open. Admit no new queue work, spend, telemetry, deployment, dependencies, credentials, or outreach. Revenue claims remain unsupported beyond the 2026-09-21 Amazon aggregate result of $4.92 commission, which is unattributed; margin, ROI, payback, forecasts, and causal lift remain unknown. Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root cause or closure rationale, validation, build checks, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Keep SearchWoot private and preview-only pending counsel review and owner authorization.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10 slots, existing measurements and repairs remain open, and no candidate may displace active work. Preserve only existing repair-or-close, measurement, finance, security, launch-gate, and parked-site readiness work. CTO must release or close one slot and confirm acceptance criteria, tests, metric, and rollback by 2026-10-01T09:00:00Z; unresolved capacity remains escalated to the owner.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial claims remain unsupported. Preserve the 2026-09-21 Amazon result as aggregate and unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift. No spend, monetization expansion, or duplicate telemetry is authorized.",
+        "summary": "Reject the pervypotion.com report-only proposal and all new implementation admissions this cycle. Delivery is saturated at 10/10 slots with 54 improvements measuring, 21 failed requests, and 7 repairs open; revenue remains aggregate and unattributed, so financial or causal claims are unsupported. Continue existing repair, measurement, security, finance, and launch-gate work. CTO must clear one slot with dated acceptance criteria, tests, metric, and rollback by 2026-10-01T09:00:00Z; escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

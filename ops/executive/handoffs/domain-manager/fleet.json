@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:19:58.176Z",
+  "generated_at": "2026-09-30T09:23:48.115Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resolve nsfwpixles.com implementation-readiness blocker",
-        "summary": "New implementation is not admissible while delivery capacity is saturated at 10/10 and site-specific baseline, active-work status, and measurable acceptance evidence for nsfwpixles.com are not established.",
-        "requested_action": "Inspect the existing bourneash/nsfwpixles.com repository and authoritative queue records only. Identify the exact homepage route/file, current active-work conflicts, existing analytics or SEO baseline, and the smallest reversible implementation candidate. Record one concrete next implementation step or blocker; do not modify production, add telemetry, deploy, spend, add dependencies, or create duplicate queue work.",
+        "title": "Prepare pervypotion.com evidence-gated backlog and launch baseline",
+        "summary": "pervypotion.com is the managed site, but the supplied snapshot does not provide site-specific repository, analytics, SEO, revenue, compliance, or operations evidence. Existing delivery capacity is saturated, so no production implementation should be admitted until the evidence blocker is resolved.",
+        "requested_action": "Create one timestamped read-only baseline covering the public entry page, repository entry files, current audience positioning, primary CTA, disclosures, analytics/SEO availability, monetization readiness, health signals, and existing queue conflicts. Select exactly one reversible next implementation step only if evidence supports it; otherwise record the blocker and defer all other opportunities. Do not request duplicate telemetry, deploy, change production, add tracking, spend, or claim lift.",
         "proposal_id": null
       }
     ]
