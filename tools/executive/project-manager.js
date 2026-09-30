@@ -167,6 +167,14 @@ function acceptanceCriteria(item) {
 }
 
 function ownerFor(item) {
+  // Performance recovery and escalation are accountability control-plane
+  // work. They must stay with the role being evaluated (or the CEO for an
+  // escalation); sending them through the implementation fallback silently
+  // defeats the performance contract.
+  if (item.source_type === 'executive-performance-recovery') {
+    return item.source_id || item.owner || 'ceo';
+  }
+  if (item.source_type === 'executive-performance-escalation') return 'ceo';
   if (item.owner && item.owner !== 'owner' && item.owner !== 'ceo') return item.owner;
   if (item.kind === 'implementation' || item.kind === 'incident')
     return item.priority === 'urgent' ? 'principal-engineer' : 'engineer';
@@ -198,6 +206,22 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
   const changed = [];
   const proposalCases = syncProposalCases(store, { limit: Math.max(20, Number(limit) || 20) });
   const workItems = store.listExecutiveWorkItems({ limit: 1000 });
+  // Repair legacy recovery cases that were previously rewritten to engineer
+  // before the control-plane routing exception existed.
+  const repairedRecoveryOwners = [];
+  for (const item of workItems) {
+    const expectedOwner =
+      item.source_type === 'executive-performance-escalation'
+        ? 'ceo'
+        : item.source_type === 'executive-performance-recovery'
+          ? item.source_id || item.owner
+          : null;
+    if (expectedOwner && expectedOwner !== item.owner) {
+      repairedRecoveryOwners.push(
+        store.updateExecutiveWorkItem(item.work_id, { owner: expectedOwner })
+      );
+    }
+  }
   const boardItems = workItems.map(item => ({ ...item, source: 'work-item', id: item.work_id }));
   const workflow = workflowEngine.evaluate({
     items: boardItems,
@@ -285,6 +309,7 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
     inspected: candidates.length,
     proposal_cases: proposalCases,
     dependency_changes: dependencyChanges,
+    repaired_recovery_owners: repairedRecoveryOwners,
     alerts: workflow.alerts,
     notifications: notifications.length,
     critical_path: workflow.critical_path,

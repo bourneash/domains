@@ -55,6 +55,28 @@ test('does not route failure follow-ups back into direct implementation work', (
   store.close();
 });
 
+test('keeps performance recovery assigned to the evaluated role', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-performance-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  store.createExecutiveWorkItem({
+    work_id: 'executive-performance-recovery:ceo',
+    title: 'Performance recovery: ceo',
+    kind: 'incident',
+    status: 'ready',
+    owner: 'engineer',
+    source_type: 'executive-performance-recovery',
+    source_id: 'ceo',
+    summary: 'CEO performance recovery case.',
+    next_action: 'Create one durable output.',
+  });
+  const result = manager.run(store, { limit: 20 });
+  assert.equal(result.repaired_recovery_owners.length, 1);
+  assert.equal(result.repaired_recovery_owners[0].owner, 'ceo');
+  assert.equal(store.getExecutiveWorkItem('executive-performance-recovery:ceo').owner, 'ceo');
+  assert.equal(result.changed[0].work_item.owner, 'ceo');
+  store.close();
+});
+
 test('backfills proposal cases so owner replies have a durable thread', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-proposal-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });

@@ -215,7 +215,9 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
         progressRatio * weights.progress
     );
     const activeRecovery = recoveryItems.find(
-      item => item.owner === role && !['done', 'cancelled'].includes(item.status)
+      item =>
+        (item.owner === role || item.source_id === role) &&
+        !['done', 'cancelled'].includes(item.status)
     );
     metric.recovery_windows = activeRecovery
       ? tickRows.filter(
