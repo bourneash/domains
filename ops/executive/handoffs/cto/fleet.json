@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.993Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:52:39.790Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, credentials, dependencies, schedules, deployments, or domains while delivery is saturated at 10/10 slots and repair, measurement, security-evidence, readiness, and attribution work remain open. Retain execution-integrity, AI-cost-guardrail, and MarkItDown items as deferred specifications only; do not create duplicate requests. Continue existing records and repair-or-close work. After one slot is released, admit at most one distinct-site reversible candidate with isolated scope, deterministic validation, an existing measurable metric, explicit rollback, and no cross-site behavior. Preserve private and preview-only gates. Site revenue, margin, ROI, and causal lift remain unsupported; aggregate commission must remain unattributed.",
+        "summary": "CTO disposition: approve containment-only execution. Do not create new proposals, change requests, research requests, telemetry requests, deployments, prototypes, dependencies, credentials, domains, or spend while all 10 delivery slots are occupied and existing measurement, failures, repairs, and readiness gates remain open. Continue only existing work: complete or justifiably close the saveusfarms.com repair-or-close case, release one delivery slot, preserve current measurements, and maintain private/preview-only launch gates. Keep allthingsmasonic.com, xxxtea.com, and 0xroulette.com as slot-gated specifications; admit at most one distinct-site reversible change after capacity and overlap clear, with isolated scope, deterministic tests, an existing metric, and single-diff rollback. Do not claim revenue, ROI, margin, payback, forecast, or causal lift from the partial aggregate revenue record. Security-sensitive releases and new public exposure remain blocked while operations, fleet-doctor, isolation, release-control, dependency, monitoring, and incident evidence are unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO correction: the parked-site readiness packets may document preview/build, ownership, compliance, security, measurement boundaries, rollback, and explicit blockers using existing evidence only. They must not configure analytics, add monetization, add dependencies, publish, deploy, change DNS, or create queue admissions. Preserve unknowns where evidence is absent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO disposition: retain the allthingsmasonic.com CTA, xxxtea.com SEO, and 0xroulette.com CTA concepts as deferred specifications, not implementation requests. Reassess only after a delivery slot is released and each site's active-work overlap is cleared. Acceptance must remain limited to the documented page scope, accessible behavior, deterministic link/crawl tests, existing available measurement, and reversible rollback; no telemetry expansion or causal-lift claim is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO disposition: retain the private launch gate for SearchWoot. No public exposure, rights outreach, affiliate or advertising expansion, alert expansion, credential/configuration change, deployment, or new data collection is authorized until legal, security, accuracy/freshness, measurement, and owner gates are complete.",
         "requested_action": null,
         "proposal_id": null
       }

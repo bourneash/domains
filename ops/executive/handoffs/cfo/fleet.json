@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.992Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:52:39.789Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and authorize no new discretionary spend, production work, or monetization forecasts this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all $4.92 is an aggregate provider row, so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is $950.44 across 5,316 calls, including 229 errors and 5 transient errors. Against recorded AI cost alone, the observable fleet contribution is at most $4.92 - $950.44 = -$945.52 before infrastructure, domain, labor, or other costs; this is not a complete margin statement. Hold new spend until attribution and cost coverage are reconciled. Existing repair, measurement, security-evidence, readiness, and private-gate work should continue; no new implementation admission while delivery is 10/10 occupied.",
+        "summary": "Finance disposition: revenue claims are supported only as provider-level aggregate facts for 2026-09-21. The 18 named tracking rows are mapped, but the aggregate row contains all 28 ordered items, 6 shipped items, and $4.92 commission; assigning that income to any site would invent attribution. SEO totals of 14,734 impressions, 150 clicks, 1,010 sessions, and 15 conversions, plus 5 proven improvements, are not revenue or margin evidence. Treat clicks, sessions, conversions, impressions, approved proposals, and shipped output as operating metrics only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO attribution disposition: reject revenue, ROI, margin, payback, and forecast claims at site level. The named Amazon tracking rows have zero attributed commission, while the single aggregate row contains all $4.92 and cannot be assigned without inventing attribution. The minimum measurement needed is a dated reconciliation keyed by site and tracking ID covering affiliate clicks, ordered items, shipped items, commission, refunds or reversals if applicable, and the reporting window. Use existing revenue and analytics records; do not create duplicate telemetry or change billing.",
+        "summary": "AI and infrastructure spend disposition: September AI usage totals $950.44 across 5,316 calls, with 229 errors and 5 transient errors across 39 instrumented sites. Cost concentration is observable for the named rows, including $149.39 for 0daynews.com, $108.07 for americastrikes.com, and $66.22 for blackmarketapparel.com, but site-level contribution margin remains unknown because revenue is not period-aligned or fully attributable and infrastructure/vendor costs are absent. Do not infer that high AI spend produced revenue. Minimum additional measurement is a daily site-and-workstream cost ledger joined to attributable shipped commission and verified outcome deltas.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO cost-control disposition: AI spend is measurable at $950.44 for September 2026, but infrastructure and fixed-cost spend are not present, so full contribution margin and budget exposure cannot be calculated. The minimum additional measurement is a read-only monthly ledger for hosting/runtime, domains/registrars, analytics/data services, and any other recurring platform charges, mapped to fleet or site and dated to the same revenue window. Until that ledger exists, treat total cost, burn rate, runway, and budget variance as unknown; do not infer them from AI cost alone.",
+        "summary": "Budget exposure disposition: configured monthly spend limit, revenue target, fixed costs, marketing budget, and revenue floor are blank in the brief. Therefore budget headroom, burn rate, runway, and exposure cannot be calculated. The only quantified current-period variable cost is $950.44 of AI usage, and it must not be treated as total operating cost. Retain the existing owner-controlled budget fields as unknown and require those fields before any spend authorization or financial forecast.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO handoff: retain one report-only finance reconciliation using existing read-only records. It must reconcile the 2026-09-21 Amazon aggregate, named tracking rows, September AI usage, and any already-available infrastructure/vendor cost records; preserve unavailable values as unknown; calculate only period-aligned metrics; and document the minimum missing fields required for contribution margin, cost-to-learn, ROI, payback, and forecast revenue. No banking access, billing changes, money movement, contracts, or external spend.",
         "requested_action": null,
         "proposal_id": null
       }
