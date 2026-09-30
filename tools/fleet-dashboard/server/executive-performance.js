@@ -145,9 +145,8 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
   const changes = (store.listChangeRequests?.({ limit: 2000 }) || []).filter(row =>
     inWindow(row, cutoff)
   );
-  const work = (store.listExecutiveWorkItems?.({ limit: 3000 }) || []).filter(row =>
-    inWindow(row, cutoff)
-  );
+  const allWork = store.listExecutiveWorkItems?.({ limit: 3000, quiet: '0' }) || [];
+  const work = allWork.filter(row => inWindow(row, cutoff));
   const allChanges = store.listChangeRequests?.({ limit: 3000 }) || [];
   const activeDelivery = allChanges.filter(row =>
     ['queued', 'claimed', 'in_progress', 'building', 'review', 'committed'].includes(row.status)
@@ -188,7 +187,10 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     const role = ROLES.includes(String(message.actor || '')) ? message.actor : null;
     if (role) metrics[role].messages += 1;
   }
-  const recoveryItems = work.filter(row => row.source_type === 'executive-performance-recovery');
+  // An active recovery assignment must remain visible after it falls outside
+  // the score window; otherwise the role can silently reset to needs-recovery
+  // forever and never reach restricted or escalated state.
+  const recoveryItems = allWork.filter(row => row.source_type === 'executive-performance-recovery');
   for (const role of ROLES) {
     const metric = metrics[role];
     const goal = contract.roles[role];

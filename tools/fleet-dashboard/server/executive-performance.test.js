@@ -67,3 +67,34 @@ test('underperformance creates one repair assignment and remains idempotent', ()
   });
   assert.equal(second.created.length, 0);
 });
+
+test('active recovery remains measurable after leaving the score window', () => {
+  const store = storeFixture();
+  store.listExecutiveActions = () => [
+    { action_type: 'tick', status: 'completed', started_at: '2026-09-30T00:00:00.000Z' },
+    { action_type: 'tick', status: 'completed', started_at: '2026-09-30T00:15:00.000Z' },
+    { action_type: 'tick', status: 'completed', started_at: '2026-09-30T00:30:00.000Z' },
+  ];
+  store.listExecutiveWorkItems = () => [
+    {
+      work_id: 'executive-performance-recovery:ceo',
+      owner: 'ceo',
+      source_type: 'executive-performance-recovery',
+      source_id: 'ceo',
+      status: 'in_progress',
+      created_at: '2026-09-29T23:00:00.000Z',
+    },
+  ];
+  const result = performance.buildPerformance(store, {
+    now: new Date('2026-09-30T00:45:00.000Z'),
+    contract: {
+      enabled: true,
+      window_ticks: 2,
+      restricted_after_windows: 1,
+      escalation_after_windows: 2,
+    },
+  });
+  const ceo = result.roles.find(row => row.role === 'ceo');
+  assert.equal(ceo.recovery_windows, 3);
+  assert.equal(ceo.status, 'escalated');
+});
