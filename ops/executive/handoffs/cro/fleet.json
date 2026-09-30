@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:53:08.950Z",
+  "generated_at": "2026-09-30T10:23:48.400Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain the existing allthingsmasonic.com affiliate CTA refinement as the next slot-gated revenue experiment. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; attribution is partial-aggregate. Smallest reversible prototype: one CTA hierarchy/destination/disclosure refinement on the existing commercial surface, preserving the registered tracking ID, accessibility, and single-commit rollback. Metric: affiliate outbound CTR, ordered items, and site-attributed commission where available. Time-to-learn: 14 days or 100 relevant impressions/clicks. Do not admit until a delivery slot clears and current repair work is completed or closed.",
+        "summary": "No new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Retain the allthingsmasonic.com affiliate CTA refinement as the next reversible experiment after a slot clears and overlap is resolved. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; aggregate revenue cannot support ROI or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain MarkItDown as research-only for a fleet content-normalization prototype, not adoption. Evidence: MIT license, 194 files, 22 purpose-specific keyword hits, 8/8 bounded checks passed, no dependency installation, production access, or security failures observed. Fleet use case: convert a small set of owned source documents into reviewable Markdown for faster SEO/content production while preserving human review and provenance. Smallest reversible prototype: disposable workspace conversion of one non-sensitive sample, producing a diff and provenance checklist. Metric: editor review time and accepted-content throughput; time-to-learn: one working session. CTO must separately validate dependency provenance, parser behavior, maintenance cadence, and security before any implementation consideration.",
+        "summary": "Retain microsoft/markitdown as research-only. Fleet use case: convert one non-sensitive owned source document into reviewable Markdown to test whether editorial preparation time falls. Evidence: MIT license, 194 files, 22 purpose-specific keyword hits, and 8/8 bounded checks passed; no dependency installation or production access occurred. Risks: parser fidelity, transitive dependencies, maintenance cadence, and provenance/security review remain unresolved. Smallest reversible prototype is one disposable-workspace conversion with diff and provenance checklist. Metric: editor review time and accepted-content throughput. Time-to-learn: one working session. No adoption or implementation is recommended.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: maintain containment-only execution. No new proposals, queue admissions, telemetry, spend, credentials, domains, deployments, or monetization claims are warranted while delivery is saturated and existing repairs and measurements remain open. The next CRO action is to re-evaluate the retained allthingsmasonic.com experiment after capacity clears.",
+        "summary": "Retain two fleet product opportunities as deferred specifications only: execution-integrity control plane and AI cost-to-learn gate. Existing records show 108 approved proposals without execution, 63% approved-proposal execution rate, 21 failed requests, 7 open repairs, and September AI usage of $950.44418695 across 5,316 calls. These support workflow-risk hypotheses, not ROI or causal claims. Do not admit implementation until capacity clears and CTO/CFO review the reversible prototypes.",
         "requested_action": null,
         "proposal_id": null
       }

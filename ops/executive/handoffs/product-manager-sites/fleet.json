@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.678Z",
+  "generated_at": "2026-09-30T10:23:48.399Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the proposed Fleet Execution Integrity and Capacity-Gated Delivery product proposal this cycle. Existing evidence already has active capacity containment, repair-or-close, measurement, overlap, and proposal-execution tracking. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Treat the proposal as duplicate control-plane work; continue existing containment and resolve the overdue saveusfarms.com repair-or-close case before admitting new work.",
+        "summary": "Recommend no new implementation admissions this cycle. Delivery is full at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Preserve existing site candidates only: allthingsmasonic.com CTA refinement, xxxtea.com cannibalization fix, and 0xroulette.com CTA clarification. Admit at most one after a slot clears and overlap is resolved. Revenue remains aggregate/unattributed; do not claim ROI or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

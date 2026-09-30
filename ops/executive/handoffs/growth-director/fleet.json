@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.678Z",
+  "generated_at": "2026-09-30T10:23:48.400Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new fleet control-plane proposal as duplicate existing execution tracking. Preserve containment while delivery remains saturated at 10/10 slots. Retain the existing allthingsmasonic.com CTA refinement as the next bounded growth implementation after a slot clears and the existing saveusfarms.com repair-or-close case is completed or closed. No new telemetry, spend, dependencies, or queue admission this cycle.",
+        "summary": "Recommend no new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, and repairs open. Preserve the existing allthingsmasonic.com CTA refinement as the next growth experiment after one slot clears and overlap is resolved. Defer xxxtea.com cannibalization work until capacity is available. Revenue and causal lift remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }

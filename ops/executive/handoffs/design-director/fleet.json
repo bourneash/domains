@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.678Z",
+  "generated_at": "2026-09-30T10:23:48.400Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed Fleet Execution Integrity and Capacity-Gated Delivery product proposal as duplicate control-plane work. Preserve current containment: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Do not create new queue work until an active slot clears. Retain the existing allthingsmasonic.com CTA refinement as the next slot-gated implementation.",
+        "summary": "No new production admission this cycle: all 10 delivery slots are occupied, with active measurement and repair work open. Preserve the existing allthingsmasonic.com CTA refinement as the first slot-gated design change after capacity clears. Scope: existing commercial surface only; clarify primary affiliate CTA, preserve disclosure and registered tracking ID, improve keyboard/focus/mobile behavior, and keep a single-commit rollback. Metric: outbound affiliate CTR, ordered items, shipped items, and site-attributed commission where available. Baseline evidence is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; no conversion or revenue lift is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

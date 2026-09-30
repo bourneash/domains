@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.679Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:23:48.400Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution. Revenue evidence is partial: the 2026-09-21 Amazon result contains 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 commission that cannot be assigned to a site. Do not infer ROI, margin, conversion value, or causal lift. Keep existing repair tasks blocked until capacity clears.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Route affiliate integrity repairs through existing task records only: repair broken or stale affiliate references on americastrikes.com, resolve the real Amazon Associates tag prerequisite on amputeenews.com, and retain the allthingsmasonic.com CTA refinement as the next slot-gated implementation.",
+        "summary": "Revenue evidence supports 6,219 aggregate Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; site-attributed commission is $0 and the aggregate income cannot be assigned to a site. Do not infer ROI, margin, or causal lift. Preserve the allthingsmasonic.com CTA repair as the next slot-gated implementation. Route existing affiliate repair work for americastrikes.com and the Amazon Associates prerequisite for amputeenews.com through the existing queue only; do not create duplicate admissions while delivery is saturated.",
         "requested_action": null,
         "proposal_id": null
       }

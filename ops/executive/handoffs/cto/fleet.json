@@ -2,49 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:08:20.947Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:23:48.402Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, deployment, dependencies, credentials, or domains while delivery remains saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Continue existing repair, measurement, security-evidence, readiness, and private-gate work only.",
+        "summary": "Approve containment-only execution. Reject all new implementation, research, prototype, telemetry, spend, deployment, and monetization admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, and open repairs. Retain allthingsmasonic.com CTA refinement as the next candidate only after a slot and site overlap clear; retain xxxtea.com and 0xroulette.com as deferred specifications. Complete or close the existing saveusfarms.com repair-or-close case, reconcile duplicate records rather than retrying unchanged work, and release one slot by 2026-10-01T09:00Z. Keep private launch and security gates unchanged; do not claim ROI, margin, revenue, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case without an unchanged retry or duplicate request. Require dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain allthingsmasonic.com as the sole next implementation candidate only after one delivery slot clears, site overlap is reconciled, and tests, rollback, and measurement readiness are rechecked. Use existing affiliate clicks as the available metric; preserve revenue, ROI, attribution, and causal lift as unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing parked-site readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each property parked, private, preview-only, and unlaunched. Do not build, publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and preview-only. Rights outreach, public exposure, alert expansion, affiliate use, and advertising remain blocked pending human counsel, owner authorization, and completion of legal, security, accuracy, and measurement gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the new CFO finance-reconciliation proposal as a new report-only admission this cycle because capacity is saturated and existing finance-reconciliation work is already represented. Preserve the stated unknowns and use existing evidence only when the current work is processed.",
+        "summary": "MarkItDown remains research-only and must not enter the implementation queue. Any future disposable-workspace prototype requires explicit owner approval, dependency and security review, provenance checks, and a measurable editorial-time outcome. Existing analytics, SEO, revenue, compliance, and security evidence should be used without duplicate telemetry requests. Aggregate Amazon revenue remains unattributed; site-level financial outcomes are unsupported.",
         "requested_action": null,
         "proposal_id": null
       }
