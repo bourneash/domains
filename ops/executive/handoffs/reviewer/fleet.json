@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:46:13.891Z",
+  "generated_at": "2026-09-30T09:48:40.639Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots, active measurement and repair work remains open, and revenue attribution is insufficient for financial or causal claims. CTO must close or release one existing slot by 2026-10-01T09:00Z, document the cleared dependency, and escalate unresolved capacity by that deadline. Keep the wetpages.com change unchanged through its 2026-10-12 measurement window.",
+        "summary": "Reject new implementation admissions this cycle. All 10 delivery slots are occupied, with active measurement, failed requests, and repair work; adding engineer work would violate capacity containment. Preserve three evidence-backed candidates as slot-gated: xxxtea.com, allthingsmasonic.com, and 0xroulette.com. CTO must release one slot and document the cleared dependency by 2026-10-01T09:00:00Z; delivery-lead then admits at most one distinct-site change with acceptance criteria, tests, metric, and rollback. Escalate unresolved capacity to the owner by that deadline. Revenue, ROI, and causal-lift claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }

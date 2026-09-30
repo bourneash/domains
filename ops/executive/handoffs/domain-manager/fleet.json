@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:46:13.891Z",
+  "generated_at": "2026-09-30T09:48:40.625Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Hold wetpages.com queue until active measurement closes",
-        "summary": "wetpages.com already has an active SEO/affiliate improvement in measurement through 2026-10-12, so adding work would overlap. Preserve the current result and defer new implementation admission.",
-        "requested_action": "Record the active improvement’s retained diff, affected page, validation evidence, and measurement status. After 2026-10-12, select exactly one next reversible change from the existing page scope.",
+        "kind": "message",
+        "title": null,
+        "summary": "xxxtea.com retains one bounded SEO implementation candidate: reconcile the five pages competing for “xxxtea” using the existing 88-impression baseline. No duplicate telemetry or report-only work is needed. Admission is blocked until an existing delivery slot clears; then route the scoped change to engineer with the stated tests, metric, due date, and rollback.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]
