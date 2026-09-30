@@ -328,7 +328,13 @@ echo "--- Build OK ---"
 cd "${TMPSCAFFOLD}"
 git init -q -b main
 git add -A
-git -c commit.gpgsign=false commit -q -m "Initial scaffold — coming soon"
+# The host-side domain runner intentionally uses a bounded uid-1000 account
+# and does not inherit an interactive user's global git config. Set the
+# scaffold identity on the temporary repo so onboarding cannot build
+# successfully and then die at the first commit.
+git -c user.name="Fleet Domain Manager" \
+  -c user.email="fleet-domain-manager@domains.local" \
+  -c commit.gpgsign=false commit -q -m "Initial scaffold — coming soon"
 gh repo create "${GITHUB_REPO}" --private --description "${DOMAIN} — coming soon"
 git remote add origin "git@github-bourneash:${GITHUB_REPO}.git"
 git push -u origin main
@@ -398,7 +404,9 @@ print('\n'.join(lines))
     echo "${NS_NOTE}" > "${DOMAINS_ROOT}/sites/${DOMAIN}/NS_PENDING.md"
     cd "${DOMAINS_ROOT}/sites/${DOMAIN}"
     git add NS_PENDING.md
-    git -c commit.gpgsign=false commit -q -m "ops: add NS_PENDING.md — zone pending activation"
+    git -c user.name="Fleet Domain Manager" \
+      -c user.email="fleet-domain-manager@domains.local" \
+      -c commit.gpgsign=false commit -q -m "ops: add NS_PENDING.md — zone pending activation"
     git push -q origin main
     echo "  NS_PENDING.md committed to repo"
   fi
