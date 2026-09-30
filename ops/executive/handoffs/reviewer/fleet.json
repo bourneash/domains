@@ -2,49 +2,77 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:39:17.796Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:52:08.500Z",
+  "summary": "reviewer checked in 10 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue work, production changes, requeues, spending, telemetry expansion, credential or configuration changes, monetization expansion, outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Delivery is saturated at 10/10 slots. Owner concern: material failures, measurement gaps, and launch gates remain unresolved.",
+        "summary": "Reject new proposals, queue work, production changes, telemetry expansion, spending, monetization expansion, external outreach, and unsupported financial or causal claims this cycle. Delivery is full at 10/10 slots; 45 improvements await measurement, 21 requests failed, and 7 repair follow-ups remain open. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, payback, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Complete or close it with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release and security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing deployed-work measurement and period-aligned finance reconciliation using available telemetry only. Preserve unavailable revenue, cost, attribution, conversion, and causal-lift fields as unknown. Do not authorize spend or monetization expansion.",
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Preserve parked, private, preview-only, and unlaunched status; do not create queue work or change production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep parked scaffold properties private, preview-only, and unlaunched. Continue only existing readiness packets; attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Preserve private launch gates and block security-sensitive releases.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and preview-only. Rights outreach remains unsent pending human-counsel review and owner authorization. Continue the consolidated read-only evidence bundle; do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or conduct outreach.",
+        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admission this cycle. All delivery slots are occupied, deployed work awaits measurement, and repair/security/launch gates remain open. No candidate is currently actionable: complicated.work, deadlymaracas.com, and driveford.net are blocked by parked-site readiness evidence; site-factory must attach dated readiness packets by 2026-09-30T17:00Z and escalate incomplete evidence to CTO. Other candidates are blocked by active or measuring work. Continue only the existing bounded work below; do not create queue work, deploy, spend, add telemetry, requeue unchanged failures, or make unsupported financial or causal claims.",
+        "summary": "Continue existing period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. No new implementation candidate is safely queueable: delivery is full at 10/10 slots, existing site work overlaps, and the only queue-ready candidates are launch-blocked parked properties. Do not create duplicate requests, production changes, telemetry, spend, or unsupported financial claims. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and readiness packets.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not queue implementation for complicated.work. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not queue implementation for deadlymaracas.com. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not queue implementation for driveford.net. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
         "requested_action": null,
         "proposal_id": null
       }

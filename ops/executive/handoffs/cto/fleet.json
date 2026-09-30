@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:39:17.796Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:52:08.275Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, deployed work awaits measurement, and failed-request repairs remain open. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, launch-readiness, and parked-site readiness work. Do not admit new queue work, requeue unchanged failures, add telemetry, change credentials or configuration, add dependencies, deploy, spend, expand monetization, or conduct outreach. Reassess only after the existing saveusfarms.com repair case is completed or closed and a delivery slot clears.",
+        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing parked-site readiness packets only. Keep scaffold properties parked, private, preview-only, and unlaunched. Readiness artifacts may document ownership, preview/build state, compliance, security unknowns, measurement boundaries, rollback points, and explicit blockers; they must not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Continue existing period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown until a matching ledger exists. Authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing finance reconciliation using matching-period evidence only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not compare it directly with the 2026-09-01 through 2026-09-29 AI-cost window, and do not infer margin, ROI, payback, forecasts, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and private launch gates using authorized metadata and retained artifacts only. Preserve explicit unknowns for access boundaries, secrets, runtime isolation, release controls, dependencies, TLS posture, data exposure, monitoring, incident readiness, and disclosure readiness. No credentials, private-container access, permission or configuration changes, dependency additions, deployment, requeue, exploit testing, or outreach is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue deployed-work measurement using existing telemetry only. Preserve unavailable revenue, attribution, conversion, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failed work.",
+        "summary": "Maintain existing private launch gates and consolidated read-only evidence work. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
