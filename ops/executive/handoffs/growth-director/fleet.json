@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.331Z",
+  "generated_at": "2026-09-30T06:07:43.617Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution. Do not create new SEO work while delivery is saturated at 10/10. Continue the existing allthingsmasonic.com affiliate CTA refinement only after a slot is released. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; page-level conversion attribution is unavailable. Target: highest-intent merchandising surface. Measure sessions, available CTA/affiliate clicks, conversions, and site-attributed affiliate outcomes for 14 days or 100 relevant impressions/clicks. Preserve unavailable fields as unknown and do not claim causal lift without valid evidence.",
+        "summary": "Do not create new queue work this cycle. Preserve and complete existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Target: existing commercial/product entry surface. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; page-level CTA performance is unknown. Implement only clearer primary affiliate CTA hierarchy, while preserving destination, tracking identifier, disclosure, and existing routes. Acceptance: deterministic tests and build pass; CTA destination and disclosure remain correct; keyboard focus is visible; contrast and tap targets meet the existing accessibility standard; mobile layout has no clipping or overlap; no unrelated route changes. Metric: existing analytics sessions, conversions, CTA clicks, affiliate clicks, and site-attributed revenue when available. Sample window: 14 days or 100 relevant new impressions/clicks, whichever occurs later; do not claim causal lift. Rollback: revert only the CTA markup/style/content change if validation fails or the measured result regresses; leave analytics and affiliate configuration unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

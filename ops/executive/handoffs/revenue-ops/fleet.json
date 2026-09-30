@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.331Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:07:43.618Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution. Delivery is saturated at 10/10 slots, with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue existing affiliate repair, attribution reconciliation, deployed-work measurement, and launch-readiness work only. Do not create duplicate queue work, add telemetry, spend, or make unsupported revenue or ROI claims. Amazon reporting for 2026-09-21 remains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site attribution is unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing allthingsmasonic.com affiliate conversion-path request after a delivery slot is released. Preserve the registered destination and disclosure while improving CTA clarity and accessibility. Do not claim lift until valid site-level measurement is available.",
+        "summary": "Containment-only plan. Continue existing repair, measurement, and readiness work; admit no new queue items while delivery is saturated. Prioritize affiliate-link integrity, tracking-ID readiness, disclosure evidence, and attribution-boundary reconciliation without assigning aggregate revenue to sites or inferring ROI.",
         "requested_action": null,
         "proposal_id": null
       }

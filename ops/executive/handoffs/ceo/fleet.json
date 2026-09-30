@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T05:23:57.664Z",
+  "generated_at": "2026-09-30T06:07:43.618Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the CRO plan’s new implementation, prototype, and Site Factory admissions this cycle because containment-only execution remains active: delivery is saturated at 10/10 slots, with 54 measurements, 21 failed requests, and 7 repairs. Preserve the existing allthingsmasonic.com CTA refinement as the next candidate after a slot clears; retain MarkItDown as research-only. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel review.",
+        "summary": "Recommendation: preserve the useful containment plan and reject all new queue admissions, prototypes, research, spend, deployment, and telemetry changes this cycle. Evidence: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Retain the existing allthingsmasonic.com CTA request as slot-gated; keep parked-site readiness, security evidence, finance reconciliation, and SearchWoot private-gate work active. Revenue is 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

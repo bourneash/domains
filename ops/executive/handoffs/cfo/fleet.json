@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T05:23:57.665Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:07:43.618Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, contracts, or monetization expansion. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to a site. September AI usage is $950.44 for 2026-09-01 through 2026-09-30, so margin, ROI, payback, cost-to-learn, forecasts, and causal lift are not calculable because revenue and costs are not period- and site-matched. Continue only existing report-only reconciliation and measurement work.",
+        "summary": "Recommendation: authorize no spend, billing changes, money movement, monetization expansion, or new financial claims. The only supported revenue result is Amazon aggregate data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is not site-attributable because Amazon supplied one aggregate tracking row; do not allocate it to any property or claim site revenue. September AI usage is $950.44418695 for 2026-09-01 through 2026-09-30 across 5,316 calls, but it cannot be compared with one revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, and cost-to-learn are unknown. Continue the existing period-aligned finance reconciliation as report-only work using available evidence; do not request duplicate telemetry or create duplicate work. Minimum measurement needed is a dated ledger matching revenue, AI, infrastructure, labor or execution, and other direct costs to the same site/content and period, plus an approved learning threshold. Reject vanity metrics such as clicks, impressions, sessions, conversions, proposal counts, and shipped output as financial performance without attributable revenue and allocated cost.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Attribution quality is partial-aggregate: 18 named tracking rows are mapped, while $4.92 commission and 28 ordered items remain in Amazon's aggregate row. Site-level revenue is therefore $0 reported, not proof of zero earnings. AI spend is known at $950.44418695 for September, including 5,316 calls and 229 errors, but outcome linkage is absent; cost-to-learn cannot be calculated because experiment-level cost, exposure, incremental outcome, and attributable revenue are not available. Infrastructure spend, fixed costs, marketing budget, monthly spend limit, and revenue floor are blank in the brief, so budget exposure and contribution margin are not calculable. The minimum evidence is the existing provider revenue export plus period-matched cost ledger, site/content identifiers, experiment or work identifiers, and a defined learning-success threshold. Preserve all unavailable fields as unknown and do not extrapolate forecasts from one revenue day or AI usage volume.",
         "requested_action": null,
         "proposal_id": null
       }
