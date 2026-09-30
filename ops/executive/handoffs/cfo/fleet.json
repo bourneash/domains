@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:24:20.332Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T05:08:37.137Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. Revenue evidence is limited to 2026-09-21 Amazon results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; it is not site-attributable. AI usage is $947.3986 for 2026-09-01 through 2026-09-29 across 5,289 calls, but infrastructure and other costs are unavailable and periods do not match, so contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are not calculable. Continue the existing period-aligned reconciliation, deployed-work measurement, repair-or-close containment, and readiness work only. Minimum finance evidence is a dated ledger matching each revenue and cost item to the same site/content and period, including AI, hosting, infrastructure, domain, and other operating costs, plus an approved learning threshold.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, money movement, monetization expansion, or new production work. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, including 18 named tracking rows plus an unattributed aggregate row. September AI usage is $950.44 from 5,316 calls across 2026-09-01 through 2026-09-30. These periods and attribution scopes do not support revenue forecasts, ROI, payback, contribution margin, or cost-to-learn claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the deferred affiliate CTA experiment as a retained proposal this cycle. The existing allthingsmasonic.com request may remain in its current queue state, but 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21 do not establish revenue potential or causal lift. Do not use the $4.92 aggregate provider commission for site-level claims, and do not compare one revenue day with September AI spend.",
+        "summary": "Financial disposition: retain existing period-aligned reconciliation only. Contribution margin is unknown because site/content-attributed revenue and matching-period allocated costs are unavailable. Budget exposure is unknown because monthly spend, fixed-cost, and marketing-budget fields are blank; infrastructure spend is not present in the snapshot. Cost-to-learn is unknown because incremental learning outcomes, attributable implementation cost, and an approved learning threshold are unavailable. Minimum evidence is a dated ledger matching revenue, AI, infrastructure, and implementation costs to the same site or content and period, plus a defined learning threshold.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve Amazon revenue as aggregate and unattributed for 2026-09-21: $4.92 commission, 6,219 clicks, 28 ordered items, and 6 shipped items. Do not allocate the 629-click aggregate row or its 28 orders, 6 shipments, and $4.92 commission to sites without provider-supported attribution. Continue the existing tracking-ID integrity reconciliation only; do not request duplicate telemetry or rewrite historical attribution.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing deployed-work measurement and finance reconciliation only. Do not use 54 measurement items, 21 failed requests, 7 open repairs, 10/10 active slots, or proposal volume as financial performance. Preserve unavailable revenue, cost, margin, ROI, payback, budget, and causal-lift fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
