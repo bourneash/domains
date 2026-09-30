@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:31:05.666Z",
+  "generated_at": "2026-09-30T15:33:15.622Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, spend, credential/configuration, production, and high-priority queue claims. Analytics is unavailable fleet-wide; revenue supports only $4.92 aggregate unattributed commission for 2026-09-21. Delivery is saturated at 10/10 slots. Route only the bounded rc-9.com performance repair as slot-gated; do not execute until CTO releases capacity. CTO must complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback, and release-boundary evidence by 2026-10-01T09:00:00Z, then release one slot. Existing security evidence, private launch gates, and measurement work remain unchanged.",
+        "summary": "Reject the rodhat.com report-only proposal and admit no new production queue work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence remains incomplete. Route only the three bounded web-vitals repairs below as capacity-gated engineer work. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case; unresolved capacity escalates to the owner. Revenue, ROI, and causal-lift claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }
