@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.868Z",
+  "generated_at": "2026-09-30T01:08:06.841Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Delivery is saturated at 10/10 slots, so no new production change request is admitted this cycle. Continue the existing 0xroulette.com CTA review and deployed-work measurement; preserve unknown conversion impact and use existing telemetry only.",
+        "summary": "Do not admit new work while delivery remains full at 10/10 slots. Preserve this as the first candidate when a slot clears: scope 0xroulette.com existing affiliate/product entry surface only. Preview: make the primary action visually dominant, state its destination and value plainly, preserve disclosure placement, and ensure mobile wrapping and keyboard focus remain clear. Acceptance: preview screenshot and route review show one unambiguous primary CTA; keyboard navigation, visible focus, contrast, outbound destination, disclosure, smoke test, and build all pass. Metric: record the existing analytics baseline for sessions and CTA/product-entry clicks before release, then compare after 14 days or 100 relevant impressions; do not add tracking or claim lift if unavailable. Rollback: revert the isolated CTA markup/style/content change. Current status: deferred until an active delivery slot clears; no queue admission, deployment, telemetry, spend, or monetization change authorized.",
         "requested_action": null,
         "proposal_id": null
       }

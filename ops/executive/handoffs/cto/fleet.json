@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:52:08.275Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:08:06.841Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "summary": "Approve containment-only execution. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Delivery is saturated at 10/10 slots; do not admit new queue work, requeue unchanged failures, deploy, add telemetry, change credentials or configuration, add dependencies, spend, expand monetization, or conduct outreach. Reassess the three deferred reversible candidates only after the existing saveusfarms.com repair case is completed or closed and a delivery slot clears. Preserve unknown attribution, margin, ROI, causal lift, cost-to-learn, and unavailable operational evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown until a matching ledger exists. Authorize no spend or monetization expansion.",
+        "summary": "Retain saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability, and 0xroulette.com CTA clarity as deferred specifications only. They are technically bounded and reversible, but cannot safely enter the queue while active delivery is full and containment obligations remain open. Admission requires an available slot, confirmed site isolation, deterministic validation, existing-telemetry measurement, and an explicit rollback point.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain existing private launch gates and consolidated read-only evidence work. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or conduct external outreach.",
+        "summary": "Retain the execution-integrity control-plane concept as a deferred product specification. It is not implementation-ready because no new control-plane telemetry, schema changes, or cross-site behavior are authorized in the current containment state. Reconsider only through a separately scoped, isolated design with owner-approved instrumentation, migration boundaries, tests, and rollback.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Use only the existing period-aligned finance reconciliation and available measurement data. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not treat the September AI-usage ledger as comparable revenue-period cost or infer margin, ROI, payback, forecasts, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

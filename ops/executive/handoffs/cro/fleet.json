@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.869Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:08:06.841Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. CRO signals support deferred opportunities for measurable affiliate CTA testing, SEO content transformation, and reusable accessible UX components, but active delivery is saturated at 10/10 slots and existing measurement, repair, security, finance, launch-readiness, and parked-site obligations remain open. Retain no new proposals or queue work this cycle. Reconsider only after capacity clears and each opportunity has an isolated prototype, license/security review, baseline metric, time-to-learn, acceptance test, and rollback point.",
+        "summary": "Recommend no new proposals or queue admissions this cycle. Delivery is saturated at 10/10 slots, with deployed work awaiting measurement, failed requests, and open repair follow-ups. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Preserve unknown attribution, margin, ROI, causal lift, cost-to-learn, and unavailable operational evidence. Do not add telemetry, spend, credentials, domains, deployments, dependencies, or monetization changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the three previously reviewed reversible candidates as deferred specifications only: saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability improvement, and 0xroulette.com CTA clarity. Reassess only after an active delivery slot clears and containment obligations are complete. Do not create duplicate work or claim revenue or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain an execution-integrity control-plane concept for future evaluation: deduplicate approved work, expose slot ownership and blockers, prevent site overlap, and link each approved proposal to one auditable implementation and measurement outcome. This is a deferred product specification, not an implementation request, and must not be admitted while current capacity and evidence gates remain blocked.",
         "requested_action": null,
         "proposal_id": null
       }

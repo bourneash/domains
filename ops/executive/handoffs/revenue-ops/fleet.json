@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.868Z",
+  "generated_at": "2026-09-30T01:08:06.841Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only revenue operations. Preserve the $4.92 Amazon commission from 2026-09-21 as aggregate and unattributed; do not infer site revenue, ROI, margin, or causal lift. Continue only existing affiliate repair, attribution reconciliation, disclosure validation, and deployed-work measurement using available evidence.",
+        "summary": "Maintain containment-only execution. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not infer site revenue, ROI, margin, payback, or causal lift from the aggregate row. Continue existing repair-or-close, deployed-work measurement, compliance evidence, and attribution-boundary work only. No new queue admission, telemetry, spend, credentials, deployment, or monetization expansion while delivery is saturated at 10/10 slots.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,77 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:52:08.500Z",
-  "summary": "reviewer checked in 10 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:08:06.842Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new proposals, queue work, production changes, telemetry expansion, spending, monetization expansion, external outreach, and unsupported financial or causal claims this cycle. Delivery is full at 10/10 slots; 45 improvements await measurement, 21 requests failed, and 7 repair follow-ups remain open. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, payback, forecasts, and causal lift remain unknown. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness.",
+        "summary": "Reject all new queue admissions, proposals, requeues, deployments, spending, telemetry expansion, monetization changes, and external outreach this cycle. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Delivery is full, failed repairs and measurement debt remain open, and operations/security evidence is unavailable. Amazon evidence is limited to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, payback, cost-to-learn, and causal lift remain unknown. Reassess deferred reversible candidates only after containment obligations are complete and an active slot clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release and security boundaries, attribution and measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Preserve parked, private, preview-only, and unlaunched status; do not create queue work or change production.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Preserve private launch gates and block security-sensitive releases.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing period-aligned revenue and cost reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain containment-only execution. No new implementation candidate is safely queueable: delivery is full at 10/10 slots, existing site work overlaps, and the only queue-ready candidates are launch-blocked parked properties. Do not create duplicate requests, production changes, telemetry, spend, or unsupported financial claims. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and readiness packets.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not queue implementation for complicated.work. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not queue implementation for deadlymaracas.com. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not queue implementation for driveford.net. It is explicitly launch-blocked. Owner: site-factory. Unblock only by attaching the existing dated readiness packet covering ownership, preview/build, compliance, security, measurement boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete evidence to CTO at that deadline.",
+        "summary": "Reject new queue admissions this cycle. Active delivery is full at 10/10 slots, with deployed-work measurement debt, failed requests, and open repair cases. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness. The three bounded candidates—saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability, and 0xroulette.com CTA clarity—remain deferred until a slot clears and containment obligations are complete. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, causal lift, and cost-to-learn are unknown. No deployment, telemetry, credentials, configuration, spending, monetization, or outreach changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
