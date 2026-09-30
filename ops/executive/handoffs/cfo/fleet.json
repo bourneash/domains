@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:39:03.133Z",
+  "generated_at": "2026-09-30T09:53:08.950Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed AllThingsMasonic affiliate CTA experiment for this cycle as capacity-gated and financially unproven. The available baseline is 61 Amazon clicks and $0 site-attributed commission for 2026-09-21; causal lift and page-level revenue are unknown. Preserve the existing request as a future candidate only after a slot clears, with existing destinations and disclosure behavior unchanged, and require a pre-change baseline, deterministic validation, rollback point, and a 14-day or 100-relevant-impression/click measurement window.",
+        "summary": "CFO recommendation: approve containment-only execution and reject any new spend, monetization expansion, revenue forecast, ROI claim, or queue admission this cycle. The only supported revenue evidence is Amazon data for 2026-09-21: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is provider-aggregate and cannot be assigned to a site; site-attributed income is $0. Do not treat clicks, orders, conversions, or impressions as revenue or margin.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed MarkItDown prototype for immediate execution. The bounded lab evidence supports research only: 8/8 checks passed under MIT, but dependency installation, security review, maintenance review, financial benefit, and production fitness remain unproven. Retain it outside the active queue until capacity clears and a disposable, fleet-owned corpus can be measured against editorial review time and extraction completeness.",
+        "summary": "Finance disposition: September 1-30 AI usage is $950.44418695 across 5,316 calls, with 229 errors and 5 transient errors; this is approximately $0.1789 per call, but cost-to-learn is unknown because no approved learning threshold or experiment-level allocated cost exists. Contribution margin, ROI, payback, infrastructure spend, and total budget exposure are also unknown: the brief has no matching-period allocated revenue ledger, infrastructure/domain/hosting costs, labor allocation, or populated monthly spend limit, fixed-cost, or marketing-budget fields. Minimum measurement is one dated period-aligned ledger mapping each site and work item to revenue by registered tracking ID, AI cost, infrastructure/domain/hosting costs, and approved learning threshold. Existing telemetry is sufficient for this reconciliation; do not request duplicate data or extrapolate one revenue day against September AI spend.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the remaining candidate plan's new execution admissions and retain no new CFO proposal. Delivery is already saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 108 approved proposals without execution. Preserve the existing capacity-unblocker and overdue repair-or-close work; do not create duplicate finance, site, or telemetry requests.",
+        "summary": "Retain the allthingsmasonic.com CTA refinement only as a slot-gated, reportable experiment after existing repair work clears. Its available evidence is 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure outbound CTR, orders, shipped items, and registered-tracking-ID commission, but do not claim financial lift unless revenue attribution and a predeclared learning threshold are available. Defer MarkItDown research until the finance ledger and current AI-spend controls establish that additional learning spend is justified.",
         "requested_action": null,
         "proposal_id": null
       }

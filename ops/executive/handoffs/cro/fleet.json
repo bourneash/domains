@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.679Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:53:08.950Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work. Existing containment, execution tracking, repair-or-close, measurement, and overlap controls already cover the stated use case. Preserve the allthingsmasonic.com affiliate CTA refinement as the next slot-gated revenue experiment after the overdue saveusfarms.com repair-or-close case is completed or closed. Do not add proposals, queue work, telemetry, spend, dependencies, credentials, deployments, or domains this cycle.",
+        "summary": "CRO handoff: retain the existing allthingsmasonic.com affiliate CTA refinement as the next slot-gated revenue experiment. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; attribution is partial-aggregate. Smallest reversible prototype: one CTA hierarchy/destination/disclosure refinement on the existing commercial surface, preserving the registered tracking ID, accessibility, and single-commit rollback. Metric: affiliate outbound CTR, ordered items, and site-attributed commission where available. Time-to-learn: 14 days or 100 relevant impressions/clicks. Do not admit until a delivery slot clears and current repair work is completed or closed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: retain MarkItDown as research-only for a fleet content-normalization prototype, not adoption. Evidence: MIT license, 194 files, 22 purpose-specific keyword hits, 8/8 bounded checks passed, no dependency installation, production access, or security failures observed. Fleet use case: convert a small set of owned source documents into reviewable Markdown for faster SEO/content production while preserving human review and provenance. Smallest reversible prototype: disposable workspace conversion of one non-sensitive sample, producing a diff and provenance checklist. Metric: editor review time and accepted-content throughput; time-to-learn: one working session. CTO must separately validate dependency provenance, parser behavior, maintenance cadence, and security before any implementation consideration.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO disposition: maintain containment-only execution. No new proposals, queue admissions, telemetry, spend, credentials, domains, deployments, or monetization claims are warranted while delivery is saturated and existing repairs and measurements remain open. The next CRO action is to re-evaluate the retained allthingsmasonic.com experiment after capacity clears.",
         "requested_action": null,
         "proposal_id": null
       }

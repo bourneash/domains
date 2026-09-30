@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:39:03.134Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:53:08.951Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Do not clear public exposure or security-sensitive releases. The read-only security baseline covers 59 managed sites, but fleet-doctor is unavailable and operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, incident readiness, and security.txt/disclosure readiness remain unevidenced. Risk severity is high for launch and release decisions because material controls are unknown; no active vulnerability is established. Permit only ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves existing compliance boundaries.",
+        "summary": "Security disposition: evidence_needed. Recommendation: keep security-sensitive releases, new public exposure, and gated-product launches blocked pending direct control evidence; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: fleet-doctor is unavailable (ok=false, last_run=null), operations deploy/uptime/error sweeps have no results, all 59 security sitefacts are unknown, and no evidence is present for authentication boundaries, secrets handling, isolation, release controls, dependency provenance, monitoring, incident readiness, or security.txt/disclosure readiness. Severity: high for release-clearance uncertainty; this is not evidence of compromise. Compliance is mixed at 37 pass, 16 fail, and 6 unknown, so no clean bill of health is supportable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Exact security decision: retain the fleet security gate as evidence_needed, keep security-sensitive releases and new public exposure blocked, and continue only the existing read-only evidence matrix using authorized metadata and retained artifacts. Do not access credentials or private containers, exploit targets, change permissions or configuration, add dependencies, deploy, requeue work, or conduct external outreach.",
+        "summary": "SearchWoot remains blocked and private/preview-only. Security evidence is incomplete alongside legal rights, accuracy, measurement, and owner gates. Do not expose publicly, expand alerts, add dependencies, change credentials or configuration, deploy, or conduct external outreach. Continue only the existing authorized read-only evidence bundle.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security gate and conditional growth boundary",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor is unavailable, operations deploy/uptime/error sweeps have no results, and material security controls remain unevidenced. Keep public exposure and security-sensitive releases blocked while allowing only bounded reversible growth that preserves existing compliance and data-handling boundaries.",
-        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep new public exposure and security-sensitive releases blocked. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, requeue failures, or conduct outreach.",
         "proposal_id": null
       }
     ]

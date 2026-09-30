@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:39:03.133Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:53:08.950Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, deployment, or dependencies while delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Complete or close existing repair, measurement, security-evidence, finance-reconciliation, readiness, and private-gate work only.",
+        "summary": "CTO disposition: approve containment-only execution. Do not create proposals, queue work, telemetry, spend, deployments, dependencies, credentials, or monetization expansion this cycle. Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, build checks, rollback, release/security boundaries, attribution limits, and measurement limits. Retain the allthingsmasonic.com CTA refinement as slot-gated only; admit it only after capacity and site-overlap blockers clear. Preserve existing measurement, security evidence, compliance, and parked-site readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com affiliate CTA improvement as the next implementation candidate only after a slot clears and overlap, tests, rollback, and measurement readiness are rechecked. Use existing affiliate clicks as the primary available metric; preserve revenue attribution and causal lift as unknown.",
+        "summary": "CTO technical review: the retained allthingsmasonic.com CTA refinement is feasible, isolated, reversible, and measurable using existing GA4 and registered affiliate attribution only. Do not add tracking or infer revenue. Preserve disclosures, destinations, accessibility, and use a single-commit rollback after a delivery slot and site-overlap clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject duplicate fleet control-plane work this cycle. Retain the document-conversion concept as deferred research only; no prototype or research request is authorized while capacity and security-review gates remain open. MIT licensing and bounded lab checks do not establish production fitness or supply-chain clearance.",
+        "summary": "CTO disposition: retain the private preview-only factory readiness packet as existing work. It is technically feasible as a non-production artifact, but no public launch, deployment, analytics configuration, monetization, domain change, dependency, or spend is authorized until the existing readiness gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the overdue saveusfarms.com repair-or-close case without an unchanged retry or duplicate request. Require dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence.",
+        "summary": "CTO disposition: retain MarkItDown as research-only context, not an admitted work item. Any future prototype must remain in a disposable workspace with no dependency installation, production access, sensitive data, or fleet modification, and requires separate owner-approved implementation consideration after provenance, maintenance, parser, and security review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain parked, private, preview-only, and unlaunched readiness work for complicated.work, deadlymaracas.com, and driveford.net. Continue only existing readiness packets; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue deployed-work measurement using available telemetry only. Do not add tracking or infer unavailable revenue, conversion, attribution, cost, ROI, or causal lift. Keep public exposure and security-sensitive releases blocked where required evidence is missing.",
+        "summary": "The available Amazon result covers 2026-09-21 and reports 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The commission is provider-aggregate and cannot be assigned to a site; ROI, margin, conversion value, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
