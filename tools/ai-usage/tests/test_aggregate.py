@@ -175,7 +175,7 @@ class AggregateTests(unittest.TestCase):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [record(
             provider="Anthropic / Claude Code CLI", model="claude-haiku", requested_model="claude-sonnet",
-            requested_max_turns=10, num_turns=10,
+            requested_max_turns=10, num_turns=11, subtype="error_max_turns", is_error=True,
         )])
         report = aggregate.collect(root)
         self.assertEqual(report["by_model"][0]["model"], "claude-haiku")
