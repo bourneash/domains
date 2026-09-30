@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:48:18.202Z",
+  "generated_at": "2026-09-30T20:50:02.337Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review rejects the duplicate 0xroulette.com proposal: its canonical request already exists and capacity is saturated at 10/10 slots. Three bounded SEO changes are routed as capacity-gated engineer work across distinct sites. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence; unresolved capacity escalates to the owner. No revenue, ROI, margin, or causal-lift claims are supported.",
+        "summary": "Reject the report-only blackmarketapparel.com backlog proposal: it duplicates existing measurement work and does not satisfy the delivery mandate. Route only three low-risk, reversible, low-priority SEO changes across distinct sites as capacity-gated engineer work. No new production execution, spend, credentials, configuration, telemetry, or revenue claims are authorized while delivery remains saturated at 10/10 slots. CTO must release capacity by 2026-10-01T09:00Z or escalate unresolved blockage to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

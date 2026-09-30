@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:48:18.202Z",
+  "generated_at": "2026-09-30T20:50:02.337Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete the existing 0xroulette.com primary CTA clarity change",
-        "summary": "Retain and complete the canonical existing request for the root entry surface. Do not create duplicate work while the current request remains in review and delivery capacity is saturated.",
-        "requested_action": "Use existing request 0e8c19fe-2c42-4d44-83f4-a7d81e7da734. On `/`, improve CTA hierarchy and destination clarity only. Edit only the root-route template/component and its co-located stylesheet; enumerate exact paths in the implementation diff before editing. Preserve existing destinations, disclosures, analytics consent, and all other routes.",
+        "title": "Reconcile blackmarketapparel.com backlog after active measurement clears",
+        "summary": "A new implementation would overlap the existing blackmarketapparel.com improvement currently measuring, while delivery capacity is saturated. Prepare the smallest next implementation brief without changing production or requesting duplicate telemetry.",
+        "requested_action": "Review the existing measuring improvement and repository state; identify the exact next non-overlapping page/files, reversible scope, acceptance tests, metric, available baseline, due date, and rollback point. Retain unknown metrics as unknown and defer implementation until the active measurement window and site queue slot clear.",
         "proposal_id": null
       }
     ]
