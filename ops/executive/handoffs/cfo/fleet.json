@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:40:02.039Z",
+  "generated_at": "2026-09-30T19:53:30.447Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment. Do not admit new work, spend, prototypes, or monetization claims while delivery is saturated at 10/10 slots and attribution is insufficient. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0; the $4.92 cannot be assigned to a site, so revenue, contribution margin, ROI, payback, and causal lift are unsupported. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Measure registered affiliate clicks only; baseline is 61 clicks on 2026-09-21.",
+        "summary": "Recommendation: maintain containment-only execution and reject new spend, monetization forecasts, ROI claims, margin claims, and revenue projections this cycle. AI usage for 2026-09-01 through 2026-09-30 is $997.51762695 across 5,522 calls, or approximately $0.18065 per recorded call, with 234 errors and 5 transient errors. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all commission remaining in an aggregate unattributed row. Site-attributed commission is $0. Therefore revenue is supported only as $4.92 aggregate provider revenue, not as site revenue, and contribution margin, ROI, cost-to-learn, and payback are not calculable. The AI and revenue windows differ, and infrastructure, domains, labor, and other direct costs are absent. Minimum measurement is a dated ledger keyed by site, request, and experiment that reconciles AI, infrastructure, domain, labor, and external spend to site/content identifiers, affiliate clicks, ordered items, shipped items, commission, and measurement windows. Preserve the existing allthingsmasonic.com CTA refinement as click-only and slot-gated after the CTO releases capacity; do not claim revenue or lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance gate for the queued allthingsmasonic.com CTA refinement: execute only after one delivery slot is released. Preserve the registered affiliate destination, tracking ID, and disclosure. Measure registered affiliate clicks for 14 days or 100 relevant impressions. Do not claim orders, commission, margin, ROI, or causal lift unless named provider revenue and comparable pre/post evidence exist.",
+        "summary": "Financial disposition: retain the existing revenue-attribution boundary. Require every new affiliate link to use a registered site tracking ID; keep provider aggregate rows explicitly unattributed; do not assign the $4.92 aggregate commission to any site or use 6,219 clicks, 28 orders, or 6 shipped items as proof of profitable growth. The monthly AI total of $997.52 cannot be compared directly with the one-day revenue extract to produce margin because the periods and cost coverage do not match.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "September AI usage is $997.51762695 for 2026-09-01 through 2026-09-30 across 5,522 calls, including 234 errors and 5 transient errors. Cost per call is approximately $0.181, but cost-to-learn, cost per conversion, and AI contribution margin are not calculable because comparable attributed revenue, experiment exposure, labor/infrastructure costs, and outcome linkage are absent. The brief also provides no monthly spend limit, fixed-cost baseline, marketing budget, or revenue target. Treat AI spend as known exposure, not proof of return; authorize no incremental spend this cycle.",
+        "summary": "Do not admit new finance, AI-optimization, site-factory, prototype, or marketing work while delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 implementation requests have failed. The existing saveusfarms.com repair-or-close case remains the capacity gate; after one slot is released, the existing allthingsmasonic.com CTA refinement may proceed with affiliate-click measurement only. Forecasts based on impressions, sessions, conversions, proposal counts, or AI call volume remain unsupported without attributable revenue and complete direct-cost coverage.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:40:02.038Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:53:30.446Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment this cycle: delivery is saturated at 10/10 slots, so do not admit new CRO prototypes or duplicate queue work. Preserve the existing allthingsmasonic.com CTA refinement as the next revenue experiment after CTO releases a slot. Measure only registered affiliate clicks; baseline is 61 clicks for 2026-09-21, while orders, commission, ROI, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred product opportunity for post-capacity review: build a disposable fleet content-normalization prototype using microsoft/markitdown. Evidence: MIT license, 194 files, 22 purpose-keyword hits, and 8/8 bounded lab checks; no dependencies were installed and no production access occurred. Fleet use case: normalize approved editorial and document fixtures into consistent Markdown for SEO briefs and content QA. Risks: dependency and parser maintenance, malformed or adversarial documents, copyright/provenance handling, and no evidence yet of traffic or conversion lift. Smallest reversible prototype: process a fixed fixture set in an isolated workspace and compare heading, metadata, link, and provenance extraction accuracy against a manually reviewed sample. Metric: extraction accuracy and analyst minutes saved per fixture. Time-to-learn: one engineering cycle after capacity clears. Do not adopt, deploy, or add dependencies until CTO security and maintenance review is complete.",
+        "summary": "CRO product pipeline disposition: retain complicated.work only as an existing parked, private, preview-only readiness packet; retain other site-factory candidates as deferred. No build, deployment, domain change, spending, analytics configuration, monetization, dependency addition, or queue admission is authorized while capacity and launch evidence gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }

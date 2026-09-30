@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:40:02.039Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:53:30.447Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment. Delivery is saturated at 10/10 active slots, with 57 improvements measuring, 21 failed requests, 7 repair follow-ups, and 193 stranded work items. Do not admit new implementation, prototype, telemetry, spend, credential, configuration, deployment, or duplicate queue work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, and release boundary. Only after that evidence is recorded may one slot be released for the existing allthingsmasonic.com CTA refinement.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Admit no new implementation, prototype, telemetry, spend, deployment, or duplicate work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement and measure affiliate clicks only against its recorded baseline. Keep security and private-launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After capacity release, execute only the existing allthingsmasonic.com CTA refinement. Preserve the registered affiliate destination, tracking ID, disclosure, and existing architecture. Capture pre-change markup/styles, run deterministic tests, build, link, responsive, keyboard, focus, and disclosure checks, then measure registered affiliate clicks using existing telemetry for 14 days or 100 relevant impressions. Do not claim revenue, ROI, conversion, or causal lift.",
+        "summary": "Keep the existing allthingsmasonic.com CTA refinement slot-gated. After one delivery slot is released, apply only the existing bounded change to one recorded commercial URL: clarify CTA hierarchy, preserve disclosure and affiliate behavior, improve keyboard/focus behavior and responsive spacing, validate destination integrity, run deterministic tests and build/link checks, and record a single-diff rollback point. Measure affiliate clicks only; do not claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private launch and security-sensitive release gates unchanged. Continue the existing consolidated read-only evidence work; do not create duplicate security reports or request duplicate telemetry. Fleet-doctor and operations sweeps have no results, so security controls remain unevidenced; this is not evidence of compromise.",
+        "summary": "Preserve existing owner-controlled affiliate activation work for amputeenews.com and existing affiliate repair work for americastrikes.com. Do not guess tracking IDs, affected URLs, replacement destinations, or recovered revenue. Execute only after capacity clears and retained task evidence identifies the exact bounded change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new site-factory or queue-ready candidates while capacity is full or launch-readiness evidence is incomplete. Continue existing readiness packets only, preserving parked/private/preview-only boundaries. Recheck the authoritative queue after a slot is released and admit at most one bounded reversible request with a named owner, acceptance tests, rollback, and an available measurement boundary.",
+        "summary": "Maintain the existing readiness packet for complicated.work and the other parked-site dispositions. Keep parked properties private, preview-only, and unlaunched. Do not create duplicate queue work, build, deploy, alter DNS, configure analytics, monetize, spend, or add dependencies until ownership, compliance, security, measurement, rollback, and launch-gate evidence is complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the current attribution and compliance boundaries. Provider aggregate revenue remains explicitly unattributed; require registered tracking IDs for new affiliate links. Do not assert site-specific compliance failures from aggregate findings or ship monetization changes without affected-site evidence and validation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep private-launch and security-sensitive release gates unchanged. Continue only the existing bounded read-only evidence work using authorized metadata and retained artifacts. No credentials, permissions, configuration changes, exploitation, deployment, external rights outreach, or duplicate telemetry requests are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
