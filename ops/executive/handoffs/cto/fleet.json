@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:38:24.323Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:38:59.235Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject the proposed three site-factory admissions and all new prototypes or telemetry work: delivery is saturated at 10/10 slots, site-factory ownership is incomplete, and launch, security, compliance, measurement, and rollback gates are not evidenced. Preserve existing work only. After the existing saveusfarms.com repair-or-close case is completed or closed with root cause, isolated validation, build checks, rollback point, and release-boundary evidence, release one slot and execute the already-queued allthingsmasonic.com CTA refinement. Keep analytics, revenue attribution, ROI, and causal lift unknown where telemetry is unavailable.",
+        "summary": "Reject the new fleet-tooling admission this cycle. Delivery is saturated at 10/10 active slots, and the proposal overlaps existing capacity-gate, execution-integrity, and repair-tracking work. Preserve the specification as deferred; create no duplicate queue work, telemetry requests, deployments, or site changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create duplicate requests for complicated.work, deadlymaracas.com, driveford.net, or any queued web-vitals candidate. Continue existing readiness and slot-gated records only. No build, deployment, DNS change, analytics configuration, dependency addition, spend, or public launch is authorized until the applicable owner, legal, security, compliance, measurement, and rollback gates are evidenced.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, deterministic tests, build evidence, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing capacity gate. Verify the CTO evidence for the saveusfarms.com repair-or-close case by 2026-10-01T09:00:00Z; release one slot only after completion or justified closure is recorded. Then admit only the existing allthingsmasonic.com CTA refinement. Do not admit the proposed site-factory requests or create duplicates.",
+        "summary": "After capacity clears, execute only the existing allthingsmasonic.com CTA refinement. Preserve its registered tracking identifier, use the recorded 2026-09-21 baseline, measure only available affiliate outcomes, and report revenue or causal lift as unknown unless directly supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain SearchWoot as private and preview-only. Rights outreach, public exposure, new data collection, monetization, and launch changes remain blocked pending human-counsel, security, accuracy, measurement, and owner dispositions.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Continue existing readiness evidence only; no build, deployment, DNS, analytics configuration, monetization, dependency addition, spend, or queue admission is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private and preview-only. Rights outreach, public exposure, new data collection, monetization, and launch changes remain blocked pending the existing legal, security, accuracy, measurement, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       }

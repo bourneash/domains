@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:38:24.323Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:38:59.235Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch and monetization expansion; conditional for ordinary reversible growth that preserves existing disclosures, consent, provenance, claims, platform-policy, and age-sensitive boundaries. SearchWoot must remain private and preview-only. Evidence: Woot documentation proves API access but not redistribution, storage, derivatives, public display, alerts, affiliate, or advertising rights; public terms restrict commercial/public product-data use. Legal data-use review remains incomplete for all four items. Security, accuracy/freshness, measurement, and owner gates are blocked. Fleet compliance is only 35 pass of 61, with 20 fail and 6 unknown; analytics is unavailable across the fleet and revenue supports only $4.92 aggregate unattributed commission for 2026-09-21. Exact decision: do not launch, monetize, expand notifications, or send rights outreach. Continue bounded read-only evidence work and existing reversible work only. Human counsel is required for Woot rights, privacy/jurisdictional treatment, and any affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for public launch, monetization expansion, notification expansion, and rights outreach; conditional only for ordinary reversible work that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Keep searchwoot.com private and preview-only. Evidence: Woot documentation confirms API access but not redistribution, storage, derivatives, public display, alerts, affiliate, or advertising rights; current public terms restrict commercial/public product-data use. Fleet compliance is 35 pass, 20 fail, and 6 unknown of 61; security and operations sweeps are unavailable; accuracy, measurement, and owner gates remain incomplete. Exact decision: no public launch or monetization change. Next evidence action: create one dated read-only bundle covering source rights, data flow/retention, GA4 consent/configuration, and logs/vendors/incident handling, then route rights and jurisdictional issues to human counsel.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. No task is closed because required evidence is not complete. Source-rights task: blocked pending current API agreement or written permission and field-level terms. Data-flow task: partial repository evidence exists, but operator-confirmed retention, deletion, correction, access, and notification records are missing. GA4 task: privacy and cookie pages exist, but deployed consent behavior, GA4 settings, retention, data-sharing, and jurisdiction review are missing. Logs/vendors task: no complete log-field, retention/access, vendor/DPA, incident, or request-procedure evidence is recorded. Next evidence action: produce one dated read-only evidence bundle containing the source-rights matrix, alert-data-flow/retention table, consent/configuration capture, and logs/vendor/incident inventory; route rights and jurisdictional issues to human counsel before any outreach or launch decision.",
+        "summary": "Launch-readiness tracking remains active. Progress: repository artifacts partially support the data-flow and consent reviews, and public privacy, cookie, and terms pages are identified. No task is closed because required evidence is incomplete. Next action: attach a dated consolidated evidence bundle and preserve all open task statuses.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue disposition: Amazon evidence is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is entirely in the aggregate other row and cannot be assigned to a site. Do not claim site revenue, ROI, contribution margin, or causal lift. Preserve registered tracking IDs for future links.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For complicated.work, deadlymaracas.com, and driveford.net, retain the concrete decision: parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission is cleared. Next evidence action: attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence.",
         "requested_action": null,
         "proposal_id": null
       }

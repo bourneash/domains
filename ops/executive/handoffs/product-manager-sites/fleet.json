@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.042Z",
+  "generated_at": "2026-09-30T17:24:08.142Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: admit no new site delivery work this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, open repairs, and unavailable analytics; revenue, ROI, margin, and causal lift remain unknown. Preserve existing site work and avoid duplicate proposals. CTO should complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence, then release one slot by 2026-10-01T09:00Z. After capacity clears, execute the already-queued allthingsmasonic.com CTA refinement using its recorded baseline, accessibility/link tests, measurable outcome, and rollback path. Keep private launch and security gates unchanged. No new proposal or work item is warranted this cycle.",
+        "summary": "Recommend no new site implementations, prototypes, or site-factory admissions this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 7 repair follow-ups. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation only after the saveusfarms.com repair-or-close case releases a slot with validation, build, rollback, and release-boundary evidence. Treat it as a learning experiment against the existing baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim revenue, ROI, conversion lift, or causal impact. Keep all other site opportunities slot-gated and use existing evidence only.",
         "requested_action": null,
         "proposal_id": null
       }

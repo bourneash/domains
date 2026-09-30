@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:38:07.579Z",
+  "generated_at": "2026-09-30T17:24:08.143Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment-only execution while delivery remains saturated at 10/10 slots. Reject the three new site-factory admissions as capacity-blocked and avoid duplicate requests. After CTO closes the existing saveusfarms.com repair-or-close case and releases one slot, execute the already-queued allthingsmasonic.com affiliate CTA refinement as the highest-value visible design/conversion improvement. Analytics is unavailable, so conversion lift remains unknown.",
+        "summary": "Keep the existing allthingsmasonic.com implementation request as the sole next design action after one delivery slot clears. Exact scope: commercial-card hierarchy, primary CTA clarity, existing affiliate destinations and registered tracking, disclosure placement, accessible link names, visible keyboard focus, mobile spacing, and responsive layout. Do not add dependencies, tracking, data collection, imagery, or new routes. Preview acceptance: existing homepage and highest-intent merchandising surfaces show clearer card titles, product context, disclosure proximity, and one visually dominant CTA without changing destination behavior. Tests: deterministic site tests, production build, link/destination validation, disclosure-presence check, keyboard navigation/focus check, responsive checks at mobile and desktop widths, and visual diff review. Metric: record the existing 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission; measure affiliate clicks and available site-level outcomes for 14 days or 100 relevant new impressions/clicks. No conversion, revenue, ROI, or causal-lift claim is permitted before measurement. Rollback: revert only this single change set and restore the prior card, CTA, disclosure, and spacing styles/content if any validation fails or the measured result is inconclusive/regresses. Do not create duplicate work while capacity is 10/10; first complete or close the existing saveusfarms.com repair-or-close case with root cause, validation, build, rollback, and release-boundary evidence.",
         "requested_action": null,
         "proposal_id": null
       }

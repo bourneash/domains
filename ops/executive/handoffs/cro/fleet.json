@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:38:24.322Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:24:08.143Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain containment-only execution. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, 56 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com commercial-card CTA refinement as the next revenue experiment after CTO releases capacity. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Hypothesis: clearer CTA hierarchy, disclosure adjacency, focus states, contrast, and mobile spacing improve qualified affiliate engagement. Smallest reversible prototype: one existing commercial card; metric: affiliate clicks, ordered items, and site-attributed commission; time-to-learn: 14 days or the established threshold; rollback: revert isolated markup, styles, and copy. Do not claim lift, ROI, or revenue impact while analytics remains unavailable. Defer new GitHub prototypes: MarkItDown and Mermaid require content-pipeline validation; shadcn/ui requires fleet-specific UX, dependency, security, and build review. Existing lab evidence supports only research, not adoption; MIT licenses are favorable but maintenance, transitive dependencies, supply-chain security, and runtime fit remain unverified.",
+        "summary": "Retain the existing allthingsmasonic.com CTA refinement as the sole revenue experiment after CTO releases capacity. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Scope remains CTA hierarchy, product relevance, disclosure proximity, accessible links, and responsive layout. Measure affiliate clicks, ordered items, shipped items, and commission only; do not claim lift, ROI, or causality. Reject new site, SEO, audience, affiliate, and prototype admissions while delivery remains 10/10.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain existing gated affiliate work only: complete the americastrikes.com stale-reference repair within its current queue, and keep amputeenews.com affiliate activation blocked until the owner-controlled registered tag is evidenced. Do not create duplicate requests, fabricate attribution, change credentials, spend, deploy, or request duplicate telemetry.",
+        "summary": "microsoft/markitdown is a purpose-fit SEO/content candidate: MIT license, 194 files, 22 keyword hits, and 8/8 bounded lab checks passed without dependency installation or production access. This supports a disposable fixture prototype only, not adoption. Risks remain unverified maintenance depth, parser and transitive-dependency security exposure, document rights, and output-quality variance. Keep deferred until capacity and owner-approved fixtures exist.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Existing search signals remain slot-gated: xxxtea.com has 3,607 impressions, 132 clicks, 25 sessions, and 0 conversions across 15 opportunities; broadwayshowgirls.com has 527 impressions, 0 clicks, 44 sessions, and 0 conversions, including 63 impressions at position 2 for one query with 0% CTR. These are prioritization evidence, not proof of causality. Do not create duplicate work while active measurement and repair queues remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

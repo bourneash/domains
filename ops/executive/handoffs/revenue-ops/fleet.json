@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:38:24.322Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T17:24:08.143Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment while delivery is saturated at 10/10 slots. Preserve existing affiliate repairs and execute only after capacity clears. Evidence supports an americastrikes.com affiliate-reference repair, an amputeenews.com registered-tag prerequisite, and an allthingsmasonic.com CTA/disclosure refinement. Amazon supports $4.92 aggregate unattributed commission for 2026-09-21; do not assign it to any site or infer ROI, conversion lift, or revenue impact.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement as the next revenue implementation after the saveusfarms.com repair-or-close case releases capacity. Preserve americastrikes.com affiliate-reference repairs and amputeenews.com affiliate activation as existing gated work; do not create duplicate requests or request duplicate telemetry.",
+        "summary": "Preserve unknown revenue and admit no new implementation while delivery remains saturated at 10/10 slots. Continue the existing allthingsmasonic.com CTA refinement after capacity release; route affiliate-tag, stale-link, attribution-integrity, and disclosure-evidence work through bounded, reversible tasks with no ROI or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }
