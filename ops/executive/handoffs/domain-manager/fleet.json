@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:11:59.520Z",
+  "generated_at": "2026-09-30T16:13:58.843Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete howtofry.com launch-readiness gate before first public surface",
-        "summary": "howtofry.com is a parked scaffold with only site capability and no verified launch-readiness artifact. Produce the smallest evidence package required before any implementation admission; keep the site private, preview-only, and undeployed.",
-        "requested_action": "Create `launch-readiness/howtofry.com.md` in `bourneash/howtofry.com` covering audience, one-page launch scope, initial content seed, metadata, analytics and affiliate readiness, compliance/security checklist, measurement boundary, rollback point, and exactly one owner decision or blocker. Use registry and existing authorized evidence only; do not add telemetry, dependencies, credentials, DNS, monetization, or production changes.",
+        "title": "Complete magicescorts.com private launch-readiness gate",
+        "summary": "Create one bounded readiness artifact for magicescorts.com documenting the owner-approved entertainment/editorial scope, prohibited functionality, legal/privacy/security prerequisites, preview-only boundary, measurement limits, and exact next owner decision. The site remains parked, private, and unlaunched.",
+        "requested_action": "In bourneash/magicescorts.com, create or update docs/launch-readiness.md only. Record audience and positioning, preview scope, excluded booking/contact/affiliate behavior, compliance and security checklist, analytics and attribution boundary, rollback point, and one owner decision: approve isolated preview brief or keep parked. Do not build, deploy, alter DNS, add dependencies, configure analytics, collect data, monetize, spend, or publish.",
         "proposal_id": null
       }
     ]
