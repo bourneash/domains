@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:57:54.710Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:27:51.160Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Exactly one next step for the strongest candidate, complicated.work: after CTO releases one delivery slot, produce and validate its launch-readiness artifact before any build admission.",
+        "summary": "Maintain a small launch pipeline: complicated.work (priority; scaffold with existing bounded readiness research), deadlymaracas.com (scaffold; readiness evidence required), and driveford.net (scaffold; readiness evidence required). Do not add domains, spend, deploy, or launch. Standard launch packet: site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, security review, named owner, measurement plan, and rollback gate. Strongest candidate is complicated.work because a bounded inspection already exists; its launch remains blocked by failed compliance checks, analytics not configured, and incomplete security/owner evidence. Exactly one next step: CTO/site-factory owner completes a read-only launch-readiness packet for complicated.work, recording the owner, intended scope, template/content seed, SEO baseline, analytics and affiliate prerequisites, legal/compliance findings, security unknowns, measurement acceptance criteria, and rollback boundary; keep it preview-only pending Legal, Security, measurement, and owner approval.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete one read-only launch-readiness packet for complicated.work. Do not implement, deploy, add tracking, add dependencies, spend, or change production. Acceptance requires explicit owner, legal/compliance, security, measurement, and rollback fields, with unknowns preserved and preview-only disposition recorded.",
         "requested_action": null,
         "proposal_id": null
       }

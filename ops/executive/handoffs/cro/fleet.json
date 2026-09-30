@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:18:31.106Z",
+  "generated_at": "2026-09-30T23:27:51.160Z",
   "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only one CRO-owned deferred specification: reconcile proposals, requests, repairs, measurements, site overlap, and active slots before admission. Evidence: 10/10 delivery slots occupied, 57 improvements measuring, 21 failed requests, 108 approved proposals without execution, and 63% approved-proposal execution. Do not admit implementation this cycle. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after the CTO capacity gate is resolved.",
+        "summary": "Retain the already-queued allthingsmasonic.com CTA refinement as the next revenue experiment after capacity release; create no duplicate request. Evidence baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Smallest reversible prototype: one-surface CTA hierarchy and adjacent disclosure refinement with unchanged destinations, no new tracking, routes, dependencies, credentials, permissions, or cross-site behavior. Metric: affiliate clicks plus destination integrity and accessibility acceptance; revenue and causal lift remain unknown. Time-to-learn: 14 days or 100 relevant new impressions/clicks. Require deterministic tests, build, link validation, smoke, keyboard/focus/contrast/tap-target checks, and single-diff rollback. Delivery remains capacity-gated at 10/10 slots.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Then release one slot for the already-queued allthingsmasonic.com CTA refinement. Do not create duplicate work.",
+        "summary": "After the existing saveusfarms.com repair-or-close case is completed or justifiably closed with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, admit only the existing allthingsmasonic.com CTA refinement. Do not create duplicate work. Acceptance: unchanged affiliate destinations, adjacent disclosure, responsive layout, visible keyboard focus, sufficient contrast and tap targets, no overflow or content loss, deterministic tests, build, links, smoke, and rollback evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "GitHub signals for microsoft/markitdown, shadcn-ui/ui, and mermaid-js/mermaid show plausible fleet use cases, but bounded lab evidence is not adoption proof. MIT licenses are favorable for the tested candidates; maintenance, dependency, supply-chain, runtime, and content-quality risks remain unvalidated. No prototype admission is justified while delivery is saturated. Revisit only after capacity and security gates are cleared.",
+        "summary": "Do not adopt or prototype new GitHub capabilities this cycle. Evidence supports only deferred research: microsoft/markitdown is MIT-licensed, passed 8/8 bounded lab checks, and could support disposable owned-document-to-Markdown content discovery; shadcn-ui/ui is MIT-licensed and passed 3/3 checks for reusable accessible UI; mermaid-js/mermaid is MIT-licensed with supported SEO-content fit but no native checks. Risks remain fleet-specific security, dependency provenance, maintenance, integration, and measurable revenue impact; no dependencies were installed. Smallest future prototypes would be isolated fixture-based transformations or components, with success measured by content-production time, accessibility/build checks, and search or conversion outcomes. Time-to-learn is one bounded lab cycle per candidate. No queue admission or owner approval request is created.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Amazon evidence remains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21. Do not assign aggregate income to a site or claim ROI, margin, or causal lift. For the queued allthingsmasonic.com CTA refinement, measure registered affiliate clicks for 14 days or 100 relevant new impressions/clicks; downstream revenue remains unknown.",
+        "summary": "Create no new CRO proposals, experiments, site-factory admissions, telemetry requests, or control-plane implementations this cycle. Existing records cover scheduler, measurement, AI-cost, retry, and admission concerns; delivery is saturated and active improvements await measurement. Preserve unknowns: Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21, while site revenue, ROI, margin, and causal lift remain unsupported. Keep launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

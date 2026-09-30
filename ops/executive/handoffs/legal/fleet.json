@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:18:31.106Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:27:51.161Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked, with counsel_required data uses. Keep SearchWoot private; do not authorize bounded public beta, affiliate/advertising expansion, or rights outreach. Evidence shows Woot documentation provides API access but not redistribution, historical derivative, public display, alert, or commercial rights; public terms point against the proposed use. Security, accuracy/freshness, measurement, owner, privacy, and vendor gates remain incomplete. Ordinary reversible growth that adds no new data collection, credentials, permissions, dependencies, or public exposure may continue elsewhere.",
+        "summary": "Disposition: blocked for new public launches and security-sensitive releases; ordinary reversible growth may continue where existing consent, disclosures, provenance, claims, and platform-policy boundaries are preserved. SearchWoot must remain private. The concrete blockers are missing upstream redistribution rights, incomplete data-flow and retention evidence, incomplete GA4 consent/configuration evidence, incomplete vendor/logging/incident evidence, and blocked accuracy, measurement, and security gates. Fleet compliance is a technical baseline only: 36 pass, 19 fail, and 6 unknown, including 19 banner/consent/GA4 failure sets and 4 privacy/terms findings. Do not claim legal clearance or certification. Human counsel is required for Woot rights, public data display, historical derivatives, alerts, affiliate/advertising use, and jurisdiction-specific privacy treatment. Next evidence action: attach one dated read-only bundle covering the four existing SearchWoot legal tasks; do not send outreach, enable tracking, collect new data, or change production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Confirm the existing keep_private disposition for SearchWoot and keep the Woot permission request unsent. No go-live proposal is supported. The smallest next evidence action is to attach one dated bundle covering the four open legal tasks, then route unresolved rights, personal-data, notification, vendor, and jurisdiction questions to human counsel.",
+        "summary": "Keep SearchWoot private and leave rights outreach unsent. No legal task is closed. Produce one dated read-only bundle from repository, deployed configuration, and authoritative terms covering Woot rights, alert-data flow and retention, GA4 consent/configuration, and logs/vendors/incident handling. Preserve unknowns and do not enable tracking, add data collection, or change production.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain SearchWoot private gate and complete dated legal evidence bundle",
+        "summary": "Keep SearchWoot private and preserve the existing launch gate while source rights, data-flow, consent, vendor, security, accuracy, measurement, and owner evidence remain incomplete.",
+        "requested_action": "Continue the four existing launch-readiness legal tasks and attach one dated read-only evidence bundle. Do not send the Woot permission request, enable new tracking, collect new data, change production, or approve public beta until human counsel reviews rights, privacy, and any affiliate or advertising use and the technical, security, accuracy, measurement, and owner gates are satisfied.",
         "proposal_id": null
       }
     ]
