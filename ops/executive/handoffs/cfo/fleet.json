@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.120Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:25:11.352Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and make no new spend, production admission, or revenue forecast. AI usage cost was $995.61 for 2026-09-01 through 2026-09-30 across 5,502 calls, including 234 errors; Amazon evidence covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 cannot be assigned to sites, and analytics is unavailable for all 38 expected sites, so contribution margin, ROI, cost-to-learn, conversion rates, and causal lift are not calculable. Do not present clicks, orders, shipped items, AI calls, proposals, or impressions as financial outcomes. Monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor fields are blank, so budget exposure and variance are also unknown. Retain only the existing slot-gated allthingsmasonic.com CTA refinement after capacity and repair gates clear; require registered site attribution and period-aligned revenue/cost evidence before any ROI or margin claim.",
+        "summary": "Recommendation: maintain containment-only execution and reject new spend, production work, experiments, and monetization claims this cycle. Revenue support is insufficient: Amazon evidence covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0; the $4.92 aggregate row cannot be assigned to any site, so revenue, ROI, forecast, and causal-lift claims are unsupported. Contribution margin is not calculable because site-attributed revenue is absent and infrastructure, fixed, marketing, and implementation costs are not supplied. AI spend is measurable at $995.6313878 for 2026-09-01 through 2026-09-30, but a conflicting prior CFO record reports $988.9074759 for the same window; reconcile before using AI cost in a margin or cost-to-learn denominator. Analytics coverage is 0 of 38 expected sites, so missing traffic and conversions must remain unknown, not zero. Preserve the existing allthingsmasonic.com CTA refinement only as a slot-gated candidate after the saveusfarms.com repair-or-close case releases capacity; its 2026-09-21 baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Minimum finance measurement: one reconciled period ledger tying each site/content identifier to affiliate clicks, ordered and shipped items, commission, AI cost, infrastructure cost, implementation cost, and measurement window. Infrastructure and fixed-cost figures require an authorized billing or owner-supplied cost export; CFO must not access banking or billing directly.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Finance pushback: do not treat 6,219 affiliate clicks, 28 ordered items, shipped items, impressions, sessions, conversions, proposal counts, or social-account counts as revenue or profitability evidence. The provider aggregate row is explicitly unattributed, analytics is unavailable for all 38 expected sites, and no infrastructure, fixed-cost, or marketing-budget figures are present. Named-site margin figures that subtract only AI cost are partial operating-cost views, not contribution margin.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue and profitability claims remain unsupported. Available Amazon evidence is aggregate and unattributed; analytics coverage is unavailable for the expected sites. Do not use clicks, orders, impressions, sessions, AI cost, or social counts as revenue or margin evidence.",
         "requested_action": null,
         "proposal_id": null
       }

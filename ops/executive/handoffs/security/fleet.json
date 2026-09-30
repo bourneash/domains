@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.121Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:25:11.353Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide. Recommendation: block security-sensitive releases and new public exposure; conditionally allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Evidence: fleet-doctor has no run; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS reports no certificates expiring within 30 days, but certificate and configuration coverage remain unverified. Compliance is 37 pass, 16 fail, and 8 unknown; analytics is unavailable for 38 expected sites. No active vulnerability or compromise is established. Risk severity is high evidence uncertainty, not a confirmed incident. Exact decision: continue existing bounded read-only evidence capture, preserve private launch gates, and issue no security-sensitive go-live approval or clean bill of health.",
+        "summary": "Security disposition: evidence_needed. Recommendation: block security-sensitive releases and public exposure; conditionally allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: fleet-doctor has no completed run; operations has no deploy, uptime, or error sweep results; security sitefacts are unknown across 61 managed sites; and authentication, secrets, runtime isolation, release integrity, dependency provenance, data exposure, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance HTTPS checks support only limited transport evidence, not complete TLS or security assurance. Risk severity: high for go-live, public exposure, and security-sensitive releases; medium for strictly contained reversible growth. Exact decision: retain the private/preview-only gate, continue existing read-only evidence work, and require owner disposition before any security-sensitive implementation proceeds.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain existing security evidence work without creating duplicate telemetry or queue items. Required evidence remains: authentication and access boundaries; secret storage and exposure controls; runtime/container isolation; release and deployment approvals, rollback, and provenance; dependency and supply-chain inventory; TLS configuration coverage; data flows and exposure; monitoring and incident response signals; and security.txt/disclosure readiness. Ordinary growth may proceed only within existing consent, disclosure, data-handling, claims, and rollback boundaries.",
+        "summary": "Retain the existing readiness-only plan for complicated.work, but do not admit build, deploy, credential, configuration, dependency, or public-exposure work. Re-review only after dated evidence covers access boundaries, secrets handling, runtime isolation, release controls, TLS, dependency provenance, data-flow protection, monitoring, incident response, and security.txt or disclosure readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep security-sensitive releases and public exposure blocked. The routed rc-9.com change must remain isolated, reversible, dependency-free, credential-free, and configuration-neutral.",
         "requested_action": null,
         "proposal_id": null
       }

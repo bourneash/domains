@@ -29,6 +29,32 @@ if ! grep -qE "run-worker\.sh +$ROLE( |\$)" "$SITE/ops/docker/crontab.docker"; t
     || fail "no crontab line for '$ROLE' in crontab.docker"
 fi
 
+# Sites with the canonical role-service map must prove that a worker-dispatched
+# role is assigned to a real service. This catches the failure mode where the
+# role file and cron line exist but run-worker.sh sends the role to the wrong
+# container. Older sites without the helper remain compatible during rollout.
+ROLE_MAP="$SITE/ops/scripts/role-service.sh"
+WORKER_SCRIPT="$SITE/ops/scripts/run-worker.sh"
+if [ -f "$ROLE_MAP" ] && grep -qE "run-worker\.sh +$ROLE( |\$)" "$SITE/ops/docker/crontab.docker"; then
+  SERVICE="$(bash "$ROLE_MAP" "$ROLE" 2>/dev/null)" \
+    || fail "role '$ROLE' is not registered in $ROLE_MAP"
+  grep -q 'role-service\.sh' "$WORKER_SCRIPT" \
+    || fail "$WORKER_SCRIPT does not source the canonical role-service map"
+  case "$SERVICE" in
+    claude-worker)
+      grep -q 'docker compose run.*claude-worker' "$WORKER_SCRIPT" \
+        || fail "role '$ROLE' maps to claude-worker but run-worker.sh has no Claude dispatch"
+      ;;
+    worker)
+      grep -qE 'docker compose run.*(^| )worker ' "$WORKER_SCRIPT" \
+        || fail "role '$ROLE' maps to worker but run-worker.sh has no worker dispatch"
+      ;;
+    *)
+      fail "role '$ROLE' maps to unsupported service '$SERVICE'"
+      ;;
+  esac
+fi
+
 # Principal-engineer must only block on shippable edits. Runtime files are
 # written every tick; the old broad check deadlocked the role on its own logs,
 # health records, and task-board bookkeeping.

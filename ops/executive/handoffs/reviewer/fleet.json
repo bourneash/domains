@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.121Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:25:11.351Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production work, high-priority queue admissions, proposals, change requests, telemetry requests, prototypes, deployments, spend, and external outreach this cycle. Capacity is saturated at 10/10 slots; analytics is unavailable, security and operations evidence is incomplete, and financial attribution supports only $4.92 aggregate unattributed commission for 2026-09-21. Retain existing repair-or-close, measurement, readiness, security, finance-reconciliation, and private-gate work. CTO must complete or close the existing saveusfarms.com repair case and release one slot by 2026-10-01T09:00Z before reconsidering the preserved allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
+        "summary": "Accept the contained readiness-only plan. Do not create duplicate requests, deploy, spend, add credentials, or change production. Re-review only after the existing readiness artifact is complete and all launch gates are explicitly dispositioned.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route three bounded web-vitals repairs to engineer as queued, slot-gated work; do not execute while delivery remains 10/10. No revenue, ROI, conversion, or causal-lift claims are supported because analytics is unavailable and affiliate revenue is aggregate/unattributed. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00Z; unresolved capacity should be escalated to the owner then. Preserve private launch and security gates.",
+        "summary": "Reject all new production, queue, proposal, telemetry, research, spend, deployment, credential, configuration, and outreach actions this cycle. Delivery is saturated at 10/10; analytics coverage is unavailable, attribution is incomplete for aggregate revenue, security and operations evidence remain missing, and existing repairs, measurement, and readiness work are open. Preserve only existing work: release one slot after resolving or closing the current repair case, continue private-launch and security evidence gates, and complete the existing complicated.work readiness packet without building or launching. Make no revenue, ROI, margin, forecast, or causal-lift claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route one bounded engineer change request for rc-9.com. All other candidates remain blocked by active work, launch readiness, security evidence, or saturated capacity. No unsupported revenue, ROI, margin, forecast, or causal-lift claims; no new telemetry, spend, credentials, configuration, deployment, or outreach. CTO must release one slot and resolve or close the existing repair case by 2026-10-01T09:00:00Z; escalate unresolved capacity to the owner then.",
         "requested_action": null,
         "proposal_id": null
       }

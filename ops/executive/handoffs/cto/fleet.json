@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.121Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:25:11.352Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: accept the containment disposition and reject all new proposals, change requests, research, telemetry, deployments, spend, and duplicate work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable, operations sweeps and fleet-doctor evidence are unavailable, and security controls remain unevidenced. The allthingsmasonic.com CTA refinement is technically feasible only after the existing saveusfarms.com repair-or-close case is completed or closed and one slot is released. Scope must remain a single isolated diff using existing dependencies, unchanged destination/disclosure, focused accessibility/link/build validation, registered affiliate-click measurement, bounded measurement limits, and single-diff rollback. Existing evidence supports 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; no conversion, revenue, ROI, or causal-lift claim is supported. Keep private launch gates and security-sensitive releases unchanged.",
+        "summary": "Approve containment-only execution. Do not create duplicate work items, implementation requests, deployments, telemetry requests, credentials, configuration changes, spend, or external outreach. Delivery remains saturated at 10/10 slots. Continue the existing capacity-release and readiness work only. After one slot is genuinely released and the existing repair-or-close dependency is resolved or closed, admit at most one previously preserved reversible candidate with isolated scope, deterministic validation, existing telemetry only, and single-diff rollback. Keep launch and security gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The finance reconciliation proposal is technically admissible as bounded report-only evidence work because it resolves a documented source discrepancy without accessing billing systems, credentials, banking, or external accounts. It must not be converted into implementation, telemetry collection, or unsupported revenue, margin, ROI, forecast, or causal-lift claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the existing complicated.work readiness packet and private-preview gate active; do not create a duplicate request or begin build/deployment work. Admission requires the existing readiness artifact, explicit legal/security/measurement dispositions, accountable ownership, and a documented rollback boundary.",
         "requested_action": null,
         "proposal_id": null
       }

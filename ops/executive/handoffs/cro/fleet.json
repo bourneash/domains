@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.120Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:25:11.352Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposals, change requests, experiments, research requests, or queue items this cycle. Evidence supports containment: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 implementation requests failed, 7 repairs remain open, analytics is unavailable across configured sites, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. Preserve the existing allthingsmasonic.com affiliate CTA refinement as the next reversible experiment after CTO releases capacity and completes or closes the existing saveusfarms.com repair-or-close case. Its recorded baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Acceptance should remain unchanged destination and disclosure, accessible CTA/link behavior, deterministic tests, successful build, registered affiliate-click measurement, explicit attribution limits, and single-diff rollback. Keep MarkItDown, shadcn/ui, Mermaid, and related CRO concepts as research-only deferred specifications; repo-lab evidence supports fit signals only, with MIT licensing observed for MarkItDown, shadcn/ui, and Mermaid, no dependency installation, no production access, and no security or maintenance approval. Smallest reversible prototype, when capacity opens, is a single existing-surface CTA variant or isolated preview using current dependencies only. Do not claim revenue, ROI, conversion lift, or causal impact before measurement.",
+        "summary": "Maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with measurement, repair, security, and readiness work open. Create no new proposals, queue items, experiments, telemetry requests, deployments, spend, credential changes, or configuration changes. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible candidate after one slot is released and the existing saveusfarms.com repair-or-close case is resolved or closed. Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure only registered affiliate clicks and available downstream attribution. Prototype: one isolated CTA hierarchy and accessibility diff preserving destination, disclosure, consent behavior, and unrelated routes. Rollback: single-diff revert.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: do not admit new CRO work while capacity is saturated. When one slot is released, recheck overlap and route only the already-preserved allthingsmasonic.com CTA refinement. Require a single isolated diff, existing dependency set, focused accessibility/link/build validation, registered affiliate tracking, documented rollback, and a measurement window bounded by available telemetry. Keep repository candidates research-only until a fleet-specific prototype, security review, maintenance assessment, and owner-approved implementation exist.",
+        "summary": "Retain complicated.work as the strongest site-factory pipeline candidate, but readiness-only work remains bounded to the existing packet. The packet must document owner, audience, launch scope, content seed, SEO baseline, analytics and affiliate boundaries, compliance, security, measurement, rollback, and launch disposition. Keep the site private and preview-only. Do not build, deploy, spend, add domains, add credentials, or change production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue evidence remains bounded. Amazon data covers 2026-09-21 with 6219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, which remains unattributed. Do not claim site-level revenue, conversion lift, ROI, margin, forecast, or causal impact. Current analytics gaps remain unknown, not zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep private-launch and security gates unchanged. Continue only existing evidence work for rights, privacy, consent, claims, security controls, attribution, measurement, and owner disposition. No public exposure, external outreach, security-sensitive release, or monetization expansion is admissible from this plan.",
         "requested_action": null,
         "proposal_id": null
       }
