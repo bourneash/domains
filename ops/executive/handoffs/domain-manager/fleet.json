@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:26:57.715Z",
+  "generated_at": "2026-09-30T08:38:00.332Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve organic reach for /fishing/muskellunge/erie",
-        "summary": "Slot-gated implementation for greatamericanlakes.com. Existing SEO evidence shows 142 impressions, 3 clicks, average position 7.1, 4 sessions, and 0 conversions for this page. Current site overlap and saturated delivery capacity prevent admission now.",
-        "requested_action": "After the existing greatamericanlakes.com work clears, update only the source file rendering /fishing/muskellunge/erie and its page metadata: improve the title, meta description, H1, and one relevant internal-link block using existing site terminology and assets. Do not add tracking, dependencies, routes, external links, or unrelated edits.",
+        "title": "Hold one bounded homepage UX improvement until delivery capacity clears",
+        "summary": "seedstosauce.com remains eligible for one reversible homepage improvement, but no new implementation can be admitted while fleet delivery capacity is saturated at 10/10 active slots. Exact repository files and page-level baseline are not present in the supplied snapshot; preserve both as unknown.",
+        "requested_action": "Do not create or queue work this cycle. When a delivery slot clears, inspect the existing seedstosauce.com homepage route (/), identify its exact template/component and stylesheet files, record the existing page-level CTA metric from available telemetry, then implement only one accessible CTA-hierarchy improvement without new tracking, dependencies, deployment authority, or cross-site behavior.",
         "proposal_id": null
       }
     ]

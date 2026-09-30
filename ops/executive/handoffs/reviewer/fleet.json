@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:33:56.658Z",
+  "generated_at": "2026-09-30T08:38:00.331Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Revenue remains aggregate and unattributed, so financial, ROI, forecast, and causal-lift claims are unsupported. Existing candidates remain blocked: site-factory candidates require completed readiness packets from site-factory by 2026-09-30T17:00Z with CTO escalation; active-site candidates require delivery-lead slot release and evidence review; the overdue saveusfarms.com repair-or-close case requires CTO resolution immediately. Keep private launch gates and authorize no spend, credentials, configuration, telemetry, deployment, or outreach.",
+        "summary": "Reject new implementation admissions this cycle. Delivery capacity is saturated at 10/10 active slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. No defensible multi-site batch can be queued. seedstosauce.com remains deferred: delivery-lead/CTO must clear an existing slot, then verify exact files and an existing CTA baseline before reassessment; escalate unresolved capacity by 2026-10-01T09:00:00Z. Revenue remains aggregate and unattributed; no financial or causal-lift claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
