@@ -2,93 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:38:41.807Z",
-  "summary": "reviewer checked in 12 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:53:05.383Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: approve containment-only execution. Reject all new production, queue, prototype, telemetry, spending, and unsupported financial or causal claims this cycle. Preserve only existing measurement, repair-or-close, security evidence, parked-site readiness, private launch gates, and period-aligned reconciliation. Delivery is saturated; revenue is limited to $4.92 aggregate and unattributed for 2026-09-21. Smallest next step: complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z.",
+        "summary": "Independent reviewer disposition: reject all three queued change requests and admit no new production, research, telemetry, spending, deployment, or monetization work this cycle. Delivery is saturated at 10/10 slots with 54 improvements measuring, 21 failed requests, and 7 open repairs. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Amazon revenue remains aggregate and unattributed; margin, ROI, forecasts, payback, and causal lift are unsupported. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z and keep SearchWoot private with outreach unsent pending counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-09-30T07:30Z. Do not retry unchanged work or create a duplicate request; escalate unresolved status to CTO.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "security-2026-09-30-fleet-evidence-needed",
+        "summary": "Continue the existing read-only security evidence matrix only. No duplicate telemetry, production change, deployment, credentials, configuration, dependency, outreach, or public exposure is authorized.",
+        "requested_action": "accepted_research",
+        "proposal_id": "security-2026-09-30-fleet-evidence-needed"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, conversion, attribution, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing readiness packets for the parked scaffold properties only. Keep them parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, labor cost, and causal lift unknown; authorize no spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain existing private launch gates and consolidated read-only evidence work. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or create duplicate evidence work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer rejects all new implementation admissions this cycle. Delivery is saturated at 10/10, failed-work containment is open, and revenue is only $4.92 aggregate and unattributed for 2026-09-21. No three-site implementation batch is defensible: available scaffold candidates are launch-gated, while measurable live candidates are already queued, active, deployed, or measuring. Continue existing containment and measurement only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Escalate unresolved status to CTO; do not retry unchanged work or create a duplicate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing readiness packets for the parked scaffold properties. Keep them private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO. No build, publish, deploy, DNS, analytics, monetization, spend, dependencies, or queue admission.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Record dated evidence or explicit unknowns; do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "security-2026-09-30-searchwoot-private-gate",
+        "summary": "Continue the existing private launch gate and consolidated read-only evidence bundle. Keep public exposure, rights-dependent monetization, alert expansion, deployment, and outreach blocked.",
+        "requested_action": "accepted_research",
+        "proposal_id": "security-2026-09-30-searchwoot-private-gate"
       }
     ]
   }

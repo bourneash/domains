@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:23:56.512Z",
+  "generated_at": "2026-09-30T06:53:05.382Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution: authorize no spend, billing changes, money movement, monetization expansion, or new production admissions. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is an aggregate row under tracking ID other, so site revenue and site contribution cannot be assigned. September AI usage is $950.44418695 across 5,316 calls, but it is not period-matched to the one revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, cost-to-learn, forecasts, and causal lift are unknown. Continue existing repair, measurement, and reconciliation work only.",
+        "summary": "CFO recommendation: maintain containment-only execution and reject the three proposed queue admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the commission cannot be assigned to a site. September AI usage is $950.44 across 5,316 calls, including 229 errors, so revenue and cost periods do not match. Do not claim contribution margin, ROI, payback, forecast, or causal lift; authorize no spend, billing change, money movement, or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject revenue or ROI claims based on sessions, SEO impressions, clicks, conversions, ordered items, shipped items, AI calls, token volume, or proposal throughput. These are activity or aggregate metrics, not attributable financial outcomes. The minimum evidence is a dated ledger joining site/content identifier, revenue, orders, commissions, AI cost, infrastructure cost, labor/execution cost, and measurement period, plus a predefined learning threshold.",
+        "summary": "Financial attribution disposition: retain the 2026-09-21 Amazon result as aggregate and unattributed. Named site rows show $0 attributed commission, while the aggregate row contains all $4.92 commission and 28 ordered items. The minimum evidence for site contribution margin is a dated ledger matching provider revenue, AI cost, infrastructure cost, and other direct costs to the same site or content and period. Until then, site revenue, margin, ROI, payback, and incremental lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing period-aligned revenue and cost reconciliation using available records only. Preserve aggregate provider revenue and unavailable costs as unknown. Do not request duplicate telemetry, create new tracking, requeue work, or claim causal lift. Report the ledger gap and next measurable evidence boundary.",
+        "summary": "AI and budget disposition: September AI cost is $950.44 for 39 instrumented sites, with no matching September revenue dataset. Infrastructure spend, fixed costs, marketing budget, monthly spend limit, revenue target, revenue floor, and attribution materiality threshold are blank or unavailable. Cost-to-learn is not calculable because no approved learning-cost threshold, experiment denominator, or measured outcome is recorded. Use existing telemetry only; do not extrapolate one revenue day across the month or treat clicks, sessions, impressions, proposals, or shipped output as financial return.",
         "requested_action": null,
         "proposal_id": null
       }
