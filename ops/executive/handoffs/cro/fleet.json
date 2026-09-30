@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.579Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:25:15.681Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the already-queued allthingsmasonic.com CTA refinement; do not create duplicate work. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. After CTO releases one delivery slot, test one recorded commercial URL with clearer CTA hierarchy, preserved disclosure, keyboard/focus behavior, responsive spacing, and destination validation. Primary metric: affiliate clicks. Time-to-learn: 14 days or 100 relevant impressions/clicks, whichever comes first. Do not infer revenue, ROI, or causal lift. Roll back the single diff if tests, accessibility, disclosure, or link checks fail.",
+        "summary": "CRO review: preserve containment and admit no new implementation this cycle. Delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests failed. Keep the existing allthingsmasonic.com CTA refinement slot-gated until CTO completes or closes the saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Measure registered affiliate clicks on the changed surface over 14 days or 100 relevant impressions/clicks; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI usage totals $997.52 for September with 234 errors; 0daynews.com and americastrikes.com account for $152.69 and $109.91 respectively, while measured fleet revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21. Do not change models or schedules this cycle. CEO/CTO should preserve a deferred guardrail specification requiring cancellation or escalation for duplicate, repeatedly failing, or stale work before new growth admissions. The opportunity is margin protection, not proven revenue lift.",
+        "summary": "GitHub research remains discovery evidence only. microsoft/markitdown is MIT-licensed and passed 8/8 bounded checks with supported SEO/content fit, but dependency installation, supply-chain review, maintenance verification, and fleet-specific outcome evidence are absent. shadcn-ui/ui is MIT-licensed and passed 3/3 bounded checks for reusable accessible UX, but framework compatibility, dependency risk, maintenance burden, and conversion impact remain unverified. No adoption or production use is recommended until capacity clears and CTO commissions isolated prototypes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue boundary: retain Amazon aggregate revenue as unassigned. Available evidence is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, with site-attributed commission reported as $0. The measurable affiliate experiment is link and click behavior only; no site revenue, ROI, margin, forecast, or causal lift is supportable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain two deferred product opportunities for CEO/CTO review after capacity clears: an execution-ledger integrity layer and AI-usage guardrails. Both begin as read-only or dry-run prototypes using existing records, require no deployment, spend, credentials, domains, or new telemetry, and remain outside the active queue until a delivery slot is released.",
         "requested_action": null,
         "proposal_id": null
       }

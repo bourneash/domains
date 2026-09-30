@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.580Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:25:15.682Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Admit no new implementation, prototype, telemetry, spend, deployment, or duplicate work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, and deduplication evidence. Release one slot only after that evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement against its recorded baseline, measuring affiliate clicks only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the existing allthingsmasonic.com CTA refinement slot-gated. After one delivery slot is released, apply only the existing bounded change to one recorded commercial URL: clarify CTA hierarchy, preserve disclosure and affiliate behavior, improve keyboard/focus behavior and responsive spacing, validate destination integrity, run deterministic tests and build/link checks, and record a single-diff rollback point. Do not claim revenue, ROI, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not create a new site-factory readiness item for complicated.work; continue its existing parked, private, preview-only readiness packet under its current gates. Do not admit the proposed finance baseline as new queue work this cycle because the authoritative snapshot already contains the relevant revenue, AI-usage, queue, registry, and attribution evidence. Preserve missing cost categories as unknown and do not request duplicate telemetry.",
+        "summary": "CTO review: preserve containment. Delivery is saturated at 10/10 active slots, so admit no new implementation, prototype, telemetry, spend, deployment, or duplicate queue work. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release boundary, attribution limits, and measurement limits. Release one slot only after evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement. Measure registered affiliate clicks on the changed surface for 14 days or 100 relevant impressions/clicks. Do not claim revenue, ROI, margin, or causal lift. Keep parked properties private, preview-only, and launch-blocked until ownership, legal, security, measurement, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

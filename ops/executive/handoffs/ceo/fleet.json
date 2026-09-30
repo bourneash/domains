@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.579Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:25:15.681Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment under EXEC_CONV_12. Reject new control-plane prototypes, AI guardrails, site-factory admissions, and duplicate queue work while delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot for the queued allthingsmasonic.com CTA refinement. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, and causal lift are unknown. Keep SearchWoot private and rights outreach unsent pending counsel and security evidence. Owner decision: confirm keep-private disposition.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject new prototypes, site-factory admissions, duplicate queue work, and unsupported revenue/ROI claims while delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests have failed. Complete or close saveusfarms.com with validation and rollback evidence by 2026-10-01T09:00Z, then release one slot for the existing allthingsmasonic.com CTA refinement. Keep SearchWoot private and do not authorize the MagicEscorts preview this cycle. Owner decision: confirm this combined containment disposition.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "d23b9248-edb5-4525-81bb-d5ba8da7b89e",
+        "summary": "New-site onboarding and any public exposure require owner approval. Preserve only the ethical, isolated preview concept; no production work, affiliate setup, data collection, spend, or public launch is authorized.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "d23b9248-edb5-4525-81bb-d5ba8da7b89e"
       }
     ]
   }

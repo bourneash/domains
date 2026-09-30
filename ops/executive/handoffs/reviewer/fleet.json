@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.580Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:25:15.681Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new queue work, prototypes, duplicate evidence requests, spending, credential/configuration changes, and public-launch changes. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root cause or closure rationale, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after one slot is released may the existing allthingsmasonic.com CTA refinement proceed. Measure affiliate clicks only; do not claim revenue, ROI, margin, or causal lift. Keep existing private security and launch gates unchanged.",
+        "summary": "Keep all parked candidates private and launch-blocked until owner, legal, security, measurement, and rollback gates are evidenced. Do not deploy, publish, alter DNS, add dependencies, configure analytics, monetize, spend, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Material evidence remains incomplete: Amazon reports $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, and causal lift are unsupported; security and operations sweeps are unavailable; and delivery capacity is full. Confirm that private launch and security-sensitive release gates remain unchanged and that rights outreach remains unsent pending counsel and required evidence.",
+        "summary": "Reject new implementation, prototypes, site-factory admissions, duplicate telemetry, spending, and unsupported revenue, ROI, margin, or causal-lift claims. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Preserve existing evidence gates and queued work only. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z before releasing one slot for the existing allthingsmasonic.com CTA refinement. Keep private-launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, spend, credential, configuration, unsafe, launch, and duplicate-work claims. Delivery remains saturated at 10/10 slots, so no candidate may execute yet. Preserve three bounded engineer candidates across distinct sites as capacity-gated: marineactivity.com SEO improvement, greatamericanlakes.com SEO improvement, and xxxtea.com cannibalization repair. CTO must release one slot after completing or closing the existing saveusfarms.com repair-or-close case with dated root cause or closure evidence, validation, tests, rollback, and release boundary by 2026-10-01T09:00Z. Escalate unresolved capacity to the owner by that deadline. Keep private launch and security gates unchanged.",
+        "summary": "Preserve Amazon evidence boundaries: $4.92 commission, 28 ordered items, and 6 shipped items remain aggregate and unattributed for 2026-09-21. Do not allocate aggregate income to sites or claim financial performance. Existing americastrikes.com affiliate-reference repair work may continue only under its current queue ownership; do not create duplicate requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Keep new public exposure and security-sensitive releases blocked; do not retrieve credentials, change permissions or configuration, add dependencies, deploy, spend, request duplicate telemetry, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial and causal claims, new spend, unsafe tactics, production exposure, and high-priority admissions. Delivery remains saturated at 10/10 slots with substantial measuring and failed work. Route only three low-priority, reversible, capacity-gated SEO changes to engineer; execution requires CTO release of a slot by 2026-10-01T09:00Z. Keep security, private-launch, attribution, and measurement gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

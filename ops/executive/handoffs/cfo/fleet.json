@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.579Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:25:15.682Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution: approve no new spend, billing changes, infrastructure commitments, or queue admissions this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. For 2026-09-21, Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission income; all $4.92 is in an aggregate provider row and site-attributed income is $0. Do not claim site revenue, contribution margin, ROI, or causal lift. September AI usage is $997.52 across 5,522 calls, including 234 errors; this cannot be compared directly with one-day revenue. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only the already-queued allthingsmasonic.com CTA refinement against its 61-click, 0-order, $0 site-attributed baseline. Measure affiliate clicks only.",
+        "summary": "Recommendation: maintain containment; admit no new spend or implementation this cycle. Supported revenue is limited to $4.92 aggregate Amazon commission for 2026-09-21 from 6,219 clicks, 28 ordered items, and 6 shipped items. All commission is in the unassignable aggregate row; site-attributed commission is $0. The 61-click allthingsmasonic.com baseline supports a learning test only, not a revenue forecast. September AI usage cost is $997.51762695 across 5,522 calls, or approximately $0.181 per call, but cost-to-learn is not calculable because costs are not linked to experiments, outcomes, or causal lift. Contribution margin, ROI, payback, budget variance, and fleet-level profitability are not calculable because revenue covers only 2026-09-21 while AI cost covers 2026-09-01 through 2026-09-30, and infrastructure, labor, fixed-cost, and marketing-budget amounts are absent. Minimum measurement: period-aligned site and fleet revenue, AI/infrastructure/vendor costs, allocated labor or a declared labor boundary, and experiment-level cost and outcome identifiers. Preserve the allthingsmasonic.com CTA refinement only as a slot-gated reportable learning test measuring registered affiliate clicks; do not forecast revenue or conversion lift. Maintain private-launch, security, compliance, and attribution gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Known AI unit cost is approximately $0.181 per recorded call ($997.52 divided by 5,522), but cost per verified delivery, cost per learned experiment, and site contribution margin are not calculable because AI usage is not reconciled to delivery, labor, infrastructure, domain, or other direct costs. Monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Minimum measurement is a dated cost ledger keyed to site, request, and experiment, including AI, infrastructure, domain, labor, and external spend, reconciled to attributable commission and measurement windows. Until then, treat all forecasts and margin claims as unsupported.",
+        "summary": "Finance attribution boundary: retain provider aggregate income as explicitly unassigned. Do not allocate the $4.92 aggregate commission or its 629 aggregate clicks to any site. Require every newly introduced affiliate link to use a registered tracking identifier; validate registry-to-link matching before treating future site revenue as attributable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Budget exposure is not bounded: monthly_spend_limit, fixed_costs_monthly, marketing_budget_monthly, revenue_target_monthly, and revenue_floor_monthly are blank. The known September AI cost of $997.51762695 is actual usage evidence, not an approved budget or forecast. No banking, billing, contract, or spending action is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The existing allthingsmasonic.com CTA refinement remains financially acceptable only as a bounded learning test after capacity clears. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Primary metric: registered affiliate clicks on the changed surface over 14 days or 100 relevant impressions/clicks. Revenue, margin, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
