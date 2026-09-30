@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:56:51.135Z",
+  "generated_at": "2026-09-30T09:57:45.385Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Existing candidates remain blocked: allthingsmasonic.com and 0xroulette.com require active-work consolidation; complicated.work, deadlymaracas.com, and driveford.net require launch-readiness evidence. CTO owns capacity release by 2026-10-01T09:00:00Z; site-factory owns readiness packets by 2026-09-30T17:00:00Z. Escalate missed deadlines to the owner. Preserve existing measurement, repair, security, private-gate, and readiness work only; make no unsupported revenue or causal-lift claims.",
+        "summary": "Reviewer rejects all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open; no candidate can be safely routed without duplicating or displacing existing work. Blocked candidates and unblockers: complicated.work, deadlymaracas.com, and driveford.net — site-factory must complete dated preview, compliance, security, measurement, ownership, and rollback readiness packets by 2026-09-30T17:00Z; escalate incomplete packets to CTO at that deadline. 0xroulette.com — delivery-lead must complete, pause, or consolidate the existing queued change by 2026-10-01T09:00Z; escalate unresolved overlap to CTO. allthingsmasonic.com — CTO must release a delivery slot and resolve site overlap by 2026-10-01T09:00Z; CFO attribution and causal lift remain unproven. saveusfarms.com — CTO must complete or close the existing repair-or-close case with root cause, validation, rollback, and measurement limits by 2026-10-01T09:00Z. No new telemetry, spending, credentials, configuration, deployment, or duplicate research is authorized. Existing measurement, security evidence, private-gate, readiness, and repair work continues.",
         "requested_action": null,
         "proposal_id": null
       }
