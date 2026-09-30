@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:07:43.618Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:23:56.512Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment-only plan. Continue existing repair, measurement, and readiness work; admit no new queue items while delivery is saturated. Prioritize affiliate-link integrity, tracking-ID readiness, disclosure evidence, and attribution-boundary reconciliation without assigning aggregate revenue to sites or inferring ROI.",
+        "summary": "Do not admit new production work while delivery is saturated at 10/10 slots and existing measurement and repair queues remain open. Preserve the $4.92 Amazon commission as aggregate and unattributed for 2026-09-21; do not infer site revenue, ROI, or causal lift. Prioritize existing repair work for americastrikes.com, amputeenews.com, and allthingsmasonic.com using current evidence only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or consolidate existing work for americastrikes.com affiliate references, amputeenews.com tag readiness, and allthingsmasonic.com CTA validation. Confirm ownership, evidence, tests, metric boundaries, and rollback before any implementation or requeue. Do not add telemetry or infer revenue.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:07:43.619Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:23:56.512Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked for SearchWoot public beta, full launch, alert expansion, affiliate use, and advertising. Official Woot documentation evidences API access mechanics only; current public terms do not evidence rights to store, derive, cache, publicly display, alert on, or monetize deal and price-history data. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep SearchWoot private and preview-only; keep outreach unsent pending counsel review and owner authorization. Ordinary reversible growth elsewhere remains conditional where it preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries and adds no new data collection, credentials, permissions, dependencies, or cross-site behavior.",
+        "summary": "Overall disposition: blocked for public launch, public beta, alert expansion, affiliate use, or advertising use where rights or material controls are unresolved; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Evidence: Woot API documentation establishes access mechanics but not redistribution rights; current public terms point against the proposed public/commercial use. Compliance is a technical baseline only: 37 pass, 16 fail, 6 unknown. Security, accuracy/freshness, measurement, and owner gates remain incomplete. Revenue is limited to 2026-09-21 aggregate Amazon results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, not site-attributable. Exact decision: keep rights-dependent products private and keep external rights outreach unsent pending human-counsel review and owner authorization. Next evidence action: attach and review the consolidated read-only launch evidence bundle; do not request duplicate telemetry or create new production work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress is 0 of 4 tasks closed and 4 open; no task is closed because direct evidence remains incomplete. Existing evidence includes official Woot API, terms, and support review; partial repository/configuration data-flow evidence; privacy and cookie-policy artifacts; and draft site terms. Next evidence action: attach one consolidated read-only bundle covering field-level rights, deployed data flow, identifiers, retention, deletion, correction, access, notification consent, unsubscribe behavior, GA4 configuration and retention, log fields, vendors, incident/request procedures, accuracy/freshness controls, and rollback evidence. Route rights and jurisdictional gaps to human counsel before any owner-authorized outreach or launch decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Compliance is a technical baseline, not certification: 37 sites pass, 16 fail, and 6 are unknown, with open banner, consent, GA4, privacy, and terms findings. Data quality is green for registry, operational checkouts, analytics, SEO, AI usage, and revenue ingestion; revenue attribution is yellow because Amazon supplied one aggregate row containing $4.92 commission and 28 ordered items that cannot be assigned to a site. Analytics is healthy for configured properties but absent for some scaffold or unconfigured sites; incomplete telemetry alone is not a blocker for ordinary growth. Operations and fleet-doctor evidence are unavailable, so public exposure and security-sensitive releases remain blocked where those controls are required. No go-live proposal is supported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. The existing readiness workstream remains active. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blockers by the established deadline; escalate incomplete packets to CTO.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Existing evidence does not support publication, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission. Next evidence action: attach a dated readiness packet for each property covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO at the deadline.",
         "requested_action": null,
         "proposal_id": null
       }

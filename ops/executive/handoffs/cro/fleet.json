@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:07:43.618Z",
+  "generated_at": "2026-09-30T06:23:56.512Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain no new implementation, research, spending, deployment, telemetry, credential, or domain work this cycle. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Revenue evidence is limited to 6,219 aggregate Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission for 2026-09-21; ROI, margin, cost-to-learn, and causal lift remain unknown. Preserve three slot-gated CRO opportunities: (1) allthingsmasonic.com primary affiliate CTA hierarchy using the existing request 4719e525-763b-42a4-9f16-e71e1c38b17b; smallest prototype is one CTA/disclosure treatment on the existing commercial surface, metric is existing CTA clicks, affiliate clicks, conversions, and attributable revenue when available, with 14-day or 100-relevant-impression learning window; (2) xxxtea.com search cannibalization resolution, based on five pages sharing 88 impressions, smallest prototype is one canonical/internal-link/title treatment, metric is impressions, clicks, sessions, and conversions for the affected query set; (3) fleet execution-integrity control-plane specification covering deduplication, site-overlap protection, dependency-aware admission, repair-or-close states, and measurement handoff, smallest prototype is a read-only decision table over existing records, metric is reduced duplicate/failed work and improved proposal-to-execution follow-through. GitHub candidates remain research-only: MarkItDown passed 8/8 bounded checks under MIT but has no dependency-install, source-rights, supply-chain, maintenance, or production-suitability evidence; Mermaid and shadcn-ui have plausible fit but no adoption evidence. Reconsider only after a delivery slot clears, existing repairs are resolved, and CTO/security/reviewer gates reopen. CRO handoff; created_by=c​​ro.",
+        "summary": "Retain four CRO handoffs as deferred specifications only; create no implementation, research, telemetry, spend, deployment, credential, or domain changes this cycle. Delivery is saturated at 10/10 slots, 43 improvements await measurement, 21 requests failed, and 7 repairs remain open. Existing evidence supports capacity admission, measurement aging, role-routing controls, and a MarkItDown content-discovery prototype after capacity clears. Revenue remains aggregate and unattributed; ROI and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After containment clears, prioritize the existing allthingsmasonic.com CTA request before any new experiment. Its smallest reversible prototype is limited to CTA hierarchy and disclosure-preserving presentation on the existing commercial surface. CTO and reviewer should admit no duplicate request; delivery should record baseline, validation, rollback point, and existing-telemetry outcome only. Do not claim revenue or lift unless site-attributed evidence becomes available.",
+        "summary": "Review the four deferred specifications below after containment work releases capacity. Validate architecture, security, dependency, license, maintenance, and rollback boundaries before any implementation or prototype. No production change or dependency installation is requested this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

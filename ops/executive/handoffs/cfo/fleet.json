@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:07:43.618Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T06:23:56.512Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: authorize no spend, billing changes, money movement, monetization expansion, or new financial claims. The only supported revenue result is Amazon aggregate data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is not site-attributable because Amazon supplied one aggregate tracking row; do not allocate it to any property or claim site revenue. September AI usage is $950.44418695 for 2026-09-01 through 2026-09-30 across 5,316 calls, but it cannot be compared with one revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, and cost-to-learn are unknown. Continue the existing period-aligned finance reconciliation as report-only work using available evidence; do not request duplicate telemetry or create duplicate work. Minimum measurement needed is a dated ledger matching revenue, AI, infrastructure, labor or execution, and other direct costs to the same site/content and period, plus an approved learning threshold. Reject vanity metrics such as clicks, impressions, sessions, conversions, proposal counts, and shipped output as financial performance without attributable revenue and allocated cost.",
+        "summary": "Recommend containment-only execution: authorize no spend, billing changes, money movement, monetization expansion, or new production admissions. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is an aggregate row under tracking ID other, so site revenue and site contribution cannot be assigned. September AI usage is $950.44418695 across 5,316 calls, but it is not period-matched to the one revenue day. Contribution margin, ROI, payback, budget exposure, infrastructure spend, cost-to-learn, forecasts, and causal lift are unknown. Continue existing repair, measurement, and reconciliation work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Attribution quality is partial-aggregate: 18 named tracking rows are mapped, while $4.92 commission and 28 ordered items remain in Amazon's aggregate row. Site-level revenue is therefore $0 reported, not proof of zero earnings. AI spend is known at $950.44418695 for September, including 5,316 calls and 229 errors, but outcome linkage is absent; cost-to-learn cannot be calculated because experiment-level cost, exposure, incremental outcome, and attributable revenue are not available. Infrastructure spend, fixed costs, marketing budget, monthly spend limit, and revenue floor are blank in the brief, so budget exposure and contribution margin are not calculable. The minimum evidence is the existing provider revenue export plus period-matched cost ledger, site/content identifiers, experiment or work identifiers, and a defined learning-success threshold. Preserve all unavailable fields as unknown and do not extrapolate forecasts from one revenue day or AI usage volume.",
+        "summary": "Reject revenue or ROI claims based on sessions, SEO impressions, clicks, conversions, ordered items, shipped items, AI calls, token volume, or proposal throughput. These are activity or aggregate metrics, not attributable financial outcomes. The minimum evidence is a dated ledger joining site/content identifier, revenue, orders, commissions, AI cost, infrastructure cost, labor/execution cost, and measurement period, plus a predefined learning threshold.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing period-aligned revenue and cost reconciliation using available records only. Preserve aggregate provider revenue and unavailable costs as unknown. Do not request duplicate telemetry, create new tracking, requeue work, or claim causal lift. Report the ledger gap and next measurable evidence boundary.",
         "requested_action": null,
         "proposal_id": null
       }

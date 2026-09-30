@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:07:43.617Z",
+  "generated_at": "2026-09-30T06:23:56.511Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create new queue work this cycle. Preserve and complete existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Target: existing commercial/product entry surface. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; page-level CTA performance is unknown. Implement only clearer primary affiliate CTA hierarchy, while preserving destination, tracking identifier, disclosure, and existing routes. Acceptance: deterministic tests and build pass; CTA destination and disclosure remain correct; keyboard focus is visible; contrast and tap targets meet the existing accessibility standard; mobile layout has no clipping or overlap; no unrelated route changes. Metric: existing analytics sessions, conversions, CTA clicks, affiliate clicks, and site-attributed revenue when available. Sample window: 14 days or 100 relevant new impressions/clicks, whichever occurs later; do not claim causal lift. Rollback: revert only the CTA markup/style/content change if validation fails or the measured result regresses; leave analytics and affiliate configuration unchanged.",
+        "summary": "Continue the existing allthingsmasonic.com homepage refresh and CTA work as one bounded workstream. Verify SEO-safe navigation, CTA destinations, affiliate disclosure visibility, accessibility, responsive behavior, build, links, and smoke checks. Record the available baseline and preserve unknown revenue, attribution, cost, conversion, and causal-lift fields.",
         "requested_action": null,
         "proposal_id": null
       }
