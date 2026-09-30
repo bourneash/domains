@@ -2,65 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:52:39.799Z",
-  "summary": "legal checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-30T11:10:28.239Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep public exposure, monetization expansion, and security-sensitive releases contained. Evidence supports healthy analytics for configured sites and a technical compliance baseline of 37 pass, 16 fail, and 6 unknown, but legal rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete. Revenue is limited to $4.92 aggregate Amazon commission for 2026-09-21; site attribution, ROI, margin, and causal lift remain unknown. Next evidence action: complete existing evidence and repair-or-close work before admitting new implementation.",
+        "summary": "Risk disposition: blocked for public launch and monetization expansion; keep searchwoot.com private and preview-only. Evidence: Woot documentation confirms API access but not commercial/public redistribution, storage, derivatives, prices, images, alerts, affiliate, or advertising rights; public terms point against the proposed use. All four data-use items remain unresolved. Technical compliance baseline is incomplete at 35 pass, 18 fail, and 6 unknown; security, accuracy/freshness, measurement, attribution, and owner gates remain blocked. Ordinary reversible growth may continue only within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Human counsel is required for source rights, jurisdictional privacy, vendor/DPA, notification consent, and any affiliate or advertising expansion. Exact decision: do not launch, monetize, send rights outreach, or change the private gate this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch disposition: blocked; keep private and preview-only. No launch or rights-dependent affiliate/advertising use is cleared. Woot API access is evidenced, but redistribution, storage, historical derivatives, public display, caching, alerts, trademark/image use, attribution, freshness, correction, and takedown rights are not. Tracking remains active: zero launch-readiness tasks are evidenced closed; four legal tasks remain open. Next evidence action: produce the read-only data-flow, retention, consent/configuration, and vendor/log inventories, then prepare an unsent counsel-reviewed permission request; do not send or change the private gate without owner authorization and human counsel review.",
+        "summary": "Launch-readiness tracking remains active with four open tasks and no closures supported by direct evidence. Next evidence action: attach one dated read-only bundle covering repository and deployed data flow, retention/deletion/correction/access behavior, logs and vendors, GA4 settings, consent withdrawal, and stale-data handling; then route rights, jurisdictional privacy, vendor/DPA, and notification-consent gaps to human counsel. Do not enable tracking, change configuration, deploy, expand notifications, or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is blocked. Source access is clear, but public/commercial processing and monetization rights are not. Missing evidence: current API agreement or written permission, field-level provenance and permitted uses, stale-data behavior, accuracy/correction/takedown rules, attribution requirements, and trademark/image rules. Smallest next action: compile the existing rights matrix and prepare an unsent counsel-reviewed permission request.",
+        "summary": "Data-use dispositions: Woot API deal and price-history data is blocked because rights for public display, storage, derivatives, caching, alerts, images, prices, attribution, freshness, correction, takedown, affiliate, and advertising use are not evidenced. User alert rules and sync results are evidence_needed pending data inventory, retention, deletion/correction, processor terms, consent, and unsubscribe evidence. GA4 analytics is evidence_needed pending deployed consent and withdrawal behavior, GA4 property/data-sharing and retention settings, vendor disclosure, and jurisdictional review. Operational logs and Cloudflare hosting data is evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest next action for each is to capture the missing evidence read-only and route material legal uncertainty to human counsel.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: user alert rules and sync results are evidence_needed. The operational purpose is plausible, but identifiers, retention, deletion, correction, access, Slack/email processor terms, notification consent, and unsubscribe behavior are not evidenced. Smallest next action: produce a read-only data-flow and retention table from repository and deployed configuration.",
+        "summary": "Private or gated-site decision: keep searchwoot.com private and preview-only until the checklist is complete, each data-use item has a Legal disposition, human-counsel issues are resolved, and Security, CTO, CFO, accuracy, measurement, and owner gates are satisfied. No go-live evidence is present, so no go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: GA4 analytics is conditional for measurement-only use after explicit consent. The checklist states consent-gated loading, IP anonymization, and no intentional search-term, deal-title, or user-ID transmission, but deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention, vendor disclosures, and jurisdictional treatment are not evidenced. Smallest next action: capture deployed consent behavior and GA4 configuration read-only; do not enable remarketing, advertising, or customer matching.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: operational logs and Cloudflare hosting data are evidence_needed for operational use only. Log fields, retention, access controls, vendor terms/DPA coverage, incident handling, and data-subject request procedures are not evidenced. Smallest next action: produce a read-only operational and vendor inventory covering logs, retention, access, incidents, breaches, subpoenas, abuse, and requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Concrete evidence shows incomplete readiness packets; complicated.work additionally has compliance fail status and no configured analytics, while security evidence is unknown. Next evidence action: attach one dated readiness packet per site covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blockers. No publish, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission is cleared.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain containment-only execution. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Preserve existing allthingsmasonic.com, xxxtea.com, and 0xroulette.com candidates as slot-gated specifications only; do not create new proposals, change requests, telemetry requests, deployments, spend, or prototypes. Next evidence action: complete or justifiably close the existing saveusfarms.com repair-or-close case with dated root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cfo-2026-09-30-finance-control-baseline",
+        "summary": "No new finance proposal is needed for legal review; existing evidence already supports preserving the attribution boundary. Do not treat aggregate Amazon commission, clicks, orders, shipped items, sessions, conversions, or AI usage as revenue, margin, ROI, or causal lift.",
+        "requested_action": "declined",
+        "proposal_id": "cfo-2026-09-30-finance-control-baseline"
       }
     ]
   }

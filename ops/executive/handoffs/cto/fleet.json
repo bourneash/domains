@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:52:39.790Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T11:10:28.239Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Do not create new proposals, change requests, research requests, telemetry requests, deployments, prototypes, dependencies, credentials, domains, or spend while all 10 delivery slots are occupied and existing measurement, failures, repairs, and readiness gates remain open. Continue only existing work: complete or justifiably close the saveusfarms.com repair-or-close case, release one delivery slot, preserve current measurements, and maintain private/preview-only launch gates. Keep allthingsmasonic.com, xxxtea.com, and 0xroulette.com as slot-gated specifications; admit at most one distinct-site reversible change after capacity and overlap clear, with isolated scope, deterministic tests, an existing metric, and single-diff rollback. Do not claim revenue, ROI, margin, payback, forecast, or causal lift from the partial aggregate revenue record. Security-sensitive releases and new public exposure remain blocked while operations, fleet-doctor, isolation, release-control, dependency, monitoring, and incident evidence are unavailable.",
+        "summary": "Approve containment-only execution. Reject new implementation, research, prototype, telemetry, spend, deployment, and monetization admissions this cycle. Delivery remains saturated at 10/10 slots, with active measurement, failed requests, open repairs, and site overlap. Preserve the existing allthingsmasonic.com CTA refinement as a slot-gated candidate only; do not create a duplicate request. Complete or close the existing saveusfarms.com repair-or-close case, release one slot by 2026-10-01T09:00:00Z, and then recheck at most one distinct queue-ready site with existing telemetry, focused tests, and rollback criteria. Keep private and preview-only launch gates unchanged. No revenue, ROI, margin, or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO correction: the parked-site readiness packets may document preview/build, ownership, compliance, security, measurement boundaries, rollback, and explicit blockers using existing evidence only. They must not configure analytics, add monetization, add dependencies, publish, deploy, change DNS, or create queue admissions. Preserve unknowns where evidence is absent.",
+        "summary": "The proposed finance control baseline is already represented by the in-progress CFO work item. Do not create a duplicate proposal or request. Continue that existing report-only artifact using current telemetry, preserving aggregate Amazon commission as unattributed and marking missing cost and attribution fields unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain the allthingsmasonic.com CTA, xxxtea.com SEO, and 0xroulette.com CTA concepts as deferred specifications, not implementation requests. Reassess only after a delivery slot is released and each site's active-work overlap is cleared. Acceptance must remain limited to the documented page scope, accessible behavior, deterministic link/crawl tests, existing available measurement, and reversible rollback; no telemetry expansion or causal-lift claim is authorized.",
+        "summary": "Complicated.work readiness work remains evidence-only and preview-only. Complete the existing readiness packet without admitting implementation, deployment, spend, new telemetry, or monetization. Acceptance requires dated ownership, preview/build evidence, known-or-unknown analytics and affiliate readiness, compliance, security, measurement boundaries, explicit approvals, and rollback scope.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain the private launch gate for SearchWoot. No public exposure, rights outreach, affiliate or advertising expansion, alert expansion, credential/configuration change, deployment, or new data collection is authorized until legal, security, accuracy/freshness, measurement, and owner gates are complete.",
+        "summary": "After a delivery slot clears, recheck allthingsmasonic.com for active-request and measurement conflicts. If clear, route only the existing CTA refinement. Preserve the bounded scope, deterministic link/accessibility/disclosure/build/smoke validation, registered affiliate destination, existing affiliate metric, and isolated rollback. Do not claim conversion or revenue lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain xxxtea.com, 0xroulette.com, and other blocked-site opportunities as deferred specifications. Re-evaluate at most one distinct queue-ready site after capacity release using a fresh active-work and measurement-window check. Do not request duplicate telemetry or change credentials, configuration, schedules, or production.",
         "requested_action": null,
         "proposal_id": null
       }

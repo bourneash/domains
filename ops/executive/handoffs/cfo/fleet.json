@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:52:39.789Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T11:10:28.239Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance disposition: revenue claims are supported only as provider-level aggregate facts for 2026-09-21. The 18 named tracking rows are mapped, but the aggregate row contains all 28 ordered items, 6 shipped items, and $4.92 commission; assigning that income to any site would invent attribution. SEO totals of 14,734 impressions, 150 clicks, 1,010 sessions, and 15 conversions, plus 5 proven improvements, are not revenue or margin evidence. Treat clicks, sessions, conversions, impressions, approved proposals, and shipped output as operating metrics only.",
+        "summary": "Recommendation: maintain containment-only execution and reject new monetization, spending, and implementation admissions this cycle. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Site-attributed commission is $0 because the $4.92 aggregate row uses tracking_id other and cannot be assigned without inventing attribution. Therefore revenue, contribution margin, ROI, forecasts, and causal lift are unsupported. AI usage from 2026-09-01 through 2026-09-30 is $988.91 across 5,470 calls, including 233 errors; this is the only quantified operating cost in the brief. The reported site margins are AI-cost-only and are not contribution margins.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI and infrastructure spend disposition: September AI usage totals $950.44 across 5,316 calls, with 229 errors and 5 transient errors across 39 instrumented sites. Cost concentration is observable for the named rows, including $149.39 for 0daynews.com, $108.07 for americastrikes.com, and $66.22 for blackmarketapparel.com, but site-level contribution margin remains unknown because revenue is not period-aligned or fully attributable and infrastructure/vendor costs are absent. Do not infer that high AI spend produced revenue. Minimum additional measurement is a daily site-and-workstream cost ledger joined to attributable shipped commission and verified outcome deltas.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Budget exposure disposition: configured monthly spend limit, revenue target, fixed costs, marketing budget, and revenue floor are blank in the brief. Therefore budget headroom, burn rate, runway, and exposure cannot be calculated. The only quantified current-period variable cost is $950.44 of AI usage, and it must not be treated as total operating cost. Retain the existing owner-controlled budget fields as unknown and require those fields before any spend authorization or financial forecast.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO handoff: retain one report-only finance reconciliation using existing read-only records. It must reconcile the 2026-09-21 Amazon aggregate, named tracking rows, September AI usage, and any already-available infrastructure/vendor cost records; preserve unavailable values as unknown; calculate only period-aligned metrics; and document the minimum missing fields required for contribution margin, cost-to-learn, ROI, payback, and forecast revenue. No banking access, billing changes, money movement, contracts, or external spend.",
+        "summary": "Minimum finance measurement before any ROI or profitability claim: a period-aligned ledger keyed by site, registered affiliate ID, and work item, containing attributed revenue, AI cost, infrastructure/hosting/domain cost, labor allocation, and an approved cost-to-learn threshold. Contribution margin and cost-to-learn are not calculable now because infrastructure, domain/hosting, labor, experiment cost allocation, and learning outcomes are absent. Budget exposure is also not calculable because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank. Preserve the existing $988.91 AI spend as observed exposure only; do not infer a budget variance or forecast.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,29 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:52:39.799Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T11:10:28.239Z",
+  "summary": "security checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; security-sensitive releases and new public exposure are blocked. Evidence is incomplete because fleet-doctor has no run, operations deploy/uptime/error sweeps are unavailable, and authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No active vulnerability is established. Risk severity is high evidence uncertainty, not a confirmed compromise. TLS has no certificates expiring within 30 days, but coverage is unverified. Recommendation: continue only bounded read-only evidence work; allow ordinary reversible growth conditionally when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior.",
+        "summary": "Security disposition: evidence_needed, with a blocked decision for security-sensitive releases and gated public exposure. Evidence: security baseline has no fleet-doctor run, operations has no deploy/uptime/error sweep results, all 59 managed sites have unknown legal-family evidence, and no credential, secret-scan, private-container, dependency, isolation, or incident-readiness evidence is available. Compliance confirms HTTPS for checked sites but does not establish complete TLS, access, release, or data-exposure controls. Ordinary reversible growth may continue only if it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim certification or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security recommendation for the gated product: keep private and preview-only. Public exposure, alert expansion, affiliate or advertising expansion, and security-sensitive deployment remain blocked until access boundaries, secret handling, data flow and retention, release and dependency controls, monitoring, incident procedures, TLS, and disclosure readiness are directly evidenced alongside legal, accuracy, measurement, and owner gates.",
+        "summary": "Required decision: retain the existing read-only security evidence matrix and preserve release gates. Complete or attach authorized evidence for authentication and access boundaries, secrets handling, container isolation, release/deploy controls, TLS configuration, dependency and supply-chain provenance, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For SearchWoot and any comparable gated product, keep public exposure private and preview-only. Security evidence is incomplete and the launch checklist already records security and release as blocked. Reconsider only after direct evidence supports access control, secret handling, isolation, release integrity, TLS, dependency provenance, data-flow protection, monitoring/incident response, disclosure readiness, and owner-approved launch disposition.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Continue bounded fleet security evidence capture",
-        "summary": "Maintain an evidence-needed security disposition using authorized metadata and retained artifacts only. Preserve private gates for security-sensitive releases and new public exposure while permitting ordinary reversible growth within existing data-handling and disclosure boundaries.",
-        "requested_action": "Document dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS coverage, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "title": "Maintain evidence-needed fleet security disposition and security-sensitive release gates",
+        "summary": "Fleet security clearance is unsupported, not because a vulnerability was confirmed, but because material controls are unevidenced. The security baseline reports fleet-doctor not run, operations deploy/uptime/error sweeps have no results, and the security snapshot has no credential, secret-scan, private-container, dependency, isolation, or incident-readiness evidence. HTTPS is evidenced in portions of the compliance baseline, but complete TLS and release-control evidence is absent.",
+        "requested_action": "Continue the existing authorized read-only security evidence matrix. Record dated evidence, affected scope, owner, severity, and release impact for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Keep security-sensitive releases and gated public exposure blocked until material controls are evidenced. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.992Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T11:10:28.238Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain execution-integrity control-plane work as a deferred product specification, not an implementation admission. Evidence: 108 approved proposals lack execution, 164 work items are stranded, 10/10 delivery slots are occupied, 21 requests failed, and approved-proposal execution is 63%. Fleet use case: one canonical opportunity-to-request record with overlap detection, stale-work escalation, and explicit blocked/closed states. Expected metric: higher approved-proposal execution rate, fewer stranded items and failed repairs, lower cycle time. Smallest reversible prototype: read-only reconciliation view over existing proposal, request, work-item, site-overlap, and slot fields. No new telemetry, scheduling, deployment, or spend while containment remains active.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: retain AI-usage cancellation and cost-guardrail work as a deferred control-plane specification. Evidence: 5,316 AI calls, 229 errors, $950.44 recorded cost, uneven site spend, and saturated delivery. Fleet use case: cancel stale or superseded runs, suppress duplicate retries, and expose cost/error state on existing work records. Expected metric: fewer avoidable calls and failed retries without reducing verified delivery throughput. Smallest reversible prototype: read-only stale-run and duplicate-retry report using existing AI-usage, request, and outcome fields. No schedule changes, credentials, spend, dependencies, or deployment while containment remains active.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: keep microsoft/markitdown research-only and do not queue a prototype this cycle. Validation evidence: the bounded lab run passed 8/8 checks, found a MIT license, 194 files, and 22 purpose-specific SEO/content capability hits; dependency installation and production access were not used. Fleet use case: convert approved source documents into structured Markdown for draft content and SEO discovery workflows. Risks: transitive dependency and parser security review, maintenance/release drift, source-rights and derivative-content review, and possible extraction errors. Expected metric: prototype conversion success and editor acceptance rate, with no revenue or ranking claim. Smallest reversible prototype: disposable-workspace conversion of a tiny owner-approved fixture set with provenance, diff review, and deletion after evaluation. CTO/security/legal review remains required before adoption.",
+        "summary": "CRO disposition: no new implementation, telemetry, spend, deployment, credential, domain, or monetization admissions this cycle. Active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. After one slot is released and overlap is rechecked, admit at most one distinct-site experiment with an existing metric, deterministic tests, and rollback criteria. Preserve aggregate Amazon commission as unattributed and do not infer ROI or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

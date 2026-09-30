@@ -2,16 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.992Z",
+  "generated_at": "2026-09-30T11:10:28.240Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve the CRO control-plane, AI-cost-guardrail, and MarkItDown concepts as deferred specifications; reject implementation or prototype admission this cycle. Evidence: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, 7 repairs remain open, 164 work items are stranded, and only 63% of approved proposals have execution. Amazon evidence for 2026-09-21 is $4.92 aggregate and unattributed; margin and causal lift are unknown. Smallest next step: CTO releases one slot after completing or closing the saveusfarms.com repair by 2026-10-01T09:00Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel review under EXEC_CONV_12.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cro-2026-09-30-markitdown-discovery",
+        "summary": "No action this cycle: delivery is saturated at 10/10 slots, the prototype requires owner approval and dependency/security review, and no measurable editorial baseline is available. Retain as a deferred research specification.",
+        "requested_action": "declined",
+        "proposal_id": "cro-2026-09-30-markitdown-discovery"
       }
     ]
   }
