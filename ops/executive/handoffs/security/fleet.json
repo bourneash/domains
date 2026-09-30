@@ -2,36 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.744Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:24:17.586Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Do not claim clearance or certification. Fleet-doctor has no run or findings, and operations deploy, uptime, and error sweeps have no results. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS posture, data exposure, incident signals, and security.txt/disclosure readiness are therefore unevidenced. Keep new public exposure and security-sensitive releases blocked; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach. Reconsider the disposition only after dated control evidence and an owner-approved decision are recorded.",
+        "summary": "Security disposition: evidence_needed. Recommendation: maintain blocked status for new public exposure, go-live, and security-sensitive releases; approve only bounded read-only evidence capture and ordinary reversible growth that introduces no new credentials, permissions, dependencies, data collection, or cross-site behavior. Concrete evidence: security baseline covers 61 sites but fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness are therefore unknown. Compliance reports 35 pass, 20 fail, and 6 unknown results, including open banner, consent, GA4, privacy, and terms findings. No compromise is evidenced, but absence of telemetry is not clearance. Risk severity: high for public launch or security-sensitive release; medium for existing low-risk reversible growth. Exact decision: do not clear any security-sensitive gate until dated control evidence and owner-approved disposition are recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve private launch and security-sensitive release gates while continuing bounded read-only evidence work. Ordinary reversible growth may continue only within existing consent, disclosure, data-handling, claims, and dependency boundaries.",
-        "requested_action": "Continue the consolidated read-only evidence matrix for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Record evidence timestamps, scope, owners, severity, exact unknowns, and release implications. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private gate for security-sensitive and gated-product exposure",
-        "summary": "Keep gated products and any new public exposure private while access, secrets, isolation, release, TLS, dependency, monitoring, incident, data-exposure, disclosure, and owner evidence remains incomplete.",
-        "requested_action": "Permit only bounded read-only evidence capture and internal draft preparation. Do not expose publicly, expand alerts, change credentials or configuration, deploy, add tracking or dependencies, spend money, or send external requests without the required owner and human review.",
+        "title": "Maintain evidence-needed fleet security disposition and security-sensitive release gates",
+        "summary": "Maintain evidence_needed for the managed fleet because the security and operations baselines lack fleet-doctor and operational sweep results. Keep new public exposure, go-live, and security-sensitive releases blocked while allowing bounded read-only evidence work and ordinary reversible growth that does not add credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": "Complete the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record evidence timestamps, affected scope, owners, severity, unknowns, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident response, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "proposal_id": null
       }
     ]

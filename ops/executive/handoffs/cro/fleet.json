@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.743Z",
+  "generated_at": "2026-09-30T21:24:17.585Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement as the sole near-term revenue experiment after CTO releases one delivery slot. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered affiliate clicks only; orders, revenue, ROI, margin, and causal lift remain unknown. Do not create duplicate work or alter tracking, destinations, credentials, or affiliate configuration.",
+        "summary": "CRO handoff: retain the existing allthingsmasonic.com CTA refinement as the canonical revenue experiment after CTO releases one delivery slot. Baseline is 61 registered Amazon clicks for 2026-09-21, with no site-attributed commission evidenced. Measure registered affiliate clicks only; do not infer revenue, ROI, or causal lift. Reject duplicate queue work while delivery remains saturated at 10/10 slots.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain one deferred product opportunity: a disposable, dependency-free affiliate CTA component pattern informed by shadcn-ui/ui. Fleet use case: reusable disclosure-safe CTA hierarchy, focus states, responsive layout, and link-integrity checks across affiliate sites. Prototype only after capacity clears; require CTO/security review, accessibility and link tests, disclosure preservation, and single-diff rollback.",
+        "summary": "CRO handoff: defer new prototypes and launch-readiness admissions until capacity clears. Existing evidence supports two reversible product opportunities: read-only execution-integrity reconciliation and a disposable MarkItDown content-extraction prototype. Neither should deploy, add dependencies, spend, change credentials, or create production telemetry this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

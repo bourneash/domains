@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.744Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:24:17.586Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta and full launch; counsel_required for upstream data rights and jurisdictional privacy decisions. Evidence: Woot documentation provides API access but no redistribution, historical-derivative, public-display, alert, affiliate, advertising, attribution, freshness, correction, or takedown rights; public terms restrict commercial/public product-listing use. Keep SearchWoot private and preview-only. Do not send rights outreach or change the gate until owner authorization and human-counsel review are recorded.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible fleet growth that does not add data collection, rights-dependent use, monetization, or public exposure. Evidence: Woot documentation confirms API access but not redistribution, historical derivatives, public display, caching, alerts, affiliate, or advertising rights; current public terms restrict commercial/public data use. Compliance is 35 pass, 20 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Security and operations sweeps have no results. Exact decision: keep SearchWoot private and preview-only; do not send rights outreach, publish, monetize, or change the launch gate until owner authorization and human-counsel review are evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance disposition is conditional, not a fleet-wide launch clearance. Compliance baseline reports 35 pass, 20 fail, and 6 unknown, with 20 banner/accept/reject/GA4 findings and 4 privacy/terms findings. Ordinary reversible growth may continue only where existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Do not treat incomplete telemetry as a legal blocker by itself.",
+        "summary": "Launch-readiness tracking remains active. No SearchWoot task is closed because no new evidence satisfies the completion rule. The four legal tasks remain open: source rights, data-flow and retention, analytics consent, and logs/vendors/incident handling. Next evidence action: attach a dated read-only evidence bundle containing the repository/configuration data-flow table, deployed consent capture, GA4 settings, log/vendor inventory, and the authoritative Woot permission record if obtained; keep external outreach unsent pending owner authorization and counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. No SearchWoot task is closed: source-rights, alert-data-flow, GA4-consent, and logs/vendors/incident tasks lack complete evidence. Next evidence action: attach the read-only repository/configuration data-flow and retention table, then route unresolved Woot rights and jurisdictional privacy questions to human counsel before any outreach or gate change.",
+        "summary": "Fleet compliance is not a reason to halt ordinary reversible growth where existing consent, disclosures, provenance, claims, and platform boundaries are preserved. However, no site-level go-live clearance is issued from this pass. Revenue evidence remains aggregate and partially unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, with site-attributed commission shown as $0. Do not make revenue, ROI, margin, forecast, or causal-lift claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For private or parked properties, retain the concrete decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. The smallest next evidence action is to attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and one explicit blocker or next decision. No publish, deploy, DNS, analytics configuration, monetization, spending, dependency addition, or queue admission is cleared.",
         "requested_action": null,
         "proposal_id": null
       }

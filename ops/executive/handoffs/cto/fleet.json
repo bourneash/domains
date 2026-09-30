@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.743Z",
+  "generated_at": "2026-09-30T21:24:17.586Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation may enter delivery while all 10 slots are occupied. Preserve the canonical allthingsmasonic.com request and route the remaining repairs only after a slot is released. All changes require deterministic validation, attribution-boundary checks, and single-diff rollback.",
+        "summary": "CTO disposition: preserve containment. Delivery is saturated at 10/10 active slots, with 57 improvements measuring and 21 failed requests. Do not admit new implementation, report-only queue work, duplicate requests, telemetry changes, prototypes, deployments, spend, or credentials. Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z; escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. Do not admit new implementation, preview-only launch-readiness work, site-factory work, prototypes, dependencies, telemetry changes, or duplicate requests while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded; then execute the existing allthingsmasonic.com CTA request.",
+        "summary": "Preserve the existing canonical allthingsmasonic.com CTA refinement as the next implementation only after a delivery slot is released. Use request 4719e525-763b-42a4-9f16-e71e1c38b17b; do not create duplicate queue work. Limit scope to CTA clarity, adjacent affiliate disclosure, accessibility, responsive layout, and registered affiliate destinations. Measure registered affiliate clicks against the recorded 61-click baseline; do not claim revenue or conversion lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The allthingsmasonic.com CTA request is technically feasible after capacity clears. Preserve its bounded scope: CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, responsive layout, unchanged destinations and affiliate configuration, deterministic accessibility/link/disclosure checks, and single-diff rollback. Measure registered affiliate clicks against the available 61-click 2026-09-21 baseline only; revenue, orders, commission, ROI, margin, and causal lift remain unknown.",
+        "summary": "Reject the proposed howtofry.com and magicescorts.com launch-readiness queue admissions this cycle. Report-only work does not fill an active delivery slot, and the queue is saturated. Continue only existing readiness packets through their current evidence path; keep parked or preview-only properties private and undeployed. Do not create duplicate requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed shared CTA-component prototype for this cycle. The lab evidence does not establish dependency, security, maintenance, or fleet compatibility, and capacity is saturated. Retain it as a deferred specification only; reconsider after capacity clears and after an isolated dependency-free prototype has explicit acceptance, security/license review, accessibility and link tests, disclosure preservation, and rollback evidence.",
+        "summary": "Retain xxxtea.com cannibalization, marineactivity.com, and greatamericanlakes.com SEO opportunities as slot-gated specifications only. Admit at most one canonical implementation after capacity clears, beginning with xxxtea.com. Record the existing page/query baseline before deployment and use existing telemetry only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain private-launch and security-sensitive release gates. Continue existing read-only evidence work using authorized metadata and retained artifacts only. Do not deploy, change credentials or configuration, add dependencies, alter domains or DNS, configure analytics, spend, conduct external outreach, or request duplicate telemetry.",
+        "summary": "Keep the Amazon aggregate row explicitly unassigned. The available 2026-09-21 evidence contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; site-attributed commission is $0 in the supplied evidence. Do not allocate aggregate income or infer ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:22:26.737Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:24:17.586Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the offshorehookup.com proposal as a new medium-priority admission: delivery is saturated at 10/10, existing work is measuring or queued, and site-attributed revenue remains unsupported. Preserve only three low-priority, reversible SEO changes as capacity-gated engineer work across distinct sites. CTO must release one slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence; unresolved capacity escalates to the owner. No revenue, ROI, margin, or causal-lift claims are authorized.",
+        "summary": "Independent review: reject both new site-factory change requests and the duplicate security proposal. Delivery is saturated at 10/10 slots, report-only work does not fill capacity, and no production proposal is supported without a measurable outcome. Preserve the existing readiness packets and security evidence matrix only. Revenue remains aggregate and unattributed; no ROI, forecast, margin, or causal-lift claims are supported. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z before any queued implementation proceeds. Keep launch and security gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, ROI, causal-lift, spend, launch, and security-clearance claims. Delivery is saturated at 10/10 slots, so the three reversible SEO changes below are routed to engineer as capacity-gated work only. CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z, then release one slot or escalate unresolved capacity. Keep existing private-launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
