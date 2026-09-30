@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:11:05.762Z",
+  "generated_at": "2026-09-30T09:13:00.615Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Slot-gated SEO improvement for marineactivity.com AIS navigational status codes guide",
-        "summary": "Retain one bounded, reversible organic-growth implementation for marineactivity.com after existing site work clears. The target page has 346 impressions, 3 clicks, average position 8.1, 0 sessions, and 0 conversions in the available SEO evidence window.",
-        "requested_action": "Do not queue or start this work while marineactivity.com has active delivery items and fleet capacity is saturated. When a slot clears, update only the existing guide page’s title, meta description, opening copy, and one relevant internal-link placement; preserve route, disclosures, analytics, affiliate behavior, and all other pages.",
+        "title": "Restore girlpain.com Search Console measurement access",
+        "summary": "Google Analytics is healthy, but Search Console access returns 403 insufficient permission, blocking search-performance evidence. Existing homepage CTA work is still measuring, so no overlapping site implementation should be queued.",
+        "requested_action": "Have the authorized Search Console property owner grant or verify access, then rerun the existing read-only verification. Do not change site code, production behavior, credentials outside the approved property workflow, telemetry, or deployment.",
         "proposal_id": null
       }
     ]
