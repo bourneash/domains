@@ -285,7 +285,7 @@ async function main() {
   const started = runtime.beginRun(store, {
     agent_id: agent.agent_id,
     work_id: `exec-overwatch-cycle:${runId}`,
-    idempotency_key: `exec-overwatch:${new Date().toISOString().slice(0, 13)}`,
+    idempotency_key: `exec-overwatch:${runId}`,
     provider: agent.provider,
     model: agent.model,
   });
