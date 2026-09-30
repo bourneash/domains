@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:14:15.188Z",
+  "generated_at": "2026-09-30T21:16:17.294Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete review gate for existing primary-navigation accessibility improvement",
-        "summary": "Advance the existing howfishthink.com accessibility change already in review; do not create a duplicate implementation.",
-        "requested_action": "Engineer completes the review gate for the existing request, validates the homepage primary navigation, and returns exact evidence or a bounded rejection reason.",
+        "title": "Establish noveltyguns.com implementation baseline before bounded site work",
+        "summary": "The authoritative snapshot does not provide noveltyguns.com page, repository-file, audience, SEO, health, monetization, or analytics evidence sufficient to select a safe implementation. Create one bounded read-only baseline artifact and identify exactly one reversible next implementation.",
+        "requested_action": "Inspect only the existing noveltyguns.com repository and public entry surface. Record the actual homepage route, exact source files, content/CTA structure, compliance disclosures, build/test commands, analytics state, and one safe implementation candidate. Do not deploy, modify production, request duplicate telemetry, add tracking, spend, or change credentials/configuration.",
         "proposal_id": null
       }
     ]
