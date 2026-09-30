@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:48:40.639Z",
+  "generated_at": "2026-09-30T09:49:52.652Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. All 10 delivery slots are occupied, with active measurement, failed requests, and repair work; adding engineer work would violate capacity containment. Preserve three evidence-backed candidates as slot-gated: xxxtea.com, allthingsmasonic.com, and 0xroulette.com. CTO must release one slot and document the cleared dependency by 2026-10-01T09:00:00Z; delivery-lead then admits at most one distinct-site change with acceptance criteria, tests, metric, and rollback. Escalate unresolved capacity to the owner by that deadline. Revenue, ROI, and causal-lift claims remain unsupported.",
+        "summary": "Reviewer disposition: reject all new production queue admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open; revenue remains $4.92 aggregate and unattributed for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift are unsupported. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00:00Z; unresolved capacity or repair status escalates to the owner by that deadline. Preserve existing candidates without duplicate queue work; no credentials, configuration, spend, schedules, deployment, or production changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
