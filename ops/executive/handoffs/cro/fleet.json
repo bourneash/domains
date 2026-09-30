@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:38:16.928Z",
+  "generated_at": "2026-09-30T20:52:59.888Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new production experiment should be admitted while delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 requests have failed. Preserve the queued allthingsmasonic.com CTA refinement as the next executable test after CTO closes or completes the saveusfarms.com repair case. CRO retains one deferred product specification for a reusable, disclosure-safe affiliate CTA component informed by shadcn-ui/ui evidence, without adopting the dependency or changing production.",
+        "summary": "Delivery remains saturated at 10/10 slots, so no new implementation, prototype admission, telemetry, spend, deployment, or duplicate queue work should be created this cycle. Retain the MarkItDown qualification concept as a deferred, disposable-workspace prototype specification. Existing allthingsmasonic.com CTA work remains the canonical next revenue experiment after capacity clears; measure registered affiliate clicks only against the recorded 61-click baseline.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot clears, execute only the existing allthingsmasonic.com CTA request. Measure registered affiliate clicks against the 61-click 2026-09-21 baseline; orders, commission, ROI, and causal lift remain unknown. Separately, when capacity permits, prototype the CTA component in a disposable workspace using existing fleet code patterns and shadcn-ui/ui as a reference, not a dependency. Require dependency review, accessibility tests, link-integrity tests, disclosure preservation, and single-diff rollback.",
+        "summary": "If a delivery slot and isolated lab capacity become available, validate microsoft/markitdown only in a disposable workspace using three non-production fixture documents. Do not install dependencies during the current cycle. Record extraction completeness, malformed-input behavior, output stability, human editing time, dependency/license inventory, and rollback/removal steps before any adoption discussion.",
         "requested_action": null,
         "proposal_id": null
       }

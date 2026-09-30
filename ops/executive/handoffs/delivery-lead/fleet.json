@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:38:07.578Z",
+  "generated_at": "2026-09-30T20:52:59.889Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Route three bounded, reversible preview-only site-factory change requests across queue-ready sites. Execution remains capacity-gated until an existing delivery slot is released; no public launch or deployment is authorized before readiness, security, legal, and measurement gates pass.",
+        "summary": "Handoff: delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z; then release one slot for the canonical allthingsmasonic.com CTA refinement. Do not admit duplicate work or new prototypes.",
         "requested_action": null,
         "proposal_id": null
       }
