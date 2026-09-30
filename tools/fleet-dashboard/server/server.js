@@ -68,6 +68,7 @@ const executiveCroLab = require('../../executive/cro-lab');
 const executiveIntel = require('./executive-intel');
 const executiveSnapshot = require('./executive-snapshot');
 const executiveScorecard = require('./executive-scorecard');
+const executivePerformance = require('./executive-performance');
 const executiveCalendar = require('./executive-calendar');
 const agentRuntime = require('../../executive/agent-runtime');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
@@ -4340,6 +4341,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message || String(e) });
     }
   });
+  app.get('/api/executive/performance', (_req, res) => {
+    try {
+      res.json({ performance: executivePerformance.buildPerformance(events) });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message || String(e) });
+    }
+  });
   app.post('/api/executive/data-requests', async (req, res) => {
     try {
       const result = await executiveData.fulfill({
@@ -4621,6 +4629,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         'checkin_hours',
         'tick_enabled',
         'conversation_retention_days',
+        'performance_contract',
       ];
       const patch = Object.fromEntries(
         allowed.filter(k => Object.prototype.hasOwnProperty.call(body, k)).map(k => [k, body[k]])
@@ -4668,10 +4677,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.put('/api/executive/draft', (req, res) => {
     try {
-      res.json({ draft: events.upsertExecutiveDraft({
-        conversation_id: req.body?.conversation_id || 'executive',
-        body: req.body?.body,
-      }) });
+      res.json({
+        draft: events.upsertExecutiveDraft({
+          conversation_id: req.body?.conversation_id || 'executive',
+          body: req.body?.body,
+        }),
+      });
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }

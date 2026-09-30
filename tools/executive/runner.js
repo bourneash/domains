@@ -13,6 +13,7 @@ const croLab = require('./cro-lab');
 const executiveSnapshot = require('../fleet-dashboard/server/executive-snapshot');
 const executiveData = require('../fleet-dashboard/server/executive-data');
 const executiveScorecard = require('../fleet-dashboard/server/executive-scorecard');
+const executivePerformance = require('../fleet-dashboard/server/executive-performance');
 const launchReadiness = require('./launch-readiness');
 const productivityProgram = require('../fleet-dashboard/server/productivity-program');
 const activeDelivery = require('../fleet-dashboard/server/active-delivery');
@@ -4414,6 +4415,9 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   });
   created.owner_handoffs = ensureOwnerRequestHandoffs(store);
   created.created_refs.owner_handoffs = created.owner_handoffs;
+  const performanceRecovery = executivePerformance.applyPerformanceRecovery(store);
+  created.performance_recovery = performanceRecovery.created;
+  created.created_refs.performance_recovery = performanceRecovery.created.map(item => item.work_id);
   handoff.writePlan(root, plan, created);
   return created;
 }

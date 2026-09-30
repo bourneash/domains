@@ -13933,30 +13933,64 @@ async function renderAgentRuntime() {
 async function renderExecutiveSetup() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive setup…</div>';
-  let settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns;
+  let settings,
+    revops,
+    experiments,
+    campaigns,
+    reports,
+    proposals,
+    actions,
+    croLabRuns,
+    performance;
   try {
-    [settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns] =
-      await Promise.all([
-        api('GET', '/api/executive/settings'),
-        api('GET', '/api/revops/summary'),
-        api('GET', '/api/experiments'),
-        api('GET', '/api/campaigns/summary'),
-        api('GET', '/api/executive/reports?limit=20'),
-        api('GET', '/api/executive/proposals?limit=100'),
-        api('GET', '/api/executive/actions?limit=200'),
-        apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-      ]);
+    [
+      settings,
+      revops,
+      experiments,
+      campaigns,
+      reports,
+      proposals,
+      actions,
+      performance,
+      croLabRuns,
+    ] = await Promise.all([
+      api('GET', '/api/executive/settings'),
+      api('GET', '/api/revops/summary'),
+      api('GET', '/api/experiments'),
+      api('GET', '/api/campaigns/summary'),
+      api('GET', '/api/executive/reports?limit=20'),
+      api('GET', '/api/executive/proposals?limit=100'),
+      api('GET', '/api/executive/actions?limit=200'),
+      api('GET', '/api/executive/performance'),
+      apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+    ]);
   } catch (e) {
     renderViewError(app, `Executive setup failed: ${e.message}`);
     return;
   }
   const s = settings.settings || {};
+  const performanceData = performance.performance || {};
+  const performanceContract = performanceData.contract || {};
+  const performanceRoles = performanceData.roles || [];
   const revopsSummary = revops.summary || {};
   const experimentRows = experiments.experiments || [];
   const campaignSummary = campaigns.summary || {};
   const reportRows = reports.reports || [];
   const latestReport = reportRows[0];
   const croRuns = croLabRuns?.runs || [];
+  const performanceRoleRows = performanceRoles
+    .map(role => {
+      const key = String(role.role).replaceAll(/[^a-z0-9-]/gi, '-');
+      const goal = performanceContract.roles?.[role.role] || {};
+      const tone =
+        role.status === 'on-track' || role.status === 'protected'
+          ? 'b-green'
+          : role.status === 'recovery'
+            ? 'b-yellow'
+            : 'b-red';
+      return `<tr><td><b>${esc(role.role)}</b><div class="muted">${esc(role.recovery_reason || 'No recovery required')}</div></td><td><span class="badge ${tone}">${esc(role.status)}</span><div>${esc(role.score)}/100</div></td><td>${esc(role.durable_outputs)} / <input class="cm-input ex-performance-role-goal" data-role="${esc(role.role)}" value="${esc(goal.durable_outputs ?? 1)}" type="number" min="0" max="20" aria-label="Durable output goal for ${esc(role.role)}"></td><td>${esc(role.verified_outcomes)}<div class="muted">${esc(role.proposals)} proposals · ${esc(role.change_requests)} queue requests</div></td><td><label class="ex-check"><input class="ex-performance-role-protected" data-role="${esc(role.role)}" type="checkbox" ${goal.protected ? 'checked' : ''}> protect</label></td></tr>`;
+    })
+    .join('');
   const stat = (value, label, tone = '') =>
     `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
   const croLabRows = croRuns
@@ -13996,6 +14030,7 @@ async function renderExecutiveSetup() {
     <section class="ex-kpis">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</section>
     <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">SETUP</div><h3>Details &amp; configuration</h3><p class="muted">Strategy contract, performance settings, and decision history.</p></div><button class="btn primary" id="ex-open-setup">Open setup →</button></div></section>
     <details class="ex-disclosure" open><summary><span><b>Strategy contract</b><small>Targets, limits, risk tolerance, and recurring ticks</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><p class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</p><div class="form-grid"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="optional"></label><label>Attribution threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<select id="ex-risk" class="cm-input"><option value="">Choose risk tolerance</option><option value="low" ${s.risk_tolerance === 'low' ? 'selected' : ''}>Low — conservative</option><option value="medium" ${s.risk_tolerance === 'medium' ? 'selected' : ''}>Medium — balanced</option><option value="high" ${s.risk_tolerance === 'high' ? 'selected' : ''}>High — exploratory</option></select></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label class="ex-operating-modes">Operating modes / notes<textarea id="ex-notes" class="cm-input" rows="6" placeholder="What should the executive optimize for? Describe priorities, guardrails, and when to escalate.">${esc(s.operating_notes || '')}</textarea></label><label class="ex-check"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks</label><div class="ex-disclosure-actions"><span class="muted">No spend or deployment authority is granted here.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></div></details>
+    <details class="ex-disclosure" open><summary><span><b>Performance &amp; recovery contract</b><small>Durable output goals, scoring weights, and automatic repair</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><p class="muted">Volume alone never earns credit. Scores use durable work, verified outcomes, quality, and stale-work progress. Protected roles are not punished for correctly blocking unsafe work; they must still record the evidence and unblocker.</p><div class="ex-mini-grid">${stat(performanceData.summary?.average_score ?? '—', 'average score')}${stat(performanceData.summary?.on_track ?? 0, 'on track')}${stat(performanceData.summary?.needs_recovery ?? 0, 'needs recovery')}${stat(performanceData.window?.ticks ?? 0, 'ticks measured')}</div><div class="form-grid"><label>Enabled<select id="ex-performance-enabled" class="cm-input"><option value="true" ${performanceContract.enabled !== false ? 'selected' : ''}>Enabled</option><option value="false" ${performanceContract.enabled === false ? 'selected' : ''}>Disabled</option></select></label><label>Measurement window (runs)<input id="ex-performance-window" class="cm-input" type="number" min="1" max="20" value="${esc(performanceContract.window_ticks || 5)}"></label><label>Minimum passing score<input id="ex-performance-threshold" class="cm-input" type="number" min="0" max="100" value="${esc(performanceContract.minimum_score || 60)}"></label><label>Restricted after windows<input id="ex-performance-restricted" class="cm-input" type="number" min="1" max="20" value="${esc(performanceContract.restricted_after_windows || 2)}"></label><label>Escalate after windows<input id="ex-performance-escalation" class="cm-input" type="number" min="1" max="30" value="${esc(performanceContract.escalation_after_windows || 3)}"></label><label>Output weight<input id="ex-performance-weight-output" class="cm-input" type="number" min="0" max="100" value="${esc(performanceContract.weights?.output || 45)}"></label><label>Outcome weight<input id="ex-performance-weight-outcomes" class="cm-input" type="number" min="0" max="100" value="${esc(performanceContract.weights?.outcomes || 30)}"></label><label>Quality weight<input id="ex-performance-weight-quality" class="cm-input" type="number" min="0" max="100" value="${esc(performanceContract.weights?.quality || 15)}"></label><label>Progress weight<input id="ex-performance-weight-progress" class="cm-input" type="number" min="0" max="100" value="${esc(performanceContract.weights?.progress || 10)}"></label></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Role</th><th>Score / state</th><th>Durable outputs / goal</th><th>Verified outcomes</th><th>Guardrail</th></tr></thead><tbody>${performanceRoleRows || '<tr><td colspan="5" class="muted">No performance data yet.</td></tr>'}</tbody></table></div><div class="ex-disclosure-actions"><span class="muted">Below threshold → repair assignment → restricted mode → escalation.</span><button class="btn primary" id="ex-save-performance">Save performance contract</button></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
@@ -14026,6 +14061,45 @@ async function renderExecutiveSetup() {
         tick_enabled: $('#ex-tick-enabled').checked,
       });
       toast('Strategy saved');
+    } catch (e) {
+      toast(e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  $('#ex-save-performance').onclick = async () => {
+    const btn = $('#ex-save-performance');
+    btn.disabled = true;
+    try {
+      const roles = {};
+      $$('.ex-performance-role-goal').forEach(input => {
+        const role = input.dataset.role;
+        roles[role] = {
+          durable_outputs: Number(input.value || 0),
+          verified_outcomes: performanceContract.roles?.[role]?.verified_outcomes || 0,
+          protected: Boolean(
+            $(`.ex-performance-role-protected[data-role="${CSS.escape(role)}"]`)?.checked
+          ),
+        };
+      });
+      await api('PATCH', '/api/executive/settings', {
+        performance_contract: {
+          enabled: $('#ex-performance-enabled').value === 'true',
+          window_ticks: Number($('#ex-performance-window').value),
+          minimum_score: Number($('#ex-performance-threshold').value),
+          restricted_after_windows: Number($('#ex-performance-restricted').value),
+          escalation_after_windows: Number($('#ex-performance-escalation').value),
+          weights: {
+            output: Number($('#ex-performance-weight-output').value),
+            outcomes: Number($('#ex-performance-weight-outcomes').value),
+            quality: Number($('#ex-performance-weight-quality').value),
+            progress: Number($('#ex-performance-weight-progress').value),
+          },
+          roles,
+        },
+      });
+      toast('Performance contract saved');
+      softRender();
     } catch (e) {
       toast(e.message, 'err');
     } finally {

@@ -7,6 +7,7 @@
 const TERMINAL_REQUESTS = new Set(['verified', 'failed', 'cancelled']);
 const DELIVERED_REQUESTS = new Set(['committed', 'deployed', 'verified']);
 const MEASURED_IMPROVEMENTS = new Set(['proven', 'regressed', 'inconclusive']);
+const executivePerformance = require('./executive-performance');
 
 function countBy(rows, key) {
   return rows.reduce((counts, row) => {
@@ -385,6 +386,7 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
         : []),
     ],
     proposal_execution: proposalExecution,
+    performance: executivePerformance.buildPerformance(store, { now }),
     owner_requests: {
       pending: ownerRequests.filter(
         row =>
