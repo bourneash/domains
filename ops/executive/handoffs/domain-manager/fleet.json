@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T04:10:00.209Z",
-  "summary": "six_hour domain-manager report for 59 managed sites",
+  "generated_at": "2026-09-30T08:26:57.715Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "4ffebd31-047e-4def-bf9b-6d9f92356604",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 59,
-      "sites_reported": 59,
-      "exceptions": 1,
-      "deep_dive_candidates": 59,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Improve organic reach for /fishing/muskellunge/erie",
+        "summary": "Slot-gated implementation for greatamericanlakes.com. Existing SEO evidence shows 142 impressions, 3 clicks, average position 7.1, 4 sessions, and 0 conversions for this page. Current site overlap and saturated delivery capacity prevent admission now.",
+        "requested_action": "After the existing greatamericanlakes.com work clears, update only the source file rendering /fishing/muskellunge/erie and its page metadata: improve the title, meta description, H1, and one relevant internal-link block using existing site terminology and assets. Do not add tracking, dependencies, routes, external links, or unrelated edits.",
+        "proposal_id": null
+      }
+    ]
   }
 }
