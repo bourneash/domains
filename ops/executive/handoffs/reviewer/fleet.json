@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:58:07.758Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:10:02.744Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the dumbsluts.com readiness proposal and do not admit new production work while delivery is saturated at 10/10 slots. Route only three bounded SEO changes as capacity-gated engineer work; CTO must release a slot by 2026-10-01T09:00Z after completing or closing the existing saveusfarms.com repair case, or escalate unresolved capacity to the owner. Revenue, ROI, margin, and causal lift remain unsupported by current attribution.",
+        "summary": "Reject new implementation, preview, prototype, site-factory, reconciliation, and monetization admissions this cycle. Delivery is saturated at 10/10 slots; existing measurements, failures, overlaps, and repair work require containment. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, payback, and causal lift are unsupported. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement, measured only by registered affiliate clicks against the 61-click baseline. Keep security-sensitive and private-launch gates unchanged.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new implementation admissions this cycle. All 10 delivery slots are occupied, active measurement and repair work is substantial, and available evidence supports only registered affiliate-click measurement; revenue, ROI, margin, and causal lift remain unknown. Preserve the existing allthingsmasonic.com CTA request without duplicating it. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then release one slot. Escalate unresolved capacity to the owner at that deadline. Keep private-launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

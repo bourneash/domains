@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:09:20.658Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:10:02.743Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve unknown revenue. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID other; it cannot be assigned to sites. Do not claim site revenue, ROI, margin, conversion lift, or causal lift. Keep existing allthingsmasonic.com CTA work slot-gated and consolidate affiliate repairs under canonical requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Prioritize existing, non-duplicative repairs for allthingsmasonic.com, amputeenews.com, and americastrikes.com after capacity clears. Validate registered tracking IDs, affiliate destinations, disclosure placement, link integrity, and rollback boundaries. Use registered affiliate clicks and link-validity checks only; preserve unattributed provider totals.",
+        "summary": "Prioritize evidence-backed monetization repairs without inferring ROI: preserve the $4.92 aggregate unattributed Amazon commission as unknown by site, repair known affiliate-reference issues, resolve the amputeenews.com tag prerequisite, and execute the existing allthingsmasonic.com CTA refinement only after capacity clears.",
         "requested_action": null,
         "proposal_id": null
       }

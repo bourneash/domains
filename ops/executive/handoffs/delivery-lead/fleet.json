@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:52:59.889Z",
+  "generated_at": "2026-09-30T21:10:02.742Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z; then release one slot for the canonical allthingsmasonic.com CTA refinement. Do not admit duplicate work or new prototypes.",
+        "summary": "Queue-ready sites exist, but all 10 delivery slots are occupied. Admit only two bounded preview-only launch-readiness tasks for deadlymaracas.com and driveford.net; do not publish, deploy, alter DNS, configure analytics, monetize, or add dependencies. CTO must release capacity by 2026-10-01T09:00Z before any slot-consuming implementation is admitted.",
         "requested_action": null,
         "proposal_id": null
       }

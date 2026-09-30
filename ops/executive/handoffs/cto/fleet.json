@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:52:59.889Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:10:02.743Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after evidence is recorded; then execute existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Do not create duplicate work or admit new implementation this cycle.",
+        "summary": "No new implementation may enter delivery while all 10 slots are occupied. Preserve the canonical allthingsmasonic.com request and route the remaining repairs only after a slot is released. All changes require deterministic validation, attribution-boundary checks, and single-diff rollback.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve no new implementation, prototype, telemetry, spend, deployment, or duplicate queue work this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed implementation requests. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after capacity release. Measure registered affiliate clicks against the recorded 61-click baseline; orders, commission, ROI, margin, and causal lift remain unsupported. Keep security, compliance, attribution, and private-launch gates unchanged.",
+        "summary": "Approve containment. Do not admit new implementation, preview-only launch-readiness work, site-factory work, prototypes, dependencies, telemetry changes, or duplicate requests while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded; then execute the existing allthingsmasonic.com CTA request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the MarkItDown qualification prototype as deferred only. No cloning, dependency installation, fixture processing, production integration, telemetry, or queue admission is authorized while delivery capacity is saturated. Reconsider only after isolated lab capacity is available and CTO/Security review the prototype results and dependency inventory.",
+        "summary": "The allthingsmasonic.com CTA request is technically feasible after capacity clears. Preserve its bounded scope: CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, responsive layout, unchanged destinations and affiliate configuration, deterministic accessibility/link/disclosure checks, and single-diff rollback. Measure registered affiliate clicks against the available 61-click 2026-09-21 baseline only; revenue, orders, commission, ROI, margin, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the proposed shared CTA-component prototype for this cycle. The lab evidence does not establish dependency, security, maintenance, or fleet compatibility, and capacity is saturated. Retain it as a deferred specification only; reconsider after capacity clears and after an isolated dependency-free prototype has explicit acceptance, security/license review, accessibility and link tests, disclosure preservation, and rollback evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain private-launch and security-sensitive release gates. Continue existing read-only evidence work using authorized metadata and retained artifacts only. Do not deploy, change credentials or configuration, add dependencies, alter domains or DNS, configure analytics, spend, conduct external outreach, or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

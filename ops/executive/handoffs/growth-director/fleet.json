@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:09:20.658Z",
+  "generated_at": "2026-09-30T21:10:02.743Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment while all 10 delivery slots are occupied, 57 improvements await measurement, and 21 requests have failed. Do not create duplicate SEO work, new telemetry, spend, prototypes, or unsupported revenue claims. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Measure registered affiliate clicks only; baseline is 61 clicks for 2026-09-21. Orders, commission, ROI, conversion lift, and causal lift remain unknown.",
+        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the sole next growth implementation after one delivery slot clears. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Scope remains CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, and responsive layout. Measure registered affiliate clicks only; revenue, ROI, margin, and causal lift remain unknown. Do not create duplicate work, telemetry, tracking, or affiliate configuration changes.",
         "requested_action": null,
         "proposal_id": null
       }
