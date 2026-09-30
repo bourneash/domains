@@ -124,6 +124,7 @@ function emptyMetrics(role) {
     status: 'needs-recovery',
     recovery: 'none',
     recovery_reason: null,
+    recovery_windows: 0,
   };
 }
 
@@ -168,7 +169,14 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     const role = ownerRole(item);
     if (!role) continue;
     if (item.source_type === 'owner-request-handoff') metrics[role].owner_handoffs += 1;
-    else if (!['existing-work', 'executive-routine'].includes(item.source_type))
+    else if (
+      ![
+        'existing-work',
+        'executive-routine',
+        'executive-performance-recovery',
+        'executive-performance-escalation',
+      ].includes(item.source_type)
+    )
       metrics[role].work_items += 1;
   }
   for (const item of work.filter(row => !['done', 'cancelled'].includes(String(row.status)))) {
@@ -209,6 +217,13 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     const activeRecovery = recoveryItems.find(
       item => item.owner === role && !['done', 'cancelled'].includes(item.status)
     );
+    metric.recovery_windows = activeRecovery
+      ? tickRows.filter(
+          tick =>
+            (Date.parse(tick.started_at || '') || 0) >
+            (Date.parse(activeRecovery.created_at || '') || 0)
+        ).length
+      : 0;
     if (goal.protected) {
       metric.status = 'protected';
       metric.recovery = 'protected';
@@ -231,9 +246,17 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     } else if (metric.score >= contract.minimum_score) {
       metric.status = 'on-track';
       metric.recovery = activeRecovery ? 'monitoring' : 'none';
-    } else if (activeRecovery?.status === 'in_progress') {
+    } else if (activeRecovery && metric.recovery_windows >= contract.escalation_after_windows) {
+      metric.status = 'escalated';
+      metric.recovery = 'escalated';
+      metric.recovery_reason = `Recovery has remained below threshold for ${metric.recovery_windows} executable cycles; executive intervention is required.`;
+    } else if (activeRecovery && metric.recovery_windows >= contract.restricted_after_windows) {
       metric.status = 'recovery';
       metric.recovery = 'restricted';
+      metric.recovery_reason = `Recovery has remained below threshold for ${metric.recovery_windows} executable cycles; role is restricted until the assignment is completed.`;
+    } else if (activeRecovery) {
+      metric.status = 'recovery';
+      metric.recovery = 'repair';
       metric.recovery_reason =
         'Recovery assignment is active; role must complete it before receiving broader autonomy.';
     } else {
@@ -259,7 +282,8 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
         row => row.status === 'on-track' || row.status === 'protected'
       ).length,
       needs_recovery: Object.values(metrics).filter(
-        row => row.status === 'needs-recovery' || row.status === 'recovery'
+        row =>
+          row.status === 'needs-recovery' || row.status === 'recovery' || row.status === 'escalated'
       ).length,
       average_score: Math.round(
         Object.values(metrics).reduce((sum, row) => sum + row.score, 0) / ROLES.length
@@ -274,6 +298,37 @@ function applyPerformanceRecovery(store, { now = new Date() } = {}) {
   if (!performance.configured || !performance.contract.enabled) return { performance, created: [] };
   const created = [];
   for (const metric of performance.roles) {
+    if (metric.status === 'escalated') {
+      const escalationId = `executive-performance-escalation:${metric.role}`;
+      const existingEscalation = store.getExecutiveWorkItem?.(escalationId);
+      if (!existingEscalation || ['done', 'cancelled'].includes(existingEscalation.status)) {
+        const item = store.createExecutiveWorkItem({
+          work_id: escalationId,
+          title: `Executive intervention required: ${metric.role}`,
+          kind: 'incident',
+          status: 'ready',
+          priority: 'urgent',
+          owner: 'ceo',
+          source_type: 'executive-performance-escalation',
+          source_id: metric.role,
+          site: 'fleet',
+          summary: `${metric.role} remained below the performance threshold through ${metric.recovery_windows} recovery cycles.`,
+          next_action: `Review the ${metric.role} recovery case, remove the blocker or replace/reassign the responsibility, then record the decision and acceptance criteria.`,
+          waiting_on: 'ceo',
+          due_at: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+          created_by: 'executive-performance-controller',
+          evidence: [
+            {
+              type: 'decision',
+              label: 'performance escalation',
+              note: `${metric.score}/${performance.contract.minimum_score}; recovery_cycles=${metric.recovery_windows}`,
+            },
+          ],
+        });
+        created.push(item);
+      }
+      continue;
+    }
     if (!['needs-recovery', 'recovery'].includes(metric.status)) continue;
     const recoveryId = `executive-performance-recovery:${metric.role}`;
     const existing = store.getExecutiveWorkItem?.(recoveryId);
