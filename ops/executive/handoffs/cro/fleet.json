@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.053Z",
+  "generated_at": "2026-09-30T12:37:55.002Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review: retain containment-only execution this cycle. No new proposals, queue items, experiments, telemetry requests, deployments, spend, credentials, or configuration changes are justified while all 10 delivery slots are occupied and measurement, repair, security, and readiness work remains open. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible revenue experiment after CTO releases capacity and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; measure registered affiliate clicks and downstream attributable outcomes, with no revenue, ROI, or causal-lift claim before measurement. Prototype scope is clearer CTA hierarchy, unchanged destination and disclosure, accessible focus/contrast/keyboard behavior, deterministic link/accessibility tests, successful build, and single-diff rollback.",
+        "summary": "CRO recommends retaining no new proposal or queue admission this cycle. Delivery is saturated at 10/10 slots, 170 work items are stranded, 54 improvements await measurement, and 21 requests have failed. Existing repair, measurement, readiness, security-evidence, and private-gate work should continue. After the existing repair-or-close case releases capacity, the preserved allthingsmasonic.com CTA refinement is the next CRO experiment: use the recorded 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission baseline; measure affiliate clicks, orders, and commission without claiming causal lift. GitHub candidates remain research-only: MarkItDown has MIT licensing and bounded lab checks, while shadcn/ui and Mermaid have plausible use cases but require fleet-specific prototypes, dependency review, security review, and owner-approved implementation. No deployment, spend, credential, domain, telemetry, or external-outreach action is requested.",
         "requested_action": null,
         "proposal_id": null
       }

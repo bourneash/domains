@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.054Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:37:55.003Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Recommendation: block security-sensitive releases and gated public exposure; conditionally allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: the security baseline reports no fleet-doctor run; operations reports no deploy, uptime, or error sweep results; security sitefacts are unknown across the managed fleet; and no evidence is available for authentication boundaries, secrets handling, container isolation, release integrity, dependency provenance, data exposure, monitoring, incident readiness, or security.txt/disclosure readiness. Compliance evidence confirms HTTPS for checked sites but does not establish complete TLS, access, release, or data controls. Risk severity: high for release and public-exposure decisions; medium for contained reversible growth. Exact decision: retain the current security gate, continue the existing read-only evidence matrix, and do not claim certification or a clean bill of health.",
+        "summary": "Disposition: evidence_needed. Severity: high for release-clearance uncertainty, not evidence of compromise. Evidence: fleet-doctor is unavailable (ok=false, last_run=null); operations deploy, uptime, and error sweeps have no results; all 59 security sitefacts are unknown; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no recorded expirations within 30 days, but complete TLS posture is unknown. Exact decision: keep security-sensitive releases, new public exposure, and gated-product launches blocked; continue only existing read-only security evidence work and permit ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Missing evidence is not evidence of a vulnerability or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing security evidence work only. Complete or attach authorized evidence for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, TLS, dependency and supply-chain provenance, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "For any go-live or security-sensitive implementation, require a completed security review before admission. Current status is needs_owner because material control evidence is absent. Reconsider only after dated evidence supports access control, secret handling, runtime isolation, release integrity, TLS, dependency provenance, data-flow protection, monitoring and incident response, disclosure readiness, and an owner-approved disposition.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private exposure gates",
+        "summary": "Retain the fleet security evidence-needed disposition because material controls cannot be cleared from the current read-only baseline. Keep security-sensitive releases, new public exposure, and gated-product launches blocked while allowing ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
+        "requested_action": "Continue the existing authorized evidence matrix using retained artifacts and metadata only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure and handling, container/runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration and coverage, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
         "proposal_id": null
       }
     ]

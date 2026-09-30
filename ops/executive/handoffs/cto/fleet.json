@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.053Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:37:55.002Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated improvement. Scope the primary affiliate/product entry surface; preview must show clearer CTA hierarchy, accessible focus, contrast, and keyboard behavior, intact disclosure, and unchanged destination. Acceptance requires deterministic link/accessibility tests and a successful build. Measure registered affiliate clicks and downstream attributable outcomes against the existing baseline, with no lift claim before measurement. Rollback is a single-diff revert. Admit only after CTO releases a slot and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO review: approve containment-only execution. No new queue items, deployments, telemetry requests, experiments, spend, credentials, configuration changes, or outreach are technically admissible while delivery is saturated at 10/10 and security/operations evidence remains incomplete. Preserve the existing allthingsmasonic.com CTA refinement as a deferred, isolated candidate only. Admit it after one slot is released and the existing saveusfarms.com repair-or-close case is resolved or closed by 2026-10-01T09:00Z. Required scope: one CTA/UI diff on the existing affiliate/product surface; preserve destination, disclosure, consent behavior, and unrelated routes. Validate deterministic link, accessibility, build, and preview checks. Measure only existing registered affiliate-click and available downstream attribution fields against the recorded baseline; make no causal, revenue, ROI, or lift claim before measurement. Rollback is a single-diff revert.",
+        "summary": "Reject new queue admissions and duplicate work this cycle. Delivery is saturated at 10/10 slots; existing repair, measurement, readiness, security-evidence, and private-gate work may continue. Resolve or close the existing repair-or-close case and release one slot before admitting any further implementation. Preserve the already-queued allthingsmasonic.com CTA refinement as the next slot-gated change, with its existing baseline, validation, measurement window, and rollback. Do not claim revenue, ROI, margin, or causal lift beyond the recorded attribution boundaries.",
         "requested_action": null,
         "proposal_id": null
       }

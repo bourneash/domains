@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.991Z",
+  "generated_at": "2026-09-30T12:37:55.001Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Delivery escalation: no new change request can be admitted this cycle because active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Queue-ready fleet candidates exist, but the next safe admission must wait for capacity release. Delivery-lead owns blocked-site reconciliation; CTO owns release of one slot by 2026-10-01T09:00:00Z. Next action: complete or close the existing saveusfarms.com repair-or-close case, resolve 0xroulette.com and allthingsmasonic.com overlap, and then select the next queue-ready site from the authoritative queue-ready fleet list. Preserve private preview gates for complicated.work, deadlymaracas.com, and driveford.net until readiness evidence is complete.",
+        "summary": "Reject all three new control-plane proposals and admit no new implementation this cycle. Delivery is saturated at 10/10 slots, and reviewer/CTO direction requires resolving the existing saveusfarms.com repair-or-close case and releasing one slot before any new queue admission. Pilot treatment sites remain blocked by active measurement windows; other ready-fleet candidates remain launch-gated or capacity-gated. Keep SearchWoot private and preserve existing work only.",
         "requested_action": null,
         "proposal_id": null
       }

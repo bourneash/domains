@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.053Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:37:55.003Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the current launch and security gates. Do not add queue items, deployments, telemetry, spend, experiments, credentials, configuration changes, or outreach while capacity and evidence gates remain unresolved. The existing allthingsmasonic.com CTA refinement remains deferred until the capacity gate clears and its deterministic validation, measurement, compliance, security, owner, and rollback checks are satisfied.",
+        "summary": "Reject the proposed security proposal and duplicate work item. The same security evidence matrix already exists; delivery is saturated and telemetry, attribution, security, and readiness gaps remain unresolved. Preserve the existing matrix and private-gate work only. Do not authorize new queue work, production changes, financial claims, outreach, credentials, configuration, spend, schedules, or deployments.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, research, telemetry, spend, deployment, credential, configuration, and outreach actions this cycle. Delivery is saturated at 10/10 slots; measurement, failed requests, repairs, security evidence, and attribution gaps remain unresolved. Preserve only existing repair, capacity-release, private-launch, and security-evidence work. CTO must complete or close the existing repair-or-close case and release one slot by 2026-10-01T09:00Z. Keep the existing CTA refinement deferred until then; make no revenue, ROI, margin, forecast, or causal-lift claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, open repairs, site overlap, and incomplete security evidence. No defensible candidate can be queued without displacing existing work. Preserve existing work only. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one delivery slot by 2026-10-01T09:00:00Z; unresolved capacity must be escalated to the owner by that deadline. Keep private launch and security gates unchanged, and make no revenue, ROI, margin, forecast, or causal-lift claims. The allthingsmasonic.com CTA refinement remains deferred until capacity clears and its existing validation, measurement, and rollback criteria can be applied.",
+        "summary": "Reject the requested new queue admissions and duplicate security proposal. Delivery is saturated at 10/10 slots, active measurement and repair work remains open, and revenue attribution, margin, causal lift, security clearance, and launch readiness are insufficient for new production work. Keep existing repair, measurement, readiness, security-evidence, and private-gate work active. CTO must resolve or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00:00Z; unresolved capacity must be escalated to the owner by that deadline. Only then may one distinct-site reversible candidate proceed with existing telemetry, acceptance tests, metric, and rollback.",
         "requested_action": null,
         "proposal_id": null
       }

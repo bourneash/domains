@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.052Z",
-  "summary": "design-director checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:37:55.001Z",
+  "summary": "design-director checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution this cycle. No new design, implementation, research, telemetry, deployment, or spend work is admissible while all 10 delivery slots are occupied. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated improvement: scope the primary affiliate/product entry surface; preview must show clearer CTA hierarchy, accessible focus/contrast/keyboard behavior, intact disclosure, and unchanged destination; acceptance requires deterministic link/accessibility tests and a successful build; metric is registered affiliate clicks and downstream attributable outcomes against the existing baseline, with no lift claim before measurement; rollback is a single-diff revert. Admit only after CTO releases a slot and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Keep aggregate affiliate revenue unattributed and make no revenue, ROI, or causal-lift claims.",
+        "summary": "Keep new admissions blocked while delivery remains saturated. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after the CTO releases a slot. No conversion lift is claimed; use the existing affiliate baseline and record outcome only after measurement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair, measurement, readiness, security-evidence, and private-gate work. Do not create duplicate site work, telemetry, spend, credentials, configuration, or deployment. Admit the preserved allthingsmasonic.com change only after capacity and readiness gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

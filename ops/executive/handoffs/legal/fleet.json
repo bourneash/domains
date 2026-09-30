@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.053Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:37:55.003Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: BLOCKED for public beta or go-live. Keep searchwoot.com private and preview-only. Evidence shows Woot documents API access but does not evidence rights to store, derive, cache, publicly display, alert on, or monetize deal data; current public terms point against those uses. Compliance is technical baseline only, not certification. Security, accuracy/freshness, measurement, owner, and counsel gates remain incomplete. No go-live proposal is supported. Do not send rights outreach or change the private gate without owner authorization and human counsel review.",
+        "summary": "Overall disposition: blocked for SearchWoot public beta, full launch, affiliate, or advertising monetization. Recommendation: keep SearchWoot private and preview-only; do not send rights outreach or change the gate without human counsel review and owner authorization. Woot documentation confirms API access mechanics but not storage, derivatives, public display, caching, alerts, attribution, images, prices, freshness, correction, takedown, affiliate, or advertising rights; public terms restrict commercial/public listing use. Fleet compliance is mixed at 35 pass, 18 fail, and 6 unknown, with open banner, consent, reject-control, GA4, privacy, and terms findings. Security, accuracy/freshness, measurement/attribution, and owner gates remain incomplete. Ordinary reversible growth may continue only when it adds no new data collection, credentials, permissions, dependencies, cross-site behavior, or unsupported claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness data-use review completed. Woot API deal and price-history data: BLOCKED; missing current written permission or API agreement, field-level provenance, permitted storage/derivatives/display/cache/alerts, attribution, freshness, correction, takedown, image/price/trademark, affiliate and advertising terms. Smallest next action: assemble the existing rights packet for owner-authorized human-counsel review; do not send outreach. User alert rules and sync results: EVIDENCE_NEEDED; missing data inventory, identifiers, retention/deletion/correction/access workflow, processor terms, notification consent, and unsubscribe behavior. Smallest next action: produce the read-only data-flow and retention table from existing repository/configuration evidence. GA4 analytics: EVIDENCE_NEEDED; missing deployed consent and withdrawal evidence, GA4 property/data-sharing and retention settings, vendor disclosure, and jurisdictional review. Smallest next action: capture consent/configuration evidence without enabling tracking or advertising. Operational logs and Cloudflare hosting data: EVIDENCE_NEEDED; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/data-request procedures. Smallest next action: produce the read-only operator/vendor inventory and flag counsel-required gaps. No data-use item is clear enough for public launch.",
+        "summary": "SearchWoot launch-readiness tracking remains active: 0 of 4 legal tasks are evidenced closed and all 4 remain open. Existing evidence is partial: source-rights baseline is documented but does not establish permission; data-flow evidence is partial; consent and analytics evidence is partial; public terms are draft-only. Close no task without direct evidence. Next evidence actions: attach a field-level Woot rights matrix; produce the alert-data retention/deletion/access table; capture deployed consent behavior plus GA4 property and data-sharing settings; inventory log fields, vendors, retention, incident handling, and data-request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance and growth disposition: ordinary reversible growth may continue only within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Do not block ordinary growth solely because telemetry is incomplete. However, do not admit new work this cycle because capacity is 10/10 and the preserved allthingsmasonic.com CTA candidate remains gated by existing repair, validation, measurement, compliance, security, owner, and rollback checks. Affiliate disclosure and destination must remain intact; aggregate affiliate income remains unattributed and supports no revenue, ROI, margin, forecast, or causal-lift claim.",
+        "summary": "Woot deal and price-history data: blocked pending authoritative rights and field-level permission. User alert rules and sync results: evidence_needed pending data inventory, retention, deletion/correction/access, processor terms, consent, and unsubscribe evidence. GA4: conditional only for explicit-consent measurement, pending deployed consent/withdrawal evidence, GA4 settings, retention, vendor disclosure, and jurisdictional counsel review. Operational logs and Cloudflare hosting data: evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, incident handling, and data-request procedures. No public sharing, affiliate, advertising, remarketing, or monetization use is approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep searchwoot.com private and preview-only. Keep complicated.work, deadlymaracas.com, and driveford.net unlaunched and preview-only until each has a dated readiness packet covering ownership, preview/build evidence, compliance, security, measurement boundaries, rollback, and an explicit launch decision. Analytics gaps alone do not block ordinary growth, but these gated sites lack the required concrete launch evidence; do not publish or monetize them.",
         "requested_action": null,
         "proposal_id": null
       }
