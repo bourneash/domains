@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T16:10:00.175Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-09-30T16:11:59.520Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "a9a60303-6116-4c5b-9346-d70f63605665",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 1,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Complete howtofry.com launch-readiness gate before first public surface",
+        "summary": "howtofry.com is a parked scaffold with only site capability and no verified launch-readiness artifact. Produce the smallest evidence package required before any implementation admission; keep the site private, preview-only, and undeployed.",
+        "requested_action": "Create `launch-readiness/howtofry.com.md` in `bourneash/howtofry.com` covering audience, one-page launch scope, initial content seed, metadata, analytics and affiliate readiness, compliance/security checklist, measurement boundary, rollback point, and exactly one owner decision or blocker. Use registry and existing authorized evidence only; do not add telemetry, dependencies, credentials, DNS, monetization, or production changes.",
+        "proposal_id": null
+      }
+    ]
   }
 }
