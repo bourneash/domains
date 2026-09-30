@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:18:43.475Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:29:01.847Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain two CRO-owned product opportunities as engineer-routable specifications only. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Do not admit implementation until CTO releases capacity and the existing saveusfarms.com repair-or-close case is completed or closed. Preserve the allthingsmasonic.com CTA refinement as the sole next revenue experiment. Revenue, ROI, margin, and causal lift remain unknown.",
+        "summary": "Retain containment-first execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 7 repair follow-ups open. Do not admit new implementations, prototypes, telemetry changes, spend, or duplicate queue work. Complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Use the existing allthingsmasonic.com CTA request only after one delivery slot is released. Scope: CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, and destination integrity. Preserve the 61 registered-click baseline, retain allthingsmasonic-20, add no dependencies or telemetry, and provide build, smoke, rollback, and measurement evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the affiliate CTA quality-gate concept deferred as a product opportunity, not a new implementation. It would standardize destination integrity, disclosure adjacency, registered tracking IDs, accessibility, and rollback checks across commercial surfaces after capacity clears. No revenue or conversion lift is claimed.",
         "requested_action": null,
         "proposal_id": null
       }

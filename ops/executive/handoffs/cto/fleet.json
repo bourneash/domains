@@ -2,49 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:18:43.476Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:29:01.847Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 implementation requests failed or cancelled. Do not admit new implementations, prototypes, site-factory builds, duplicate work, telemetry changes, deployments, spend, credentials, domains, or security-sensitive releases this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after a slot is released may the already-queued allthingsmasonic.com CTA refinement proceed. Keep SearchWoot private and rights outreach unsent pending existing legal, security, accuracy, measurement, and owner gates.",
+        "summary": "CTO disposition: preserve containment. Delivery is saturated at 10/10 slots, so reject all new site-factory admissions, prototypes, telemetry changes, and duplicate queue work. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded, then execute the existing allthingsmasonic.com CTA request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing queued allthingsmasonic.com CTA refinement; do not create a duplicate request. Admit it only after one delivery slot is released and the site overlap is resolved. Keep scope limited to CTA hierarchy, existing destinations, adjacent disclosure, keyboard focus, responsive layout, and link/accessibility validation. Require deterministic tests, build/link/smoke/compliance checks, a single-diff rollback point, and measurement using registered affiliate clicks on changed surfaces over 14 days or 100 relevant new clicks. The available baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim revenue, ROI, or causal lift.",
+        "summary": "Do not route new site-factory work while all ten delivery slots are occupied. Retain complicated.work, deadlymaracas.com, and driveford.net as deferred preview candidates only. No public exposure or build admission is authorized until capacity and launch gates are cleared.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing preview-only readiness pipeline for complicated.work, deadlymaracas.com, and driveford.net as documentation only. Do not create implementation requests or duplicate readiness work while capacity is saturated. No build, deployment, domain change, analytics configuration, monetization change, spending, or public launch is authorized. Existing readiness artifacts must contain owner, preview/build evidence, content and SEO seed, measurement boundary, compliance status, security status, rollback point, and explicit blocker evidence before any future implementation is considered.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the 2026-09-21 Amazon result as aggregate unattributed evidence only: $4.92 commission, 28 ordered items, and 6 shipped items. Do not assign it to a site or infer ROI, margin, forecast, payback, or causal lift. Require registered tracking-ID validation, destination resolution, adjacent disclosure, consent/compliance checks, and rollback evidence for any future affiliate change.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing security and launch gates. Fleet-doctor, operations sweeps, runtime isolation, secrets handling, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness remain unevidenced. Permit only bounded read-only evidence work and ordinary reversible changes that introduce no new credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim clearance or certification.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the CFO report-only finance reconciliation as a single existing artifact if not already completed; do not create duplicate telemetry or implementation work. It may reconcile known Amazon aggregate/site tracking rows, AI usage, queue, improvement, and experiment records and document missing cost linkage. It must not alter billing, tracking, credentials, or production and must preserve unknown contribution margin, cost-to-learn, ROI, and budget exposure.",
+        "summary": "The cost-to-learn ledger remains deferred. Existing snapshots support a specification and explicit unknowns, but missing infrastructure and direct operating-cost identifiers prevent a complete ledger. Do not claim ROI, margin, payback, or cost-to-learn.",
         "requested_action": null,
         "proposal_id": null
       }

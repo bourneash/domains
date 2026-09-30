@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:18:43.476Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:29:01.847Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Keep new public exposure, go-live, and security-sensitive releases blocked. Permit ordinary reversible growth only when it introduces no new credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: the security baseline covers 61 sites, but fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness remain unknown. Compliance reports 35 pass, 20 fail, and 6 unknown results. No compromise is evidenced, but missing telemetry is not clearance. Risk severity: high for public launch and security-sensitive releases; medium for bounded reversible growth. Exact decision: preserve existing private launch and release gates, continue authorized read-only evidence capture, and do not claim certification or a clean bill of health.",
+        "summary": "Security disposition: evidence_needed. Maintain existing private-launch and security-sensitive release gates. Fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results. Authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. This is a high-severity evidence gap for go-live and security-sensitive releases, not evidence of compromise. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only the already-queued allthingsmasonic.com CTA refinement after capacity release. Security review is approved for the bounded scope: CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, and destination integrity. Do not add routes, dependencies, telemetry, credentials, permissions, data collection, or cross-site behavior. Require deterministic tests, build and smoke evidence, rollback point, and release-boundary evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Maintain the evidence-needed fleet security disposition because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Keep new public exposure and security-sensitive releases blocked while allowing bounded reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "title": "Maintain fleet security evidence-needed disposition and release gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material control evidence remains unavailable. Keep new public exposure and security-sensitive releases gated while permitting bounded reversible growth that introduces no new credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Document dated evidence, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deploy controls, dependency and supply-chain provenance, TLS, data exposure, incident signals, monitoring, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

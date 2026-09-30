@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:18:43.476Z",
+  "generated_at": "2026-09-30T22:29:01.847Z",
   "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Keep SearchWoot private and preview-only; do not authorize public beta, full launch, affiliate/advertising use, rights outreach, or notification expansion. Evidence: Woot documentation confirms API access but not redistribution rights; Woot terms restrict commercial/public use of listings, prices, and derivatives. Legal, security, accuracy/freshness, measurement, and owner gates remain incomplete. Human counsel is required for upstream rights, privacy/jurisdiction, and any affiliate or advertising use. Next evidence action: complete the existing four legal tasks from repository/configuration evidence, then prepare—but do not send—a counsel-reviewed Woot permission request.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep private and preview-only. Evidence shows Woot API access and rate limits, but current Woot terms restrict commercial/public listing, price, derivative, and data-mining use. Rights, privacy/data-flow, security, accuracy/freshness, measurement, and owner gates remain incomplete. Do not send rights outreach or change the private gate without owner authorization and human-counsel review. Ordinary reversible growth may continue only if it adds no new data collection, permissions, credentials, dependencies, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal triage: Woot deal and price-history data is blocked pending written permission and field-level rights. User alert rules and sync results are counsel_required because personal-data, retention, deletion, notification-consent, and Slack processor evidence is incomplete. GA4 is conditional for measurement-only use, limited to consent-gated collection with no retargeting or sale, but deployed consent/configuration and jurisdictional review remain evidence_needed. Operational logs and Cloudflare data are counsel_required pending log-field, retention/access, vendor/DPA, incident, and data-subject request evidence. No legal item is closed.",
+        "summary": "Compliance baseline is not certification: 35 sites pass, 20 fail, and 6 are unknown; open findings include consent-banner, accept/reject, GA4, privacy, and terms checks. Analytics is broadly configured and data quality is green except revenue attribution, which is yellow because $4.92 aggregate commission cannot be assigned to sites. Do not block ordinary growth solely for incomplete telemetry, but block new public exposure and monetization expansion where disclosures, rights, consent, or claims evidence is absent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is technical triage only: 35 pass, 20 fail, and 6 unknown across 61 sites, with open banner, consent, GA4, privacy, and terms findings. Do not treat telemetry completeness as legal clearance. Revenue evidence remains limited to the 2026-09-21 Amazon aggregate row: $4.92 commission, 28 ordered items, and 6 shipped items, unattributed by site. Ordinary reversible growth may continue only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved.",
+        "summary": "Keep the four SearchWoot launch-readiness legal tasks open. Next evidence action: produce one dated read-only bundle covering source rights/field permissions, alert-data flow and retention, deployed consent and GA4 settings, and logs/vendors/incident handling. Do not enable tracking, collect new data, send external outreach, or change production.",
         "requested_action": null,
         "proposal_id": null
       }

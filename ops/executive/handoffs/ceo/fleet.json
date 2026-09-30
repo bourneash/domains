@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:18:43.475Z",
+  "generated_at": "2026-09-30T22:29:01.847Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new CRO prototypes, site-factory admissions, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. CTO should complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, then release one slot for the canonical allthingsmasonic.com CTA refinement. Revenue evidence remains $4.92 aggregate unattributed Amazon commission for 2026-09-21; margin, ROI, and causal lift are unknown. Under EXEC_CONV_12, keep SearchWoot private and rights outreach unsent. Owner decision: confirm the keep-private disposition.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the candidate plan’s new admissions, prototypes, and duplicate work while delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot for the already-queued allthingsmasonic.com CTA refinement. Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown. Smallest next step: CTO records repair validation or closure evidence. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
