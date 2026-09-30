@@ -1,6 +1,8 @@
 """Regression checks for the content-writer publication boundary."""
 
 import subprocess
+import os
+import tempfile
 from pathlib import Path
 
 
@@ -32,14 +34,72 @@ def test_offshorehookup_content_writer_scope_allows_hero_prompt_only():
 def test_offshorehookup_non_content_roles_do_not_require_bubblewrap():
     text = SCRIPT.read_text(encoding="utf-8")
     sandbox_call = 'writer_sandbox_exec /work/.monorepo-tools/scripts/claude-tracked.sh'
-    generic_call = '"$CLAUDE_TRACKED" "$(cat "$ROLE_FILE")'
+    generic_call = '"$CLAUDE_TRACKED" "$prompt"'
 
-    assert f'if [[ "$ROLE" == "content-writer" ]]; then\n      {sandbox_call}' in text
+    # The dispatch function has one role gate: an SEO/promoter invocation must
+    # take the direct tracked-Claude branch even when bwrap is unavailable.
+    assert 'if [[ "$ROLE" == "content-writer" ]]; then\n        ' + sandbox_call in text
     assert generic_call in text
     assert text.index(sandbox_call) < text.index(generic_call)
+    assert 'CONTENT_WRITER_POLICY=' in text
+    assert text.index('CONTENT_WRITER_POLICY=') > text.index('if [[ "$ROLE" == "content-writer" ]]; then')
+    assert 'MODEL_ARGS=()' in text
+    assert 'MODEL_FLAG=' not in text
+    assert 'CLAUDE_TRACKED="${CLAUDE_TRACKED:-' in text
+    assert 'CLAUDE_BIN="${CLAUDE_BIN:-claude}"' in text
 
     result = subprocess.run(["bash", "-n", str(SCRIPT)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+def test_seo_role_runs_with_fake_claude_when_bwrap_is_unavailable():
+    """Exercise the real dispatcher without touching the checkout or Claude."""
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "ops/roles").mkdir(parents=True)
+        (root / "ops/scripts").mkdir(parents=True)
+        (root / "ops/board").mkdir(parents=True)
+        (root / ".monorepo-tools/scripts").mkdir(parents=True)
+        (root / ".monorepo-tools/cron-roles").mkdir(parents=True)
+        (root / "ops/roles/seo-analyst.md").write_text("Run the SEO analysis.\n")
+        (root / ".monorepo-tools/cron-roles/repo-mutation-lock.sh").write_text(
+            "repo_mutation_lock_acquire() { return 0; }\n"
+            "repo_mutation_lock_release() { :; }\n"
+        )
+        tracked = root / "fake-claude-tracked.sh"
+        tracked.write_text(
+            "#!/usr/bin/env bash\n"
+            "printf '%s\\n' \"$*\" > \"$RUN_MARKER\"\n"
+        )
+        tracked.chmod(0o755)
+        claude = root / "fake-claude"
+        claude.write_text("#!/usr/bin/env bash\necho 'fake claude 0.0'\n")
+        claude.chmod(0o755)
+
+        runner = root / "run-role.sh"
+        runner.write_text(
+            SCRIPT.read_text(encoding="utf-8").replace(
+                'REPO_ROOT="/home/jesse/projects/domains/sites/offshorehookup.com"',
+                f'REPO_ROOT="{root}"',
+            )
+        )
+        runner.chmod(0o755)
+        result = subprocess.run(
+            [str(runner), "seo-analyst"],
+            env={
+                **os.environ,
+                "CLAUDE_BIN": str(claude),
+                "CLAUDE_TRACKED": str(tracked),
+                "HOME": str(root / "home"),
+                "RUN_MARKER": str(root / "tracked.args"),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0, result.stderr + result.stdout
+        assert (root / "tracked.args").is_file()
+        assert "Run the SEO analysis." in (root / "tracked.args").read_text()
 
 
 def test_content_writer_policy_is_behavioral_and_task_specific():
