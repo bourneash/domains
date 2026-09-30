@@ -55,6 +55,14 @@ export TERM=dumb
 # Parallel astro/wrangler builds race on the default inspector port.
 export NODE_OPTIONS="${NODE_OPTIONS:-} --inspect-port=0"
 
+# The runner's HOME is mounted from the host, but its shell does not load the
+# host's interactive SSH config. Bootstrap uses the fleet's GitHub SSH alias;
+# pin that alias to the mounted deploy key here so non-interactive onboarding
+# can push and add the new submodule from inside fleet-cron.
+if [[ -z "${GIT_SSH_COMMAND:-}" && -f "${HOME}/.ssh/github-bourneash" ]]; then
+  export GIT_SSH_COMMAND="ssh -F /dev/null -i ${HOME}/.ssh/github-bourneash -o UserKnownHostsFile=${HOME}/.ssh/known_hosts -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o HostName=github.com"
+fi
+
 # Commands this runner is willing to dispatch, and the flags each accepts.
 # Anything outside these lists is rejected here as well as in the dashboard —
 # the spool is a file-backed queue, so the runner does not trust its contents.
