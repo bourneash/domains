@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:39:03.134Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:40:46.928Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new delivery, prototype, telemetry, spend, deployment, dependency, and research admissions this cycle. Preserve containment-only execution: complete or close the existing overdue repair-or-close case, continue existing measurement, security evidence, finance reconciliation, readiness packets, and private launch gates. Do not create duplicate work. Revenue, ROI, margin, payback, forecasts, and causal lift remain unsupported because attribution and matching-period cost evidence are incomplete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner action: keep public exposure and security-sensitive releases blocked where evidence is incomplete; keep rights outreach unsent pending counsel review. Require the existing overdue repair case to record ownership, root cause or closure rationale, validation, build checks, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; site-level revenue, ROI, margin, and causal lift are unsupported. Preserve only existing repair, measurement, security-evidence, finance-reconciliation, readiness, and private-gate work. No new research request is justified because the shared telemetry and existing public research already cover the identified evidence gaps.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Revenue claims remain unsupported: the only available result is $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Continue existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. No safe candidate can be routed until capacity or launch blockers clear.",
         "requested_action": null,
         "proposal_id": null
       }
