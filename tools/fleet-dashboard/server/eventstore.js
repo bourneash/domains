@@ -3626,7 +3626,7 @@ function open(root, { file } = {}) {
       .map(decodeAgentDispatch);
   }
 
-  function claimAgentDispatch(workerId, { leaseSeconds = 900 } = {}) {
+  function claimAgentDispatch(workerId, { leaseSeconds = 900, agent_id, adapter } = {}) {
     const owner = String(workerId || '').trim();
     if (!owner) throw httpErr(400, 'dispatch worker id is required');
     const now = new Date();
@@ -3636,11 +3636,23 @@ function open(root, { file } = {}) {
     ).toISOString();
     db.exec('BEGIN IMMEDIATE');
     try {
+      const clauses = [
+        "(status='queued' AND available_at<=?) OR (status='leased' AND lease_expires_at<=?)",
+      ];
+      const args = [iso, iso];
+      if (agent_id) {
+        clauses.push('agent_id=?');
+        args.push(String(agent_id));
+      }
+      if (adapter) {
+        clauses.push('adapter=?');
+        args.push(String(adapter));
+      }
       const row = db
         .prepare(
-          `SELECT * FROM agent_dispatch_queue WHERE (status='queued' AND available_at<=?) OR (status='leased' AND lease_expires_at<=?) ORDER BY available_at, created_at LIMIT 1`
+          `SELECT * FROM agent_dispatch_queue WHERE ${clauses.map((clause, index) => (index === 0 ? `(${clause})` : clause)).join(' AND ')} ORDER BY available_at, created_at LIMIT 1`
         )
-        .get(iso, iso);
+        .get(...args);
       if (!row) {
         db.exec('COMMIT');
         return null;

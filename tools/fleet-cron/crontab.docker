@@ -140,6 +140,10 @@
 # One new manager every minute, with a two-manager concurrency cap.
 # This keeps the queue moving without creating an AI request burst.
 * * * * * /home/jesse/projects/domains/tools/executive/run-domain-manager-dispatch.sh
+# Consume one Site Factory manager dispatch per minute and hand it to the
+# existing host-side domain-job-runner queue. The worker is role-filtered and
+# single-flight, so other manager lanes remain available for their consumers.
+* * * * * /home/jesse/projects/domains/tools/executive/run-operating-worker.sh
 # Fleet project manager: triage executive backlog into scoped, approval-aware work.
 */15 * * * * /home/jesse/projects/domains/tools/executive/run-project-manager.sh
 5 7 * * * /home/jesse/projects/domains/tools/executive/run-domain-reports.sh --cadence daily

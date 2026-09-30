@@ -66,8 +66,8 @@ function claim(store, workerId, options) {
   return store.claimAgentDispatch(workerId, options);
 }
 
-async function processOne(store, { workerId, adapters = {} } = {}) {
-  const dispatch = claim(store, workerId);
+async function processOne(store, { workerId, adapters = {}, claimOptions = {} } = {}) {
+  const dispatch = claim(store, workerId, claimOptions);
   if (!dispatch) return { processed: false };
   try {
     const run = store.getAgentRun(dispatch.run_id);
