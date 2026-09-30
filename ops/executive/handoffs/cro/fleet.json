@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:52:48.773Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:08:41.334Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: preserve containment and retain two deferred, reversible opportunities for CEO/CTO sequencing after capacity clears. 1) allthingsmasonic.com affiliate CTA experiment: existing evidence is 61 site-attributed Amazon clicks, 0 ordered items, and $0 commission for 2026-09-21; no lift or ROI is claimed. Fleet use case: clarify one primary CTA per product card on the highest-intent merchandising surface while preserving destinations, disclosures, tracking, keyboard access, contrast, tap targets, and mobile layout. Smallest prototype: presentation-only CTA-label and focus-state diff on one existing surface, with deterministic link checks, accessibility checks, build/smoke validation, and revert-only rollback. Metric: existing outbound affiliate clicks, ordered items, and site-attributed commission when available; learn over 14 days after verified deployment or preserve as unknown. Risk: current delivery is saturated at 10/10 and the site has overlapping work, so do not admit duplicate queue work. 2) SEO/content discovery prototype using microsoft/markitdown: the CRO lab found MIT licensing, 194 files, 22 purpose-specific keyword hits, and 8/8 bounded checks passed; dependency installation and production access were not used. Fleet use case: convert a small set of existing approved source documents into structured Markdown briefs to test whether editorial production and internal-link planning become faster and more consistent. Smallest reversible prototype: offline conversion of 3 representative, non-sensitive fixtures into draft-only Markdown, with provenance retained and no publishing, new dependencies, external crawling, or telemetry changes. Metric: validated brief completion rate and analyst time-to-draft versus the current documented process; time-to-learn is one working session. Risks: repository maintenance and parser behavior require CTO review; MIT applies to code, not necessarily input-document rights or generated content; security review is required before any dependency adoption. No implementation, spend, credentials, deployment, domain change, or new telemetry is requested. Next CRO action: keep both as slot-gated specifications and let CEO/CTO select only after existing repair, measurement, security, finance, and readiness work clears.",
+        "summary": "Reject the new execution-cockpit proposal this cycle. It is a control-plane product, not a revenue experiment, and delivery is saturated at 10/10 slots with 54 improvements measuring, 21 failed requests, and 7 repairs open. Preserve the concept as deferred backlog only; do not create duplicate queue work. Continue existing 0xroulette.com CTA, allthingsmasonic.com affiliate-path, and amputeenews.com tag-prerequisite work under their current requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: no new proposal, change request, research request, or queue admission this cycle. Existing telemetry supports prioritization but not causal revenue claims: Amazon reporting is aggregate for 2026-09-21 with $4.92 unattributed commission, while site-level revenue, margin, ROI, payback, and cost-to-learn remain unknown. Continue only existing repair-or-close, deployed-work measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work.",
+        "summary": "Revenue experiments remain measurement-first and slot-gated. Existing evidence supports: 0xroulette.com CTA clarity as a reversible outbound-click experiment; allthingsmasonic.com affiliate-path repair with 61 clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; and amputeenews.com affiliate activation only after an owner-supplied registered tag. Do not infer uplift, ROI, or revenue from aggregate data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "GitHub signals remain research-only. microsoft/markitdown passed 8/8 bounded checks under MIT and may support a disposable content-discovery prototype; shadcn-ui/ui passed 3/3 under MIT and may support isolated UX prototyping; mermaid-js/mermaid is MIT but had no native lab checks. No dependency installation, adoption, deployment, or new research request is recommended while capacity and repair backlogs remain constrained.",
         "requested_action": null,
         "proposal_id": null
       }

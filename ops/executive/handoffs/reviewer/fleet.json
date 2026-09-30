@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:08:40.338Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:08:41.335Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, and causal lift are unknown. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-readiness work. CTO owns capacity release and must document one cleared slot with acceptance criteria, tests, metric, and rollback by 2026-10-01T09:00:00Z; escalate unresolved capacity to the owner then. Keep SearchWoot private and rights outreach unsent pending counsel review.",
+        "summary": "Reject all new production, queue, telemetry, spend, credential, configuration, deployment, and external-outreach work this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and an overdue repair-or-close case. Revenue remains aggregate and unattributed; financial, ROI, forecast, and causal-lift claims are unsupported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, launch-gate, and parked-readiness work. Complete or close the existing saveusfarms.com case with root cause or closure rationale, validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain containment-only execution. Keep public exposure and security-sensitive releases blocked where evidence is incomplete; keep parked properties private, preview-only, and unlaunched. Amazon evidence is limited to 2026-09-21 aggregate commission and cannot support site-level financial claims; authorize no spend or monetization expansion.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new implementation admissions this cycle. Active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs open, and site-overlap conflicts. No new production work can be responsibly routed. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; site revenue, ROI, margin, forecasts, and causal lift remain unsupported. Authorize no spend, credentials, configuration, telemetry, deployment, or outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Clear one delivery slot and resolve the existing repair and overlap backlog before admitting new work. By 2026-10-01T09:00Z, record slot release, owner assignment, and conflict resolution; escalate unresolved capacity or repair blockage to the owner. Candidate work remains deferred: 0xroulette.com CTA clarity, allthingsmasonic.com affiliate-path repair, and the parked-site readiness packets.",
         "requested_action": null,
         "proposal_id": null
       }
