@@ -5,12 +5,12 @@ on:
     paths:
       - "tools/cron-roles/**"
       - "tools/content-guardrails/**"
-      - "sites/*/ops/scripts/**"
+      - "sites/**"
   pull_request:
     paths:
       - "tools/cron-roles/**"
       - "tools/content-guardrails/**"
-      - "sites/*/ops/scripts/**"
+      - "sites/**"
 
 permissions:
   contents: read
@@ -24,3 +24,5 @@ jobs:
           submodules: recursive
       - name: Run fleet ops contracts
         run: bash tools/cron-roles/tests/test_ops_hardening.test.sh
+      - name: Audit SEO role turn-budget headroom
+        run: python3 tools/cron-roles/tests/test_seo_role_turn_budget.py
