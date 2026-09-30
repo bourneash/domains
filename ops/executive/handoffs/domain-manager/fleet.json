@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:38:00.332Z",
+  "generated_at": "2026-09-30T09:02:51.855Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Hold one bounded homepage UX improvement until delivery capacity clears",
-        "summary": "seedstosauce.com remains eligible for one reversible homepage improvement, but no new implementation can be admitted while fleet delivery capacity is saturated at 10/10 active slots. Exact repository files and page-level baseline are not present in the supplied snapshot; preserve both as unknown.",
-        "requested_action": "Do not create or queue work this cycle. When a delivery slot clears, inspect the existing seedstosauce.com homepage route (/), identify its exact template/component and stylesheet files, record the existing page-level CTA metric from available telemetry, then implement only one accessible CTA-hierarchy improvement without new tracking, dependencies, deployment authority, or cross-site behavior.",
+        "title": "Map active work and select one non-overlapping SEO or UX implementation",
+        "summary": "eastcoastrappers.com has active measuring work and three overlapping delivery items, so no new production change can be safely admitted. Produce a bounded repository-and-queue review to identify the active change scope, untouched page/files, and the smallest next reversible improvement without requesting duplicate telemetry.",
+        "requested_action": "Inspect the existing eastcoastrappers.com queue and repository. Record the active change scope, exact affected files/pages, one untouched implementation target, existing measurable baseline if present, acceptance criteria, focused tests, metric, due date, and rollback point. Do not deploy, modify production, add tracking, or create duplicate implementation work.",
         "proposal_id": null
       }
     ]

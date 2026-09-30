@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:00:57.135Z",
+  "generated_at": "2026-09-30T09:02:51.854Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects all new implementation admissions this cycle. Delivery capacity is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Revenue remains aggregate and unattributed; margin, ROI, forecasts, and causal lift are unsupported. CTO must clear a delivery slot and resolve site overlap before the next candidate is reconsidered, with escalation by 2026-10-01T09:00:00Z. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-readiness work.",
+        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and incomplete launch-readiness evidence. Revenue is limited to $4.92 aggregate, unattributed commission for 2026-09-21; margin, ROI, and causal lift remain unknown. Continue existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-readiness work only. CTO must resolve the overdue saveusfarms.com case and clear a slot by 2026-10-01T09:00:00Z; site-factory readiness packets remain due 2026-09-30T17:00:00Z with CTO escalation.",
         "requested_action": null,
         "proposal_id": null
       }
