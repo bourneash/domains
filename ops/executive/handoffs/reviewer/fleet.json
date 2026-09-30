@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:14:57.825Z",
+  "generated_at": "2026-09-30T09:16:07.825Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. Delivery capacity is saturated at 10/10, with active measurement, repair, security, finance, and readiness work. The infrainnovator.com preview candidate remains deferred; CTO must release a slot and recheck overlap/readiness by 2026-10-01T09:00:00Z before engineer routing. No new deployment, telemetry, spend, credentials, configuration, or production change is authorized.",
+        "summary": "Reviewer disposition: reject new queue admissions this cycle. All 10 delivery slots are occupied, existing measurement and repair work is open, and no three-site candidate set is currently actionable without violating capacity or launch/owner gates. Keep mynewgm.com preview work slot-gated. CTO must release or close one active slot by 2026-10-01T09:00:00Z; unresolved capacity escalates to the owner then. Do not deploy, add telemetry, spend, change credentials, or create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }

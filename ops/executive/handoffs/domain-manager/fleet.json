@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:14:57.825Z",
+  "generated_at": "2026-09-30T09:16:07.825Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare infrainnovator.com preview-ready homepage surface after capacity clears",
-        "summary": "Retain one bounded, reversible implementation candidate for infrainnovator.com. Fleet delivery is saturated at 10/10, so do not admit or queue this work until an existing slot clears.",
-        "requested_action": "After capacity clears, inspect the existing infrainnovator.com scaffold and implement only its primary homepage surface: branded hero, concise audience statement, one primary CTA, metadata, responsive layout, and existing disclosure/footer components. Do not deploy directly, add dependencies, configure analytics, add monetization, or change DNS.",
+        "title": "Prepare a preview-only homepage surface for mynewgm.com",
+        "summary": "mynewgm.com is queue-ready, but delivery capacity is currently saturated at 10/10 active slots and analytics is not configured. Retain a slot-gated, reversible preview implementation without production deployment, telemetry changes, spending, or dependencies.",
+        "requested_action": "After one active delivery slot clears, implement the smallest branded homepage preview in the existing mynewgm.com scaffold. Do not publish or deploy until launch, compliance, security, and measurement gates are satisfied.",
         "proposal_id": null
       }
     ]
