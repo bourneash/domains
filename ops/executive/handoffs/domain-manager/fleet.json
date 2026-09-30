@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:41:34.994Z",
+  "generated_at": "2026-09-30T21:49:09.702Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Identify the smallest reversible homepage usability improvement",
-        "summary": "The supplied authoritative context does not expose vibratorporn.com’s lifecycle, repository, worker, active queue state, route map, or exact source files. Selecting implementation files or inventing telemetry would be unsafe.",
-        "requested_action": "Read the authoritative site registry and repository manifest, identify the existing homepage route and its exact template, stylesheet, and test files, confirm no active overlapping work, and select exactly one reversible improvement. Do not deploy, modify production, add tracking, or request duplicate telemetry.",
+        "title": "Establish wetslit.com homepage readiness baseline",
+        "summary": "wetslit.com lacks evidenced site context, analytics configuration, SEO baseline, monetization readiness, and current page/file structure in the authoritative snapshot. Create one bounded evidence artifact before selecting implementation work.",
+        "requested_action": "Inspect the existing homepage route `/` and repository structure read-only. Record audience positioning, visible content and CTA paths, disclosure state, SEO metadata, accessibility issues, performance blockers, monetization readiness, and exact candidate files for the next reversible change. Do not deploy, add tracking, change configuration, or infer unavailable telemetry.",
         "proposal_id": null
       }
     ]
