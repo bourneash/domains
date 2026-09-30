@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.156Z",
+  "generated_at": "2026-09-30T12:08:34.336Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site Factory disposition: maintain a bounded, preview-only pipeline for complicated.work, deadlymaracas.com, and driveford.net using their existing readiness work. The strongest candidate is complicated.work, tied at score 84 and already scaffolded. Do not add domains, spend, deploy, publish, or launch. Its reusable launch packet must contain: site brief and owner, template scope, source-backed content seed, SEO metadata/sitemap baseline, analytics and affiliate readiness with attribution boundaries, legal/compliance checklist, security evidence, measurement plan, rollback point, and explicit launch gate. Capacity is saturated and readiness evidence is incomplete, so implementation admission remains blocked.",
+        "summary": "Current launch disposition: blocked. The selected scaffold has no configured analytics in the authoritative snapshot, compliance reachability is unknown, and fleet security evidence is incomplete. These are preserved as blockers rather than inferred failures or readiness. No production mutation, deployment, domain action, credential change, dependency addition, external spend, or public launch is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

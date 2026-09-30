@@ -2,44 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.157Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:08:34.337Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Do not create or queue new site work, prototypes, research, telemetry, credentials, dependencies, spend, schedules, deployments, domains, or external outreach while delivery is saturated at 10/10 slots and repair, measurement, security-evidence, readiness, compliance, and attribution work remain open. Preserve existing work only. The allthingsmasonic.com CTA refinement remains an existing, capacity-gated candidate; do not duplicate it or claim revenue or causal lift. After one slot is released and the existing saveusfarms.com repair-or-close case is resolved, admit at most one distinct-site reversible change with isolated scope, deterministic validation, an existing measurable metric, and explicit rollback. Keep private and preview-only gates intact. Reconcile finance using already-available records only; do not create a new cost ledger or telemetry request. Preserve missing infrastructure costs, site revenue, margin, ROI, budget exposure, and causal lift as unknown.",
+        "summary": "CTO disposition: containment-only execution is technically required this cycle. Do not create new proposals, change requests, telemetry requests, deployments, spend, prototypes, or launch work. Preserve the existing allthingsmasonic.com CTA refinement as a slot-gated specification only; it must not be admitted until the saveusfarms.com repair-or-close case is completed or justifiably closed, one delivery slot is released, and the site's existing queued work is completed, paused, or consolidated. If later admitted, keep the change isolated to one CTA/layout diff, preserve the existing affiliate disclosure and registered tracking ID, run keyboard/focus, semantic link, contrast, responsive, link-integrity, build, and smoke checks, record the existing 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission, measure only through existing telemetry for 14 days or 100 relevant impressions/clicks, and roll back the single diff on validation failure or regression. Do not claim revenue, ROI, margin, or causal lift. Parked-site readiness remains private and preview-only; no public launch or production mutation is cleared.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CTO review: retain containment-only execution under EXEC_CONV_12. Existing implementation, repair, measurement, readiness, security-evidence, and private-gate work may continue; no new queue admissions or telemetry changes are authorized. The next technical gate is release of one delivery slot after the existing saveusfarms.com repair-or-close case is completed or closed. Keep private launch gates and unattributed aggregate revenue boundaries unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bf0f5984-1060-4345-89b8-1cf14b367667",
-        "summary": "Defer; disposable lab evidence does not establish production feasibility, isolation, security, measurement, or adoption readiness, and capacity is saturated.",
-        "requested_action": "declined",
-        "proposal_id": "bf0f5984-1060-4345-89b8-1cf14b367667"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "503b3f36-f292-45a3-85c1-de3fa8bd29a5",
-        "summary": "Defer; no prototype admission while existing delivery, repair, measurement, security, readiness, and attribution work remains open.",
-        "requested_action": "declined",
-        "proposal_id": "503b3f36-f292-45a3-85c1-de3fa8bd29a5"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f",
-        "summary": "Defer; research-only evidence cannot justify dependency adoption or production work under the current containment gate.",
-        "requested_action": "declined",
-        "proposal_id": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f"
       }
     ]
   }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.157Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:08:34.336Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment-only execution and approve only one report-only finance reconciliation using existing read-only records. Revenue is supported only as provider-level Amazon aggregate data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; the aggregate income cannot be assigned to any site. September AI usage is $988.91 across 5,470 calls, with 233 errors and 5 transient errors. Contribution margin, cost-to-learn, ROI, payback, budget headroom, burn rate, runway, and forecast revenue are not calculable because revenue is not period-aligned or fully attributable, infrastructure/vendor costs are absent, and monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor fields are blank. Do not authorize incremental spend or rely on impressions, clicks, sessions, conversions, approved proposals, or shipped output as financial results. No money movement, billing changes, banking access, contracts, or external spend.",
+        "summary": "Recommendation: approve containment-only execution and retain the allthingsmasonic.com CTA refinement as slot-gated, but reject any revenue, ROI, contribution-margin, cost-to-learn, budget, or forecast claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is tied to tracking_id other and cannot be assigned to a site; site-attributed commission is therefore $0. The allthingsmasonic.com baseline is 61 clicks, 0 ordered items, and $0 site-attributed commission. AI usage from 2026-09-01 through 2026-09-30 is $988.91 across 5,470 calls, including 233 errors. This is observed AI exposure, not total operating cost. Preserve the proposed disclosure, registered-ID, link-integrity, accessibility, build, smoke-test, 14-day-or-100-impression measurement, and rollback gates. Do not spend, deploy, or admit the CTA change until capacity clears and the existing repair disposition is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum measurement for the next finance review: reconcile a dated daily ledger of AI, hosting/runtime, domains/registrars, analytics/data services, and other vendor costs by site and workstream to period-aligned shipped commission; retain provider tracking IDs, ordered items, shipped items, commission, refunds or reversals if available, and verified outcome deltas. Until those fields exist, preserve all cost and revenue gaps as unknown and make no financial forecast.",
+        "summary": "Finance boundary: contribution margin cannot be calculated because period-aligned site revenue is unavailable and infrastructure, hosting, domain, labor, and experiment-cost allocation are absent. Cost-to-learn cannot be calculated because no approved learning outcome, experiment-level cost allocation, or cost-to-learn threshold is recorded. Budget exposure cannot be calculated because monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Minimum measurement is one period-aligned ledger keyed by site, registered affiliate ID, and work item containing revenue, AI cost, infrastructure/hosting/domain cost, labor allocation, experiment cost, learning outcome, and approved learning threshold. Do not request duplicate telemetry; use the existing read-only finance and attribution sources when available.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Pushback on vanity metrics: impressions, clicks, sessions, ordered items, shipped items, proposal counts, delivery throughput, and AI call volume do not establish profitable growth without attributable commission, period alignment, and costs. The candidate plan's 14-day-or-100-impression measurement is acceptable for operational learning, but it must not be converted into an ROI or revenue forecast unless a registered tracking ID produces site-attributed commission and the finance ledger captures incremental cost.",
         "requested_action": null,
         "proposal_id": null
       }

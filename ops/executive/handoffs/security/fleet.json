@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.157Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:08:34.337Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Keep security-sensitive releases, new public exposure, and gated-product launches blocked pending direct control evidence; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: fleet-doctor unavailable (ok=false, last_run=null); operations deploy, uptime, and error sweeps have no results; all 59 security sitefacts are unknown; authentication boundaries, secrets handling, container isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no recorded expirations within 30 days, but complete TLS posture is unknown. Compliance is mixed at 35 pass, 18 fail, and 6 unknown. Severity: high for release-clearance uncertainty, not evidence of compromise. Exact decision: retain containment-only security controls and continue the existing read-only evidence matrix; do not certify, deploy security-sensitive changes, expose gated products, retrieve credentials, access private containers, exploit targets, modify permissions, add dependencies, or request duplicate telemetry.",
+        "summary": "Security disposition: evidence_needed fleet-wide. Recommendation: block security-sensitive releases and new public exposure; allow only ordinary reversible growth conditionally when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Evidence: fleet-doctor has no run, operations deploy/uptime/error sweeps are unavailable, and authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS reports no certificates expiring within 30 days, but certificate and configuration coverage remain unverified. No active vulnerability or compromise is established. Risk severity is high evidence uncertainty, not a confirmed incident. Exact decision: continue bounded read-only evidence capture; keep security-sensitive releases and gated public exposure blocked until material controls are directly evidenced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: continue only the existing fleet security evidence work. Required evidence remains dated, authorized records for authentication and access boundaries, secrets exposure and handling, container/runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration and coverage, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Preserve unknowns; missing evidence is not evidence of a vulnerability or a clean bill of health.",
+        "summary": "Gated-product decision: keep private and preview-only. Do not expand alerts, affiliate or advertising use, public exposure, credentials, permissions, configuration, dependencies, or deployment until access boundaries, secret handling, data flow and retention, release controls, dependency provenance, monitoring, incident procedures, TLS, and disclosure readiness are evidenced alongside legal, accuracy, measurement, and owner gates.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Continue bounded fleet security evidence capture",
+        "summary": "Retain the existing read-only security evidence matrix and preserve security-sensitive release and public-exposure gates while material controls remain unevidenced.",
+        "requested_action": "Use authorized metadata and retained artifacts only to document dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

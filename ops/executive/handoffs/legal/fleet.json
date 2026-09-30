@@ -2,35 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.157Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:08:34.337Z",
+  "summary": "legal checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal/compliance disposition: BLOCKED for SearchWoot public beta, full launch, affiliate, or advertising monetization. Recommendation: keep private and preview-only; do not send rights outreach or change the gate without human counsel review and owner authorization. Evidence: Woot API documentation confirms access mechanics but not storage, derivatives, public display, caching, alerts, attribution, images, prices, freshness, correction, takedown, affiliate, or advertising rights; current public terms restrict commercial/public listing use. Fleet compliance is mixed: 35 pass, 18 fail, 6 unknown, with open banner, consent, reject-control, GA4, privacy, and terms findings. Security, accuracy/freshness, measurement/attribution, and owner gates remain blocked. Ordinary reversible growth may continue only where it adds no new data collection, credentials, permissions, dependencies, or cross-site behavior. This is risk triage, not legal advice or certification.",
+        "summary": "Risk disposition: blocked. Keep SearchWoot private and preview-only; do not authorize public beta, full launch, alert expansion, affiliate/advertising expansion, or external rights outreach. Evidence: Woot documentation establishes API access but not redistribution, storage, historical derivatives, public display, alerts, images, prices, attribution, freshness, correction, or takedown rights; current public terms point against the proposed commercial/public data use. Security, accuracy/freshness, measurement, owner, and jurisdictional privacy gates also remain incomplete. Human counsel is required for upstream rights, jurisdictional privacy treatment, and any affiliate or advertising use. This is risk triage, not legal advice or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: active, 0 of 4 legal tasks evidenced closed. Source-rights baseline is documented but does not establish permission; data-flow and consent evidence are partial; public terms are draft-only. No task is closed. Next evidence actions are concrete: assemble the field-level Woot rights matrix; produce the alert-data retention/deletion/access table; capture deployed consent behavior and GA4 property/data-sharing settings; inventory log fields, vendors, retention, incident handling, and data-request procedures. Keep all applicable technical, security, measurement, and owner gates open.",
+        "summary": "Launch-readiness tracking remains active. No checklist task is closed because direct completion evidence is absent. Progress: the legal/data-rights packet and Slack integration audit requests are verified, but the four authoritative launch-readiness tasks remain open. Next evidence action: attach a single dated consolidated evidence bundle covering source rights, data flow and retention, deployed consent and GA4 configuration, and logs/vendors/incident handling.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review decisions for SearchWoot: Woot deal and price-history data — blocked pending authoritative rights and field-level permission; user alert rules and sync results — evidence_needed pending data inventory, retention, deletion/correction/access, processor terms, consent, and unsubscribe evidence; GA4 analytics — conditional only for explicit-consent measurement, pending deployed consent/withdrawal evidence, GA4 settings, retention, vendor disclosure, and jurisdictional counsel review; operational logs and Cloudflare hosting data — evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, incident handling, and data-request procedures. No public sharing, affiliate, advertising, remarketing, or monetization use is approved by this review.",
+        "summary": "Data-use review dispositions: Woot API deal and price-history data is blocked pending authoritative permission; user alert rules and sync results are evidence_needed; GA4 is conditional for measurement-only use after explicit consent; operational logs and Cloudflare hosting data are evidence_needed for operational use only. No display, alerting, affiliate, advertising, remarketing, or secondary monetization use is cleared by this review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Private and gated-site decision: retain searchwoot.com as private and preview-only. Keep complicated.work, deadlymaracas.com, and driveford.net unlaunched and preview-only until each has a dated readiness packet covering ownership, preview/build evidence, compliance, security, measurement boundaries, rollback, and an explicit launch decision. Do not infer readiness from analytics gaps, parked status, or scaffold state; do not publish or monetize while the packet is incomplete.",
+        "summary": "Fleet compliance is a technical baseline, not certification: 35 sites pass, 18 fail, and 6 are unknown; open findings include banner, accept/reject controls, GA4, privacy, and terms. Analytics is configured and healthy for the measured live cohort, while revenue attribution is partial because the provider aggregate row is not assignable to a site. Do not block ordinary reversible growth solely for incomplete telemetry, but preserve existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Security-sensitive releases and new public exposure remain blocked while security evidence is unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Evidence: readiness packets are incomplete; complicated.work has no configured analytics and compliance reachability is unknown; fleet security evidence remains incomplete. Next evidence action: attach one dated readiness packet per site covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blockers. No publish, DNS change, analytics configuration, monetization, spending, dependency addition, or queue admission is cleared.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Containment-only execution remains appropriate. Active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repair follow-ups open. Retain the existing allthingsmasonic.com CTA refinement as slot-gated only; do not admit it until the existing saveusfarms.com repair-or-close case is completed or justifiably closed, one slot is released, and overlap is rechecked. The proposed CTA may proceed conditionally only with disclosure preservation, registered tracking ID, link integrity, accessibility, build/smoke validation, baseline capture, measurement limits, and single-diff rollback.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No go-live proposal is supported. Therefore no implementation.launch_gate=go_live or legal_review.status=approved is issued. Any future go-live submission must include direct compliance, rights/provenance, privacy/consent, terms, analytics disclosure, affiliate disclosure, claims, copyright/trademark, platform-policy, age-sensitive, security, accuracy, measurement, and owner-decision evidence.",
         "requested_action": null,
         "proposal_id": null
       }
