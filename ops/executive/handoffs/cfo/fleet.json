@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:23:10.965Z",
+  "generated_at": "2026-09-30T01:36:08.754Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing readiness and repair gates, but reject any financial interpretation of vanity metrics. Search performance totals of 14,560 impressions, 149 clicks, 1,010 sessions, and 15 conversions do not establish revenue or profitability; the existing 7-session affiliate comparison with unchanged 1 conversion before and after is inconclusive. Continue measurement only with available telemetry and report revenue, attribution, cost, and causal-lift fields as unknown where unavailable.",
+        "summary": "CFO recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue admissions. Revenue support is limited to the Amazon window 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate and unattributed; site-attributed income is $0, so site-level revenue claims are unsupported. AI usage cost is $947.40 for 2026-09-01 through 2026-09-29 across 5,289 calls, but it cannot be compared to one revenue day. Contribution margin, infrastructure spend, budget exposure, ROI, payback, forecasts, and cost-to-learn are unknown because matching-period allocated costs and outcome attribution are unavailable. Minimum measurement: a dated ledger matching each revenue and cost item to the same site or content and period, including AI, infrastructure, domain, and other operating costs, plus an approved learning threshold. Continue only existing period-aligned finance reconciliation, deployed-work measurement, repair-or-close, security evidence, private launch gates, and parked-site readiness. Delivery remains full at 10/10 slots, with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Do not treat impressions, clicks, sessions, conversions, AI call volume, or proposal counts as financial performance without attributable revenue and cost evidence.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:23:10.965Z",
+  "generated_at": "2026-09-30T01:36:08.754Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Do not admit new queue work, duplicate readiness items, deployments, telemetry, spending, dependencies, monetization expansion, or external outreach. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Complete the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z and existing parked-site readiness packets by 2026-09-30T17:00Z; keep private launch gates in force.",
+        "summary": "CTO disposition: approve containment-only execution. Delivery is full at 10/10 slots, with 43 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not admit new queue work, proposals, telemetry, spend, credentials, domains, deployments, monetization, or cross-site behavior. Reassess deferred candidates only after capacity clears and conflicts are resolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using available telemetry only. Do not add tracking, requeue unchanged failures, create follow-up work, or claim causal lift. Preserve unknown revenue, attribution, cost, and conversion fields.",
+        "summary": "CTO correction: preserve the existing parked-site readiness packet; do not create a Site Factory implementation or duplicate work item. Keep complicated.work parked, private, preview-only, and unlaunched. Site Factory may attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z, then escalate incomplete evidence to CTO. No build, publish, deployment, DNS, analytics configuration, affiliate configuration, monetization, spend, dependency addition, or queue entry is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing read-only security evidence matrix and private launch gates. Public exposure and security-sensitive releases remain blocked while material controls are unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, or conduct outreach.",
+        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, cost, conversion, attribution, operational, and causal-lift fields as unknown. Do not add tracking, create follow-up work, requeue failures, or infer outcomes from missing data.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned finance reconciliation only. Preserve the 2026-09-21 provider result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn remain unknown; authorize no spend or monetization expansion.",
+        "summary": "Maintain the private launch gate for SearchWoot. Rights, privacy, accuracy, security, attribution, measurement, and owner gates remain incomplete. Continue the existing read-only evidence bundle only; keep public exposure, alert expansion, deployment, configuration or credential changes, dependency additions, monetization, and external outreach blocked.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the existing parked scaffold properties private, preview-only, and unlaunched. Continue only their existing readiness packets; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue entries. Escalate incomplete packets at the existing 2026-09-30T17:00Z deadline.",
+        "summary": "Maintain period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period allocated costs, margin, ROI, payback, forecasts, budget exposure, and cost-to-learn remain unknown. Authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }

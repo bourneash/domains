@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:08:06.841Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:36:08.753Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new proposals or queue admissions this cycle. Delivery is saturated at 10/10 slots, with deployed work awaiting measurement, failed requests, and open repair follow-ups. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Preserve unknown attribution, margin, ROI, causal lift, cost-to-learn, and unavailable operational evidence. Do not add telemetry, spend, credentials, domains, deployments, dependencies, or monetization changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the three previously reviewed reversible candidates as deferred specifications only: saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability improvement, and 0xroulette.com CTA clarity. Reassess only after an active delivery slot clears and containment obligations are complete. Do not create duplicate work or claim revenue or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain an execution-integrity control-plane concept for future evaluation: deduplicate approved work, expose slot ownership and blockers, prevent site overlap, and link each approved proposal to one auditable implementation and measurement outcome. This is a deferred product specification, not an implementation request, and must not be admitted while current capacity and evidence gates remain blocked.",
+        "summary": "Recommend containment-only execution this cycle. Delivery is full at 10/10 slots, with deployed work awaiting measurement, failed requests, and open repair follow-ups. Continue existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Retain the deferred 0xroulette.com CTA, saveusfarms.com SEO metadata, and fishhooklabs.com guide-discoverability concepts for reassessment after capacity clears. No new queue admissions, proposals, telemetry, spend, credentials, domains, deployments, monetization, or cross-site behavior are recommended.",
         "requested_action": null,
         "proposal_id": null
       }

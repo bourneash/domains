@@ -2,63 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:23:10.966Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:36:08.754Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue work, production changes, requeues, spending, telemetry expansion, credential or configuration changes, monetization expansion, outreach, and unsupported financial or causal claims. Continue only existing measurement, repair-or-close, security evidence, period-aligned finance reconciliation, private launch gates, and parked-site readiness. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. Owner concern: delivery is saturated, failures and measurement gates remain unresolved, and launch/security evidence is incomplete.",
+        "summary": "Reject new queue admissions, proposals, production changes, telemetry requests, spending, monetization expansion, credential/configuration changes, and external outreach this cycle. Delivery is full at 10/10 slots; existing measurement, failed-work containment, security evidence, finance reconciliation, private launch gates, and parked-site readiness remain the smallest defensible plan.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue only existing work: complete or close the saveusfarms.com repair case with validation and rollback evidence; measure deployed work using available telemetry; continue the existing security matrix and parked-site readiness packets. Do not retry unchanged work, duplicate requests, or create production work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Financial claims remain unsupported. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep margin, ROI, payback, forecasts, allocated costs, and causal lift unknown; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work, the existing read-only security evidence matrix, and period-aligned finance reconciliation using available evidence only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Keep private launch gates and security-sensitive releases blocked; do not add tracking, requeue failures, authorize spend, or conduct outreach.",
+        "summary": "Maintain SearchWoot as private and preview-only. Continue only the existing read-only evidence bundle; rights, privacy, security, accuracy, attribution, measurement, and owner gates remain incomplete. Keep public exposure, alert expansion, deployment, configuration or credential changes, dependency additions, monetization, and outreach blocked.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new queue admission this cycle. Delivery is saturated at 10/10 slots; existing measurement, failed-request repair, security evidence, finance reconciliation, and launch-readiness work remain open. Revenue is limited to $4.92 aggregate, unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, and causal lift are unknown. No actionable candidate is currently queueable: available candidates are blocked by active work, parked-site launch gates, missing readiness evidence, or unavailable execution ownership. Continue only existing bounded work. Owner concern: unresolved failures and evidence gaps prevent defensible production or financial claims.",
+        "summary": "Reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 43 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not create duplicate queue work, proposals, telemetry, spend, credential changes, deployments, monetization, or unsupported financial claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Defer saveusfarms.com metadata refresh, fishhooklabs.com guide discoverability, and 0xroulette.com CTA clarity. Each is reversible and evidence-backed, but cannot be admitted while delivery is full and site work overlaps. Owner: delivery-lead. Unblock action: complete or close existing work and clear a delivery slot; reassess in the next cycle after measurement or closure evidence. Escalate unresolved capacity or failed-work status to CTO by 2026-09-30T07:30Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing parked-site readiness packets by 2026-09-30T17:00Z. Keep the properties parked, private, preview-only, and unlaunched; record ownership, preview/build, compliance, security, measurement boundaries, rollback, and explicit blockers. Escalate incomplete packets to the CTO.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue deployed-work measurement, period-aligned finance reconciliation, the read-only security evidence matrix, and the private launch gates using existing evidence only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Keep rights outreach unsent pending human-counsel review and owner authorization.",
+        "summary": "Keep all financial claims bounded to the available 2026-09-21 Amazon result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission. Matching-period costs, margin, ROI, payback, forecasts, budget exposure, and causal lift remain unknown. Authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }
