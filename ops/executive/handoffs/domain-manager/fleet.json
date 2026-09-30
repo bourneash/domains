@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:04:16.537Z",
+  "generated_at": "2026-09-30T09:11:05.762Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve findyourlostpets.com homepage primary-action clarity",
-        "summary": "Queue one reversible homepage UX improvement for findyourlostpets.com after an active delivery slot clears. Existing public research supports a bounded homepage positioning and conversion-path improvement; no site telemetry is available because analytics is not configured.",
-        "requested_action": "After capacity clears, inspect the repository homepage route and directly imported styles, then make the smallest reversible change that gives the primary visitor action one clear label, destination, focus state, and mobile layout. Do not add tracking, dependencies, data collection, or cross-site behavior.",
+        "title": "Slot-gated SEO improvement for marineactivity.com AIS navigational status codes guide",
+        "summary": "Retain one bounded, reversible organic-growth implementation for marineactivity.com after existing site work clears. The target page has 346 impressions, 3 clicks, average position 8.1, 0 sessions, and 0 conversions in the available SEO evidence window.",
+        "requested_action": "Do not queue or start this work while marineactivity.com has active delivery items and fleet capacity is saturated. When a slot clears, update only the existing guide page’s title, meta description, opening copy, and one relevant internal-link placement; preserve route, disclosures, analytics, affiliate behavior, and all other pages.",
         "proposal_id": null
       }
     ]
