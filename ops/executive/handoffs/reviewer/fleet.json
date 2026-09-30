@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:09:28.358Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:18:31.107Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the finance contribution-margin proposal, all new production/prototype/site-factory admissions, duplicate queue work, and unsupported revenue, ROI, margin, causal-lift, launch, or security-clearance claims. Amazon revenue is aggregate and unattributed; cost periods and infrastructure allocation are incomplete. Keep SearchWoot private and rights outreach unsent. Delivery remains saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then consider only the already-queued allthingsmasonic.com CTA refinement with click-based measurement and rollback.",
+        "summary": "Reject new production, site-factory, CRO, telemetry, spend, and duplicate queue admissions this cycle. Delivery is saturated at 10/10 slots; revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift are unsupported. Keep existing launch and security gates unchanged, keep SearchWoot private, and leave rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only existing bounded read-only security evidence work and existing measurement/repair lifecycles. Do not create duplicate telemetry requests or new queue items. Preserve private-launch and security-sensitive release gates until dated evidence and owner-approved dispositions exist.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then consider the already-queued allthingsmasonic.com CTA refinement. Do not admit duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, launch, security-clearance, spend, and production claims. Delivery is saturated at 10/10 slots, so no candidate may execute until CTO completes or closes the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z. Route only the three capacity-gated SEO candidates below; keep all other work deferred or blocked. Aggregate commission remains $4.92 and unattributed; site revenue and causal lift are unknown. Keep private launch and security gates unchanged.",
+        "summary": "Revenue remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, forecast, and causal lift are unsupported. Delivery is saturated at 10/10 slots, so three low-risk SEO changes are routed but production execution is capacity-gated. Confirm SearchWoot remains private and rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; otherwise escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

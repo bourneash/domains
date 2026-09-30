@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:09:28.357Z",
+  "generated_at": "2026-09-30T23:18:31.107Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed, not clear. Fleet-doctor has no run or findings; operations has no deploy, uptime, or error sweep results; security sitefacts are unknown for all 61 in-scope sites. Authentication and access boundaries, secrets handling, runtime isolation, release/deploy controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No TLS certificates are reported expiring within 30 days, but complete TLS configuration is not evidenced. Compliance reports 36 pass, 19 fail, and 6 unknown; this is a technical baseline, not certification. No evidence of compromise is present. Risk severity is high for new public exposure or security-sensitive releases, and unknown for ordinary reversible growth. Exact decision: keep private-launch and security-sensitive release gates unchanged; permit the existing allthingsmasonic.com CTA refinement only after capacity release and normal validation, provided it adds no credentials, permissions, dependencies, telemetry, data collection, or cross-site behavior. Continue the existing consolidated read-only security evidence matrix; do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions, deploy, or claim clearance.",
+        "summary": "Fleet security disposition is evidence_needed. Keep new public exposure, go-live, and security-sensitive releases blocked. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication, access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and disclosure readiness remain unknown. Compliance reports 36 pass, 19 fail, and 6 unknown; HTTPS checks do not establish complete TLS control evidence. No compromise, certification, or clean bill of health is claimed. Ordinary reversible growth may continue only if it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: use the existing security-fleet-control-evidence work item; do not create a duplicate. Record dated evidence and explicit unknowns for authentication/access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Reconsider clearance only after evidence is attached and an owner-approved disposition exists.",
+        "summary": "Recommend evidence_needed, with high severity for public launch and security-sensitive releases and medium severity for ordinary reversible growth. Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Security review of the candidate plan: retain containment. The queued allthingsmasonic.com CTA refinement is ordinary reversible growth and may remain capacity-gated, subject to preserved destination/tracking ID, disclosure, keyboard focus, deterministic validation, rollback, and no new credentials, permissions, dependencies, telemetry, or cross-site behavior. Do not clear any launch gate, admit site-factory publication, or expose gated products until the security evidence matrix and required owner dispositions are complete.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and release gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material control evidence remains incomplete. Preserve private launch and security-sensitive release gates while permitting ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
+        "requested_action": "Continue the consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Document authentication and access boundaries, secrets exposure and handling, container or runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration and certificate controls, data exposure and log handling, monitoring and incident signals, and security.txt or disclosure readiness. Keep new public exposure, go-live, and security-sensitive releases blocked until dated evidence and an owner-approved disposition exist. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "proposal_id": null
       }
     ]

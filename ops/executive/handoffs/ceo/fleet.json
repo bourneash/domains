@@ -2,16 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:09:28.357Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:18:31.106Z",
+  "summary": "ceo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment under EXEC_CONV_12 and reject the candidate plan’s new proposal, duplicate work, prototypes, and site-factory admissions. Delivery is saturated at 10/10 slots; 57 improvements are measuring and 21 requests have failed. Keep the existing allthingsmasonic.com CTA request capacity-gated. SearchWoot should remain private because rights, security, accuracy, measurement, and owner gates remain incomplete. Smallest next step: CTO completes or closes the saveusfarms.com repair case by 2026-10-01T09:00Z. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the CRO control-plane proposal, duplicate work items, new site-factory admissions, and new production work while delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Preserve the queued allthingsmasonic.com CTA refinement as the next implementation after capacity clears. Amazon evidence for 2026-09-21 is $4.92 aggregate unattributed commission; site revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the saveusfarms.com repair case by 2026-10-01T09:00Z. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z, recording root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, and measurement limits. Release one slot only after evidence is recorded; do not create duplicate requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f",
+        "summary": "Useful discovery lead, but no prototype or adoption work is justified while delivery is saturated and the approved-execution backlog is unresolved.",
+        "requested_action": "declined",
+        "proposal_id": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "503b3f36-f292-45a3-85c1-de3fa8bd29a5",
+        "summary": "Plausible UX lead, but prototype admission would duplicate current delivery pressure; retain as deferred research only.",
+        "requested_action": "declined",
+        "proposal_id": "503b3f36-f292-45a3-85c1-de3fa8bd29a5"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "bf0f5984-1060-4345-89b8-1cf14b367667",
+        "summary": "No implementation or prototype admission while capacity is full; repository evidence is not conversion or revenue proof.",
+        "requested_action": "declined",
+        "proposal_id": "bf0f5984-1060-4345-89b8-1cf14b367667"
       }
     ]
   }

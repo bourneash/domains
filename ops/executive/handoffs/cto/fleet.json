@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:09:28.357Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:18:31.106Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff: complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then consider the existing allthingsmasonic.com CTA request.",
+        "summary": "Technically approve the existing containment plan. Delivery remains saturated at 10/10 slots, operations and fleet-doctor evidence are unavailable, and security-sensitive releases and new public exposure remain blocked. Do not admit new queue work, prototypes, site-factory builds, telemetry, spend, credentials, or configuration changes this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment only. Reject new fleet-control, AI-cost-control, finance-reconciliation, prototype, site-factory, telemetry, and duplicate queue admissions this cycle. Delivery is saturated at 10/10 slots; existing measurement and repair work must be completed or closed first. Preserve the existing allthingsmasonic.com CTA request as the next implementation only after the existing saveusfarms.com repair-or-close case records root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Use existing telemetry only; revenue, ROI, margin, causal lift, and infrastructure allocation remain unknown.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record root-cause or justified closure evidence, deterministic tests, isolated validation, build results, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; otherwise escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create new implementation or report-only work. Complete or close the existing saveusfarms.com repair-or-close case with the required validation, rollback, release-boundary, attribution, measurement, and deduplication evidence. Release one slot only after that evidence is recorded; then admit at most the already-queued allthingsmasonic.com CTA refinement.",
+        "summary": "Retain only the already-queued allthingsmasonic.com CTA refinement as the next implementation after one slot is released. Its scope is technically bounded and reversible: existing affiliate destinations, CTA hierarchy, disclosure preservation, keyboard focus, contrast, responsive behavior, deterministic validation, and single-diff rollback. Measure only registered affiliate clicks for 14 days or 100 relevant new impressions/clicks; revenue and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO correction: the proposed finance contribution-margin baseline is not admitted as a new proposal because existing read-only telemetry already covers the available revenue and AI-cost fields, while infrastructure and recurring-service costs are unavailable. Do not calculate ROI, margin, cost-to-learn, or site revenue from mismatched periods or aggregate attribution. Any future reconciliation must use an authorized, period-matched cost artifact and must not request duplicate telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Security and launch gates remain unchanged. Keep private or preview-only surfaces gated where rights, security, accuracy, compliance, measurement, or owner evidence is incomplete. No new public exposure, credentials, permissions, dependencies, deployment, spend, external outreach, or cross-site behavior is authorized.",
+        "summary": "Keep all private-launch and security-sensitive release gates unchanged. Existing evidence does not establish authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, or complete TLS controls. No clearance, certification, or production authorization is supported.",
         "requested_action": null,
         "proposal_id": null
       }
