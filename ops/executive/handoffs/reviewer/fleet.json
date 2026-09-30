@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:42:56.694Z",
+  "generated_at": "2026-09-30T14:44:11.285Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: route three bounded web-vitals repairs as slot-gated engineer work only. Delivery is saturated at 10/10; execution must wait for CTO to complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00Z. Analytics is unavailable fleet-wide, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; no ROI, margin, conversion, or causal-lift claims are supported. Preserve security, launch, attribution, and measurement gates.",
+        "summary": "Reviewer disposition: route only rc-9.com’s bounded performance repair to engineer as slot-gated work. Delivery is saturated at 10/10, so execution must wait until CTO completes or closes the existing saveusfarms.com repair and releases one slot by 2026-10-01T09:00Z; unresolved capacity escalates to the owner. Leave americastrikes.com, arttogogh.com, greatamericanlakes.com, shoppinkflamingo.com, blackmarketapparel.com, and the parked-site builds unqueued because existing delivery/measurement or launch-readiness work is active; delivery-lead or site-factory must complete, pause, or consolidate those cases by their existing deadlines, with escalation to the owner. Analytics is unavailable fleet-wide and Amazon evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; revenue, ROI, margin, and causal lift remain unknown. Keep private launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
