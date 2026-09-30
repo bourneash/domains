@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:38:42.173Z",
+  "generated_at": "2026-09-30T22:18:43.474Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disclosure and attribution readiness remain incomplete where evidence is unavailable or compliance checks are unknown. Preserve unknowns, use existing compliance artifacts, and do not request duplicate telemetry. No revenue, conversion, margin, ROI, or causal-lift claim is supported beyond the recorded aggregate provider row.",
+        "summary": "Require every affiliate implementation to validate destination resolution, registered tracking ID, adjacent disclosure visibility, consent/compliance behavior, and rollback before release. Preserve unknown page-level revenue, conversion, and causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:54:05.895Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:18:43.476Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain containment and approve no new spend, monetization expansion, or implementation admissions this cycle. Revenue evidence supports only $4.92 aggregate Amazon commission for 2026-09-21, tied to 6,219 clicks, 28 ordered items, and 6 shipped items; all $4.92 is unattributed to sites, so site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage cost is $997.52 for 2026-09-01 through 2026-09-30 across 5,522 calls, including 234 errors and 5 transient errors. This exceeds the observed aggregate commission by approximately 203x, but the periods and attribution boundaries differ, so it is not an ROI calculation. Preserve the existing allthingsmasonic.com CTA refinement only as a slot-gated, reportable experiment against its 61-click 2026-09-21 baseline; do not claim revenue impact. Infrastructure spend, fixed costs, marketing spend, and direct monetization costs are unavailable, so contribution margin and budget exposure cannot be calculated.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO disposition: do not allocate the $4.92 Amazon aggregate row to any site. Named tracking rows show site clicks but $0 site-attributed commission in the available window; the provider aggregate row cannot support site-level revenue claims. The allthingsmasonic.com CTA work may proceed only after the existing delivery slot is released, with registered affiliate clicks as the sole primary metric and attribution validity as a release guardrail.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CFO measurement boundary: cost-to-learn is not calculable from the brief because AI spend is not linked to individual experiments, requests, roles, or learning outcomes, and infrastructure/direct operating costs are absent. Minimum measurement is a dated ledger mapping provider and infrastructure cost to site, task or experiment ID, plus verified outcome status and attributable revenue. Until that exists, treat AI spend as investment exposure rather than earned revenue or margin evidence.",
+        "summary": "Financial recommendation: reject new CRO prototypes and site-factory admissions this cycle; authorize no new spend. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 implementation requests failed or cancelled. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after the saveusfarms.com repair-or-close case is completed or closed by 2026-10-01T09:00Z. The 2026-09-21 baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission. Amazon reported $4.92 aggregate commission, 28 ordered items, and 6 shipped items for that date, but the commission is unattributed and cannot support site revenue, ROI, margin, or forecast claims. September AI spend is $997.52 across 5,522 calls; aggregate cost per call is approximately $0.18, but cost-to-learn per proposal or experiment is not calculable because AI costs are not linked to work items, experiments, or outcomes. Contribution margin, infrastructure spend, domain/hosting spend, labor cost, marketing exposure, payback, and budget variance are not calculable because those cost ledgers and approved budget limits are absent. Minimum measurement: a dated ledger keyed by site and work item containing AI, infrastructure, domain/hosting, labor, marketing, and other direct costs, plus attributable commission by tracking ID and experiment outcome. Retain only report-only finance reconciliation work; do not move money, change billing, access banking, sign contracts, or make legal or tax claims.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:38:42.173Z",
-  "summary": "site-factory checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:18:43.475Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a three-site preview-only launch pipeline: complicated.work, deadlymaracas.com, and driveford.net. For each, retain a bounded packet covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, owner, rollback, and launch gate. No domain changes, spending, deployment, analytics configuration, monetization, or public launch is authorized.",
+        "summary": "Maintain a three-site preview-only pipeline: complicated.work, deadlymaracas.com, and driveford.net. Each requires a site brief, reusable template, content seed, SEO baseline, analytics and affiliate readiness boundary, compliance checklist, security disposition, accountable owner, rollback point, and launch gate. No domains, spending, deployment, monetization changes, or public launch are authorized. Delivery is saturated at 10/10 slots, so no new implementation admission is requested.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Strongest candidate is complicated.work based on the validated site-factory build score of 84 and existing scaffold. Its build remains blocked until the existing readiness packet contains dated owner assignment, preview/build evidence, content and SEO seed, measurement boundary, compliance baseline, security disposition, rollback point, and explicit blocker evidence. Capacity is saturated, so no implementation request should be admitted.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The repeatable launch gate is: owner confirmed; legal/compliance disposition recorded; security and release evidence recorded; preview/build quality checks pass; SEO metadata, sitemap, and crawlability baseline documented; analytics and affiliate measurement boundaries documented without inventing telemetry; rollback point recorded; then explicit owner approval for launch. Until all gates pass, keep each candidate parked, private, preview-only, and unlaunched.",
+        "summary": "Strongest candidate: complicated.work, based on the validated site-factory build score of 84 and existing scaffold. Exactly one next step: CTO records the dated readiness-gate disposition for complicated.work, including accountable owner, preview/build evidence, content and SEO seed, analytics/affiliate measurement boundary, legal/compliance status, security status, rollback point, and explicit blockers. Do not build, deploy, publish, add domains, spend, or configure telemetry until the readiness artifact is complete and capacity is released.",
         "requested_action": null,
         "proposal_id": null
       }

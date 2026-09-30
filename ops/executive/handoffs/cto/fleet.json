@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:54:05.895Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:18:43.476Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve containment. Delivery is saturated at 10/10 slots, so admit no new implementation, prototype, site-factory, or duplicate queue work. Retain the existing allthingsmasonic.com CTA request as waiting; it may execute only after the existing saveusfarms.com repair-or-close case releases a slot with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 implementation requests failed or cancelled. Do not admit new implementations, prototypes, site-factory builds, duplicate work, telemetry changes, deployments, spend, credentials, domains, or security-sensitive releases this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause or closure rationale, isolated validation, deterministic tests, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after a slot is released may the already-queued allthingsmasonic.com CTA refinement proceed. Keep SearchWoot private and rights outreach unsent pending existing legal, security, accuracy, measurement, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The canonical allthingsmasonic.com change is technically feasible and reversible, but the proposed new work item is rejected as duplicate. Use the already-queued request only. Scope remains limited to CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, destination integrity, build, and smoke validation. Add no routes, dependencies, imagery, telemetry, credentials, or cross-site behavior.",
+        "summary": "Preserve the existing queued allthingsmasonic.com CTA refinement; do not create a duplicate request. Admit it only after one delivery slot is released and the site overlap is resolved. Keep scope limited to CTA hierarchy, existing destinations, adjacent disclosure, keyboard focus, responsive layout, and link/accessibility validation. Require deterministic tests, build/link/smoke/compliance checks, a single-diff rollback point, and measurement using registered affiliate clicks on changed surfaces over 14 days or 100 relevant new clicks. The available baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Measurement is limited to registered affiliate clicks against the available 61-click allthingsmasonic.com baseline. The existing attribution feed is the only approved instrumentation; do not add tracking or infer orders, revenue, ROI, margin, payback, or causal lift. Roll back only the scoped CTA/disclosure/responsive-layout diff if attribution identity, destination integrity, or validation gates fail.",
+        "summary": "Retain the existing preview-only readiness pipeline for complicated.work, deadlymaracas.com, and driveford.net as documentation only. Do not create implementation requests or duplicate readiness work while capacity is saturated. No build, deployment, domain change, analytics configuration, monetization change, spending, or public launch is authorized. Existing readiness artifacts must contain owner, preview/build evidence, content and SEO seed, measurement boundary, compliance status, security status, rollback point, and explicit blocker evidence before any future implementation is considered.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private-launch and security-sensitive release gates unchanged. Fleet-doctor, operations, security-control, and material release evidence remain incomplete; no public exposure, credentials, permissions, dependencies, configuration changes, deployment, or external outreach is cleared.",
+        "summary": "Preserve the 2026-09-21 Amazon result as aggregate unattributed evidence only: $4.92 commission, 28 ordered items, and 6 shipped items. Do not assign it to a site or infer ROI, margin, forecast, payback, or causal lift. Require registered tracking-ID validation, destination resolution, adjacent disclosure, consent/compliance checks, and rollback evidence for any future affiliate change.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing security and launch gates. Fleet-doctor, operations sweeps, runtime isolation, secrets handling, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness remain unevidenced. Permit only bounded read-only evidence work and ordinary reversible changes that introduce no new credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim clearance or certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the CFO report-only finance reconciliation as a single existing artifact if not already completed; do not create duplicate telemetry or implementation work. It may reconcile known Amazon aggregate/site tracking rows, AI usage, queue, improvement, and experiment records and document missing cost linkage. It must not alter billing, tracking, credentials, or production and must preserve unknown contribution margin, cost-to-learn, ROI, and budget exposure.",
         "requested_action": null,
         "proposal_id": null
       }

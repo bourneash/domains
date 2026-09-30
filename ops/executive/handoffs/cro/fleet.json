@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:38:42.174Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:18:43.475Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer new CRO admissions this cycle: delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 requests have failed. Preserve the existing allthingsmasonic.com CTA refinement as the sole next revenue experiment after CTO releases capacity. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Metric: registered affiliate clicks on changed surfaces over 14 days or 100 relevant new clicks. Revenue, ROI, margin, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred product opportunity: disposable MarkItDown prototype for SEO/content operations. Fleet use case: normalize approved local documents into Markdown before editorial drafting or metadata generation. Evidence: MIT license; 194 files; 22 keyword hits; 8/8 bounded lab checks passed; dependency installation and production access were not performed. Risks: dependency and parser security remain unassessed, maintenance and format coverage are unknown, and license fit does not establish source-content rights. Smallest reversible prototype: process a fixed, non-sensitive fixture set in the disposable lab only. Expected metric: normalized-document success rate and reviewer acceptance rate. Time-to-learn: 1 day. Do not queue or deploy until capacity, CTO review, security review, and content-rights checks clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred product opportunity: reusable accessible CTA/card primitives informed by shadcn-ui/ui for future fleet merchandising and editorial surfaces. Fleet use case: consistent keyboard behavior, focus states, responsive hierarchy, and disclosure-safe affiliate entry points. Evidence: MIT license; 3,203 files; 3/3 bounded lab checks passed; no dependency installation or production integration occurred. Risks: dependency supply-chain review, framework/runtime compatibility, bundle impact, and maintenance ownership remain unknown. Smallest reversible prototype: isolated static component fixture with no tracking, credentials, affiliate changes, or deployment. Expected metric: deterministic accessibility/build/link checks pass rate and reviewer acceptance; no conversion lift is claimed. Time-to-learn: 1–2 days. Do not duplicate the queued allthingsmasonic.com work or admit implementation while capacity is full.",
+        "summary": "Retain two CRO-owned product opportunities as engineer-routable specifications only. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Do not admit implementation until CTO releases capacity and the existing saveusfarms.com repair-or-close case is completed or closed. Preserve the allthingsmasonic.com CTA refinement as the sole next revenue experiment. Revenue, ROI, margin, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
