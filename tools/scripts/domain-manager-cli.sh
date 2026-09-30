@@ -114,6 +114,18 @@ run_bootstrap() {
 run_add_full() {
   local domain="$1"
   shift
+  # A previous bootstrap may have pushed the GitHub repo and then failed
+  # before registering the local submodule. Resume that partial setup through
+  # repair instead of asking the queue to repeat an add that must refuse.
+  if gh repo view "bourneash/${domain}" --json nameWithOwner >/dev/null 2>&1 \
+    && [ ! -e "${DOMAINS_ROOT}/sites/${domain}" ]; then
+    local repair_flags=()
+    if printf '%s\n' "$@" | grep -qx -- '--no-email'; then
+      repair_flags+=(--no-email)
+    fi
+    cmd_repair "${domain}" "${repair_flags[@]}"
+    return 0
+  fi
   bash "${SCRIPT_DIR}/add-domain.sh" --full "$@" "${domain}"
 }
 
@@ -466,6 +478,8 @@ cmd_repair() {
   ensure_domain_arg "$@"
   local domain="$1"
   shift
+  local submodule_path="sites/${domain}"
+  local github_repo="bourneash/${domain}"
 
   local plan_only=0
   local allow_email=1
@@ -498,6 +512,9 @@ cmd_repair() {
     fi
 
     local actions=()
+    if [ "${STATUS_GITHUB_REPO_EXISTS}" = "1" ] && [ "${STATUS_LOCAL_PATH_EXISTS}" = "0" ]; then
+      actions+=("checkout")
+    fi
     if [ "${STATUS_SITE_PACKAGE_EXISTS}" = "1" ] && { [ "${STATUS_SITE_NODE_MODULES_EXISTS}" = "0" ] || [ "${STATUS_SITE_ASTRO_BIN_EXISTS}" = "0" ]; }; then
       actions+=("install")
     fi
@@ -526,6 +543,7 @@ cmd_repair() {
     local action
     for action in "${actions[@]}"; do
       case "${action}" in
+        checkout) echo " - restore the GitHub repository as a local submodule" ;;
         install) echo " - install site dependencies" ;;
         email) echo " - configure email routing" ;;
         deploy) echo " - deploy worker" ;;
@@ -541,6 +559,13 @@ cmd_repair() {
     action="${actions[0]}"
     printf '%s--- Running repair step:%s %s\n' "${COLOR_BOLD}" "${COLOR_RESET}" "${action}"
     case "${action}" in
+      checkout)
+        if [ "${STATUS_SUBMODULE_TRACKED}" = "1" ]; then
+          git submodule update --init -- "${submodule_path}"
+        else
+          git submodule add "git@github-bourneash:${github_repo}.git" "${submodule_path}"
+        fi
+        ;;
       install) run_site_install "${domain}" ;;
       email) run_email "${domain}" ;;
       deploy) run_deploy "${domain}" ;;
