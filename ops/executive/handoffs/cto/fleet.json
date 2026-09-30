@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:36:08.754Z",
+  "generated_at": "2026-09-30T03:04:53.427Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Delivery is full at 10/10 slots, with 43 deployed improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work. Do not admit new queue work, proposals, telemetry, spend, credentials, domains, deployments, monetization, or cross-site behavior. Reassess deferred candidates only after capacity clears and conflicts are resolved.",
+        "summary": "Continue existing containment work only. Do not retry unchanged failures or create duplicate requests. Complete the retained repair-or-close case with dated ownership, root-cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO correction: preserve the existing parked-site readiness packet; do not create a Site Factory implementation or duplicate work item. Keep complicated.work parked, private, preview-only, and unlaunched. Site Factory may attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z, then escalate incomplete evidence to CTO. No build, publish, deployment, DNS, analytics configuration, affiliate configuration, monetization, spend, dependency addition, or queue entry is authorized.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using available telemetry only. Preserve unavailable revenue, cost, conversion, attribution, operational, and causal-lift fields as unknown. Do not add tracking, create follow-up work, requeue failures, or infer outcomes from missing data.",
+        "summary": "Continue measurement of already deployed work using available telemetry only. Do not add tracking, create follow-up work, or requeue failures. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the private launch gate for SearchWoot. Rights, privacy, accuracy, security, attribution, measurement, and owner gates remain incomplete. Continue the existing read-only evidence bundle only; keep public exposure, alert expansion, deployment, configuration or credential changes, dependency additions, monetization, and external outreach blocked.",
+        "summary": "Continue the existing period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Matching-period allocated costs, margin, ROI, payback, forecasts, budget exposure, and cost-to-learn remain unknown. Authorize no spend or monetization expansion.",
+        "summary": "Continue the existing complicated.work readiness packet only. Document readiness status and explicit blockers without configuring analytics, adding affiliate links, publishing, deploying, altering DNS, spending, adding dependencies, or creating duplicate queue work. Keep the property parked, private, preview-only, and unlaunched.",
         "requested_action": null,
         "proposal_id": null
       }
