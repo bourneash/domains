@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:27:51.160Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:48:43.361Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the already-queued allthingsmasonic.com CTA refinement as the next revenue experiment after capacity release; create no duplicate request. Evidence baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Smallest reversible prototype: one-surface CTA hierarchy and adjacent disclosure refinement with unchanged destinations, no new tracking, routes, dependencies, credentials, permissions, or cross-site behavior. Metric: affiliate clicks plus destination integrity and accessibility acceptance; revenue and causal lift remain unknown. Time-to-learn: 14 days or 100 relevant new impressions/clicks. Require deterministic tests, build, link validation, smoke, keyboard/focus/contrast/tap-target checks, and single-diff rollback. Delivery remains capacity-gated at 10/10 slots.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "After the existing saveusfarms.com repair-or-close case is completed or justifiably closed with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, admit only the existing allthingsmasonic.com CTA refinement. Do not create duplicate work. Acceptance: unchanged affiliate destinations, adjacent disclosure, responsive layout, visible keyboard focus, sufficient contrast and tap targets, no overflow or content loss, deterministic tests, build, links, smoke, and rollback evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not adopt or prototype new GitHub capabilities this cycle. Evidence supports only deferred research: microsoft/markitdown is MIT-licensed, passed 8/8 bounded lab checks, and could support disposable owned-document-to-Markdown content discovery; shadcn-ui/ui is MIT-licensed and passed 3/3 checks for reusable accessible UI; mermaid-js/mermaid is MIT-licensed with supported SEO-content fit but no native checks. Risks remain fleet-specific security, dependency provenance, maintenance, integration, and measurable revenue impact; no dependencies were installed. Smallest future prototypes would be isolated fixture-based transformations or components, with success measured by content-production time, accessibility/build checks, and search or conversion outcomes. Time-to-learn is one bounded lab cycle per candidate. No queue admission or owner approval request is created.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Create no new CRO proposals, experiments, site-factory admissions, telemetry requests, or control-plane implementations this cycle. Existing records cover scheduler, measurement, AI-cost, retry, and admission concerns; delivery is saturated and active improvements await measurement. Preserve unknowns: Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21, while site revenue, ROI, margin, and causal lift remain unsupported. Keep launch and security-sensitive release gates unchanged.",
+        "summary": "CRO review: retain containment this cycle. Delivery is saturated at 10/10 slots, so create no new proposals, change requests, research requests, telemetry, spend, deployments, credentials, or domain work. After the existing saveusfarms.com repair-or-close case releases one slot, execute only the canonical allthingsmasonic.com CTA refinement against the recorded 61-click baseline; measure registered affiliate clicks for 14 days or 100 relevant impressions/clicks, with deterministic accessibility, disclosure, link, build, smoke, and rollback checks. Revenue and causal lift remain unknown.\n\nDeferred revenue experiments: (1) allthingsmasonic.com CTA hierarchy and disclosure-preserving merchandising refinement; (2) one-at-a-time SEO tests for marineactivity.com AIS codes, greatamericanlakes.com Erie muskie, or xxxtea.com gallery, using existing GSC baselines, indexability/canonical/link validation, a 14-day or 100-relevant-impression window, and single-diff rollback; (3) affiliate attribution hygiene requiring registered tracking IDs before any ROI claim. Do not duplicate existing routed work.\n\nDeferred product opportunities: MarkItDown (MIT; lab evidence supported) could normalize approved source documents into Markdown for a disposable content-discovery prototype. Expected metric: editor processing time or validated internal-link/content-brief quality; time-to-learn: one isolated prototype; smallest reversible prototype: convert a fixed, non-production fixture set and compare output manually. Risks: dependency and parser maintenance, malformed or adversarial documents, provenance/copyright handling, and no demonstrated conversion impact. shadcn/ui (MIT; bounded checks passed) could provide accessible reusable CTA/card primitives. Expected metric: component test coverage, accessibility defects, and implementation cycle time; time-to-learn: one preview-only component; smallest prototype: reproduce the allthingsmasonic CTA surface without adding dependencies to production. Risks: framework/build compatibility, dependency supply chain, styling drift, and no proven revenue lift. Mermaid (MIT; lab fit supported, no native checks) could generate editorial diagrams for selected guides. Expected metric: qualified organic clicks or engaged sessions on one instrumented page; time-to-learn: one static preview; smallest prototype: render one hand-authored diagram from a fixed fixture with no runtime generation. Risks: client-side payload/performance, untrusted diagram input, accessibility quality, maintenance, and unclear SEO lift. These remain research specifications only until capacity, CTO/security review, and measurement readiness are available.",
         "requested_action": null,
         "proposal_id": null
       }

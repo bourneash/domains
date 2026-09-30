@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:37:57.278Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:48:43.362Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed, not clear. Risk is high for new public exposure or security-sensitive releases and unknown for ordinary reversible growth. Evidence: fleet-doctor has no run or findings; operations has no deploy, uptime, or error sweep results; security sitefacts are unknown for all 61 in-scope sites; authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No compromise evidence is present. TLS has no certificates reported expiring within 30 days, but complete TLS configuration is not evidenced. Compliance reports 36 pass, 19 fail, and 6 unknown and is not certification. Exact decision: keep private-launch and security-sensitive release gates unchanged; permit only existing ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior and preserves disclosure, consent, destination, tracking-ID, validation, and rollback boundaries. Continue the existing security evidence matrix; do not create duplicate telemetry or work, access credentials or private containers, exploit targets, modify permissions/configuration, deploy, or claim certification.",
+        "summary": "Security disposition: evidence_needed. Recommend blocking new public exposure, go-live, and security-sensitive releases; no clean bill of health or certification is supported. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, complete TLS controls, data exposure, monitoring, incident readiness, and disclosure readiness remain unknown. Compliance reports 36 pass, 19 fail, and 6 unknown; HTTPS checks alone do not establish complete TLS control evidence. SearchWoot remains private pending completion of its existing legal, security, accuracy, measurement, and owner gates. Ordinary reversible growth may continue only when it adds no credentials, permissions, dependencies, data collection, cross-site behavior, or new public exposure.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing security-fleet-control-evidence work item. Attach one dated read-only evidence bundle covering authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Record explicit unknowns, affected scope, owners, severity, and release implications. Reconsider clearance only after dated evidence and an owner-approved disposition exist; do not create duplicate work or mutate production.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing capacity-gated allthingsmasonic.com CTA refinement as conditional ordinary reversible growth only. Before execution, preserve the registered destination and tracking ID allthingsmasonic-20, adjacent disclosure, keyboard focus, responsive behavior, and single-diff rollback; add no credentials, permissions, dependencies, telemetry, or cross-site behavior. This is not a security-sensitive release or public-launch clearance.",
+        "summary": "Retain the existing read-only security evidence matrix; do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or conduct external outreach. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for authentication, access boundaries, secrets, isolation, release and deployment controls, dependency and supply-chain risk, TLS, data exposure, monitoring, incident response, and security.txt or disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       }

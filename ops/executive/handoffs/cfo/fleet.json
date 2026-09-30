@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:37:57.277Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:48:43.362Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing attribution boundary: keep the $4.92 Amazon aggregate row unassigned and do not convert named tracking-row clicks into revenue. For future reporting, require each new affiliate link to use its registered tracking ID and reconcile clicks, ordered items, shipped items, commission, site/content identifier, and reporting period before publishing financial claims. Do not request duplicate telemetry or create new queue work.",
+        "summary": "CFO recommendation: maintain containment and approve no incremental AI, infrastructure, marketing, or launch spend this cycle. The fleet has $1,002.46 of AI cost for 2026-09-01 through 2026-09-30 across 5,531 calls, versus only $4.92 of Amazon commission reported for 2026-09-21; these windows do not support a margin calculation, but the economics are plainly unproven. Delivery is saturated at 10/10 slots, so do not admit new finance or implementation work until the existing capacity gate clears.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue claims must remain limited to the evidence: Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21. All $4.92 is in the aggregate tracking row 'other'; named site rows total $0 commission. Therefore site revenue, contribution margin, ROI, forecast revenue, and causal lift are unsupported. Do not use sessions, impressions, clicks, conversions, ordered items, or opportunity scores as revenue proxies.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Finance measurement disposition: cost-to-learn is not calculable because AI cost is available by site but not joined to experiment/change exposure, incremental outcomes, or attributable revenue; infrastructure spend is absent because operations/deploy sweeps have no results. Minimum measurement needed before ROI or margin claims: a dated site/change cost ledger joining AI spend, infrastructure cost, exposure, baseline/control outcome, affiliate clicks, ordered and shipped items, commission, and implementation status. Until that exists, retain AI-cost guardrails as a deferred specification and report AI cost separately from revenue.",
         "requested_action": null,
         "proposal_id": null
       }
