@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:53:24.173Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:09:55.580Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, prototype, telemetry, spend, credential, configuration, schedule, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots; revenue evidence supports only $4.92 aggregate unattributed Amazon commission for 2026-09-21, so site revenue, ROI, margin, payback, and causal-lift claims remain unsupported. Preserve existing security evidence and private launch gates. The smallest actionable step is for CTO to complete or close the existing saveusfarms.com repair-or-close case with root cause, deterministic tests, build validation, rollback point, and release boundary by 2026-10-01T09:00Z, then release one slot. Keep the allthingsmasonic.com CTA refinement queued and slot-gated; measure registered affiliate clicks only.",
+        "summary": "Reject all new queue work, prototypes, duplicate evidence requests, spending, credential/configuration changes, and public-launch changes. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root cause or closure rationale, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after one slot is released may the existing allthingsmasonic.com CTA refinement proceed. Measure affiliate clicks only; do not claim revenue, ROI, margin, or causal lift. Keep existing private security and launch gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed security report as duplicate work; continue the existing security control evidence matrix and launch-gate work. Do not request duplicate telemetry or clear public-exposure and security-sensitive release gates without dated evidence and owner-approved Security review.",
+        "summary": "Material evidence remains incomplete: Amazon reports $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, and causal lift are unsupported; security and operations sweeps are unavailable; and delivery capacity is full. Confirm that private launch and security-sensitive release gates remain unchanged and that rights outreach remains unsent pending counsel and required evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation can be safely routed this cycle. All 10 delivery slots are occupied; candidate sites are blocked by active work, parked/private launch gates, missing ownership, or missing security and measurement evidence. Preserve the existing allthingsmasonic.com CTA request as slot-gated. CTO must complete or close saveusfarms.com with root cause, deterministic tests, build validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue claims remain unsupported: the available Amazon result is $4.92 aggregate unattributed commission for 2026-09-21, with no site-attributed commission, margin, ROI, or causal-lift evidence. Measure only registered affiliate clicks for the preserved CTA refinement.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, spend, credential, configuration, unsafe, launch, and duplicate-work claims. Delivery remains saturated at 10/10 slots, so no candidate may execute yet. Preserve three bounded engineer candidates across distinct sites as capacity-gated: marineactivity.com SEO improvement, greatamericanlakes.com SEO improvement, and xxxtea.com cannibalization repair. CTO must release one slot after completing or closing the existing saveusfarms.com repair-or-close case with dated root cause or closure evidence, validation, tests, rollback, and release boundary by 2026-10-01T09:00Z. Escalate unresolved capacity to the owner by that deadline. Keep private launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

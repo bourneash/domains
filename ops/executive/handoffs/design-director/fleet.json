@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:24:08.143Z",
+  "generated_at": "2026-09-30T19:09:55.579Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the existing allthingsmasonic.com implementation request as the sole next design action after one delivery slot clears. Exact scope: commercial-card hierarchy, primary CTA clarity, existing affiliate destinations and registered tracking, disclosure placement, accessible link names, visible keyboard focus, mobile spacing, and responsive layout. Do not add dependencies, tracking, data collection, imagery, or new routes. Preview acceptance: existing homepage and highest-intent merchandising surfaces show clearer card titles, product context, disclosure proximity, and one visually dominant CTA without changing destination behavior. Tests: deterministic site tests, production build, link/destination validation, disclosure-presence check, keyboard navigation/focus check, responsive checks at mobile and desktop widths, and visual diff review. Metric: record the existing 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission; measure affiliate clicks and available site-level outcomes for 14 days or 100 relevant new impressions/clicks. No conversion, revenue, ROI, or causal-lift claim is permitted before measurement. Rollback: revert only this single change set and restore the prior card, CTA, disclosure, and spacing styles/content if any validation fails or the measured result is inconclusive/regresses. Do not create duplicate work while capacity is 10/10; first complete or close the existing saveusfarms.com repair-or-close case with root cause, validation, build, rollback, and release-boundary evidence.",
+        "summary": "Do not admit new design work while delivery is saturated at 10/10 slots. After the existing saveusfarms.com repair-or-close case releases one slot, execute the already-queued allthingsmasonic.com improvement on one recorded commercial URL. Scope: clarify the primary affiliate CTA, preserve disclosure placement, improve keyboard/focus behavior and responsive spacing, validate destination/link integrity, and retain existing affiliate behavior. Measure affiliate clicks only; do not claim revenue or causal lift. Roll back the single diff if tests, disclosure, accessibility, or link checks fail.",
         "requested_action": null,
         "proposal_id": null
       }

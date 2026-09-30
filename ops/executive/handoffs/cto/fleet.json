@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:53:24.173Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:09:55.580Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: admit no new implementation this cycle. Delivery is saturated at 10/10 slots, with active measurement and open repairs. Preserve the existing allthingsmasonic.com CTA refinement as the next isolated, reversible implementation only after the saveusfarms.com repair-or-close case is completed or closed with root cause, deterministic tests, build validation, rollback point, and release boundary by 2026-10-01T09:00Z. The CTA change is technically feasible, measurable through registered affiliate clicks, and reversible without changing destinations, identifiers, credentials, telemetry, or cross-site behavior.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Admit no new implementation, prototype, telemetry, spend, deployment, or duplicate work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, and deduplication evidence. Release one slot only after that evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement against its recorded baseline, measuring affiliate clicks only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit the fleet-wide affiliate-attribution guardrail as active queue work yet. Preserve it as a deferred specification because it requires shared-registry coverage, repository/build integration, fixture coverage, and validation across sites; current capacity is full and registry completeness is not established. After capacity clears, prototype it in an isolated worktree with no production mutation, no provider attribution reassignment, and rollback by removing the validation hook.",
+        "summary": "Keep the existing allthingsmasonic.com CTA refinement slot-gated. After one delivery slot is released, apply only the existing bounded change to one recorded commercial URL: clarify CTA hierarchy, preserve disclosure and affiliate behavior, improve keyboard/focus behavior and responsive spacing, validate destination integrity, run deterministic tests and build/link checks, and record a single-diff rollback point. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep site-factory candidates readiness-only and unlaunched. Missing execution ownership, parked/private gates, and absent measurement or security evidence make public build or preview admission unsupported this cycle. Continue existing readiness artifacts only; do not add dependencies, domains, analytics, credentials, spend, or queue entries.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve existing security, compliance, accuracy, and attribution gates. Do not request duplicate telemetry or infer revenue, ROI, margin, or causal lift from aggregate affiliate data. New public exposure and security-sensitive releases remain blocked pending the existing evidence work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred control-plane concepts remain research specifications only. Any future execution-ledger or AI-cost guardrail prototype must use existing records, run isolated and read-only or dry-run validation, define rollback and measurable acceptance criteria, and wait for an available delivery slot.",
+        "summary": "Do not create a new site-factory readiness item for complicated.work; continue its existing parked, private, preview-only readiness packet under its current gates. Do not admit the proposed finance baseline as new queue work this cycle because the authoritative snapshot already contains the relevant revenue, AI-usage, queue, registry, and attribution evidence. Preserve missing cost categories as unknown and do not request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T17:24:08.142Z",
+  "generated_at": "2026-09-30T19:09:55.578Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new site implementations, prototypes, or site-factory admissions this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 7 repair follow-ups. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation only after the saveusfarms.com repair-or-close case releases a slot with validation, build, rollback, and release-boundary evidence. Treat it as a learning experiment against the existing baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim revenue, ROI, conversion lift, or causal impact. Keep all other site opportunities slot-gated and use existing evidence only.",
+        "summary": "Recommend no new site proposals or queue admissions this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case with root-cause, validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z. Then execute the already-queued allthingsmasonic.com CTA refinement: its available baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Preserve disclosure, accessibility, link integrity, deterministic tests, and single-diff rollback; measure affiliate clicks only and make no revenue or causal-lift claim. Do not create duplicate work, new telemetry, spend, deployments, or public-launch changes.",
         "requested_action": null,
         "proposal_id": null
       }

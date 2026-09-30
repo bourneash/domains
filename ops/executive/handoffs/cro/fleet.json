@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T18:53:24.172Z",
+  "generated_at": "2026-09-30T19:09:55.579Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain two deferred product opportunities for CEO/CTO review after capacity clears: an execution-ledger integrity layer and AI-usage guardrails. Both begin as read-only or dry-run prototypes using existing records, require no deployment, spend, credentials, domains, or new telemetry, and must remain outside the active queue until a delivery slot is released.",
+        "summary": "Preserve the already-queued allthingsmasonic.com CTA refinement; do not create duplicate work. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. After CTO releases one delivery slot, test one recorded commercial URL with clearer CTA hierarchy, preserved disclosure, keyboard/focus behavior, responsive spacing, and destination validation. Primary metric: affiliate clicks. Time-to-learn: 14 days or 100 relevant impressions/clicks, whichever comes first. Do not infer revenue, ROI, or causal lift. Roll back the single diff if tests, accessibility, disclosure, or link checks fail.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "GitHub evidence supports research leads only. microsoft/markitdown has MIT licensing, 8/8 bounded checks passed, and a supported SEO/content fit; shadcn-ui/ui has MIT licensing and 3/3 bounded checks passed for reusable accessible UX. No adoption is recommended without a disposable fleet-specific prototype, dependency/security review, and measurable acceptance criteria.",
+        "summary": "AI usage totals $997.52 for September with 234 errors; 0daynews.com and americastrikes.com account for $152.69 and $109.91 respectively, while measured fleet revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21. Do not change models or schedules this cycle. CEO/CTO should preserve a deferred guardrail specification requiring cancellation or escalation for duplicate, repeatedly failing, or stale work before new growth admissions. The opportunity is margin protection, not proven revenue lift.",
         "requested_action": null,
         "proposal_id": null
       }
