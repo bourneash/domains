@@ -7,6 +7,7 @@ name: seo-analyst
 source: sites/wetpages.com/ops/roles/seo-analyst.md
 schedule: "0 6 * * 3"            # Wednesday 6am — mid-week diagnostic cadence
 model: claude-sonnet-4-6
+max_turns: 20                 # turn 20 is reserved for the mandatory report commit
 owns_task_types: [seo]
 produces_task_types: [content, refresh, engineering]
 worker_deps: []

@@ -18,6 +18,11 @@ committed partial result is a success; running to the turn cap with nothing comm
 failure (all work is lost). Never re-read a file you've already read. Never retry a git
 command more than once.
 
+**Turn-budget checkpoint:** by turn 12, stop exploratory research and switch to the report and
+task files. Commit the minimum complete findings before doing optional audit or prose polishing.
+If you reach turn 18, commit immediately with the best available evidence; never spend the
+final turns gathering more context.
+
 **Batch your tool calls.** Every ls/grep/wc/read that doesn't depend on a prior result's
 output goes in the SAME message as other independent calls — multiple tool_use blocks in
 one turn, not one call per turn with narration in between. Saying "checking X and Y in

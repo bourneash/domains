@@ -101,6 +101,7 @@ this procedure consumes. Read these fields and hold them for the steps below:
 |---|---|---|
 | `schedule` | Step 7 | cron expression (5-field) for `crontab.docker` |
 | `model` | Step 6 | model id passed as `--model`, or `none` (role picks its own / is bash-driven) |
+| `max_turns` | Step 6/10 | hard upper bound for the role's Claude call; the launcher must not use a lower value |
 | `owns_task_types` | Step 12 | task `type:`/`assigned_role:` values this role picks up |
 | `produces_task_types` | Step 10 | task types this role enqueues for siblings |
 | `worker_deps` | Step 8 | extra Dockerfile.worker system/npm deps (may be empty) |

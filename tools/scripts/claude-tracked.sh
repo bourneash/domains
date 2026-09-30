@@ -178,6 +178,41 @@ for ((i = 0; i < ${#ARGS[@]}; i++)); do
   esac
 done
 
+# ---- SEO analyst turn-budget guard (2026-09-30) ----
+# SEO role contracts reserve turn 20 for writing and committing a partial
+# report. A few older stamped launchers still passed --max-turns 15, which
+# truncated a valid run immediately before its commit. Enforce the contract
+# centrally so a stale site launcher cannot reintroduce that failure.
+if [[ "$CRON_ROLE" == "seo-analyst" ]]; then
+  if [[ "$requested_max_turns" =~ ^[0-9]+$ && "$requested_max_turns" -lt 20 ]]; then
+    echo "claude-tracked.sh: raising SEO analyst turn cap from $requested_max_turns to 20 (stale launcher guard)" >&2
+    for ((i = 0; i < ${#ARGS[@]}; i++)); do
+      case "${ARGS[$i]}" in
+        --max-turns)
+          if (( i + 1 < ${#ARGS[@]} )); then
+            ARGS[$((i + 1))]=20
+          fi
+          ;;
+        --max-turns=*)
+          ARGS[$i]=--max-turns=20
+          ;;
+      esac
+    done
+    requested_max_turns=20
+  elif [[ -z "$requested_max_turns" ]]; then
+    echo "claude-tracked.sh: adding SEO analyst turn cap 20 (launcher omitted a cap)" >&2
+    ARGS+=(--max-turns 20)
+    requested_max_turns=20
+  fi
+fi
+
+# The installed SEO prompts all contain the hard stop, but older stamped
+# prompts do not contain the earlier checkpoint. Append it at the shared
+# choke point so every site gets the same budget discipline immediately.
+if [[ "$CRON_ROLE" == "seo-analyst" && -n "${ARGS[0]:-}" ]]; then
+  ARGS[0]+=$'\n\nTURN-BUDGET CHECKPOINT: by turn 12, stop exploratory research and switch to the report and task files. Commit the minimum complete findings before doing any optional audit or prose polishing. If you reach turn 18, commit immediately with the best available evidence; never spend the final turns gathering more context.'
+fi
+
 # ── never let a role fall through to the CLI's default model ────────────────
 # A role that passes no --model gets whatever `claude -p` defaults to. On this
 # host that is settings.json's "model": "sonnet" — an ALIAS, not a version. It
@@ -324,7 +359,9 @@ if not data.get("is_error"):
     raise SystemExit
 
 message = str(data.get("result") or "")
-if re.search(r"out of (?:extra )?usage|usage limit|limit reached.*resets|resets .*(?:am|pm)", message, re.I):
+if data.get("subtype") == "error_max_turns":
+    print("error_max_turns")
+elif re.search(r"out of (?:extra )?usage|usage limit|limit reached.*resets|resets .*(?:am|pm)", message, re.I):
     print("account_usage_exhausted")
 elif (
     re.search(r"not logged in|please run /login|failed to authenticate|authentication_error", message, re.I)
@@ -382,6 +419,8 @@ CLAUDE_AUTH_LOCK_WAIT="${CLAUDE_AUTH_LOCK_WAIT:-600}"    # seconds to queue behi
 CLAUDE_AUTH_WINDOW="${CLAUDE_AUTH_WINDOW:-12}"           # seconds to hold past process start
 
 CLAUDE_RESUME_SESSION_ID=""
+CLAUDE_RESUME_TURNS=""
+export CLAUDE_RESUME_KIND="same_session_resume"
 
 run_claude_locked() {
   local lockfd="" pid rc=0 waited=0
@@ -424,14 +463,29 @@ run_claude_locked() {
   # the script the moment a failing call returned -- losing the ledger row for
   # exactly the failures the ledger exists to record.
   if [[ -n "$CLAUDE_RESUME_SESSION_ID" ]]; then
+    local -a resume_args=("${ARGS[@]:1}")
+    if [[ -n "$CLAUDE_RESUME_TURNS" ]]; then
+      for ((i = 0; i < ${#resume_args[@]}; i++)); do
+        case "${resume_args[$i]}" in
+          --max-turns)
+            if (( i + 1 < ${#resume_args[@]} )); then
+              resume_args[$((i + 1))]="$CLAUDE_RESUME_TURNS"
+            fi
+            ;;
+          --max-turns=*)
+            resume_args[$i]="--max-turns=$CLAUDE_RESUME_TURNS"
+            ;;
+        esac
+      done
+    fi
     # ARGS[0] is the original prompt. Resume the persisted conversation rather
     # than starting that prompt from scratch: a mid-session disconnect may have
     # already performed writes or external actions, so a fresh replay could
     # duplicate side effects. The same session retains its transcript and tool
     # history and can inspect the workspace before continuing.
-    claude -p "${ARGS[@]:1}" \
+    claude -p "${resume_args[@]}" \
       --resume "$CLAUDE_RESUME_SESSION_ID" \
-      "The API connection closed unexpectedly. Continue the assigned task from where the session stopped. Inspect current state before taking further action, do not repeat completed side effects, and finish the original request." \
+      "${CLAUDE_RESUME_MESSAGE:-The API connection closed unexpectedly. Continue the assigned task from where the session stopped. Inspect current state before taking further action, do not repeat completed side effects, and finish the original request.}" \
       --output-format json > "$TMP_JSON" &
   else
     claude -p "${ARGS[@]}" --output-format json > "$TMP_JSON" &
@@ -510,6 +564,9 @@ PYEOF
       # overwrites TMP_JSON. The ledger combines its cost/tokens with the
       # resumed result so transport recovery never makes usage disappear.
       cp "$TMP_JSON" "$PRIOR_ATTEMPT_JSON"
+      CLAUDE_RESUME_KIND="same_session_resume"
+      CLAUDE_RESUME_TURNS=""
+      CLAUDE_RESUME_MESSAGE="The API connection closed unexpectedly. Continue the assigned task from where the session stopped. Inspect current state before taking further action, do not repeat completed side effects, and finish the original request."
       sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
       set +e
       run_claude_locked
@@ -518,6 +575,33 @@ PYEOF
       FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
     else
       echo "claude-tracked.sh: socket_disconnected has no session_id — refusing a fresh replay that could duplicate side effects (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
+    fi
+  elif [[ "$FAILURE_CLASS" == "error_max_turns" && "$CRON_ROLE" == "seo-analyst" && "${CLAUDE_RESUME_ON_MAX_TURNS:-1}" == "1" ]]; then
+    CLAUDE_RESUME_SESSION_ID="$(python3 - "$TMP_JSON" <<'PYEOF'
+import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        print(json.load(fh).get("session_id") or "")
+except Exception:
+    print("")
+PYEOF
+)"
+    if [[ -n "$CLAUDE_RESUME_SESSION_ID" ]]; then
+      RESUME_TURNS="${CLAUDE_RESUME_MAX_TURNS:-5}"
+      [[ "$RESUME_TURNS" =~ ^[1-9][0-9]*$ ]] || RESUME_TURNS=5
+      echo "claude-tracked.sh: error_max_turns (exit=$STATUS) — resuming SEO session once with $RESUME_TURNS additional turns (CRON_SITE=$CRON_SITE session=$CLAUDE_RESUME_SESSION_ID)" >&2
+      cp "$TMP_JSON" "$PRIOR_ATTEMPT_JSON"
+      CLAUDE_RESUME_KIND="same_session_max_turns_resume"
+      CLAUDE_RESUME_TURNS="$RESUME_TURNS"
+      CLAUDE_RESUME_MESSAGE="The previous pass reached its turn cap. Resume the same session, inspect the current workspace, do not repeat completed side effects, and immediately finish by writing and committing the best available SEO report and task files."
+      sleep "${CLAUDE_TRACKED_RETRY_DELAY_SECONDS:-3}"
+      set +e
+      run_claude_locked
+      STATUS=$?
+      set -e
+      FAILURE_CLASS="$(classify_claude_result "$TMP_JSON")"
+    else
+      echo "claude-tracked.sh: error_max_turns has no session_id — refusing a fresh replay (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
     fi
   elif [[ "$FAILURE_CLASS" == "zero_cost_failure" || "$FAILURE_CLASS" == "parse_error" ]]; then
     echo "claude-tracked.sh: $FAILURE_CLASS (exit=$STATUS) — retrying once (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
@@ -836,7 +920,7 @@ else:
 if prior is not None:
     prior_usage = prior.get("usage", {}) or {}
     record["retry"] = {
-        "kind": "same_session_resume",
+        "kind": os.environ.get("CLAUDE_RESUME_KIND", "same_session_resume"),
         "prior_subtype": prior.get("subtype"),
         "prior_error_message": " ".join(str(prior.get("result") or "").split())[:500] or None,
         "prior_num_turns": prior.get("num_turns"),

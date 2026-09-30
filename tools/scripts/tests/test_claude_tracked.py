@@ -18,6 +18,8 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
         payload: dict,
         retry_payload: dict | None = None,
         requested_model: str = "claude-sonnet-4-6",
+        role: str = "writer",
+        max_turns: str = "2",
     ):
         with tempfile.TemporaryDirectory() as td:
             temp = Path(td)
@@ -53,7 +55,7 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                 {
                     "PATH": f"{fake_bin}:{env['PATH']}",
                     "CRON_SITE": "example.com",
-                    "CRON_ROLE": "writer",
+                    "CRON_ROLE": role,
                     "REPO_ROOT": str(temp),
                     "FAKE_CLAUDE_CALLS": str(calls),
                     "FAKE_CLAUDE_PAYLOAD": json.dumps(payload),
@@ -66,7 +68,7 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
                 }
             )
             result = subprocess.run(
-                [str(WRAPPER), "test prompt", "--max-turns", "2", "--model", requested_model],
+                [str(WRAPPER), "test prompt", "--max-turns", max_turns, "--model", requested_model],
                 text=True,
                 capture_output=True,
                 env=env,
@@ -238,6 +240,91 @@ class ClaudeTrackedFailureTests(unittest.TestCase):
         self.assertEqual(record["output_tokens"], 2329)
         self.assertEqual(record["retry"]["kind"], "same_session_resume")
         self.assertEqual(record["retry"]["prior_num_turns"], 10)
+
+    def test_seo_max_turns_resumes_same_session_once_with_bounded_budget(self):
+        session_id = "seo-max-turns-session"
+        result, calls, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "error_max_turns",
+                "is_error": True,
+                "result": "turn limit reached",
+                "num_turns": 21,
+                "session_id": session_id,
+                "total_cost_usd": 0.26,
+                "usage": {"output_tokens": 1929},
+                "modelUsage": {},
+            },
+            retry_payload={
+                "type": "result",
+                "subtype": "success",
+                "is_error": False,
+                "result": "Committed partial SEO report",
+                "num_turns": 4,
+                "session_id": session_id,
+                "total_cost_usd": 0.05,
+                "usage": {"output_tokens": 400},
+                "modelUsage": {},
+            },
+            role="seo-analyst",
+            max_turns="15",
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(calls, "xx")
+        self.assertEqual(result.stdout, "Committed partial SEO report")
+        self.assertIn("resuming SEO session once with 5 additional turns", result.stderr)
+        self.assertEqual(record["retry"]["kind"], "same_session_max_turns_resume")
+        self.assertEqual(record["retry"]["prior_num_turns"], 21)
+        self.assertEqual(record["requested_max_turns"], 20)
+
+    def test_seo_launcher_cap_and_prompt_checkpoint_are_guarded_centrally(self):
+        result, _, record = self.run_wrapper(
+            {
+                "type": "result",
+                "subtype": "success",
+                "is_error": False,
+                "result": "completed",
+                "num_turns": 2,
+                "total_cost_usd": 0.04,
+                "usage": {},
+                "modelUsage": {},
+            },
+            role="seo-analyst",
+            max_turns="15",
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("raising SEO analyst turn cap from 15 to 20", result.stderr)
+        self.assertIn("TURN-BUDGET CHECKPOINT", WRAPPER.read_text(encoding="utf-8"))
+        self.assertEqual(record["requested_max_turns"], 20)
+
+    def test_seo_launcher_without_cap_gets_safe_default(self):
+        with tempfile.TemporaryDirectory() as td:
+            temp = Path(td)
+            fake_bin = temp / "bin"
+            fake_bin.mkdir()
+            (temp / "ops" / "logs").mkdir(parents=True)
+            fake_claude = fake_bin / "claude"
+            fake_claude.write_text(
+                '#!/bin/sh\nprintf \'{"type":"result","subtype":"success","is_error":false,"result":"ok","num_turns":1,"total_cost_usd":0.01,"usage":{},"modelUsage":{}}\\n\' "$*"\n'
+            )
+            fake_claude.chmod(0o755)
+            fake_curl = fake_bin / "curl"
+            fake_curl.write_text("#!/bin/sh\nexit 0\n")
+            fake_curl.chmod(0o755)
+            env = os.environ.copy()
+            env.update({
+                "PATH": f"{fake_bin}:{env['PATH']}",
+                "CRON_SITE": "example.com",
+                "CRON_ROLE": "seo-analyst",
+                "REPO_ROOT": str(temp),
+                "CLAUDE_AUTH_LOCK": "none",
+            })
+            result = subprocess.run([str(WRAPPER), "test prompt"], text=True, capture_output=True, env=env, check=False)
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("adding SEO analyst turn cap 20", result.stderr)
+            ledger = next((temp / "ops" / "logs").glob("token-usage-*.jsonl"))
+            record = json.loads(ledger.read_text().splitlines()[-1])
+            self.assertEqual(record["requested_max_turns"], 20)
 
     def test_socket_disconnect_without_session_id_is_not_replayed(self):
         result, calls, record = self.run_wrapper(
