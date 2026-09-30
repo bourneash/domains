@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:53:08.950Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T10:08:20.947Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment-only execution. Do not create proposals, queue work, telemetry, spend, deployments, dependencies, credentials, or monetization expansion this cycle. Complete or close the existing saveusfarms.com repair-or-close case with dated root-cause or closure evidence, isolated validation, build checks, rollback, release/security boundaries, attribution limits, and measurement limits. Retain the allthingsmasonic.com CTA refinement as slot-gated only; admit it only after capacity and site-overlap blockers clear. Preserve existing measurement, security evidence, compliance, and parked-site readiness work.",
+        "summary": "Approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, deployment, dependencies, credentials, or domains while delivery remains saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Continue existing repair, measurement, security-evidence, readiness, and private-gate work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO technical review: the retained allthingsmasonic.com CTA refinement is feasible, isolated, reversible, and measurable using existing GA4 and registered affiliate attribution only. Do not add tracking or infer revenue. Preserve disclosures, destinations, accessibility, and use a single-commit rollback after a delivery slot and site-overlap clearance.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case without an unchanged retry or duplicate request. Require dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain the private preview-only factory readiness packet as existing work. It is technically feasible as a non-production artifact, but no public launch, deployment, analytics configuration, monetization, domain change, dependency, or spend is authorized until the existing readiness gates are evidenced.",
+        "summary": "Retain allthingsmasonic.com as the sole next implementation candidate only after one delivery slot clears, site overlap is reconciled, and tests, rollback, and measurement readiness are rechecked. Use existing affiliate clicks as the available metric; preserve revenue, ROI, attribution, and causal lift as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain MarkItDown as research-only context, not an admitted work item. Any future prototype must remain in a disposable workspace with no dependency installation, production access, sensitive data, or fleet modification, and requires separate owner-approved implementation consideration after provenance, maintenance, parser, and security review.",
+        "summary": "Maintain the existing parked-site readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each property parked, private, preview-only, and unlaunched. Do not build, publish, deploy, change DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The available Amazon result covers 2026-09-21 and reports 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The commission is provider-aggregate and cannot be assigned to a site; ROI, margin, conversion value, and causal lift remain unknown.",
+        "summary": "Keep SearchWoot private and preview-only. Rights outreach, public exposure, alert expansion, affiliate use, and advertising remain blocked pending human counsel, owner authorization, and completion of legal, security, accuracy, and measurement gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the new CFO finance-reconciliation proposal as a new report-only admission this cycle because capacity is saturated and existing finance-reconciliation work is already represented. Preserve the stated unknowns and use existing evidence only when the current work is processed.",
         "requested_action": null,
         "proposal_id": null
       }
