@@ -2,23 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T19:09:55.580Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T19:40:02.039Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked for public launch and monetization changes. Woot documentation proves API access but not rights to store, derive, cache, publicly display, alert on, or monetize deal data; current public terms point against the proposed use. Security, accuracy/freshness, measurement, and owner gates also remain incomplete. Keep SearchWoot private and preview-only. Human counsel is required before any rights outreach, public beta, affiliate use, advertising, or data-use exception. Ordinary reversible fleet growth may continue only within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
+        "summary": "Risk disposition: blocked for public beta or full launch; counsel_required for upstream rights, privacy jurisdiction, and future affiliate or advertising use. Evidence shows Woot API access documentation but no permission for public display, storage, derivatives, caching, alerts, or commercial use; Woot terms point against those uses. Keep SearchWoot private and preview-only. Do not send rights outreach or change the gate without human counsel review and owner authorization. Ordinary reversible work may continue only if it adds no new data collection, credentials, permissions, dependencies, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Tracking remains active with 0 of 4 legal tasks closed. Source-rights evidence is captured and establishes a blocking conflict; data-flow and consent evidence are partial; vendor/log evidence remains incomplete. Next evidence actions are: attach an authoritative Woot permission or agreement, produce the read-only alert data-flow and retention table, capture deployed consent and GA4 settings, and inventory logs/vendors/incident procedures. Do not repeat generic owner requests or change the private gate.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are evidenced closed, so none are closed. Next evidence action: produce the read-only SearchWoot data-flow and retention table from repository and deployed configuration, covering alert rules, identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Concrete private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No build, publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or queue admission is cleared. Next evidence action: attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Compliance baseline is technical evidence only: 35 pass, 20 fail, and 6 unknown sites, with open banner, consent, GA4, privacy, and terms findings. Do not infer legal clearance. Permit ordinary growth only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Do not claim revenue, ROI, margin, payback, or causal lift from aggregate affiliate data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-2026-09-30-markitdown-content-normalization",
+        "summary": "Retain only as deferred research. No legal launch or adoption clearance is supported; any prototype must preserve source provenance, rights boundaries, and human review.",
+        "requested_action": "escalate_owner",
+        "proposal_id": "cro-2026-09-30-markitdown-content-normalization"
       }
     ]
   }
