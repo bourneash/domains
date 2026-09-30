@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:08:29.041Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:38:07.580Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal-review",
-        "title": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f",
-        "summary": "Preserve MarkItDown as deferred research only. No prototype or adoption work while delivery is saturated at 10/10 slots; lab evidence does not prove fleet fit or revenue impact.",
-        "requested_action": "declined",
-        "proposal_id": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "503b3f36-f292-45a3-85c1-de3fa8bd29a5",
-        "summary": "Preserve shadcn-ui as deferred research only. No preview or production admission until capacity clears and compatibility, security, accessibility, and measurement gates are evidenced.",
-        "requested_action": "declined",
-        "proposal_id": "503b3f36-f292-45a3-85c1-de3fa8bd29a5"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bf0f5984-1060-4345-89b8-1cf14b367667",
-        "summary": "Preserve Mermaid as deferred research only. No prototype admission while capacity is full and no measurable fleet outcome is established.",
-        "requested_action": "declined",
-        "proposal_id": "bf0f5984-1060-4345-89b8-1cf14b367667"
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; 21 requests failed and 7 repairs remain open. Reject the three new site-factory requests and defer new prototypes. Preserve the queued allthingsmasonic.com CTA refinement. Evidence supports only $4.92 aggregate unattributed Amazon commission for 2026-09-21; ROI and causal lift are unknown. Smallest next step: CTO completes or closes saveusfarms.com with validation and rollback evidence by 2026-10-01T09:00Z, then releases one slot. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

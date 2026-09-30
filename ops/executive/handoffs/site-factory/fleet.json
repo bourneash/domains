@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.043Z",
+  "generated_at": "2026-09-30T15:38:07.579Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the small readiness pipeline of complicated.work, deadlymaracas.com, and driveford.net. All remain private and preview-only; no domain additions, spend, deployment, publication, monetization, or telemetry changes are authorized. Use one reusable launch packet covering site brief, audience and positioning, bounded template, content seed, SEO baseline, analytics readiness, affiliate readiness, compliance checklist, security checklist, measurement boundary, rollback point, owner/legal/security/measurement gates, and explicit launch gate. Analytics, operations, and material security evidence remain unavailable or incomplete; preserve unknowns and do not invent telemetry. Exactly one next step: site-factory completes the existing complicated.work readiness packet with dated ownership, preview/build evidence, compliance and security dispositions, measurement boundaries, rollback, and a private-preview launch decision.",
+        "summary": "Maintain a deferred site-factory pipeline of three scaffold candidates: complicated.work, deadlymaracas.com, and driveford.net. Do not admit new build work while delivery is saturated at 10/10 slots. The strongest candidate is complicated.work based on the available site-factory score of 84 and existing scaffold. Keep it preview-only and blocked from build or launch until owner, legal, security, measurement, analytics/affiliate, SEO, compliance, and rollback evidence is complete. Exactly one next step: complete and verify the complicated.work launch-readiness artifact before any build request.",
         "requested_action": null,
         "proposal_id": null
       }

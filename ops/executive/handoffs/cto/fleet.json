@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:24:38.025Z",
+  "generated_at": "2026-09-30T15:38:07.580Z",
   "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject the three new site-factory queue admissions. Capacity is saturated at 10/10, and adding capacity-gated requests would create avoidable queue pressure without execution capacity. Preserve only the existing allthingsmasonic.com CTA refinement as the next implementation after one slot is released. Keep site-factory candidates deferred until launch-readiness evidence, isolation, rollback, and preview gates are verified.",
+        "summary": "Handoff: complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one delivery slot only after that evidence is recorded; then execute the existing allthingsmasonic.com CTA refinement. Do not admit duplicate work or new prototypes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create new site-factory requests this cycle. Maintain the candidates as deferred specifications only. After CTO releases a slot, verify the applicable launch-readiness artifact before any build admission; do not publish, deploy, add credentials, add domains, spend, or alter telemetry.",
+        "summary": "Approve containment-only execution this cycle. Delivery is saturated at 10/10 active slots, analytics is unavailable fleet-wide, measurement and repair work remain open, and security/operations evidence is incomplete. Reject all new queue admissions, including the three site-factory change requests, prototypes, telemetry requests, and duplicate work. Preserve existing work and the already-queued allthingsmasonic.com affiliate CTA refinement as the next implementation only after the saveusfarms.com repair-or-close case is completed or closed with root-cause, isolated validation, build, rollback, and release-boundary evidence. Keep public launch and security-sensitive changes gated. Revenue evidence remains limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one delivery slot before admitting any additional implementation work.",
+        "summary": "Do not admit the three preview-only site-factory requests while all delivery slots are occupied. Retain them as deferred pipeline candidates only. Reconsider one candidate after capacity is released and its launch-readiness artifact is verified; no build, deployment, DNS, credential, dependency, or public-exposure change is authorized before the normal gates pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The preserved allthingsmasonic.com CTA refinement is technically suitable for the existing queue after capacity clears: bounded, reversible, isolated to one site, and measurable using the existing baseline. Do not claim revenue lift, ROI, or causal impact because analytics is unavailable and current affiliate evidence is limited to site-level clicks with zero site-attributed commission for the recorded window.",
+        "summary": "Retain the allthingsmasonic.com affiliate CTA refinement as existing queued work, not a new request. Its scope is technically bounded and reversible: one existing commercial-card treatment, unchanged destinations, tracking, dependencies, and data collection, with deterministic validation and rollback. Measure only the existing affiliate clicks, ordered items, and site-attributed commission evidence; do not claim causal lift while analytics is unavailable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the private launch and security gates. No new public exposure, credentials, permissions, dependencies, cross-site behavior, external outreach, or telemetry collection is authorized. Preserve aggregate affiliate revenue as unattributed and require registered tracking IDs for future links.",
+        "summary": "Preserve the existing read-only security evidence matrix and private launch gates. No new production exposure, credentials, permissions, dependencies, telemetry, or deployment is authorized this cycle. Record authorized evidence or explicit unknowns for isolation, release provenance, dependency controls, data exposure, monitoring, incident readiness, and disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       }

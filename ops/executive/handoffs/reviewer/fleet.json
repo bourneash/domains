@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:36:06.221Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:38:07.579Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment remains necessary: delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, security and operations evidence is incomplete, and only $4.92 aggregate unattributed commission is supported for 2026-09-21. Three reversible web-vitals repairs are routed to engineer but remain slot-gated; no production execution or financial claims are authorized.",
+        "summary": "Preserve existing repair and measurement work; do not create duplicate telemetry requests or new production changes. Release capacity only after the existing saveusfarms.com repair-or-close case is completed or closed with validation and rollback evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Containment-only disposition: reject all new queue admissions, production work, prototypes, telemetry requests, and duplicate evidence work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; security and operations evidence remain incomplete; and existing repair and measurement work is open. Preserve existing work only. CTO must complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback, and release-boundary evidence before releasing one slot. Then execute only the already-queued allthingsmasonic.com CTA refinement. Revenue evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unknown. Keep private launch gates in place.",
         "requested_action": null,
         "proposal_id": null
       }

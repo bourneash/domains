@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:37:18.043Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:38:07.579Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain containment-only execution and admit no new delivery work while all 10 slots are occupied. Evidence supports existing affiliate-repair work for americastrikes.com, an owner-controlled Amazon tag prerequisite for amputeenews.com, and a queued CTA refinement for allthingsmasonic.com. Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 in aggregate commission under tracking_id \"other\"; that income cannot be assigned to a site. Analytics is unavailable fleet-wide, so conversion lift, ROI, margin, and causal impact remain unknown. First complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00Z. Then execute only the already-queued allthingsmasonic.com refinement with existing telemetry, deterministic validation, and single-diff rollback. Do not create duplicate affiliate, disclosure, attribution, or telemetry requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Known revenue-readiness gaps: americastrikes.com has existing stale/broken affiliate-reference repair work; amputeenews.com is pending evidence of a real registered Amazon Associates tag; allthingsmasonic.com has 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available window, supporting a reversible CTA review but not an ROI claim. Named Amazon tracking rows are site-mapped, while the aggregate \"other\" row remains unattributed. Compliance reports 20 failing sites overall, but the supplied site-level evidence does not identify which failures are affiliate-disclosure failures; preserve that mapping as unknown and do not assign disclosure gaps to additional sites.",
+        "summary": "Reject new queue admissions while delivery is saturated. Retain existing affiliate repairs and slot-gated work. Evidence supports broken or incomplete affiliate paths for americastrikes.com and amputeenews.com, an existing conversion-path refinement for allthingsmasonic.com, and fleet-level attribution uncertainty from Amazon's aggregate 'other' row. Do not infer revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

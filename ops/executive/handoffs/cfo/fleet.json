@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:24:38.025Z",
+  "generated_at": "2026-09-30T15:38:07.580Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the candidate plan's three new preview-only site-factory admissions as financially non-prioritized and capacity-blocked. Preserve the existing allthingsmasonic.com CTA refinement and existing affiliate repair prerequisites only; no new proposal, spend, deployment, or production admission is recommended this cycle.",
+        "summary": "Recommend containment-only execution and reject new financial or production admissions this cycle. Delivery is saturated at 10/10 slots, analytics is unavailable across all 38 expected sites, and existing measurement and repair work remains open. Revenue claims are limited to Amazon data for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is unattributed to sites, so site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 is $997.46 across 5,514 calls, but a valid margin comparison is not calculable because the revenue and AI windows differ and infrastructure, labor, domain, and other operating costs are absent. Do not forecast revenue or savings. Preserve the existing allthingsmasonic.com CTA refinement only as the next slot-gated implementation after the saveusfarms.com repair-or-close case releases capacity. Minimum finance measurement for future approval: same-period site-attributed revenue, AI and infrastructure cost by site/workflow, implementation cost, and verified conversion or commission outcomes.",
         "requested_action": null,
         "proposal_id": null
       }

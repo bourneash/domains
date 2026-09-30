@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:37:55.001Z",
+  "generated_at": "2026-09-30T15:38:07.578Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three new control-plane proposals and admit no new implementation this cycle. Delivery is saturated at 10/10 slots, and reviewer/CTO direction requires resolving the existing saveusfarms.com repair-or-close case and releasing one slot before any new queue admission. Pilot treatment sites remain blocked by active measurement windows; other ready-fleet candidates remain launch-gated or capacity-gated. Keep SearchWoot private and preserve existing work only.",
+        "summary": "Route three bounded, reversible preview-only site-factory change requests across queue-ready sites. Execution remains capacity-gated until an existing delivery slot is released; no public launch or deployment is authorized before readiness, security, legal, and measurement gates pass.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:24:38.025Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:38:07.580Z",
+  "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for public launch; conditional for ordinary reversible growth; counsel_required for rights-dependent outreach, public data display, affiliate/advertising use, and jurisdiction-specific privacy decisions. Keep searchwoot.com private and preview-only. Evidence: Woot API documentation confirms access mechanics but not redistribution rights; public Woot terms restrict commercial/public collection and derivative use; source rights, field permissions, retention, alerts, attribution, freshness, correction, and takedown remain unproven. Security, accuracy/freshness, measurement, and owner gates are also blocked. Exact decision: do not change the private gate, send rights outreach, enable monetization, or expose Woot-derived data until evidence is attached and human counsel reviews the unresolved rights and privacy questions.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Fleet compliance disposition: conditional for ordinary reversible growth within existing disclosures, consent, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries; blocked for any site or change with failed compliance controls until remediated. Current technical baseline reports 37 pass, 18 fail, and 6 unknown across 61 checked sites, with open banner, accept, reject, GA4, privacy, and terms findings. This is not legal certification. Do not treat missing analytics as zero or as a reason to block ordinary growth where compliance evidence passes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing SearchWoot legal workstream. No legal task is closed: 0 of 4 have complete direct evidence. Next evidence action: produce the repository/deployed-configuration data-flow and retention table, including alert rules, identifiers, sync results, Slack/email delivery, deletion, correction, access, and unsubscribe behavior; attach the artifact to searchwoot-data-flow-retention. Continue read-only evidence capture only.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "For the fleet compliance failures, perform the smallest evidence action: attach a dated per-site remediation record for each failed or unknown check showing reachable status, banner, accept/reject behavior, GA4 consent gating, privacy page, and terms page. Do not request duplicate analytics telemetry or deploy changes as part of evidence collection.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue and attribution disposition: conditional only for disclosure-compliant affiliate activity using registered tracking IDs. Amazon evidence covers 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but the commission is an aggregate tracking_id 'other' row and cannot be assigned to a site. Site-attributed commission is $0 in the supplied evidence. Do not claim site revenue, ROI, margin, or causal lift. The preserved allthingsmasonic.com CTA refinement may proceed only after capacity clears and existing disclosure, test, rollback, and measurement boundaries remain intact.",
+        "summary": "Risk disposition: blocked. Keep searchwoot.com private and preview-only; do not launch, expand alerts, enable monetization, send rights outreach, or admit new public exposure. Evidence: Woot documentation establishes API access but not redistribution rights; public terms restrict commercial/public data use; all four legal tasks remain open; accuracy, measurement, security, and owner gates remain incomplete. Fleet evidence also shows analytics unavailable rather than zero, partial aggregate revenue attribution, and incomplete compliance/security evidence. Human counsel is required for source rights, privacy/jurisdiction, and any affiliate or advertising use. Next evidence action: produce one timestamped read-only bundle covering Woot permission and field rights, alert data flow/retention, deployed consent and GA4 settings, and logs/vendors/incident handling.",
         "requested_action": null,
         "proposal_id": null
       }
