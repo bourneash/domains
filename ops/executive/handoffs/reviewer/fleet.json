@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:49:09.702Z",
+  "generated_at": "2026-09-30T21:51:10.058Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the wetslit.com report-only admission: it lacks site-specific evidence and would not satisfy the delivery mandate. Route only three low-priority, reversible SEO changes as capacity-gated engineer work across distinct sites. Delivery remains saturated at 10/10 slots; CTO must complete or close the existing saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z, then release one slot or escalate unresolved capacity to the owner. No revenue, ROI, causal-lift, launch, spend, credential, configuration, or security-clearance claims are supported.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, spend, launch, security-clearance, and duplicate-work claims. Route only three low-risk reversible SEO changes as capacity-gated engineer work across distinct sites. Delivery is saturated at 10/10 slots; CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, and measurement evidence by 2026-10-01T09:00Z, then release one slot or escalate unresolved capacity to the owner. Keep private-launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
