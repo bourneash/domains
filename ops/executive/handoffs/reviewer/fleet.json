@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:16:07.825Z",
+  "generated_at": "2026-09-30T09:17:57.293Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject new queue admissions this cycle. All 10 delivery slots are occupied, existing measurement and repair work is open, and no three-site candidate set is currently actionable without violating capacity or launch/owner gates. Keep mynewgm.com preview work slot-gated. CTO must release or close one active slot by 2026-10-01T09:00:00Z; unresolved capacity escalates to the owner then. Do not deploy, add telemetry, spend, change credentials, or create duplicate work.",
+        "summary": "Reviewer disposition: reject all new production queue admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and existing repair, security, finance, launch-readiness, and capacity work is open. Revenue claims remain unsupported beyond $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Complete or close the existing saveusfarms.com repair-or-close case and preserve private launch gates. No new spend, telemetry, credentials, configuration, deployment, or outreach is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
