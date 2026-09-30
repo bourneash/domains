@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:55:38.818Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:08:29.039Z",
+  "summary": "cro checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the three fleet-control opportunities as deferred specifications. If capacity clears, prototype only one isolated control-plane change at a time in a disposable or non-production path; do not alter deployment authority, schedules, credentials, permissions, or telemetry collection.",
+        "summary": "Recommendation: retain containment-only execution this cycle. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Admit no new site work, prototypes, research requests, or duplicate proposals. CTO should complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z, then release one slot. Execute the already-queued allthingsmasonic.com CTA refinement next. Do not claim revenue, ROI, margin, conversion lift, or causal impact.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Deferred revenue experiment specification: allthingsmasonic.com affiliate CTA refinement remains the next implementation after capacity release. Hypothesis: clearer commercial-card hierarchy, CTA labels, disclosure placement, focus states, contrast, and mobile spacing can improve qualified affiliate engagement without changing destinations, tracking, dependencies, or data collection. Evidence baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; analytics is unavailable, so lift is unknown. Smallest reversible prototype: one existing commercial-card treatment with a single rollback point. Metric: existing affiliate clicks, ordered items, and site-attributed commission over the established measurement window. Time-to-learn: 14 days or the existing measurement threshold. Do not execute until the queued request's slot is released.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Deferred product opportunity: microsoft/markitdown could support a disposable-workspace content-ingestion prototype for source-backed SEO briefs and structured content discovery. Evidence: MIT license, bounded lab review completed with 8/8 checks passing, 194 files, 22 keyword hits, and documented fit for SEO/content use. Risks: dependency and parser supply-chain review remains incomplete, repository quality and maintenance were not independently established, and no fleet-specific outcome is proven. Smallest reversible prototype after capacity release: convert a fixed set of owner-provided local documents into Markdown in an isolated workspace, emit provenance fields, and compare editorial preparation time and validation completeness against the current manual flow. Metric: accepted source-backed briefs per unit of review time, with zero unsupported claims. Time-to-learn: one bounded batch. No dependency installation, production access, adoption, or deployment is authorized this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Deferred product opportunity: shadcn-ui/ui could support a reusable accessible component treatment for affiliate cards and editorial conversion surfaces. Evidence: MIT license, bounded lab review completed with 3/3 checks passing, 3,203 files, and documented composable accessible components. Risks: framework/runtime compatibility, dependency provenance, visual-regression risk, maintenance burden, and fleet-specific conversion impact remain unverified. Smallest reversible prototype after capacity release: reproduce one existing allthingsmasonic.com commercial-card surface in an isolated preview using copied component patterns, without adding dependencies or changing production. Metric: accessibility and build validation first; then existing affiliate clicks and ordered items if a production experiment is later approved. Time-to-learn: one preview validation cycle, followed by the normal measurement window. No adoption or deployment is authorized this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue and attribution boundary: Amazon evidence covers 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in aggregate tracking_id \"other\". That row cannot be assigned to a site. Named tracking rows are site-mapped; every future affiliate link must use its registered site tracking ID. Preserve revenue, ROI, margin, and causal lift as unknown until site-level telemetry is available.",
         "requested_action": null,
         "proposal_id": null
       }

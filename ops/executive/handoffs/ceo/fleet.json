@@ -2,16 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T14:55:38.819Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:08:29.041Z",
+  "summary": "ceo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. Reject new fleet-control proposals, the MarkItDown prototype, and additional queue admissions this cycle: delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after capacity clears. Evidence supports only $4.92 aggregate unattributed Amazon commission for 2026-09-21; analytics is unavailable fleet-wide, so ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or closes saveusfarms.com and releases one slot by 2026-10-01T09:00Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f",
+        "summary": "Preserve MarkItDown as deferred research only. No prototype or adoption work while delivery is saturated at 10/10 slots; lab evidence does not prove fleet fit or revenue impact.",
+        "requested_action": "declined",
+        "proposal_id": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "503b3f36-f292-45a3-85c1-de3fa8bd29a5",
+        "summary": "Preserve shadcn-ui as deferred research only. No preview or production admission until capacity clears and compatibility, security, accessibility, and measurement gates are evidenced.",
+        "requested_action": "declined",
+        "proposal_id": "503b3f36-f292-45a3-85c1-de3fa8bd29a5"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "bf0f5984-1060-4345-89b8-1cf14b367667",
+        "summary": "Preserve Mermaid as deferred research only. No prototype admission while capacity is full and no measurable fleet outcome is established.",
+        "requested_action": "declined",
+        "proposal_id": "bf0f5984-1060-4345-89b8-1cf14b367667"
       }
     ]
   }
