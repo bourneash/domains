@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:25:11.352Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:54:02.122Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Do not create duplicate work items, implementation requests, deployments, telemetry requests, credentials, configuration changes, spend, or external outreach. Delivery remains saturated at 10/10 slots. Continue the existing capacity-release and readiness work only. After one slot is genuinely released and the existing repair-or-close dependency is resolved or closed, admit at most one previously preserved reversible candidate with isolated scope, deterministic validation, existing telemetry only, and single-diff rollback. Keep launch and security gates unchanged.",
+        "summary": "Capacity remains blocked at 10/10 active slots. Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z. Do not admit duplicate work or new CRO/site-factory prototypes. Once a slot clears, execute the already-queued allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The finance reconciliation proposal is technically admissible as bounded report-only evidence work because it resolves a documented source discrepancy without accessing billing systems, credentials, banking, or external accounts. It must not be converted into implementation, telemetry collection, or unsupported revenue, margin, ROI, forecast, or causal-lift claims.",
+        "summary": "CTO disposition: preserve containment-only execution. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repair follow-ups. Admit no new production work this cycle. Complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00:00Z. Then execute only the already-queued allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent pending counsel and security evidence. Do not claim revenue, ROI, margin, or causal lift beyond recorded attribution boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the existing complicated.work readiness packet and private-preview gate active; do not create a duplicate request or begin build/deployment work. Admission requires the existing readiness artifact, explicit legal/security/measurement dispositions, accountable ownership, and a documented rollback boundary.",
+        "summary": "After a slot is released, execute request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Limit scope to clearer existing affiliate CTA text and hierarchy while preserving disclosure placement, destinations, consent behavior, and site functionality. Run build, deterministic link and destination checks, keyboard/accessibility checks, responsive smoke tests, and disclosure-presence checks. Roll back only the bounded CTA/style/content diff if validation fails. Use existing telemetry only; report clicks and commission only at their recorded attribution scope.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing complicated.work readiness packet only. Keep the site preview-only and do not build, publish, add domains, spend, add tracking, or claim readiness until ownership, compliance, security, measurement, preview-validation, and rollback evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       }

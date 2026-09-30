@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:22:12.052Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T13:54:02.122Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs, and incomplete security/readiness evidence. Create no new proposals, queue items, experiments, telemetry requests, deployments, or spend. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated candidate after CTO releases capacity and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Keep affiliate aggregates unattributed and make no revenue, ROI, or causal-lift claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Evidence: delivery is saturated at 10/10 slots; 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Amazon data covers 2026-09-21 with $4.92 aggregate unattributed commission; margin, ROI, and causal lift are unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair and releases one slot by 2026-10-01T09:00Z, then admit only the preserved allthingsmasonic.com CTA refinement. Please confirm the single remaining decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
+        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after CTO releases a slot. Analytics is unavailable fleet-wide; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so margin, ROI, and causal lift are unknown. Smallest next step: CTO completes or closes saveusfarms.com and releases one slot by 2026-10-01T09:00Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
         "requested_action": null,
         "proposal_id": null
       }
