@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:55:53.529Z",
+  "generated_at": "2026-09-30T09:56:51.135Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Revenue remains $4.92 aggregate and unattributed; margin, ROI, and causal lift are unsupported. Preserve only existing repair-or-close, measurement, security-evidence, finance-reconciliation, private-gate, and parked-readiness work. CTO must release or close one delivery slot and document the unblock by 2026-10-01T09:00:00Z; escalate unresolved capacity to the owner. No new production work, telemetry, spend, credentials, configuration, deployment, or external outreach is authorized.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. Existing candidates remain blocked: allthingsmasonic.com and 0xroulette.com require active-work consolidation; complicated.work, deadlymaracas.com, and driveford.net require launch-readiness evidence. CTO owns capacity release by 2026-10-01T09:00:00Z; site-factory owns readiness packets by 2026-09-30T17:00:00Z. Escalate missed deadlines to the owner. Preserve existing measurement, repair, security, private-gate, and readiness work only; make no unsupported revenue or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }
