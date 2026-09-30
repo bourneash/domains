@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.869Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T00:39:17.795Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. Amazon revenue evidence is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the income is unattributed and cannot support site revenue, margin, ROI, payback, or forecasts. AI usage from 2026-09-01 through 2026-09-29 cost $947.39859535 across 5,289 calls, but it cannot be compared to one revenue day or treated as contribution-margin loss. Infrastructure spend, fixed costs, budgets, affiliate costs, and other variable costs are unknown. Continue only the existing period-aligned finance reconciliation and deployed-work measurement. The minimum finance artifact is a dated site/content ledger matching provider earnings, AI cost, infrastructure cost, affiliate cost, and other allocable variable costs to the same period, plus an approved learning threshold for cost-to-learn. Preserve the existing parked-site readiness work as non-financial containment; do not create a duplicate work item.",
+        "summary": "Contribution-margin disposition: site scorecards that show negative AI-cost margin are incomplete, not final contribution margins, because they omit infrastructure, domain, labor, and other costs and rely on zero site-attributed revenue while $4.92 aggregate revenue remains unassigned. Budget exposure is also unknown because monthly spend, fixed costs, marketing budget, revenue floor, and spending limit are blank. Minimum measurement is a period-aligned cost ledger covering AI, infrastructure, domains, labor, and marketing, reconciled to attributable cash revenue and outstanding commitments.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing period-aligned finance reconciliation only. Do not create duplicate finance work or request telemetry already present. The existing reconciliation must preserve the 2026-09-21 Amazon result as aggregate and unattributed, reconcile only matching-period costs, and explicitly report unknown margin, ROI, payback, forecasts, infrastructure spend, budget exposure, and cost-to-learn. Escalate unresolved financial evidence gaps through the existing executive path; no owner decision is needed to continue this report-only work.",
         "requested_action": null,
         "proposal_id": null
       }
