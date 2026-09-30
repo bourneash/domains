@@ -2,70 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:51:44.558Z",
-  "summary": "legal checked in 9 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:24:20.333Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: BLOCKED for SearchWoot public beta, full launch, alert expansion, affiliate use, or advertising. Woot documentation proves API access mechanics only; current public terms do not establish rights for storage, derivatives, caching, public display, alerts, or monetization. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep SearchWoot private and preview-only; keep outreach unsent pending counsel review and owner authorization.",
+        "summary": "Risk disposition: BLOCKED for SearchWoot public beta, full launch, alert expansion, affiliate use, and advertising. Evidence: Woot documentation proves API access mechanics only; current public terms do not establish commercial/public rights to collect, store, derive, cache, display, alert on, or monetize the data. Security, accuracy/freshness, measurement, privacy, and owner gates also remain incomplete. Human counsel is required for upstream rights, jurisdictional privacy treatment, and future affiliate or advertising use. Keep SearchWoot private and preview-only; keep outreach unsent pending counsel review and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet legal/compliance disposition: ordinary reversible growth is CONDITIONAL where it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Public exposure and security-sensitive releases remain blocked where compliance, security, or launch evidence is missing. Compliance baseline is technical only: 37 pass, 16 fail, 6 unknown; failures and unknowns require site-specific evidence or remediation. Do not treat incomplete telemetry as zero.",
+        "summary": "Fleet disposition: ordinary reversible growth is conditional where it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior and preserves consent, disclosures, provenance, claims, copyright/trademark, affiliate, platform-policy, and age-sensitive boundaries. Incomplete telemetry alone is not a blocker. Public exposure and security-sensitive releases remain blocked where required evidence is missing.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics configuration, monetization, spending, dependency addition, or queue entry is cleared. Next evidence action: attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence for each existing readiness packet by 2026-09-30T17:00Z.",
+        "summary": "Compliance evidence is incomplete: 37 sites pass, 16 fail, and 6 are unknown; open finding categories include banner, accept, reject, GA4, privacy, and terms. No failures may be treated as resolved without site-specific dated evidence. Next evidence action: enumerate the authoritative failing and unknown checks and attach a dated remediation result or explicit blocker for each.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data is BLOCKED for stated indexing, storage, transformation, display, alerts, affiliate, or advertising uses. Missing written permission or API agreement and field-level limits for provenance, retention, caching, display, derivatives, alerts, attribution, freshness, correction, takedown, trademarks, images, prices, affiliate use, and advertising. Smallest next action: complete the internal counsel packet and obtain human-counsel review before any owner-authorized outreach.",
+        "summary": "Data-quality and revenue evidence remain bounded. Analytics is yellow because source permissions or collector errors remain; repair the listed sources without treating unavailable data as zero. Amazon evidence for 2026-09-21 is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID other; it is not site-attributable. Preserve margin, ROI, forecasts, payback, and causal lift as unknown and authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: user alert rules and sync results are EVIDENCE_NEEDED. The purpose and processing are understandable, but inventory, identifiers, retention, deletion, correction, access, processor terms, notification consent, and unsubscribe behavior are not evidenced. Smallest next action: produce a read-only deployed/repository data-flow and retention table; do not expand alerts.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: GA4 analytics is EVIDENCE_NEEDED, not blocked solely by incomplete telemetry. Measurement-only use is conditionally supportable if consent-gated as stated. Missing deployed consent and withdrawal behavior, GA4 property/data-sharing settings, retention settings, and jurisdictional treatment. Smallest next action: capture consent and GA4 configuration evidence without enabling tracking, remarketing, or advertising.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: operational logs and Cloudflare hosting data are EVIDENCE_NEEDED. Operational use is conditionally supportable, but log fields, retention/access controls, vendor coverage, incident response, subpoena handling, and data-subject-request procedures are not evidenced. Secondary disclosure and monetization are blocked. Smallest next action: produce a read-only log, vendor, incident, and request inventory.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Complete or close by 2026-09-30T07:30:00Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned revenue reconciliation only. Amazon evidence for 2026-09-21 is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission in an unattributed row; named site rows are mapped but show $0 attributed commission in the available data. Do not assign aggregate income, extrapolate ROI, or authorize spend or monetization expansion.",
+        "summary": "Private-site decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. No publish, deployment, DNS change, analytics or affiliate configuration, monetization, spending, dependency addition, or queue entry is cleared. Continue only the existing readiness packets. Next evidence action: attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
         "requested_action": null,
         "proposal_id": null
       }

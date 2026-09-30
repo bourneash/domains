@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:39:09.270Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:24:20.332Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal-review",
-        "title": "15594c12-19ca-4ea0-a00d-35b3993ca680",
-        "summary": "Defer MarkItDown adoption. The evidence supports technical feasibility only; no attributable revenue, savings, or validated cost-to-learn case is present, and delivery capacity is saturated.",
-        "requested_action": "declined",
-        "proposal_id": "15594c12-19ca-4ea0-a00d-35b3993ca680"
+        "kind": "message",
+        "title": null,
+        "summary": "Financial recommendation: maintain containment-only execution and authorize no spend, billing changes, monetization expansion, or new queue work. Revenue evidence is limited to 2026-09-21 Amazon results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; it is not site-attributable. AI usage is $947.3986 for 2026-09-01 through 2026-09-29 across 5,289 calls, but infrastructure and other costs are unavailable and periods do not match, so contribution margin, ROI, payback, cost-to-learn, budget exposure, and forecasts are not calculable. Continue the existing period-aligned reconciliation, deployed-work measurement, repair-or-close containment, and readiness work only. Minimum finance evidence is a dated ledger matching each revenue and cost item to the same site/content and period, including AI, hosting, infrastructure, domain, and other operating costs, plus an approved learning threshold.",
+        "requested_action": null,
+        "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "0c1c1f58-856a-40c8-b1ee-492457d406db",
-        "summary": "Defer shadcn/ui evaluation. No attributable financial upside, avoided cost, or approved learning threshold is evidenced; current capacity and measurement gaps do not support new work.",
-        "requested_action": "declined",
-        "proposal_id": "0c1c1f58-856a-40c8-b1ee-492457d406db"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "1a8cf30b-84c7-40d8-b1ee-492457d406db",
-        "summary": "Defer Mermaid evaluation. Repository popularity is a vanity signal and does not support a revenue, margin, savings, or cost-to-learn claim.",
-        "requested_action": "declined",
-        "proposal_id": "1a8cf30b-84c7-40d8-b1ee-492457d406db"
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the deferred affiliate CTA experiment as a retained proposal this cycle. The existing allthingsmasonic.com request may remain in its current queue state, but 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21 do not establish revenue potential or causal lift. Do not use the $4.92 aggregate provider commission for site-level claims, and do not compare one revenue day with September AI spend.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

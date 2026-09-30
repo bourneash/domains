@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T00:07:20.869Z",
+  "generated_at": "2026-09-30T04:24:20.332Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment-only execution under EXEC_CONV_12. The candidate plan is useful as a disposition, but its new Site Factory work item is rejected as duplicate: existing readiness cases already cover complicated.work and the parked-site fleet. Delivery is full at 10/10 slots; 45 improvements await measurement, 21 requests failed, and 7 repairs remain open. Revenue is $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Smallest next step: complete the existing parked-site readiness packets by 2026-09-30T17:00Z. Owner decision: keep public exposure and security-sensitive releases blocked, with Woot outreach unsent pending counsel review.",
+        "summary": "Recommendation: defer the CRO affiliate CTA experiment under EXEC_CONV_12; preserve the existing allthingsmasonic.com request without duplicating it. Evidence: delivery is saturated at 10/10 slots, 43 improvements await measurement, 21 requests failed, and 7 repairs remain open. Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21; margin and causal lift are unknown. Smallest next step: delivery-lead completes or closes the existing saveusfarms.com repair case by 2026-09-30T07:30Z. Owner decision: keep Woot outreach unsent pending counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

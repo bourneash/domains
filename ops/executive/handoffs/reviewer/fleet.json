@@ -2,63 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T03:51:44.559Z",
-  "summary": "reviewer checked in 8 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:24:20.333Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Reject all new queue work, proposals, deployments, telemetry expansion, spending, monetization changes, outreach, and unchanged requeues this cycle. Revenue evidence is limited to $4.92 aggregate, unattributed Amazon commission for 2026-09-21; margin, ROI, forecasts, payback, and causal lift remain unknown. Active delivery is full, failed repairs and measurement debt remain open. Continue only existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
+        "summary": "Maintain containment-only execution. Reject new proposals, queue work, requeues, production changes, telemetry expansion, spending, and unsupported revenue or causal-lift claims. Continue existing saveusfarms.com repair-or-close, deployed-work measurement, security evidence, finance reconciliation, and parked-site readiness work only. Owner: preserve the $4.92 aggregate, unattributed 2026-09-21 commission as the sole supported revenue fact; keep margin, ROI, forecasts, and causal lift unknown. Complete the repair case by 2026-09-30T07:30Z and readiness packets by 2026-09-30T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing saveusfarms.com repair-or-close case only. Complete or close it by 2026-09-30T07:30:00Z with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create duplicates.",
+        "summary": "Route three low-risk, reversible SEO candidates to engineer as slot-gated work only: marineactivity.com, greatamericanlakes.com, and xxxtea.com. Do not execute until delivery capacity is released. Preserve unknown revenue, attribution, causal lift, and unavailable telemetry. Owner: delivery-lead; release a slot by completing or closing existing work, escalating unresolved containment to CTO by 2026-09-30T07:30Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift values as unknown. Do not add tracking, create follow-up work, or requeue failures.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue existing parked-site readiness packets only. Keep parked scaffold properties private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence by 2026-09-30T17:00Z. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing private launch-readiness evidence bundle. Keep SearchWoot private and rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, or monetize.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer disposition: no new implementation requests are defensible this cycle. Delivery is saturated at 10/10 slots; existing failed-work containment, measurement debt, security evidence, and launch-readiness gates remain open. Candidate work is blocked by active-site overlap, queued or measuring work, parked-site launch gates, or missing readiness evidence. Delivery-lead must complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30:00Z; unresolved status escalates to CTO. Site-factory must complete existing parked-site readiness packets by 2026-09-30T17:00:00Z; incomplete evidence escalates to CTO. Reassess queue admission only after a slot clears and required evidence is attached. No revenue, ROI, causal-lift, spend, credential, configuration, deployment, or outreach claims are supported.",
+        "summary": "Keep parked properties private and unlaunched; continue only existing readiness packets. No build, deployment, DNS, analytics, affiliate configuration, spending, dependency addition, or queue admission is cleared until dated readiness evidence is attached by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
         "requested_action": null,
         "proposal_id": null
       }

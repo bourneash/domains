@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:08:06.841Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T04:24:20.331Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Do not infer site revenue, ROI, margin, payback, or causal lift from the aggregate row. Continue existing repair-or-close, deployed-work measurement, compliance evidence, and attribution-boundary work only. No new queue admission, telemetry, spend, credentials, deployment, or monetization expansion while delivery is saturated at 10/10 slots.",
+        "summary": "Recommendation: preserve containment-only execution. Delivery is saturated at 10/10 slots, with 43 improvements awaiting measurement, 21 failed requests, and 7 repair follow-ups open. Continue existing affiliate repair, attribution reconciliation, deployed-work measurement, and launch-readiness work only. Do not create duplicate queue work, add telemetry, spend, or make unsupported revenue or ROI claims. Amazon reporting for 2026-09-21 remains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site attribution is unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing allthingsmasonic.com affiliate conversion-path request after a delivery slot is released. Preserve the registered destination and disclosure while improving CTA clarity and accessibility. Do not claim lift until valid site-level measurement is available.",
         "requested_action": null,
         "proposal_id": null
       }

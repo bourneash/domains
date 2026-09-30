@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-28T19:08:31.410Z",
+  "generated_at": "2026-09-30T04:24:20.331Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution for new SEO, content, IA, internal-linking, CRO, monetization, and production work this cycle. Existing SEO evidence supports deferred opportunities, but active improvements, measurement backlog, failed requests, ownership gaps, unavailable operations/security sweeps, and incomplete attribution prevent a new implementation from meeting the required validation and rollback gates. Continue existing measurement, failure repair, attribution reconciliation, and security/readiness work. Preserve the approved eastcoastrappers.com routing repair as the sole bounded implementation path; do not create duplicate SEO requests, invent telemetry, or claim traffic, revenue, ROI, or causal lift. Re-rank SEO opportunities when dated ownership, validation, rollback, security, and measurement evidence clear.",
+        "summary": "Recommendation: approve containment-only execution. Do not create new SEO work while delivery is saturated at 10/10. Continue the existing allthingsmasonic.com affiliate CTA refinement only after a slot is released. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; page-level conversion attribution is unavailable. Target: highest-intent merchandising surface. Measure sessions, available CTA/affiliate clicks, conversions, and site-attributed affiliate outcomes for 14 days or 100 relevant impressions/clicks. Preserve unavailable fields as unknown and do not claim causal lift without valid evidence.",
         "requested_action": null,
         "proposal_id": null
       }
