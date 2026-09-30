@@ -105,6 +105,14 @@ async function processOne(store, { workerId, adapters = {}, claimOptions = {} } 
     return { processed: true, dispatch, result: result || {} };
   } catch (error) {
     runtime.finish(store, dispatch.run_id, { status: 'failed', error: error.message });
+    if (error.defer) {
+      store.completeAgentDispatch(dispatch.dispatch_id, {
+        status: 'queued',
+        error: error.message,
+        available_at: new Date(Date.now() + 60 * 1000).toISOString(),
+      });
+      return { processed: true, deferred: true, dispatch, error: error.message };
+    }
     return { processed: true, dispatch, error: error.message };
   }
 }

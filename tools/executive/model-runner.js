@@ -200,7 +200,10 @@ async function main() {
   });
   const proposalReviews = new Map();
   for (const role of passes) {
-    const prompt = runner.buildPassPrompt(brief, role, plan);
+    const operatingDirective = brief.operating_manager_task
+      ? `\n\nOPERATING MANAGER TASK:\nYou are executing this specific durable manager task now. Produce concrete downstream work for it or an explicit evidence-backed blocker. Do not merely acknowledge it, repeat it, or create generic fleet commentary.\n${JSON.stringify(brief.operating_manager_task)}`
+      : '';
+    const prompt = `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}`;
     let output = await runTracked(prompt, usage, role, false, transcript);
     let repaired = false;
     try {

@@ -134,6 +134,17 @@ NODE
 # Brief generation and plan application happen in the trusted control plane.
 node "$ROOT/tools/executive/runner.js" --brief-only > "$RUN_DIR/input/brief.json"
 
+if [[ -n "${EXECUTIVE_OPERATING_TASK_FILE:-}" ]]; then
+  node - "$RUN_DIR/input/brief.json" "$EXECUTIVE_OPERATING_TASK_FILE" <<'NODE'
+const fs = require('node:fs');
+const briefFile = process.argv[2];
+const taskFile = process.argv[3];
+const brief = JSON.parse(fs.readFileSync(briefFile, 'utf8'));
+brief.operating_manager_task = JSON.parse(fs.readFileSync(taskFile, 'utf8'));
+fs.writeFileSync(briefFile, JSON.stringify(brief));
+NODE
+fi
+
 container_args=(run --rm --name "$CONTAINER_NAME" --entrypoint /usr/bin/env \
   --read-only --cap-drop=ALL --security-opt=no-new-privileges \
   --pids-limit=256 --memory=2g --cpus=2 \

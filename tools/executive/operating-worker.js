@@ -8,6 +8,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const dispatcher = require('./agent-dispatcher');
 const domains = require('../fleet-dashboard/server/domains');
@@ -15,6 +16,14 @@ const executive = require('../fleet-dashboard/server/executive');
 
 const DOMAIN_RE = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)\b/gi;
 const IGNORED_DOMAINS = new Set(['github.com', 'example.com', 'localhost']);
+const MANAGER_ROLES = [
+  { owner: 'site-factory-manager', slug: 'fleet-site-factory-manager', promptRole: 'site-factory' },
+  { owner: 'operations-manager', slug: 'fleet-operations-manager', promptRole: 'delivery-lead' },
+  { owner: 'engineering-manager', slug: 'fleet-engineering-manager', promptRole: 'cto' },
+  { owner: 'growth-manager', slug: 'fleet-growth-manager', promptRole: 'growth-director' },
+  { owner: 'design-manager', slug: 'fleet-design-manager', promptRole: 'design-director' },
+];
+const MANAGER_BY_AGENT = new Map(MANAGER_ROLES.map(role => [role.slug, role]));
 
 function extractDomain(summary = '') {
   for (const match of String(summary).matchAll(DOMAIN_RE)) {
@@ -26,6 +35,62 @@ function extractDomain(summary = '') {
 
 function isSiteFactory(run, task) {
   return run?.agent_id === 'fleet-site-factory-manager' || task?.owner === 'site-factory-manager';
+}
+
+function runSandbox(root, role, task) {
+  const taskFile = path.join(
+    root,
+    'tools',
+    'executive',
+    'data',
+    `.operating-task-${process.pid}.json`
+  );
+  fs.writeFileSync(
+    taskFile,
+    JSON.stringify({
+      work_id: task.work_id,
+      title: task.title,
+      summary: task.summary,
+      site: task.site || null,
+      next_action: task.next_action,
+      owner: task.owner,
+    }),
+    { mode: 0o600 }
+  );
+  return new Promise(resolve => {
+    const child = spawn('bash', [path.join(root, 'tools', 'executive', 'run-sandbox.sh')], {
+      cwd: root,
+      env: {
+        ...process.env,
+        EXECUTIVE_PASSES: role.promptRole,
+        EXECUTIVE_ALLOW_QUEUE: '1',
+        EXECUTIVE_SCOPE: 'operating-manager',
+        EXECUTIVE_OPERATING_TASK_FILE: taskFile,
+        EXECUTIVE_RUN_ID: `operating-${task.work_id}-${Date.now()}`,
+        EXECUTIVE_CONTAINER_NAME: `executive-operating-${process.pid}`,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let output = '';
+    child.stdout.on('data', chunk => {
+      output += chunk;
+    });
+    child.stderr.on('data', chunk => {
+      output += chunk;
+    });
+    child.on('close', code => {
+      try {
+        fs.unlinkSync(taskFile);
+      } catch {}
+      resolve({ code: code ?? 1, output: output.slice(-12000) });
+    });
+    child.on('error', error => {
+      try {
+        fs.unlinkSync(taskFile);
+      } catch {}
+      resolve({ code: 1, output: error.message });
+    });
+  });
 }
 
 function enqueueSiteFactory(root, task) {
@@ -172,12 +237,128 @@ async function processSiteFactory(
   });
 }
 
+async function processOperatingManager(
+  store,
+  root,
+  role,
+  { workerId = `operating-worker:${process.pid}` } = {}
+) {
+  const agent = store.getAgent(role.slug);
+  if (!agent) throw new Error(`${role.slug} operating agent is not provisioned`);
+  return dispatcher.processOne(store, {
+    workerId,
+    claimOptions: { agent_id: agent.agent_id, adapter: 'codex' },
+    adapters: {
+      codex: async ({ store: currentStore, run }) => {
+        const task = currentStore.getExecutiveWorkItem(run.work_id);
+        if (!task || task.owner !== role.owner)
+          throw new Error(`dispatch task is not owned by ${role.owner}`);
+        const startedAt = Date.now();
+        const sandbox = await runSandbox(root, role, task);
+        if (sandbox.code === 75) {
+          const error = new Error('executive sandbox is busy; manager dispatch deferred');
+          error.defer = true;
+          throw error;
+        }
+        const createdAt = new Date(startedAt).toISOString();
+        const changeRequests = currentStore
+          .listChangeRequests({ limit: 1000 })
+          .filter(item => item.created_at >= createdAt);
+        const workItems = currentStore
+          .listExecutiveWorkItems({ limit: 1000 })
+          .filter(item => item.created_at >= createdAt && item.work_id !== task.work_id);
+        const actionable =
+          sandbox.code === 0 && (changeRequests.length > 0 || workItems.length > 0);
+        const result = {
+          lane: role.owner,
+          task_id: task.work_id,
+          sandbox_status: sandbox.code,
+          change_requests: changeRequests.length,
+          work_items: workItems.length,
+          actionable,
+        };
+        const reportPath = path.join(
+          root,
+          'tools',
+          'executive',
+          'data',
+          `${task.work_id.replace(/[^a-zA-Z0-9._-]/g, '_')}.json`
+        );
+        fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+        fs.writeFileSync(
+          reportPath,
+          JSON.stringify(
+            { generated_at: new Date().toISOString(), result, output: sandbox.output },
+            null,
+            2
+          )
+        );
+        currentStore.createAgentArtifact({
+          run_id: run.run_id,
+          work_id: task.work_id,
+          agent_id: run.agent_id,
+          kind: 'report',
+          label: `${role.owner} execution result`,
+          uri: reportPath,
+          metadata: result,
+        });
+        currentStore.updateExecutiveWorkItem(task.work_id, {
+          status: actionable ? 'in_progress' : 'blocked',
+          waiting_on: actionable ? 'downstream-queue' : role.owner,
+          next_action: actionable
+            ? `Downstream queue must execute and evidence the ${role.owner} work products before this task closes.`
+            : `${role.owner} must repair this no-op plan; the manager produced no executable work product.`,
+          last_error: actionable ? null : 'manager plan produced no executable work product',
+          evidence: [
+            ...(Array.isArray(task.evidence) ? task.evidence : []),
+            {
+              type: 'artifact',
+              label: `${role.owner} execution report`,
+              uri: reportPath,
+              note: actionable
+                ? 'Bounded downstream work was created.'
+                : 'No executable downstream work was created.',
+            },
+          ],
+        });
+        return result;
+      },
+    },
+  });
+}
+
+function queuedManagerCandidate(store) {
+  const agents = MANAGER_ROLES.map(role => ({ role, agent: store.getAgent(role.slug) })).filter(
+    item => item.agent
+  );
+  const queued = agents.flatMap(({ role, agent }) =>
+    store
+      .listAgentDispatches({
+        agent_id: agent.agent_id,
+        adapter: 'codex',
+        status: 'queued',
+        limit: 1000,
+      })
+      .map(dispatch => ({ role, dispatch }))
+  );
+  return (
+    queued.sort(
+      (a, b) => Date.parse(a.dispatch.created_at || '') - Date.parse(b.dispatch.created_at || '')
+    )[0] || null
+  );
+}
+
 async function runOnce(root, { workerId } = {}) {
   const store = eventstore.open(root);
   try {
     const reconciled = reconcileSiteFactory(store, root);
-    const processed = await processSiteFactory(store, root, { workerId });
-    return { ...processed, reconciled };
+    const candidate = queuedManagerCandidate(store);
+    const processed = candidate
+      ? candidate.role.owner === 'site-factory-manager'
+        ? await processSiteFactory(store, root, { workerId })
+        : await processOperatingManager(store, root, candidate.role, { workerId })
+      : { processed: false };
+    return { ...processed, reconciled, lane: candidate?.role.owner || null };
   } finally {
     store.close();
   }
@@ -199,6 +380,8 @@ if (require.main === module) {
 module.exports = {
   extractDomain,
   enqueueSiteFactory,
+  processOperatingManager,
+  queuedManagerCandidate,
   reconcileSiteFactory,
   processSiteFactory,
   runOnce,
