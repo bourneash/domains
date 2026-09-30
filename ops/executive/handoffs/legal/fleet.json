@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:38:42.174Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T21:54:05.895Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch. Keep private and preview-only. Woot documentation proves API access but not redistribution, caching, historical derivatives, public display, alerts, affiliate, advertising, image, price, attribution, freshness, correction, or takedown rights. Current public terms appear inconsistent with the proposed commercial/public data use. Human counsel is required before any rights outreach, public exposure, affiliate use, or advertising use. Ordinary reversible growth may continue only if it adds no new data collection, permissions, credentials, dependencies, cross-site behavior, or unsupported claims.",
+        "summary": "Legal disposition: BLOCKED for SearchWoot public beta or full launch; COUNSEL_REQUIRED for upstream rights, jurisdictional privacy, and any affiliate or advertising use. Evidence shows Woot API access documentation but no permission to store, derive, cache, publicly display, alert on, or commercially use returned data; Woot public terms point against that use. Keep the private-preview gate unchanged. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Four legal tasks remain open and none can be closed on the supplied evidence. Existing research confirms the upstream rights blocker and provides partial data-flow and consent artifacts; no task has complete evidence. Next evidence actions: attach the authoritative Woot terms or permission record; produce the repository/configuration data-flow and retention table; capture deployed consent behavior and GA4 settings; and inventory logs, vendors, retention, access, incident, and data-subject-request procedures.",
+        "summary": "Launch-readiness tracking remains active with 0 of 4 tasks closed. Source-rights, alert-data-flow, GA4-consent, and logs/vendors/incident tasks remain open because required evidence is incomplete. Next evidence action: attach the read-only repository/configuration data-flow and retention table, then route unresolved Woot rights and jurisdictional privacy questions to human counsel before any outreach or gate change.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet compliance is a technical baseline, not certification: 35 sites pass, 20 fail, and 6 are unknown. Unreachable compliance checks remain unknown, not failed. Ordinary reversible growth may continue where existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. No new public exposure or security-sensitive release is cleared while operations and security evidence remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The queued allthingsmasonic.com CTA refinement is conditionally supportable as a reversible existing-surface change, subject to preserving the current affiliate disclosure, destination URLs, registered tracking ID, and consent behavior. Measure registered affiliate clicks only against the 61-click baseline; do not claim revenue, ROI, or causal lift. This is not a launch or monetization approval.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Private or parked properties retain a concrete decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. The next evidence action is to attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No publish, deploy, DNS, analytics configuration, monetization, spend, dependency addition, or queue entry is cleared.",
         "requested_action": null,
         "proposal_id": null
       }

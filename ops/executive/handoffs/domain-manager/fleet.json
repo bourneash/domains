@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:49:09.702Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:10:00.182Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Establish wetslit.com homepage readiness baseline",
-        "summary": "wetslit.com lacks evidenced site context, analytics configuration, SEO baseline, monetization readiness, and current page/file structure in the authoritative snapshot. Create one bounded evidence artifact before selecting implementation work.",
-        "requested_action": "Inspect the existing homepage route `/` and repository structure read-only. Record audience positioning, visible content and CTA paths, disclosure state, SEO metadata, accessibility issues, performance blockers, monetization readiness, and exact candidate files for the next reversible change. Do not deploy, add tracking, change configuration, or infer unavailable telemetry.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "637f9aa8-560b-4b40-a74a-997aa08a34f5",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 1,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }

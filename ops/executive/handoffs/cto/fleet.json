@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:38:42.174Z",
+  "generated_at": "2026-09-30T21:54:05.895Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed finance reconciliation report for this cycle. Its inputs already exist in the authoritative snapshot, it does not fill an implementation slot, and it would duplicate existing attribution-boundary work. Preserve the recorded $4.92 aggregate unattributed commission, $997.52 September AI cost, and all unknown revenue, margin, ROI, payback, and causal-lift fields without creating new telemetry.",
+        "summary": "CTO review: preserve containment. Delivery is saturated at 10/10 slots, so admit no new implementation, prototype, site-factory, or duplicate queue work. Retain the existing allthingsmasonic.com CTA request as waiting; it may execute only after the existing saveusfarms.com repair-or-close case releases a slot with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded, then admit the existing allthingsmasonic.com CTA refinement as the sole next implementation.",
+        "summary": "The canonical allthingsmasonic.com change is technically feasible and reversible, but the proposed new work item is rejected as duplicate. Use the already-queued request only. Scope remains limited to CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, destination integrity, build, and smoke validation. Add no routes, dependencies, imagery, telemetry, credentials, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the canonical allthingsmasonic.com CTA refinement without duplication. Scope remains limited to CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, and responsive layout. Require deterministic tests, link and disclosure validation, accessibility and responsive checks, build evidence, and single-diff rollback before release. Measure only registered affiliate clicks on changed surfaces; orders, revenue, margin, ROI, and causal lift remain unknown.",
+        "summary": "Measurement is limited to registered affiliate clicks against the available 61-click allthingsmasonic.com baseline. The existing attribution feed is the only approved instrumentation; do not add tracking or infer orders, revenue, ROI, margin, payback, or causal lift. Roll back only the scoped CTA/disclosure/responsive-layout diff if attribution identity, destination integrity, or validation gates fail.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net in the existing preview-only readiness pipeline. Do not create implementation requests, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or publish until the existing readiness gates are complete and capacity is released.",
+        "summary": "Keep private-launch and security-sensitive release gates unchanged. Fleet-doctor, operations, security-control, and material release evidence remain incomplete; no public exposure, credentials, permissions, dependencies, configuration changes, deployment, or external outreach is cleared.",
         "requested_action": null,
         "proposal_id": null
       }
