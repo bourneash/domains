@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:58:07.758Z",
+  "generated_at": "2026-09-30T21:14:15.188Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare dumbsluts.com launch-readiness implementation brief",
-        "summary": "Site-specific repository, page structure, audience, analytics, monetization, compliance, and launch evidence for dumbsluts.com are not present in the authoritative snapshot. Exact implementation files cannot be named without inventing evidence.",
-        "requested_action": "Inspect only the existing dumbsluts.com repository and scaffold. Produce one bounded brief naming the exact public entry page and files, audience positioning, smallest preview-only implementation, acceptance tests, available baseline metrics, launch blockers, and one next implementation step. Do not deploy, publish, configure analytics, add monetization, spend, or request duplicate telemetry.",
+        "title": "Complete review gate for existing primary-navigation accessibility improvement",
+        "summary": "Advance the existing howfishthink.com accessibility change already in review; do not create a duplicate implementation.",
+        "requested_action": "Engineer completes the review gate for the existing request, validates the homepage primary navigation, and returns exact evidence or a bounded rejection reason.",
         "proposal_id": null
       }
     ]
