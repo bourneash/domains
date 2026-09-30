@@ -305,9 +305,10 @@ done
 if [[ $PREFLIGHT_OK -ne 1 ]]; then
   echo "claude-tracked.sh: network preflight failed — skipping claude -p call (CRON_SITE=$CRON_SITE CRON_ROLE=$CRON_ROLE)" >&2
   python3 - "$LEDGER" "$CRON_SITE" "$CRON_ROLE" "$requested_model" "$requested_max_turns" <<'PYEOF'
-import json, sys, time
+import fcntl, json, sys, time
 ledger_path, site, role, requested_model, requested_max_turns = sys.argv[1:6]
 record = {
+    "schema_version": 1,
     "recorded_at_unix": int(time.time()),
     "site": site,
     "role": role,
@@ -327,7 +328,10 @@ record = {
     "session_id": None,
 }
 with open(ledger_path, "a", encoding="utf-8") as fh:
+    fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
     fh.write(json.dumps(record, sort_keys=True) + "\n")
+    fh.flush()
+    fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 PYEOF
   exit 78
 fi
@@ -865,6 +869,7 @@ if data is not None:
     # alerts accordingly). An earlier version of this comment blamed compaction
     # side-queries; that does not explain single-model rows with 30+ extra turns.
     record = {
+        "schema_version": 1,
         "recorded_at_unix": int(time.time()),
         "site": site,
         "role": role,
@@ -893,6 +898,7 @@ else:
     # claude produced no parseable JSON (crash, timeout kill, etc). Still
     # record the attempt so the ledger reflects failed calls, not silence.
     record = {
+        "schema_version": 1,
         "recorded_at_unix": int(time.time()),
         "site": site,
         "role": role,
@@ -942,8 +948,12 @@ if prior is not None:
     if record.get("duration_ms") is not None or prior.get("duration_ms") is not None:
         record["duration_ms"] = (record.get("duration_ms") or 0) + (prior.get("duration_ms") or 0)
 
+import fcntl
 with open(ledger_path, "a", encoding="utf-8") as fh:
+    fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
     fh.write(json.dumps(record, sort_keys=True) + "\n")
+    fh.flush()
+    fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
 # ── explain a failure IN THE ROLE LOG, not only in the ledger ───────────────
 # Role wrappers alert Slack by quoting the last few lines of the role log. Until
