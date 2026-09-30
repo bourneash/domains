@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:22:26.737Z",
+  "generated_at": "2026-09-30T21:41:34.994Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve offshorehookup.com homepage affiliate CTA clarity",
-        "summary": "Queue one reversible homepage conversion improvement for offshorehookup.com after delivery capacity clears. Existing revenue evidence records 320 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; no causal lift is claimed.",
-        "requested_action": "Implement on the homepage (/): clarify the primary affiliate CTA, preserve the existing affiliate destination and disclosure, improve keyboard focus and mobile layout, and avoid new tracking, credentials, spend, or unrelated route changes. Keep capacity-gated until one active delivery slot is released.",
+        "title": "Identify the smallest reversible homepage usability improvement",
+        "summary": "The supplied authoritative context does not expose vibratorporn.com’s lifecycle, repository, worker, active queue state, route map, or exact source files. Selecting implementation files or inventing telemetry would be unsafe.",
+        "requested_action": "Read the authoritative site registry and repository manifest, identify the existing homepage route and its exact template, stylesheet, and test files, confirm no active overlapping work, and select exactly one reversible improvement. Do not deploy, modify production, add tracking, or request duplicate telemetry.",
         "proposal_id": null
       }
     ]
