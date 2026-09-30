@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:42:12.578Z",
+  "generated_at": "2026-09-30T09:46:13.891Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare a bounded homepage CTA and affiliate-disclosure improvement for weirdassstuff.com",
-        "summary": "The site has existing analytics and affiliate evidence but exact homepage template and stylesheet paths are not available in the authoritative snapshot. Global delivery capacity is saturated, so implementation is slot-gated. Preserve existing telemetry and do not create duplicate queue work.",
-        "requested_action": "Inspect the existing weirdassstuff.com repository read-only, identify the exact homepage template, stylesheet/component files, current primary CTA destination, affiliate disclosure placement, and the smallest reversible CTA/disclosure improvement. Record one implementation-ready change after capacity clears.",
+        "title": "Hold wetpages.com queue until active measurement closes",
+        "summary": "wetpages.com already has an active SEO/affiliate improvement in measurement through 2026-10-12, so adding work would overlap. Preserve the current result and defer new implementation admission.",
+        "requested_action": "Record the active improvement’s retained diff, affected page, validation evidence, and measurement status. After 2026-10-12, select exactly one next reversible change from the existing page scope.",
         "proposal_id": null
       }
     ]
