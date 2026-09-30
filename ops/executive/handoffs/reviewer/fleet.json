@@ -2,14 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:38:00.331Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:39:52.597Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. Delivery capacity is saturated at 10/10 active slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. No defensible multi-site batch can be queued. seedstosauce.com remains deferred: delivery-lead/CTO must clear an existing slot, then verify exact files and an existing CTA baseline before reassessment; escalate unresolved capacity by 2026-10-01T09:00:00Z. Revenue remains aggregate and unattributed; no financial or causal-lift claims are supported.",
+        "summary": "Reject all new queue, production, telemetry, spending, monetization, and research admissions. Delivery is saturated; revenue is aggregate and unattributed, so site revenue, margin, ROI, payback, forecasts, and causal lift remain unsupported. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-readiness work. Escalate the overdue saveusfarms.com repair case to CTO and keep SearchWoot private with rights outreach unsent pending counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new queue work this cycle. All 10 delivery slots are occupied; 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. The available site-factory candidates remain launch-blocked pending readiness evidence. Existing work only continues; no deployment, telemetry, spend, credential, configuration, or production changes are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not queue implementation for complicated.work, deadlymaracas.com, or driveford.net. Complete the existing readiness packets by 2026-09-30T17:00:00Z, covering ownership, preview/build, compliance, security, measurement boundary, rollback, and explicit blockers. Escalate incomplete packets to CTO at the deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No actionable candidate can be safely routed to engineer: the three scaffold candidates lack verified launch-readiness evidence, while live-site candidates are occupied by active or measuring work. Reassess the highest-confidence distinct-site candidate after a delivery slot clears; resolve capacity or readiness blockers by 2026-10-01T09:00:00Z and escalate unresolved constraints to the owner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue existing repair-or-close and measurement work only. Do not create, retry, or duplicate queue requests. Complete the overdue saveusfarms.com repair-or-close case with ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence; CTO escalation remains active.",
         "requested_action": null,
         "proposal_id": null
       }

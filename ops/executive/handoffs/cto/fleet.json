@@ -2,35 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:08:04.649Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:39:52.596Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, measurement and repair work remain active, and no new queue admission is technically safe this cycle. Continue existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch-gate, and parked-site readiness work only. Preserve the existing allthingsmasonic.com affiliate CTA improvement as a slot-gated candidate; do not duplicate or preempt current work. Use existing affiliate-click and attributable-outcome telemetry only, preserve causal lift as unknown, and require isolated validation, accessibility/link-integrity checks, and bounded rollback before implementation. Keep revenue at $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, and causal lift remain unknown. Escalate the overdue saveusfarms.com repair-or-close case for dated root-cause or closure evidence, validation, rollback, release/security boundaries, attribution limits, and measurement limits. No deployments, spending, new telemetry, credentials, domains, dependencies, outreach, or unsupported monetization claims.",
+        "summary": "Escalation: the saveusfarms.com repair-or-close case missed its 2026-09-30T07:30Z deadline. Complete or close the existing case with root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence; do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing parked-site readiness packets only. Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Complete the existing readiness evidence covering ownership, preview/build, compliance, security, measurement boundary, rollback point, and explicit blockers; do not create duplicate queue work or authorize publishing, DNS, analytics configuration, monetization, spending, dependency additions, or deployment.",
+        "summary": "Reject all new queue admissions, deployments, telemetry changes, spending, dependencies, and research requests this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 138 stranded work items. Continue only existing measurement, repair-or-close, security evidence, finance reconciliation, private launch-gate, and parked-readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing private launch gates and security evidence matrix. Public exposure and security-sensitive releases remain blocked while rights, privacy, accuracy, measurement, access boundaries, secrets handling, isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure evidence remain incomplete. Use authorized metadata and retained artifacts only; do not access credentials or private containers, alter permissions or configuration, add dependencies, deploy, requeue unchanged work, or conduct external outreach.",
+        "summary": "Complete or close the existing saveusfarms.com case; do not retry unchanged work or create a duplicate. Record dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Escalate any unresolved blocker immediately.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue period-aligned finance reconciliation and deployed-work measurement using available telemetry only. Preserve aggregate provider revenue as unattributed and retain unavailable costs, margin, ROI, payback, forecasts, attribution, conversion, and causal-lift fields as unknown. Authorize no spend, billing changes, monetization expansion, tracking changes, or extrapolation.",
+        "summary": "Continue the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep them parked, private, preview-only, and unlaunched. No build, deployment, DNS, analytics configuration, monetization, spend, dependency addition, or queue entry is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private and preview-only; keep rights outreach unsent pending human-counsel review and owner authorization. Continue only the existing consolidated read-only evidence bundle. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, or monetize.",
         "requested_action": null,
         "proposal_id": null
       }
