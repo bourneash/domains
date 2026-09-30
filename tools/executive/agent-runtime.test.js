@@ -71,5 +71,24 @@ test('two failed manager deliveries pause the lane and block new dispatches', ()
     () => runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: 'blocked-next' }),
     /agent is paused/
   );
+  store.updateAgent(agent.agent_id, {
+    workspace: {
+      ...paused.workspace,
+      accountability: {
+        ...paused.workspace.accountability,
+        suspended_until: new Date(Date.now() - 1000).toISOString(),
+        reprovision_required: true,
+      },
+    },
+  });
+  const recovered = runtime.recoverExpiredAgent(store, store.getAgent(agent.agent_id));
+  assert.equal(recovered.status, 'active');
+  assert.equal(recovered.workspace.accountability.reprovision_count, 1);
+  assert.equal(recovered.workspace.accountability.execution_generation, 1);
+  assert.equal(recovered.workspace.accountability.reprovision_required, false);
+  assert.equal(runtime.accountabilityScore(recovered), 0);
+  assert.doesNotThrow(() =>
+    runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: 'recovered-next' })
+  );
   store.close();
 });

@@ -14064,6 +14064,12 @@ async function renderExecutiveSetup() {
     <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
   </div>`;
   mountExecutiveWorkspaceNav('setup');
+  $('#ex-performance-threshold')
+    ?.closest('.form-grid')
+    ?.insertAdjacentHTML(
+      'beforeend',
+      `<label>Pause after failed deliveries<input id="ex-accountability-pause" class="cm-input" type="number" min="1" max="20" value="${esc(performanceContract.accountability?.pause_after_failures || 2)}"></label><label>Recovery cooldown (minutes)<input id="ex-accountability-recovery" class="cm-input" type="number" min="5" max="1440" value="${esc(performanceContract.accountability?.recovery_cooldown_minutes || 60)}"></label><label>Reprovision after failures<input id="ex-accountability-reprovision" class="cm-input" type="number" min="2" max="50" value="${esc(performanceContract.accountability?.reprovision_after_failures || 4)}"></label>`
+    );
   $('#ex-save-settings')
     ?.closest('.ex-disclosure-body')
     ?.querySelector('.form-grid')
@@ -14118,6 +14124,11 @@ async function renderExecutiveSetup() {
           minimum_score: Number($('#ex-performance-threshold').value),
           restricted_after_windows: Number($('#ex-performance-restricted').value),
           escalation_after_windows: Number($('#ex-performance-escalation').value),
+          accountability: {
+            pause_after_failures: Number($('#ex-accountability-pause').value),
+            recovery_cooldown_minutes: Number($('#ex-accountability-recovery').value),
+            reprovision_after_failures: Number($('#ex-accountability-reprovision').value),
+          },
           weights: {
             output: Number($('#ex-performance-weight-output').value),
             outcomes: Number($('#ex-performance-weight-outcomes').value),

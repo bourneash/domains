@@ -360,9 +360,10 @@ async function processOperatingManager(
 }
 
 function queuedManagerCandidate(store) {
-  const agents = MANAGER_ROLES.map(role => ({ role, agent: store.getAgent(role.slug) })).filter(
-    item => item.agent && item.agent.status === 'active'
-  );
+  const agents = MANAGER_ROLES.map(role => ({
+    role,
+    agent: runtime.recoverExpiredAgent(store, store.getAgent(role.slug)),
+  })).filter(item => item.agent && item.agent.status === 'active');
   const queued = agents.flatMap(({ role, agent }) =>
     store
       .listAgentDispatches({
@@ -371,11 +372,13 @@ function queuedManagerCandidate(store) {
         status: 'queued',
         limit: 1000,
       })
-      .map(dispatch => ({ role, dispatch }))
+      .map(dispatch => ({ role, agent, dispatch }))
   );
   return (
     queued.sort(
-      (a, b) => Date.parse(a.dispatch.created_at || '') - Date.parse(b.dispatch.created_at || '')
+      (a, b) =>
+        runtime.accountabilityScore(b.agent) - runtime.accountabilityScore(a.agent) ||
+        Date.parse(a.dispatch.created_at || '') - Date.parse(b.dispatch.created_at || '')
     )[0] || null
   );
 }

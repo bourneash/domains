@@ -87,7 +87,30 @@ const ACCOUNTABILITY_ROLES = new Set([
   'site-factory-manager',
 ]);
 const DELIVERY_FAILURE_PAUSE_THRESHOLD = 2;
-const DELIVERY_FAILURE_PAUSE_MS = 60 * 60 * 1000;
+const DELIVERY_REPROVISION_THRESHOLD = 4;
+
+function accountabilityPolicy(store) {
+  const configured = store.getExecutiveSettings?.().performance_contract?.accountability || {};
+  const integer = (value, fallback, min, max) => {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : fallback;
+  };
+  return {
+    pause_after_failures: integer(
+      configured.pause_after_failures,
+      DELIVERY_FAILURE_PAUSE_THRESHOLD,
+      1,
+      20
+    ),
+    reprovision_after_failures: integer(
+      configured.reprovision_after_failures,
+      DELIVERY_REPROVISION_THRESHOLD,
+      2,
+      50
+    ),
+    recovery_cooldown_minutes: integer(configured.recovery_cooldown_minutes, 60, 5, 1440),
+  };
+}
 
 function accountabilityState(agent) {
   return agent?.workspace?.accountability && typeof agent.workspace.accountability === 'object'
@@ -99,20 +122,25 @@ function recordAccountabilityOutcome(store, run, { delivered, reason = null } = 
   const agent = store.getAgent(run.agent_id);
   if (!agent || !ACCOUNTABILITY_ROLES.has(agent.role)) return agent;
   const current = accountabilityState(agent);
+  const policy = accountabilityPolicy(store);
   const now = new Date();
   const consecutiveFailures = delivered ? 0 : Number(current.consecutive_failures || 0) + 1;
-  const shouldPause = !delivered && consecutiveFailures >= DELIVERY_FAILURE_PAUSE_THRESHOLD;
+  const totalFailures = Number(current.total_failures || 0) + (delivered ? 0 : 1);
+  const shouldPause = !delivered && consecutiveFailures >= policy.pause_after_failures;
   const nextAccountability = {
     ...current,
     consecutive_failures: consecutiveFailures,
-    total_failures: Number(current.total_failures || 0) + (delivered ? 0 : 1),
+    total_failures: totalFailures,
     total_deliveries: Number(current.total_deliveries || 0) + (delivered ? 1 : 0),
     last_outcome: delivered ? 'delivered' : 'failed_to_deliver',
     last_failure_reason: delivered ? current.last_failure_reason || null : reason,
     last_outcome_at: now.toISOString(),
     suspended_until: shouldPause
-      ? new Date(now.getTime() + DELIVERY_FAILURE_PAUSE_MS).toISOString()
+      ? new Date(now.getTime() + policy.recovery_cooldown_minutes * 60 * 1000).toISOString()
       : current.suspended_until || null,
+    reprovision_required:
+      totalFailures >= policy.reprovision_after_failures || current.reprovision_required === true,
+    reprovision_count: Number(current.reprovision_count || 0),
   };
   const patch = {
     workspace: { ...(agent.workspace || {}), accountability: nextAccountability },
@@ -122,6 +150,36 @@ function recordAccountabilityOutcome(store, run, { delivered, reason = null } = 
     patch.pause_reason = `Automatic performance pause: ${consecutiveFailures} consecutive failed-to-deliver runs. Recovery requires concrete executable output or operator unpause.`;
   }
   return store.updateAgent(agent.agent_id, patch);
+}
+
+function recoverExpiredAgent(store, agent) {
+  if (!agent || !ACCOUNTABILITY_ROLES.has(agent.role) || agent.status !== 'paused') return agent;
+  const until = Date.parse(agent.workspace?.accountability?.suspended_until || '');
+  if (!Number.isFinite(until) || until > Date.now()) return agent;
+  const state = accountabilityState(agent);
+  const next = {
+    ...state,
+    consecutive_failures: 0,
+    last_outcome: 'reprovisioned_recovery_window',
+    last_outcome_at: new Date().toISOString(),
+    reprovision_count: Number(state.reprovision_count || 0) + (state.reprovision_required ? 1 : 0),
+    reprovision_required: false,
+    execution_generation: Number(state.execution_generation || 0) + 1,
+    suspended_until: null,
+  };
+  return store.updateAgent(agent.agent_id, {
+    status: 'active',
+    pause_reason: null,
+    workspace: { ...(agent.workspace || {}), accountability: next },
+  });
+}
+
+function accountabilityScore(agent) {
+  const state = accountabilityState(agent);
+  const deliveries = Number(state.total_deliveries || 0);
+  const failures = Number(state.total_failures || 0);
+  if (!deliveries && !failures) return 50;
+  return Math.max(0, Math.min(100, Math.round((deliveries / (deliveries + failures)) * 100)));
 }
 
 const OVERWATCH_WORKSPACE = {
@@ -196,7 +254,7 @@ function ensureRegistry(store, { model = process.env.EXECUTIVE_MODEL || null } =
 }
 
 function requireAgent(store, agentId) {
-  const agent = store.getAgent(agentId);
+  const agent = recoverExpiredAgent(store, store.getAgent(agentId));
   if (!agent) throw new Error(`agent not found: ${agentId}`);
   if (agent.status !== 'active') throw new Error(`agent is ${agent.status}: ${agent.slug}`);
   return agent;
@@ -322,6 +380,9 @@ module.exports = {
   ensureRegistry,
   requireAgent,
   accountabilityState,
+  accountabilityPolicy,
+  accountabilityScore,
+  recoverExpiredAgent,
   recordAccountabilityOutcome,
   beginRun,
   heartbeat,
