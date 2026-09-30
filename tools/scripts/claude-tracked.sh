@@ -765,28 +765,21 @@ if data is not None:
         model_drift_kind = "mixed_compaction"
     else:
         model_drift_kind = "none"
-    # ---- num_turns vs requested_max_turns: NOT a bug (investigated 2026-09-06) ----
-    # A successful run's num_turns can legitimately read 1-3 turns ABOVE
-    # requested_max_turns (observed: aliencouncil.com content-writer 25/24,
-    # rodhat.com content-writer 41/40, ultrarough.com content 22/19). This is
-    # not a wrapper parsing bug -- both fields are read verbatim, once, from a
-    # single `claude -p --output-format json` call (num_turns straight off
-    # data.get("num_turns"), requested_max_turns off the caller's own
-    # --max-turns arg); the same-run retry above only fires on exit!=0
-    # zero_cost/parse_error failures, never on a success, so it cannot inflate
-    # this. The CLI's own --max-turns cap gates only the primary conversation
-    # loop's turn counter; internal side-queries the engine forks off with
-    # their own tiny maxTurns:1 budget (querySource "compact" / "reactive-
-    # compact" for auto-compaction, plus "agent_summary" / "rename_generate_
-    # name") are NOT counted against that cap, but each one still appends a
-    # turn to the transcript that IS included in the final num_turns the CLI
-    # reports -- confirmed by strings on the installed 2.1.263 binary and by
-    # every overrunning row here showing a second, smaller-model entry in
-    # model_usage (the compaction model) alongside the requested one. Runs
-    # with a bigger overrun (e.g. 22 vs 19) just hit more of these internal
-    # forks (repeated compaction on a long/cache-heavy session), not a retry.
-    # Nothing to fix here; --max-turns is still a real cap on agentic work,
-    # it just doesn't cover the CLI's own bookkeeping turns.
+    # ---- num_turns vs requested_max_turns: NOT a bug (corrected 2026-09-29) ----
+    # A successful run's num_turns can read far ABOVE requested_max_turns
+    # (sinderella.org voice-auditor: 28-55 on a cap of 25; principal-engineer up
+    # to 60 on 40). Both fields are read verbatim from one `claude -p
+    # --output-format json` call, so this is not a wrapper parsing bug or a
+    # retry. Cause: num_turns counts tool-result messages, while --max-turns
+    # counts model turns (API round trips). A model that batches parallel tool
+    # calls in one turn inflates num_turns: session fbe79c49 was 19 assistant
+    # turns / 54 tool calls -> num_turns 55 under --max-turns 25. Verified on
+    # CLI 2.1.140 and 2.1.285 with a forced one-call-per-turn prompt: the cap is
+    # hard and a capped run reports num_turns = cap+1 with subtype
+    # error_max_turns. So only error_max_turns means the budget was exhausted;
+    # `success` with num_turns > cap is benign (tools/ai-usage/aggregate.py
+    # alerts accordingly). An earlier version of this comment blamed compaction
+    # side-queries; that does not explain single-model rows with 30+ extra turns.
     record = {
         "recorded_at_unix": int(time.time()),
         "site": site,

@@ -230,8 +230,17 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 # runaway signal and would otherwise fire an alert on every
                 # single call the role ever makes. Only flag a real budget
                 # squeeze: a cap that allows more than one turn.
+                #
+                # num_turns is NOT a model-turn count: it counts tool-result
+                # messages, and a model that issues several parallel tool calls
+                # per turn inflates it far past --max-turns (verified 2026-09-29:
+                # a 55-num_turns success was 19 assistant turns under a cap of
+                # 25). So `success` with num_turns >= cap is not a near-miss.
+                # Only a run that actually exhausted the cap (error_max_turns,
+                # always reported as cap+1) is a real squeeze.
                 hit_max_turns = bool(
-                    isinstance(requested_turns, int) and requested_turns > 1 and turns >= requested_turns
+                    isinstance(requested_turns, int) and requested_turns > 1
+                    and record.get("subtype") == "error_max_turns"
                 )
                 is_model_drift = bool(record.get("model_drift"))
                 if is_model_drift:
