@@ -2,49 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:54:02.123Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:09:30.803Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new admissions and duplicate evidence work this cycle. Delivery is saturated at 10/10 slots; analytics is unavailable fleet-wide; revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, causal lift, and final AI cost accounting are unsupported. Preserve existing repair, measurement, readiness, security-matrix, and private-gate work only. CTO must complete or close the existing saveusfarms.com repair and release one slot by 2026-10-01T09:00Z; only then may the already-queued allthingsmasonic.com CTA refinement proceed with existing telemetry, tests, metric, and rollback.",
+        "summary": "Reject the candidate plan’s three waiting work items: delivery is saturated at 10/10 slots, analytics is unavailable for 38 expected sites, security and operations evidence is incomplete, and existing repair and measurement work remains open. Preserve existing readiness, repair-or-close, private-gate, and security evidence work only. Do not create production work, high-priority queue admissions, telemetry requests, proposals, research, deployments, spend, credential/configuration changes, or external outreach. Revenue claims remain unsupported: available evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; ROI, margin, revenue lift, and causal impact are unknown. Reconsider the existing allthingsmasonic.com CTA refinement only after the existing saveusfarms.com repair-or-close case is completed or closed and one delivery slot is released.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new work this cycle. Preserve the existing allthingsmasonic.com CTA request as slot-gated only; its 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission are an operating baseline, not proof of revenue or ROI. First complete or close the existing saveusfarms.com repair-or-close case with root cause, validation, rollback, and release-boundary evidence, then release one slot.",
+        "summary": "Route only three bounded, reversible web-vitals repairs as queued, slot-gated engineer work. Do not execute while delivery is saturated at 10/10. Reject revenue, ROI, conversion, causal-lift, spend, telemetry, credential, configuration, deployment, and external-outreach claims. Analytics is unavailable for 38 expected sites; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. CTO must release one slot by 2026-10-01T09:00Z; unresolved capacity escalates to the owner. Preserve existing private, security, repair, readiness, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing private launch-gate evidence work only. Reject the proposed duplicate legal proposal; no new proposal, outreach, launch, affiliate, advertising, or remarketing action is authorized. Close no task without direct dated evidence and human-counsel escalation where required.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing security evidence matrix and private-exposure gate without creating duplicate work items or requesting duplicate telemetry. Preserve unknowns; do not claim certification, compromise, or clearance from missing fleet-doctor and operations evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 active slots, with 54 improvements measuring, 21 failed requests, and 7 repair follow-ups. No candidate can be safely routed without displacing existing work. Preserve containment-only execution; do not claim revenue, ROI, margin, CAC, payback, or causal lift. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00Z; unresolved capacity must be escalated to the owner by that deadline. After release, admit only the already-queued allthingsmasonic.com CTA refinement.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not create or requeue implementation requests while active delivery remains 10/10. Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build evidence, rollback point, and release/security boundary by 2026-10-01T09:00Z. If unresolved, escalate to the owner by that deadline. The next admissible change is the existing allthingsmasonic.com CTA refinement, subject to the recorded baseline, tests, metric, and rollback.",
+        "summary": "Leave site-factory builds and revenue-readiness baselines unqueued because launch-readiness, security, capacity, or measurable-outcome evidence is incomplete. Site-factory owns the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net by 2026-09-30T17:00Z; CTO owns capacity release by 2026-10-01T09:00Z; unresolved blockers escalate to the owner. No production or telemetry changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

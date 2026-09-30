@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:54:02.123Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:09:30.803Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Severity: high for release-clearance uncertainty; no compromise is evidenced. Fleet-doctor is unavailable (ok=false, last_run=null), operations deploy/uptime/error sweeps have no results, and security sitefacts are unknown. Authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No TLS expirations within 30 days are recorded, but complete TLS posture is unknown. Exact decision: keep security-sensitive releases, new public exposure, and gated-product launches blocked. Continue only existing read-only security evidence work and ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Missing evidence is not evidence of a vulnerability or certification.",
+        "summary": "Security disposition: evidence_needed fleet-wide. Exact decision: block security-sensitive releases and new public exposure; conditionally allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Evidence: fleet-doctor has no completed run; operations deploy, uptime, and error sweeps are unavailable; authentication boundaries, secret handling, runtime isolation, release approvals and rollback, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS reports no certificates expiring within 30 days, but configuration coverage is unverified. Compliance is incomplete, with open consent, banner, analytics, privacy, and terms findings. No active vulnerability or compromise is established; severity is high control-evidence uncertainty, not confirmed exploitation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing security evidence matrix; do not create duplicate queue work. Record dated authorized evidence or explicit unknowns for authentication/access boundaries, secrets exposure, runtime isolation, release/deploy controls, TLS, dependency and supply-chain provenance, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The candidate plan is security-compatible only as containment: the allthingsmasonic.com CTA refinement is reversible and adds no credentials, permissions, dependencies, tracking, data collection, or cross-site behavior, but it must remain subject to the existing capacity gate and normal preview/build validation. Do not treat it as security clearance for the fleet or as evidence for any gated launch.",
+        "summary": "Retain the existing fleet security evidence work without creating duplicate requests or telemetry. Complete one consolidated read-only evidence record covering access boundaries, secrets exposure controls, runtime/container isolation, release and deployment provenance, dependency and supply-chain controls, TLS configuration, data flows and exposure, monitoring and incident response signals, and disclosure readiness. Preserve unknowns as unknowns; do not retrieve credentials, access private containers, exploit targets, change permissions, deploy, add dependencies, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       }

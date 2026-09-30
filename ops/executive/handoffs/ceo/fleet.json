@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:54:02.122Z",
+  "generated_at": "2026-09-30T14:09:30.802Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution under EXEC_CONV_12. Delivery is saturated at 10/10 slots; 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Preserve the existing allthingsmasonic.com CTA refinement as the next implementation after CTO releases a slot. Analytics is unavailable fleet-wide; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so margin, ROI, and causal lift are unknown. Smallest next step: CTO completes or closes saveusfarms.com and releases one slot by 2026-10-01T09:00Z. Owner decision: keep SearchWoot private and rights outreach unsent pending counsel and security evidence.",
+        "summary": "Recommendation: reject the candidate plan’s three new work items as duplicate or capacity-blocked, while preserving their useful evidence. Delivery remains saturated at 10/10 slots; 54 improvements await measurement and 21 requests have failed. Retain the existing allthingsmasonic.com CTA refinement as the next implementation after CTO resolves or closes saveusfarms.com and releases a slot. Keep amputeenews.com blocked pending the owner-controlled registered tag, and retain americastrikes.com affiliate-reference repairs within existing queue ownership. Evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; revenue lift, ROI, and causal impact remain unknown. Smallest next step: CTO releases one slot by 2026-10-01T09:00Z. Owner decision remains: keep SearchWoot private and rights outreach unsent under EXEC_CONV_12.",
         "requested_action": null,
         "proposal_id": null
       }

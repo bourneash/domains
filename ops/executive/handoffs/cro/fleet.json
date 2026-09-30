@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:25:11.352Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T14:09:30.802Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with measurement, repair, security, and readiness work open. Create no new proposals, queue items, experiments, telemetry requests, deployments, spend, credential changes, or configuration changes. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible candidate after one slot is released and the existing saveusfarms.com repair-or-close case is resolved or closed. Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure only registered affiliate clicks and available downstream attribution. Prototype: one isolated CTA hierarchy and accessibility diff preserving destination, disclosure, consent behavior, and unrelated routes. Rollback: single-diff revert.",
+        "summary": "CRO review: retain containment-only execution. No new production queue admissions are recommended while delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and analytics is unavailable for 38 expected sites. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible experiment after CTO releases one slot and resolves or closes the existing saveusfarms.com repair case. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Prototype: one isolated CTA hierarchy/accessibility diff preserving destinations, disclosures, consent behavior, and tracking IDs. Metric: registered clicks and available downstream attribution only. Learn in 14 days or 100 relevant impressions/clicks. Rollback: single-diff revert.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain complicated.work as the strongest site-factory pipeline candidate, but readiness-only work remains bounded to the existing packet. The packet must document owner, audience, launch scope, content seed, SEO baseline, analytics and affiliate boundaries, compliance, security, measurement, rollback, and launch disposition. Keep the site private and preview-only. Do not build, deploy, spend, add domains, add credentials, or change production.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue evidence remains bounded. Amazon data covers 2026-09-21 with 6219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, which remains unattributed. Do not claim site-level revenue, conversion lift, ROI, margin, forecast, or causal impact. Current analytics gaps remain unknown, not zero.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private-launch and security gates unchanged. Continue only existing evidence work for rights, privacy, consent, claims, security controls, attribution, measurement, and owner disposition. No public exposure, external outreach, security-sensitive release, or monetization expansion is admissible from this plan.",
+        "summary": "CRO product opportunities retained as deferred specifications for CEO/CTO review after capacity recovers: execution-integrity controls linking approved work to one deduplicated request, owner, acceptance test, rollback, and terminal outcome; capacity-aware site-overlap admission; measurement states distinguishing unavailable telemetry from zero outcomes; scheduler/role health visibility; and AI-cost guardrails using existing usage data. GitHub evidence supports research only: microsoft/markitdown is MIT with 8/8 bounded checks and a plausible content-discovery use case; shadcn-ui/ui is MIT with 3/3 bounded checks and a plausible reusable UX-component use case; mermaid is MIT with supported SEO/content fit but no native checks. No dependencies were installed, production was not accessed, and security, maintenance, integration, and adoption risks remain unresolved. Smallest reversible prototypes are disposable-workspace evaluations or isolated preview components; no deployment or dependency adoption is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

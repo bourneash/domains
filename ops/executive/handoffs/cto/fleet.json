@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:54:02.122Z",
+  "generated_at": "2026-09-30T14:09:30.801Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Capacity remains blocked at 10/10 active slots. Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, rollback, and release-boundary evidence by 2026-10-01T09:00Z. Do not admit duplicate work or new CRO/site-factory prototypes. Once a slot clears, execute the already-queued allthingsmasonic.com CTA refinement.",
+        "summary": "Containment-only execution remains active at 10/10 delivery slots. Retain existing repair work and admit no duplicate production changes until one slot is released. Validate all affiliate repairs in preview with deterministic link, disclosure, build, and rollback checks.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment-only execution. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repair follow-ups. Admit no new production work this cycle. Complete or close the existing saveusfarms.com repair-or-close case and release one slot by 2026-10-01T09:00:00Z. Then execute only the already-queued allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent pending counsel and security evidence. Do not claim revenue, ROI, margin, or causal lift beyond recorded attribution boundaries.",
+        "summary": "CTO review: accept containment-only execution. Reject the candidate plan's three new work items as duplicate or capacity-blocked; create no new proposals, change requests, research requests, telemetry requests, deployments, spend, credentials, or configuration changes. Delivery is saturated at 10/10 slots, analytics is unavailable for 38 expected sites, operations and fleet-doctor evidence are unavailable, and security controls remain unevidenced. Preserve existing repair, measurement, readiness, and private-gate work. Retain the existing allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair-or-close case is completed or closed and one delivery slot is released. Its scope remains one isolated reversible diff using existing dependencies, unchanged destinations and disclosures, focused accessibility/link/build/smoke validation, registered affiliate-click measurement, explicit unknowns for unavailable telemetry, and single-diff rollback. Keep parked site-factory work preview-only and readiness-only. Keep SearchWoot private with external rights outreach unsent pending counsel and owner authorization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After a slot is released, execute request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Limit scope to clearer existing affiliate CTA text and hierarchy while preserving disclosure placement, destinations, consent behavior, and site functionality. Run build, deterministic link and destination checks, keyboard/accessibility checks, responsive smoke tests, and disclosure-presence checks. Roll back only the bounded CTA/style/content diff if validation fails. Use existing telemetry only; report clicks and commission only at their recorded attribution scope.",
+        "summary": "Technical disposition: the proposed execution-integrity, capacity-aware admission, measurement-state, scheduler-health, and AI-cost guardrail concepts are feasible as future control-plane work, but they are deferred specifications only. Do not prototype, add dependencies, alter scheduler behavior, or create duplicate queue items while capacity and existing repair work remain unresolved. AI-usage data may inform later review, but no cost threshold or financial outcome is asserted without an approved implementation and matched evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing complicated.work readiness packet only. Keep the site preview-only and do not build, publish, add domains, spend, add tracking, or claim readiness until ownership, compliance, security, measurement, preview-validation, and rollback evidence are complete.",
+        "summary": "Retain the existing amputeenews.com affiliate prerequisite and americastrikes.com affiliate-reference repairs within their current queue ownership. Do not deploy or broaden either item: the first requires owner-controlled registered-tag evidence, and the second is limited to verified broken or stale references with unchanged registered tracking IDs and disclosures.",
         "requested_action": null,
         "proposal_id": null
       }

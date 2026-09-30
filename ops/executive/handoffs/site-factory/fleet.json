@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T13:07:55.120Z",
+  "generated_at": "2026-09-30T14:09:30.802Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a bounded, preview-only site-factory pipeline. Strongest candidate: complicated.work, scored 84 for a first shippable public surface, but implementation admission remains blocked by incomplete readiness evidence, parked status, failed compliance checks, unavailable analytics, saturated delivery capacity, and incomplete security evidence. Do not publish, add domains, spend, deploy, or configure telemetry. Complete the existing readiness packet before any build admission.",
+        "summary": "Containment-only site-factory disposition. Maintain a small readiness pipeline of complicated.work, deadlymaracas.com, and driveford.net; all remain private, preview-only, and unlaunched. Use one reusable launch packet covering: owner and legal disposition; audience and positioning; bounded template; content seed; SEO metadata, sitemap, and crawlability baseline; analytics and affiliate readiness without inventing telemetry; compliance disclosures and consent; security and release evidence; measurement boundaries; rollback point; and explicit launch gate. Current analytics, operations, and material security evidence are unavailable or incomplete, so unknowns remain unknown. Do not add domains, spend, deploy, publish, configure telemetry, add credentials, or monetize. Exactly one next step: site-factory completes the already-existing complicated.work readiness packet with dated ownership, preview/build evidence, compliance, security, measurement boundary, rollback, and explicit blocker evidence; no duplicate request is created.",
         "requested_action": null,
         "proposal_id": null
       }
