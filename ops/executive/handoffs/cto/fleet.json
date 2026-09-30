@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:23:22.149Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:53:05.793Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve the CEO containment plan with no new queue admissions this cycle. The plan is technically feasible only as existing-work containment and slot-gated follow-through. Preserve the existing allthingsmasonic.com CTA request for reconsideration after capacity clears, but do not duplicate or preempt active work. Keep private launch gates, security evidence, finance reconciliation, deployed-work measurement, and parked-site readiness active. Revenue evidence remains aggregate and unattributed; do not claim ROI, margin, or causal lift.",
+        "summary": "CTO disposition: do not admit new implementation, research, telemetry, spending, deployment, or monetization work this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 134 stranded work items. Retain the single-flight execution-integrity concept as a deferred specification. It is technically feasible and reversible, but implementation must wait for capacity and use an isolated control-plane worktree. First resolve the existing overdue saveusfarms.com repair-or-close case and preserve current launch, security, finance, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-09-30T07:30Z. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate.",
+        "summary": "Continue existing repair, measurement, security-evidence, finance-reconciliation, and launch-gate work only. Do not create duplicate queue requests. When capacity clears, reassess the deferred single-flight control-plane specification before admitting any implementation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep each parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and blocker evidence by 2026-09-30T17:00Z; escalate incomplete packets to CTO.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "summary": "Revenue intent is preserved through existing affiliate repair and attribution work. Keep the 2026-09-21 Amazon result aggregate and unattributed; do not infer site revenue, ROI, margin, payback, forecasts, or causal lift. Prioritize existing registered-tag, affiliate-reference, and CTA work only after queue capacity and site-level gates permit it.",
         "requested_action": null,
         "proposal_id": null
       }

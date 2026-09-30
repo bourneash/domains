@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T07:23:22.150Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:53:05.793Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue existing attribution reconciliation only. Preserve the aggregate provider row as unattributed and validate registered tracking-ID coverage for new affiliate links. Do not assign aggregate earnings to sites or claim site revenue, margin, ROI, payback, forecasts, or causal lift.",
+        "summary": "Preserve the Amazon result as aggregate and unattributed. Do not convert clicks, ordered items, shipped items, sessions, conversions, impressions, proposal counts, or AI calls into revenue or ROI claims. Continue the existing tracking-ID audit and affiliate repair work only, using registered site/content identifiers.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement-only handling for deployed work. Cost-to-learn requires a dated experiment or work-item ledger linking site/content, treatment, exposure window, allocated AI and infrastructure cost, and an approved learning threshold; these fields are absent. Do not create telemetry or requeue work.",
         "requested_action": null,
         "proposal_id": null
       }
