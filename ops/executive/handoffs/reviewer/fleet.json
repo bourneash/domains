@@ -2,42 +2,105 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T08:08:04.648Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T08:25:11.931Z",
+  "summary": "reviewer checked in 14 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment only. Delivery is saturated at 10/10 slots, so preserve existing readiness, measurement, repair, security, finance, and private-gate work. Do not admit new site-factory implementation work until a slot clears and the applicable owner, legal, security, measurement, and rollback gates are evidenced.",
+        "summary": "Reviewer disposition: reject new production, queue, telemetry, spending, monetization, and research admissions this cycle. Delivery is saturated at 10/10 slots with active measurement, failed requests, and open repairs. Revenue remains only $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, forecasts, cost-to-learn, and causal lift are unknown. Continue existing containment and evidence work only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment only. Reject all new queue admissions, production changes, spend, telemetry changes, deployments, dependencies, outreach, and unchanged requeues. Delivery is saturated at 10/10; preserve only existing repair-or-close, deployed-work measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work.",
+        "summary": "Escalate the overdue saveusfarms.com repair-or-close case. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue is limited to the 2026-09-21 aggregate Amazon result: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission. Site revenue, margin, ROI, payback, forecasts, cost-to-learn, and causal lift remain unknown; authorize no spend or monetization expansion.",
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep them parked, private, preview-only, and unlaunched. Attach dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Escalate the overdue saveusfarms.com repair-or-close case to CTO. Require dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and preview-only; keep rights outreach unsent pending counsel review and owner authorization. Continue only the existing consolidated read-only evidence bundle and close no launch task without direct evidence.",
+        "summary": "Maintain the existing private launch gate and consolidated read-only evidence work. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or create duplicate evidence work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, labor cost, and cost-to-learn unknown; authorize no spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 open repairs. Preserve existing measurement, repair-or-close, security evidence, finance reconciliation, private launch gates, and parked-site readiness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Escalate the overdue saveusfarms.com repair-or-close case. Record ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Do not retry unchanged work or create a duplicate request.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Complete the existing readiness packets by 2026-09-30T17:00Z; escalate incomplete packets to CTO. No build, publish, deployment, DNS, analytics, monetization, spending, dependency addition, or queue entry is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Keep public exposure and security-sensitive releases blocked while material controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch gate and consolidated read-only evidence bundle. Keep rights outreach unsent pending human-counsel review and owner authorization. Do not expose publicly, expand alerts, deploy, change credentials or configuration, add dependencies, monetize, or create duplicate evidence work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, conversion, cost, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue period-aligned reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No high-confidence implementation candidate can be safely queued: all delivery slots are occupied, candidate sites have existing work or measurement gates, and the three scaffold candidates remain launch-blocked. Reassess the next distinct-site candidate after a slot clears and the relevant owner completes the dated unblock action.",
         "requested_action": null,
         "proposal_id": null
       }
