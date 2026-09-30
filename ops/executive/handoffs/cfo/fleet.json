@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:48:10.260Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:57:54.711Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: preserve containment and authorize no new spend, billing changes, infrastructure expansion, or monetization claims. Retain the existing allthingsmasonic.com CTA refinement only as slot-gated, reportable implementation with no incremental budget; do not admit new site-factory, CRO, or duplicate finance work while delivery is saturated at 10/10 slots. Revenue support is insufficient for ROI or forecast claims: Amazon evidence covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\". The $4.92 cannot be assigned to a site; named tracking rows show $0 site-attributed commission. The available 2026-09-01 through 2026-09-30 AI ledger reports 5,522 calls, 234 errors, and $997.51762695 cost, or approximately $0.1806 per call. Comparing the full-month AI cost with the one-day aggregate commission would imply a provisional -$992.60 before infrastructure or other costs, but that comparison is not a valid contribution margin because the revenue and cost windows and attribution scopes do not match. Contribution margin is not calculable: direct infrastructure, hosting, registrar, labor, payment, affiliate, and other variable costs are absent. AI-only contribution after the reported aggregate revenue is likewise not a site or period margin. Cost-to-learn is not calculable because AI spend, implementation effort, exposures, outcomes, and attributable revenue are not linked by work item or experiment. Infrastructure spend and budget exposure are not calculable because no billing ledger, invoices, approved monthly spend limit, fixed-cost baseline, or marketing budget is present; the brief leaves monthly spend, fixed costs, marketing budget, revenue target, and revenue floor blank. Minimum measurement needed is one read-only dated cost ledger joining AI usage, infrastructure/hosting/registrar invoices, and implementation effort to site or shared-fleet identifiers and work-item IDs, plus a revenue ledger with matching periods, tracking IDs, ordered/shipped status, commission, and direct-cost allocation. Until that exists, treat $4.92 as aggregate cash revenue evidence only, $997.52 as AI operating-cost evidence only, and all site-level revenue, contribution margin, cost-to-learn, ROI, forecasts, and payback claims as unsupported. Preserve the existing report-only CFO reconciliation artifact if present; do not request duplicate telemetry.",
+        "summary": "CFO recommendation: reject the scheduler/cron control-surface proposal this cycle. It has no demonstrated financial benefit, while delivery is saturated at 10/10 slots and execution remains weak: 288 approved proposals, 63% execution rate, 108 approved proposals unexecuted, and 21 failed requests. Preserve the existing allthingsmasonic.com CTA refinement only after the saveusfarms.com capacity gate is resolved. Financially, treat revenue as unproven: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all commission is in an unattributed aggregate row. Do not claim site revenue, contribution margin, ROI, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The queued allthingsmasonic.com CTA refinement remains financially acceptable only as a bounded, reversible, no-new-spend test after capacity clears. Use the existing baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure changed-page outbound clicks for 14 days or 100 relevant impressions/clicks, preserve the registered tracking ID, and report revenue as unknown unless a matched site-attributed commission row appears. Do not generalize any click lift into revenue, contribution margin, ROI, or forecasted earnings.",
+        "summary": "AI spend is measurable but not yet investable by outcome: $997.52 from 5,522 calls during 2026-09-01 through 2026-09-30, including 234 errors and 5 transient errors. The arithmetic average is approximately $0.181 per call, but cost-to-learn per experiment, shipped outcome, conversion, or revenue dollar is not calculable because experiment-level cost attribution and direct operating-cost identifiers are absent. Use existing telemetry for a report-only finance ledger; do not add telemetry, spend, billing changes, or infrastructure changes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Contribution margin and budget exposure are currently unknown. The brief provides no monthly spend limit, fixed-cost total, marketing budget, domain renewal cost, hosting/infrastructure cost, labor allocation, or complete site-level revenue attribution. Minimum measurement is a dated cost ledger keyed to site and fleet work: AI cost, hosting/edge cost, domains, paid services, and attributable commission, with revenue and shipped-item dates aligned. Until that exists, retain investment-test and repair-monetization labels as operating hypotheses, not financial conclusions.",
         "requested_action": null,
         "proposal_id": null
       }

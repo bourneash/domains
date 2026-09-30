@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:48:10.260Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:57:54.711Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Preserve containment: keep new public exposure, go-live, and security-sensitive releases blocked. Permit ordinary reversible growth only when it introduces no new credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security baseline covers 61 managed sites, but fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, data exposure, and security.txt/disclosure readiness remain unknown. Compliance reports 35 pass, 20 fail, and 6 unknown; HTTPS checks exist for some sites but do not establish complete TLS control evidence. No compromise is evidenced, and no certification or clean bill of health is claimed. Risk severity: high for public launch and security-sensitive releases; medium for bounded reversible growth. Exact decision: retain the existing private launch and release gates, including SearchWoot private status and unsent rights outreach, and continue the existing read-only security evidence matrix. Do not create duplicate security work, retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "summary": "Security disposition: evidence_needed. Fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, TLS evidence beyond compliance checks, data exposure controls, and security.txt/disclosure readiness remain unevidenced. This is a high-severity evidence gap for go-live and security-sensitive releases, not evidence of compromise or certification. Maintain private-launch and security-sensitive release gates. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Security review of the candidate plan: retain the existing private-preview posture and the four read-only legal evidence tasks, but do not clear SearchWoot for beta or full launch. Security evidence is incomplete for authentication, access boundaries, secrets, isolation, release/deploy controls, dependency and supply-chain provenance, monitoring, incident response, data exposure, TLS, and disclosure readiness. No credentials, permissions, configuration, deployment, new dependencies, telemetry, or external outreach should be added.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The existing allthingsmasonic.com CTA refinement is security-approved only for its bounded scope: CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, and destination integrity. Require deterministic tests, build and smoke evidence, rollback point, and release-boundary evidence. Do not add routes, dependencies, telemetry, credentials, permissions, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       }

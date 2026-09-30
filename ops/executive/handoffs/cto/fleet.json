@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:48:10.260Z",
+  "generated_at": "2026-09-30T22:57:54.711Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment only. Do not create new proposals, telemetry, prototypes, site-factory admissions, security work, or duplicate queue requests while all 10 delivery slots are occupied and measurement/repair work remains active. Preserve existing security and launch gates; missing operations and fleet-doctor evidence does not support clearance. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release a slot only after that evidence is recorded; otherwise escalate to the owner.",
+        "summary": "CTO disposition: reject scheduler/cron control-surface implementation this cycle. It is technically feasible as a deferred control-plane specification, but delivery is saturated at 10/10 slots and current operations/fleet-doctor evidence is unavailable. No schedule, credential, permission, deployment, or telemetry changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the already-queued allthingsmasonic.com CTA refinement as the sole next implementation after capacity clears. Do not create a replacement request. Before execution, confirm the existing site-overlap queue is consolidated and the request remains the canonical work item. Scope remains isolated to highest-intent commercial pages: CTA hierarchy, adjacent readable disclosure, preserved destination and registered tracking ID, keyboard focus, and responsive spacing; no new dependencies, credentials, configuration, tracking, or cross-site behavior.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release capacity only after that evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue and measurement disposition: preserve unknowns. The available Amazon record is a single aggregate, unattributed window; it does not support site revenue, ROI, margin, forecast, or causal-lift claims. Validate the CTA change with deterministic build, smoke, link/destination, keyboard-focus, and responsive checks, then use only existing outbound-click and available attribution evidence. Keep parked-site previews deferred until their existing readiness artifacts and all owner, Legal, Security, measurement, reviewer, and rollback gates are complete.",
+        "summary": "After one slot is released, retain the existing allthingsmasonic.com CTA refinement as the sole next implementation. Do not create a duplicate request or claim conversion, revenue, ROI, or causal lift; measure registered affiliate clicks and available downstream attribution only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing consolidated security evidence matrix and private launch gates as report-only work. Continue using authorized metadata and retained artifacts; do not request duplicate telemetry, access credentials or private containers, modify permissions or configuration, add dependencies, deploy, or conduct external outreach. The current evidence does not support security certification or clearance.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net as deferred preview-only candidates. Do not admit site-factory builds or launch-readiness work while capacity and launch gates remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:48:10.259Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T22:57:54.711Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: preserve containment this cycle. Delivery is saturated at 10/10 slots, with active measurement and failed-request repair work already consuming capacity. Retain the existing allthingsmasonic.com CTA refinement as the sole next revenue experiment after CTO releases a slot by completing or closing the saveusfarms.com repair-or-close case with validation, rollback, release-boundary, attribution, and measurement evidence. Baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Expected metric: outbound affiliate clicks on changed pages over 14 days or 100 relevant impressions/clicks; revenue, ROI, margin, and causal lift remain unknown. Prototype scope: CTA hierarchy, adjacent disclosure, preserved tracking ID and destination, keyboard focus, and responsive spacing. GitHub candidates remain research-only: bounded lab evidence supports plausible fit for MarkItDown, Mermaid, and shadcn/ui, but does not establish maintenance, security, dependency, license-fit, or revenue suitability. No new prototype, proposal, telemetry, deployment, spend, credential, domain, or duplicate queue work should be admitted this cycle.",
+        "summary": "CRO disposition: reject the new scheduler/cron control-surface proposal this cycle. It is duplicate control-plane scope while delivery is saturated at 10/10 slots. Preserve it as deferred research only; do not admit implementation, add telemetry, change schedules, credentials, permissions, or deployments.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: the smallest reversible product opportunity remains a reusable affiliate-CTA pattern validated first on allthingsmasonic.com, then considered for other eligible sites only after measured evidence and capacity clearance. Acceptance requires deterministic build and smoke checks, link and destination validation, keyboard focus and responsive checks, visible disclosure before interaction, preserved registered tracking ID, and isolated rollback. Do not generalize from aggregate Amazon results: the available provider row contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, but it is unattributed.",
+        "summary": "CRO handoff: complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, and release-boundary documentation. After one slot is released, execute the canonical allthingsmasonic.com CTA refinement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO measurement boundary: allthingsmasonic.com has 61 registered Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered affiliate clicks for 14 days or 100 relevant new impressions/clicks; downstream revenue, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       }
