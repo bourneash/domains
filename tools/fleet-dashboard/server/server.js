@@ -71,6 +71,7 @@ const executiveScorecard = require('./executive-scorecard');
 const executivePerformance = require('./executive-performance');
 const executiveCalendar = require('./executive-calendar');
 const agentRuntime = require('../../executive/agent-runtime');
+const operatingLayer = require('../../executive/operating-layer');
 const agentHeartbeat = require('../../executive/agent-heartbeat');
 const agentToolGateway = require('../../executive/agent-tool-gateway');
 const agentDispatcher = require('../../executive/agent-dispatcher');
@@ -458,6 +459,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   const events = eventstore.open(root);
   auth.configureExternalAuthenticator(token => Boolean(events.authenticateApiCredential(token)));
   agentRuntime.ensureRegistry(events);
+  // Keep the operating layer present even before the first owner request so
+  // the dashboard can expose capacity and operators can inspect its queues.
+  operatingLayer.ensureOperatingTeam(events);
+  // Repair historical acknowledgements at boot. This closes the old gap where
+  // a handoff could exist without any executable run behind it.
+  operatingLayer.reconcileOwnerRequests(events);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
@@ -5010,6 +5017,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/executive/operating-team', (req, res) => {
+    try {
+      res.json(operatingLayer.operatingTeamStatus(events));
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+  app.post('/api/executive/operating-team/reconcile', (req, res) => {
+    try {
+      res.json({ results: operatingLayer.reconcileOwnerRequests(events) });
+    } catch (e) {
+      res.status(e.httpStatus || 400).json({ error: e.message });
+    }
+  });
   app.get('/api/executive/knowledge', (req, res) => {
     try {
       res.json({ knowledge: events.listExecutiveKnowledge(req.query) });
@@ -6276,6 +6297,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
   const queuePulse = setInterval(() => {
+    operatingLayer.reconcileOwnerRequests(events);
     executive.escalateOverdueOwnerRequests(events);
     executive.escalateOverdueWorkItems(events);
     void executiveNotify.drain(events).catch(() => {});

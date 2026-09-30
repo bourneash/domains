@@ -51,8 +51,11 @@ test('turns an owner request into a tracked executive work item and thread', () 
   assert.equal(tracked.message.work_id, tracked.work_item.work_id);
   assert.equal(tracked.message.message_type, 'decision_request');
   assert.equal(tracked.work_item.source_type, 'owner-request');
-  assert.equal(tracked.work_item.status, 'waiting');
-  assert.equal(db.listExecutiveMessages({ work_id: tracked.work_item.work_id }).length, 1);
+  assert.equal(tracked.work_item.status, 'in_progress');
+  assert.equal(tracked.work_item.lifecycle_state, 'actioned');
+  assert.equal(tracked.execution.dispatch.status, 'queued');
+  assert.equal(tracked.execution.task.owner, 'operations-manager');
+  assert.equal(db.listExecutiveMessages({ work_id: tracked.work_item.work_id }).length, 2);
   db.close();
 });
 
@@ -150,11 +153,13 @@ test('links replies by reply_to, advances the request, and creates an unread not
   });
   assert.equal(reply.work_id, request.work_item.work_id);
   assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).status, 'in_progress');
-  const notification = db.listExecutiveNotifications({ unread: true })[0];
+  const notification = db
+    .listExecutiveNotifications({ unread: true })
+    .find(item => item.message_id === reply.message_id);
   assert.equal(notification.work_id, request.work_item.work_id);
   assert.equal(notification.message_id, reply.message_id);
   db.markExecutiveNotificationRead(notification.notification_id);
-  assert.equal(db.listExecutiveNotifications({ unread: true }).length, 0);
+  assert.equal(db.listExecutiveNotifications({ unread: true }).length, 1);
   db.close();
 });
 
@@ -175,7 +180,7 @@ test('acknowledges owner requests when downstream work is handed off', () => {
   assert.equal(first.reply_to, request.message.message_id);
   assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'actioned');
   assert.equal(db.getExecutiveWorkItem(request.work_item.work_id).waiting_on, 'worker');
-  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 2);
+  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 3);
   const retry = executive.acknowledgeOwnerRequestHandoff(db, request.work_item.work_id, {
     downstream_type: 'change-request',
     downstream_id: 'change-123',
@@ -183,7 +188,7 @@ test('acknowledges owner requests when downstream work is handed off', () => {
     site: 'example.com',
   });
   assert.equal(retry.message_id, first.message_id);
-  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 2);
+  assert.equal(db.listExecutiveMessages({ work_id: request.work_item.work_id }).length, 3);
   db.close();
 });
 
@@ -197,12 +202,8 @@ test('enforces owner-request lifecycle transitions and requires a close outcome'
     () => executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed'),
     /requires an outcome/
   );
-  const acknowledged = executive.transitionOwnerRequest(
-    db,
-    request.work_item.work_id,
-    'acknowledged'
-  );
-  assert.equal(acknowledged.lifecycle_state, 'acknowledged');
+  const acknowledged = executive.transitionOwnerRequest(db, request.work_item.work_id, 'measured');
+  assert.equal(acknowledged.lifecycle_state, 'measured');
   const closed = executive.transitionOwnerRequest(db, request.work_item.work_id, 'closed', {
     outcome: 'Decision recorded in the release plan.',
   });

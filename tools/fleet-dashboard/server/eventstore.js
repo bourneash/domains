@@ -2256,6 +2256,11 @@ function open(root, { file } = {}) {
     'growth-director',
     'revenue-ops',
     'site-factory',
+    'operations-manager',
+    'site-factory-manager',
+    'engineering-manager',
+    'growth-manager',
+    'design-manager',
   ]);
 
   function createOrganization(input = {}) {

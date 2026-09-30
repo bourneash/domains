@@ -77,8 +77,8 @@ test('owner and executive team can complete a durable request/reply conversation
     assert.equal(inbox.status, 200);
     const tracked = inbox.body.requests.find(item => item.work_id === workId);
     assert.ok(tracked);
-    assert.equal(tracked.messages.length, 2);
-    assert.equal(tracked.messages[1].actor, 'ceo');
+    assert.equal(tracked.messages.length, 3);
+    assert.equal(tracked.messages[2].actor, 'ceo');
     assert.equal(tracked.lifecycle_state, 'answered');
 
     const followUp = await request(server, 'POST', '/api/executive/messages', {
@@ -97,7 +97,7 @@ test('owner and executive team can complete a durable request/reply conversation
       `/api/executive/messages?work_id=${workId}&limit=10`
     );
     assert.equal(thread.status, 200);
-    assert.equal(thread.body.messages.length, 3);
+    assert.equal(thread.body.messages.length, 4);
     assert.equal(thread.body.messages.at(-1).actor, 'owner');
   } catch (error) {
     console.error('executive messaging E2E failure:', error);

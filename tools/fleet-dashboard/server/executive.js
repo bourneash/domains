@@ -25,6 +25,11 @@ const ACTORS = new Set([
   'growth-director',
   'revenue-ops',
   'site-factory',
+  'operations-manager',
+  'site-factory-manager',
+  'engineering-manager',
+  'growth-manager',
+  'design-manager',
 ]);
 const PROPOSAL_TYPES = new Set([
   'business',
@@ -51,6 +56,7 @@ const ACTION_TYPES = new Set([
   'other',
 ]);
 const changequeue = require('./changequeue');
+const operatingLayer = require('../../executive/operating-layer');
 const OWNER_REQUEST_LIFECYCLE = new Set([
   'submitted',
   'acknowledged',
@@ -165,7 +171,38 @@ function ownerRequest(store, input = {}) {
     work_id: workItem.work_id,
     message_type: 'decision_request',
   });
-  return { message: ownerMessage, work_item: workItem };
+  // An owner request is not complete when the executive team acknowledges it.
+  // Immediately create the manager-owned execution case and real runtime
+  // dispatch. If dispatch cannot be created, leave the request visibly
+  // blocked instead of claiming that work has started.
+  try {
+    const execution = operatingLayer.enqueueOwnerRequest(store, workItem);
+    acknowledgeOwnerRequestHandoff(store, workItem.work_id, {
+      downstream_type: 'operating-manager',
+      downstream_id: execution.task.work_id,
+      title: execution.task.title,
+      site: execution.task.site,
+    });
+    return {
+      message: ownerMessage,
+      work_item: store.getExecutiveWorkItem(workItem.work_id),
+      execution,
+    };
+  } catch (error) {
+    const blocked = store.updateExecutiveWorkItem(workItem.work_id, {
+      status: 'blocked',
+      lifecycle_state: 'acknowledged',
+      waiting_on: 'system',
+      next_action: `Repair operating-layer dispatch before this request can proceed: ${error.message}`,
+      last_error: error.message,
+    });
+    return {
+      message: ownerMessage,
+      work_item: blocked,
+      execution: null,
+      dispatch_error: error.message,
+    };
+  }
 }
 
 function ensureOwnerRequests(store) {
@@ -324,16 +361,25 @@ function acknowledgeOwnerRequestHandoff(store, sourceWorkId, input = {}) {
 
   const current = store.getExecutiveWorkItem(source.work_id);
   if (current && !['closed', 'done', 'cancelled'].includes(current.lifecycle_state)) {
-    const targetState = ['change-request', 'site-factory'].includes(downstreamType)
+    const targetState = ['change-request', 'site-factory', 'operating-manager'].includes(
+      downstreamType
+    )
       ? 'actioned'
       : 'answered';
-    const patch = ['change-request', 'site-factory'].includes(downstreamType)
+    const patch = ['change-request', 'site-factory', 'operating-manager'].includes(downstreamType)
       ? {
-          waiting_on: downstreamType === 'site-factory' ? 'site-factory' : 'worker',
+          waiting_on:
+            downstreamType === 'site-factory'
+              ? 'site-factory'
+              : downstreamType === 'operating-manager'
+                ? 'operating-manager'
+                : 'worker',
           next_action:
             downstreamType === 'site-factory'
               ? 'Site Factory onboarding is dispatched; readiness, preview, and launch gates will be posted to this thread.'
-              : 'Worker execution is queued; progress and results will be posted to this thread.',
+              : downstreamType === 'operating-manager'
+                ? 'An operating manager run is queued; the manager must produce an artifact or an explicit blocker.'
+                : 'Worker execution is queued; progress and results will be posted to this thread.',
         }
       : {
           waiting_on: 'executive-team',
