@@ -2,15 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:09:20.659Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:24:51.502Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Do not clear fleet-wide go-live or security-sensitive releases. Evidence: security baseline generated 2026-09-30T16:50:07Z reports fleet-doctor not run with no findings; operations deploy, uptime, and error sweeps have no results; authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt readiness are unevidenced. Compliance reports 35 pass, 20 fail, and 6 unknown across 61 sites; data quality is green/yellow but does not establish security controls. This is not evidence of compromise. Recommendation: maintain existing private and security-sensitive release gates; permit ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, or cross-site behavior. Complete the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Risk severity: high for unsupported public exposure or security-sensitive release; medium for monitoring and disclosure-readiness gaps. Do not retrieve credentials, access private containers, exploit targets, change permissions/configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Security disposition: evidence_needed fleet-wide; blocked for new public exposure and security-sensitive releases. Fleet-doctor has no run or findings, and operations deploy, uptime, and error sweeps have no results. Authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, TLS coverage, data exposure, incident signals, and disclosure readiness therefore remain unevidenced. No compromise is established. Continue only bounded read-only evidence work and ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommend keeping existing private launch and security-sensitive release gates unchanged. Evidence severity is high for release assurance because fleet-doctor and operations baselines are unavailable; TLS evidence is partial, with no certificates expiring within 30 days but no complete control verification. SearchWoot remains private and blocked pending its existing rights, data-flow, accuracy, measurement, and security gates. Do not claim certification, clean health, or absence of incidents.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Fleet-wide security clearance is unsupported. The scheduled security baseline reports fleet-doctor ok=false with no run, sites, or checks; operations reports no deploy, uptime, or error sweep results; and security sitefacts are unknown for all 61 managed sites. This is an evidence gap, not proof of compromise. Keep new public exposure and security-sensitive releases blocked while permitting ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
+        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence, affected scope, owner, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release/deployment controls, dependency and supply-chain risk, TLS, data exposure, monitoring and incident response, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
         "proposal_id": null
       }
     ]

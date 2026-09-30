@@ -2,23 +2,44 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:09:20.659Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:24:51.502Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked. Keep searchwoot.com private and preview-only. Public data exposure, affiliate or advertising use, and rights outreach remain unauthorized pending authoritative Woot permission, human-counsel review, technical accuracy/freshness evidence, security evidence, measurement reconciliation, and owner disposition. Existing read-only evidence is partial; no launch-readiness task is closed.",
+        "summary": "Risk disposition: blocked. Keep searchwoot.com private, preview-only, and unlaunched. Evidence shows Woot API access and rate limits, but no permission to store, derive, cache, publicly display, alert on, or monetize returned data; public terms point against the proposed commercial/public use. Security, accuracy/freshness, measurement, and launch-owner gates are also incomplete. Human counsel is required before rights outreach, public exposure, affiliate use, advertising, or any exception.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is technical triage only: 35 pass, 20 fail, 6 unknown, with open banner, accept, reject, GA4, privacy, and terms findings. Analytics is available for 39 configured sites and incomplete telemetry alone does not block ordinary reversible growth. Do not clear public-launch or security-sensitive gates while operations and fleet-doctor evidence are unavailable. Preserve affiliate disclosure, provenance, rights, claims, platform-policy, and age-sensitive boundaries.",
+        "summary": "Fleet compliance baseline is technical triage only: 35 pass, 20 fail, and 6 unknown across 61 checked properties. Twenty findings each remain for banner, consent accept, consent reject, and GA4 checks; four privacy and four terms findings remain. Do not treat incomplete telemetry as a standalone growth blocker, but do not clear affected launch or monetization gates without site-specific evidence.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "For parked or gated properties, retain the concrete decision: keep complicated.work, deadlymaracas.com, and driveford.net parked, private, preview-only, and unlaunched. Next evidence action: attach dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. No publish, deploy, DNS change, analytics configuration, monetization, spend, dependency addition, or new queue entry is cleared.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "dd8f371b-4e50-4cd3-acc9-cf10bfacf9f9",
+        "summary": null,
+        "requested_action": "accepted_research",
+        "proposal_id": "dd8f371b-4e50-4cd3-acc9-cf10bfacf9f9"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "3943617d-d299-4fe7-94da-08645d281e65",
+        "summary": null,
+        "requested_action": "accepted_research",
+        "proposal_id": "3943617d-d299-4fe7-94da-08645d281e65"
       }
     ]
   }

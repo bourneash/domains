@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T20:09:20.659Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-09-30T20:24:51.502Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, 7 repair follow-ups, and 193 stranded work items. Do not admit new implementation, prototypes, site-factory work, telemetry changes, spend, credentials, configuration changes, deployment, or duplicate queue work this cycle. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, and release boundary. Only after that evidence is recorded may one slot be released for the existing allthingsmasonic.com CTA request. Keep private-launch and security gates unchanged. Preserve revenue uncertainty: available Amazon evidence is limited to 2026-09-21 aggregate data; do not claim site revenue, ROI, margin, or causal lift.",
+        "summary": "Approve containment-only execution. Delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 implementation requests have failed. Admit no new implementation, prototype, telemetry, spend, deployment, or duplicate work. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with dated root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then execute the already-queued allthingsmasonic.com CTA refinement. Measure affiliate clicks only against the recorded 61-click baseline; do not claim revenue, ROI, margin, payback, or causal lift. Preserve security, compliance, attribution, and private-launch gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. Preserve the registered affiliate destination, tracking ID, disclosure, and existing architecture. Run deterministic tests, build, link, responsive, keyboard, focus, contrast, overflow, and disclosure checks; capture the before-and-after diff; roll back only this bounded change if validation fails. Measure registered affiliate clicks using existing telemetry for 14 days or 100 relevant impressions. Baseline: 61 clicks for 2026-09-21. Orders, commission, revenue, ROI, and causal lift remain unknown.",
+        "summary": "After CTO records release of one delivery slot, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Confirm the retained commercial URL before editing. Limit scope to CTA hierarchy, disclosure placement, keyboard/focus behavior, and responsive spacing. Preserve destination, affiliate identifier, disclosure meaning, and surrounding content. Provide preview evidence, deterministic tests, build/link validation, accessibility checks, recorded baseline, and a single-diff rollback point. Measure affiliate clicks only; do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create the proposed finance report-only request or new affiliate-tag work item as new queue entries. The authoritative snapshots already contain the relevant revenue, AI-usage, attribution, and queue evidence, and existing affiliate requests already cover the prerequisites. Preserve the existing records and consolidate only through their current owners. The aggregate Amazon row remains unattributed; AI spend is known exposure, not evidence of return.",
+        "summary": "Do not admit any new site, SEO, content, prototype, telemetry, or duplicate work while all ten delivery slots are occupied. The next admission is the existing allthingsmasonic.com CTA refinement only after the CTO capacity gate is cleared and evidence is recorded. Do not substitute a queue-ready site-factory candidate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the capacity-aware execution-integrity control plane as a deferred specification only. Any future implementation must be isolated from production queue behavior, use existing records without inventing telemetry, reconcile one canonical request per approved change, enforce site-overlap and capacity gates, and provide auditable approval-to-delivery status with reversible rollout. Do not prototype or deploy while capacity is saturated.",
+        "summary": "Continue existing readiness packets only. Keep complicated.work parked, private, preview-only, and unlaunched. Complete the existing readiness artifact with dated ownership, preview/build evidence, compliance baseline, security unknowns, measurement boundary, rollback point, and explicit blocker evidence. Do not build, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create duplicate queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep all private-launch and security-sensitive release gates unchanged. Continue the existing consolidated read-only security evidence work using authorized metadata and retained artifacts only. Do not retrieve credentials, modify permissions or configuration, add dependencies, deploy, spend, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Retain the attribution boundary. The 2026-09-21 provider extract contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; named site-attributed commission is $0. Keep aggregate earnings unattributed, require registered tracking IDs for new affiliate links, and do not infer ROI, margin, recovered revenue, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep private-launch and security-sensitive release gates unchanged. Continue only existing bounded read-only evidence work using authorized metadata and retained artifacts. Do not request duplicate telemetry or change credentials, permissions, configuration, dependencies, deployment, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
