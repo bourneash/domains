@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:29:01.847Z",
+  "generated_at": "2026-09-30T22:37:24.969Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment. Delivery is saturated at 10/10 slots, so reject all new site-factory admissions, prototypes, telemetry changes, and duplicate queue work. Complete or close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded, then execute the existing allthingsmasonic.com CTA request.",
+        "summary": "Approve containment. Delivery is saturated at 10/10 slots, so reject new tooling, prototypes, site-factory admissions, telemetry changes, and duplicate queue work this cycle. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, isolated validation, deterministic tests, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Then release one slot for the already-queued allthingsmasonic.com CTA refinement. The CTA change is technically feasible, isolated, reversible, and modest effort if limited to the existing merchandising surface. Require destination resolution, registered tracking-ID match, disclosure visibility, keyboard/mobile checks, build/link validation, and a single-diff rollback. Measure registered affiliate clicks only against the recorded 61-click baseline for 14 days or 100 relevant new impressions/clicks, whichever comes first. Do not claim revenue, ROI, margin, payback, or causal lift. Keep launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not route new site-factory work while all ten delivery slots are occupied. Retain complicated.work, deadlymaracas.com, and driveford.net as deferred preview candidates only. No public exposure or build admission is authorized until capacity and launch gates are cleared.",
+        "summary": "Do not admit new work while all active slots are occupied. Use the existing release-capacity work item; do not create another repair or capacity item. After one slot is released, admit only the existing allthingsmasonic.com CTA refinement. Preserve site isolation, existing destinations, registered affiliate IDs, consent/disclosure behavior, and current architecture. No credentials, configuration, dependencies, domains, spend, cross-site changes, or new telemetry are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The cost-to-learn ledger remains deferred. Existing snapshots support a specification and explicit unknowns, but missing infrastructure and direct operating-cost identifiers prevent a complete ledger. Do not claim ROI, margin, payback, or cost-to-learn.",
+        "summary": "Retain fleet admission controls, measurement lifecycle controls, routing fallback validation, executive tick enforcement, AI-cost guardrails, site-factory concepts, and CRO repository evaluations as deferred specifications only. Their feasibility is plausible but implementation effort, isolation, security review, and measurement boundaries are not yet sufficient for queue admission under saturated capacity. Existing read-only evidence remains the measurement source; no duplicate telemetry request is justified.",
         "requested_action": null,
         "proposal_id": null
       }

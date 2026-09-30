@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:29:01.847Z",
+  "generated_at": "2026-09-30T22:37:24.969Z",
   "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep private and preview-only. Evidence shows Woot API access and rate limits, but current Woot terms restrict commercial/public listing, price, derivative, and data-mining use. Rights, privacy/data-flow, security, accuracy/freshness, measurement, and owner gates remain incomplete. Do not send rights outreach or change the private gate without owner authorization and human-counsel review. Ordinary reversible growth may continue only if it adds no new data collection, permissions, credentials, dependencies, or cross-site behavior.",
+        "summary": "Disposition: blocked. Keep SearchWoot private and preview-only; do not authorize public beta, full launch, affiliate/advertising expansion, external rights outreach, or a go-live proposal. Evidence: Woot documentation confirms API access but not redistribution, storage, derivatives, public display, caching, alerts, affiliate, or advertising rights; public terms point against commercial/public data use. All four launch-readiness legal tasks remain open. Non-legal gates for accuracy/freshness, measurement/attribution, and security/release are blocked. Fleet compliance is technical baseline only: 35 pass, 20 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Recommendation: preserve private gate, continue bounded read-only evidence work, and route rights, privacy, jurisdiction, vendor/DPA, and future monetization questions to human counsel before owner-authorized outreach or launch change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is not certification: 35 sites pass, 20 fail, and 6 are unknown; open findings include consent-banner, accept/reject, GA4, privacy, and terms checks. Analytics is broadly configured and data quality is green except revenue attribution, which is yellow because $4.92 aggregate commission cannot be assigned to sites. Do not block ordinary growth solely for incomplete telemetry, but block new public exposure and monetization expansion where disclosures, rights, consent, or claims evidence is absent.",
+        "summary": "Tracking remains active with 0 of 4 SearchWoot legal tasks evidenced to closure. Existing artifacts partially cover data flow (backend/api/main.py, backend/services/fetcher.py, config.yml) and privacy/cookie pages, but do not establish retention, deletion, correction, access, notification, GA4 settings, vendor/DPA coverage, or jurisdictional treatment. Next evidence action: produce one dated read-only evidence bundle containing the four task deliverables and field-level Woot rights matrix; do not send outreach, enable tracking, expand alerts, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the four SearchWoot launch-readiness legal tasks open. Next evidence action: produce one dated read-only bundle covering source rights/field permissions, alert-data flow and retention, deployed consent and GA4 settings, and logs/vendors/incident handling. Do not enable tracking, collect new data, send external outreach, or change production.",
+        "summary": "Produce the smallest next evidence artifact: a dated table covering source fields and rights, alert-data flow and retention, deployed consent/GA4 configuration, log fields and vendor handling, with explicit unknowns and counsel-required items. Use existing repository/configuration and authorized metadata only; no production mutation or duplicate telemetry request.",
         "requested_action": null,
         "proposal_id": null
       }
