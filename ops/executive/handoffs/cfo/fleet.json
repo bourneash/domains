@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T01:08:06.841Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T01:23:10.965Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment-only execution and no new spend, queue admissions, monetization expansion, or forecasts. Amazon revenue is limited to 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; it is not site-attributable. Contribution margin, ROI, payback, budget exposure, infrastructure spend, and cost-to-learn are unknown because matching-period allocated costs and attributable revenue are unavailable. The 2026-09-01 through 2026-09-29 AI ledger records $947.40 across 5,289 calls, but it cannot be compared to one revenue day or treated as total fleet cost. Continue only the existing period-aligned finance reconciliation, deployed-work measurement, repair-or-close, security evidence, private launch gates, and parked-site readiness. Minimum financial measurement is a dated ledger matching AI, infrastructure, domains, labor, marketing, commitments, and site/content attribution to the same revenue period. Do not infer revenue from clicks, sessions, conversions, impressions, or negative AI-only scorecard margins.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing finance reconciliation only. Named Amazon tracking rows are site-mapped, but the provider's aggregate row contains $4.92 commission and cannot be assigned without inventing attribution. Cost-to-learn is not calculable: no approved learning-cost denominator or attributable incremental outcome is available, and experiment telemetry shows no completed experiments. Minimum measurement is one approved learning unit, its fully allocated period cost, baseline outcome, post-change outcome, and a predefined success threshold. Preserve unknowns and do not use vanity metrics as financial evidence.",
+        "summary": "Retain the existing readiness and repair gates, but reject any financial interpretation of vanity metrics. Search performance totals of 14,560 impressions, 149 clicks, 1,010 sessions, and 15 conversions do not establish revenue or profitability; the existing 7-session affiliate comparison with unchanged 1 conversion before and after is inconclusive. Continue measurement only with available telemetry and report revenue, attribution, cost, and causal-lift fields as unknown where unavailable.",
         "requested_action": null,
         "proposal_id": null
       }
