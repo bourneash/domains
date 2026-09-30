@@ -230,6 +230,7 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
       metric.recovery_reason =
         'Role is protected from volume penalties; it must record an evidence-backed disposition or unblocker.';
     } else if (!configured) {
+      metric.score = null;
       metric.status = 'unarmed';
       metric.recovery = 'not-configured';
       metric.recovery_reason =
@@ -285,9 +286,9 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
         row =>
           row.status === 'needs-recovery' || row.status === 'recovery' || row.status === 'escalated'
       ).length,
-      average_score: Math.round(
-        Object.values(metrics).reduce((sum, row) => sum + row.score, 0) / ROLES.length
-      ),
+      average_score: configured
+        ? Math.round(Object.values(metrics).reduce((sum, row) => sum + row.score, 0) / ROLES.length)
+        : null,
     },
     roles: Object.values(metrics),
   };
