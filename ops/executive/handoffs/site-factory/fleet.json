@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:23:56.512Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:10:19.306Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new site build, queue admission, deployment, domain change, spend, analytics configuration, or monetization is authorized. Maintain the three scaffold properties as parked, private, preview-only, and unlaunched. The strongest candidate is complicated.work because it has an existing scaffold and a recorded compliance failure; complete only its existing readiness packet first. Use the packet to bound site brief, template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and launch-gate evidence without inventing telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The three parked-site readiness packets remain incomplete. No implementation queue work is requested. If the strongest packet remains incomplete at the existing 2026-09-30T17:00Z deadline, escalate the missing ownership, preview/build, compliance, security, measurement-boundary, rollback, or blocker evidence.",
+        "summary": "Recommendation: maintain the three-property Site Factory pipeline as readiness-only and launch-blocked. Delivery is saturated at 10/10 slots, and existing ownership, compliance, security, measurement, and rollback evidence is incomplete. Do not build, publish, deploy, alter DNS, configure analytics or affiliate systems, spend, add dependencies, or create queue work. Pipeline: complicated.work, deadlymaracas.com, driveford.net. Each packet will cover site brief, reusable template scope, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, security evidence, rollback point, and explicit launch disposition using existing records only.",
         "requested_action": null,
         "proposal_id": null
       }

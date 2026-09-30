@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:53:05.381Z",
+  "generated_at": "2026-09-30T07:10:19.306Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: when capacity clears, validate the MarkItDown opportunity in a disposable worktree only. Evidence: MIT license, 194 files, 22 purpose-specific keyword hits, and 8/8 bounded lab checks passed; dependencies were not installed and maintenance/security fit remain unverified. Fleet use case: normalize existing source documents into reviewable Markdown for SEO/content QA. Smallest prototype: process five already-authorized local documents, compare headings, links, tables, and metadata against source files, and discard the artifact. Metric: editorial acceptance rate and extraction defect count; time-to-learn: one engineering cycle. Roll back by deleting the disposable artifact; no production or telemetry change.",
+        "summary": "Recommendation: maintain containment-only execution. Delivery is saturated at 10/10 slots, 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Continue existing repair-or-close, deployed-work measurement, security evidence, finance reconciliation, private launch gates, and parked-site readiness. Retain only slot-gated CRO specifications; do not admit new queue work, add telemetry, spend, deploy, add dependencies, or requeue unchanged failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: when capacity clears, validate a single shadcn/ui component in an isolated worktree. Evidence: MIT license, 3,198 files, 10 purpose-specific keyword hits, and 3/3 bounded lab checks passed; dependencies were not installed and framework compatibility, supply-chain risk, and maintenance burden remain unverified. Fleet use case: standardize accessible CTA/navigation primitives for future site work without imposing a runtime dependency. Smallest prototype: copy one component pattern into a disposable fixture, run existing build and keyboard/accessibility checks, then discard it. Metric: build pass, accessibility pass, bundle/dependency delta, and implementation time; time-to-learn: one engineering cycle. No production deployment or cross-site rollout is proposed.",
+        "summary": "Retain two deferred CRO specifications for later capacity review: an affiliate CTA refinement on allthingsmasonic.com and a control-plane execution reconciliation guard. Neither is an implementation request. Reassess only after a delivery slot clears, site conflicts resolve, and existing measurement or repair work is closed.",
         "requested_action": null,
         "proposal_id": null
       }

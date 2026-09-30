@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:53:05.382Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:10:19.306Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: accept containment-only execution. Reject the three proposed queue admissions because delivery is saturated at 10/10 slots and existing measurement, repair, security, finance, and launch-readiness gates remain open. Continue only existing repair-or-close, deployed-work measurement, security evidence, period-aligned finance reconciliation, and private launch-readiness work. Preserve the allthingsmasonic.com homepage/CTA stream as one slot-gated workstream without duplication. No new telemetry, dependencies, credentials, deployments, DNS, spend, or unsupported revenue or causal claims.",
+        "summary": "Maintain containment-only execution. Delivery is saturated at 10/10 slots; measurement, failed-request repairs, security evidence, finance reconciliation, private launch gates, and parked-site readiness remain active. Admit no new queue work, telemetry, spend, deployment, dependency, outreach, or unchanged requeue. Prioritize completing or closing the existing saveusfarms.com repair case with isolated validation, rollback, release/security, attribution, measurement, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing repair-or-close case for saveusfarms.com as the immediate gating item. Complete or close it with dated ownership, root cause or closure rationale, isolated deterministic validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not retry unchanged work or create a duplicate request; escalate unresolved status to CTO at the existing deadline.",
+        "summary": "Continue only the existing readiness packets for complicated.work, deadlymaracas.com, and driveford.net. Keep them parked, private, preview-only, and unlaunched. Record dated ownership, preview/build, compliance, security, measurement-boundary, rollback, and explicit-blocker evidence. Do not build, publish, deploy, alter DNS, configure analytics or affiliate systems, spend, add dependencies, or create queue work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the parked, private, preview-only launch gates for complicated.work, deadlymaracas.com, and driveford.net. Continue only the existing readiness packets covering ownership, preview/build, compliance, security, measurement boundaries, rollback, and explicit blockers. Do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "summary": "Continue the existing read-only fleet security evidence matrix using authorized metadata and retained artifacts only. Preserve private launch gates and block public exposure and security-sensitive releases while controls remain unevidenced. Do not access credentials or private containers, change permissions or configuration, add dependencies, deploy, requeue, or conduct outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue deployed-work measurement and period-aligned finance reconciliation using available telemetry only. Preserve unavailable revenue, cost, attribution, conversion, and causal-lift fields as unknown. Amazon's 2026-09-21 result remains aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Authorize no spend or monetization expansion.",
+        "summary": "Continue measurement of already deployed work using existing telemetry only. Preserve unavailable revenue, attribution, cost, conversion, and causal-lift fields as unknown. Do not add tracking, create follow-up work, or requeue failures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the slot-aware admission, unified repair-or-close, and evidence-gated AI-usage prioritization concepts as deferred specifications only. Any future implementation requires cleared capacity, distinct site ownership, deduplication checks, isolated reversible scope, explicit acceptance tests, rollback evidence, and an available metric. AI usage alone is not sufficient prioritization evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the MarkItDown and shadcn/ui ideas as disposable research hypotheses only. Do not install dependencies, access production, add runtime dependencies, deploy, add telemetry, or spend. Any future prototype requires cleared capacity, an isolated workspace, dependency/license/security review, explicit acceptance criteria, and artifact disposal.",
+        "summary": "Continue period-aligned finance reconciliation only. Preserve the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. Keep matching-period costs, margin, ROI, payback, forecasts, infrastructure spend, and cost-to-learn unknown; authorize no spend or monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }

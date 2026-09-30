@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T06:53:05.383Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T07:10:19.307Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent reviewer disposition: reject all three queued change requests and admit no new production, research, telemetry, spending, deployment, or monetization work this cycle. Delivery is saturated at 10/10 slots with 54 improvements measuring, 21 failed requests, and 7 open repairs. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch gates, and parked-site readiness. Amazon revenue remains aggregate and unattributed; margin, ROI, forecasts, payback, and causal lift are unsupported. Complete or close the existing saveusfarms.com repair case by 2026-09-30T07:30Z and keep SearchWoot private with outreach unsent pending counsel review.",
+        "summary": "Reject all new queue admissions, production proposals, duplicate security work, spend, telemetry changes, deployments, dependencies, outreach, and unchanged requeues. Preserve only existing repair-or-close, deployed-work measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21; margin, ROI, cost-to-learn, forecasts, and causal lift remain unknown. Delivery is saturated at 10/10 slots, so the smallest defensible plan is containment until existing work closes or a slot clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "security-2026-09-30-fleet-evidence-needed",
-        "summary": "Continue the existing read-only security evidence matrix only. No duplicate telemetry, production change, deployment, credentials, configuration, dependency, outreach, or public exposure is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "security-2026-09-30-fleet-evidence-needed"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-2026-09-30-searchwoot-private-gate",
-        "summary": "Continue the existing private launch gate and consolidated read-only evidence bundle. Keep public exposure, rights-dependent monetization, alert expansion, deployment, and outreach blocked.",
-        "requested_action": "accepted_research",
-        "proposal_id": "security-2026-09-30-searchwoot-private-gate"
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new queue admissions this cycle. No evidence-backed implementation slot is available: delivery is saturated at 10/10, and candidate sites have active review, queued, measuring, or launch-gate conflicts. Preserve existing repair, measurement, security-evidence, finance-reconciliation, private-gate, and parked-site readiness work. Revenue remains $4.92 aggregate and unattributed for 2026-09-21; margin, ROI, and causal lift are unknown. Owner action: delivery-lead completes or closes saveusfarms.com by 2026-09-30T07:30Z; site-factory completes parked-site readiness packets by 2026-09-30T17:00Z; CTO rechecks capacity and admission eligibility after those checkpoints. Escalate unresolved blockers to CTO at each deadline.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }
