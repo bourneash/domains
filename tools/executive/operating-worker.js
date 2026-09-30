@@ -374,7 +374,7 @@ if (require.main === module) {
   runOnce(root)
     .then(result => {
       process.stdout.write(`${JSON.stringify(result)}\n`);
-      process.exitCode = result.processed ? (result.error ? 1 : 0) : 0;
+      process.exitCode = result.processed && result.error && !result.deferred ? 1 : 0;
     })
     .catch(error => {
       console.error(error.stack || error.message);
