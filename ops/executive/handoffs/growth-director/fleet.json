@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.156Z",
+  "generated_at": "2026-09-30T12:22:12.052Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Growth disposition: preserve containment-only execution while delivery remains saturated at 10/10 slots. Do not create duplicate SEO, content, telemetry, experiment, deployment, or spend work. Retain the existing allthingsmasonic.com CTA refinement as the next slot-gated growth implementation. Its available baseline is 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; causal lift is unknown. Admit only after capacity and site-overlap gates clear.",
+        "summary": "Maintain containment-only execution this cycle. Delivery capacity is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs, and incomplete security/readiness evidence. Create no new proposals, queue items, experiments, telemetry requests, deployments, or spend. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated candidate after CTO releases capacity and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Existing baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Acceptance: clearer CTA hierarchy, unchanged destination and disclosure, deterministic link/accessibility tests, successful build, registered affiliate-click measurement, and single-diff rollback. Make no revenue, ROI, or causal-lift claim before measurement.",
         "requested_action": null,
         "proposal_id": null
       }

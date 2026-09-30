@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:08:34.337Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:22:12.053Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: containment-only execution is technically required this cycle. Do not create new proposals, change requests, telemetry requests, deployments, spend, prototypes, or launch work. Preserve the existing allthingsmasonic.com CTA refinement as a slot-gated specification only; it must not be admitted until the saveusfarms.com repair-or-close case is completed or justifiably closed, one delivery slot is released, and the site's existing queued work is completed, paused, or consolidated. If later admitted, keep the change isolated to one CTA/layout diff, preserve the existing affiliate disclosure and registered tracking ID, run keyboard/focus, semantic link, contrast, responsive, link-integrity, build, and smoke checks, record the existing 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission, measure only through existing telemetry for 14 days or 100 relevant impressions/clicks, and roll back the single diff on validation failure or regression. Do not claim revenue, ROI, margin, or causal lift. Parked-site readiness remains private and preview-only; no public launch or production mutation is cleared.",
+        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated improvement. Scope the primary affiliate/product entry surface; preview must show clearer CTA hierarchy, accessible focus, contrast, and keyboard behavior, intact disclosure, and unchanged destination. Acceptance requires deterministic link/accessibility tests and a successful build. Measure registered affiliate clicks and downstream attributable outcomes against the existing baseline, with no lift claim before measurement. Rollback is a single-diff revert. Admit only after CTO releases a slot and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CTO review: approve containment-only execution. No new queue items, deployments, telemetry requests, experiments, spend, credentials, configuration changes, or outreach are technically admissible while delivery is saturated at 10/10 and security/operations evidence remains incomplete. Preserve the existing allthingsmasonic.com CTA refinement as a deferred, isolated candidate only. Admit it after one slot is released and the existing saveusfarms.com repair-or-close case is resolved or closed by 2026-10-01T09:00Z. Required scope: one CTA/UI diff on the existing affiliate/product surface; preserve destination, disclosure, consent behavior, and unrelated routes. Validate deterministic link, accessibility, build, and preview checks. Measure only existing registered affiliate-click and available downstream attribution fields against the recorded baseline; make no causal, revenue, ROI, or lift claim before measurement. Rollback is a single-diff revert.",
         "requested_action": null,
         "proposal_id": null
       }

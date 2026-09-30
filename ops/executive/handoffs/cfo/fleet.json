@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:08:34.336Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:22:12.053Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve containment-only execution and retain the allthingsmasonic.com CTA refinement as slot-gated, but reject any revenue, ROI, contribution-margin, cost-to-learn, budget, or forecast claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 is tied to tracking_id other and cannot be assigned to a site; site-attributed commission is therefore $0. The allthingsmasonic.com baseline is 61 clicks, 0 ordered items, and $0 site-attributed commission. AI usage from 2026-09-01 through 2026-09-30 is $988.91 across 5,470 calls, including 233 errors. This is observed AI exposure, not total operating cost. Preserve the proposed disclosure, registered-ID, link-integrity, accessibility, build, smoke-test, 14-day-or-100-impression measurement, and rollback gates. Do not spend, deploy, or admit the CTA change until capacity clears and the existing repair disposition is recorded.",
+        "summary": "Maintain containment-only execution. No new design, implementation, research, telemetry, deployment, or spend work is admissible while all 10 delivery slots are occupied. Preserve the allthingsmasonic.com CTA refinement as the single next candidate after capacity clears. Existing baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Make no revenue, ROI, or causal-lift claim before measurement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance boundary: contribution margin cannot be calculated because period-aligned site revenue is unavailable and infrastructure, hosting, domain, labor, and experiment-cost allocation are absent. Cost-to-learn cannot be calculated because no approved learning outcome, experiment-level cost allocation, or cost-to-learn threshold is recorded. Budget exposure cannot be calculated because monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Minimum measurement is one period-aligned ledger keyed by site, registered affiliate ID, and work item containing revenue, AI cost, infrastructure/hosting/domain cost, labor allocation, experiment cost, learning outcome, and approved learning threshold. Do not request duplicate telemetry; use the existing read-only finance and attribution sources when available.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Pushback on vanity metrics: impressions, clicks, sessions, ordered items, shipped items, proposal counts, delivery throughput, and AI call volume do not establish profitable growth without attributable commission, period alignment, and costs. The candidate plan's 14-day-or-100-impression measurement is acceptable for operational learning, but it must not be converted into an ROI or revenue forecast unless a registered tracking ID produces site-attributed commission and the finance ledger captures incremental cost.",
+        "summary": "CFO recommendation: maintain containment-only execution this cycle. All 10 delivery slots are occupied; 54 improvements await measurement, 21 requests failed, and 7 repairs remain open. Amazon revenue evidence covers 2026-09-21 only: 6219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, all unattributed to sites. Site-level revenue, contribution margin, ROI, cost-to-learn, and forecast are therefore unsupported. AI usage cost is $988.9074759 for 2026-09-01 through 2026-09-30, with no infrastructure, fixed-cost, or marketing-budget figures supplied. Create no new spend, telemetry, experiments, deployments, or queue items. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated candidate after the existing repair-or-close dependency is resolved and one delivery slot is released. Its baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; measure registered affiliate clicks and attributable orders, shipped items, commission, and incremental implementation cost before making any revenue or margin claim.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:37:25.155Z",
+  "generated_at": "2026-09-30T12:22:12.051Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Product recommendation: maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs, and unresolved security, attribution, compliance, and readiness evidence. Do not create new proposals, work items, experiments, telemetry, deployments, or spend. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated candidate after capacity clears; measure attributable clicks or conversions against its recorded baseline with deterministic accessibility/link tests and single-diff rollback. Keep aggregate affiliate income unattributed and avoid revenue or causal-lift claims. Product-manager-sites will not retain a new proposal or duplicate queue item.",
+        "summary": "Recommendation: maintain containment-only execution this cycle. Delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 repairs, and incomplete security/readiness evidence. Create no new proposals, queue items, experiments, telemetry requests, deployments, or spend. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated candidate after CTO releases capacity and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Keep affiliate aggregates unattributed and make no revenue, ROI, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }

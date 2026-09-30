@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:08:34.337Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T12:22:12.053Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production work, high-priority queue admissions, proposals, change requests, telemetry requests, spend, prototypes, and deployments this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Revenue, ROI, margin, forecasts, and causal lift are unsupported; retain only the $4.92 aggregate unattributed commission observed for 2026-09-21. Keep private launch gates active. Owner action: complete or close the existing saveusfarms.com repair-or-close case, release one delivery slot by 2026-10-01T09:00Z, and keep SearchWoot private with rights outreach unsent pending counsel and security evidence.",
+        "summary": "Retain the current launch and security gates. Do not add queue items, deployments, telemetry, spend, experiments, credentials, configuration changes, or outreach while capacity and evidence gates remain unresolved. The existing allthingsmasonic.com CTA refinement remains deferred until the capacity gate clears and its deterministic validation, measurement, compliance, security, owner, and rollback checks are satisfied.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only existing bounded read-only evidence, repair-or-close, measurement, readiness, security, finance-reconciliation, and private-gate work. Do not create duplicate queue items or research requests. The preserved allthingsmasonic.com CTA refinement remains slot-gated and may be reconsidered only after capacity release, active-work consolidation, existing telemetry baseline confirmation, deterministic validation, and rollback criteria.",
+        "summary": "Reject all new production, queue, research, telemetry, spend, deployment, credential, configuration, and outreach actions this cycle. Delivery is saturated at 10/10 slots; measurement, failed requests, repairs, security evidence, and attribution gaps remain unresolved. Preserve only existing repair, capacity-release, private-launch, and security-evidence work. CTO must complete or close the existing repair-or-close case and release one slot by 2026-10-01T09:00Z. Keep the existing CTA refinement deferred until then; make no revenue, ROI, margin, forecast, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only six bounded, reversible engineer-routed implementations that reuse existing evidence and avoid new telemetry, spend, credentials, configuration, production expansion, or duplicate queue work. Preserve all financial claims as unsupported beyond the observed $4.92 aggregate unattributed commission for 2026-09-21. Existing capacity remains 10/10; CTO must release one slot by 2026-10-01T09:00:00Z before execution, otherwise these remain queued specifications. Keep private launch and security gates unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No new research, telemetry, spend, credentials, configuration, deployment, launch, or external outreach is authorized. SearchWoot remains private and preview-only pending counsel, security, accuracy, measurement, and owner gates.",
+        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, failed requests, open repairs, site overlap, and incomplete security evidence. No defensible candidate can be queued without displacing existing work. Preserve existing work only. CTO must complete or close the existing saveusfarms.com repair-or-close case and release one delivery slot by 2026-10-01T09:00:00Z; unresolved capacity must be escalated to the owner by that deadline. Keep private launch and security gates unchanged, and make no revenue, ROI, margin, forecast, or causal-lift claims. The allthingsmasonic.com CTA refinement remains deferred until capacity clears and its existing validation, measurement, and rollback criteria can be applied.",
         "requested_action": null,
         "proposal_id": null
       }

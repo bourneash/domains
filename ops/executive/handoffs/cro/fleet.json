@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T12:08:34.336Z",
+  "generated_at": "2026-09-30T12:22:12.053Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: containment-only execution remains required. Do not create new proposals, change requests, research requests, telemetry requests, deployments, spend, credential changes, domain actions, or prototypes this cycle. Preserve the existing allthingsmasonic.com affiliate CTA refinement as the next slot-gated experiment. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; the $4.92 aggregate commission remains unattributed. After CTO releases one delivery slot and resolves or closes the existing saveusfarms.com repair-or-close case, admit exactly one bounded CTA change with disclosure, registered tracking ID, link integrity, accessibility, responsive, build, and smoke checks. Measure for 14 days or 100 relevant impressions/clicks; roll back the single scoped diff on failure or regression. Preserve GitHub candidates as research-only specifications; no adoption or prototype admission until capacity, security, and owner-approved implementation gates clear.",
+        "summary": "CRO review: retain containment-only execution this cycle. No new proposals, queue items, experiments, telemetry requests, deployments, spend, credentials, or configuration changes are justified while all 10 delivery slots are occupied and measurement, repair, security, and readiness work remains open. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible revenue experiment after CTO releases capacity and resolves or closes the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; measure registered affiliate clicks and downstream attributable outcomes, with no revenue, ROI, or causal-lift claim before measurement. Prototype scope is clearer CTA hierarchy, unchanged destination and disclosure, accessible focus/contrast/keyboard behavior, deterministic link/accessibility tests, successful build, and single-diff rollback.",
         "requested_action": null,
         "proposal_id": null
       }
