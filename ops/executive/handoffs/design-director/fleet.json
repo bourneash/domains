@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.991Z",
+  "generated_at": "2026-09-30T11:37:25.156Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment remains active: do not admit new implementation while all 10 delivery slots are occupied. Preserve the existing allthingsmasonic.com CTA request as the next design-led candidate after a slot clears; do not duplicate it. Scope: improve the highest-intent commercial surface with clearer product-card hierarchy, one explicit affiliate CTA, visible disclosure placement, keyboard-visible focus, 44px minimum targets, and responsive mobile spacing. No conversion lift is claimed before measurement.",
+        "summary": "Design recommendation: preserve containment-only execution while delivery remains saturated at 10/10 slots. The highest-value reversible candidate is the existing allthingsmasonic.com affiliate CTA refinement; do not create duplicate work. After one slot clears, implement only on the existing merchandising entry surface: clarify the primary product CTA, keep the affiliate disclosure adjacent and visible, preserve destinations, and improve keyboard focus, target size, contrast, and mobile spacing. Baseline evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; no conversion lift is claimed. Measure CTA click-through and downstream attributable outcomes when available. Roll back the single diff if link, accessibility, disclosure, build, or measurement checks fail.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:23:48.400Z",
+  "generated_at": "2026-09-30T11:37:25.156Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue evidence supports 6,219 aggregate Amazon clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21; site-attributed commission is $0 and the aggregate income cannot be assigned to a site. Do not infer ROI, margin, or causal lift. Preserve the allthingsmasonic.com CTA repair as the next slot-gated implementation. Route existing affiliate repair work for americastrikes.com and the Amazon Associates prerequisite for amputeenews.com through the existing queue only; do not create duplicate admissions while delivery is saturated.",
+        "summary": "Revenue-operations disposition: preserve containment-only execution and do not create duplicate production work while delivery is saturated. Continue only existing affiliate repair, attribution, compliance-evidence, and measurement work. Amazon data for 2026-09-21 contains 18 mapped site tracking rows plus one aggregate `other` row with 629 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; keep that income unattributed. Do not infer ROI, site revenue, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

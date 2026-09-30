@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T10:38:21.991Z",
+  "generated_at": "2026-09-30T11:37:25.156Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Growth disposition: preserve containment-only execution while delivery is saturated at 10/10 slots. Retain one slot-gated SEO implementation for saveusfarms.com after the existing repair and overlap blockers clear. Evidence: /articles/2026-09-03-michigan-land-trusts-fight-farm-loss has 1,668 impressions, 0 clicks, position 10.5, and 0% CTR versus a 1.2% conservative target. No causal lift or conversion outcome is claimed before measurement.",
+        "summary": "Growth disposition: preserve containment-only execution while delivery remains saturated at 10/10 slots. Do not create duplicate SEO, content, telemetry, experiment, deployment, or spend work. Retain the existing allthingsmasonic.com CTA refinement as the next slot-gated growth implementation. Its available baseline is 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; causal lift is unknown. Admit only after capacity and site-overlap gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

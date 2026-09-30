@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-09-30T11:10:28.238Z",
+  "generated_at": "2026-09-30T11:37:25.156Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: no new implementation, telemetry, spend, deployment, credential, domain, or monetization admissions this cycle. Active delivery is saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, and 7 repairs open. After one slot is released and overlap is rechecked, admit at most one distinct-site experiment with an existing metric, deterministic tests, and rollback criteria. Preserve aggregate Amazon commission as unattributed and do not infer ROI or causal lift.",
+        "summary": "CRO disposition: retain containment-only execution. Do not create or queue new proposals, experiments, prototypes, telemetry, deployments, spend, credentials, dependencies, or domains while delivery is saturated at 10/10 slots and repair, measurement, security, compliance, readiness, and attribution work remain open. Preserve the existing allthingsmasonic.com CTA refinement as the next slot-gated revenue experiment. Evidence baseline: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; aggregate commission remains unattributed. Smallest reversible prototype after capacity clears: one scoped merchandising-surface CTA copy/hierarchy adjustment, adjacent affiliate disclosure, preserved destination, keyboard/focus/contrast/mobile checks, and single-diff rollback. Metric: CTA click-through, followed by attributable affiliate outcomes when available. Time-to-learn: 14 days or 100 relevant impressions/clicks, whichever comes first; causal lift remains unknown until measured.\n\nGitHub/CRO-lab candidates remain deferred specifications only. MarkItDown is MIT and had 8/8 bounded checks; the smallest future prototype would convert a fixed sample of existing source-backed documents into draft Markdown in a disposable workspace and compare editorial production time and indexed-page quality, without production access or dependency installation. shadcn/ui is MIT and passed 3/3 bounded checks; the smallest future prototype would render one isolated accessible CTA component against a representative preview surface and compare deterministic accessibility/build results, without deployment. Mermaid is MIT with supported documentation signals but no safe native checks; the smallest future prototype would generate one static, non-interactive explanatory diagram from existing structured content and check rendering/performance manually. These are not adoption recommendations: CTO must validate maintenance, dependency, security, and license fit before any implementation. CEO/CTO handoff: release one delivery slot and resolve or close the existing repair-or-close case before admitting at most one distinct-site reversible candidate.",
         "requested_action": null,
         "proposal_id": null
       }
