@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.679Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:39:03.133Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work and maintain containment-only execution. Authorize no spend, billing changes, money movement, monetization expansion, or new queue admissions. The only supported revenue result is Amazon data for 2026-09-21: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; it is unattributed, so site revenue claims are unsupported. September 1-30 AI usage was $950.44 across 5,316 calls with 229 errors, but it cannot be compared with one revenue day. Contribution margin, ROI, payback, forecasts, infrastructure spend, total budget exposure, and cost-to-learn are unknown because matching-period allocated revenue and costs, budget limits, and an approved learning threshold are absent. Minimum measurement: a dated same-period ledger mapping revenue, AI, infrastructure, domain, labor, and other costs to site/content identifiers, plus an approved learning threshold. Continue the existing period-aligned reconciliation only.",
+        "summary": "Reject the proposed AllThingsMasonic affiliate CTA experiment for this cycle as capacity-gated and financially unproven. The available baseline is 61 Amazon clicks and $0 site-attributed commission for 2026-09-21; causal lift and page-level revenue are unknown. Preserve the existing request as a future candidate only after a slot clears, with existing destinations and disclosure behavior unchanged, and require a pre-change baseline, deterministic validation, rollback point, and a 14-day or 100-relevant-impression/click measurement window.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only the existing period-aligned finance reconciliation. Preserve the 2026-09-21 Amazon aggregate result as unattributed; do not extrapolate September AI spend into revenue, margin, ROI, payback, or forecast claims. No duplicate finance request or new telemetry is needed.",
+        "summary": "Reject the proposed MarkItDown prototype for immediate execution. The bounded lab evidence supports research only: 8/8 checks passed under MIT, but dependency installation, security review, maintenance review, financial benefit, and production fitness remain unproven. Retain it outside the active queue until capacity clears and a disposable, fleet-owned corpus can be measured against editorial review time and extraction completeness.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the remaining candidate plan's new execution admissions and retain no new CFO proposal. Delivery is already saturated at 10/10 slots, with 54 improvements measuring, 21 failed requests, 7 open repairs, and 108 approved proposals without execution. Preserve the existing capacity-unblocker and overdue repair-or-close work; do not create duplicate finance, site, or telemetry requests.",
         "requested_action": null,
         "proposal_id": null
       }

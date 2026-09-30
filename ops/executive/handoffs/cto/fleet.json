@@ -2,14 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:22:15.680Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-09-30T09:39:03.133Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the Fleet Execution Integrity and Capacity-Gated Delivery proposal as duplicate control-plane work. Existing containment, execution tracking, repair-or-close, measurement, overlap, and proposal-execution records already cover the requested capability. Keep queue admission blocked while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair-or-close case with dated ownership, root cause or closure rationale, isolated validation, build checks, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Preserve the allthingsmasonic.com CTA refinement as the next slot-gated candidate after a slot clears; do not admit it now. No new telemetry, dependencies, credentials, deployments, spend, outreach, or external changes are authorized.",
+        "summary": "Approve containment-only execution. Admit no new site work, prototypes, research, telemetry, spend, deployment, or dependencies while delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repairs remain open. Complete or close existing repair, measurement, security-evidence, finance-reconciliation, readiness, and private-gate work only.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing allthingsmasonic.com affiliate CTA improvement as the next implementation candidate only after a slot clears and overlap, tests, rollback, and measurement readiness are rechecked. Use existing affiliate clicks as the primary available metric; preserve revenue attribution and causal lift as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject duplicate fleet control-plane work this cycle. Retain the document-conversion concept as deferred research only; no prototype or research request is authorized while capacity and security-review gates remain open. MIT licensing and bounded lab checks do not establish production fitness or supply-chain clearance.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or close the overdue saveusfarms.com repair-or-close case without an unchanged retry or duplicate request. Require dated ownership, root cause or closure rationale, isolated validation, build checks, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain parked, private, preview-only, and unlaunched readiness work for complicated.work, deadlymaracas.com, and driveford.net. Continue only existing readiness packets; do not build, publish, deploy, alter DNS, configure analytics, monetize, spend, add dependencies, or create queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue deployed-work measurement using available telemetry only. Do not add tracking or infer unavailable revenue, conversion, attribution, cost, ROI, or causal lift. Keep public exposure and security-sensitive releases blocked where required evidence is missing.",
         "requested_action": null,
         "proposal_id": null
       }
