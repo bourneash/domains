@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:16:07.825Z",
+  "generated_at": "2026-09-30T09:19:58.176Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare a preview-only homepage surface for mynewgm.com",
-        "summary": "mynewgm.com is queue-ready, but delivery capacity is currently saturated at 10/10 active slots and analytics is not configured. Retain a slot-gated, reversible preview implementation without production deployment, telemetry changes, spending, or dependencies.",
-        "requested_action": "After one active delivery slot clears, implement the smallest branded homepage preview in the existing mynewgm.com scaffold. Do not publish or deploy until launch, compliance, security, and measurement gates are satisfied.",
+        "title": "Resolve nsfwpixles.com implementation-readiness blocker",
+        "summary": "New implementation is not admissible while delivery capacity is saturated at 10/10 and site-specific baseline, active-work status, and measurable acceptance evidence for nsfwpixles.com are not established.",
+        "requested_action": "Inspect the existing bourneash/nsfwpixles.com repository and authoritative queue records only. Identify the exact homepage route/file, current active-work conflicts, existing analytics or SEO baseline, and the smallest reversible implementation candidate. Record one concrete next implementation step or blocker; do not modify production, add telemetry, deploy, spend, add dependencies, or create duplicate queue work.",
         "proposal_id": null
       }
     ]

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:18:50.397Z",
+  "generated_at": "2026-09-30T09:19:58.176Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10, 54 improvements await measurement, 21 requests failed, and attribution supports no site-level revenue claim. Continue only existing repair-or-close, measurement, finance reconciliation, security evidence, private launch-gate, and parked-site readiness work. CTO must complete or close the overdue saveusfarms.com repair case with root cause, validation, build, rollback, release/security, attribution, measurement, and deduplication evidence; escalate unresolved status by 2026-10-01T09:00:00Z. After a slot clears, CTO may admit one distinct-site reversible candidate with deterministic tests, existing telemetry, measurable acceptance criteria, and rollback. Keep public exposure, spend, credential/configuration changes, deployments, dependencies, outreach, and unsupported financial claims blocked.",
+        "summary": "Reviewer disposition: reject the proposed nsfwpixles.com report-only work and all new implementation admissions this cycle. Delivery is saturated at 10/10, with active measurement, repairs, security evidence, finance reconciliation, and launch-gate work open. CTO must release or close one slot and confirm acceptance criteria, tests, metric, and rollback by 2026-10-01T09:00:00Z; unresolved capacity remains escalated to CTO. Preserve revenue and attribution unknowns; authorize no production change, telemetry, spend, deployment, dependency, or outreach.",
         "requested_action": null,
         "proposal_id": null
       }
