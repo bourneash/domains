@@ -37,6 +37,12 @@ def test_failures_and_warnings_are_never_suppressed():
     assert notify_role.should_post("ok", {}) is False
 
 
+def test_follow_up_can_bypass_quiet_success_policy():
+    # The CLI's --force flag is intentionally handled at the edge; the
+    # ordinary success policy remains quiet for all routine deploys.
+    assert notify_role.should_post("ok", {}) is False
+
+
 def test_turn_cap_failure_log_becomes_actionable(tmp_path):
     log = tmp_path / "content-writer.log"
     log.write_text(

@@ -27,6 +27,9 @@ Usage:
       --url https://americastrikes.com --channel-env SLACK_CHANNEL_AMERICA_STRIKES \
       --channel-default domain-americastrikes-com
 
+  Recovery/follow-up cards may pass --force so a single resolved-incident
+  confirmation is visible even when routine success cards are suppressed.
+
   notify_role.py --mode log --site aliencouncil.com --role deployer \
       --status ok --log-file ops/logs/deployer-2026-07-06.log \
       --channel-env SLACK_CHANNEL_ALIENCOUNCIL --channel-default domain-aliencouncil-com
@@ -197,6 +200,8 @@ def main():
     ap.add_argument("--files", nargs="*", default=[])
     ap.add_argument("--url", default=None)
     ap.add_argument("--log-file", default=None)
+    ap.add_argument("--force", action="store_true",
+                    help="post an otherwise-suppressed success follow-up")
     ap.add_argument("--channel-env", required=True)
     ap.add_argument("--channel-default", required=True)
     args = ap.parse_args()
@@ -206,7 +211,7 @@ def main():
         print("[notify-role] SLACK_BOT_TOKEN unset — skipping")
         return 0
 
-    if not should_post(args.status):
+    if not args.force and not should_post(args.status):
         print("[notify-role] routine success suppressed (set SLACK_VERBOSE=1 to enable)")
         return 0
 
