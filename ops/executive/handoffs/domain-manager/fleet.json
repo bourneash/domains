@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:35:59.333Z",
+  "generated_at": "2026-09-30T09:38:00.902Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Audit Sinderella homepage affiliate path before implementation admission",
-        "summary": "Page-level CTA, disclosure, destination, and usability evidence for the Sinderella homepage is not present in the authoritative snapshot. Existing revenue evidence records 50 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; no causal conclusion is supported.",
-        "requested_action": "Read-only inspect `/` and the repository route/template/component that renders it, plus any existing affiliate-link configuration. Document the current CTA hierarchy, affiliate destinations, disclosure placement, mobile accessibility issues, and exactly one reversible implementation candidate. Do not modify files, production, telemetry, credentials, configuration, or queue state.",
+        "title": "Reconcile unsupervisedmedia.com homepage opportunity before implementation admission",
+        "summary": "Site-specific page, backlog, and active-work evidence needed to select a non-overlapping reversible homepage, UX, SEO, or monetization change is not present in the supplied snapshot. Global delivery capacity is saturated at 10/10 slots, so no implementation admission is appropriate this cycle.",
+        "requested_action": "Review the existing unsupervisedmedia.com homepage route/template, stylesheet, active queue, analytics, SEO, compliance, and revenue evidence; select exactly one reversible next change or document the blocker. Do not request duplicate telemetry, modify production, deploy, add tracking, spend, or claim lift.",
         "proposal_id": null
       }
     ]

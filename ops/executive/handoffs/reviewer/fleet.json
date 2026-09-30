@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-09-30T09:35:59.332Z",
+  "generated_at": "2026-09-30T09:38:00.901Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 54 improvements are measuring, 21 requests failed, and 7 repair items remain open. Revenue evidence is aggregate and unattributed; financial and causal-lift claims remain unsupported. Continue only existing repair-or-close, measurement, security evidence, finance reconciliation, launch-gate, and parked-readiness work. Escalate the overdue saveusfarms.com case to CTO immediately; no duplicate queue work or unchanged retry.",
+        "summary": "Reviewer disposition: reject the proposed unsupervisedmedia.com report-only admission and all new implementation queue work this cycle. Delivery is saturated at 10/10 slots, with active measurement and repair work, while site-specific evidence for unsupervisedmedia.com is incomplete. Preserve existing work only; no unsupported revenue, causal-lift, production, telemetry, spend, credential, configuration, deployment, or outreach actions are authorized. CTO must release a slot or escalate capacity by 2026-10-01T09:00:00Z; domain-manager must complete the existing site evidence reconciliation by the same deadline, with unresolved blockers escalated to CTO.",
         "requested_action": null,
         "proposal_id": null
       }
