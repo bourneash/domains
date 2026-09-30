@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:08:29.040Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:24:38.025Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain containment-only execution. Delivery is saturated at 10/10 slots, analytics is unavailable fleet-wide, and existing measurement and repair work remains open. Admit no new site-factory requests, prototypes, reports, research, duplicate proposals, or production changes this cycle. Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00Z; then release one slot. Execute the already-queued allthingsmasonic.com CTA refinement next, preserving destinations, disclosures, accessibility, existing telemetry boundaries, and single-diff rollback. Keep private-launch and security-sensitive release gates unchanged. Do not claim revenue, ROI, margin, conversion lift, or causal impact.",
+        "summary": "CTO disposition: reject the three new site-factory queue admissions. Capacity is saturated at 10/10, and adding capacity-gated requests would create avoidable queue pressure without execution capacity. Preserve only the existing allthingsmasonic.com CTA refinement as the next implementation after one slot is released. Keep site-factory candidates deferred until launch-readiness evidence, isolation, rollback, and preview gates are verified.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed routing of three preview-only site-factory change requests. Queue readiness does not override saturated delivery capacity, and preview work still consumes implementation slots. Preserve the existing complicated.work launch packet as waiting; do not create requests for additional sites until a slot is released and launch-readiness evidence is verified.",
+        "summary": "Do not create new site-factory requests this cycle. Maintain the candidates as deferred specifications only. After CTO releases a slot, verify the applicable launch-readiness artifact before any build admission; do not publish, deploy, add credentials, add domains, spend, or alter telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new finance evidence-pack proposal for this cycle. Existing revenue and AI-usage evidence remain available, but a report-only request does not address the delivery constraint and would add queue noise. Preserve the existing attribution boundary: the aggregate Amazon row is unattributed, and contribution margin, ROI, and cost-to-learn remain unknown where required inputs are unavailable.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case with root cause, isolated validation, build checks, rollback point, and release-boundary evidence by 2026-10-01T09:00Z. Release one delivery slot before admitting any additional implementation work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The preserved allthingsmasonic.com CTA refinement is technically suitable for the existing queue after capacity clears: bounded, reversible, isolated to one site, and measurable using the existing baseline. Do not claim revenue lift, ROI, or causal impact because analytics is unavailable and current affiliate evidence is limited to site-level clicks with zero site-attributed commission for the recorded window.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the private launch and security gates. No new public exposure, credentials, permissions, dependencies, cross-site behavior, external outreach, or telemetry collection is authorized. Preserve aggregate affiliate revenue as unattributed and require registered tracking IDs for future links.",
         "requested_action": null,
         "proposal_id": null
       }

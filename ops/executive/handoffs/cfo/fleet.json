@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T15:08:29.040Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T15:24:38.025Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment-only execution and approve no new spend, monetization expansion, or delivery admission. AI usage cost was $996.91966025 for 2026-09-01 through 2026-09-30 across 5,511 calls and 39 instrumented sites; Amazon revenue evidence covers only 2026-09-21 and shows $4.92 aggregate commission, 6,219 clicks, 28 ordered items, and 6 shipped items. The periods and attribution scopes do not match, so ROI, contribution margin, payback, and revenue forecasts are unsupported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Attribution is insufficient for site-level financial claims. The $4.92 commission is under aggregate tracking_id \"other\" and cannot be assigned to a site; named tracking rows show site-level clicks but no attributed commission. Analytics is unavailable for all 38 expected sites, so missing traffic and conversions must remain unknown rather than zero. Minimum measurement needed: site/content identifier on every affiliate link, daily site-level sessions and conversion events, provider orders/shipped items/commission by tracking ID, and a reconciled period-end revenue ledger.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI and infrastructure economics require a hard stop on vanity metrics. AI spend of $996.91966025 cannot be evaluated against revenue because infrastructure spend, labor cost, domains, hosting, and other fixed costs are not supplied; monthly fixed costs, marketing budget, revenue target, and revenue floor are blank. Cost-to-learn is also not calculable because experiment-level AI, infrastructure, labor, exposure, and attributable outcome costs are absent. After one delivery slot is released, preserve the existing allthingsmasonic.com CTA refinement as a bounded experiment only; use existing affiliate clicks, ordered items, and site-attributed commission as outcomes and make no lift or ROI claim until the required measurement exists.",
+        "summary": "Reject the candidate plan's three new preview-only site-factory admissions as financially non-prioritized and capacity-blocked. Preserve the existing allthingsmasonic.com CTA refinement and existing affiliate repair prerequisites only; no new proposal, spend, deployment, or production admission is recommended this cycle.",
         "requested_action": null,
         "proposal_id": null
       }
