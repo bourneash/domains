@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:57:54.711Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:09:28.357Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject scheduler/cron control-surface implementation this cycle. It is technically feasible as a deferred control-plane specification, but delivery is saturated at 10/10 slots and current operations/fleet-doctor evidence is unavailable. No schedule, credential, permission, deployment, or telemetry changes are authorized.",
+        "summary": "Handoff: complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then consider the existing allthingsmasonic.com CTA request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release capacity only after that evidence is recorded.",
+        "summary": "CTO disposition: approve containment only. Reject new fleet-control, AI-cost-control, finance-reconciliation, prototype, site-factory, telemetry, and duplicate queue admissions this cycle. Delivery is saturated at 10/10 slots; existing measurement and repair work must be completed or closed first. Preserve the existing allthingsmasonic.com CTA request as the next implementation only after the existing saveusfarms.com repair-or-close case records root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Use existing telemetry only; revenue, ROI, margin, causal lift, and infrastructure allocation remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one slot is released, retain the existing allthingsmasonic.com CTA refinement as the sole next implementation. Do not create a duplicate request or claim conversion, revenue, ROI, or causal lift; measure registered affiliate clicks and available downstream attribution only.",
+        "summary": "Do not create new implementation or report-only work. Complete or close the existing saveusfarms.com repair-or-close case with the required validation, rollback, release-boundary, attribution, measurement, and deduplication evidence. Release one slot only after that evidence is recorded; then admit at most the already-queued allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net as deferred preview-only candidates. Do not admit site-factory builds or launch-readiness work while capacity and launch gates remain unresolved.",
+        "summary": "CTO correction: the proposed finance contribution-margin baseline is not admitted as a new proposal because existing read-only telemetry already covers the available revenue and AI-cost fields, while infrastructure and recurring-service costs are unavailable. Do not calculate ROI, margin, cost-to-learn, or site revenue from mismatched periods or aggregate attribution. Any future reconciliation must use an authorized, period-matched cost artifact and must not request duplicate telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Security and launch gates remain unchanged. Keep private or preview-only surfaces gated where rights, security, accuracy, compliance, measurement, or owner evidence is incomplete. No new public exposure, credentials, permissions, dependencies, deployment, spend, external outreach, or cross-site behavior is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

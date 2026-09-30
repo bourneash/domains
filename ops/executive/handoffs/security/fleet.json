@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:57:54.711Z",
+  "generated_at": "2026-09-30T23:09:28.357Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, TLS evidence beyond compliance checks, data exposure controls, and security.txt/disclosure readiness remain unevidenced. This is a high-severity evidence gap for go-live and security-sensitive releases, not evidence of compromise or certification. Maintain private-launch and security-sensitive release gates. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Security disposition: evidence_needed, not clear. Fleet-doctor has no run or findings; operations has no deploy, uptime, or error sweep results; security sitefacts are unknown for all 61 in-scope sites. Authentication and access boundaries, secrets handling, runtime isolation, release/deploy controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No TLS certificates are reported expiring within 30 days, but complete TLS configuration is not evidenced. Compliance reports 36 pass, 19 fail, and 6 unknown; this is a technical baseline, not certification. No evidence of compromise is present. Risk severity is high for new public exposure or security-sensitive releases, and unknown for ordinary reversible growth. Exact decision: keep private-launch and security-sensitive release gates unchanged; permit the existing allthingsmasonic.com CTA refinement only after capacity release and normal validation, provided it adds no credentials, permissions, dependencies, telemetry, data collection, or cross-site behavior. Continue the existing consolidated read-only security evidence matrix; do not request duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions, deploy, or claim clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security review of the candidate plan: retain the existing private-preview posture and the four read-only legal evidence tasks, but do not clear SearchWoot for beta or full launch. Security evidence is incomplete for authentication, access boundaries, secrets, isolation, release/deploy controls, dependency and supply-chain provenance, monitoring, incident response, data exposure, TLS, and disclosure readiness. No credentials, permissions, configuration, deployment, new dependencies, telemetry, or external outreach should be added.",
+        "summary": "Security handoff: use the existing security-fleet-control-evidence work item; do not create a duplicate. Record dated evidence and explicit unknowns for authentication/access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Reconsider clearance only after evidence is attached and an owner-approved disposition exists.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The existing allthingsmasonic.com CTA refinement is security-approved only for its bounded scope: CTA hierarchy, disclosure adjacency, responsive layout, keyboard focus, contrast, tap targets, and destination integrity. Require deterministic tests, build and smoke evidence, rollback point, and release-boundary evidence. Do not add routes, dependencies, telemetry, credentials, permissions, data collection, or cross-site behavior.",
+        "summary": "Security review of the candidate plan: retain containment. The queued allthingsmasonic.com CTA refinement is ordinary reversible growth and may remain capacity-gated, subject to preserved destination/tracking ID, disclosure, keyboard focus, deterministic validation, rollback, and no new credentials, permissions, dependencies, telemetry, or cross-site behavior. Do not clear any launch gate, admit site-factory publication, or expose gated products until the security evidence matrix and required owner dispositions are complete.",
         "requested_action": null,
         "proposal_id": null
       }

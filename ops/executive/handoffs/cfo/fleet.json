@@ -2,29 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T22:57:54.711Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-09-30T23:09:28.357Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: reject the scheduler/cron control-surface proposal this cycle. It has no demonstrated financial benefit, while delivery is saturated at 10/10 slots and execution remains weak: 288 approved proposals, 63% execution rate, 108 approved proposals unexecuted, and 21 failed requests. Preserve the existing allthingsmasonic.com CTA refinement only after the saveusfarms.com capacity gate is resolved. Financially, treat revenue as unproven: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all commission is in an unattributed aggregate row. Do not claim site revenue, contribution margin, ROI, payback, or causal lift.",
+        "summary": "CFO recommendation: preserve containment and reject new spend, launches, and duplicate work. Revenue support is insufficient for ROI or contribution-margin claims: Amazon data covers only 2026-09-21, showing 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under `other`; none is site-attributed. AI usage separately reports $1,002.46 for 2026-09-01 through 2026-09-30, so subtracting it from $4.92 would be invalid due to period and attribution mismatch. Execute the existing allthingsmasonic.com CTA refinement only after capacity is released, with a financial stop condition: no scale decision until site-attributed orders, commission, incremental AI cost, and infrastructure allocation are available.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI spend is measurable but not yet investable by outcome: $997.52 from 5,522 calls during 2026-09-01 through 2026-09-30, including 234 errors and 5 transient errors. The arithmetic average is approximately $0.181 per call, but cost-to-learn per experiment, shipped outcome, conversion, or revenue dollar is not calculable because experiment-level cost attribution and direct operating-cost identifiers are absent. Use existing telemetry for a report-only finance ledger; do not add telemetry, spend, billing changes, or infrastructure changes.",
+        "summary": "Attribution and cost-to-learn disposition: allthingsmasonic.com has 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; its September AI cost is $12.4675703. The observable ratio is $0.2044 AI cost per registered affiliate click, but this is not incremental experiment cost-to-learn and must not be presented as ROI. The minimum valid learning record is pre/post outbound clicks on changed pages, site-attributed orders and commission, incremental AI calls/cost, and allocated infrastructure cost over the defined 14-day or 100-relevant-impression/click window.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin and budget exposure are currently unknown. The brief provides no monthly spend limit, fixed-cost total, marketing budget, domain renewal cost, hosting/infrastructure cost, labor allocation, or complete site-level revenue attribution. Minimum measurement is a dated cost ledger keyed to site and fleet work: AI cost, hosting/edge cost, domains, paid services, and attributable commission, with revenue and shipped-item dates aligned. Until that exists, retain investment-test and repair-monetization labels as operating hypotheses, not financial conclusions.",
+        "summary": "Budget exposure remains bounded but incomplete. The brief provides no monthly spend limit, fixed-cost budget, marketing budget, revenue target, or infrastructure billing total; therefore budget utilization, runway, full contribution margin, and payback are not calculable. Do not infer zero infrastructure cost from missing telemetry. The minimum finance source is a dated provider billing export covering AI, hosting/CDN, domains/registrars, analytics, and other recurring services, with allocation keys to site, fleet, and experiment.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Produce finance contribution-margin and attribution baseline",
+        "summary": "Create one dated finance evidence pack using existing analytics, affiliate attribution, and AI-usage telemetry, while explicitly recording the missing infrastructure and recurring-service cost source. Reconcile revenue windows to cost windows, separate site-attributed from aggregate revenue, calculate descriptive AI cost ratios without labeling them ROI, and define the minimum billing allocation needed for contribution margin and budget exposure.",
+        "requested_action": "Approve report-only reconciliation only; do not spend, change billing, access banking, contact vendors, sign contracts, request duplicate telemetry, or make revenue, ROI, margin, runway, legal, or tax claims.",
         "proposal_id": null
       }
     ]
