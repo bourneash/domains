@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:50:19.626Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:05:00.181Z",
+  "summary": "daily domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Hold new totaljerks.com implementation until active measurement clears",
-        "summary": "Do not add or duplicate work for totaljerks.com while the existing treatment work remains in measurement and fleet delivery capacity is saturated at 10/10 slots.",
-        "requested_action": "Preserve the existing work, then recheck queue status after the active measurement window and capacity gate clear. If eligible, route exactly one bounded reversible improvement with exact page/file scope, deterministic tests, baseline, acceptance threshold, and rollback point. Do not request telemetry or claim lift.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "e61f6a85-d487-4afa-808e-f58f6201fa0c",
+    "cadence": "daily",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 1,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
