@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:57:18.177Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:01:08.745Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production work, prototypes, high-priority queue admissions, spend, duplicate telemetry, and unsupported revenue or causal-lift claims. Delivery is saturated at 10/10 slots; Amazon evidence is $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, and margin remain unknown. Keep SearchWoot private and rights outreach unsent. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; only then consider the canonical allthingsmasonic.com CTA refinement.",
+        "summary": "Reviewer disposition: reject all new proposals, production work, telemetry requests, prototypes, spend, and duplicate queue items. Revenue supports only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unsupported. Keep SearchWoot private and rights outreach unsent. Delivery is saturated at 10/10 slots. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence; only then may the existing allthingsmasonic.com CTA refinement proceed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, spend, launch, security-clearance, and high-priority queue claims. Delivery remains saturated at 10/10 slots. Keep SearchWoot private and rights outreach unsent. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; only then may one capacity-gated candidate execute.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after evidence is recorded.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No new research, telemetry, proposals, production work, or queue admissions are approved this cycle. The failed manager handoff remains unresolved because its retained target and failure artifact are not identified in the supplied evidence; overwatch should inspect that artifact and route or close it without creating duplicate work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Delivery remains saturated at 10/10 slots. Release one slot by 2026-10-01T09:00Z by completing or closing the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner at the deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial claims remain blocked: available revenue is $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unsupported. SearchWoot remains private with rights outreach unsent. Three bounded SEO changes are routed to engineer as capacity-gated work and must not execute until CTO releases a slot.",
         "requested_action": null,
         "proposal_id": null
       }
