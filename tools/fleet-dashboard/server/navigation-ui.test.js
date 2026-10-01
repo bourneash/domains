@@ -1211,6 +1211,8 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(app, /class="git-summary"/);
   assert.match(app, /id="git-search"/);
   assert.match(app, /id="git-status"/);
+  assert.match(app, /type="button" class="btn sm" id="git-refresh"/);
+  assert.match(app, /\$\('#git-refresh'\)\.addEventListener\('click', \(\) => renderGit\(\)\)/);
   assert.match(app, /function applyGitFilter\(\)/);
   assert.match(app, /data-git-status/);
   assert.match(theme, /\.git-summary \{[^}]*grid-template-columns/);
@@ -1239,6 +1241,11 @@ test('Git Hygiene presents safety state and searchable review queue', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="gh-summary"/);
   assert.match(app, /id="gh-search"/);
+  assert.match(app, /id="gh-refresh"/);
+  assert.match(
+    app,
+    /\$\('#gh-refresh'\)\.addEventListener\('click', \(\) => renderGitHygiene\(\)\)/
+  );
   assert.match(app, /Repositories swept<\/span>/);
   assert.match(app, /Blocked paths<\/span>/);
   assert.match(app, /function applyGitHygieneFilter\(\)/);

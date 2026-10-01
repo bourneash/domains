@@ -1065,6 +1065,7 @@ async function renderGitHygiene() {
     <div class="gh-toolbar" role="group" aria-label="Git hygiene actions">
       <strong>Git Hygiene</strong>
       <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${q.length} to review` : ''}</span>
+      <button class="btn sm" type="button" id="gh-refresh">↻ Refresh</button>
       <button class="btn sm" type="button" id="gh-audit"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
       <button class="btn sm" type="button" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
     </div>`;
@@ -1142,6 +1143,7 @@ async function renderGitHygiene() {
       <button class="btn sm" type="button" id="gh-ignore-sync-apply">Adopt managed block fleet-wide</button>
     </div>`;
 
+  $('#gh-refresh').addEventListener('click', () => renderGitHygiene());
   const sweepBtn = async apply => {
     const btn = apply ? $('#gh-sweep') : $('#gh-audit');
     btn.disabled = true;
@@ -1326,7 +1328,7 @@ async function renderGit() {
       <div class="git-stat ${dirtyCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${dirtyCount}</strong><span>Dirty trees</span></div>
       <div class="git-stat ${pushCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${pushCount}</strong><span>Need push</span></div>
       <div class="git-stat ${pullCount ? 'git-stat-bad' : 'git-stat-good'}"><strong>${pullCount}</strong><span>Need pull</span></div>
-      <div class="git-actions"><button class="btn sm" id="pull-all"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button><button class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button></div>
+      <div class="git-actions"><button type="button" class="btn sm" id="git-refresh">↻ Refresh</button><button type="button" class="btn sm" id="pull-all"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button><button type="button" class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button></div>
     </section>
     <div class="git-controls" role="group" aria-label="Filter repositories">
       <label class="git-search"><span class="sr-only">Search repositories</span><input id="git-search" class="cm-input" type="search" placeholder="Search repository or branch…" value="${esc(GIT_FILTER.q)}" autocomplete="off" /></label>
@@ -1338,6 +1340,7 @@ async function renderGit() {
       <tbody>${body}</tbody>
     </table></div>`;
 
+  $('#git-refresh').addEventListener('click', () => renderGit());
   $$('.git-row').forEach(tr =>
     tr.addEventListener('click', e => {
       if (e.target.closest('a')) return;
