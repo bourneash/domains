@@ -1064,6 +1064,13 @@ test('Domains route separates command queueing from operational inventory', () =
   );
   assert.match(app, /class="dom-command-form" role="group" aria-label="Queue domain command"/);
   assert.match(app, /class="dom-help"><summary>Command safety and scope/);
+  assert.match(app, /aria-label="\$\{open \? 'Close' : 'Open'\} \$\{esc\(j\.command\)\} job details for \$\{esc\(j\.domain\)\}"/);
+  assert.match(app, /aria-label="Cancel queued \$\{esc\(j\.command\)\} job for \$\{esc\(j\.domain\)\}"/);
+  assert.match(app, /aria-label="Check status for \$\{esc\(s\.slug\)\}"/);
+  assert.match(app, /aria-label="Offboard \$\{esc\(s\.slug\)\}"/);
+  assert.match(app, /caption class="sr-only">Domain command job history<\/caption>/);
+  assert.match(app, /caption class="sr-only">Onboarded domains and available actions<\/caption>/);
+  assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
   assert.match(app, /class="dom-panel-head"><div><h3>Job history<\/h3>/);
   assert.match(app, /class="dom-panel-head"><div><h3>Onboarded sites<\/h3>/);
   assert.match(theme, /\.dom-command-form \{[^}]*grid-template-columns/);

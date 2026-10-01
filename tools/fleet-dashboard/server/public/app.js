@@ -9045,15 +9045,16 @@ async function renderDomains() {
           : j.startedAt
             ? fmtAge((Date.now() - new Date(j.startedAt)) / 1000) + '…'
             : '—';
+      const detailId = `dom-detail-${j.id}`;
       return `<tr data-fleet-row data-site="${esc(j.domain)}">
-        <td class="site"><button type="button" class="table-link dom-open" data-id="${esc(j.id)}">${esc(j.domain)}</button></td>
+        <td class="site"><button type="button" class="table-link dom-open" data-id="${esc(j.id)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${esc(detailId)}" aria-label="${open ? 'Close' : 'Open'} ${esc(j.command)} job details for ${esc(j.domain)}" title="${open ? 'Close' : 'Open'} job details">${esc(j.domain)}</button></td>
         <td class="mono">${esc(j.command)}${j.flags && j.flags.length ? ` <span class="muted">${esc(j.flags.join(' '))}</span>` : ''}</td>
         <td>${domJobBadge(j.status)}${j.status === 'running' ? ' <span class="live-tag">live</span>' : ''}</td>
         <td class="mono muted">${esc(dur)}</td>
         <td class="mono muted">${j.exitCode === null || j.exitCode === undefined ? '—' : esc(String(j.exitCode))}</td>
-        <td>${j.status === 'queued' ? `<button class="btn sm dom-cancel" data-id="${esc(j.id)}">Cancel</button>` : ''}</td>
+        <td>${j.status === 'queued' ? `<button type="button" class="btn sm dom-cancel" data-id="${esc(j.id)}" aria-label="Cancel queued ${esc(j.command)} job for ${esc(j.domain)}" title="Cancel queued job">Cancel</button>` : ''}</td>
       </tr>
-      <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="6">
+      <tr id="${esc(detailId)}" class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="6">
         <div class="cn-log-head">${esc(j.id)}${j.error ? ` — <span class="b-red">${esc(j.error)}</span>` : ''}</div>
         <pre class="cn-logs-box${open ? ' async-loading' : ''}" data-rkh="domlog:${esc(j.id)}" data-domlog="${esc(j.id)}">${open ? 'Loading…' : ''}</pre>
       </td></tr>`;
@@ -9065,9 +9066,9 @@ async function renderDomains() {
       s => `<tr data-fleet-row data-site="${esc(s.slug)}">
       <td class="site">${siteLink(s.slug)}</td>
       <td>
-        <button class="btn sm dom-quick" data-cmd="status" data-domain="${esc(s.slug)}">Status</button>
-        <button class="btn sm dom-quick" data-cmd="repair" data-domain="${esc(s.slug)}">Repair</button>
-        <button class="btn sm danger dom-offboard" data-domain="${esc(s.slug)}">Offboard…</button>
+        <button type="button" class="btn sm dom-quick" data-cmd="status" data-domain="${esc(s.slug)}" aria-label="Check status for ${esc(s.slug)}" title="Check status">Status</button>
+        <button type="button" class="btn sm dom-quick" data-cmd="repair" data-domain="${esc(s.slug)}" aria-label="Repair ${esc(s.slug)}" title="Repair domain">Repair</button>
+        <button type="button" class="btn sm danger dom-offboard" data-domain="${esc(s.slug)}" aria-label="Offboard ${esc(s.slug)}" title="Offboard domain">Offboard…</button>
       </td>
     </tr>`
     )
@@ -9097,7 +9098,8 @@ async function renderDomains() {
     <section class="card dom-panel">
       <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recorded</span></div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th></th></tr></thead>
+        <caption class="sr-only">Domain command job history</caption>
+        <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
         <tbody>${jobRows || '<tr><td colspan="6" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
       </table></div>
     </section>
@@ -9105,7 +9107,8 @@ async function renderDomains() {
     <section class="card dom-panel">
       <div class="dom-panel-head"><div><h3>Onboarded sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Site</th><th></th></tr></thead>
+        <caption class="sr-only">Onboarded domains and available actions</caption>
+        <thead><tr><th>Site</th><th>Actions</th></tr></thead>
         <tbody>${siteRows || '<tr><td colspan="2" class="muted">No sites checked out.</td></tr>'}</tbody>
       </table></div>
     </section>`;
@@ -9219,14 +9222,19 @@ async function domCancel(btn, id) {
 
 function domToggleJob(id) {
   const row = $(`tr[data-detail="dom:${CSS.escape(id)}"]`);
+  const trigger = $(`.dom-open[data-id="${CSS.escape(id)}"]`);
   if (!row) return;
   if (DOM.openJob === id) {
     DOM.openJob = null;
     row.classList.add('hidden');
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.setAttribute('aria-label', trigger.getAttribute('aria-label')?.replace(/^Close /, 'Open ') || 'Open job details');
     return;
   }
   DOM.openJob = id;
   row.classList.remove('hidden');
+  trigger?.setAttribute('aria-expanded', 'true');
+  trigger?.setAttribute('aria-label', trigger.getAttribute('aria-label')?.replace(/^Open /, 'Close ') || 'Close job details');
   domLoadLog(id);
 }
 
