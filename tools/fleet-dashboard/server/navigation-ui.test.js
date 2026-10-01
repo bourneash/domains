@@ -1198,6 +1198,22 @@ test('AI Usage panels use shared spacing and severity classes', () => {
   assert.match(style, /\.aiu-notice-danger \{ color: var\(--red\); \}/);
 });
 
+test('Guardrails uses bounded tables and shared panel controls', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const start = app.indexOf('async function renderGuardrails()');
+  const end = app.indexOf('async function grSaveConfig', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.equal((view.match(/class="card gr-panel"/g) || []).length, 4);
+  assert.equal((view.match(/class="table-wrap"><table/g) || []).length, 2);
+  assert.match(view, /class="gr-term-input"/);
+  assert.match(view, /gr-title-note/);
+  assert.doesNotMatch(view, /style="(?:margin-top:0|margin-top:8px|max-width:)/);
+  assert.match(style, /\.gr-panel \{ margin-bottom: 14px; \}/);
+  assert.match(style, /\.gr-term-input \{ max-width: 280px; \}/);
+});
+
 test('operational inventory tables stay bounded on narrow viewports', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const taskBudget = app.slice(

@@ -17112,7 +17112,7 @@ async function boot() {
 let GR_CONFIG = null;
 
 function grChip(term, onRemove) {
-  return `<span class="gr-chip">${esc(term)}<button class="gr-chip-x" data-term="${esc(term)}" ${onRemove ? `data-action="${esc(onRemove)}"` : ''}>×</button></span>`;
+  return `<span class="gr-chip">${esc(term)}<button type="button" class="gr-chip-x" data-term="${esc(term)}" ${onRemove ? `data-action="${esc(onRemove)}"` : ''} aria-label="Remove ${esc(term)}">×</button></span>`;
 }
 
 async function renderGuardrails() {
@@ -17176,40 +17176,42 @@ async function renderGuardrails() {
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Guardrails</h2><span class="muted">Identity/content protection — blocked terms hard-fail every commit fleet-wide; warn terms only fail when the context-classifier flags them.</span></div>
 
-    <div class="card">
-      <h3 style="margin-top:0">Global — Blocked <span class="muted" style="font-weight:normal">(no override, ever)</span></h3>
+    <div class="card gr-panel">
+      <h3 class="gr-title">Global — Blocked <span class="muted gr-title-note">(no override, ever)</span></h3>
       <div class="chip-row">${globalBlocked}</div>
-      <div class="task-toolbar" style="margin-top:8px">
-        <input id="gr-add-global-blocked" placeholder="add blocked term…" style="max-width:280px">
-        <button class="btn sm" id="gr-add-global-blocked-btn">Add</button>
+      <div class="task-toolbar gr-toolbar">
+        <input id="gr-add-global-blocked" class="gr-term-input" placeholder="add blocked term…">
+        <button type="button" class="btn sm" id="gr-add-global-blocked-btn">Add</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0">Global — Warn <span class="muted" style="font-weight:normal">(context-checked; human can override with HUMAN_ALLOW_WARN=1)</span></h3>
+    <div class="card gr-panel">
+      <h3 class="gr-title">Global — Warn <span class="muted gr-title-note">(context-checked; human can override with HUMAN_ALLOW_WARN=1)</span></h3>
       <div class="chip-row">${globalWarn}</div>
-      <div class="task-toolbar" style="margin-top:8px">
-        <input id="gr-add-global-warn" placeholder="add warn term…" style="max-width:280px">
-        <button class="btn sm" id="gr-add-global-warn-btn">Add</button>
+      <div class="task-toolbar gr-toolbar">
+        <input id="gr-add-global-warn" class="gr-term-input" placeholder="add warn term…">
+        <button type="button" class="btn sm" id="gr-add-global-warn-btn">Add</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0">Per-repo overrides <span class="muted" style="font-weight:normal">(additive only — adds to the global lists for that repo)</span></h3>
-      <table><thead><tr><th>Repo</th><th>Blocked</th><th>Warn</th></tr></thead>
+    <div class="card gr-panel">
+      <h3 class="gr-title">Per-repo overrides <span class="muted gr-title-note">(additive only — adds to the global lists for that repo)</span></h3>
+      <div class="table-wrap"><table><thead><tr><th>Repo</th><th>Blocked</th><th>Warn</th></tr></thead>
         <tbody>${repoRows || '<tr><td colspan="3" class="muted">No per-repo overrides yet.</td></tr>'}</tbody></table>
-      <div class="task-toolbar" style="margin-top:8px">
+      </div>
+      <div class="task-toolbar gr-toolbar">
         <select id="gr-repo-select"><option value="">site…</option>${siteOptions}</select>
         <select id="gr-repo-list"><option value="blocked">blocked</option><option value="warn">warn</option></select>
-        <input id="gr-repo-term" placeholder="term…" style="max-width:200px">
-        <button class="btn sm" id="gr-add-repo-btn">Add override</button>
+        <input id="gr-repo-term" class="gr-repo-input" placeholder="term…">
+        <button type="button" class="btn sm" id="gr-add-repo-btn">Add override</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0">Audit log <span class="muted" style="font-weight:normal">(last 100 hits — every commit blocked or warn-flagged)</span></h3>
-      <table><thead><tr><th>When</th><th>Repo</th><th>Result</th><th>Term</th><th>Line</th><th>Reason</th></tr></thead>
+    <div class="card gr-panel">
+      <h3 class="gr-title">Audit log <span class="muted gr-title-note">(last 100 hits — every commit blocked or warn-flagged)</span></h3>
+      <div class="table-wrap"><table><thead><tr><th>When</th><th>Repo</th><th>Result</th><th>Term</th><th>Line</th><th>Reason</th></tr></thead>
         <tbody>${logRows || '<tr><td colspan="6" class="muted">No guardrail hits recorded yet.</td></tr>'}</tbody></table>
+      </div>
     </div>`;
 
   wireGuardrails();
