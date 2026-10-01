@@ -75,9 +75,16 @@ test('site command deep links retain domain context in the shell title', () => {
 
 test('Executive deep links retain their operating workspace context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
-  assert.match(shell, /rootView === 'executive' \? \{ group: 'Agents', label: 'Executive' \}/);
+  assert.match(shell, /rootView === 'executive'/);
   assert.match(shell, /specialContext\.group/);
   assert.match(shell, /specialContext\.label/);
+});
+
+test('agent deep links retain role context in the shell title', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /rootView === 'agent'/);
+  assert.match(shell, /location\.hash\.match\(\/\^#agents/);
+  assert.match(shell, /label\.replace\(\/\[-_\]\+\/g, ' '\)/);
 });
 
 test('executive leadership is a first-class Agents page', () => {

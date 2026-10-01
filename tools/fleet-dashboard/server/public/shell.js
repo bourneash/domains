@@ -1465,7 +1465,24 @@
         }
       }
       const specialContext =
-        rootView === 'executive' ? { group: 'Agents', label: 'Executive' } : null;
+        rootView === 'executive'
+          ? { group: 'Agents', label: 'Executive' }
+          : rootView === 'agent'
+            ? (() => {
+                const rawAgent =
+                  location.hash.match(/^#agents\/([^/?]+)/)?.[1] ||
+                  (location.hash === '#fleet' ? 'engineer' : '');
+                if (!rawAgent) return null;
+                let label = rawAgent;
+                try {
+                  label = decodeURIComponent(rawAgent);
+                } catch {}
+                return {
+                  group: 'Agents',
+                  label: label.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                };
+              })()
+            : null;
       if (siteLabel) {
         ctx.innerHTML = `<span class="ctx-g">Domain Control</span><span class="ctx-s">/</span><span class="ctx-v">${esc(siteLabel)}</span>`;
         document.title = `${siteLabel} · Domain Fleet Manager`;
