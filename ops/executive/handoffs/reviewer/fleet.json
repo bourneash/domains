@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:51:20.591Z",
+  "generated_at": "2026-10-01T21:51:22.779Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported financial, causal-lift, launch-readiness, and production-readiness claims. Queue only three medium-priority reversible candidates in execution-gated status. Principal-engineer must reconcile capacity and record baselines, thresholds, tests, attribution boundaries, and rollback points by 2026-10-02T12:00Z; otherwise escalate.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. Queue only three medium-priority, reversible engineer candidates across distinct sites, execution-gated until capacity and site-specific measurement evidence are complete. Aggregate affiliate revenue remains unattributed. Principal-engineer must reconcile capacity and candidate gates by 2026-10-02T12:00:00Z; otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       }
