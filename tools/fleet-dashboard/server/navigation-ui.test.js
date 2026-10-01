@@ -1890,6 +1890,12 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   );
   assert.match(app, /class="dh-help"><summary>How Data Hub protects and routes collection/);
   assert.match(app, /class="table-wrap"><table class="dh-egress"/);
+  assert.match(app, /Outbound connection ledger/);
+  assert.match(app, /Site data pulls/);
+  assert.match(app, /Data source freshness and controls/);
+  assert.match(app, /Collected datasets/);
+  assert.match(app, /RSS subscriptions by site/);
+  assert.match(app, /Dataset subscriptions by site/);
   assert.match(app, /type="button" class="btn sm .*dh-src-toggle/);
   assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
   assert.match(style, /\.dh-help \{[^}]*border-top/);

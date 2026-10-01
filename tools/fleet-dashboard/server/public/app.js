@@ -7280,6 +7280,7 @@ async function renderDataHub() {
     .join('');
   const egressHtml = `
     <div class="table-wrap"><table class="dh-egress">
+      <caption class="sr-only">Outbound connection ledger</caption>
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
     </table></div>`;
@@ -7302,6 +7303,7 @@ async function renderDataHub() {
     .join('');
   const pullsHtml = `
     <div class="table-wrap"><table class="dh-egress dh-pulls">
+      <caption class="sr-only">Site data pulls</caption>
       <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
       <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
     </table></div>`;
@@ -7338,6 +7340,7 @@ async function renderDataHub() {
   const srcHtml = `
     <div class="dh-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}</div>
     <div class="table-wrap"><table class="dh-sources">
+      <caption class="sr-only">Data source freshness and controls</caption>
       <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th><th></th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="5" class="muted">no source state</td></tr>'}</tbody>
     </table></div>`;
@@ -7354,6 +7357,7 @@ async function renderDataHub() {
     .join('');
   const dsHtml = `
     <div class="table-wrap"><table class="dh-datasets">
+      <caption class="sr-only">Collected datasets</caption>
       <thead><tr><th>dataset</th><th>rows</th><th>latest</th></tr></thead>
       <tbody>${dsRows || '<tr><td colspan="3" class="muted">no datasets</td></tr>'}</tbody>
     </table></div>`;
@@ -7376,9 +7380,9 @@ async function renderDataHub() {
       .join('');
     matrixHtml = `
       <div class="dh-matrix-sub">RSS subscriptions (by tag)</div>
-      <div class="table-wrap"><table class="dh-matrix"><tbody>${rssRows}</tbody></table></div>
+      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">RSS subscriptions by site</caption><tbody>${rssRows}</tbody></table></div>
       <div class="dh-matrix-sub">Dataset subscriptions</div>
-      <div class="table-wrap"><table class="dh-matrix"><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table></div>`;
+      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">Dataset subscriptions by site</caption><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table></div>`;
   }
 
   app.innerHTML = `
