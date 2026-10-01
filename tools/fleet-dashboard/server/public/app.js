@@ -5007,7 +5007,7 @@ async function renderGenericAgent(role) {
 
   app.innerHTML = `
     ${breadcrumb(role)}
-    <div class="page-head"><h2 class="page-title">${esc(agentLabel(role))}</h2><span class="muted">${rows.length} sites run this agent</span></div>
+    <div class="page-head"><div><h2 class="page-title">${esc(agentLabel(role))}</h2><span class="muted">${rows.length} sites run this agent</span></div><button type="button" class="btn" id="agent-refresh">↻ Refresh</button></div>
     <div class="task-toolbar">
       <strong>${rows.length} sites</strong>
       <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>
@@ -5030,6 +5030,7 @@ async function renderGenericAgent(role) {
     </table></div>
     <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
 
+  $('#agent-refresh').addEventListener('click', () => renderGenericAgent(role));
   wireCrumbs();
   const c2 = $('#crumb-control2');
   if (c2) c2.addEventListener('click', () => go('control'));

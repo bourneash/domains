@@ -2026,6 +2026,11 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Current status is shown first/);
   assert.match(app, /Execution history/);
   assert.match(app, /class="btn sm ag-health-details"[^>]*>Expand<\/button>/);
+  assert.match(app, /type="button" class="btn" id="agent-refresh"/);
+  assert.match(
+    app,
+    /\$\('#agent-refresh'\)\.addEventListener\('click', \(\) => renderGenericAgent\(role\)\)/
+  );
   assert.match(app, /function toggleHealthDetail\(button\)/);
   assert.match(app, /ag-health-detail-grid/);
   assert.match(app, /function fmtDate\(value\)/);
