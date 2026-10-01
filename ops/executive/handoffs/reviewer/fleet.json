@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:31:47.549Z",
+  "generated_at": "2026-10-01T10:35:25.545Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects the unsupervisedmedia.com report-only proposal: it does not satisfy the delivery mandate, and repository inspection cannot substitute for existing telemetry. Route only three bounded, reversible SEO changes as capacity-gated engineer work. No revenue, ROI, causal lift, or production-readiness claims are supported. CTO must release a slot by 2026-10-02T09:00:00Z or escalate to the owner; low-volume candidates remain deployment-blocked until evidence thresholds are met.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, readiness, and high-priority queue claims. Route only three low-risk, reversible, capacity-gated engineer candidates. Implementation capacity is 10/10; existing measurement, overlap, and repair obligations remain unresolved. CTO must release a slot by 2026-10-02T09:00:00Z; escalate unresolved capacity to the owner. No new production work may execute before that gate clears.",
         "requested_action": null,
         "proposal_id": null
       }
