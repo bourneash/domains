@@ -972,7 +972,10 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
   assert.match(app, /id="deploy-status"/);
   assert.match(app, /function applyDeployFilter\(\)/);
   assert.match(app, /data-deploy-status/);
+  assert.match(app, /class="card deploy-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="deploy-help"><summary>How deployment status is determined/);
   assert.match(theme, /\.deploy-summary-grid \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.deploy-table \{[^}]*overflow: hidden/);
   assert.match(theme, /\.deploy-filter-hidden \{ display: none; \}/);
 });
 

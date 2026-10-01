@@ -2284,11 +2284,11 @@ async function renderDeployHealth() {
       <label><span class="sr-only">Deployment status</span><select id="deploy-status" class="cm-input"><option value="all">All statuses</option><option value="live">Live</option><option value="ops-only">Ops-only</option><option value="deploying">Deploying</option><option value="behind">Site changes pending</option><option value="failed">Build failed</option><option value="unknown">Unknown</option></select></label>
       <span id="deploy-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card"><table>
+    <div class="card deploy-table"><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px"><b>live</b> = the latest deployable <code>site/</code> commit is serving. <b>ops-only</b> = newer operational files do not affect production. <b>deploying</b>/<b>site changes pending</b> = production may need a build, but failure is not confirmed. <b>build failed</b> = Cloudflare reported a failed build. <b>unknown</b> = telemetry is unavailable. Refreshed every 5 minutes in the background.</p>`;
+    </table></div></div>
+    <details class="deploy-help"><summary>How deployment status is determined</summary><p><b>live</b> = the latest deployable <code>site/</code> commit is serving. <b>ops-only</b> = newer operational files do not affect production. <b>deploying</b>/<b>site changes pending</b> = production may need a build, but failure is not confirmed. <b>build failed</b> = Cloudflare reported a failed build. <b>unknown</b> = telemetry is unavailable. Refreshed every 5 minutes in the background.</p></details>`;
   $('#deploy-status').value = DEPLOY_FILTER.status;
   $('#deploy-search').addEventListener('input', e => {
     DEPLOY_FILTER.q = e.target.value;
