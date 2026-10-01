@@ -1133,6 +1133,10 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .cn-summary-warn { border-top-color: var(--yellow); }
 .cn-summary-warn strong { color: var(--yellow); }
 .cn-summary-meta { display: flex; flex-direction: column; justify-content: center; }
+.cn-table { overflow: hidden; }
+.cn-help { margin-top: 12px; border-top: 1px solid var(--border); }
+.cn-help summary { padding-top: 10px; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
+.cn-help p { max-width: 92ch; margin: 7px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
 .cn-controls {
   display: flex;
   align-items: center;

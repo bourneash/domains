@@ -5079,22 +5079,24 @@ async function renderContainers() {
       const label =
         r.kind === 'cron' ? 'cron' : r.kind === 'worker' ? 'worker run' : r.service || r.kind;
       const svc = `<span class="badge ${r.kind === 'cron' ? 'b-blue' : r.kind === 'worker' ? 'b-purple' : 'b-gray'}">${esc(label)}</span>`;
-      const acts = [`<button class="btn sm cn-logs" data-id="${esc(r.id)}">📜 Logs</button>`];
+      const acts = [
+        `<button type="button" class="btn sm cn-logs" data-id="${esc(r.id)}">📜 Logs</button>`,
+      ];
       if (r.running)
         acts.push(
-          `<button class="btn sm cn-act" data-id="${esc(r.id)}" data-act="restart" data-name="${esc(r.name)}">↻ Restart</button>`
+          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="restart" data-name="${esc(r.name)}">↻ Restart</button>`
         );
       else
         acts.push(
-          `<button class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}">▶ Start</button>`
+          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}">▶ Start</button>`
         );
       if (r.kind === 'cron')
         acts.push(
-          `<button class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`
+          `<button type="button" class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`
         );
       if (r.running)
         acts.push(
-          `<button class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`
+          `<button type="button" class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`
         );
       const state = !r.running ? 'stopped' : r.unhealthy ? 'unhealthy' : 'healthy';
       return `<tr class="cn-row" data-id="${esc(r.id)}" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}" data-cn-name="${esc(`${r.name} ${r.slug || ''} ${r.service || ''}`.toLowerCase())}" data-cn-status="${state}" data-cn-kind="${esc(r.kind)}">
@@ -5131,13 +5133,13 @@ async function renderContainers() {
       <label><span class="sr-only">Container status</span><select id="cn-status" class="cm-input"><option value="all">All statuses</option><option value="healthy">Healthy</option><option value="unhealthy">Unhealthy</option><option value="stopped">Stopped</option></select></label>
       <label><span class="sr-only">Container type</span><select id="cn-kind" class="cm-input"><option value="all">All types</option><option value="cron">Cron</option><option value="worker">Worker runs</option><option value="site">Site services</option><option value="tool">Fleet tools</option></select></label>
       <span id="cn-filter-count" class="muted" role="status" aria-live="polite"></span>
-      <button class="btn sm" id="restart-crons" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
+      <button type="button" class="btn sm" id="restart-crons" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
-    <div class="card"><table>
+    <div class="card cn-table"><div class="table-wrap"><table>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No domains containers running.</td></tr>'}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px"><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p>`;
+    </table></div></div>
+    <details class="cn-help"><summary>What container actions do</summary><p><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p></details>`;
 
   wireContainerRows();
   $('#cn-status').value = CN_FILTER.status;
