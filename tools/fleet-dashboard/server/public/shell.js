@@ -1429,9 +1429,14 @@
     let activeSec = null,
       activeLabel = '';
     const rootView = document.body.dataset.view || '';
+    const navigationView = rootView === 'site' ? 'control' : rootView;
     $$('.rl-it', rail).forEach(b => {
       const src = bound.get(b);
-      const on = !!src && (src.root ? rootView === src.key : src.el.classList.contains('active'));
+      const on =
+        !!src &&
+        (src.root
+          ? navigationView === src.key
+          : src.el.classList.contains('active') || src.key === navigationView);
       b.classList.toggle('on', on);
       if (on) {
         activeSec = b.dataset.sec;
@@ -1439,7 +1444,7 @@
       }
     });
     $$('.rl-sec', rail).forEach(s => {
-      const rootOn = s.dataset.sec === rootView;
+      const rootOn = s.dataset.sec === navigationView;
       $('.rl-h-main', s)?.classList.toggle('on', rootOn);
       s.classList.toggle('has-on', rootOn || s.dataset.sec === activeSec);
       if (rootOn) {
@@ -1640,12 +1645,15 @@
   }
 
   function syncNavigationCurrent() {
+    const navigationView = document.body.dataset.view === 'site' ? 'control' : document.body.dataset.view;
     $$('.tabs [data-view], .tabs .dd-item[data-role]').forEach(item =>
       item.removeAttribute('aria-current')
     );
-    $$('.tabs [data-view].active, .tabs .dd-item.active').forEach(item =>
-      item.setAttribute('aria-current', 'page')
-    );
+    $$('.tabs [data-view]').forEach(item => {
+      if (item.classList.contains('active') || item.dataset.view === navigationView)
+        item.setAttribute('aria-current', 'page');
+    });
+    $$('.tabs .dd-item.active').forEach(item => item.setAttribute('aria-current', 'page'));
     $$('.rl-it, .rl-h-main').forEach(item => {
       if (item.classList.contains('on')) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');

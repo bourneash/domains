@@ -73,6 +73,12 @@ test('site command deep links retain domain context in the shell title', () => {
   assert.match(shell, /document\.title = `\$\{siteLabel\} · Domain Fleet Manager`/);
 });
 
+test('site command deep links retain Domain Control navigation state', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /const navigationView = rootView === 'site' \? 'control' : rootView/);
+  assert.match(shell, /item\.dataset\.view === navigationView/);
+});
+
 test('Executive deep links retain their operating workspace context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /rootView === 'executive'/);
@@ -327,7 +333,7 @@ test('sidebar supports persistent favorites and reordering', () => {
   assert.match(shell, /if \(src\.root\) location\.hash = `#\$\{src\.key\}`/);
   assert.match(
     shell,
-    /src\.root \? rootView === src\.key : src\.el\.classList\.contains\('active'\)/
+    /src\.root\n\s*\? navigationView === src\.key\n\s*: src\.el\.classList\.contains\('active'\) \|\| src\.key === navigationView/
   );
   assert.match(shell, /data-favorite-move/);
   assert.match(shell, /data-favorites-clear/);
