@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:14:08.992Z",
+  "generated_at": "2026-10-01T16:16:03.646Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the proposed report-only readiness artifact as duplicate planning while capacity remains disputed. Route only three bounded, reversible engineer revalidations as capacity-gated work: 0xroulette.com CTA clarity, broadwayshowgirls.com snippet CTR, and deeppenetrations.com LCP. Do not execute until CTO reconciles capacity and releases one slot by 2026-10-01T18:00Z; escalate unresolved capacity to the owner then. No revenue, ROI, causal-lift, or production-readiness claims are supported.",
+        "summary": "Reviewer disposition: reject the proposed magicescorts.com report-only implementation artifact and all new production admissions this cycle. Capacity is contradictory, and site-specific launch, legal, security, attribution, and measurement evidence is incomplete. CTO must reconcile capacity and release one slot by 2026-10-01T18:00Z; unresolved capacity escalates to the owner. Site-factory must complete the readiness gate before any preview implementation.",
         "requested_action": null,
         "proposal_id": null
       }

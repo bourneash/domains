@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:14:08.993Z",
+  "generated_at": "2026-10-01T16:16:03.647Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Create howtofry.com preview launch-readiness artifact",
-        "summary": "Prepare one dated, isolated readiness artifact for howtofry.com before any preview implementation is admitted. Capacity is currently disputed, analytics is not configured, and affiliate, legal, security, disclosure, rights, and measurement evidence are incomplete.",
-        "requested_action": "After capacity is reconciled, create the artifact in an isolated worktree; do not publish, deploy, monetize, add tracking, install dependencies, spend, or change production.",
+        "title": "Complete magicescorts.com preview-readiness artifact before implementation",
+        "summary": "Magicescorts.com is queue-ready, but analytics, affiliate, social, content-rights, compliance, security, and launch evidence are not established. Capacity records also conflict, so production implementation cannot be admitted this cycle.",
+        "requested_action": "Create a dated, read-only readiness artifact in the magicescorts.com repository, preserving the site as unpublished or otherwise unchanged. Record the approved concept scope, content and image provenance, disclosure and consent requirements, security and release boundaries, affiliate readiness, measurement availability, rollback point, and exactly one next implementation step. Do not infer adult status, publish, monetize, add tracking, spend, contact external parties, or change production.",
         "proposal_id": null
       }
     ]
