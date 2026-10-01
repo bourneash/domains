@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:51:40.265Z",
+  "generated_at": "2026-10-01T17:01:29.719Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admission beyond three bounded medium-priority revalidations. Revenue, ROI, causal-lift, and production-readiness claims remain unsupported; aggregate commission is unattributed, capacity ledgers conflict, and telemetry is insufficient for broader work. Route only the three existing reversible repairs as engineer work, gated on CTO capacity reconciliation and site-specific measurement evidence.",
+        "summary": "Route only three medium-priority, reversible engineer revalidations on distinct sites. Execution remains blocked until CTO reconciles the conflicting capacity ledgers and releases one slot by 2026-10-01T18:00Z. Do not claim revenue, ROI, causal lift, or production readiness. All other candidates remain blocked by existing work, launch/security gates, insufficient attribution, or missing outcome evidence.",
         "requested_action": null,
         "proposal_id": null
       }
