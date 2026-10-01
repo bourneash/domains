@@ -299,6 +299,9 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /aria-label="Search workbench cases"/);
   assert.match(app, /searchable\.includes\(query\)/);
   assert.match(app, /const wbGroups = new Map\(\)/);
+  assert.match(app, /const allCaseThreads = \[\.\.\.allGroups\.values\(\)\]\.map\(wbRepresentative\)/);
+  assert.match(app, /const active = allCaseThreads\.filter/);
+  assert.match(app, /const count = status => allCaseThreads\.filter/);
   assert.match(app, /wbCollapsedRecords/);
   assert.match(app, /linked records/);
   assert.match(app, /duplicate set/);

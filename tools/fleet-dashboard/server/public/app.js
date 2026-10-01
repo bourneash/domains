@@ -16391,7 +16391,27 @@ async function renderWorkbench() {
     return;
   }
   const all = data.work_items || [];
-  const active = all.filter(item => !['done', 'cancelled'].includes(item.status));
+  const wbStatusRank = { open: 4, in_progress: 4, blocked: 4, waiting: 4, done: 2, cancelled: 1 };
+  const wbCaseKey = item =>
+    [item.site || 'fleet', item.owner || '', item.kind || '', item.title || ''].join('\u001f');
+  const wbRepresentative = items =>
+    items
+      .slice()
+      .sort(
+        (a, b) =>
+          (wbStatusRank[b.status] || 0) - (wbStatusRank[a.status] || 0) ||
+          new Date(b.updated_at || b.created_at || 0).getTime() -
+            new Date(a.updated_at || a.created_at || 0).getTime()
+      )[0];
+  const allGroups = new Map();
+  all.forEach(item => {
+    const key = wbCaseKey(item);
+    const group = allGroups.get(key) || [];
+    group.push(item);
+    allGroups.set(key, group);
+  });
+  const allCaseThreads = [...allGroups.values()].map(wbRepresentative);
+  const active = allCaseThreads.filter(item => !['done', 'cancelled'].includes(item.status));
   const visible = all.filter(item => {
     const statuses = WORKBENCH_UI.status.split(',').filter(Boolean);
     const query = WORKBENCH_UI.query.trim().toLowerCase();
@@ -16409,23 +16429,11 @@ async function renderWorkbench() {
   // do not inflate the DOM or spend time rendering cards that are discarded.
   const wbGroups = new Map();
   visible.forEach(item => {
-    const key = [item.site || 'fleet', item.owner || '', item.kind || '', item.title || ''].join(
-      '\u001f'
-    );
+    const key = wbCaseKey(item);
     const group = wbGroups.get(key) || [];
     group.push(item);
     wbGroups.set(key, group);
   });
-  const wbStatusRank = { open: 4, in_progress: 4, blocked: 4, waiting: 4, done: 2, cancelled: 1 };
-  const wbRepresentative = items =>
-    items
-      .slice()
-      .sort(
-        (a, b) =>
-          (wbStatusRank[b.status] || 0) - (wbStatusRank[a.status] || 0) ||
-          new Date(b.updated_at || b.created_at || 0).getTime() -
-            new Date(a.updated_at || a.created_at || 0).getTime()
-      )[0];
   const threads = [...wbGroups.values()].map(items => ({
     item: wbRepresentative(items),
     duplicateCount: items.length,
@@ -16448,7 +16456,7 @@ async function renderWorkbench() {
   </article>`
     )
     .join('');
-  const count = status => all.filter(item => item.status === status).length;
+  const count = status => allCaseThreads.filter(item => item.status === status).length;
   app.innerHTML = `<div class="wb-shell"><div class="page-head wb-head"><div><div class="wb-eyebrow">ASSISTIVE OPERATING QUEUE</div><h2 class="page-title">Executive Workbench</h2><div class="muted">One place for decisions, evidence gaps, reviews, incidents, and learning. Roles can update cases autonomously; humans step in only when a decision or approval is actually required.</div></div><div class="wb-head-actions"><button type="button" class="btn" id="wb-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new-toggle">＋ New case</button></div></div>
     <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
