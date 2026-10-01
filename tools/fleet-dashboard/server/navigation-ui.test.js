@@ -862,6 +862,10 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
 test('shared route headers keep context readable beside actions on narrow screens', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.page-head > div:first-child \{ flex: 1 1 320px; min-width: 0; \}/);
+  assert.match(
+    style,
+    /\.page-head > \.page-title \+ \.muted,[\s\S]*flex: 1 1 320px; min-width: 0;/
+  );
   assert.match(style, /\.page-head > \.btn \{ flex: 0 0 auto; margin-left: auto;/);
   assert.match(
     style,
