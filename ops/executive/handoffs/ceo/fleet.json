@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.355Z",
+  "generated_at": "2026-10-01T00:46:31.247Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Keep SearchWoot private and leave rights outreach unsent because rights, security, accuracy, measurement, and owner gates remain incomplete. Delivery is saturated at 10/10 slots; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, and causal lift remain unknown. Smallest next step: complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the canonical allthingsmasonic.com CTA refinement. Owner decision: confirm the keep-private disposition.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the duplicate saveusfarms.com work item and all new proposals, experiments, site-factory admissions, telemetry, and queue work while delivery is saturated at 10/10 slots. Evidence: 57 improvements are measuring, 21 requests failed, and Amazon revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation and rollback evidence, then admits only the canonical allthingsmasonic.com CTA refinement. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:38:50.739Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:46:31.247Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve containment. Do not create new proposals, telemetry requests, prototypes, deployments, spend, or duplicate queue items while all 10 delivery slots are occupied and measurement backlog remains high. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Keep existing private-launch and security-sensitive release gates unchanged.",
+        "summary": "Approve containment with correction: reject the duplicate saveusfarms.com work item and admit no new proposals, telemetry, prototypes, site-factory work, spend, deployments, or duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after one slot is released may the existing allthingsmasonic.com CTA refinement execute. Preserve its destinations and tracking IDs; measure registered affiliate clicks against the recorded 61-click baseline without claiming revenue, ROI, or causal lift. Keep launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After the saveusfarms.com case releases a slot, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Do not create a duplicate request or admit other candidates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "When capacity is released, implement the existing allthingsmasonic.com CTA refinement in an isolated diff. Preserve destination and tracking ID allthingsmasonic-20, adjacent affiliate disclosure, keyboard focus, contrast, tap targets, responsive behavior, and unrelated routes. Run build, deterministic CTA/link assertions, smoke, link, and accessibility validation. Roll back the single diff if any gate fails.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Confirm continued containment: site-level monetization claims must use named tracking rows only; aggregate provider commission remains unattributed. No revenue, ROI, margin, or causal-lift claim is supported by the current evidence.",
+        "summary": "The proposed complicated.work factory step remains deferred: capacity release and a verified launch-readiness artifact are prerequisites. No public exposure, affiliate activation, new telemetry, dependencies, credentials, permissions, or cross-site behavior are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

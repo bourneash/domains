@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.355Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:46:31.247Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small, capacity-gated pipeline. Strongest candidate: complicated.work, score 84, scaffold lifecycle, existing site/ops capabilities, and an existing launch-readiness prerequisite. Pipeline backups: deadlymaracas.com and driveford.net, both requiring verified launch-readiness artifacts before any build admission. For complicated.work, the bounded factory packet must cover: audience and site brief; reusable scaffold/template; initial content seed; metadata, sitemap, canonical, and crawlability baseline; analytics readiness without inventing configuration; affiliate readiness only with an owner-approved registered tracking ID; compliance disclosures and consent; security and release evidence; named owner; measurement baseline; and single-diff rollback. Current evidence shows analytics is not configured, compliance is failing on banner/consent checks, and security/operations clearance is not evidenced. Therefore launch remains blocked and no domain, spend, deployment, or public launch is authorized. Exactly one next step: CTO verifies the existing complicated.work launch-readiness artifact against the owner, legal, security, measurement, and rollback checklist and records one disposition: ready for isolated preview, blocked with owner, or evidence-needed. Do not create duplicate work while delivery capacity is saturated at 10/10 slots.",
+        "summary": "Recommendation: admit no new site-factory work while delivery is saturated at 10/10 slots and launch, security, measurement, legal, and rollback gates remain incomplete. Retain complicated.work as the strongest factory candidate because its bounded build opportunity scores 84, but keep it queued behind a verified launch-readiness artifact and capacity release. Exactly one next step: after CTO releases one slot, produce and verify the complicated.work launch-readiness artifact covering owner, legal, security, measurement, SEO, affiliate, compliance, rollback, and preview-only launch gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not add domains, spend money, deploy, publish, enable affiliate monetization, or collect new telemetry. Preserve the existing fleet launch and security gates; use only authorized evidence and retain unknowns.",
         "requested_action": null,
         "proposal_id": null
       }

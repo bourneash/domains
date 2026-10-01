@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:38:50.739Z",
+  "generated_at": "2026-10-01T00:46:31.247Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain financial containment. Approve no new spend, budget, forecast, or monetization claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID \"other\"; site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 cost $1,002.45979265 across 5,531 calls, with 234 errors; this cost window cannot be compared directly to the one-day revenue window. The existing allthingsmasonic.com CTA repair may proceed only after capacity clears, with no revenue forecast: baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Require registered tracking IDs and a matched-period finance reconciliation before any investment expansion or revenue claim.",
+        "summary": "CFO recommendation: approve containment and reject all new spend, budget commitments, revenue forecasts, ROI claims, margin claims, and monetization expansion. The only revenue evidence is $4.92 Amazon commission for 2026-09-21, entirely in an aggregate provider row; site-attributed revenue is $0. September AI spend was $1,002.46 across 5,531 calls, so portfolio contribution margin is not calculable because the revenue and cost windows do not match and infrastructure, domain, labor, and other operating costs are absent. Cost-to-learn is also not calculable because no per-change cost allocation, control delta, or validated outcome value exists. Minimum measurement is same-period per-change AI and infrastructure cost, registered affiliate clicks, ordered and shipped items, commission, and treatment/control outcome deltas. Retain only the existing capacity-gated work; reject the duplicate repair item and do not create a finance proposal or telemetry request.",
         "requested_action": null,
         "proposal_id": null
       }

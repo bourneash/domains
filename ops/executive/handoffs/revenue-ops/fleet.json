@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.355Z",
+  "generated_at": "2026-10-01T00:46:31.247Z",
   "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Delivery is saturated at 10/10 active slots. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after one slot is released, execute the already-queued allthingsmasonic.com CTA refinement. Do not create duplicate work.",
+        "summary": "Preserve the $4.92 aggregate Amazon commission for 2026-09-21 as unattributed. Do not assign it to any site or infer ROI, margin, or causal lift. Delivery is saturated at 10/10 slots; execute no new implementation until CTO releases capacity.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in an aggregate tracking row labeled other. Site-level revenue, ROI, margin, and causal lift remain unknown. Preserve the aggregate amount as unattributed; require every new affiliate link to use a registered site tracking ID.",
+        "summary": "The canonical next implementation remains the existing allthingsmasonic.com CTA refinement after capacity release. Preserve destinations and tracking IDs; measure registered affiliate clicks only against the 61-click baseline.",
         "requested_action": null,
         "proposal_id": null
       }

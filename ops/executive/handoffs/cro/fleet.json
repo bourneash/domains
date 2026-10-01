@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:38:50.738Z",
+  "generated_at": "2026-10-01T00:46:31.247Z",
   "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO execution handoff: do not admit new CRO experiments or repository prototypes while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. If a slot clears, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com; do not create a duplicate request or change credentials, domains, tracking configuration, or security gates.",
+        "summary": "Recommendation: retain containment and admit no new CRO proposals, experiments, prototypes, telemetry requests, or duplicate queue work this cycle. Delivery is saturated at 10/10 slots and measurement/repair queues are active. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After one slot is released, execute only the canonical allthingsmasonic.com CTA refinement against the recorded 61-click baseline; do not claim revenue, ROI, or causal lift. Keep launch, security, legal, and measurement gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
