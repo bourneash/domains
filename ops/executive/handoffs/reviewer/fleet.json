@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T18:14:07.040Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:21:13.785Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the narrow reassignment of overdue capacity reconciliation to principal-engineer. Reject totaljerks.com CTA implementation admission: attribution, measurable outcome, capacity, and financial evidence are insufficient. Preserve private-launch and security gates; no credentials, configuration, spending, schedules, telemetry, or production changes.",
+        "summary": "Approve only three medium-priority, reversible engineer queue items across distinct sites: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Keep execution gated until principal-engineer reconciles capacity and records site-specific measurement gates by 2026-10-02T12:00Z. Reject revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. No credentials, configuration, spend, schedules, tracking, duplicate telemetry, or cross-site changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing read-only security evidence matrix and explicit unknowns. Do not treat missing operations or fleet-doctor evidence as clearance, and do not create duplicate telemetry requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Approve only three bounded, reversible, medium-priority engineer candidates: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Execution remains blocked until principal-engineer reconciles capacity and records site-specific measurement gates by 2026-10-02T12:00Z. Reject revenue, ROI, causal-lift, readiness, and production claims. No credentials, configuration, spend, schedules, tracking, duplicate telemetry, or cross-site changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve private-launch and security-sensitive release gates. Continue the existing read-only security evidence matrix; missing operations and fleet-doctor evidence remains unknown and is not clearance. Escalate unresolved capacity or measurement gates to the owner by 2026-10-02T12:00Z.",
+        "summary": "Material concerns: active delivery reports 1/10 occupied slots while performance reports 56 active improvements and 11 blocked reviews; the authoritative ledger is unresolved. Amazon aggregate commission is unattributed, and no revenue, ROI, margin, or causal-lift claim is supported. Keep scaffold launches, monetization expansion, security-sensitive exposure, and high-priority queue work blocked.",
         "requested_action": null,
         "proposal_id": null
       }
