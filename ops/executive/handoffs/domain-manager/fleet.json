@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:45:24.594Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T16:10:00.156Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Execute existing allthingsmasonic.com affiliate CTA refinement",
-        "summary": "Retain and execute the already-queued CTA refinement request without creating overlapping work. Improve the homepage and highest-intent commercial entry surface for clearer affiliate CTA hierarchy, relevance, disclosure placement, accessibility, and responsive behavior.",
-        "requested_action": "Execute existing request b4310bcc-4232-4867-ad9c-9f19ea93afc0 after capacity clearance. Do not create a duplicate request, add tracking, change credentials, or claim revenue lift.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "a202323b-73fb-4176-ac7f-22866c9b33e3",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 1,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
