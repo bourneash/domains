@@ -3480,11 +3480,11 @@ async function sfRenderPanel(site) {
 
   el.innerHTML = `
     <div class="cn-log-toolbar muted"><span>checked ${d.checkedAt ? fmtAge((Date.now() - d.checkedAt) / 1000) + ' ago' : 'never yet'} · TLS expiry: ${tlsRow}</span></div>
-    <table class="sf-detail-table"><tbody>${factRows}</tbody></table>
+    <div class="table-wrap"><table class="sf-detail-table"><tbody>${factRows}</tbody></table></div>
     <div class="section-title" style="margin-top:12px">Amazon affiliate health</div>
     <p class="muted">${amzLine}</p>
     <div class="section-title" style="margin-top:12px">Manual annotations</div>
-    <table class="sf-detail-table"><tbody>${manualRows || '<tr><td colspan="4" class="muted">none yet</td></tr>'}</tbody></table>
+    <div class="table-wrap"><table class="sf-detail-table"><tbody>${manualRows || '<tr><td colspan="4" class="muted">none yet</td></tr>'}</tbody></table></div>
     <form class="sf-manual-form" data-site="${esc(site)}" style="margin-top:8px;display:flex;gap:6px">
       <input type="text" class="cm-input sf-manual-key" placeholder="key (e.g. adsense_status)" pattern="[-a-zA-Z0-9._]+" required />
       <input type="text" class="cm-input sf-manual-value" placeholder="value" maxlength="500" required />
@@ -12031,9 +12031,9 @@ async function renderPriorities() {
   app.innerHTML = `<div class="page-head"><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div>
     <div class="error-box">${esc(data.notice || '')}</div>
     <section class="seo-stats">${tiles}</section>
-    <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><table class="tbl"><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></details>
+    <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="table-wrap"><table class="tbl"><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
     <div class="task-toolbar"><strong>${rows.length} items</strong><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
-    <section class="card"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></section>`;
+    <section class="card"><div class="table-wrap"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
   $('#priority-state').value = PRIORITY_STATE;
   $('#priority-state').addEventListener('change', e => {
     PRIORITY_STATE = e.target.value;
@@ -12144,7 +12144,7 @@ async function renderImprovements() {
       <details class="improvement-detail" data-id="${esc(run.run_id)}" data-rk="improvement:${esc(run.run_id)}"><summary>Evidence and delivery record</summary>
         <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
         <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
-        <h4>Quality gates</h4><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table>
+        <h4>Quality gates</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table></div>
         ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot" style="width:100%;border:1px solid var(--line)"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot" style="width:100%;border:1px solid var(--line)"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:480px"><div><b>Production</b><iframe title="Production before improvement" src="https://${esc(run.site)}/" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" src="${esc(run.preview_url)}" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div></div>` : ''}
         <p><b>Outcome:</b> ${outcome.classification ? `<span class="badge ${outcome.classification === 'proven' ? 'b-green' : outcome.classification === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(outcome.classification)}</span> · confidence ${esc(outcome.confidence || '—')}` : '<span class="muted">not measured</span>'}</p>
         <div class="improvement-live muted">Open to load worktree diff, agent log, and event timeline.</div>

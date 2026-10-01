@@ -1209,6 +1209,25 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);
 });
 
+test('Site Facts and executive evidence tables stay bounded when expanded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const facts = app.slice(
+    app.indexOf('async function sfRenderPanel('),
+    app.indexOf('function reloadSiteFacts()', app.indexOf('async function sfRenderPanel('))
+  );
+  const priorities = app.slice(
+    app.indexOf('async function renderPriorities()'),
+    app.indexOf('let IMPROVEMENT_STATE', app.indexOf('async function renderPriorities()'))
+  );
+  const improvements = app.slice(
+    app.indexOf('async function renderImprovements()'),
+    app.indexOf('function improvementActions', app.indexOf('async function renderImprovements()'))
+  );
+  assert.ok((facts.match(/class="table-wrap"><table class="sf-detail-table"/g) || []).length >= 2);
+  assert.ok((priorities.match(/class="table-wrap"><table class="tbl"/g) || []).length >= 2);
+  assert.match(improvements, /<h4>Quality gates<\/h4><div class="table-wrap"><table class="tbl">/);
+});
+
 test('fleet task view presents the filtered slice as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
