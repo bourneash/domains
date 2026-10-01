@@ -2301,6 +2301,20 @@ body.has-rail .actions { margin-left: 0; }
   gap: 10px;
   margin: 0 0 14px;
 }
+.task-page-head .muted { display: block; max-width: 760px; margin-top: 3px; }
+.task-route-toolbar { align-items: flex-end; }
+.task-new-btn { margin-left: auto; }
+@media (max-width: 560px) {
+  .task-route-toolbar { align-items: stretch; gap: 8px; }
+  .task-route-toolbar > .seg,
+  .task-route-toolbar > #task-controls,
+  .task-route-toolbar > .task-new-btn { width: 100%; }
+  .task-route-toolbar > .seg { display: flex; }
+  .task-route-toolbar > .seg .seg-btn { flex: 1; }
+  .task-route-toolbar > #task-controls { display: flex; align-items: center; min-height: 30px; }
+  .task-route-toolbar > #task-controls select { flex: 1; min-width: 0; }
+  .task-new-btn { margin-left: 0; }
+}
 .task-stat {
   min-width: 0;
   padding: 12px 14px;

@@ -1027,9 +1027,13 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
 
 test('Tasks route provides context before its mode controls', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="page-head task-page-head"/);
   assert.match(app, /<h2 class="page-title">Tasks<\/h2>/);
   assert.match(app, /Track work across the fleet/);
+  assert.match(app, /role="group" aria-label="Task view mode"/);
+  assert.match(app, /class="btn primary sm task-new-btn" id="new-task"/);
+  assert.match(theme, /\.task-route-toolbar > \.seg \{ display: flex; \}/);
 });
 
 test('primary API requests fail clearly instead of loading forever', () => {

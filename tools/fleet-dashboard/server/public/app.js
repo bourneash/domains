@@ -5387,13 +5387,13 @@ async function renderTasks() {
       ? $('#task-content').innerHTML
       : '<div class="loading">Loading tasks…</div>';
   app.innerHTML = `
-    <div class="task-toolbar">
-      <div class="seg">
-        <button class="seg-btn ${TASK.mode === 'fleet' ? 'active' : ''}" data-mode="fleet">Fleet</button>
-        <button class="seg-btn ${TASK.mode === 'board' ? 'active' : ''}" data-mode="board">Board</button>
+    <div class="task-toolbar task-route-toolbar">
+      <div class="seg" role="group" aria-label="Task view mode">
+        <button class="seg-btn ${TASK.mode === 'fleet' ? 'active' : ''}" data-mode="fleet" aria-pressed="${TASK.mode === 'fleet'}">Fleet</button>
+        <button class="seg-btn ${TASK.mode === 'board' ? 'active' : ''}" data-mode="board" aria-pressed="${TASK.mode === 'board'}">Board</button>
       </div>
       <div id="task-controls" class="task-controls"></div>
-      <button class="btn primary sm" id="new-task" style="margin-left:auto">+ New Task</button>
+      <button class="btn primary sm task-new-btn" id="new-task">+ New Task</button>
     </div>
     <div id="task-content">${prev}</div>`;
   $$('.seg-btn').forEach(b =>
