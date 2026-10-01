@@ -37,6 +37,7 @@ function successfulTaskEvidence(store, request, task) {
     .find(
       run =>
         SUCCESSFUL_TERMINAL_STATES.has(run.state) &&
+        run.outcome?.report_invalidated !== true &&
         ((task.task_id && run.task_id === task.task_id) || run.task_file === task.file)
     );
 }
@@ -114,6 +115,10 @@ function reportOnlyEvidenceReady(logText = '') {
     /report[- ]only|read[- ]only/i.test(text) &&
     /rollback/i.test(text)
   );
+}
+
+function reportOnlyArtifactReady(diffText = '', logText = '') {
+  return Boolean(String(diffText).trim()) || reportOnlyEvidenceReady(logText);
 }
 
 function measurementDate(days = 28, now = Date.now()) {
@@ -219,7 +224,11 @@ function startManual({ store, root, request, baseline = {} }) {
       source_id: request.request_id,
       limit: 10,
     })
-    .find(row => !['cancelled', 'failed', 'rolled-back'].includes(row.state));
+    .find(
+      row =>
+        !['cancelled', 'failed', 'rolled-back'].includes(row.state) &&
+        row.outcome?.report_invalidated !== true
+    );
   if (duplicate) return { run: duplicate, task_file: duplicate.task_file, duplicate: true };
 
   const runId = crypto.randomUUID();
@@ -471,6 +480,7 @@ module.exports = {
   canRecoverInfrastructureReview,
   canRecoverInterruptedWorker,
   reportOnlyEvidenceReady,
+  reportOnlyArtifactReady,
   start,
   startManual,
   successfulTaskEvidence,

@@ -14,6 +14,7 @@ const {
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
+  reportWasInvalidated,
   queueProjectionPath,
   shouldAutoRevalidateInfrastructureReview,
   shouldPreserveCompletedReviewerHandoff,
@@ -127,6 +128,18 @@ test('does not retry reviewer rejections or deterministic quality-gate failures'
     true
   );
   assert.equal(shouldRetryQueueFailure('implementation agent ended failed'), true);
+});
+
+test('an invalidated empty report cannot reverify its request during reconciliation', () => {
+  assert.equal(
+    reportWasInvalidated({ state: 'reported', outcome: { report_invalidated: true } }),
+    true
+  );
+  assert.equal(reportWasInvalidated({ state: 'reported', outcome: {} }), false);
+  assert.equal(
+    reportWasInvalidated({ state: 'building', outcome: { report_invalidated: true } }),
+    false
+  );
 });
 
 test('classifies Docker worker disappearance as infrastructure evidence', () => {

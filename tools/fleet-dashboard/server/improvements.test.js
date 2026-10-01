@@ -474,6 +474,22 @@ test('requires a complete evidence shape before recovering a report-only worker'
   assert.equal(improvements.reportOnlyEvidenceReady('read-only task\nworker interrupted'), false);
 });
 
+test('does not accept an empty report artifact after a worker test crash', () => {
+  const crashedLog = 'npm test exited 1: Error: spawn /usr/bin/node EAGAIN';
+  assert.equal(improvements.reportOnlyArtifactReady('', crashedLog), false);
+  assert.equal(
+    improvements.reportOnlyArtifactReady('diff --git a/ops/report.md b/ops/report.md', crashedLog),
+    true
+  );
+  assert.equal(
+    improvements.reportOnlyArtifactReady(
+      '',
+      '## One reversible recommendation\nread-only report\n## Measurement plan\nRollback: none'
+    ),
+    true
+  );
+});
+
 test('does not create duplicate manual tasks when queue delivery is retried', () => {
   const { root, store } = fixture();
   const request = {
@@ -548,6 +564,36 @@ test('blocks a done task lineage that has no successful delivery evidence', () =
   assert.equal(retry.completed, undefined);
   assert.match(retry.reason, /no successful durable improvement evidence/);
   assert.equal(store.listImprovements({ source: 'fleet-dashboard' }).length, 1);
+  store.close();
+});
+
+test('invalidated report does not satisfy done-task evidence or dedupe a corrected retry', () => {
+  const { root, store } = fixture();
+  const request = {
+    request_id: 'request-invalid-report',
+    site: 'example.com',
+    title: 'Produce a diagnosis',
+    body: 'Produce a report',
+    category: 'engineering',
+    priority: 'low',
+    assigned_role: 'engineer',
+  };
+  const first = improvements.startManual({ store, root, request });
+  store.updateImprovement(first.run.run_id, {
+    state: 'reported',
+    outcome: { report_invalidated: true },
+  });
+  tasks.move(root, request.site, 'backlog', first.task_file, 'done');
+  assert.equal(
+    improvements.successfulTaskEvidence(store, request, { file: first.task_file }),
+    undefined
+  );
+  assert.equal(improvements.startManual({ store, root, request }).blocked_duplicate, true);
+  tasks.move(root, request.site, 'done', first.task_file, 'backlog');
+  const retry = improvements.startManual({ store, root, request });
+  assert.notEqual(retry.duplicate, true);
+  assert.equal(retry.task_reused, true);
+  assert.notEqual(retry.run.run_id, first.run.run_id);
   store.close();
 });
 

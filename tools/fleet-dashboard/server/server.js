@@ -314,6 +314,10 @@ function shouldPropagateCancelledRun(request) {
   return true;
 }
 
+function reportWasInvalidated(run) {
+  return run?.state === 'reported' && run?.outcome?.report_invalidated === true;
+}
+
 function queueProjectionPath(currentStatus, targetStatus) {
   // Automatic delivery waits in delivery_pending while the GitHub build and
   // production verification complete. That state is not part of the older
@@ -567,7 +571,13 @@ function applyQualityPolicy(root, site, validation) {
   return {
     ...validation,
     passed,
-    policy: { required, source, error: policyError, status, allow_private_noindex: allowPrivateNoindex },
+    policy: {
+      required,
+      source,
+      error: policyError,
+      status,
+      allow_private_noindex: allowPrivateNoindex,
+    },
   };
 }
 
@@ -2302,6 +2312,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!run || run.source !== 'fleet-dashboard' || !run.source_id) return null;
     const request = events.getChangeRequest(run.source_id);
     if (!request || request.status === 'cancelled') return request;
+    if (reportWasInvalidated(run)) return request;
     let target = preferredStatus;
     if (!target) {
       if (['proven', 'inconclusive'].includes(run.state)) target = 'verified';
@@ -2756,11 +2767,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return deliverTaskRoutingAutomatically(item, request);
     if (request?.delivery_mode === 'report_only') {
       let workspace = await git.worktreeSnapshot(item.workspace_path);
+      const diff = await git.worktreeDiff(item.workspace_path);
+      const agentStatus = improvementAgent.status(root, item);
+      if (!improvements.reportOnlyArtifactReady(diff.text, agentStatus.log_tail))
+        throw Object.assign(
+          new Error('report-only evidence is missing; no report artifact was produced'),
+          {
+            httpStatus: 409,
+          }
+        );
       if (workspace.dirty) {
         workspace = await git.commitWorktree(item.workspace_path, `report: ${item.title}`);
       }
-      const diff = await git.worktreeDiff(item.workspace_path);
-      const agentStatus = improvementAgent.status(root, item);
       const artifact = writeReportArtifact(root, request, item, diff.text, agentStatus.log_tail);
       const reported = improvements.transition(events, item.run_id, {
         state: 'reported',
@@ -3148,9 +3166,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // projection when validation fails. Re-enter through `review` first;
       // the queue state machine intentionally does not allow reviewing →
       // running, while review → running is the bounded repair transition.
-      const recoveryStatus = ['failed', 'reviewing', 'needs_repair', 'delivery_pending', 'blocked_infrastructure'].includes(
-        request.status
-      )
+      const recoveryStatus = [
+        'failed',
+        'reviewing',
+        'needs_repair',
+        'delivery_pending',
+        'blocked_infrastructure',
+      ].includes(request.status)
         ? 'review'
         : 'running';
       changequeue.update(
@@ -8991,6 +9013,7 @@ module.exports = {
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
+  reportWasInvalidated,
   queueProjectionPath,
   shouldAutoRevalidateInfrastructureReview,
   shouldPreserveCompletedReviewerHandoff,
