@@ -4516,7 +4516,7 @@ async function renderRetention() {
  */
 async function renderDoctor() {
   const app = $('#app');
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><div class="loading">Loading fleet doctor\u2026</div>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><button type="button" class="btn" id="doctor-refresh">↻ Refresh</button></div><div role="status" aria-live="polite"><div class="loading">Loading fleet doctor\u2026</div></div>`;
 
   let d;
   try {
@@ -4528,7 +4528,7 @@ async function renderDoctor() {
 
   if (!d.ok) {
     app.innerHTML = `
-      <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants</span></div>
+      <div class="page-head"><div><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants</span></div><button type="button" class="btn" id="doctor-refresh">↻ Refresh</button></div>
       <div class="card"><p class="r-overdue">No result yet${d.error ? `: ${esc(d.error)}` : ''}.</p>
       <p class="muted">${d.running ? 'A sweep is running now \u2014 it takes about a minute.' : 'Press Re-run to start a sweep.'}</p>
       <button class="btn" type="button" id="doctor-run">Re-run</button></div>`;
@@ -4559,7 +4559,7 @@ async function renderDoctor() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div>
+    <div class="page-head"><div><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><button type="button" class="btn" id="doctor-refresh">↻ Refresh</button></div>
     <section class="doctor-summary" aria-label="Fleet doctor summary">
       <div class="doctor-stat doctor-stat-good"><strong>${t.pass || 0}</strong><span>Checks passed</span></div>
       <div class="doctor-stat ${t.fail ? 'doctor-stat-bad' : 'doctor-stat-good'}"><strong>${t.fail || 0}</strong><span>Checks failed</span></div>
@@ -4581,6 +4581,7 @@ async function renderDoctor() {
     }
     <details class="doctor-help"><summary>What this sweep checks</summary><p>Source: <code>tools/fleet-images/bin/fleet-doctor --json</code>. Each cron-capable site is checked for the shared image, a bind-mounted (never baked) crontab, a running container on the current image ID, uid 1000, dropped capabilities, and a failable healthcheck.</p></details>`;
 
+  $('#doctor-refresh')?.addEventListener('click', () => renderDoctor());
   $('#doctor-run')?.addEventListener('click', doctorRun);
   stamp();
 }

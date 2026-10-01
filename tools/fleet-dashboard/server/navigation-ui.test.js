@@ -921,7 +921,11 @@ test('Retention presents policy posture before editable rows', () => {
 test('Doctor presents sweep posture before failure details', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  assert.match(app, /class="loading">Loading fleet doctor\\u2026<\/div>/);
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading fleet doctor\\u2026<\/div>/
+  );
+  assert.match(app, /type="button" class="btn" id="doctor-refresh"/);
   assert.match(app, /class="doctor-summary" aria-label="Fleet doctor summary"/);
   assert.match(app, /class="doctor-toolbar" role="group" aria-label="Fleet doctor actions"/);
   assert.match(app, /class="doctor-result doctor-result-invalid"/);
