@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:43:18.057Z",
+  "generated_at": "2026-10-01T21:51:20.591Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the vibratorporn.com production proposal and all ungated implementation admission this cycle. Site analytics are not configured, site-specific baseline and attribution are unavailable, and capacity/review gates remain unresolved. Retain three reversible engineer candidates only in execution-gated status: 0xroulette.com CTA clarity, broadwayshowgirls.com search CTR, and deeppenetrations.com LCP repair. Principal-engineer must document authoritative capacity, baselines, thresholds, tests, attribution boundaries, and rollback points by 2026-10-02T12:00Z; otherwise escalate to the owner. No unsupported revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are authorized.",
+        "summary": "Reject unsupported financial, causal-lift, launch-readiness, and production-readiness claims. Queue only three medium-priority reversible candidates in execution-gated status. Principal-engineer must reconcile capacity and record baselines, thresholds, tests, attribution boundaries, and rollback points by 2026-10-02T12:00Z; otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       }
