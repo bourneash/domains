@@ -524,11 +524,11 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 .btn:active { transform: translateY(0) scale(.985); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn.primary {
-  background: #2f7fd1; border-color: #62b0ff; color: #fff;
+  background: #286fb9; border-color: #62b0ff; color: #fff;
   text-shadow: none;
   box-shadow: 0 5px 16px -9px rgba(94,169,255,.85), inset 0 1px 0 rgba(255,255,255,.18);
 }
-.btn.primary:hover { filter: brightness(1.12); color: #fff; background: #398ddd; }
+.btn.primary:hover { filter: brightness(1.12); color: #fff; background: #327fc9; }
 .btn.backlink-accent {
   background: #b86b1f;
   border-color: #e3a15f;
@@ -677,7 +677,7 @@ table { border-collapse: separate; border-spacing: 0; }
 th {
   background: linear-gradient(180deg, rgba(22,27,38,.99), rgba(18,23,32,.99));
   backdrop-filter: blur(8px);
-  color: var(--faint); font-size: 10.5px; letter-spacing: .09em; font-weight: 700;
+  color: var(--muted); font-size: 10.5px; letter-spacing: .09em; font-weight: 700;
   padding: 10px 13px;
   border-bottom: 1px solid rgba(255,255,255,.09);
 }
@@ -1886,7 +1886,7 @@ body[data-view="socialhub"] #vitals { max-width: none; }
 #vitals.hidden { display: none; }
 .vt-scope {
   flex: 1 1 100%; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--faint); font-weight: 700; margin: 0 0 2px 2px;
+  color: var(--muted); font-weight: 700; margin: 0 0 2px 2px;
 }
 .vt {
   flex: 1 1 150px; min-width: 140px;

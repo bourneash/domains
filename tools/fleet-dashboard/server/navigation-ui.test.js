@@ -126,6 +126,13 @@ test('navigation branding stays readable when the rail is constrained', () => {
   assert.match(theme, /\.rl-word \{[\s\S]*text-overflow: ellipsis/);
 });
 
+test('shared dark theme primitives meet readable contrast targets', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /\.btn\.primary \{[\s\S]*background: #286fb9/);
+  assert.match(theme, /th \{[\s\S]*color: var\(--muted\)/);
+  assert.match(theme, /\.vt-scope \{[\s\S]*color: var\(--muted\)/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
