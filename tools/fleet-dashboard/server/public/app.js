@@ -7640,7 +7640,9 @@ function seoBadge(priority) {
 
 async function renderSeoIntelligence() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading SEO intelligence…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading SEO intelligence…</div></div>';
   const [data, vitals] = await Promise.all([
     api('GET', '/api/seo-intelligence?days=90'),
     api('GET', '/api/web-vitals').catch(() => null),
@@ -7784,7 +7786,7 @@ async function renderSeoIntelligence() {
       .join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div>
+    <div class="page-head"><div><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div><button type="button" class="btn" id="seo-refresh">↻ Refresh</button></div>
     <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></div></section>
     <section class="seo-stats">${statCards}</section>
     <div class="seo-overview-grid">
@@ -7809,6 +7811,7 @@ async function renderSeoIntelligence() {
     </section>
     <section class="seo-actions">${actionRows}</section>`;
 
+  $('#seo-refresh').addEventListener('click', () => renderSeoIntelligence());
   $('#seo-priority').value = SEO_PRIORITY;
   $('#seo-type').value = SEO_TYPE;
   $('#seo-site').value = SEO_SITE;

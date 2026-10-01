@@ -1250,7 +1250,15 @@ test('Compliance keeps scan controls explicit and safe', () => {
 test('SEO Intelligence keeps evidence tables bounded and live actions explicit', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
-  assert.match(app, /class="loading">Loading SEO intelligence…<\/div>/);
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading SEO intelligence…<\/div>/
+  );
+  assert.match(app, /class="btn" id="seo-refresh"/);
+  assert.match(
+    app,
+    /\$\('#seo-refresh'\)\.addEventListener\('click', \(\) => renderSeoIntelligence\(\)\)/
+  );
   assert.match(app, /seo-vitals-panel[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /seo-sites[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /type="button" class="btn sm web-vitals-run"/);
