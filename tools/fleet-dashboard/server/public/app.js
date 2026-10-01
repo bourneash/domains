@@ -2721,7 +2721,7 @@ async function renderErrors() {
     .map(r => {
       const level = r.count24h > 0 ? r.lastLevel : null;
       const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
-      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row tabindex="0" title="Click to view retained logs">
+      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row role="button" aria-label="Open retained logs for ${esc(r.name)}" tabindex="0" title="Click to view retained logs">
       <td class="mono">${esc(r.name)}${r.activeAlert ? ' <span class="badge b-red" title="errorscan considers this an open alert — a Slack post (threshold or all-clear) may still be pending or may have failed silently">🔔 active</span>' : ''}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>

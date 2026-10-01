@@ -660,6 +660,7 @@ test('unlabeled dynamic form controls receive conservative accessible names', ()
 
 test('focused interactive rows retain Enter and Space activation', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(shell, /function normalizeKeyboardActions\(root = document\)/);
   assert.match(
     shell,
@@ -669,6 +670,10 @@ test('focused interactive rows retain Enter and Space activation', () => {
   assert.match(shell, /event\.key !== 'Enter' && event\.key !== ' '/);
   assert.match(shell, /action\.click\(\)/);
   assert.match(shell, /normalizeKeyboardActions\(\$\('#app'\)\)/);
+  assert.match(
+    app,
+    /class="err-row"[^>]*role="button"[^>]*aria-label="Open retained logs for \$\{esc\(r\.name\)\}"[^>]*tabindex="0"/
+  );
 });
 
 test('table expanders use semantic buttons instead of placeholder links', () => {
