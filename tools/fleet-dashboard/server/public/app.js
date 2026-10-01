@@ -179,7 +179,9 @@ function dotLegend(st, txt) {
 // the DOM (and any hidden state on it).
 function applyFleetFilter() {
   const input = $('#fleet-filter');
-  const q = ((input && input.value) || '').trim().toLowerCase();
+  const q = (STATE.view === 'builds' ? CF_BUILDS.filter : (input && input.value) || '')
+    .trim()
+    .toLowerCase();
   const clear = $('#fleet-filter-clear');
   if (clear) clear.hidden = !q;
   const rows = $$('[data-fleet-row]');
@@ -229,7 +231,12 @@ function clearFleetFilter() {
   try {
     localStorage.removeItem('fd.fleet-filter');
   } catch {}
-  applyFleetFilter();
+  if (STATE.view === 'builds') {
+    CF_BUILDS.filter = '';
+    CF_BUILDS.pages = { repos: 1, builds: 1, triggers: 1 };
+    clearTimeout(CF_BUILDS.filterTimer);
+    renderCloudflareBuilds();
+  } else applyFleetFilter();
   input.focus();
 }
 
@@ -2744,7 +2751,7 @@ async function renderCloudflareBuilds({ force = false } = {}) {
   const repos = data.byRepo || [];
   const builds = data.builds || [];
   const triggers = data.triggers || [];
-  const fleetQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+  const fleetQuery = CF_BUILDS.filter;
   const pageSize = window.matchMedia('(max-width: 680px)').matches
     ? CF_BUILDS.pageSize
     : Math.max(CF_BUILDS.pageSize, 25);
@@ -2881,6 +2888,9 @@ async function renderCloudflareBuilds({ force = false } = {}) {
     })
   );
   if (!FRESH) applyUISnap();
+  const fleetFilterInput = $('#fleet-filter');
+  if (fleetFilterInput && fleetFilterInput.value.trim().toLowerCase() !== CF_BUILDS.filter)
+    fleetFilterInput.value = CF_BUILDS.filter;
   applyFleetFilter();
   stamp();
 }
@@ -4738,7 +4748,7 @@ function controlDraw() {
           ${stateBar(roll, 'rh-bar')}
           <span class="rh-n rh-${tone}">${roll.pct == null ? '—' : roll.pct + '%'}</span>
         </td>`;
-      return `<tr data-fleet-row data-site="${esc(s.site)}"><td class="rsite">${siteLink(s.site)}${toolLinks(s.site)}</td>${health}${cells}${otherCell}</tr>`;
+      return `<tr data-fleet-row data-site="${esc(s.site)}"><td class="rsite">${siteLink(s.site)}<details class="rmatrix-tools"><summary aria-label="More tools for ${esc(s.site)}" title="More site tools">•••</summary>${toolLinks(s.site)}</details></td>${health}${cells}${otherCell}</tr>`;
     })
     .join('');
 
@@ -18217,6 +18227,7 @@ async function boot() {
     try {
       ff.value = localStorage.getItem('fd.fleet-filter') || '';
     } catch {}
+    CF_BUILDS.filter = ff.value.trim().toLowerCase();
     ff.addEventListener('input', () => {
       try {
         localStorage.setItem('fd.fleet-filter', ff.value);

@@ -1068,7 +1068,7 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /role="tab" class="btn sm/);
   assert.match(scheduler, /role="tabpanel" aria-labelledby=/);
   assert.match(scheduler, /role="group" aria-label="Scheduler job views"/);
-  assert.match(scheduler, /\['attention', `Needs attention/);
+  assert.match(scheduler, /\[\s*'attention',\s*`Needs attention/);
   assert.match(scheduler, /aria-pressed="\$\{SCH\.jobState === key\}"/);
   assert.match(scheduler, /function schJobState\(job\)/);
   assert.match(scheduler, /<caption class="sr-only">Scheduled jobs and controls<\/caption>/);
@@ -1514,16 +1514,17 @@ test('Build Usage exposes a scoped refresh control', () => {
   assert.match(app, /type="button" class="btn" id="cfb-refresh"/);
   assert.match(
     app,
-    /\$\('#cfb-refresh'\)\.addEventListener\('click', \(\) => renderCloudflareBuilds\(\)\)/
+    /\$\('#cfb-refresh'\)\.addEventListener\('click', \(\) => renderCloudflareBuilds\(\{ force: true \}\)\)/
   );
   assert.match(app, /Repository build usage/);
   assert.match(app, /Recent builds and commits/);
   assert.match(app, /Live Cloudflare build triggers/);
-  assert.match(app, /const CF_BUILDS = \{ days: 7, pageSize: 10, pages:/);
+  assert.match(app, /const CF_BUILDS = \{\s+days: 7,\s+pageSize: 10,\s+pages:/);
   assert.match(app, /data-cfb-page="\$\{key\}"/);
-  assert.match(app, /fleetQuery \? rows\.filter/);
+  assert.match(app, /fleetQuery[\s\S]{0,180}rows\.filter/);
   assert.match(app, /CF_BUILDS\.cache\?\.days === CF_BUILDS\.days/);
   assert.match(app, /matching records across Build Usage registers/);
+  assert.match(app, /if \(STATE\.view === 'builds'\) \{\s+CF_BUILDS\.filter = '';/);
 });
 
 test('Retention presents policy posture before editable rows', () => {
@@ -1882,12 +1883,14 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.doesNotMatch(app, /Common role columns<\/span>/);
   assert.match(app, /Has fresh roles/);
   assert.match(app, /matrix-scroll-hint/);
+  assert.match(app, /class="rmatrix-tools"><summary aria-label="More tools for/);
   assert.match(app, /Parked domain inventory and renewal exposure/);
   assert.doesNotMatch(app, /Fresh role cells<\/span>/);
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.matrix-scroll-hint \{ display: none; \}/);
   assert.match(theme, /\.rmatrix thead th \{[\s\S]*position: sticky/);
   assert.match(theme, /\.rmatrix thead th\.rsite-h \{ left: 0; z-index: 5; \}/);
+  assert.match(theme, /\.rmatrix th\.rsite-h,[\s\S]*width: 240px/);
 });
 
 test('Git Hygiene presents safety state and searchable review queue', () => {
@@ -2290,7 +2293,7 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   );
   assert.match(app, /rows\.slice\(start, start \+ DHI_PAGE_SIZE\)/);
   assert.match(app, /entries\s*\.slice\(start, start \+ DHI_PAGE_SIZE\)/);
-  assert.match(app, /images\.slice\(start, start \+ DHI_PAGE_SIZE\)\.map\(dhiImageCard\)/);
+  assert.match(app, /images\s*\.slice\(start, start \+ DHI_PAGE_SIZE\)\s*\.map\(dhiImageCard\)/);
   assert.match(view, /id="dhi-image-gallery"/);
   assert.match(view, /dhiBindCountControls\(app\)/);
   assert.match(view, /dhiBindLedgerControls\(app\)/);

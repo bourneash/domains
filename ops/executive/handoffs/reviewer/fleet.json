@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T19:51:11.917Z",
+  "generated_at": "2026-10-01T20:11:14.138Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admission this cycle. No candidate satisfies the combined capacity, evidence, measurable-outcome, and rollback gates: the authoritative slot ledger is unresolved, strongest candidates overlap active work or lack sufficient telemetry, and site-attributed revenue is unsupported. Retain only principal-engineer capacity reconciliation. By 2026-10-02T12:00Z, document the authoritative slot count and saveusfarms.com repair disposition, release one slot, or escalate to the owner. No unsupported financial, causal-lift, launch-readiness, production-readiness, credential, configuration, spending, schedule, tracking, or production claims are authorized.",
+        "summary": "Route three medium-priority, reversible candidates to engineer across distinct sites, but keep execution and deployment gated. Capacity ledger, site-specific measurement gates, low-volume telemetry, unattributed aggregate revenue, and incomplete security/operations evidence remain material concerns. No revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are approved.",
         "requested_action": null,
         "proposal_id": null
       }

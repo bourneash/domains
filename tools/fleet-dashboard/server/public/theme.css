@@ -2748,6 +2748,38 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 
 .rmatrix td.rsite { padding-right: 16px; }
 
+/* Keep the pinned site identity useful without letting helper links consume
+   nearly a third of the matrix viewport on a laptop-sized dashboard. */
+@media (min-width: 900px) {
+  .rmatrix th.rsite-h,
+  .rmatrix td.rsite { width: 240px; min-width: 240px; max-width: 240px; }
+  .rmatrix td.rsite .site-link-wrap { max-width: 208px; }
+  .rmatrix td.rsite .site-link-wrap > .site-link {
+    display: block; min-width: 0; max-width: 178px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rmatrix td.rsite .rmatrix-tools {
+    position: absolute; z-index: 4; right: 8px; top: 50%; transform: translateY(-50%);
+  }
+}
+.rmatrix td.rsite .rmatrix-tools > summary {
+  display: grid; place-items: center; width: 24px; height: 24px; cursor: pointer;
+  list-style: none; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); background: var(--panel-2); font-size: 12px; line-height: 1;
+}
+.rmatrix td.rsite .rmatrix-tools > summary::-webkit-details-marker { display: none; }
+.rmatrix td.rsite .rmatrix-tools > summary:hover,
+.rmatrix td.rsite .rmatrix-tools[open] > summary { border-color: var(--a1); color: var(--a1); }
+.rmatrix td.rsite .rmatrix-tools > .tool-links {
+  position: absolute; right: 0; top: calc(100% + 5px); display: flex; gap: 10px;
+  margin: 0; padding: 7px 9px; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--panel-2); box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.rmatrix td.rsite .rmatrix-tools > .tool-links a { white-space: nowrap; }
+@media (max-width: 899px) {
+  .rmatrix td.rsite .rmatrix-tools { display: inline-block; margin-left: 6px; vertical-align: middle; }
+}
+
 /* ============================================================================
    Social Hub — overview
    25 identical alphabetical cards gave equal weight to "awaiting review" and
