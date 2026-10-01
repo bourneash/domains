@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.247Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:57:18.176Z",
+  "summary": "revenue-ops checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the $4.92 aggregate Amazon commission for 2026-09-21 as unattributed. Do not assign it to any site or infer ROI, margin, or causal lift. Delivery is saturated at 10/10 slots; execute no new implementation until CTO releases capacity.",
+        "summary": "Preserve containment: delivery is saturated at 10/10 slots, Amazon revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21, and site ROI remains unknown. Do not create duplicate telemetry or affiliate work. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the canonical allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The canonical next implementation remains the existing allthingsmasonic.com CTA refinement after capacity release. Preserve destinations and tracking IDs; measure registered affiliate clicks only against the 61-click baseline.",
+        "summary": "Revenue-ops disposition: retain the aggregate Amazon row as unknown revenue; require every future affiliate link to use a registered site tracking ID. The available snapshot shows 18 mapped tracking rows plus one aggregate \"other\" row containing all $4.92 commission, so no site-level revenue or ROI may be inferred.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Affiliate readiness gaps remain owner- or capacity-gated: amputeenews.com still lacks an evidenced real Amazon Associates tag, and existing americastrikes.com work identifies broken or stale affiliate references. Preserve both as queued repair work; do not duplicate requests or claim recovered revenue until validation is available.",
         "requested_action": null,
         "proposal_id": null
       }

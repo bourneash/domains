@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.247Z",
+  "generated_at": "2026-10-01T00:57:18.176Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment with correction: reject the duplicate saveusfarms.com work item and admit no new proposals, telemetry, prototypes, site-factory work, spend, deployments, or duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Only after one slot is released may the existing allthingsmasonic.com CTA refinement execute. Preserve its destinations and tracking IDs; measure registered affiliate clicks against the recorded 61-click baseline without claiming revenue, ROI, or causal lift. Keep launch and security gates unchanged.",
+        "summary": "CTO disposition: approve containment. Create no new proposals, telemetry requests, experiments, prototypes, site-factory admissions, spend, or duplicate queue items while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. If a slot is released, admit only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for the allthingsmasonic.com CTA refinement. Preserve existing private-launch and security-sensitive release gates. Treat work-identity/WIP controls, measurement lifecycle improvements, failure-repair automation, and AI cost/error guardrails as future backlog concepts only; do not implement or add telemetry this cycle. Do not claim revenue, ROI, causal lift, security clearance, or release certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed complicated.work factory step remains deferred: capacity release and a verified launch-readiness artifact are prerequisites. No public exposure, affiliate activation, new telemetry, dependencies, credentials, permissions, or cross-site behavior are authorized.",
+        "summary": "Maintain the existing capacity-gate work item and do not create a duplicate. Release capacity only after the saveusfarms.com repair-or-close evidence is complete; otherwise escalate at the existing deadline. After release, execute only the canonical allthingsmasonic.com request as one isolated reversible diff with existing telemetry and affiliate identifiers unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

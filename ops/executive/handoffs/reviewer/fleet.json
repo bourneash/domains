@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.248Z",
+  "generated_at": "2026-10-01T00:57:18.177Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new proposals, production work, telemetry, research, prototypes, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots; measurement and repair queues remain active. Revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift are unsupported. Preserve launch and security gates. CTO should complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence. Only after a slot is released may the existing allthingsmasonic.com CTA refinement proceed against its 61-click baseline, without revenue or causal-lift claims.",
+        "summary": "Reject new production work, prototypes, high-priority queue admissions, spend, duplicate telemetry, and unsupported revenue or causal-lift claims. Delivery is saturated at 10/10 slots; Amazon evidence is $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, and margin remain unknown. Keep SearchWoot private and rights outreach unsent. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; only then consider the canonical allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation, proposals, telemetry, research, prototypes, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots; existing measurement and repair work has priority. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner at the deadline. After a slot is released, admit at most one existing canonical allthingsmasonic.com CTA refinement. Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; do not claim site revenue, ROI, margin, forecasts, or causal lift. Keep private-launch and security gates unchanged.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, spend, launch, security-clearance, and high-priority queue claims. Delivery remains saturated at 10/10 slots. Keep SearchWoot private and rights outreach unsent. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; only then may one capacity-gated candidate execute.",
         "requested_action": null,
         "proposal_id": null
       }

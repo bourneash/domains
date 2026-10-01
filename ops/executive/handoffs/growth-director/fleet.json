@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.246Z",
+  "generated_at": "2026-10-01T00:57:18.175Z",
   "summary": "growth-director checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Admit no new SEO or growth work while delivery is saturated at 10/10 slots and measurement/repair queues remain active. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After CTO releases one slot, execute only the canonical allthingsmasonic.com CTA refinement: improve CTA hierarchy, adjacent existing disclosure placement, keyboard focus, contrast, tap targets, and responsive layout without changing destinations, tracking IDs, dependencies, telemetry, or cross-site behavior. Baseline: 61 registered affiliate clicks for 2026-09-21; metric: registered affiliate clicks. Sample window: 14 days post-deployment or 100 relevant impressions/clicks, reporting underpowered samples as inconclusive. Acceptance: deterministic tests, build/link validation, smoke, accessibility checks, and before/after screenshots pass. Rollback: revert the single isolated commit if validation fails or outcomes regress. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Preserve containment while delivery remains saturated at 10/10 slots. After the existing saveusfarms.com repair case releases capacity, admit only the canonical allthingsmasonic.com CTA refinement. Evidence baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Do not claim lift, revenue, or causal attribution before matched-period measurement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Admit no new SEO or growth work while delivery is saturated at 10/10 slots and measurement/repair queues remain active. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After CTO releases one slot, execute only the canonical allthingsmasonic.com CTA refinement: improve CTA hierarchy, adjacent existing disclosure placement, keyboard focus, contrast, tap targets, and responsive layout without changing destinations, tracking IDs, dependencies, telemetry, or cross-site behavior. Baseline: 61 registered affiliate clicks for 2026-09-21; metric: registered affiliate clicks. Sample window: 14 days post-deployment or 100 relevant impressions/clicks, reporting underpowered samples as inconclusive. Acceptance: deterministic tests, build/link validation, smoke, accessibility checks, and rollback evidence.",
+        "summary": "Execute the existing allthingsmasonic.com CTA refinement after CTO releases one slot. Use one reversible diff only; do not create duplicate work, add tracking, alter affiliate IDs, add dependencies, or modify unrelated routes.",
         "requested_action": null,
         "proposal_id": null
       }

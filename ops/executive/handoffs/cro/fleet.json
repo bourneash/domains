@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.247Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:57:18.176Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment and admit no new CRO proposals, experiments, prototypes, telemetry requests, or duplicate queue work this cycle. Delivery is saturated at 10/10 slots and measurement/repair queues are active. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After one slot is released, execute only the canonical allthingsmasonic.com CTA refinement against the recorded 61-click baseline; do not claim revenue, ROI, or causal lift. Keep launch, security, legal, and measurement gates unchanged.",
+        "summary": "CRO disposition: retain containment and create no new proposals, experiments, telemetry requests, prototypes, or duplicate queue items while delivery is saturated at 10/10 slots and measurement backlog remains high. Immediate handoff: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. If capacity clears, execute only the canonical allthingsmasonic.com CTA refinement against the evidenced baseline of 61 site-tracked Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim revenue or causal lift.\n\nRetained future opportunities, capacity-gated and not admitted this cycle: (1) fleet work identity/WIP controls: use-case is eliminating duplicate requests and site overlap; evidence is 108 approved proposals without execution, 21 failed requests, 7 open repair items, and 63% approved-proposal execution; metric is duplicate-rate and execution rate; learn in 1-2 cycles; smallest prototype is a dry-run deduplication report on existing queue records; risk is control-plane mutation and false merges, so CTO review is required. (2) measurement lifecycle: use-case is converting 43 awaiting-measurement improvements into keep/rollback/close decisions; metric is measurement completion and verified outcomes; learn in one measurement window; smallest prototype is a read-only disposition table using existing observations; risk is treating unavailable telemetry as zero. (3) affiliate CTA/disclosure refinement on allthingsmasonic.com: evidence is the 61-click baseline and completed public CTA inspection request; metric is affiliate clicks and ordered items; learn after 14 days or 100 relevant impressions/clicks; smallest prototype is one reversible markup/style diff preserving destinations, IDs, disclosure, accessibility, and rollback. (4) repository-assisted content workflow: markitdown has MIT license, 8/8 bounded checks passed, and supported SEO/content fit; shadcn/ui has MIT license and 3/3 bounded checks passed for UX; mermaid has MIT license and supported content fit but no native checks. These are discovery leads only: prototype in a disposable workspace without dependency installation or production access, then require CTO security/dependency review. Maintenance, transitive-dependency, supply-chain, license-fit, and content-quality risks remain unresolved; no adoption or revenue claim is supported. SearchWoot remains private because rights, security, accuracy, measurement, and owner gates are incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: do not admit new CRO work while active delivery is 10/10. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release at most one slot for the already-queued allthingsmasonic.com CTA refinement. Do not create duplicate requests, add dependencies, alter credentials, tracking IDs, domains, or security gates. Repository candidates remain disposable-lab research only; no production adoption is requested.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "When capacity is released, execute only the existing allthingsmasonic.com CTA refinement as one reversible diff. Preserve affiliate destinations and registered tracking ID, keep disclosure adjacent and accessible, validate build/link/smoke checks, and measure affiliate clicks and ordered items without claiming revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

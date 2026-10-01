@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:46:31.247Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:57:18.176Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: approve containment and reject all new spend, budget commitments, revenue forecasts, ROI claims, margin claims, and monetization expansion. The only revenue evidence is $4.92 Amazon commission for 2026-09-21, entirely in an aggregate provider row; site-attributed revenue is $0. September AI spend was $1,002.46 across 5,531 calls, so portfolio contribution margin is not calculable because the revenue and cost windows do not match and infrastructure, domain, labor, and other operating costs are absent. Cost-to-learn is also not calculable because no per-change cost allocation, control delta, or validated outcome value exists. Minimum measurement is same-period per-change AI and infrastructure cost, registered affiliate clicks, ordered and shipped items, commission, and treatment/control outcome deltas. Retain only the existing capacity-gated work; reject the duplicate repair item and do not create a finance proposal or telemetry request.",
+        "summary": "CFO recommendation: retain financial containment. Approve no new spend, budget expansion, forecast, or unsupported revenue claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, with all commission in aggregate tracking ID \"other\"; site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage from 2026-09-01 through 2026-09-30 cost $1,002.45979265 across 5,531 calls and 234 errors, but cannot be compared with the one-day revenue window. Infrastructure, domain, hosting, labor, and other operating costs are not provided, so total spend and contribution margin are not calculable. Cost-to-learn is also not calculable because experiment-level spend and outcome attribution are absent. The existing allthingsmasonic.com CTA refinement may proceed only after capacity clears, using the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission; no revenue forecast should be attached.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance measurement: produce a matched-period reconciliation covering site/tracking-ID affiliate clicks, ordered items, shipped items, commission income, AI cost, infrastructure/hosting cost, domain cost, and any other directly attributable operating cost. Until that exists, report aggregate revenue separately from site revenue and do not calculate margin, ROI, payback, or learning efficiency. Existing telemetry is sufficient for the current containment decision; no duplicate telemetry request is warranted.",
         "requested_action": null,
         "proposal_id": null
       }
