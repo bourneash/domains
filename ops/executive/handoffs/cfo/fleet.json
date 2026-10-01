@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:37:58.130Z",
+  "generated_at": "2026-10-01T04:48:53.126Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: reject both candidate product proposals this cycle and authorize no discretionary spend expansion. September AI usage was 5,531 calls costing $1,002.45979265, with 234 errors and 5 transient errors. Revenue evidence is only 2026-09-21 Amazon data: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking_id=other. Site revenue is $0 attributed, but the $4.92 aggregate cannot be assigned to sites; ROI, contribution margin, payback, and causal lift are therefore unsupported. Delivery is saturated at 10/10 slots. Keep existing approved work capacity-gated and retain only a report-only finance reconciliation.",
+        "summary": "Recommendation: maintain financial containment. Do not approve new spend, scale AI usage, or make revenue, ROI, contribution-margin, or forecast claims. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under an unattributed row; named site rows show $0 site-attributed commission. September AI usage is 5,531 calls costing $1,002.46, including 234 errors (4.23%); cost per validated output is not calculable because calls are not mapped to accepted work or revenue. Keep existing capacity and launch gates unchanged until a report-only finance baseline reconciles revenue, AI cost, infrastructure cost, and attributable work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance gate: do not implement AI cost enforcement or admit new control-plane work while delivery is saturated. Existing AI limits are unset, so no savings forecast or budget headroom is calculable. Preserve usage records and require the report-only finance baseline before defining thresholds. No provider, credential, billing, schedule, or production changes are authorized.",
+        "summary": "Finance disposition: preserve the existing affiliate-attribution control. The 2026-09-21 Amazon aggregate row contains 629 clicks, 28 ordered items, 6 shipped items, and $4.92 commission that cannot be assigned to a site. Require every new affiliate link to use a registered tracking ID, but do not represent tracking coverage as revenue attribution. No duplicate telemetry request is needed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin and cost-to-learn are not calculable from the brief. Minimum measurement is same-period site-level revenue linked to a registered tracking identifier, plus direct AI, infrastructure, domain, payment, and other attributable delivery costs; for learning, each experiment also needs incremental cost, exposure, treatment/control or pre/post outcome, and a stable change identifier. Do not treat clicks, sessions, impressions, proposal counts, or conversions as profit.",
+        "summary": "Cost-to-learn conclusion: AI spend is measurable, but learning efficiency is not. September cost per AI call is approximately $0.1812 ($1,002.46 / 5,531), while cost per error is approximately $4.28 ($1,002.46 / 234); neither is a unit-economic or contribution-margin metric. A validated cost-to-learn figure requires work-item-level AI cost, accepted-output status, measurement result, and attributable revenue or avoided cost.",
         "requested_action": null,
         "proposal_id": null
       }

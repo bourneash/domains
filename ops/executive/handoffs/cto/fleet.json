@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:37:58.130Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:48:53.126Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve only the bounded report-only finance reconciliation. Reject new fleet-control, AI-guardrail, site-factory, CRO, telemetry, spend, and duplicate implementation work this cycle. Delivery is saturated at 10/10 slots, so the existing canonical allthingsmasonic.com CTA request remains queued and must not be duplicated or executed until capacity is released.",
+        "summary": "CTO disposition: approve no new implementation admission this cycle. Preserve the canonical allthingsmasonic.com CTA request capacity-gated until the existing saveusfarms.com repair-or-close case has documented ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Keep launch and security gates unchanged; do not claim site revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Capacity gate: complete or justifiably close the existing saveusfarms.com repair case with retained root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release a slot only after evidence is recorded.",
+        "summary": "Do not create or admit duplicate implementation, site-factory, CRO, SEO, telemetry, or prototype work while capacity is saturated. After one slot is released, execute only the canonical allthingsmasonic.com request, subject to its existing tests, rollback, disclosure, accessibility, destination, and registered affiliate-click measurement criteria.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The finance baseline may use existing AI-usage and Amazon feeds only. Preserve the period mismatch and aggregate attribution boundary: September AI cost is $1,002.45979265; Amazon revenue is $4.92 aggregate commission for 2026-09-21 under tracking_id=other. Site revenue, ROI, margin, payback, and causal lift remain unknown.",
+        "summary": "Reject the proposed standalone affiliate-attribution implementation as new queue work. Preserve registered tracking-ID validation as an acceptance check within future canonical link changes and retain the aggregate provider row as unattributed. Do not infer site revenue, ROI, margin, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve the unit-economics baseline only as bounded offline report-only work using existing retained artifacts. It must not request telemetry, access billing or banking systems, create an implementation slot, or authorize spend. Report aggregate commission and AI cost separately from revenue, profit, and margin; mark unavailable fields explicitly.",
         "requested_action": null,
         "proposal_id": null
       }

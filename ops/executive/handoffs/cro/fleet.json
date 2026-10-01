@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:37:58.129Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:48:53.125Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: after one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement. Measure affiliate outbound clicks against the recorded 61-click baseline, retain ordered items and commission as secondary fields, and preserve disclosure, consent, accessibility, destination integrity, and rollback boundaries. Do not create duplicate work.",
+        "summary": "CRO recommends retaining two deferred, capacity-gated research opportunities only: an internal AI-work guardrail prototype and a disposable MarkItDown content-normalization prototype. Delivery is saturated at 10/10 slots, so no implementation, deployment, spend, credentials, telemetry, or duplicate queue work is requested. Both remain CEO/CTO handoffs pending capacity and validation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: validate the two deferred prototypes only after capacity clears. The AI guardrail prototype should remain dependency-free and isolated; the MarkItDown prototype should use only a disposable workspace, MIT-license review, bounded parser checks, and no production access. Do not adopt either without security, maintenance, measurement, and owner review.",
         "requested_action": null,
         "proposal_id": null
       }

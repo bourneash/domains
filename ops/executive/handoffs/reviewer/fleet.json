@@ -2,51 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:37:58.131Z",
+  "generated_at": "2026-10-01T04:48:53.126Z",
   "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, CRO, site-factory, telemetry, spend, and duplicate work this cycle. Delivery is saturated at 10/10 slots; revenue evidence supports only $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, and causal lift remain unknown. Keep SearchWoot private and rights outreach unsent. Require CTO closure or justified closure of the existing capacity-blocking repair case by 2026-10-01T09:00Z, then admit only canonical approved work.",
+        "summary": "Independent review: reject all new production, implementation, queue, CRO, site-factory, telemetry, spend, and duplicate evidence work this cycle. Delivery is saturated at 10/10 slots; attribution supports only $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift remain unsupported. Preserve existing private-launch and security gates. CTO should complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only canonical approved work. Owner action: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing capacity-blocking repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after evidence is recorded; do not create duplicate work.",
+        "summary": "Reject the proposed finance baseline as a new proposal this cycle. Existing AI, revenue, attribution, and cost telemetry is already available; no duplicate report or telemetry request is justified. Preserve unknowns and do not claim unit economics, cost-to-learn, profitability, or forecasts.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing security evidence matrix only; do not create a duplicate proposal or request duplicate telemetry. Preserve private-launch and security-sensitive release gates until dated control evidence and owner disposition exist.",
+        "summary": "Reject the new security proposal as duplicate admission. The canonical read-only security evidence matrix is already in progress. Continue that existing work only; keep security-sensitive releases and gated public exposure blocked until dated control evidence and owner disposition exist.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, existing work is measuring, and launch/security evidence is incomplete. CTO must complete or justifiably close the existing saveusfarms.com repair case with validation, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z; escalate unresolved capacity to the owner at that deadline. No new site-factory, CRO, SEO, telemetry, spend, credential, configuration, or duplicate queue work is authorized. Keep SearchWoot private and rights outreach unsent.",
+        "summary": "Revenue, ROI, margin, and causal-lift claims remain unsupported: available affiliate commission is aggregate and unattributed. Delivery is saturated at 10/10 slots, so the three evidence-backed implementation candidates below are routed to engineer but capacity-gated. CTO must complete or justify closure of the existing saveusfarms.com repair case, release a slot, or escalate to the owner by 2026-10-01T09:00Z. Security and private-launch gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "The candidate implementation batch remains unqueued because all delivery slots are occupied and several candidates lack launch or security clearance. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after evidence is recorded; escalate unresolved capacity to the owner at the deadline.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "cfo-2026-10-01-finance-unit-economics-baseline",
+        "summary": "Rejected as a new proposal this cycle. Existing telemetry is sufficient for a bounded disposition, while attribution and low-volume evidence do not support financial claims or unit economics.",
+        "requested_action": "declined",
+        "proposal_id": "cfo-2026-10-01-finance-unit-economics-baseline"
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing evidence_needed disposition and private-launch/security-sensitive release gates. Continue only the canonical read-only control matrix from authorized metadata and retained artifacts. Do not retrieve credentials, modify permissions or configuration, add dependencies, deploy, conduct outreach, request duplicate telemetry, or claim clearance or certification.",
-        "requested_action": null,
-        "proposal_id": null
+        "kind": "proposal-review",
+        "title": "security-2026-10-01-canonical-evidence-needed-disposition",
+        "summary": "Duplicate of the canonical in-progress security evidence matrix; preserve existing gates without creating new work.",
+        "requested_action": "declined",
+        "proposal_id": "security-2026-10-01-canonical-evidence-needed-disposition"
       }
     ]
   }
