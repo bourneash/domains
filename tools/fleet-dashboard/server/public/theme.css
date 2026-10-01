@@ -1826,3 +1826,30 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .fd-runtime-alert code { color: #6e2637; background: rgba(190,67,86,.08); }
 :root[data-theme="light"] .rmatrix .rsite,
 :root[data-theme="light"] .rmatrix .rsite-h { background: rgba(255,255,255,.96); }
+:root[data-theme="light"] .site-kpi,
+:root[data-theme="light"] .wb-kpis > div,
+:root[data-theme="light"] .wb-item,
+:root[data-theme="light"] .wb-toolbar,
+:root[data-theme="light"] .ex-workspace-nav,
+:root[data-theme="light"] .ex-inventory-card,
+:root[data-theme="light"] .ex-request-detail,
+:root[data-theme="light"] .ex-case-detail,
+:root[data-theme="light"] .ex-thread-message,
+:root[data-theme="light"] .ex-work-reply,
+:root[data-theme="light"] .ex-run-detail,
+:root[data-theme="light"] .ex-run-log-entry,
+:root[data-theme="light"] .ex-run-action-item,
+:root[data-theme="light"] .ex-run-log-controls {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .site-kpi.is-risk {
+  background: linear-gradient(145deg, rgba(220,64,83,.08), #fff);
+}
+:root[data-theme="light"] .ex-transcript-event pre,
+:root[data-theme="light"] .ex-run-log-entry pre {
+  background: #f4f7fb;
+  border: 1px solid var(--border);
+}
+:root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
+:root[data-theme="light"] .ex-workspace-tab.active small { color: var(--a1); }
