@@ -5732,9 +5732,9 @@ function fleetTable(rows) {
       );
     })
     .join('');
-  return `<div class="card"><table class="tasks-table">
+  return `<div class="card"><div class="table-wrap"><table class="tasks-table">
     <thead><tr><th>P</th><th>Site</th><th>Stage</th><th>Type</th><th>Title</th><th>Role</th><th>Created</th></tr></thead>
-    <tbody>${body}</tbody></table></div>`;
+    <tbody>${body}</tbody></table></div></div>`;
 }
 
 /* ---- shared editor / CRUD ---- */

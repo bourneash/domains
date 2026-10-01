@@ -1250,6 +1250,16 @@ test('Tasks route provides context before its mode controls', () => {
   assert.match(theme, /\.task-route-toolbar > \.seg \{ display: flex; \}/);
 });
 
+test('fleet task table stays bounded while preserving its wide scan columns', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function fleetTable(rows)');
+  const end = app.indexOf('/* ---- shared editor / CRUD ---- */', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.match(view, /<div class="card"><div class="table-wrap"><table class="tasks-table">/);
+  assert.match(view, /<th>Title<\/th><th>Role<\/th><th>Created<\/th>/);
+});
+
 test('Guides route provides queue context, summary, and keyboard access', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
