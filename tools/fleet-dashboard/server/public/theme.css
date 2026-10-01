@@ -2024,7 +2024,13 @@ body[data-view="socialhub"] main.view-enter > * { animation: none; }
   .page-title { font-size: 22px; }
 }
 @media (max-width: 720px) {
-  .vt { flex-basis: 46%; }
+  #vitals {
+    display: grid; grid-template-columns: repeat(6, 168px); grid-template-rows: auto auto;
+    overflow-x: auto; overscroll-behavior-inline: contain;
+    scrollbar-width: thin; padding-bottom: 4px;
+  }
+  .vt-scope { grid-column: 1 / -1; width: max-content; white-space: nowrap; align-self: center; margin-right: 2px; }
+  .vt { flex: 0 0 168px; min-width: 168px; }
   .cmdk-hint { display: none; }
   .focus-mode-toggle { display: none; }
   .fd-shortcuts-grid { grid-template-columns: 1fr; }
