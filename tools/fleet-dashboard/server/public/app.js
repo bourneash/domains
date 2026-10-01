@@ -1705,14 +1705,14 @@ async function renderProductFeed() {
     </section>
     <div class="card pf-panel">
       <h3>Subscriptions</h3>
-      <div class="table-wrap"><table>
+      <div class="table-wrap"><table><caption class="sr-only">Product feed subscriptions and queue health</caption>
         <thead><tr><th>Site</th><th>Selection tags</th><th>Available / target</th><th>Reviewing</th><th>Selected queue / max</th><th>Published</th><th>Rejected</th></tr></thead>
         <tbody>${subRows || '<tr><td colspan="7" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
       </table></div>
     </div>
     <div class="card pf-panel">
-      <h3>Recently verified products</h3>
-      <div class="table-wrap"><table>
+      <h3>Recently verified products <span class="muted pf-panel-count">Showing ${productItems.length} most recent of ${stats.products || productItems.length} verified</span></h3>
+      <div class="table-wrap"><table><caption class="sr-only">Most recently verified Amazon products</caption>
         <thead><tr><th>Verified</th><th>Exact Amazon product</th><th>ASIN</th><th>Price</th><th>Rating</th><th>Tags</th></tr></thead>
         <tbody>${productRows || '<tr><td colspan="6" class="muted">No verified products yet; collector will top up deficient subscriptions.</td></tr>'}</tbody>
       </table></div>

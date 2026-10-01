@@ -1680,6 +1680,9 @@ test('Product Feed presents queue health as a summary strip', () => {
   assert.match(app, /Verified products<\/span>/);
   assert.match(app, /class="card pf-panel"/);
   assert.match(app, /class="pf-help"><summary>How the product feed is maintained/);
+  assert.match(app, /caption class="sr-only">Product feed subscriptions and queue health<\/caption>/);
+  assert.match(app, /Showing \$\{productItems\.length\} most recent of \$\{stats\.products/);
+  assert.match(app, /caption class="sr-only">Most recently verified Amazon products<\/caption>/);
   assert.match(theme, /\.pf-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.pf-panel \{[^}]*overflow: hidden/);
 });
