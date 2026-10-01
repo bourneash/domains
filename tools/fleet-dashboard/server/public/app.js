@@ -1938,10 +1938,13 @@ async function renderAIUsage() {
       <label>Site <select id="aiu-site"><option value="">All reporting sites</option>${sites.map(site => `<option value="${esc(site)}" ${AI_USAGE.site === site ? 'selected' : ''}>${esc(site)}</option>`).join('')}</select></label>
       <label>Role <select id="aiu-role"><option value="">All roles</option>${roles.map(role => `<option value="${esc(role)}" ${AI_USAGE.role === role ? 'selected' : ''}>${esc(role)}</option>`).join('')}</select></label>
     </div>
-    <div class="task-toolbar">
-      <strong>${fmtUSD(s.total_cost_usd)} tracked spend</strong>
-      <span class="muted">${s.calls || 0} calls · ${fmtTokens(s.input_tokens)} in / ${fmtTokens(s.output_tokens)} out tokens · ${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}% cache hit` : 'no cache data'} · ${rawSummary.sites_instrumented || 0}/${rawSummary.sites_total || 0} sites instrumented</span>
-    </div>
+    <section class="aiu-summary" aria-label="AI usage summary">
+      <div class="aiu-stat aiu-stat-cost"><strong>${fmtUSD(s.total_cost_usd)}</strong><span>Tracked spend</span></div>
+      <div class="aiu-stat"><strong>${s.calls || 0}</strong><span>Calls</span></div>
+      <div class="aiu-stat"><strong>${fmtTokens((s.input_tokens || 0) + (s.output_tokens || 0))}</strong><span>Input + output tokens</span></div>
+      <div class="aiu-stat"><strong>${s.cache_hit_ratio != null ? `${Math.round(s.cache_hit_ratio * 100)}%` : '—'}</strong><span>Cache hit</span></div>
+      <div class="aiu-stat"><strong>${rawSummary.sites_instrumented || 0}<small>/${rawSummary.sites_total || 0}</small></strong><span>Sites instrumented</span></div>
+    </section>
     ${
       modelDriftCalls
         ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`

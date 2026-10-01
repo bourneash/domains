@@ -696,6 +696,13 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 #aiu-quick-select { padding: 5px 8px; font-size: 12.5px; font-weight: 600; }
 .aiu-granularity { display: flex; gap: 4px; padding-left: 4px; border-left: 1px solid var(--border); }
 .aiu-granularity-btn.active { background: rgba(77,163,255,.18); border-color: var(--accent); color: #fff; }
+.aiu-summary { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.aiu-stat { min-width: 0; padding: 13px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.aiu-stat strong { display: block; color: var(--text-hi); font: 700 21px/1.15 var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.aiu-stat strong small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.aiu-stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .45px; text-transform: uppercase; }
+.aiu-stat-cost { border-top: 2px solid var(--green); }
+.aiu-stat-cost strong { color: var(--green); }
 .aiu-chart-card { margin-bottom: 14px; padding: 12px 14px 8px; }
 .aiu-chart-card .task-toolbar { margin-bottom: 4px; }
 #aiu-reset-zoom { margin-left: auto; }
@@ -716,6 +723,8 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .aiu-diagnostics[open] summary::before { transform: rotate(90deg); }
 .aiu-diagnostics summary:hover { background: var(--panel-2); }
 .aiu-diagnostics-body { padding: 2px 14px 14px; border-top: 1px solid var(--border); }
+@media (max-width: 900px) { .aiu-summary { grid-template-columns: repeat(3, minmax(130px, 1fr)); } }
+@media (max-width: 560px) { .aiu-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .aiu-stat { padding: 11px 12px; } .aiu-stat strong { font-size: 18px; } }
 
 /* Cloudflare Builds telemetry */
 body[data-view="builds"] main { max-width: none; }

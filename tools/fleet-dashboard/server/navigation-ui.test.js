@@ -845,6 +845,15 @@ test('AI Usage chart zoom supports touch and pointer cancellation', () => {
   assert.match(style, /\.aiu-chart-wrap \{[^}]*touch-action:\s*pan-y/);
 });
 
+test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /class="aiu-summary"/);
+  assert.match(app, /Tracked spend<\/span>/);
+  assert.match(app, /Sites instrumented<\/span>/);
+  assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
