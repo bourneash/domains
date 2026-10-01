@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:57:18.176Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:18:43.270Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; counsel_required for Woot data rights, privacy, and any affiliate or advertising use. Evidence: Woot documentation establishes API access but not storage, derivatives, caching, public display, alerts, or commercial rights; current public terms point against the proposed use. Security, accuracy/freshness, measurement, and owner gates also remain incomplete. Keep the site private, leave rights outreach unsent, and permit only bounded read-only evidence work. Ordinary reversible growth elsewhere may continue within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
+        "summary": "Risk disposition: blocked for public beta or go-live; conditional for ordinary reversible growth that adds no new data collection, sharing, monetization, or cross-site behavior. Woot API documentation proves access but not redistribution rights, while current Woot terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Fleet compliance is not clearance: 36 sites pass, 19 fail, and 6 are unknown; operations and security sweeps have no results. Keep SearchWoot private, leave rights outreach unsent pending human counsel and owner authorization, and do not make revenue, ROI, margin, accuracy, or causal-lift claims from the aggregate $4.92 commission. The next evidence action is one dated read-only bundle covering rights, data flow/retention, consent/GA4 configuration, logs/vendors, and incident handling.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: 0 of 4 legal tasks can close. The source-rights, data-flow, consent/GA4, and logs/vendor/incident tasks remain open because the available artifacts are partial and do not evidence the required rights, settings, retention, deletion, processor, or incident controls. Next evidence action: attach one dated read-only bundle to the existing checklist containing the authoritative rights record, repository/config data-flow and retention table, deployed consent and GA4 settings capture, and log/vendor/incident inventory. Do not send outreach, enable tracking, change production, or add data collection.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Compliance and data-quality disposition: do not treat the technical compliance scan as certification. The baseline reports 36 pass, 19 fail, and 6 unknown across 61 sites, including 19 banner/accept/reject/GA4 failures and 4 privacy and terms findings. Data quality is green for registry, operational checkouts, analytics, SEO, AI usage, and revenue ingestion; revenue attribution is yellow because $4.92 commission for 2026-09-21 is in an aggregate provider row. Do not claim site revenue, ROI, or causal lift. Missing telemetry alone does not block ordinary reversible growth; launch and security-sensitive release gates remain unchanged.",
+        "summary": "Conditional legal clearance applies only to bounded reversible work that preserves existing consent, privacy/cookie disclosures, affiliate disclosures, destinations, tracking IDs, provenance, and claims boundaries. The queued allthingsmasonic.com CTA refinement may proceed only after capacity release and only if it changes no data collection, monetization terms, affiliate destination, or disclosure meaning. Do not admit the driveford.net preview as public or monetized; a non-public preview shell remains evidence-needed pending a launch-readiness artifact.",
         "requested_action": null,
         "proposal_id": null
       }

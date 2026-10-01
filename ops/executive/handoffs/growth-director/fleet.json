@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:57:18.175Z",
+  "generated_at": "2026-10-01T01:18:43.269Z",
   "summary": "growth-director checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment while delivery remains saturated at 10/10 slots. After the existing saveusfarms.com repair case releases capacity, admit only the canonical allthingsmasonic.com CTA refinement. Evidence baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Do not claim lift, revenue, or causal attribution before matched-period measurement.",
+        "summary": "Do not admit new SEO or growth work while all 10 delivery slots are occupied and 57 improvements remain in measurement. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After one slot is released, execute only the existing allthingsmasonic.com CTA refinement; do not create duplicate requests, add telemetry, spend, or claim causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Execute the existing allthingsmasonic.com CTA refinement after CTO releases one slot. Use one reversible diff only; do not create duplicate work, add tracking, alter affiliate IDs, add dependencies, or modify unrelated routes.",
+        "summary": "Release one delivery slot only after the existing saveusfarms.com repair case is completed or justifiably closed with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Then admit the already-queued allthingsmasonic.com CTA refinement without changing destinations, tracking IDs, dependencies, telemetry, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:57:18.176Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:18:43.270Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: retain financial containment. Approve no new spend, budget expansion, forecast, or unsupported revenue claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, with all commission in aggregate tracking ID \"other\"; site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage from 2026-09-01 through 2026-09-30 cost $1,002.45979265 across 5,531 calls and 234 errors, but cannot be compared with the one-day revenue window. Infrastructure, domain, hosting, labor, and other operating costs are not provided, so total spend and contribution margin are not calculable. Cost-to-learn is also not calculable because experiment-level spend and outcome attribution are absent. The existing allthingsmasonic.com CTA refinement may proceed only after capacity clears, using the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission; no revenue forecast should be attached.",
+        "summary": "Recommend approving containment and rejecting all new spend, budget commitments, revenue forecasts, ROI claims, margin claims, monetization expansion, and new delivery admissions this cycle. Evidence: Amazon data covers only 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all $4.92 is in an aggregate provider row, so site-attributed revenue is $0 and site-level revenue claims are unsupported. September 2026 AI usage was $1,002.46 across 5,531 calls, with 234 errors and 5 transient errors. Contribution margin is not calculable because revenue and AI-cost windows do not match and infrastructure, domain, labor, and other operating costs are absent. Cost-to-learn is not calculable because no per-change cost allocation, validated financial outcome, or treatment/control value delta is available. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 implementation requests failed. Retain only existing capacity-gated work and the CFO report-only reconciliation below; do not claim forecasted revenue from opportunity scores or vanity metrics.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance measurement: produce a matched-period reconciliation covering site/tracking-ID affiliate clicks, ordered items, shipped items, commission income, AI cost, infrastructure/hosting cost, domain cost, and any other directly attributable operating cost. Until that exists, report aggregate revenue separately from site revenue and do not calculate margin, ROI, payback, or learning efficiency. Existing telemetry is sufficient for the current containment decision; no duplicate telemetry request is warranted.",
+        "summary": "Do not admit the proposed driveford.net preview, new product work, new experiments, or monetization changes while delivery remains at 10/10 active slots and financial attribution is incomplete. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with the required validation, rollback, attribution, measurement, and deduplication evidence. Any subsequent implementation must preserve existing tracking IDs and produce a measurable registered-affiliate-click or other site-level outcome; no revenue, margin, ROI, or causal-lift claim is authorized without matched-period evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Use matched reporting windows before approving financial claims: per-site and per-change AI cost, infrastructure/domain/hosting cost, registered affiliate clicks, ordered items, shipped items, commission, and treatment-versus-control outcome deltas. The current $4.92 aggregate commission must remain unattributed. The 84 site-factory opportunity score and traffic, impressions, clicks, sessions, conversions, and social-account counts are not revenue forecasts or contribution-margin evidence.",
         "requested_action": null,
         "proposal_id": null
       }

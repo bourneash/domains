@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:57:18.176Z",
-  "summary": "revenue-ops checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:18:43.269Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment: delivery is saturated at 10/10 slots, Amazon revenue is limited to $4.92 aggregate unattributed commission for 2026-09-21, and site ROI remains unknown. Do not create duplicate telemetry or affiliate work. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the canonical allthingsmasonic.com CTA refinement.",
+        "summary": "Reject the driveford.net preview request because delivery is saturated and launch-readiness prerequisites are not evidenced. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after one slot is released. Keep aggregate Amazon commission unattributed and do not infer site revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue-ops disposition: retain the aggregate Amazon row as unknown revenue; require every future affiliate link to use a registered site tracking ID. The available snapshot shows 18 mapped tracking rows plus one aggregate \"other\" row containing all $4.92 commission, so no site-level revenue or ROI may be inferred.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Affiliate readiness gaps remain owner- or capacity-gated: amputeenews.com still lacks an evidenced real Amazon Associates tag, and existing americastrikes.com work identifies broken or stale affiliate references. Preserve both as queued repair work; do not duplicate requests or claim recovered revenue until validation is available.",
+        "summary": "Complete or close the existing saveusfarms.com repair case with validation and rollback evidence, release one delivery slot, then execute the already-queued allthingsmasonic.com CTA refinement. Preserve destinations, tracking IDs, disclosures, telemetry, and dependencies.",
         "requested_action": null,
         "proposal_id": null
       }
