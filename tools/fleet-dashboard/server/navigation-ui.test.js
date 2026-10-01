@@ -1354,6 +1354,12 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(app, /VPN exits online<\/span>/);
   assert.match(app, /Home-IP leaks<\/span>/);
   assert.match(app, /Sources enabled<\/span>/);
+  assert.match(app, /type="button" class="btn" id="datahub-refresh"/);
+  assert.match(app, /Loading Data Hub…/);
+  assert.match(
+    app,
+    /\$\('#datahub-refresh'\)\.addEventListener\('click', \(\) => renderDataHub\(\)\)/
+  );
   assert.match(app, /class="dh-help"><summary>How Data Hub protects and routes collection/);
   assert.match(app, /class="table-wrap"><table class="dh-egress"/);
   assert.match(app, /type="button" class="btn sm .*dh-src-toggle/);

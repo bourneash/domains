@@ -6974,7 +6974,9 @@ function dhPathBadge(policy, exitNode) {
 
 async function renderDataHub() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading Data Hub…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><h2 class="page-title">Data Hub</h2><span class="muted">Private-source collection, VPN egress, freshness, and site consumption</span></div><div role="status" aria-live="polite"><div class="loading">Loading Data Hub…</div></div>';
   const [health, eg, src, ds, mtx, pl] = await Promise.all([
     api('GET', '/api/datahub/health'),
     api('GET', '/api/datahub/egress?limit=80'),
@@ -7127,7 +7129,7 @@ async function renderDataHub() {
   }
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Data Hub</h2><span class="muted">Private-source collection, VPN egress, freshness, and site consumption in one operational view.</span></div>
+    <div class="page-head"><h2 class="page-title">Data Hub</h2><span class="muted">Private-source collection, VPN egress, freshness, and site consumption in one operational view.</span><button type="button" class="btn" id="datahub-refresh">↻ Refresh</button></div>
     <section class="dh-summary" aria-label="Data hub summary">
       <div class="dh-stat ${hubDown || vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${hubDown ? 'Down' : `${vpnNodes}/2`}</strong><span>VPN exits online</span></div>
       <div class="dh-stat ${vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${vpnLeaks}</strong><span>Home-IP leaks</span></div>
@@ -7146,6 +7148,7 @@ async function renderDataHub() {
     </div>
     <details class="dh-help"><summary>How Data Hub protects and routes collection</summary><p>Private sources are fetched through the configured VPN exits, while the egress ledger records the target, path, exit IP, and outcome. Site pulls show who consumed collected data; home-IP leaks are surfaced as a hard warning. Source toggles apply on the next collection cycle.</p></details>`;
 
+  $('#datahub-refresh').addEventListener('click', () => renderDataHub());
   // Wire the per-source enable/disable toggles (re-bound every render).
   $$('.dh-src-toggle').forEach(b =>
     b.addEventListener('click', () => dhToggleSource(b.dataset.id, b.dataset.enabled === '1', b))
