@@ -1611,13 +1611,24 @@
   }
 
   function normalizeFormControls(root = document) {
+    let fallbackIndex = 0;
     $$('input, select, textarea', root).forEach(control => {
-      if (
-        control.type === 'hidden' ||
-        control.hasAttribute('aria-label') ||
-        control.hasAttribute('aria-labelledby')
-      )
-        return;
+      if (control.type === 'hidden') return;
+      if (!control.id && !control.name) {
+        const seed =
+          control.getAttribute('aria-label') ||
+          control.getAttribute('placeholder') ||
+          control.getAttribute('title') ||
+          control.type ||
+          control.tagName.toLowerCase();
+        const slug = seed
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 40);
+        control.name = `fd-${slug || 'field'}-${fallbackIndex++}`;
+      }
+      if (control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')) return;
       if (control.labels?.length || control.closest('label')) return;
       const name =
         control.getAttribute('placeholder') ||

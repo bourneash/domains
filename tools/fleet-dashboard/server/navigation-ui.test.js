@@ -112,6 +112,13 @@ test('stale route renders retry the current route after a rapid return', () => {
   assert.match(app, /queueMicrotask\(\(\) => \{[\s\S]*renderRoute\(\);/);
 });
 
+test('dynamic form controls receive stable fallback names', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /function normalizeFormControls\(root = document\)/);
+  assert.match(shell, /if \(!control\.id && !control\.name\)/);
+  assert.match(shell, /control\.name = `fd-\$\{slug \|\| 'field'\}-\$\{fallbackIndex\+\+\}`/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
