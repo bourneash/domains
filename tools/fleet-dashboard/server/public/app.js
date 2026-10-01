@@ -7613,7 +7613,7 @@ function seoBadge(priority) {
 
 async function renderSeoIntelligence() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="muted">building SEO intelligence…</div>';
+  if (FRESH) app.innerHTML = '<div class="loading">Loading SEO intelligence…</div>';
   const [data, vitals] = await Promise.all([
     api('GET', '/api/seo-intelligence?days=90'),
     api('GET', '/api/web-vitals').catch(() => null),
