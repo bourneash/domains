@@ -11,6 +11,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const dispatcher = require('./agent-dispatcher');
+const runtime = require('./agent-runtime');
 const domains = require('../fleet-dashboard/server/domains');
 const executive = require('../fleet-dashboard/server/executive');
 

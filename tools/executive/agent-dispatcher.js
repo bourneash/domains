@@ -108,8 +108,14 @@ async function processOne(store, { workerId, adapters = {}, claimOptions = {} } 
     });
     return { processed: true, dispatch, result: result || {}, delivery_failed: deliveryFailed };
   } catch (error) {
-    runtime.finish(store, dispatch.run_id, { status: 'failed', error: error.message });
     if (error.defer) {
+      // A bounded infrastructure deferral is not a delivery failure: keep the
+      // run auditable, but do not increment manager accountability failures
+      // while the dispatch is safely returned to the queue.
+      runtime.finish(store, dispatch.run_id, {
+        status: 'succeeded',
+        result: { delivery_status: 'deferred', delivery_error: error.message },
+      });
       store.completeAgentDispatch(dispatch.dispatch_id, {
         status: 'queued',
         error: error.message,
@@ -117,6 +123,7 @@ async function processOne(store, { workerId, adapters = {}, claimOptions = {} } 
       });
       return { processed: true, deferred: true, dispatch, error: error.message };
     }
+    runtime.finish(store, dispatch.run_id, { status: 'failed', error: error.message });
     return { processed: true, dispatch, error: error.message };
   }
 }
