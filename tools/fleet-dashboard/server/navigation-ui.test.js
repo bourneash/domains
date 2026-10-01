@@ -1574,6 +1574,9 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(app, /\$\('#git-refresh'\)\.addEventListener\('click', \(\) => renderGit\(\)\)/);
   assert.match(app, /function applyGitFilter\(\)/);
   assert.match(app, /data-git-status/);
+  assert.match(app, /Surface repositories that need operator action before the clean fleet/);
+  assert.match(app, /const gitRank = r =>/);
+  assert.match(app, /rows\.sort\(\(a, b\) => gitRank\(a\) - gitRank\(b\)/);
   assert.match(theme, /\.git-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
 });

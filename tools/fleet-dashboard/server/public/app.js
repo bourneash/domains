@@ -1320,6 +1320,21 @@ async function renderGit() {
   const dirtyCount = rows.filter(r => r.dirty > 0).length;
   const pushCount = rows.filter(r => r.needsPush).length;
   const pullCount = rows.filter(r => r.needsPull).length;
+  // Surface repositories that need operator action before the clean fleet.
+  // Keep alphabetical order within each state so the list remains predictable.
+  const gitRank = r =>
+    !r.isRepo
+      ? 0
+      : r.dirty > 0
+        ? 1
+        : r.syncState === 'diverged-behind' || r.behind
+          ? 2
+          : r.ahead
+            ? 3
+            : r.syncState === 'no-upstream'
+              ? 4
+              : 5;
+  rows.sort((a, b) => gitRank(a) - gitRank(b) || String(a.slug).localeCompare(String(b.slug)));
 
   const body = rows
     .map(r => {
