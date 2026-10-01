@@ -157,6 +157,8 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
     app,
     /page-title">Data Quality[\s\S]*<section class="card"><div class="table-wrap"><table class="tbl">/
   );
+  assert.match(app, /id="dataquality-refresh"/);
+  assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
 });
 
 test('executive conversation workspace behaves like an email inbox', () => {
