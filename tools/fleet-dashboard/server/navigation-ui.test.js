@@ -95,7 +95,7 @@ test('shared API reads abandon stale route responses before renderers continue',
   assert.match(app, /if \(requestEpoch !== ROUTE_EPOCH\) throw new StaleRouteError\(\);/);
   assert.match(app, /error\?\.name === 'StaleRouteError'/);
   assert.match(app, /message instanceof StaleRouteError/);
-  assert.match(app, /message === 'route changed while data was loading'/);
+  assert.match(app, /message\.includes\('route changed while data was loading'\)/);
 });
 
 test('private dashboard publishes valid non-indexing metadata', () => {

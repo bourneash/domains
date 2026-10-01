@@ -369,7 +369,7 @@ function renderViewError(target, message) {
   if (
     message instanceof StaleRouteError ||
     message?.name === 'StaleRouteError' ||
-    message === 'route changed while data was loading'
+    (typeof message === 'string' && message.includes('route changed while data was loading'))
   )
     return;
   if (!target) return;
