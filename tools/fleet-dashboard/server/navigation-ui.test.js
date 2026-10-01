@@ -676,6 +676,17 @@ test('focused interactive rows retain Enter and Space activation', () => {
   );
 });
 
+test('error log drawer supports focus return and async announcements', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /aria-describedby="err-drawer-subtitle"/);
+  assert.match(app, /id="err-drawer-status" class="sr-only" role="status" aria-live="polite"/);
+  assert.match(app, /ERROR_DRAWER_RETURN_FOCUS = active instanceof HTMLElement \? active : null/);
+  assert.match(app, /returnFocus\?\.isConnected && !returnFocus\.closest\('\.hidden'\)/);
+  assert.match(app, /log\.setAttribute\('aria-busy', 'true'\)/);
+  assert.match(app, /status\.textContent = 'Retained logs loaded'/);
+  assert.match(app, /\$\('#err-drawer-close', shell\)\?\.focus\(\)/);
+});
+
 test('table expanders use semantic buttons instead of placeholder links', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

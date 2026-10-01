@@ -2603,6 +2603,7 @@ function errLevelBadge(level) {
 }
 
 const ERRORS_UI = { q: '', level: '', scope: '', sort: 'count1h', dir: -1, page: 1, pageSize: 25 };
+let ERROR_DRAWER_RETURN_FOCUS = null;
 
 function errorSortValue(r, key) {
   if (key === 'name' || key === 'slug' || key === 'lastLevel' || key === 'lastLine')
@@ -2622,7 +2623,7 @@ function ensureErrorDrawer() {
   shell = document.createElement('div');
   shell.id = 'error-drawer-shell';
   shell.className = 'err-drawer-shell hidden';
-  shell.innerHTML = `<div class="err-drawer-backdrop" data-error-drawer-close></div><aside class="err-drawer" role="dialog" aria-modal="true" aria-labelledby="err-drawer-title"><div class="err-drawer-head"><div><h2 id="err-drawer-title">Error logs</h2><span id="err-drawer-subtitle" class="muted"></span></div><button class="icon-btn" type="button" data-error-drawer-close aria-label="Close error logs">×</button></div><div class="err-drawer-toolbar"><button id="err-drawer-copy" class="btn sm" type="button">Copy logs</button><button id="err-drawer-refresh" class="btn sm" type="button">↻ Refresh</button><span class="muted">retained matching lines</span></div><pre id="err-drawer-log" class="err-drawer-log">Select a container to view its logs.</pre></aside>`;
+  shell.innerHTML = `<div class="err-drawer-backdrop" data-error-drawer-close></div><aside class="err-drawer" role="dialog" aria-modal="true" aria-labelledby="err-drawer-title" aria-describedby="err-drawer-subtitle"><div class="err-drawer-head"><div><h2 id="err-drawer-title">Error logs</h2><span id="err-drawer-subtitle" class="muted"></span></div><button id="err-drawer-close" class="icon-btn" type="button" data-error-drawer-close aria-label="Close error logs">×</button></div><div class="err-drawer-toolbar"><button id="err-drawer-copy" class="btn sm" type="button">Copy logs</button><button id="err-drawer-refresh" class="btn sm" type="button">↻ Refresh</button><span class="muted">retained matching lines</span><span id="err-drawer-status" class="sr-only" role="status" aria-live="polite"></span></div><pre id="err-drawer-log" class="err-drawer-log">Select a container to view its logs.</pre></aside>`;
   document.body.appendChild(shell);
   $$('[data-error-drawer-close]', shell).forEach(el =>
     el.addEventListener('click', closeErrorDrawer)
@@ -2641,7 +2642,11 @@ function ensureErrorDrawer() {
 
 function closeErrorDrawer() {
   const shell = $('#error-drawer-shell');
-  if (shell) shell.classList.add('hidden');
+  if (!shell) return;
+  shell.classList.add('hidden');
+  const returnFocus = ERROR_DRAWER_RETURN_FOCUS;
+  ERROR_DRAWER_RETURN_FOCUS = null;
+  if (returnFocus?.isConnected && !returnFocus.closest('.hidden')) returnFocus.focus();
 }
 
 async function copyErrorText(value, label) {
@@ -2662,6 +2667,10 @@ async function copyErrorText(value, label) {
 
 async function openErrorDrawer(id) {
   const shell = ensureErrorDrawer();
+  if (shell.classList.contains('hidden')) {
+    const active = document.activeElement;
+    ERROR_DRAWER_RETURN_FOCUS = active instanceof HTMLElement ? active : null;
+  }
   shell.dataset.id = id;
   shell.classList.remove('hidden');
   const row = $(`tr.err-row[data-error-id="${CSS.escape(id)}"]`);
@@ -2670,10 +2679,18 @@ async function openErrorDrawer(id) {
     ? `${row.dataset.site} · live retained log`
     : 'tool container · live retained log';
   const log = $('#err-drawer-log', shell);
+  const status = $('#err-drawer-status', shell);
   log.classList.add('async-loading');
+  log.setAttribute('aria-busy', 'true');
+  if (status) status.textContent = 'Loading retained logs';
   log.textContent = 'Loading…';
   log.textContent = await fetchErrorLines(id);
   log.classList.remove('async-loading');
+  log.setAttribute('aria-busy', 'false');
+  if (status) status.textContent = 'Retained logs loaded';
+  requestAnimationFrame(() => {
+    if (!shell.classList.contains('hidden')) $('#err-drawer-close', shell)?.focus();
+  });
 }
 
 async function renderErrors() {
