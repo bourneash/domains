@@ -912,6 +912,9 @@ test('mobile navigation keeps keyboard focus inside the open drawer', () => {
 
 test('mobile command bar preserves context and keeps controls reachable', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /\.actions \{\s*gap: 14px; min-width: 0; max-width: 100%; box-sizing: border-box;\s*flex-wrap: wrap; justify-content: flex-end;/);
+  assert.match(theme, /@media \(max-width: 1400px\) \{[\s\S]*\.actions \{ flex: 0 1 calc\(100% - 44px\); width: calc\(100% - 44px\); \}/);
+  assert.match(theme, /@media \(min-width: 721px\) and \(max-width: 1400px\) \{[\s\S]*body\.has-rail \.actions/);
   assert.match(theme, /#ctx \{ order: 1; flex: 1 1 120px; min-width: 0; overflow: hidden; \}/);
   assert.match(theme, /\.actions #refresh::before \{ content: '↻'/);
   assert.match(theme, /\.actions \.density-toggle::before \{ content: '◐'/);
