@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:11:15.936Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T14:21:38.062Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three capacity-gated, reversible revalidation repairs on distinct sites: 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com. Do not execute until CTO reconciles the conflicting slot ledger and releases capacity by 2026-10-01T18:00Z. Reject new monetization, unsupported financial claims, high-priority queue expansion, duplicate telemetry, and production work lacking measurable outcomes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Route the three existing infrastructure-blocked changes to engineer for isolated revalidation only after capacity clearance. Preserve current gates, credentials, configuration, spending, schedules, telemetry, and production boundaries. Escalate unresolved capacity or runner failures to the owner at the next executive cycle.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Amazon aggregate income remains unattributed. Preserve legal, security, attribution, measurement, and credential boundaries. Queue only the three bounded reversible revalidation repairs below; do not execute until CTO reconciles capacity and releases a slot by 2026-10-01T18:00:00Z. Escalate unresolved capacity to the owner at that deadline.",
         "requested_action": null,
         "proposal_id": null
       }
