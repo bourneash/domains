@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:48:13.610Z",
+  "generated_at": "2026-10-01T09:50:19.365Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete driveford.net launch-readiness evidence before preview build",
-        "summary": "driveford.net is a parked scaffold with no analytics configured and no verified launch-readiness artifact. Prepare the smallest evidence bundle required before implementation admission; do not build, deploy, publish, add telemetry, or spend.",
-        "requested_action": "Create one timestamped launch-readiness artifact covering audience, preview scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and the preview-only gate. Record exactly one blocker or next owner action. Execute only after CTO releases delivery capacity.",
+        "title": "Complete drivegm.net launch-readiness evidence brief",
+        "summary": "drivegm.net is a parked scaffold with site and operations capabilities but no configured analytics evidence in the supplied snapshot. Complete the smallest evidence artifact before any build, monetization, or public exposure decision.",
+        "requested_action": "Inspect only the existing drivegm.net scaffold repository and retained registry metadata. Produce a timestamped launch-readiness brief covering audience, homepage scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only gates. Record exactly one next owner action or blocker. Do not deploy, publish, add tracking, add dependencies, spend, or change production.",
         "proposal_id": null
       }
     ]
