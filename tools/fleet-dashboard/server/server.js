@@ -1400,7 +1400,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         }
         continue;
       }
-      if (run.state === 'cancelled' && request.status !== 'cancelled') {
+      // A startup failure cleans up its unused run as cancelled, but the
+      // request remains failed with a scheduled retry. Do not let this
+      // reconciliation erase that retry and silently lose the work.
+      if (run.state === 'cancelled' && !['cancelled', 'failed'].includes(request.status)) {
         syncChangeRequestFromRun(run, 'cancelled');
         continue;
       }
@@ -2129,28 +2132,21 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       new Promise(resolve => setTimeout(resolve, QUEUE_RECOVERY_WAIT_MS)),
     ]);
     const settings = events.getChangeQueueSettings();
-    const running = events
-      .listChangeRequests({ limit: 1000 })
-      .filter(r => ['claimed', 'running', 'reviewing'].includes(r.status)).length;
+    const requests = events.listChangeRequests({ limit: 1000 });
+    const running = requests.filter(r =>
+      ['claimed', 'running', 'reviewing'].includes(r.status)
+    ).length;
     const slots = Math.max(0, Number(max ?? settings.max_concurrent) - running);
     // A deployed run is complete work, not an active checkout. Keeping it in
     // this set permanently strands every later request for that site because
     // automatic deployment clears measurement_due and the run never leaves
     // `deployed`. Only states with a live worktree or an open measurement
     // window should block a concurrent pickup.
-    const busySites = new Set(
-      events
-        .listImprovements({ limit: 1000 })
-        .filter(r => ['building', 'review'].includes(r.state))
-        .map(r => r.site)
-    );
-    const measuringRuns = events
-      .listImprovements({ limit: 1000 })
-      .filter(r => r.state === 'measuring');
+    const improvements = events.listImprovements({ limit: 1000 });
+    const busySites = changequeueView.busyImplementationSites(improvements, requests);
+    const measuringRuns = improvements.filter(r => r.state === 'measuring');
     const measurementWindows = new Map();
-    for (const run of events
-      .listImprovements({ limit: 1000 })
-      .filter(r => r.state === 'measuring')) {
+    for (const run of measuringRuns) {
       if (!run.measurement_due) continue;
       const current = measurementWindows.get(run.site);
       if (!current || String(run.measurement_due) < current)
@@ -2251,6 +2247,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
     }
     if (target === 'cancelled') {
+      if (request.status === 'failed' && request.next_attempt_at) return request;
       try {
         const cancelled = changequeue.update(
           events,

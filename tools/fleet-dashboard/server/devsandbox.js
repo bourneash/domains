@@ -233,30 +233,31 @@ function saveState(s) {
   fs.writeFileSync(STATE_FILE, JSON.stringify(s, null, 2));
 }
 
-function allocPorts(site, { reservedHostPorts = new Set() } = {}) {
-  const state = loadState();
+function chooseSandboxPorts(state, site, reservedHostPorts = new Set()) {
   const existing = { ...(state.ports[site] || {}) };
-  const usedTtyd = new Set();
-  const usedDev = new Set();
+  const used = new Set(reservedHostPorts);
   for (const [name, p] of Object.entries(state.ports)) {
     if (name === site) continue;
-    if (p.ttyd) usedTtyd.add(p.ttyd);
-    if (p.dev) usedDev.add(p.dev);
+    if (p.ttyd) used.add(p.ttyd);
+    if (p.dev) used.add(p.dev);
   }
-  for (const port of reservedHostPorts) {
-    usedTtyd.add(port);
-    usedDev.add(port);
-  }
-  if (!existing.ttyd || reservedHostPorts.has(existing.ttyd)) {
+  if (!existing.ttyd || used.has(existing.ttyd)) {
     let p = TTYD_PORT_BASE;
-    while (usedTtyd.has(p)) p++;
+    while (used.has(p)) p++;
     existing.ttyd = p;
   }
-  if (!existing.dev || reservedHostPorts.has(existing.dev)) {
+  used.add(existing.ttyd);
+  if (!existing.dev || used.has(existing.dev)) {
     let p = DEV_PORT_BASE;
-    while (usedDev.has(p)) p++;
+    while (used.has(p)) p++;
     existing.dev = p;
   }
+  return existing;
+}
+
+function allocPorts(site, { reservedHostPorts = new Set() } = {}) {
+  const state = loadState();
+  const existing = chooseSandboxPorts(state, site, reservedHostPorts);
   state.ports[site] = existing;
   saveState(state);
   return existing;
@@ -968,6 +969,7 @@ module.exports = {
   sandboxRuntimeEnvironment,
   sandboxExecCommand,
   parsePublishedPorts,
+  chooseSandboxPorts,
   runningPublishedPorts,
   stats,
   findOrphans,

@@ -177,6 +177,22 @@ function queueMetrics(requests, now = Date.now()) {
   };
 }
 
+function busyImplementationSites(improvements = [], requests = []) {
+  const requestById = new Map(requests.map(request => [request.request_id, request]));
+  return new Set(
+    improvements
+      .filter(run => {
+        if (run.state === 'building') return true;
+        if (run.state !== 'review') return false;
+        // Infrastructure-blocked requests preserve their review record for
+        // revalidation, but no worker owns that site's implementation lane.
+        const source = run.source_id && requestById.get(run.source_id);
+        return source?.status !== 'blocked_infrastructure';
+      })
+      .map(run => run.site)
+  );
+}
+
 function deliveryMetrics(requests, now = Date.now()) {
   const asOf = new Date(now);
   const monthStart = Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), 1);
@@ -230,9 +246,7 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
     ['claimed', 'running', 'reviewing'].includes(r.status)
   ).length;
   const capacity = Math.max(1, Number(settings?.max_concurrent || 1));
-  const busySites = new Set(
-    improvements.filter(r => ['building', 'review'].includes(r.state)).map(r => r.site)
-  );
+  const busySites = busyImplementationSites(improvements, requests);
   const measuringSites = new Set(
     improvements.filter(r => r.state === 'measuring').map(r => r.site)
   );
@@ -333,6 +347,7 @@ module.exports = {
   measurementConflict,
   measurementCategory,
   queueMetrics,
+  busyImplementationSites,
   deliveryMetrics,
   enrichChangeRequests,
   buildQueueSnapshot,

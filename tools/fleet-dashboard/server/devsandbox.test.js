@@ -90,6 +90,25 @@ test('published-port parsing exposes host bindings so stale allocator state is n
   );
 });
 
+test('sandbox terminal and preview ports cannot collide, including stale saved assignments', () => {
+  const state = {
+    ports: {
+      older: { ttyd: 8100, dev: 8101 },
+      current: { ttyd: 8102, dev: 8102 },
+    },
+  };
+  const ports = devsandbox.chooseSandboxPorts(state, 'current', new Set([7900]));
+  assert.equal(ports.ttyd, 8102);
+  assert.notEqual(ports.dev, ports.ttyd);
+  assert.notEqual(ports.dev, 7900);
+  assert.notEqual(ports.dev, 8100);
+  assert.notEqual(ports.dev, 8101);
+  const next = devsandbox.chooseSandboxPorts({ ports: { ...state.ports, current: ports } }, 'next');
+  assert.notEqual(next.ttyd, next.dev);
+  assert.ok(!Object.values(ports).includes(next.ttyd));
+  assert.ok(!Object.values(ports).includes(next.dev));
+});
+
 test('improvement sandboxes mount only the site Git admin directory', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-devsandbox-'));
   const canonical = path.join(root, 'sites', 'example.com');

@@ -164,6 +164,32 @@ test('report-only work can proceed while an implementation is active', () => {
   assert.deepEqual(blockers, []);
 });
 
+test('parked infrastructure reviews do not reserve a site for dispatch or the queue view', () => {
+  const requests = [
+    { request_id: 'old', status: 'blocked_infrastructure', site: 'example.com' },
+    { request_id: 'next', status: 'queued', site: 'example.com', delivery_mode: 'direct' },
+  ];
+  const runs = [{ site: 'example.com', state: 'review', source_id: 'old' }];
+  assert.equal(view.busyImplementationSites(runs, requests).has('example.com'), false);
+  const rows = view.enrichChangeRequests(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-parked-')),
+    requests,
+    { max_concurrent: 2 },
+    runs
+  );
+  assert.equal(rows[1].queue_block.blocked, false);
+  assert.equal(
+    view.busyImplementationSites([{ ...runs[0], state: 'building' }], requests).has('example.com'),
+    true
+  );
+  assert.equal(
+    view
+      .busyImplementationSites(runs, [{ ...requests[0], status: 'reviewing' }])
+      .has('example.com'),
+    true
+  );
+});
+
 test('exposes measurement deadline and honors a per-request override', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-measurement-'));
   const rows = view.enrichChangeRequests(
