@@ -8784,6 +8784,11 @@ async function renderDomains() {
     : '<span class="muted">no flags for this command</span>';
 
   const jobs = d.jobs || [];
+  const activeJobs = jobs.filter(j => ['queued', 'running'].includes(j.status)).length;
+  const failedJobs = jobs.filter(j => j.status === 'failed').length;
+  const runnerStatus = !r.installed ? 'missing' : !r.alive ? 'stale' : 'ready';
+  const runnerLabel =
+    runnerStatus === 'ready' ? 'Ready' : runnerStatus === 'stale' ? 'Stale' : 'Missing';
   const jobRows = jobs
     .map(j => {
       const open = DOM.openJob === j.id;
@@ -8823,33 +8828,40 @@ async function renderDomains() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div>
+    <section class="dom-summary" aria-label="Domain operations summary">
+      <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Onboarded sites</span></div>
+      <div class="dom-stat"><strong>${jobs.length}</strong><span>Recorded jobs</span></div>
+      <div class="dom-stat ${activeJobs ? 'dom-stat-warn' : ''}"><strong>${activeJobs}</strong><span>Queued or running</span></div>
+      <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span>Failed jobs</span></div>
+      <div class="dom-stat dom-stat-meta"><strong>${runnerLabel}</strong><span>Host runner</span></div>
+    </section>
     ${runnerNote}
-    <div class="card" style="margin-bottom:12px">
-      <div class="cn-log-head">Run a domain command</div>
-      <div class="task-toolbar" style="flex-wrap:wrap;gap:10px">
-        <select id="dom-cmd">${cmdOpts}</select>
-        <input id="dom-domain" type="text" placeholder="example.com" spellcheck="false" value="${esc(DOM.form.domain)}" style="min-width:220px">
-        <button class="btn" id="dom-run">Queue</button>
+    <section class="card dom-panel dom-command-panel">
+      <div class="dom-panel-head"><div><h3>Queue a domain command</h3><p class="muted">Commands run through the host runner and stream their output into the job history.</p></div><span class="badge ${runnerStatus === 'ready' ? 'b-green' : runnerStatus === 'stale' ? 'b-yellow' : 'b-red'}">Runner ${runnerLabel}</span></div>
+      <div class="dom-command-form" role="group" aria-label="Queue domain command">
+        <label class="dom-field">Command<select id="dom-cmd" aria-label="Domain command">${cmdOpts}</select></label>
+        <label class="dom-field dom-domain-field">Domain<input id="dom-domain" type="text" placeholder="example.com" spellcheck="false" value="${esc(DOM.form.domain)}" autocomplete="off"></label>
+        <button class="btn primary dom-queue-btn" id="dom-run" type="button">Queue command</button>
       </div>
-      <div class="task-toolbar" id="dom-flags" style="flex-wrap:wrap;gap:14px">${flagBoxes}</div>
-      <p class="muted" style="margin:6px 0 0">Onboard runs bootstrap → deploy → bind (<span class="mono">--full</span> does all three in one shot). Offboard archives the GitHub repo, detaches apex + www, deletes the Worker, drops the email rules, and removes the submodule.</p>
-    </div>
+      <div class="dom-flags" id="dom-flags"><span class="dom-flags-label">Optional flags</span>${flagBoxes}</div>
+      <details class="dom-help"><summary>Command safety and scope</summary><p>Onboard runs bootstrap → deploy → bind (<span class="mono">--full</span> does all three in one shot). Offboard archives the GitHub repo, detaches apex + www, deletes the Worker, drops the email rules, and removes the submodule. Offboard always requires typing the exact domain before queueing.</p></details>
+    </section>
 
-    <div class="card" style="margin-bottom:12px">
-      <div class="cn-log-head">Jobs</div>
-      <table>
+    <section class="card dom-panel">
+      <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recorded</span></div>
+      <div class="table-wrap"><table>
         <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th></th></tr></thead>
         <tbody>${jobRows || '<tr><td colspan="6" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
-      </table>
-    </div>
+      </table></div>
+    </section>
 
-    <div class="card">
-      <div class="cn-log-head">Onboarded sites (${(d.sites || []).length})</div>
-      <table>
+    <section class="card dom-panel">
+      <div class="dom-panel-head"><div><h3>Onboarded sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
+      <div class="table-wrap"><table>
         <thead><tr><th>Site</th><th></th></tr></thead>
         <tbody>${siteRows || '<tr><td colspan="2" class="muted">No sites checked out.</td></tr>'}</tbody>
-      </table>
-    </div>`;
+      </table></div>
+    </section>`;
 
   wireDomains();
   if (DOM.openJob) domLoadLog(DOM.openJob);

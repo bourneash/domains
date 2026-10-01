@@ -681,6 +681,18 @@ test('table expanders use semantic buttons instead of placeholder links', () => 
   assert.match(theme, /\.table-link \{/);
 });
 
+test('Domains route separates command queueing from operational inventory', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
+  assert.match(app, /class="dom-command-form" role="group" aria-label="Queue domain command"/);
+  assert.match(app, /class="dom-help"><summary>Command safety and scope/);
+  assert.match(app, /class="dom-panel-head"><div><h3>Job history<\/h3>/);
+  assert.match(app, /class="dom-panel-head"><div><h3>Onboarded sites<\/h3>/);
+  assert.match(theme, /\.dom-command-form \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.dom-stat-bad/);
+});
+
 test('fleet filtering reports live match counts', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');

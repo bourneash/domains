@@ -932,6 +932,36 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .wb-actions select { min-width: 120px; padding: 4px 7px; font-size: 11px; }
 @media (max-width: 720px) { .wb-head { flex-direction: column; } .wb-head .btn { width: 100%; } .wb-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wb-item-head, .wb-item-foot { flex-direction: column; } .wb-badges { justify-content: flex-start; } .wb-actions { width: 100%; } .wb-actions select { flex: 1; } .wb-count { margin-left: 0; } }
 
+/* ------------------------------------------------------------ domains -- */
+.dom-summary { display: grid; grid-template-columns: repeat(4, minmax(110px, 1fr)) minmax(150px, 1.2fr); gap: 10px; margin: 0 0 14px; }
+.dom-stat { min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-top: 2px solid var(--border-hi); border-radius: var(--radius-sm); background: var(--grad-panel), var(--panel); box-shadow: var(--sh-1); }
+.dom-stat strong { display: block; color: var(--text-hi); font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.dom-stat span { display: block; margin-top: 5px; color: var(--muted); font-size: 10.5px; line-height: 1.3; text-transform: uppercase; }
+.dom-stat-good { border-top-color: var(--green); }
+.dom-stat-good strong { color: var(--green); }
+.dom-stat-warn { border-top-color: var(--yellow); }
+.dom-stat-warn strong { color: var(--yellow); }
+.dom-stat-bad { border-top-color: var(--red); }
+.dom-stat-bad strong { color: var(--red); }
+.dom-stat-meta { display: flex; flex-direction: column; justify-content: center; }
+.dom-stat-meta strong { color: var(--a1); font-size: 16px; }
+.dom-panel { margin-bottom: 14px; padding: 17px 18px; }
+.dom-panel:last-child { margin-bottom: 0; }
+.dom-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.dom-panel-head h3 { margin: 2px 0 2px; color: var(--text-hi); font-size: 15px; }
+.dom-panel-head p { margin: 0; font-size: 12px; }
+.dom-command-form { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(220px, 1.4fr) auto; align-items: end; gap: 10px; }
+.dom-field { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.dom-field input, .dom-field select { width: 100%; }
+.dom-queue-btn { min-height: 34px; white-space: nowrap; }
+.dom-flags { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 14px; margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--border); }
+.dom-flags-label { color: var(--faint); font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.dom-help { margin-top: 12px; border-top: 1px solid var(--border); }
+.dom-help summary { padding-top: 10px; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
+.dom-help p { max-width: 90ch; margin: 7px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+@media (max-width: 900px) { .dom-summary { grid-template-columns: repeat(3, minmax(110px, 1fr)); } .dom-stat-meta { grid-column: 1 / -1; } .dom-command-form { grid-template-columns: 1fr 1fr; } .dom-queue-btn { grid-column: 1 / -1; justify-self: start; } }
+@media (max-width: 560px) { .dom-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .dom-stat-meta { grid-column: auto; } .dom-panel { padding: 14px; } .dom-panel-head { flex-direction: column; gap: 8px; } .dom-command-form { grid-template-columns: 1fr; } .dom-queue-btn { width: 100%; } }
+
 /* --------------------------------------------------------------- kanban --- */
 /* style.css hard-codes 4 columns; the Guides board has 5 (Ideas → Rejected),
    so the fifth wrapped onto its own row. Fit whatever the view renders. */
