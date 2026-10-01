@@ -13542,7 +13542,9 @@ function workBoardItems(data) {
 }
 
 async function renderActiveDelivery() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading active delivery…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading active delivery…</div></div>';
   try {
     const data = await api('GET', '/api/executive/active-delivery');
     const policy = data.policy || {};
@@ -13582,7 +13584,9 @@ async function renderActiveDelivery() {
 }
 
 async function renderWorkflowBoard() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet workflow…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading fleet workflow…</div></div>';
   try {
     const data = await api('GET', '/api/workflow-board');
     const items = workBoardItems(data).filter(workBoardVisible);
@@ -14239,7 +14243,9 @@ function applyExecutiveWorkspace(page) {
 
 async function renderAgentRuntime() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading agent runtime…</div></div>';
   try {
     const [
       agents,
@@ -14495,7 +14501,9 @@ async function renderAgentRuntime() {
 
 async function renderExecutiveSetup() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading executive setup…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading executive setup…</div></div>';
   let settings,
     revops,
     experiments,
@@ -14741,7 +14749,9 @@ async function renderExecutive() {
   if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading executive control plane…</div></div>';
   let messages,
     transcript,
     requests,
@@ -15882,7 +15892,9 @@ async function closeInlineDraft(panel, label) {
 
 async function renderWorkbench() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading executive workbench…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading executive workbench…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/executive/work-items?limit=300');
@@ -16037,7 +16049,9 @@ const KNOWLEDGE_UI = { status: '', audience: '' };
 
 function renderKnowledge() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading knowledge shelf…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading knowledge shelf…</div></div>';
   api('GET', '/api/executive/knowledge?limit=300')
     .then(data => {
       const all = data.knowledge || [];
@@ -16173,7 +16187,8 @@ async function renderSiteDetail() {
   const app = $('#app');
   const site = STATE.siteSlug;
   if (!site) return go('control');
-  if (FRESH) app.innerHTML = `<div class="loading">Opening ${esc(site)} command center…</div>`;
+  if (FRESH)
+    app.innerHTML = `<div role="status" aria-live="polite"><div class="loading">Opening ${esc(site)} command center…</div></div>`;
 
   const [fleet, roles, deploy, gatus, errors, tasks, git, actions] = await Promise.all([
     apiOptional('GET', '/api/fleet', { rows: [] }),
@@ -16436,7 +16451,9 @@ function renderAgent(role) {
 
 async function renderExecOverwatch() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading Exec Overwatch…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading Exec Overwatch…</div></div>';
   const definition = (STATE.agents || []).find(
     agent => agent.role === 'exec-overwatch' || agent.slug === 'fleet-exec-overwatch'
   );
@@ -17457,7 +17474,9 @@ function aioptCard(t) {
 
 async function renderAIOptimizer() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading AI-cost findings…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading AI-cost findings…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/ai-optimizer');
