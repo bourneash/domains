@@ -24,10 +24,13 @@ and per-site trend evidence, and can queue a non-blocking run-now request. The
 cron wrapper serializes runs, rotates logs, and notifies only on issue
 transitions; healthy recurring runs are silent. Accessibility findings remain
 visible in the dashboard and report, but do not create a first-run Slack storm.
-Moderate LCP-only breaches (below 4 seconds) must appear in two consecutive
-successful measurements before Slack alerts. A single breach remains visible
-in the report. Severe LCP breaches, other flags, configuration warnings, and
-measurement errors alert immediately.
+Moderate LCP-only breaches (below 4 seconds) and in-budget CLS regressions
+must appear in two consecutive successful measurements before Slack alerts. A
+single reading remains visible in the report. Any CLS budget breach (over
+0.10), severe LCP breach, independent flag, configuration warning, or
+measurement error alerts immediately. Lighthouse's top layout-shift elements,
+scores, and identified causes are retained in each site's `metrics.cls_culprits`
+and included in CLS alert details when available.
 
 For local verification:
 

@@ -1,8 +1,9 @@
 """Reduce one scheduled Lighthouse report to alert transitions.
 
-Moderate LCP-only breaches need two consecutive measurements. Lighthouse's
-single-run mobile LCP varies enough to cross 2.5 s and recover the next day;
-one sample should stay visible in the report without paging the site owner.
+Moderate LCP-only breaches and in-budget CLS regressions need two consecutive
+measurements. Lighthouse can produce isolated metric spikes; a single sample
+stays visible in the report without paging the site owner. Absolute CLS budget
+breaches remain immediate.
 """
 
 
@@ -28,6 +29,22 @@ def transition(report: dict, previous: dict, factor: str) -> tuple[list[dict], d
         else:
             flags = set(row.get("budget_breaches") or []) | set(row.get("regressions") or [])
             signature = ",".join(sorted(flags))
+
+            # Delay an in-budget CLS regression for one more successful sample.
+            # Keep independent flags immediate, and never delay an absolute CLS
+            # budget breach. A previously active CLS signature stays active.
+            cls_regression = (
+                "cls" in (row.get("regressions") or [])
+                and "cls" not in (row.get("budget_breaches") or [])
+                and "cls" not in (old.get(site) or "").split(",")
+            )
+            if cls_regression:
+                prior = old_pending.get(site) or {}
+                count = prior.get("count", 0) + 1 if prior.get("signature") == "cls" else 1
+                if count < 2:
+                    pending[site] = {"signature": "cls", "count": count}
+                    flags.discard("cls")
+                    signature = ",".join(sorted(flags))
 
         if not signature:
             continue
@@ -56,6 +73,21 @@ def transition(report: dict, previous: dict, factor: str) -> tuple[list[dict], d
             headline = f"{factor} web vitals need attention"
             detail = (f"flags={signature}; performance={metrics.get('performance')}; "
                       f"LCP={metrics.get('lcp_ms')}ms; CLS={metrics.get('cls')}")
+            if "cls" in signature.split(","):
+                culprits = metrics.get("cls_culprits") or []
+                if culprits:
+                    top = culprits[0]
+                    target = top.get("selector") or top.get("snippet") or top.get("path")
+                    causes = ", ".join(
+                        str(cause.get("cause")) for cause in top.get("causes", [])
+                        if cause.get("cause")
+                    )
+                    evidence = "CLS evidence: " + (str(target)[:180] if target else "shift recorded")
+                    if causes:
+                        evidence += f" ({causes[:120]})"
+                    if top.get("score") is not None:
+                        evidence += f"; shift score={top['score']}"
+                    detail += "; " + evidence
         events.append({"status": "warn", "site": site, "headline": headline, "detail": detail})
     for site in sorted(set(old) - set(active)):
         if site not in rows or rows[site].get("status") == "skipped":

@@ -341,6 +341,39 @@ def extract(report: dict) -> dict:
         s = (cats.get(cat) or {}).get("score")
         return round(s, 3) if isinstance(s, (int, float)) else None
 
+    def cls_culprits():
+        """Keep a compact, JSON-safe summary of Lighthouse's shift evidence."""
+        audit = audits.get("layout-shifts") or {}
+        details = audit.get("details") or {}
+        items = details.get("items") or []
+        culprits = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            node = item.get("node") or {}
+            subitems = ((item.get("subItems") or {}).get("items") or [])
+            causes = []
+            for subitem in subitems:
+                if not isinstance(subitem, dict):
+                    continue
+                cause = subitem.get("cause") or {}
+                label = cause.get("value") if isinstance(cause, dict) else None
+                extra = subitem.get("extra") or {}
+                resource = extra.get("value") if isinstance(extra, dict) else None
+                if label:
+                    causes.append({"cause": str(label), **({"resource": str(resource)} if resource else {})})
+            entry = {"score": item.get("score")}
+            for key in ("selector", "snippet", "path"):
+                value = node.get(key)
+                if isinstance(value, str) and value:
+                    entry[key] = value[:240]
+            if causes:
+                entry["causes"] = causes[:4]
+            culprits.append(entry)
+            if len(culprits) == 5:
+                break
+        return culprits
+
     # Every failing accessibility audit, by id. This is the actionable half:
     # "a11y 0.87" tells you nothing, "image-alt, color-contrast" tells you what
     # to fix.
@@ -357,6 +390,7 @@ def extract(report: dict) -> dict:
         "cls": num("cumulative-layout-shift"),
         "tbt_ms": num("total-blocking-time"),
         "a11y_failures": sorted(f for f in a11y_failures if f),
+        "cls_culprits": cls_culprits(),
     }
 
 

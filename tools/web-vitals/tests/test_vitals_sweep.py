@@ -124,6 +124,45 @@ def test_tbt_noise_does_not_flag_good_mobile_run_as_regression():
     ) == ["tbt_ms"]
 
 
+def test_extract_preserves_compact_layout_shift_evidence():
+    extracted = vitals.extract({
+        "categories": {
+            "performance": {"score": 0.98},
+            "accessibility": {"score": 0.96, "auditRefs": []},
+        },
+        "audits": {
+            "largest-contentful-paint": {"numericValue": 1900},
+            "cumulative-layout-shift": {"numericValue": 0.0441},
+            "total-blocking-time": {"numericValue": 5},
+            "layout-shifts": {"details": {"items": [{
+                "score": 0.0441,
+                "node": {"selector": "main > h1", "snippet": "<h1>Marine Activity</h1>"},
+                "subItems": {"items": [{
+                    "cause": {"type": "text", "value": "Web font loaded"},
+                    "extra": {"type": "url", "value": "https://fonts.example/font.woff2"},
+                }]},
+            }]}},
+        },
+    })
+
+    assert extracted["cls"] == 0.0441
+    assert extracted["cls_culprits"] == [{
+        "score": 0.0441,
+        "selector": "main > h1",
+        "snippet": "<h1>Marine Activity</h1>",
+        "causes": [{"cause": "Web font loaded", "resource": "https://fonts.example/font.woff2"}],
+    }]
+
+
+def test_extract_caps_layout_shift_evidence_and_handles_missing_audit():
+    items = [{"score": score, "node": {"selector": f".shift-{score}"}} for score in range(7)]
+    extracted = vitals.extract({"categories": {}, "audits": {
+        "layout-shifts": {"details": {"items": items}},
+    }})
+    assert len(extracted["cls_culprits"]) == 5
+    assert vitals.extract({"categories": {}, "audits": {}})["cls_culprits"] == []
+
+
 def test_lighthouse_retries_timeouts_with_exponential_backoff(monkeypatch):
     monkeypatch.setenv("VITALS_SITE_RETRIES", "2")
     monkeypatch.setenv("VITALS_RETRY_BACKOFF_SEC", "1")
