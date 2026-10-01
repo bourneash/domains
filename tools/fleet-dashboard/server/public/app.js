@@ -7992,7 +7992,9 @@ function anDelta(cur, prev) {
 
 async function renderAnalytics() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading analytics…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Analytics</h2><span class="muted">Traffic, search demand, affiliate intent, and capture freshness</span></div></div><div role="status" aria-live="polite"><div class="loading">Loading analytics…</div></div>';
 
   const sitesResp = await api('GET', '/api/sites');
   const sites = (sitesResp && sitesResp.sites) || sitesResp || [];
@@ -8103,6 +8105,7 @@ async function renderAnalytics() {
   </div>`;
 
   app.innerHTML = `
+    <div class="page-head"><div><h2 class="page-title">Analytics</h2><span class="muted">Traffic, search demand, affiliate intent, and capture freshness</span></div><button type="button" class="btn" id="analytics-refresh">↻ Refresh</button></div>
     <div class="dh-grid">
       ${collapsiblePanel('analytics.health', 'Capture Freshness — all sites', healthHtml, 'dh-panel dh-wide')}
       ${collapsiblePanel('analytics.amazon', 'Amazon Associates — revenue outcome', amazonHtml, 'dh-panel dh-wide')}
@@ -8111,6 +8114,7 @@ async function renderAnalytics() {
     </div>`;
 
   const picked = $('#an-site-picker');
+  $('#analytics-refresh').addEventListener('click', () => renderAnalytics());
   if (picked)
     picked.addEventListener('change', () => {
       ANALYTICS_SITE = picked.value;

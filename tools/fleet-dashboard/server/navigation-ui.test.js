@@ -838,6 +838,22 @@ test('legacy direct-table cards remain horizontally usable on narrow screens', (
   assert.match(theme, /\.card:has\(> table\) \{ overflow-x: auto; \}/);
 });
 
+test('Analytics provides route context, local refresh, and accessible loading state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const route = app.slice(
+    app.indexOf('async function renderAnalytics'),
+    app.indexOf('/* ===================== LINT', app.indexOf('async function renderAnalytics'))
+  );
+  assert.match(route, /class="page-title">Analytics<\/h2>/);
+  assert.match(route, /type="button" class="btn" id="analytics-refresh"/);
+  assert.match(route, /Loading analytics…/);
+  assert.match(route, /role="status" aria-live="polite"/);
+  assert.match(
+    route,
+    /\$\('#analytics-refresh'\)\.addEventListener\('click', \(\) => renderAnalytics\(\)\)/
+  );
+});
+
 test('shared table wrappers keep headers visible while scanning long views', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /\.table-wrap \{[\s\S]*overflow: auto/);
