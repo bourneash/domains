@@ -1631,7 +1631,12 @@ test('Git Hygiene presents safety state and searchable review queue', () => {
   assert.match(app, /Repositories swept<\/span>/);
   assert.match(app, /Blocked paths<\/span>/);
   assert.match(app, /function applyGitHygieneFilter\(\)/);
+  assert.match(app, /const GH_PAGE_SIZE = 50/);
+  assert.match(app, /class="gh-pagination" aria-label="Git hygiene review pages"/);
+  assert.match(app, /id="gh-page-prev"/);
+  assert.match(app, /id="gh-page-next"/);
   assert.match(theme, /\.gh-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.gh-pagination \{[^}]*display: flex/);
   assert.match(theme, /\.gh-filter-hidden \{ display: none; \}/);
 });
 

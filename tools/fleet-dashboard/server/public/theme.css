@@ -1540,6 +1540,9 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .gh-search .cm-input { width: 100%; min-height: 32px; padding: 6px 9px; }
 .gh-controls > .muted { font: 11px var(--mono); white-space: nowrap; }
 .gh-filter-hidden { display: none; }
+.gh-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; padding-top: 12px; }
+.gh-pagination > span { flex: 1; min-width: 180px; font-size: 11px; }
+.gh-pagination .btn:disabled { cursor: not-allowed; opacity: .45; }
 @media (max-width: 1050px) {
   .gh-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gh-stat-meta { grid-column: 1 / -1; }

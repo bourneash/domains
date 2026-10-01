@@ -54,6 +54,9 @@ const CN_FILTER = { q: '', status: 'all', kind: 'all' };
 const DEPLOY_FILTER = { q: '', status: 'all' };
 const GIT_FILTER = { q: '', status: 'all' };
 const GH_FILTER = { q: '' };
+const GH_PAGE_SIZE = 50;
+let GH_PAGE = 1;
+let GH_FILTER_TIMER = null;
 // Route/bootstrap changes can trigger two renders close together (for example
 // when the live stream opens while the initial hash is settling). Reuse the
 // same short-lived read rather than starting a second identical fan-out.
@@ -1126,13 +1129,17 @@ async function renderGitHygiene() {
           .join('')}</tbody></table></div></div>`
     : '';
 
-  const queueRows = q.length
-    ? q
+  const query = GH_FILTER.q.trim().toLowerCase();
+  const filteredQueue = q
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => !query || `${item.slug} ${item.path} ${item.reason || ''}`.toLowerCase().includes(query));
+  const pageCount = Math.max(1, Math.ceil(filteredQueue.length / GH_PAGE_SIZE));
+  GH_PAGE = Math.min(Math.max(1, GH_PAGE), pageCount);
+  const pageItems = filteredQueue.slice((GH_PAGE - 1) * GH_PAGE_SIZE, GH_PAGE * GH_PAGE_SIZE);
+  const queueRows = pageItems.length
+    ? pageItems
         .map(
-          (
-            i,
-            n
-          ) => `<tr class="gh-queue-row" data-gh-i="${n}" data-gh-search="${esc(`${i.slug} ${i.path} ${i.reason || ''}`.toLowerCase())}" data-fleet-row data-site="${esc(i.slug)}">
+          ({ item: i, index: n }) => `<tr class="gh-queue-row" data-gh-i="${n}" data-gh-search="${esc(`${i.slug} ${i.path} ${i.reason || ''}`.toLowerCase())}" data-fleet-row data-site="${esc(i.slug)}">
       <td class="site">${esc(i.slug)}</td>
       <td class="mono">${esc(i.path)}</td>
       <td><span class="muted">${esc(i.reason)}</span></td>
@@ -1146,7 +1153,7 @@ async function renderGitHygiene() {
       </td></tr>`
         )
         .join('')
-    : '<tr><td colspan="5" class="muted">Nothing to review — policy covered every dirty path in the fleet.</td></tr>';
+    : `<tr><td colspan="5" class="muted">${query ? 'No review items match this search.' : 'Nothing to review — policy covered every dirty path in the fleet.'}</td></tr>`;
 
   const stateRows = summary.length
     ? summary
@@ -1164,10 +1171,11 @@ async function renderGitHygiene() {
     : '<tr><td colspan="6" class="muted">No sweep has been recorded yet. Run one above.</td></tr>';
 
   app.innerHTML = `${head}${blockedCard}
-    <div class="gh-controls" role="group" aria-label="Search hygiene queue"><label class="gh-search"><span class="sr-only">Search review queue</span><input id="gh-search" class="cm-input" type="search" placeholder="Search site, path, or reason…" value="${esc(GH_FILTER.q)}" autocomplete="off" /></label><span id="gh-filter-count" class="muted" role="status" aria-live="polite"></span></div>
-    <div class="card gh-panel"><h3>Review queue (${q.length})</h3><div class="table-wrap"><table>
+    <div class="gh-controls" role="group" aria-label="Search hygiene queue"><label class="gh-search"><span class="sr-only">Search review queue</span><input id="gh-search" class="cm-input" type="search" placeholder="Search site, path, or reason…" value="${esc(GH_FILTER.q)}" autocomplete="off" /></label><span id="gh-filter-count" class="muted" role="status" aria-live="polite" data-total="${filteredQueue.length}" data-page-count="${pageCount}"></span></div>
+    <div class="card gh-panel"><h3>Review queue (${filteredQueue.length})</h3><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Path</th><th>Why it needs you</th><th>Since</th><th>Decision</th></tr></thead>
       <tbody>${queueRows}</tbody></table></div>
+      <div class="gh-pagination" aria-label="Git hygiene review pages"><span class="muted">Page ${GH_PAGE} of ${pageCount} · showing ${pageItems.length} of ${filteredQueue.length}</span><button type="button" class="btn sm" id="gh-page-prev" ${GH_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="gh-page-next" ${GH_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div>
       <details class="gh-help"><summary>What the “Always…” decisions do</summary><p>"Always…" writes a rule into <span class="mono">tools/fleet-git/policy.json</span> so the whole class is handled unattended from the next sweep on.</p></details>
     </div>
     ${skipCard}
@@ -1212,9 +1220,19 @@ async function renderGitHygiene() {
   });
   $('#gh-search').addEventListener('input', e => {
     GH_FILTER.q = e.target.value;
-    applyGitHygieneFilter();
+    GH_PAGE = 1;
+    clearTimeout(GH_FILTER_TIMER);
+    GH_FILTER_TIMER = setTimeout(() => softRender(), 150);
   });
   applyGitHygieneFilter();
+  $('#gh-page-prev').addEventListener('click', () => {
+    GH_PAGE = Math.max(1, GH_PAGE - 1);
+    softRender();
+  });
+  $('#gh-page-next').addEventListener('click', () => {
+    GH_PAGE += 1;
+    softRender();
+  });
 
   $$('.gh-act').forEach(btn =>
     btn.addEventListener('click', async () => {
@@ -1293,15 +1311,12 @@ async function renderGitHygiene() {
 }
 
 function applyGitHygieneFilter() {
-  const q = GH_FILTER.q.trim().toLowerCase();
-  const rows = $$('.gh-queue-row');
-  const visible = rows.filter(row => {
-    const show = !q || (row.dataset.ghSearch || '').includes(q);
-    row.classList.toggle('gh-filter-hidden', !show);
-    return show;
-  });
   const count = $('#gh-filter-count');
-  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
+  if (count) {
+    const total = Number(count.dataset.total || 0);
+    const pageCount = Number(count.dataset.pageCount || 1);
+    count.textContent = `${total} matching · page ${GH_PAGE}/${pageCount}`;
+  }
 }
 
 async function renderGit() {
