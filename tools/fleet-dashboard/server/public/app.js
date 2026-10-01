@@ -5545,6 +5545,7 @@ const TASK = {
     role: new Set(),
     site: new Set(),
     blocked: '',
+    query: '',
   },
 };
 
@@ -5713,6 +5714,23 @@ function fleetFiltered() {
   const f = TASK.f;
   return TASK.all
     .filter(t => {
+      const query = TASK.f.query.trim().toLowerCase();
+      if (
+        query &&
+        ![
+          t.title,
+          t.site,
+          t.type,
+          t.assigned_role,
+          t.column,
+          t.excerpt,
+          t.blocked_on,
+        ]
+          .map(value => String(value || '').toLowerCase())
+          .join(' ')
+          .includes(query)
+      )
+        return false;
       if (f.priority.size && !f.priority.has(String(t.priority))) return false;
       if (f.stage.size && !f.stage.has(t.column)) return false;
       if (f.type.size && !f.type.has(t.type)) return false;
@@ -5758,7 +5776,8 @@ function renderFleet() {
     fc.type.size +
     fc.role.size +
     fc.site.size +
-    (fc.blocked ? 1 : 0);
+    (fc.blocked ? 1 : 0) +
+    (fc.query ? 1 : 0);
 
   const filterPanel = `
     <details class="filter-panel" data-rk="filters" ${active ? 'open' : ''}>
@@ -5790,12 +5809,18 @@ function renderFleet() {
     <div class="task-stat"><strong>${counts.bl}</strong><span>Backlog</span></div>
     <div class="task-stat task-stat-meta"><strong>${counts.sites}</strong><span>Sites represented · ${counts.done} done · ${counts.hold} hold</span></div>
   </section>`;
+  const search = `<label class="task-search">Find a task<input id="task-search" class="cm-input" type="search" aria-label="Search fleet tasks" placeholder="Title, site, role, or blocker…" value="${esc(fc.query)}"></label>`;
   const list = rows.length
     ? TASK.view === 'tree'
       ? fleetTree(rows)
       : fleetTable(rows)
     : '<p class="empty">No tasks match.</p>';
-  content.innerHTML = counter + filterPanel + list;
+  content.innerHTML = search + counter + filterPanel + list;
+
+  $('#task-search').addEventListener('input', e => {
+    TASK.f.query = e.target.value.trim().toLowerCase();
+    renderFleet();
+  });
 
   $$('.pill').forEach(p =>
     p.addEventListener('click', () => togglePill(p.dataset.group, p.dataset.val))
@@ -5805,6 +5830,7 @@ function renderFleet() {
     clr.addEventListener('click', () => {
       for (const k of ['priority', 'stage', 'type', 'role', 'site']) TASK.f[k].clear();
       TASK.f.blocked = '';
+      TASK.f.query = '';
       renderFleet();
     });
   $$('.tree-task, .ttr').forEach(el =>

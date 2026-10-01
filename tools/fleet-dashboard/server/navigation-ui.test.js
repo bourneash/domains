@@ -1919,6 +1919,9 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   assert.match(app, /new Set\(rows\.map\(t => t\.site\)\)/);
   assert.match(theme, /\.tasks-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.task-stat-warn/);
+  assert.match(app, /id="task-search" class="cm-input" type="search"/);
+  assert.match(app, /aria-label="Search fleet tasks"/);
+  assert.match(app, /TASK\.f\.query/);
 });
 
 test('Tasks route provides context before its mode controls', () => {
