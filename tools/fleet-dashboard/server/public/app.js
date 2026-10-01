@@ -12071,7 +12071,10 @@ function cycleAutomationSite(direction) {
 let PRIORITY_STATE = 'all';
 
 async function renderPriorities() {
-  if (FRESH) app.innerHTML = '<div class="loading">Joining portfolio signals…</div>';
+  const app = $('#app');
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Joining portfolio signals…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/priorities');
@@ -12122,12 +12125,13 @@ async function renderPriorities() {
         `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td><span class="badge b-gray">${esc(row.allocation)}</span></td><td>${esc(row.opportunity_score)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td><td>${fmtUSD(row.ai_cost_usd)}</td><td>${row.revenue_usd == null ? '—' : fmtUSD(row.revenue_usd)}</td><td>${row.margin_usd == null ? '—' : fmtUSD(row.margin_usd)}</td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div>
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div><button type="button" id="priorities-refresh" class="btn">↻ Refresh</button></div>
     <div class="error-box">${esc(data.notice || '')}</div>
     <section class="seo-stats">${tiles}</section>
     <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="table-wrap"><table class="tbl"><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
     <div class="task-toolbar"><strong>${rows.length} items</strong><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
     <section class="card"><div class="table-wrap"><table class="tbl"><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
+  $('#priorities-refresh').addEventListener('click', () => renderPriorities());
   $('#priority-state').value = PRIORITY_STATE;
   $('#priority-state').addEventListener('change', e => {
     PRIORITY_STATE = e.target.value;
@@ -12206,7 +12210,10 @@ function improvementChecks(validation) {
 }
 
 async function renderImprovements() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading improvement runs…</div>';
+  const app = $('#app');
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading improvement runs…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/improvements');
@@ -12247,10 +12254,11 @@ async function renderImprovements() {
     })
     .join('');
   const active = all.filter(run => !IMPROVEMENT_TERMINAL.has(run.state)).length;
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div>
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div><button type="button" id="improvements-refresh" class="btn">↻ Refresh</button></div>
     <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${active}</div><div class="seo-stat-label">Active</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.proven || 0}</div><div class="seo-stat-label">Proven</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.regressed || 0}</div><div class="seo-stat-label">Regressed</div></div><div class="seo-stat"><div class="seo-stat-value">${all.length}</div><div class="seo-stat-label">All runs</div></div></section>
     <div class="task-toolbar"><select id="improvement-state" class="cm-input"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
     ${cards || '<div class="empty">No improvement runs in this view. Start one from Priorities.</div>'}`;
+  $('#improvements-refresh').addEventListener('click', () => renderImprovements());
   $('#improvement-state').value = IMPROVEMENT_STATE;
   $('#improvement-state').addEventListener('change', e => {
     IMPROVEMENT_STATE = e.target.value;
