@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:25:10.022Z",
+  "generated_at": "2026-10-01T10:29:03.035Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Map and prepare one reversible affiliate-entry improvement for sinderella.org",
-        "summary": "Sinderella.org has a named affiliate tracking ID with 50 clicks, 0 ordered items, and $0 commission in the 2026-09-21 report, but the snapshot does not identify the highest-intent page, exact source files, CTA placement, or disclosure state. A bounded repository inspection is required before implementation.",
-        "requested_action": "Inspect the sinderella.org repository entry surface and affiliate destination path, identify the exact homepage/commercial page and source files, then specify one reversible CTA hierarchy or disclosure-placement diff. Do not deploy, modify production, add tracking, or claim lift.",
+        "title": "Establish therareunicorn.com implementation baseline and select one reversible improvement",
+        "summary": "Site-specific page, repository, audience, content, usability, monetization, and analytics evidence is not present in the authoritative snapshot, so a bounded evidence pass is required before selecting production work.",
+        "requested_action": "Inspect the existing therareunicorn.com repository and public or preview entry surface using read-only checks. Record the exact highest-value page and files, observable CTA/disclosure/accessibility issues, available analytics or affiliate instrumentation status, and select exactly one reversible implementation for the next queue slot. Do not deploy, alter telemetry, add tracking, spend, or claim traffic, revenue, or lift.",
         "proposal_id": null
       }
     ]
