@@ -2038,7 +2038,7 @@ async function renderAIUsage() {
     : `<span class="badge b-green">clean</span>`;
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div>
+    <div class="page-head"><div><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div><button type="button" class="btn" id="aiu-refresh">↻ Refresh</button></div>
     <div class="aiu-controls" aria-label="AI usage filters">
       <label>Time range
         <select id="aiu-quick-select">${AIU_PRESETS.map(
@@ -2182,6 +2182,7 @@ async function renderAIUsage() {
       renderAIUsage();
     })
   );
+  $('#aiu-refresh').addEventListener('click', () => renderAIUsage());
   $('#aiu-site').addEventListener('change', event => {
     AI_USAGE.site = event.target.value;
     AI_USAGE.role = '';
@@ -2990,7 +2991,7 @@ async function renderActivity() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Activity</h2><span class="muted">durable audit trail of every mutating dashboard action — newest first</span></div>
+    <div class="page-head"><div><h2 class="page-title">Activity</h2><span class="muted">durable audit trail of every mutating dashboard action — newest first</span></div><button type="button" class="btn" id="activity-refresh">↻ Refresh</button></div>
     <section class="activity-summary" aria-label="Activity audit summary">
       <div class="activity-stat"><strong>${rows.length}</strong><span>Actions loaded</span></div>
       <div class="activity-stat activity-stat-good"><strong>${succeeded}</strong><span>Succeeded</span></div>
@@ -3011,6 +3012,7 @@ async function renderActivity() {
     </table></div></div>
     <div class="activity-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ACTIVITY_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 actions'}</span><button id="activity-prev" class="btn sm" type="button" ${ACTIVITY_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ACTIVITY_UI.page} of ${pageCount}</span><button id="activity-next" class="btn sm" type="button" ${ACTIVITY_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <details class="activity-help"><summary>What this audit trail records</summary><p>Every completed POST/PUT/DELETE to the dashboard's API, including rejected attempts (401/403). <b>Actor</b> is a non-reversible fingerprint of the caller's token/cookie, never the secret itself.</p></details>`;
+  $('#activity-refresh').addEventListener('click', () => renderActivity());
   $('#activity-q').addEventListener('input', e => {
     ACTIVITY_UI.q = e.target.value;
     ACTIVITY_UI.page = 1;
@@ -3132,7 +3134,7 @@ async function renderDevSandbox() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Dev Sandboxes</h2><span class="muted">per-site sandboxed Claude + ttyd dev containers — folded in from domain-developer</span></div>
+    <div class="page-head"><div><h2 class="page-title">Dev Sandboxes</h2><span class="muted">per-site sandboxed Claude + ttyd dev containers — folded in from domain-developer</span></div><button type="button" class="btn" id="ds-refresh">↻ Refresh</button></div>
     <section class="ds-summary" aria-label="Dev sandbox summary">
       <div class="ds-stat"><strong>${DS.sites.length}</strong><span>Sites provisioned</span></div>
       <div class="ds-stat ds-stat-good"><strong>${running}</strong><span>Running</span></div>
@@ -3159,6 +3161,7 @@ async function renderDevSandbox() {
     </table></div></div>
     <p class="muted" style="margin-top:12px">Each sandbox bind-mounts ONLY that site's directory — the rest of the fleet stays protected. Memory/CPU/PIDs are capped per container. Unauthenticated worker containers still run with <code>--dangerously-skip-permissions</code> inside their own sandbox; this tab itself is behind the same token gate as the rest of the dashboard.</p>`;
 
+  $('#ds-refresh').addEventListener('click', () => renderDevSandbox());
   wireDevSandboxRows();
   $('#ds-status').value = DS_FILTER.status;
   $('#ds-search').addEventListener('input', e => {

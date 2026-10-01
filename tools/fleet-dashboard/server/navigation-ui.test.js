@@ -1042,6 +1042,7 @@ test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
   assert.match(app, /class="aiu-summary"/);
   assert.match(app, /Tracked spend<\/span>/);
   assert.match(app, /Sites instrumented<\/span>/);
+  assert.match(app, /type="button" class="btn" id="aiu-refresh"/);
   assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
 });
 
@@ -1197,6 +1198,7 @@ test('Dev Sandboxes presents runtime readiness and scoped filters', () => {
   assert.match(app, /class="ds-summary"/);
   assert.match(app, /id="ds-search"/);
   assert.match(app, /id="ds-status"/);
+  assert.match(app, /type="button" class="btn" id="ds-refresh"/);
   assert.match(app, /Docker control plane<\/span>/);
   assert.match(app, /function applyDevSandboxFilter\(\)/);
   assert.match(theme, /\.ds-summary \{[^}]*grid-template-columns/);
@@ -1208,6 +1210,7 @@ test('Activity presents audit volume and outcome hierarchy', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="activity-summary"/);
   assert.match(app, /Actions loaded<\/span>/);
+  assert.match(app, /type="button" class="btn" id="activity-refresh"/);
   assert.match(app, /Latest event · \$\{filtered\.length\} matching/);
   assert.match(
     app,
