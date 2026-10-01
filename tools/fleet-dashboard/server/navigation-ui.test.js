@@ -1752,6 +1752,8 @@ test('Backlink Capture keeps coverage tables bounded and actions explicit', () =
   assert.match(app, /type="button" id="backlinks-run"/);
   assert.match(app, /type="button" class="btn sm backlink-focus"/);
   assert.match(app, /type="button" class="btn sm backlink-accent backlink-file"/);
+  assert.match(app, /caption class="sr-only">Backlink coverage by site<\/caption>/);
+  assert.match(style, /body\[data-view="backlinks"\] \.seo-stats/);
   assert.match(style, /\.backlink-table \{[^}]*overflow: hidden/);
 });
 

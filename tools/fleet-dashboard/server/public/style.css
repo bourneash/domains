@@ -1139,7 +1139,8 @@ body[data-view="builds"] main { max-width: none; }
 }
 @media (max-width: 720px) {
   body[data-view="priorities"] .seo-stats,
-  body[data-view="seointelligence"] .seo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body[data-view="seointelligence"] .seo-stats,
+  body[data-view="backlinks"] .seo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .priority-pagination { align-items: stretch; flex-wrap: wrap; }
   .priority-pagination > span { order: -1; flex-basis: 100%; }
   .priority-pagination .btn { flex: 1; }
