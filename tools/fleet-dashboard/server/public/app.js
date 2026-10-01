@@ -6939,6 +6939,10 @@ async function renderDataHub() {
   const srcs = (src && src.sources) || [];
   const enabledCount = srcs.filter(s => s.enabled !== false).length;
   const disabledCount = srcs.length - enabledCount;
+  const nodeValues = Object.values(health.nodes || {});
+  const vpnNodes = nodeValues.filter(Boolean).length;
+  const vpnLeaks = nodeValues.filter(ip => HOME_IPS.includes(ip)).length;
+  const hubItems = health.counts?.items ?? 0;
   const srcRows = srcs
     .map(s => {
       const st = s.state || {};
@@ -7007,6 +7011,15 @@ async function renderDataHub() {
   }
 
   app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Data Hub</h2><span class="muted">Private-source collection, VPN egress, freshness, and site consumption in one operational view.</span></div>
+    <section class="dh-summary" aria-label="Data hub summary">
+      <div class="dh-stat ${hubDown || vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${hubDown ? 'Down' : `${vpnNodes}/2`}</strong><span>VPN exits online</span></div>
+      <div class="dh-stat ${vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${vpnLeaks}</strong><span>Home-IP leaks</span></div>
+      <div class="dh-stat"><strong>${esc(String(hubItems))}</strong><span>Collected items</span></div>
+      <div class="dh-stat ${disabledCount ? 'dh-stat-warn' : 'dh-stat-good'}"><strong>${enabledCount}/${srcs.length}</strong><span>Sources enabled</span></div>
+      <div class="dh-stat"><strong>${events.length}</strong><span>Egress events loaded</span></div>
+      <div class="dh-stat dh-stat-meta"><strong>${pulls.length}</strong><span>Site pulls loaded · ${dss.length} datasets</span></div>
+    </section>
     <div class="dh-grid">
       <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>

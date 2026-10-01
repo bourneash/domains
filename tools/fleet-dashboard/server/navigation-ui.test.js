@@ -990,6 +990,16 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(theme, /\.aii-summary \{[^}]*grid-template-columns/);
 });
 
+test('Data Hub presents privacy and freshness state as a summary strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="dh-summary"/);
+  assert.match(app, /VPN exits online<\/span>/);
+  assert.match(app, /Home-IP leaks<\/span>/);
+  assert.match(app, /Sources enabled<\/span>/);
+  assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
