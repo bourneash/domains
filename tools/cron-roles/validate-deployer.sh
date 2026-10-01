@@ -5,14 +5,24 @@ set -uo pipefail
 
 SITE="${1:?usage: validate-deployer.sh <site-dir>}"
 RUNNER="$SITE/ops/scripts/run-deployer.sh"
+DEPLOY="$SITE/ops/scripts/deploy.sh"
 ENTRYPOINT="$SITE/ops/docker/entrypoint-worker.sh"
+CRONTAB="$SITE/ops/docker/crontab.docker"
 FAILED=0
 
 fail() { echo "FAIL: $*" >&2; FAILED=1; }
 pass() { echo "PASS: $*"; }
 
 [[ -f "$RUNNER" ]] || { fail "missing $RUNNER"; exit 1; }
+[[ -f "$DEPLOY" ]] || { fail "missing $DEPLOY"; exit 1; }
 [[ -f "$ENTRYPOINT" ]] || { fail "missing $ENTRYPOINT"; exit 1; }
+[[ -f "$CRONTAB" ]] || { fail "missing $CRONTAB"; exit 1; }
+
+if grep -Eq '^[[:space:]]*[^#].*[[:space:]]bash[[:space:]]+ops/scripts/run-deployer\.sh([[:space:]]|$)' "$CRONTAB"; then
+  pass "crontab invokes run-deployer.sh"
+else
+  fail "crontab.docker has no active run-deployer.sh schedule"
+fi
 
 if grep -Eq '^[[:space:]]*docker compose run .*--entrypoint.*worker' "$RUNNER"; then
   fail "run-deployer.sh overrides the worker entrypoint; this bypasses submodule Git setup"
