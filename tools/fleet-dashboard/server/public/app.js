@@ -366,7 +366,12 @@ function stamp() {
 // transient API outage should not erase filters, expanded rows, or an active
 // operator workflow; the next successful render removes this notice via stamp().
 function renderViewError(target, message) {
-  if (message instanceof StaleRouteError || message?.name === 'StaleRouteError') return;
+  if (
+    message instanceof StaleRouteError ||
+    message?.name === 'StaleRouteError' ||
+    message === 'route changed while data was loading'
+  )
+    return;
   if (!target) return;
   $('#app')?.setAttribute('aria-busy', 'false');
   const text = String(message || 'The view could not be refreshed.');

@@ -95,6 +95,7 @@ test('shared API reads abandon stale route responses before renderers continue',
   assert.match(app, /if \(requestEpoch !== ROUTE_EPOCH\) throw new StaleRouteError\(\);/);
   assert.match(app, /error\?\.name === 'StaleRouteError'/);
   assert.match(app, /message instanceof StaleRouteError/);
+  assert.match(app, /message === 'route changed while data was loading'/);
 });
 
 test('Executive deep links retain their operating workspace context', () => {
