@@ -2,16 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:21:38.062Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T14:31:22.821Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Amazon aggregate income remains unattributed. Preserve legal, security, attribution, measurement, and credential boundaries. Queue only the three bounded reversible revalidation repairs below; do not execute until CTO reconciles capacity and releases a slot by 2026-10-01T18:00:00Z. Escalate unresolved capacity to the owner at that deadline.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Keep aggregate affiliate income unattributed and preserve legal, security, credential, spend, configuration, telemetry, and production gates. Queue only three medium-priority reversible revalidation repairs on distinct sites; execution remains blocked until CTO reconciles capacity and releases a slot by 2026-10-01T18:00Z. Escalate unresolved capacity to the owner at that deadline.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
+        "summary": "Retain microsoft/markitdown as capacity-gated research only. No adoption, dependency installation, production change, or financial claim is justified.",
+        "requested_action": "accepted_research",
+        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

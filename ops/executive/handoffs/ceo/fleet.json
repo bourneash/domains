@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:21:38.061Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T14:31:22.820Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reconcile delivery capacity before admitting new work. Evidence conflicts: active_delivery reports 1/10 active slots, while performance reports saturation, 13 queued requests, and 52 active/measuring improvements. Unknown: which ledger is authoritative. Smallest next step: CTO validates the ledger and closes or releases the canonical saveusfarms.com repair by 2026-10-01T18:00Z. Owner decision: approve this deadline or escalate sooner.",
+        "summary": "Recommendation: keep new implementation admission paused until CTO reconciles the conflicting capacity ledgers and releases one slot. Evidence: active_delivery reports 1/10 active slots, while performance reports saturation, 13 queued requests, 52 active/measuring improvements, and 29 attention items. Unknown: which ledger is authoritative. Smallest next step: CTO documents the canonical saveusfarms.com repair disposition and releases one slot by 2026-10-01T18:00Z. Owner decision: approve this deadline or escalate sooner.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "Markitdown passed bounded lab checks with MIT licensing, but prototype adoption remains capacity-gated and requires CTO/security review plus owner approval; no production change is authorized.",
-        "requested_action": "accepted_research",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }
