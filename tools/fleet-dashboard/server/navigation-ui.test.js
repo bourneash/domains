@@ -954,7 +954,14 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(app, /class="error-summary"/);
   assert.match(app, /Reporting errors · 1h<\/span>/);
   assert.match(app, /Critical lines · 24h<\/span>/);
+  assert.match(
+    app,
+    /class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters"/
+  );
+  assert.match(app, /class="error-help"><summary>How errors are classified/);
+  assert.match(app, /class="card error-card error-table"><div class="table-wrap"><table/);
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.error-banner-bad \{[^}]*border-left/);
 });
 
 test('Deploys provides status hierarchy and scoped filtering', () => {

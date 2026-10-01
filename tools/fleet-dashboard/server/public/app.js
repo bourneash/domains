@@ -2743,12 +2743,12 @@ async function renderErrors() {
     </section>
     ${
       activeAlerts.length
-        ? `<div class="card error-card" style="margin-bottom:10px"><div class="cn-log-head">🔔 ${activeAlerts.length} open alert(s) — errorscan hasn't seen a clean sweep since these last crossed threshold</div><p class="muted" style="margin:4px 0 0">${activeAlerts.map(esc).join(', ')}</p></div>`
+        ? `<div class="card error-card error-banner error-banner-bad" role="alert"><div class="cn-log-head">🔔 ${activeAlerts.length} open alert(s) — errorscan hasn't seen a clean sweep since these last crossed threshold</div><p class="muted">${activeAlerts.map(esc).join(', ')}</p></div>`
         : ''
     }
     ${
       postFailures.length
-        ? `<div class="card error-card" style="margin-bottom:10px"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) — an alert or all-clear that never reached Slack</div><table>
+        ? `<div class="card error-card error-banner error-banner-warn" role="alert"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) — an alert or all-clear that never reached Slack</div><div class="table-wrap"><table>
       <thead><tr><th>When</th><th>Channel</th><th>Error</th><th>Message</th></tr></thead>
       <tbody>${postFailures
         .map(
@@ -2756,21 +2756,21 @@ async function renderErrors() {
             `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.at) / 1000) + ' ago')}</td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted">${esc((f.textPreview || '').slice(0, 80))}</td></tr>`
         )
         .join('')}</tbody>
-    </table></div>`
+    </table></div></div>`
         : ''
     }
-    <div class="task-toolbar errors-toolbar">
+    <div class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters">
       <label>Search<input id="errors-q" class="cm-input" type="search" placeholder="Container, site, log text…" value="${esc(ERRORS_UI.q)}" autocomplete="off"></label>
       <label>Level<select id="errors-level" class="cm-input"><option value="">All levels</option>${['crit', 'error', 'warn', 'clean'].map(l => `<option value="${l}" ${ERRORS_UI.level === l ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <label>Scope<select id="errors-scope" class="cm-input"><option value="">All containers</option><option value="site" ${ERRORS_UI.scope === 'site' ? 'selected' : ''}>Site containers</option><option value="tool" ${ERRORS_UI.scope === 'tool' ? 'selected' : ''}>Tool containers</option></select></label>
       <label>Per page<select id="errors-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${ERRORS_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     </div>
-    <div class="card error-card"><table>
+    <div class="card error-card error-table"><div class="table-wrap"><table>
       <thead><tr>${errorSortButton('name', 'Container')}${errorSortButton('slug', 'Site')}${errorSortButton('count1h', '1h')}${errorSortButton('count24h', '24h')}${errorSortButton('lastLevel', 'Level')}${errorSortButton('lastAt', 'Last')}${errorSortButton('lastLine', 'Last line')}<th>Actions</th></tr></thead>
       <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No containers match the current filters.' : 'No containers scanned yet — the poller sweeps every 3 minutes in the background.'}</td></tr>`}</tbody>
-    </table></div>
+    </table></div></div>
     <div class="activity-pagination error-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ERRORS_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 containers'}</span><button id="errors-prev" class="btn sm" type="button" ${ERRORS_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ERRORS_UI.page} of ${pageCount}</span><button id="errors-next" class="btn sm" type="button" ${ERRORS_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
-    <p class="muted" style="margin-top:12px">Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p>`;
+    <details class="error-help"><summary>How errors are classified</summary><p>Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p></details>`;
 
   wireErrorRows();
   if (!FRESH) applyUISnap();
