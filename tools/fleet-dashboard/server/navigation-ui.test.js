@@ -56,6 +56,8 @@ test('site command centers are shareable first-class routes', () => {
   assert.match(app, /function renderSiteDetail\(\)/);
   assert.match(app, /site command center/);
   assert.match(app, /site-console-link/);
+  assert.match(app, /<dt>Last ship<\/dt>/);
+  assert.doesNotMatch(app, /<dt>Cloudflare<\/dt>/);
 });
 
 test('executive leadership is a first-class Agents page', () => {
