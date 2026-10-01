@@ -6920,7 +6920,7 @@ function dhPathBadge(policy, exitNode) {
 
 async function renderDataHub() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="muted">loading data hub…</div>';
+  if (FRESH) app.innerHTML = '<div class="loading">Loading Data Hub…</div>';
   const [health, eg, src, ds, mtx, pl] = await Promise.all([
     api('GET', '/api/datahub/health'),
     api('GET', '/api/datahub/egress?limit=80'),
@@ -7827,7 +7827,7 @@ function backlinkBadge(status) {
 
 async function renderBacklinks() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="muted">loading backlink coverage…</div>';
+  if (FRESH) app.innerHTML = '<div class="loading">Loading backlink coverage…</div>';
   let data;
   try {
     data = await api('GET', '/api/backlinks');
@@ -7947,7 +7947,7 @@ function anDelta(cur, prev) {
 
 async function renderAnalytics() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="muted">loading analytics…</div>';
+  if (FRESH) app.innerHTML = '<div class="loading">Loading analytics…</div>';
 
   const sitesResp = await api('GET', '/api/sites');
   const sites = (sitesResp && sitesResp.sites) || sitesResp || [];

@@ -1209,6 +1209,28 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);
 });
 
+test('data-heavy routes use the shared production loading state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /async function renderDataHub\(\)[\s\S]*?class="loading">Loading Data Hub/);
+  assert.match(
+    app,
+    /async function renderBacklinks\(\)[\s\S]*?class="loading">Loading backlink coverage/
+  );
+  assert.match(app, /async function renderAnalytics\(\)[\s\S]*?class="loading">Loading analytics/);
+  assert.doesNotMatch(
+    app,
+    /async function renderDataHub\(\)[\s\S]*?class="muted">loading data hub/
+  );
+  assert.doesNotMatch(
+    app,
+    /async function renderBacklinks\(\)[\s\S]*?class="muted">loading backlink/
+  );
+  assert.doesNotMatch(
+    app,
+    /async function renderAnalytics\(\)[\s\S]*?class="muted">loading analytics/
+  );
+});
+
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const facts = app.slice(
