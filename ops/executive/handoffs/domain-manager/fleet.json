@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:02:15.987Z",
+  "generated_at": "2026-10-01T10:07:10.644Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Reconcile girlpain.com CTA measurement evidence before new work",
-        "summary": "The existing homepage CTA improvement is still measuring through 2026-10-11, while its retained observations show unavailable analytics values. No overlapping implementation should be admitted.",
-        "requested_action": "Review the existing improvement record 85189e8e-97f3-4127-a1b1-a55b980b18ce and page / measurement artifacts using existing telemetry only. Reconcile the measurement state, preserve unknowns, and document whether the run can complete or requires an owner-visible blocker.",
+        "title": "Release capacity before admitting mynewgm.com implementation work",
+        "summary": "No site-specific implementation should be admitted while fleet delivery capacity is saturated at 10/10 active slots. Existing site telemetry is not configured, so no outcome baseline is available.",
+        "requested_action": "After CTO releases one delivery slot, inspect the existing mynewgm.com repository and queue exactly one bounded reversible homepage, usability, SEO, or monetization improvement with a recorded baseline before implementation.",
         "proposal_id": null
       }
     ]

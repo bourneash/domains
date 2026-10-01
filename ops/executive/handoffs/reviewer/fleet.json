@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:05:51.147Z",
+  "generated_at": "2026-10-01T10:07:10.644Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. The fleet is saturated at 10/10 delivery slots, with 39 improvements awaiting measurement, 21 failed requests, and unresolved overlap. Do not make revenue, ROI, attribution, or causal-lift claims; Amazon’s $4.92 commission is aggregate and unattributed. CTO must complete or justifiably close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, build evidence, rollback and release/security boundaries, attribution and measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner by 2026-10-01T10:30:00Z. After one slot is released and overlap clears, admit at most the existing allthingsmasonic.com CTA refinement; do not create duplicates. Keep private-launch and security gates unchanged.",
+        "summary": "Reject the candidate plan and all new admissions this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain open, and no new candidate has an executable slot. Preserve the canonical CTO repair case, private/security gates, and existing measurement work. CTO must release or justify closure of one slot by 2026-10-01T12:00:00Z; escalate unresolved capacity to the owner then. No unsupported revenue, ROI, attribution, or causal-lift claims are approved.",
         "requested_action": null,
         "proposal_id": null
       }
