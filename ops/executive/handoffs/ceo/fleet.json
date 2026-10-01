@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:11:14.124Z",
+  "generated_at": "2026-10-01T17:25:48.018Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep new implementation admission gated until 2026-10-01T18:00Z. Active delivery reports 4/10 slots with 6 open, while performance reports saturation, 9 queued requests, 54 active improvements, and 28 attention items. The authoritative ledger is unknown. Smallest next step: CTO reconcile the ledger and close or repair the canonical saveusfarms.com case. Owner decision: approve this deadline or escalate sooner. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
+        "summary": "Recommendation: retain three bounded revalidations as capacity-gated queue work. Evidence: the ledger conflicts (active_delivery shows 1/10 active slots; performance shows saturation, 9 queued requests, 54 active improvements), while Amazon’s 2026-09-21 $4.92 commission is unattributed. CTO should reconcile capacity and release one slot by 2026-10-01T18:00Z; otherwise escalate. Owner decision: approve this deadline or escalate sooner. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
         "requested_action": null,
         "proposal_id": null
       }

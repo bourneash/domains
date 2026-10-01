@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:35:14.915Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T17:25:48.020Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: preserve existing private-launch and security-sensitive release gates; do not claim clearance, certification, or absence of vulnerabilities.",
+        "summary": "Disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, configuration, tracking, or cross-site behavior. Evidence: fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced. Compliance is a technical baseline only: 37 pass, 18 fail, and 6 unknown. Exact decision: preserve private-launch and security-sensitive release gates; retain only the three bounded revalidations as capacity- and measurement-gated queue work; do not claim clearance, certification, absence of vulnerabilities, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and constrained growth gate",
-        "summary": "Fleet-wide security clearance is unsupported. Security and operations baselines lack executable sweep results, and material controls remain unevidenced. Preserve security-sensitive release and public-exposure gates while allowing only bounded reversible growth that does not add credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": "Retain the existing security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, conduct external outreach, or claim certification. Exact decision: evidence_needed for go-live and security-sensitive releases; conditional for ordinary reversible growth.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain SearchWoot private security gate",
-        "summary": "SearchWoot remains private because access, data-flow, logging, incident, release, and security-control evidence is incomplete. Existing legal evidence also confirms that API access does not establish public redistribution or commercial-use permission.",
-        "requested_action": "Keep SearchWoot private. Continue only bounded read-only evidence work from retained artifacts and authorized metadata. Do not change credentials, configuration, permissions, dependencies, tracking, data collection, deployment, or public exposure. Reassess only after access boundaries, secret handling, isolation, release controls, TLS, dependency provenance, data exposure, monitoring, incident readiness, and disclosure readiness are evidenced and Legal resolves source-rights questions.",
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for authentication, access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, conduct external outreach, or treat missing evidence as a clean result.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]
