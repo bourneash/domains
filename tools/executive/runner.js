@@ -95,6 +95,21 @@ function normalizeActionTitle(value) {
     .replace(/\s+/g, ' ');
 }
 
+function blockedOwnerSubject(value) {
+  return normalizeActionTitle(
+    String(value || '').replace(/^(?:(?:follow through|reassign task to [^:]+):\s*)+/i, '')
+  );
+}
+
+function directRequestDeferralReason(item = {}) {
+  const instruction = `${item.title || ''}\n${item.body || ''}`;
+  if (/\bretain as unclaimed\b/i.test(instruction))
+    return 'request says to remain unclaimed but this queue dispatches automatically';
+  if (/\b(?:do not|must not)\s+(?:execute|start|dispatch|pick up)\s+until\b/i.test(instruction))
+    return 'request has an unresolved execution prerequisite';
+  return null;
+}
+
 function candidateQueueCategory(candidate = {}) {
   const type = String(candidate.type || '')
     .trim()
@@ -182,7 +197,10 @@ function actionCandidates(
     : [];
   const priorityItems = Array.isArray(intelligence?.decision_support?.priorities?.items)
     ? intelligence.decision_support.priorities.items
-        .filter(item => allowed.has(item.site) && item.state !== 'resolved')
+        // A blocked priority is an escalation, not an implementation candidate.
+        // Task-routing gaps can depend on owner-supplied credentials and must
+        // not be repeatedly sent to a site worker.
+        .filter(item => allowed.has(item.site) && (!item.state || item.state === 'ready'))
         .map(item => ({
           site: item.site,
           key: item.id || null,
@@ -4280,6 +4298,12 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     }
   }
   if (allowQueue) {
+    const ownerBlockedSubjects = new Map();
+    for (const blocked of store.listChangeRequests({ status: 'blocked_owner', limit: 'all' })) {
+      const site = String(blocked.site || '').trim().toLowerCase();
+      const subject = blockedOwnerSubject(blocked.title);
+      if (site && subject) ownerBlockedSubjects.set(`${site}:${subject}`, blocked.request_id);
+    }
     const activeSites = new Set(
       store
         .listChangeRequests({ limit: 1000 })
@@ -4319,6 +4343,21 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         throw new Error('change request requires site, title and body');
       const site = String(item.site).trim().toLowerCase();
       const directImplementation = String(item.delivery_mode || 'direct') !== 'report_only';
+      const deferralReason = directImplementation ? directRequestDeferralReason(item) : null;
+      if (deferralReason) {
+        created.skipped_change_requests.push({ site, title: item.title, reason: deferralReason });
+        continue;
+      }
+      const ownerBlockedId = ownerBlockedSubjects.get(`${site}:${blockedOwnerSubject(item.title)}`);
+      if (directImplementation && ownerBlockedId) {
+        created.skipped_change_requests.push({
+          site,
+          title: item.title,
+          duplicate_of: ownerBlockedId,
+          reason: 'owner-controlled prerequisite is already blocked; await owner input',
+        });
+        continue;
+      }
       const installedRoles = site === 'fleet' ? [] : installedSiteRoles(root, site);
       if (site !== 'fleet' && directImplementation && installedRoles.length === 0) {
         const workId = `site-owner-gap:${site}`;

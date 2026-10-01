@@ -307,6 +307,7 @@ function reconcileVerified(store, id, knownSite) {
       'running',
       'reviewing',
       'review',
+      'delivery_pending',
       'committed',
       'deployed',
     ].includes(current.status)

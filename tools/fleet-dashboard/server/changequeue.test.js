@@ -60,6 +60,29 @@ test('an owner-controlled prerequisite can leave the runnable queue without bein
   store.close();
 });
 
+test('a durable report reconciles a delivery-pending request to verified', () => {
+  const { store } = fixture();
+  const request = queue.create(
+    store,
+    { site: 'example.com', title: 'Route an existing task' },
+    site => site === 'example.com'
+  );
+  store.updateChangeRequest(request.request_id, {
+    status: 'delivery_pending',
+    lease_owner: 'old-worker',
+    error: 'stale pending state',
+  });
+  const verified = queue.reconcileVerified(
+    store,
+    request.request_id,
+    site => site === 'example.com'
+  );
+  assert.equal(verified.status, 'verified');
+  assert.equal(verified.lease_owner, null);
+  assert.equal(verified.error, null);
+  store.close();
+});
+
 test('routes SEO requests to the SEO analyst even when engineer is requested', () => {
   const { store } = fixture();
   const known = () => true;

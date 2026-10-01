@@ -685,6 +685,29 @@ test('does not reissue a delivered candidate with the same action key or title',
   );
 });
 
+test('blocked intelligence priorities do not become executable candidates', () => {
+  const candidates = runner.actionCandidates(
+    {
+      decision_support: {
+        priorities: {
+          items: [
+            {
+              site: 'example.com',
+              title: 'Reassign task to promoter: Resolve Amazon tag prerequisite',
+              state: 'blocked',
+              source: 'task-routing-audit',
+              score: 96,
+            },
+            { site: 'ready.example', title: 'Improve a measured page', state: 'ready', score: 80 },
+          ],
+        },
+      },
+    },
+    ['example.com', 'ready.example']
+  );
+  assert.deepEqual(candidates.map(item => item.site), ['ready.example']);
+});
+
 test('supports over-sampling candidates before capacity filtering', () => {
   const candidates = runner.actionCandidates(
     {
@@ -2028,6 +2051,48 @@ test('failed approved execution becomes a blocked follow-through case instead of
   store.close();
 });
 
+test('owner-blocked prerequisite cannot be requeued as a task reassignment', async () => {
+  const { root, store } = db();
+  const blocked = store.createChangeRequest({
+    site: 'example.com',
+    title: 'Follow through: Resolve Amazon Associates tag prerequisite',
+    body: 'The owner must supply the authorized tag.',
+    category: 'marketing',
+    priority: 'medium',
+    status: 'blocked_owner',
+  });
+  const plan = runner.emptyPlan();
+  plan.change_requests.push({
+    site: 'example.com',
+    title: 'Reassign task to promoter: Resolve Amazon Associates tag prerequisite',
+    body: 'Reassign the task to an installed role.',
+    category: 'engineering',
+    priority: 'medium',
+  });
+  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+  assert.equal(created.change_requests.length, 0);
+  assert.equal(created.skipped_change_requests[0].duplicate_of, blocked.request_id);
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 1);
+  store.close();
+});
+
+test('a request that says to remain unclaimed cannot enter the automatic dispatcher', async () => {
+  const { root, store } = db();
+  const plan = runner.emptyPlan();
+  plan.change_requests.push({
+    site: 'example.com',
+    title: 'Capacity-gated conversion change',
+    body: 'Retain as unclaimed engineer queue work only. Do not execute until a slot is released.',
+    category: 'design',
+    priority: 'medium',
+  });
+  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+  assert.equal(created.change_requests.length, 0);
+  assert.match(created.skipped_change_requests[0].reason, /dispatches automatically/);
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 0);
+  store.close();
+});
+
 test('binds executive request follow-up to its role and preserves report-only routing', () => {
   const plan = runner.parseOutput(
     JSON.stringify({
@@ -2493,7 +2558,9 @@ test('surfaces a rotating multi-site portfolio batch from priorities and scoreca
     ]
   );
   assert.equal(new Set(candidates.map(item => item.site)).size, candidates.length);
-  assert.ok(candidates.length >= 4);
+  assert.equal(candidates.length, 3);
+  assert.ok(!candidates.some(item => item.site === '0daynews.com'));
+  assert.ok(!candidates.some(item => item.site === 'americastrikes.com'));
   assert.ok(candidates.some(item => item.site === 'eastcoastrappers.com'));
 });
 
