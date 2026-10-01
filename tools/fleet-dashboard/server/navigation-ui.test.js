@@ -58,6 +58,10 @@ test('site command centers are shareable first-class routes', () => {
   assert.match(app, /site-console-link/);
   assert.match(app, /<dt>Last ship<\/dt>/);
   assert.doesNotMatch(app, /<dt>Cloudflare<\/dt>/);
+  const siteStart = app.indexOf('function renderSiteDetail()');
+  const siteEnd = app.indexOf('function renderSiteDetail', siteStart + 1);
+  const siteView = app.slice(siteStart, siteEnd > siteStart ? siteEnd : siteStart + 20000);
+  assert.ok((siteView.match(/class="table-wrap"><table/g) || []).length >= 2);
 });
 
 test('executive leadership is a first-class Agents page', () => {
