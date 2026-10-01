@@ -3397,11 +3397,11 @@ async function renderSiteFacts() {
       <div class="sf-stat ${pending ? 'sf-stat-meta' : 'sf-stat-good'}"><strong>${pending}</strong><span>Awaiting data</span></div>
       <div class="sf-stat sf-stat-meta"><strong>${esc(swept)}</strong><span>Last sweep · ${d.families.length} fact families</span></div>
     </section>
-    <div class="card"><table class="sf-table">
+    <div class="card sf-table-card"><div class="table-wrap"><table class="sf-table">
       <thead><tr><th>Site</th>${d.families.map(f => `<th>${esc(f)}</th>`).join('')}</tr></thead>
       <tbody>${body || '<tr><td colspan="99" class="muted">No sites found.</td></tr>'}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">Click a site name for the fact-by-fact breakdown, Amazon ASIN health, and manual annotations. Green = present, gray dot = not yet checked, amber-ish = missing (never a hard "red" — these are presence checks, not outages).</p>`;
+    </table></div></div>
+    <details class="sf-help"><summary>How to read Site Facts</summary><p>Click a site name for the fact-by-fact breakdown, Amazon ASIN health, and manual annotations. <span class="sf-legend sf-legend-present"><i></i>Present</span><span class="sf-legend sf-legend-pending"><i></i>Not yet checked</span><span class="sf-legend sf-legend-missing"><i></i>Missing</span>. These are presence checks, not outages.</p></details>`;
 
   $$('.sf-open').forEach(a =>
     a.addEventListener('click', e => {

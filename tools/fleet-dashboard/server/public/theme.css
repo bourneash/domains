@@ -1327,6 +1327,14 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .sf-stat-warn strong { color: var(--yellow); }
 .sf-stat-meta { display: flex; flex-direction: column; justify-content: center; }
 .sf-stat-meta strong { color: var(--muted); font-size: 15px; }
+.sf-table-card { overflow: hidden; }
+.sf-help { margin-top: 12px; border-top: 1px solid var(--border); }
+.sf-help summary { padding-top: 10px; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
+.sf-help p { max-width: 92ch; margin: 7px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.6; }
+.sf-legend { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; white-space: nowrap; }
+.sf-legend i { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--border-hi); }
+.sf-legend-present i { background: var(--green); }
+.sf-legend-missing i { background: var(--yellow); }
 @media (max-width: 900px) {
   .sf-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .sf-stat-meta { grid-column: 1 / -1; }

@@ -985,7 +985,10 @@ test('Site Facts presents coverage and freshness as a summary strip', () => {
   assert.match(app, /class="sf-summary"/);
   assert.match(app, /Checks present<\/span>/);
   assert.match(app, /Awaiting data<\/span>/);
+  assert.match(app, /class="card sf-table-card"><div class="table-wrap"><table class="sf-table"/);
+  assert.match(app, /class="sf-help"><summary>How to read Site Facts/);
   assert.match(theme, /\.sf-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.sf-legend-present i \{[^}]*background: var\(--green\)/);
 });
 
 test('Git Operations presents repository state with local filters', () => {
