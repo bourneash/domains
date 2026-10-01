@@ -772,6 +772,17 @@ test('dashboard includes a keyboard skip link to the current page content', () =
   assert.match(theme, /\.skip-link:focus/);
 });
 
+test('Retention presents policy posture before editable rows', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="retention-summary" aria-label="Retention policy summary"/);
+  assert.match(app, /class="retention-toolbar" role="group" aria-label="Retention policy actions"/);
+  assert.match(app, /class="retention-days" type="number"/);
+  assert.match(app, /class="retention-help"><summary>How the policy is applied/);
+  assert.match(theme, /\.retention-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.retention-stat-warn/);
+});
+
 test('operational API failures use the shared recovery surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');

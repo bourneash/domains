@@ -4370,8 +4370,8 @@ async function renderRetention() {
       <td><b>${esc(c.label)}</b><div class="muted">${c.paths.map(esc).join('<br>')}</div></td>
       <td>${esc(c.method || '-')}</td>
       <td>
-        <input type="number" min="1" max="3650" value="${c.retain_days}"
-               data-retain="${esc(c.name)}" style="width:5.5em">
+        <input class="retention-days" type="number" min="1" max="3650" value="${c.retain_days}"
+               data-retain="${esc(c.name)}" aria-label="Raw retention days for ${esc(c.label)}">
         <span class="muted">days</span>
       </td>
       <td>${c.delete_after_days == null ? '<span class="muted">never deleted</span>' : `<span class="r-overdue">after ${c.delete_after_days}d</span>`}</td>
@@ -4379,20 +4379,28 @@ async function renderRetention() {
     </tr>`
     )
     .join('');
+  const pathCount = d.classes.reduce((sum, c) => sum + c.paths.length, 0);
+  const deletionEnabled = d.classes.some(c => c.delete_after_days != null);
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Retention</h2><span class="muted">how long the fleet keeps each class of data</span></div>
-    <div class="task-toolbar">
-      <strong>default ${d.defaults.retain_days} days</strong>
-      <span class="muted">${esc(d.path)}</span>
-      <button class="btn" id="retention-save">Save changes</button>
-      <span id="retention-msg" class="muted"></span>
+    <section class="retention-summary" aria-label="Retention policy summary">
+      <div class="retention-stat"><strong>${d.classes.length}</strong><span>Policy classes</span></div>
+      <div class="retention-stat"><strong>${d.defaults.retain_days}<small>d</small></strong><span>Default raw retention</span></div>
+      <div class="retention-stat"><strong>${pathCount}</strong><span>Declared paths</span></div>
+      <div class="retention-stat ${deletionEnabled ? 'retention-stat-warn' : 'retention-stat-good'}"><strong>${deletionEnabled ? 'On' : 'Off'}</strong><span>Deletion policy</span></div>
+      <div class="retention-stat retention-stat-meta"><strong>04:45</strong><span>Nightly application</span></div>
+    </section>
+    <div class="retention-toolbar" role="group" aria-label="Retention policy actions">
+      <div><strong>Policy file</strong><span class="muted mono">${esc(d.path)}</span></div>
+      <button class="btn primary" id="retention-save" type="button">Save changes</button>
+      <span id="retention-msg" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card"><table class="rmatrix">
+    <div class="card retention-table"><div class="table-wrap"><table class="rmatrix">
       <thead><tr><th>Class</th><th>Method</th><th>Keep raw</th><th>Deletion</th><th>Why</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">Retention here means <b>compress, not delete</b>. Files past the window are gzipped (stats ledgers) or rolled into one archive per site per day (role logs), verified, and kept. <b>Deletion is file-only</b> and off everywhere — enabling it means editing <code>tools/retention/policy.yaml</code> directly, on purpose. An undeclared path is reported, never swept: silence must not mean "delete it". Applied nightly at 04:45 by <code>tools/scripts/prune-fleet-data.py</code>.</p>`;
+    </table></div></div>
+    <details class="retention-help"><summary>How the policy is applied</summary><p>Retention means <b>compress, not delete</b>. Files past the window are gzipped (stats ledgers) or rolled into one archive per site per day (role logs), verified, and kept. <b>Deletion is file-only</b> and off everywhere; an undeclared path is reported, never swept. The policy is applied nightly at 04:45 by <code>tools/scripts/prune-fleet-data.py</code>.</p></details>`;
 
   $('#retention-save')?.addEventListener('click', async () => {
     const msg = $('#retention-msg');
