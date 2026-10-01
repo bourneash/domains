@@ -16212,6 +16212,53 @@ async function renderWorkbench() {
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
     <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4" aria-label="Filter workbench cases by status">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
     <section class="wb-list">${rows || '<div class="empty">No workbench cases match this view.</div>'}</section></div>`;
+  // Workbench data can contain repeated handoff records for the same durable
+  // case. Keep the newest actionable record visible and collapse exact
+  // duplicates into its thread so the queue reflects decisions, not retries.
+  const wbGroups = new Map();
+  visible.forEach(item => {
+    const key = [item.site || 'fleet', item.owner || '', item.kind || '', item.title || ''].join(
+      '\u001f'
+    );
+    const group = wbGroups.get(key) || [];
+    group.push(item);
+    wbGroups.set(key, group);
+  });
+  const wbStatusRank = { open: 4, in_progress: 4, blocked: 4, waiting: 4, done: 2, cancelled: 1 };
+  const wbRepresentative = items =>
+    items
+      .slice()
+      .sort(
+        (a, b) =>
+          (wbStatusRank[b.status] || 0) - (wbStatusRank[a.status] || 0) ||
+          new Date(b.updated_at || b.created_at || 0).getTime() -
+            new Date(a.updated_at || a.created_at || 0).getTime()
+      )[0];
+  let wbCollapsedRecords = 0;
+  let wbDuplicateGroups = 0;
+  wbGroups.forEach(items => {
+    if (items.length < 2) return;
+    wbDuplicateGroups += 1;
+    wbCollapsedRecords += items.length - 1;
+    const representative = wbRepresentative(items);
+    items.forEach(item => {
+      if (item.work_id === representative.work_id) return;
+      $(`[data-work-id="${CSS.escape(item.work_id)}"]`)?.remove();
+    });
+    const card = $(`[data-work-id="${CSS.escape(representative.work_id)}"]`);
+    const title = $('.wb-item-title', card);
+    if (title) {
+      const note = document.createElement('span');
+      note.className = 'wb-duplicate-note';
+      note.textContent = `${items.length} linked records`;
+      note.title = `${items.length} records share this case title; the latest actionable record is shown.`;
+      title.append(note);
+    }
+  });
+  const wbCount = $('.wb-count');
+  if (wbCount) {
+    wbCount.textContent = `${visible.length - wbCollapsedRecords} case threads · ${visible.length} records shown${wbDuplicateGroups ? ` · ${wbDuplicateGroups} duplicate set${wbDuplicateGroups === 1 ? '' : 's'} collapsed` : ''}`;
+  }
   $('#wb-refresh').onclick = () => renderWorkbench();
   $('#wb-new-toggle').onclick = async () => {
     const panel = $('#wb-new');
@@ -16316,6 +16363,11 @@ async function renderWorkbench() {
           );
           const messages = (data.messages || []).slice().reverse();
           thread.innerHTML = `${messages.map(message => `<div class="wb-message"><b>${esc(executiveActorLabel(message.actor))}</b><span class="muted"> · ${esc(message.message_type || 'update')} · ${esc(fmtDate(message.created_at))}</span><div>${esc(message.body)}</div></div>`).join('') || '<div class="muted">No handoffs yet.</div>'}<div class="wb-reply"><textarea class="cm-input wb-reply-body" rows="2" placeholder="Add owner direction to this case…"></textarea><button class="btn sm primary wb-reply-send">Send</button></div>`;
+          const wbReplyBody = $('.wb-reply-body', thread);
+          if (wbReplyBody) {
+            wbReplyBody.setAttribute('aria-label', 'Add owner direction to this case');
+            wbReplyBody.setAttribute('name', 'owner_direction');
+          }
           $('.wb-reply-send', thread).onclick = async () => {
             const body = $('.wb-reply-body', thread).value.trim();
             if (!body) return toast('Write a reply first', 'err');

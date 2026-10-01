@@ -294,6 +294,11 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /id="wb-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search workbench cases"/);
   assert.match(app, /searchable\.includes\(query\)/);
+  assert.match(app, /const wbGroups = new Map\(\)/);
+  assert.match(app, /wbCollapsedRecords/);
+  assert.match(app, /linked records/);
+  assert.match(app, /duplicate set/);
+  assert.match(app, /Add owner direction to this case/);
 });
 
 test('executive overview gives dense controls explicit context', () => {

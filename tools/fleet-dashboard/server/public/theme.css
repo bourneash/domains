@@ -994,6 +994,7 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .wb-item:hover { border-color: rgba(94,169,255,.25); box-shadow: var(--sh-2); }
 .wb-item-head, .wb-item-foot { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
 .wb-item-title { color: var(--text-hi); font-size: 14px; font-weight: 700; }
+.wb-duplicate-note { display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); background: var(--panel-2); font-size: 10px; font-weight: 650; vertical-align: middle; white-space: nowrap; }
 .wb-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 .wb-summary { max-width: 860px; margin: 11px 0; color: var(--text); line-height: 1.5; }
 .wb-next { padding: 9px 11px; color: var(--muted); background: rgba(94,169,255,.055); border-left: 2px solid var(--a1); font-size: 12px; }
