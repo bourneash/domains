@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:56:13.977Z",
+  "generated_at": "2026-10-01T08:05:08.950Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment while delivery remains saturated at 10/10 slots. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Then admit only the existing allthingsmasonic.com CTA refinement after site-overlap clearance. Keep launch, compliance, and security gates unchanged; do not request duplicate telemetry, add new queue work, or claim revenue, ROI, or causal lift.",
+        "summary": "Growth disposition: reject the two new scaffold change requests this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 implementation requests have failed. No new SEO, content, site-factory, telemetry, or research admission is justified. Preserve only the existing saveusfarms.com repair-or-close case as the capacity unblocker; after one slot is released and site-overlap clearance is confirmed, admit only the existing allthingsmasonic.com CTA refinement. Retain its recorded baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks; classify unavailable outcomes as unknown. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

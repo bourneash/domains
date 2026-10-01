@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:56:13.978Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:05:08.951Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve containment and approve no new spend, budget commitment, monetization expansion, revenue forecast, ROI claim, or contribution-margin claim. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All commission is aggregate tracking_id=other; named site rows show $0 attributed commission. Site revenue, margin, CAC, payback, and causal lift are unsupported. Retain only the existing allthingsmasonic.com CTA refinement after one delivery slot is released and site overlap clears.",
+        "summary": "CFO recommendation: preserve containment and approve no discretionary spend, new monetization investment, forecast-based expansion, or new finance work this cycle. Revenue claims are unsupported: Amazon data covers only 2026-09-21 and shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID other; site-attributed commission is $0. Do not report $4.92 as site revenue. Contribution margin and ROI are not calculable because site-level revenue, infrastructure costs, labor/change costs, and fixed costs are unavailable. Cost-to-learn is not calculable because no attributable financial outcome or comparable experiment result exists. AI spend is observed at $2.2785467 for 16 calls across only 4 of 38 expected sites on 2026-10-01; fleet-wide AI spend is unknown. Budget exposure is unknown because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank and operations has no deploy, uptime, or infrastructure-cost sweep. Retain only existing canonical work after capacity clears, with the allthingsmasonic.com CTA change evaluated against its 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Minimum measurement for a calculable finance result is a dated site/content ledger joining registered tracking ID, clicks, orders, shipped items, commission, direct change cost, AI cost, infrastructure allocation, and labor/change cost; absent those fields, classify margin, ROI, cost-to-learn, and causal lift as unknown. Reject the two new scaffold change requests and keep SearchWoot private with no rights outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI spend is measurable but cost-to-learn is not calculable. On 2026-10-01, 16 AI calls cost $2.2785467 across 4 of 38 expected sites; 34 sites lack AI-cost coverage and no incremental validated outcome is available. Infrastructure, fixed, marketing, labor, and monthly spend limits are blank, so total budget exposure, contribution margin, and payback cannot be calculated. Minimum measurement: site-level AI/infrastructure/direct-change cost plus a verified incremental revenue or conversion outcome for the same measurement window.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA request only after the current repair case releases one slot and site overlap clears. Use the 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission. For 14 days or 100 relevant new impressions/clicks, record affiliate clicks, orders, shipped items, commission, direct change cost, allocated AI cost, and allocated infrastructure cost. Contribution margin equals attributable commission less directly attributable costs; if site-level commission or cost allocation is unavailable, classify margin and ROI as unknown. Do not treat impressions, clicks, audited actions, or improvements started as financial performance.",
+        "summary": "Finance gate: do not admit new implementation or spend. If capacity clears, retain only the existing allthingsmasonic.com CTA request. Its acceptance is measurement readiness, not forecast revenue: preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; record post-change clicks, orders, shipped items, commission, direct change cost, and rollback evidence for 14 days or 100 relevant new impressions/clicks. If site-level orders or commission remain unavailable, report the financial outcome as unknown. Do not infer revenue from aggregate Amazon tracking ID other or from conversions, impressions, clicks, sessions, or AI output volume.",
         "requested_action": null,
         "proposal_id": null
       }

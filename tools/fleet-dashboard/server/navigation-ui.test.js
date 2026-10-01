@@ -1011,6 +1011,13 @@ test('Containers provides scoped search and operational filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="cn-summary"/);
+  assert.match(app, /class="page-title">Containers<\/h2>/);
+  assert.match(app, /type="button" class="btn" id="containers-refresh"/);
+  assert.match(app, /Listing containers…/);
+  assert.match(
+    app,
+    /\$\('#containers-refresh'\)\.addEventListener\('click', \(\) => renderContainers\(\)\)/
+  );
   assert.match(app, /id="cn-search"/);
   assert.match(app, /id="cn-status"/);
   assert.match(app, /id="cn-kind"/);

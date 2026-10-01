@@ -5087,7 +5087,9 @@ async function fetchAgentLog(site, role, box) {
 /* ===================== CONTAINERS ===================== */
 async function renderContainers() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Listing containers…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Containers</h2><span class="muted">Live runtime health and lifecycle controls across the fleet</span></div></div><div class="loading" role="status" aria-live="polite">Listing containers…</div>';
   let rows;
   try {
     rows = await api('GET', '/api/containers');
@@ -5155,6 +5157,7 @@ async function renderContainers() {
     .join('');
 
   app.innerHTML = `
+    <div class="page-head"><div><h2 class="page-title">Containers</h2><span class="muted">Live runtime health and lifecycle controls across the fleet</span></div><button type="button" class="btn" id="containers-refresh">↻ Refresh</button></div>
     <section class="cn-summary" aria-label="Container fleet summary">
       <div class="cn-summary-stat"><strong>${rows.length}</strong><span>Total containers</span></div>
       <div class="cn-summary-stat cn-summary-good"><strong>${tally.healthy}</strong><span>Healthy</span></div>
@@ -5176,6 +5179,7 @@ async function renderContainers() {
     <details class="cn-help"><summary>What container actions do</summary><p><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p></details>`;
 
   wireContainerRows();
+  $('#containers-refresh').addEventListener('click', () => renderContainers());
   $('#cn-status').value = CN_FILTER.status;
   $('#cn-kind').value = CN_FILTER.kind;
   $('#cn-search').addEventListener('input', e => {

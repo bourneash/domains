@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:56:13.978Z",
+  "generated_at": "2026-10-01T08:05:08.951Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO approves containment. Do not create new queue items, proposals, telemetry requests, prototypes, site-factory builds, spend, or duplicate work while delivery is saturated at 10/10 slots and measurement obligations remain unresolved. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded. The existing allthingsmasonic.com CTA request may proceed only after slot release and site-overlap clearance. Keep private-launch and security gates unchanged.",
+        "summary": "CTO disposition: approve containment. Reject both proposed scaffold change requests and all new proposals, telemetry, research, spend, dependencies, production changes, and queue admissions this cycle. Delivery is saturated at 10/10 slots; measurement and repair work remain active. Preserve only existing canonical work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA request; do not create the proposed duplicate work item. After capacity and site-overlap clearance, validate only CTA hierarchy, adjacent affiliate disclosure, keyboard/focus accessibility, responsive layout, unchanged affiliate destinations, build/link/smoke/disclosure checks, single-diff rollback, and measurement readiness. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Classify revenue, ROI, margin, and causal lift as unknown when attribution or cost allocation is unavailable.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit or assign a new site-factory readiness or build item this cycle. Preserve the candidate as planning context only; capacity is saturated and launch, security, analytics, affiliate, measurement, and rollback gates remain incomplete.",
+        "summary": "After capacity and site-overlap clearance, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Require deterministic CTA, link, disclosure, accessibility, responsive, build, and rollback validation; classify unavailable financial or causal outcomes as unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the private launch gate and rights outreach disposition unchanged. No public exposure, external rights outreach, new dependencies, credentials, configuration changes, deployment, or duplicate evidence work is authorized while the existing legal, security, accuracy, and measurement gates remain incomplete.",
+        "summary": "Keep SearchWoot private and leave rights outreach unsent. Security, legal, accuracy, measurement, and owner gates remain incomplete; no public exposure or security-sensitive release is cleared.",
         "requested_action": null,
         "proposal_id": null
       }
