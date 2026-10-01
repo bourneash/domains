@@ -4057,6 +4057,7 @@ function controlDraw() {
   );
 
   const rolled = sites.map(s => ({ s, r: siteRollup(s) }));
+  const nFreshSites = rolled.filter(x => x.r.problems === 0 && x.r.live > 0).length;
   const nAttention = rolled.filter(x => x.r.problems > 0).length;
   const nPaused = rolled.filter(x => x.r.paused > 0).length;
 
@@ -4080,6 +4081,13 @@ function controlDraw() {
     `<button class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}">${label}<span class="ctl-n">${n}</span></button>`;
 
   $('#ctl-bar').innerHTML = `
+    <section class="ctl-summary" aria-label="Domain control summary">
+      <div class="ctl-stat"><strong>${sites.length}</strong><span>Sites monitored</span></div>
+      <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully fresh</span></div>
+      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Need attention</span></div>
+      <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>With paused roles</span></div>
+      <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common roles · ${tally.fresh} fresh cells</span></div>
+    </section>
     <div class="ctl-bar">
       <div class="seg sm">
         ${seg('all', 'All sites', sites.length)}
@@ -4091,11 +4099,6 @@ function controlDraw() {
         <button class="seg-btn${CONTROL.sort === 'name' ? ' active' : ''}" data-ctl-sort="name">A–Z</button>
         <button class="seg-btn${CONTROL.sort === 'health' ? ' active' : ''}" data-ctl-sort="health">Worst first</button>
       </div>
-      <span class="ctl-legend">
-        ${dotLegend('fresh', tally.fresh + ' fresh')} ${dotLegend('stale', tally.stale + ' stale')}
-        ${dotLegend('overdue', tally.overdue + ' overdue')} ${dotLegend('paused', tally.paused + ' paused')}
-        ${dotLegend('never', tally.never + ' no-log')}
-      </span>
       <span class="ctl-count muted">${rows.length} of ${sites.length} sites · ${core.length} common roles</span>
     </div>`;
 

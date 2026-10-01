@@ -1853,6 +1853,49 @@ body.has-rail .actions { margin-left: 0; }
    proportional state bar, and unhealthy cells tint so clusters read as a heat
    map rather than as isolated dots.
    ========================================================================== */
+.ctl-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(210px, 1.45fr);
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.ctl-stat {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  background: var(--grad-panel), var(--panel);
+  box-shadow: var(--sh-1);
+}
+.ctl-stat strong {
+  display: block;
+  color: var(--text-hi);
+  font-size: 20px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.ctl-stat span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.ctl-stat-good { border-top-color: var(--green); }
+.ctl-stat-good strong { color: var(--green); }
+.ctl-stat-warn { border-top-color: var(--yellow); }
+.ctl-stat-warn strong { color: var(--yellow); }
+.ctl-stat-meta { display: flex; flex-direction: column; justify-content: center; }
+.ctl-stat-meta strong { color: var(--muted); font-size: 15px; }
+@media (max-width: 900px) {
+  .ctl-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ctl-stat-meta { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .ctl-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ctl-stat-meta { grid-column: auto; }
+}
 .ctl-bar {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   margin-bottom: 14px;

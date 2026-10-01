@@ -918,6 +918,16 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
 });
 
+test('Domain Control presents fleet role health as a summary strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="ctl-summary"/);
+  assert.match(app, /Sites monitored<\/span>/);
+  assert.match(app, /Fully fresh<\/span>/);
+  assert.match(app, /Need attention<\/span>/);
+  assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
