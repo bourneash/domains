@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:49:03.893Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:57:21.605Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment and admit no new CRO, prototype, telemetry, spend, or duplicate queue work while delivery remains saturated at 10/10 slots and measurement remains open. After CTO releases one slot by completing or closing the existing saveusfarms.com repair case, execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Test CTA hierarchy, adjacent disclosure placement, accessibility, and responsive layout while preserving destinations and identifiers. Measure registered affiliate clicks and available conversions for 14 days or 100 relevant impressions/clicks; report delta or inconclusive result without causal or revenue claims. Roll back the single bounded diff if validation fails or accessibility regresses.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "GitHub signals remain deferred research opportunities, not adoption recommendations. microsoft/markitdown (MIT; lab supported fit, 8/8 bounded checks), shadcn-ui/ui (MIT; 3/3 bounded checks), and mermaid-js/mermaid (MIT; supported fit but no native checks) have plausible fleet uses. Evidence is insufficient on dependency exposure, maintenance burden, runtime fit, security, and conversion impact; no dependencies were installed and no production access occurred. If capacity later permits, the smallest reversible prototypes are: convert a fixed sample of existing source files to draft Markdown and compare editorial QA/time-to-publish; render one isolated accessible CTA component against an existing page fixture and run visual/accessibility checks; and render one static explanatory diagram for a high-intent guide. Expected learning metrics are editorial acceptance/time saved, deterministic accessibility/build pass rate, and engagement or search performance respectively, with a 1-cycle learning target. No prototype should be admitted before capacity and measurement gates clear.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue attribution remains uncertain: the available Amazon window is 2026-09-21, with $4.92 aggregate commission under an unattributed provider row. Do not infer site revenue, ROI, margin, or causal lift. Preserve existing affiliate prerequisites and repair work; do not add monetization claims or new revenue experiments this cycle.",
+        "summary": "The strongest purpose-fit signals are microsoft/markitdown for document-to-content extraction, shadcn-ui/ui for accessible reusable UI, and mermaid-js/mermaid for structured explanatory content. Evidence is limited to public repo metadata and disposable-lab review: MarkItDown and shadcn passed bounded checks; Mermaid had no safe native checks without dependency installation. MIT licenses are favorable for all three, but license metadata does not establish dependency, supply-chain, maintenance, or production-security clearance. Smallest reversible prototypes, if capacity later clears: transform one owned source document into draft SEO content and compare editorial acceptance; render one existing content flow with an isolated accessible component; add one static explanatory diagram to a high-intent page. Metrics would be draft acceptance/time-to-publish, task completion or CTA interaction, and organic impressions/clicks respectively. Time-to-learn is expected to be one isolated prototype cycle, but no implementation should start while capacity is saturated.",
         "requested_action": null,
         "proposal_id": null
       }

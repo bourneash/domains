@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:49:03.894Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:57:21.606Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk severity is high for go-live, new public exposure, and security-sensitive releases. Fleet-doctor is not OK and has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results; authentication, secrets, isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and disclosure readiness remain unevidenced. Keep existing gates unchanged. Permit ordinary reversible growth only within the documented containment boundaries.",
+        "summary": "Disposition: evidence_needed, severity high. Fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance reports 36 pass, 19 fail, and 6 unknown, but are technical triage rather than certification. Exact decision: preserve private-launch and security-sensitive release gates; keep SearchWoot private; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim a clean bill of health or certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain only existing bounded work after capacity release. Before any security-sensitive release or public exposure, record dated evidence for authentication/access boundaries, secrets exposure, runtime isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, alter permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preview-only site-factory changes may remain capacity-gated and must not publish or deploy until the existing security gate has dated evidence. Any go-live or security-sensitive proposal requires implementation.security_review with status needs_owner, reviewed_by security, and an evidence-backed decision note. Optional hardening alone is not a blocker for ordinary reversible growth.",
         "requested_action": null,
         "proposal_id": null
       }
