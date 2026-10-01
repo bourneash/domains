@@ -2951,19 +2951,19 @@ async function renderActivity() {
       <div class="activity-stat"><strong>${writes}</strong><span>Mutations</span></div>
       <div class="activity-stat activity-stat-meta"><strong>${esc(latest)}</strong><span>Latest event · ${filtered.length} matching</span></div>
     </section>
-    <div class="task-toolbar activity-toolbar">
+    <div class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters">
       <label>Search<input id="activity-q" class="cm-input" type="search" placeholder="Path, actor, site…" value="${esc(ACTIVITY_UI.q)}" autocomplete="off"></label>
       <label>Status<select id="activity-status" class="cm-input"><option value="">All statuses</option><option value="ok" ${ACTIVITY_UI.status === 'ok' ? 'selected' : ''}>Succeeded</option><option value="failed" ${ACTIVITY_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select></label>
       <label>Method<select id="activity-method" class="cm-input"><option value="">All methods</option>${['POST', 'PUT', 'PATCH', 'DELETE'].map(m => `<option value="${m}" ${ACTIVITY_UI.method === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <label>Per page<select id="activity-page-size" class="cm-input">${[25, 50, 100].map(n => `<option value="${n}" ${ACTIVITY_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
       <strong class="activity-count">${filtered.length} matching</strong>
     </div>
-    <div class="card"><table>
+    <div class="card activity-table"><div class="table-wrap"><table>
       <thead><tr>${activitySortButton('ts', 'Time')}${activitySortButton('actor', 'Actor')}${activitySortButton('method', 'Method')}${activitySortButton('path', 'Path')}${activitySortButton('site', 'Site')}${activitySortButton('status', 'Status')}${activitySortButton('ms', 'Duration')}${activitySortButton('ip', 'IP')}</tr></thead>
       <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No actions match the current filters.' : 'No actions recorded yet.'}</td></tr>`}</tbody>
-    </table></div>
+    </table></div></div>
     <div class="activity-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ACTIVITY_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 actions'}</span><button id="activity-prev" class="btn sm" type="button" ${ACTIVITY_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ACTIVITY_UI.page} of ${pageCount}</span><button id="activity-next" class="btn sm" type="button" ${ACTIVITY_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
-    <p class="muted" style="margin-top:12px">Every completed POST/PUT/DELETE to the dashboard's API, including rejected attempts (401/403). <b>Actor</b> is a non-reversible fingerprint of the caller's token/cookie, never the secret itself.</p>`;
+    <details class="activity-help"><summary>What this audit trail records</summary><p>Every completed POST/PUT/DELETE to the dashboard's API, including rejected attempts (401/403). <b>Actor</b> is a non-reversible fingerprint of the caller's token/cookie, never the secret itself.</p></details>`;
   $('#activity-q').addEventListener('input', e => {
     ACTIVITY_UI.q = e.target.value;
     ACTIVITY_UI.page = 1;

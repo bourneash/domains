@@ -1056,7 +1056,14 @@ test('Activity presents audit volume and outcome hierarchy', () => {
   assert.match(app, /class="activity-summary"/);
   assert.match(app, /Actions loaded<\/span>/);
   assert.match(app, /Latest event · \$\{filtered\.length\} matching/);
+  assert.match(
+    app,
+    /class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters"/
+  );
+  assert.match(app, /class="card activity-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="activity-help"><summary>What this audit trail records/);
   assert.match(theme, /\.activity-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.activity-table \{[^}]*overflow: hidden/);
 });
 
 test('Product Feed presents queue health as a summary strip', () => {
