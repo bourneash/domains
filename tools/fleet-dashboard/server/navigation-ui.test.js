@@ -87,6 +87,16 @@ test('async agent pages abandon stale route responses', () => {
   assert.match(app, /if \(!routeIs\('agent', 'executive', requestedPage\)\) return;/);
 });
 
+test('shared API reads abandon stale route responses before renderers continue', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /let ROUTE_EPOCH = 0;/);
+  assert.match(app, /class StaleRouteError extends Error/);
+  assert.match(app, /const requestEpoch = ROUTE_EPOCH;/);
+  assert.match(app, /if \(requestEpoch !== ROUTE_EPOCH\) throw new StaleRouteError\(\);/);
+  assert.match(app, /error\?\.name === 'StaleRouteError'/);
+  assert.match(app, /message instanceof StaleRouteError/);
+});
+
 test('Executive deep links retain their operating workspace context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /rootView === 'executive'/);

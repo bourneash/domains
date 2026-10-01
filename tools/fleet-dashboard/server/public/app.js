@@ -23,6 +23,13 @@ let STATE = {
 };
 let AGENT_HEALTH = null;
 let ACCESS_LEVEL = 'operator';
+let ROUTE_EPOCH = 0;
+class StaleRouteError extends Error {
+  constructor() {
+    super('route changed while data was loading');
+    this.name = 'StaleRouteError';
+  }
+}
 function routeIs(view, agent = undefined, agentPage = undefined) {
   return (
     STATE.view === view &&
@@ -217,6 +224,7 @@ function safeHref(u) {
 
 const API_TIMEOUT_MS = 60000;
 async function api(method, url, body) {
+  const requestEpoch = ROUTE_EPOCH;
   const opt = { method, headers: {} };
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timeout = setTimeout(() => controller?.abort(), API_TIMEOUT_MS);
@@ -239,6 +247,7 @@ async function api(method, url, body) {
       data = txt;
     }
     if (!r.ok) throw new Error((data && data.error) || `HTTP ${r.status}`);
+    if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
     return data;
   } catch (e) {
     if (e?.name === 'AbortError')
@@ -253,14 +262,18 @@ async function api(method, url, body) {
 // dashboard usable when an auxiliary collector is slow, offline, or being
 // restarted; the panel can simply render its empty state for this refresh.
 function apiOptional(method, url, fallback, timeoutMs = 2500) {
+  const requestEpoch = ROUTE_EPOCH;
   return Promise.race([
     api(method, url),
     new Promise(resolve => setTimeout(() => resolve(fallback), timeoutMs)),
-  ]).catch(error => {
+  ]).then(value => {
+    if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
+    return value;
+  }).catch(error => {
     // A stale/rotated browser session must not look like a healthy empty
     // dataset. `api()` has already opened the login overlay for 401s; let the
     // error propagate so the caller cannot render misleading zero counts.
-    if (error?.message === 'authentication required') throw error;
+    if (error?.message === 'authentication required' || error?.name === 'StaleRouteError') throw error;
     return fallback;
   });
 }
@@ -353,6 +366,7 @@ function stamp() {
 // transient API outage should not erase filters, expanded rows, or an active
 // operator workflow; the next successful render removes this notice via stamp().
 function renderViewError(target, message) {
+  if (message instanceof StaleRouteError || message?.name === 'StaleRouteError') return;
   if (!target) return;
   $('#app')?.setAttribute('aria-busy', 'false');
   const text = String(message || 'The view could not be refreshed.');
@@ -16850,6 +16864,7 @@ function go(view, agent, agentPage) {
   STATE.agentPage = agentPage || null;
   if (view === 'git') STATE.gitTab = 'operations';
   const hash = hashFor(view, agent, agentPage);
+  ROUTE_EPOCH += 1;
   if (location.hash !== `#${hash}`) location.hash = hash; // shareable + back-button
   FRESH = true;
   render();
@@ -17243,6 +17258,7 @@ async function boot() {
       (n.controlSort || null) !== STATE.controlSort ||
       socialHubChanged
     ) {
+      ROUTE_EPOCH += 1;
       STATE.view = n.view;
       STATE.agent = n.agent;
       STATE.agentPage = n.agentPage || null;
