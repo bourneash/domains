@@ -1352,12 +1352,16 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(index, /id="theme-toggle"/);
+  assert.match(index, /id="refresh" class="btn" type="button" aria-label="Refresh dashboard data"/);
+  assert.match(index, /id="density-toggle"[^>]*aria-pressed="false"/);
   assert.match(index, /<main id="app" aria-busy="true">/);
   assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
   assert.match(app, /function applyThemeUI\(\)/);
   assert.match(app, /document\.documentElement\.dataset\.theme = theme/);
   assert.match(app, /function watchSystemTheme\(\)/);
   assert.match(app, /prefers-color-scheme: light/);
+  assert.match(app, /aria-pressed', String\(theme === 'light'\)/);
+  assert.match(app, /aria-pressed', String\(density === 'compact'\)/);
   assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
   assert.match(theme, /:root\[data-theme="light"\] \.sh-tile/);
   assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active/);

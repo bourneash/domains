@@ -394,6 +394,7 @@ function applyDensityUI() {
     'aria-label',
     `Dashboard density: ${density}. Activate to switch to ${density === 'compact' ? 'comfortable' : 'compact'} spacing.`
   );
+  button.setAttribute('aria-pressed', String(density === 'compact'));
 }
 function toggleDensity() {
   try {
@@ -426,6 +427,7 @@ function applyThemeUI() {
   button.textContent = theme === 'light' ? '☾ Dark' : '☼ Light';
   button.title = `Switch to ${next} theme`;
   button.setAttribute('aria-label', `Switch to ${next} theme`);
+  button.setAttribute('aria-pressed', String(theme === 'light'));
 }
 function toggleTheme() {
   const next = themeCfg() === 'light' ? 'dark' : 'light';
