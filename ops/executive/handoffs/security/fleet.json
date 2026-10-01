@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:09:30.551Z",
+  "generated_at": "2026-10-01T06:17:40.540Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: the security baseline covers 61 managed sites, but fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and no control evidence is available for authentication/access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, or security.txt/disclosure readiness. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown; this is not certification. No credential exposure, exploit, or vulnerability is established. Exact decision: preserve all existing launch and security-sensitive release gates; keep gated products private; permit only bounded reversible work within the stated constraints; continue the existing read-only evidence matrix using retained artifacts and authorized metadata only. Do not retrieve credentials, access private containers, alter permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally. Evidence: the security baseline covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown, not certification. Exact decision: do not clear security-sensitive releases or claim certification; preserve private-launch gates. Permit only reversible work that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: complete the existing consolidated control-evidence matrix without creating duplicate work. Record dated evidence, affected scope, owner, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Missing evidence must remain unknown, not be treated as a clean result.",
+        "summary": "Continue the existing consolidated read-only security evidence matrix without creating duplicate work. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain risk, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }

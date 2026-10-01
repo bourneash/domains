@@ -2,42 +2,49 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:09:30.551Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T06:17:40.540Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, spend, telemetry, CRO, site-factory, and duplicate queue work this cycle. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unsupported. Delivery is saturated at 10/10 slots. Complete or justifiably close the existing capacity-blocking repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, then release one slot.",
+        "summary": "Reject new production, high-priority, site-factory, CRO, spend, telemetry, and duplicate queue work. Revenue, ROI, margin, and causal-lift claims remain unsupported; preserve financial containment. Keep the private launch gate unchanged and leave rights outreach unsent. CTO must complete or justifiably close the existing capacity-blocking repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and leave rights outreach unsent. Continue only the existing read-only evidence work; do not clear launch or security gates, change credentials or configuration, deploy, spend, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Complete or close the existing capacity-blocking repair case by 2026-10-01T09:00Z. Release one delivery slot only after dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence are recorded. Do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the private launch and security gates. Revenue, ROI, margin, and causal-lift claims remain unsupported because Amazon commission is aggregate and unattributed. Delivery is saturated at 10/10 slots; no candidate may execute until CTO completes or justifiably closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z, records validation, rollback, release/security, attribution, measurement, and deduplication evidence, and releases a slot. At that point admit at most one capacity-gated engineer change and escalate unresolved capacity to the owner.",
+        "summary": "Continue the existing canonical read-only security evidence matrix without duplication. Preserve evidence_needed status and all private-launch and security-sensitive release gates. Do not request duplicate telemetry, access credentials or private containers, change permissions or configuration, deploy, add dependencies, exploit targets, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Three bounded engineer candidates are routed as distinct-site, capacity-gated specifications only; they are not queued or executable while active work and measurement windows remain unresolved. Existing work must be completed, closed, or explicitly released before admission.",
+        "summary": "Queue three low-priority, reversible SEO candidates as capacity-gated specifications only: saveusfarms.com CTR metadata refinement, greatamericanlakes.com informational-page snippet refinement, and xxxtea.com gallery snippet refinement. Do not execute until CTO releases a slot, confirms no duplicate active work, and measurement windows/site clearance permit execution. Acceptance: exact single-page diff, deterministic tests, build/link validation, recorded baseline, 14-day or 100-relevant-impression measurement, and single-diff rollback. Metrics: page impressions, clicks, and CTR only; no revenue or causal claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner message: Please confirm that SearchWoot remains private and rights outreach remains unsent. Material concerns are incomplete upstream rights, security, accuracy, compliance, measurement, and owner evidence; no public beta, affiliate use, advertising, expanded alerts, or production mutation is supported.",
+        "summary": "Release capacity before executing any new candidate. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner at the deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Confirm containment: keep SearchWoot private and leave rights outreach unsent. Rights, security, accuracy, compliance, measurement, and owner gates remain incomplete. No public exposure, monetization expansion, spend, or unsupported financial claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

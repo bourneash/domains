@@ -2,42 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:09:30.550Z",
-  "summary": "cfo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T06:17:40.540Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new spend, revenue forecasts, ROI claims, margin claims, and causal-lift claims this cycle. Preserve the 10/10 capacity gate and execute no new finance-affecting work until the existing capacity-blocking repair case releases a slot. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site revenue is unsupported because the income cannot be assigned to a site. AI spend is $2.2785467 for 16 calls on 2026-10-01, but coverage is only 4 of 38 expected sites, so fleet AI cost and cost-to-learn are not calculable. Infrastructure, labor, domain, and other direct costs are absent, so contribution margin and budget exposure are not calculable. Minimum measurement: join each monetized click/order/commission to a registered site/content identifier, capture direct implementation and infrastructure costs by site and period, and extend AI usage coverage across the fleet. Use impressions, clicks, sessions, and conversions as operating signals only; they are not revenue or margin.",
+        "summary": "CFO recommendation: maintain financial containment. Approve no new spend, monetization expansion, revenue forecast, ROI claim, or budget commitment. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all $4.92 is aggregate tracking_id=other, so site revenue, contribution margin, CAC, ROI, and causal lift are unsupported. Named site rows show $0 attributed income; allthingsmasonic.com shows 61 clicks, 0 ordered items, and $0 site-attributed commission. AI usage on 2026-10-01 is 16 calls costing $2.2785467 across 4 instrumented sites; fleet AI cost-to-learn is not calculable because incremental outcomes and 34 sites' AI costs are missing. Infrastructure, fixed, and marketing budgets are blank, so total budget exposure and contribution margin are not calculable. Minimum measurement: daily site/content-level revenue, orders, shipped items, commission, direct change cost, AI cost, hosting/infrastructure cost, and attribution IDs reconciled to a common date range; for each change, record baseline, exposure, incremental outcome, and rollback cost. Continue only existing reversible work after capacity clears; reject unsupported forecasts and vanity metrics such as impressions, clicks, proposals, or shipped output without attributable financial outcomes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Attribution disposition: named Amazon tracking rows cover 18 rows, while the provider also supplied one aggregate row containing all $4.92 commission. The 61 clicks for allthingsmasonic.com, 0 ordered items, and $0 site-attributed commission are valid site-level observations for 2026-09-21, but they do not support a revenue forecast, payback claim, or positive contribution margin. The 5 conversions reported in the current allthingsmasonic measurement window likewise do not establish affiliate revenue because orders and commission remain zero at site level.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI and infrastructure disposition: recorded AI usage is $2.2785467 across 16 calls, 68,333 output tokens, and 4 instrumented sites on 2026-10-01. This is an observed partial cost, not a fleet budget or learning-cost denominator. Cost-to-learn is not calculable because the brief lacks per-experiment implementation cost, exposure/sample denominator, and attributable incremental outcome. Infrastructure spend is not calculable because operations reports contain no deploy, uptime, error, hosting, bandwidth, or platform-cost totals. Do not extrapolate the four-site AI sample or treat zero reported infrastructure cost as zero spend.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA request as the next implementation only after capacity clears. Its financial acceptance threshold is measurement readiness, not forecast revenue: retain the baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; record post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. If site-level orders or commission remain unavailable, classify financial outcome as unknown rather than successful or failed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject vanity-metric escalation. The portfolio reports 14,734 impressions, 150 clicks, 1,021 sessions, and 17 conversions across SEO sources, but no supplied mapping converts those aggregates into revenue or contribution margin. The 57 improvements awaiting measurement, 21 failed requests, 108 approved proposals without execution, and 5000 audited actions are productivity and control-plane indicators, not financial returns.",
+        "summary": "CFO financial gate for the existing allthingsmasonic.com CTA request: retain the 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission. If capacity clears, measure post-change clicks, orders, shipped items, commission, AI/infrastructure allocation, and direct change cost for 14 days or 100 relevant new impressions/clicks. Calculate contribution as attributable commission less directly attributable change, AI, and infrastructure costs only when those costs are available; otherwise classify the financial result as unknown. Do not claim revenue, ROI, margin, forecast, or causal lift. Preserve registered destinations and use a single-diff rollback.",
         "requested_action": null,
         "proposal_id": null
       }
