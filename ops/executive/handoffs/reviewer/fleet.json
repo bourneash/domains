@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:02:17.905Z",
+  "generated_at": "2026-10-01T16:11:23.989Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: route only three medium-priority, reversible, capacity-gated SEO candidates. Do not execute or claim revenue, ROI, causal lift, or production readiness until CTO reconciles capacity and releases one slot by 2026-10-01T18:00Z. Existing measurement windows and site overlap remain binding; unresolved capacity escalates to the owner at that deadline.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, and production claims. Route only three low-risk engineer revalidations as capacity- and measurement-gated work. CTO must reconcile capacity and release one slot by 2026-10-01T18:00Z; no execution, deployment, telemetry changes, spend, credentials, or configuration changes before that gate. Aggregate affiliate income remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       }
