@@ -2,44 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:57:31.929Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:08:50.884Z",
+  "summary": "cto checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep site-factory implementation blocked while all ten delivery slots are occupied. Complete or justifiably close the canonical saveusfarms.com repair case with validation, build, rollback, release-boundary, attribution, measurement, and deduplication evidence before any scaffold build is admitted.",
+        "summary": "CTO disposition: admit no new implementation work this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and allthingsmasonic.com has site overlap. Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation only after one slot is released and overlap clears. Do not create duplicate work or claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Capacity gate upheld: reject all new admissions and duplicates. Preserve existing allthingsmasonic.com request 4719e525-763b-42a4-9f16-e71e1c38b17b as next implementation only after one slot is released and site overlap clears. Complete or close the canonical saveusfarms.com repair case with validation and rollback evidence by 2026-10-02T09:00Z.",
+        "summary": "CTO capacity gate: complete or justifiably close the canonical saveusfarms.com repair case with root-cause or closure rationale, deterministic validation, build evidence, isolated validation, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot by 2026-10-01T12:00:00Z or escalate to the owner. No new candidate may execute before that unblocker is resolved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment: no new implementation, research, telemetry, scaffold, spending, credential, domain, dependency, or production changes while all 10 delivery slots are occupied. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause, deterministic validation, build, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-02T09:00:00Z; escalate if unresolved.",
+        "summary": "CTO technical approval: retain the allthingsmasonic.com CTA refinement as a capacity-gated reversible change. Limit scope to CTA hierarchy, adjacent affiliate disclosure, accessibility, responsive layout, and unchanged destinations. Require build, deterministic route/link, responsive, and accessibility validation before deployment; measure affiliate clicks and attributable orders using existing telemetry boundaries for 14 days or 100 relevant impressions/clicks. Roll back only this change if validation fails or material regression is observed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation. Execute only after capacity release and site-overlap clearance. Limit scope to CTA hierarchy, adjacent existing disclosure placement, keyboard/focus accessibility, responsive layout, and unchanged destinations/tracking/content meaning. Require deterministic tests, build, link/disclosure checks, keyboard/focus and responsive validation, exact diff, rollback point, and measurement of affiliate clicks plus attributable ordered/shipped items for 14 days or 100 relevant impressions/clicks. Retain unknowns; do not claim revenue, ROI, or causal lift.",
+        "summary": "CTO disposition: retain the markitdown concept as private disposable-workspace research only after capacity clears. The lab evidence supports feasibility research, not adoption, production dependency, security clearance, or revenue upside. Do not install dependencies, process third-party content, publish output, add tracking, or deploy. Any future prototype must use owner-approved local documents, remain isolated, produce provenance and parser-error artifacts, and receive separate security and owner review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep scaffold work planning-only. After capacity clears, complete exactly one verified launch-readiness artifact for complicated.work covering owner decision, bounded scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only status. Do not deploy, publish, add domains or tracking, spend, or treat missing telemetry as zero.",
+        "summary": "CTO disposition: maintain complicated.work as the sole next site-factory readiness candidate after capacity clears. Produce one preview-only readiness artifact before any build or publication. Preserve unknown analytics, affiliate, security, legal, compliance, measurement, and owner gates; do not add tracking, affiliate links, dependencies, domains, spend, or production behavior.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "cro-2026-10-01-markitdown-disposable-content-prototype",
+        "summary": "Retain as isolated research only after capacity clears. No production adoption is supported by repository popularity, keyword hits, or bounded checks. Require dependency and license review, fixture-based parser validation, provenance/error reporting, resource limits, cleanup, and owner-approved local inputs before any prototype execution.",
+        "requested_action": "accepted_research",
+        "proposal_id": "cro-2026-10-01-markitdown-disposable-content-prototype"
       }
     ]
   }

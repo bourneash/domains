@@ -2,22 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:57:31.930Z",
+  "generated_at": "2026-10-01T11:08:50.884Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed for the managed fleet. Fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only: 35 pass, 20 fail, 6 unknown. No clean bill of health or vulnerability finding is supported. Recommend preserving private-launch and security-sensitive release gates while allowing only ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. No clean bill of health, exploit result, credential exposure finding, or certification is supported. Recommendation: preserve existing private-launch and security-sensitive release gates and continue only the existing read-only evidence matrix; do not change credentials or configuration, deploy, add dependencies, access private containers, exploit targets, or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations evidence are unavailable and material controls remain unverified. Preserve private-launch and security-sensitive release gates while allowing constrained reversible growth.",
-        "requested_action": "Continue the existing authorized read-only security evidence matrix using retained artifacts and metadata only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve private-launch and security-sensitive release gates while allowing only constrained reversible growth.",
+        "requested_action": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, conduct external outreach, or request duplicate telemetry.",
         "proposal_id": null
       }
     ]

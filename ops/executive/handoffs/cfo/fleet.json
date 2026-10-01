@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:57:31.930Z",
-  "summary": "cfo checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:08:50.884Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment. Authorize no new spend, billing changes, production implementation, or forecast claims this cycle. Preserve the existing allthingsmasonic.com CTA refinement only as a bounded, reportable experiment after capacity release and five-item site-overlap clearance. Amazon data for 2026-09-21 supports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site-attributed commission is $0. Do not assign the aggregate amount to any site or claim revenue, ROI, contribution margin, or causal lift.",
+        "summary": "CFO recommendation: approve no new revenue or production claims; preserve only the existing allthingsmasonic.com implementation after capacity and site-overlap clearance, and keep the markitdown prototype research-only. Revenue is not sufficient to support ROI or contribution-margin claims: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all commission is in an aggregate unattributed row. Site-level revenue is therefore $0 attributed, not $0 earned. Contribution margin, portfolio margin, and ROI are not calculable because site attribution is incomplete and infrastructure, hosting, domain, labor, and other direct costs are absent. Minimum measurement: dated site-level revenue by registered tracking ID plus allocated direct costs and labor rates. Do not compare the $10.8396 AI spend recorded on 2026-10-01 with the 2026-09-21 revenue window. AI coverage is only 11 of 38 expected sites; the measured AI spend is $0.1275 per call on average, but cost-to-learn and payback are not calculable without loaded labor cost, complete AI usage, and attributable incremental contribution. Reject star counts and keyword hits as financial evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "If the existing allthingsmasonic.com request proceeds, require the exact diff, deployment date, rollback point, incremental implementation cost, measurement window, affiliate clicks, attributable ordered items, shipped items, and commission before evaluating contribution impact or cost-to-learn. Do not duplicate the existing request or admit new finance-sensitive work while delivery remains 10/10 occupied.",
+        "summary": "CFO disposition: retain the existing allthingsmasonic.com CTA refinement as a capacity-gated implementation only. Its baseline is 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Acceptance should measure affiliate clicks and attributable orders; revenue lift, margin lift, ROI, and causal lift remain unproven. Do not admit duplicate work while delivery is 10/10 occupied, 39 improvements await measurement, and 21 requests have failed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial evidence is incomplete. Contribution margin, fleet budget exposure, infrastructure spend, and cost-to-learn are not calculable because fixed costs, domain renewals, hosting/infrastructure, tooling, paid marketing, labor allocation, and change-level incremental costs are absent. The minimum finance package is a monthly site ledger for those cost categories plus provider revenue exports mapped to registered tracking IDs. Until then, unknown is not zero.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI spend is only partially observable: 2026-10-01 records $2.2785467 across 16 calls and four instrumented sites, with $0.3480626 recorded for saveusfarms.com and $0.5246586 for seedstosauce.com; coverage is 4 of 38 expected sites. The observed average is approximately $0.1424 per call, but this is not a fleet unit-cost or ROI measure. Infrastructure and non-AI tooling spend are unavailable.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain provider date, tracking ID, clicks, ordered items, shipped items, commission, and site/content mapping in every revenue report. Report named tracking rows separately from aggregate rows. Do not treat site-level $0 commission as proof of zero earnings outside the named rows, and do not treat aggregate commission as site revenue.",
+        "summary": "CFO disposition: keep the markitdown work as private research only after capacity clears. The supplied evidence supports feasibility research, not adoption or financial upside: MIT license, 22 keyword hits, 8/8 bounded checks, no dependency installation, and no production access. The stated 2–3 engineering-day estimate is not a cost-to-learn because no loaded labor rate is supplied. Minimum measurement is reviewer-accepted usable drafts per labor hour versus the manual baseline, with loaded labor cost and parser-error/provenance results. No publication, production dependency, spend, or revenue claim is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
