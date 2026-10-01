@@ -1014,6 +1014,17 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
 });
 
+test('fleet task view presents the filtered slice as a summary strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="tasks-summary"/);
+  assert.match(app, /Visible tasks<\/span>/);
+  assert.match(app, /Blocked<\/span>/);
+  assert.match(app, /new Set\(rows\.map\(t => t\.site\)\)/);
+  assert.match(theme, /\.tasks-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.task-stat-warn/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);

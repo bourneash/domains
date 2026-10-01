@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:08:19.475Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:17:26.894Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject all new queue admissions, site-factory tasks, CRO prototypes, telemetry requests, and report-only work this cycle. Delivery is saturated at 10/10 slots and existing measurement and repair work must be resolved first. Preserve only the canonical allthingsmasonic.com CTA refinement as the next implementation after the existing capacity-blocking repair case is completed or justifiably closed. Scope remains CTA hierarchy, disclosure placement, accessibility, responsive layout, deterministic link checks, single-diff rollback, and measurement against the recorded 61-click baseline without revenue or causal-lift claims.",
+        "summary": "CTO disposition: preserve the capacity gate and admit no new implementation, preview, CRO, telemetry, or control-plane work while all 10 delivery slots are occupied. Do not queue the three site-factory candidates. The canonical allthingsmasonic.com CTA refinement is technically feasible and reversible, but remains queued until the existing saveusfarms.com repair case is completed or justified closure is documented by 2026-10-01T09:00Z. Require deterministic tests, isolated validation, build evidence, rollback scope, release and security boundaries, deduplication evidence, and observed affiliate-click measurement only. Do not claim revenue, ROI, conversion lift, or causal impact.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain private-launch and security-sensitive release gates. Existing security and operations evidence is incomplete; do not clear gates, deploy, add dependencies, change credentials or configuration, request duplicate telemetry, or conduct external rights outreach. Continue only the canonical read-only evidence work using retained artifacts and authorized metadata.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The proposed three preview-only launch-readiness tasks and CFO report-only baseline are not admitted this cycle. They do not release capacity or improve delivery evidence sufficiently to justify additional queue load. Reconsider only after one active slot is released and existing attention items are reduced.",
+        "summary": "Continue the existing canonical repair and security evidence work only. Do not create duplicate work items or request telemetry already present in the snapshot. After one slot is released, admit at most the existing allthingsmasonic.com CTA request; preserve registered affiliate destinations, disclosure adjacency, accessibility, responsive behavior, and single-diff rollback. Keep private-launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

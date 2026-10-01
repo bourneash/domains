@@ -2292,6 +2292,53 @@ body.has-rail .actions { margin-left: 0; }
 .ctl-help > summary:hover { color: var(--muted); }
 .ctl-help p { margin: 4px 0 0; max-width: 92ch; line-height: 1.65; }
 
+/* Fleet task view: turn the old inline counter into a compact decision strip.
+   The task list remains authoritative; these cards only expose the current
+   filtered slice so operators can understand its shape before scanning rows. */
+.tasks-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr)) minmax(220px, 1.45fr);
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.task-stat {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  background: var(--grad-panel), var(--panel);
+  box-shadow: var(--sh-1);
+}
+.task-stat strong {
+  display: block;
+  color: var(--text-hi);
+  font-size: 20px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.task-stat span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.task-stat-good { border-top-color: var(--green); }
+.task-stat-good strong { color: var(--green); }
+.task-stat-warn { border-top-color: var(--yellow); }
+.task-stat-warn strong { color: var(--yellow); }
+.task-stat-meta { display: flex; flex-direction: column; justify-content: center; }
+.task-stat-meta strong { color: var(--muted); font-size: 15px; }
+@media (max-width: 900px) {
+  .tasks-summary { grid-template-columns: repeat(3, minmax(110px, 1fr)); }
+  .task-stat-meta { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .tasks-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .task-stat-meta { grid-column: auto; }
+}
+
 /* ---- shared proportional state bar ---- */
 .rh-bar, .rcol-bar {
   display: flex; align-items: stretch; gap: 1px;

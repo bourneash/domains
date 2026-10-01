@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:08:32.653Z",
-  "summary": "revenue-ops checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:17:26.892Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Prioritize existing affiliate repair evidence without inventing site revenue or ROI. Delivery is saturated at 10/10 slots. Keep new implementation capacity-gated until the existing saveusfarms.com repair case is completed or justifiably closed. Then execute only canonical allthingsmasonic.com CTA refinement and existing affiliate-prerequisite work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Amazon evidence covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but the commission is under aggregate tracking ID other and cannot be assigned to a site. Named site rows show $0 site-attributed commission. Preserve the $4.92 as unattributed; do not infer site revenue, ROI, margin, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Compliance evidence is mixed: 36 pass, 19 fail, and 6 unknown across the available scan. Build a read-only site-to-finding matrix from the authoritative compliance snapshot before changing disclosures or consent behavior. Do not claim a disclosure gap for an individual site unless the site-level finding is evidenced.",
+        "summary": "Treat amputeenews.com monetization readiness as blocked by an owner-controlled prerequisite: the authoritative context records Amazon Associates pending a real tag. Do not fabricate a tag, attribute revenue, or publish a readiness claim. Once the registered tag is evidenced, run link, disclosure, and attribution validation before relying on site-level affiliate metrics.",
         "requested_action": null,
         "proposal_id": null
       }

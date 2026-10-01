@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:08:19.475Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:17:26.894Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, queue, CRO, site-factory, spend, telemetry, and duplicate work this cycle. Delivery is saturated at 10/10 slots; revenue attribution, security controls, operations evidence, and causal outcomes remain insufficient for financial or production claims. Keep SearchWoot private and rights outreach unsent. Continue only the existing canonical security evidence matrix and require CTO closure or justified closure of the capacity-blocking repair case before admitting canonical queued work.",
+        "summary": "Reject all new production, queue, site-factory, CRO, finance, telemetry, and duplicate evidence work this cycle. Delivery is saturated at 10/10 slots; affiliate evidence supports only $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift remain unsupported. Keep SearchWoot private and rights outreach unsent. CTO must complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the existing allthingsmasonic.com CTA refinement with its stated click and integrity checks.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing canonical read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private-launch and security-sensitive release gates; do not request duplicate telemetry, change configuration or credentials, add dependencies, deploy, or conduct outreach.",
+        "summary": "Complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, recording root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing capacity-blocking repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release a delivery slot only after evidence is recorded.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer disposition: keep all six bounded implementation candidates capacity-gated. Delivery is saturated at 10/10 slots, with active measurement and repair work unresolved. CTO must complete or justifiably close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner. No revenue, ROI, margin, or causal-lift claims are supported; keep private-launch and security-sensitive release gates unchanged.",
+        "summary": "Reject unsupported revenue, ROI, margin, forecast, and causal-lift claims. Keep SearchWoot private and rights outreach unsent. Delivery is saturated at 10/10 slots; three reversible engineer candidates are capacity-gated until CTO completes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then releases one slot or escalates to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

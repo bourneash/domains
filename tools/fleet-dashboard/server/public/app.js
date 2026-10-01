@@ -5545,6 +5545,10 @@ function renderFleet() {
     total: rows.length,
     ip: rows.filter(t => t.column === 'in-progress').length,
     bl: rows.filter(t => t.column === 'backlog').length,
+    done: rows.filter(t => t.column === 'done').length,
+    hold: rows.filter(t => t.column === 'hold').length,
+    blocked: rows.filter(t => t.blocked_on).length,
+    sites: new Set(rows.map(t => t.site)).size,
   };
   const fc = TASK.f;
   const active =
@@ -5578,7 +5582,13 @@ function renderFleet() {
         ${pill('blocked', 'no', 'not blocked')}${pill('blocked', 'yes', 'blocked only')}</div></div>
     </details>`;
 
-  const counter = `<div class="tasks-top"><span class="task-count">${counts.ip} in-progress · ${counts.bl} not started · ${counts.total} shown</span></div>`;
+  const counter = `<section class="tasks-summary" aria-label="Fleet task summary">
+    <div class="task-stat"><strong>${counts.total}</strong><span>Visible tasks</span></div>
+    <div class="task-stat task-stat-good"><strong>${counts.ip}</strong><span>In progress</span></div>
+    <div class="task-stat ${counts.blocked ? 'task-stat-warn' : 'task-stat-good'}"><strong>${counts.blocked}</strong><span>Blocked</span></div>
+    <div class="task-stat"><strong>${counts.bl}</strong><span>Backlog</span></div>
+    <div class="task-stat task-stat-meta"><strong>${counts.sites}</strong><span>Sites represented · ${counts.done} done · ${counts.hold} hold</span></div>
+  </section>`;
   const list = rows.length
     ? TASK.view === 'tree'
       ? fleetTree(rows)
