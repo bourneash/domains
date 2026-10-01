@@ -1065,6 +1065,8 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.doesNotMatch(app, /function openWorkflowItemLegacy/);
   assert.match(app, /<span>approval gates<\/span>/);
   assert.match(app, /<span>blocked<\/span>/);
+  assert.match(app, /type="button" class="btn" id="wb-board-refresh"/);
+  assert.match(app, /\$\('#wb-board-refresh'\)\.onclick = \(\) => renderWorkflowBoard\(\)/);
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
 
