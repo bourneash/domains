@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.195Z",
+  "generated_at": "2026-10-01T10:08:38.666Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: reject the three new scaffold change requests from queue admission this cycle. Delivery is saturated at 10/10 active slots, measurement debt and failed requests remain open, and launch-readiness, operations, and security evidence are incomplete. Preserve complicated.work, deadlymaracas.com, and driveford.net as planning-only candidates. Do not create duplicate work, deploy, publish, add telemetry, add dependencies, or claim readiness, revenue, ROI, or lift. Complete or close the canonical saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, isolated build evidence, rollback point, scope boundaries, and deduplication evidence before releasing one slot. Only after capacity and site-overlap clearance may the existing allthingsmasonic.com CTA refinement execute.",
+        "summary": "Approve containment and existing-work follow-through only. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests failed. Do not admit the proposed rodhat.com change, new control-plane work, finance report proposal, research, telemetry, or scaffold builds this cycle. Preserve the existing saveusfarms.com repair-or-close case and release a slot only with root-cause or justified-closure evidence, deterministic validation, isolated build evidence, rollback, security/release boundaries, attribution limits, measurement limits, and deduplication evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: preserve private launch and security-sensitive release gates. Fleet-doctor and operations sweeps have no usable results, while authentication, secrets, isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, and incident readiness remain unevidenced. Ordinary reversible work is conditionally acceptable only within existing consent, disclosure, data-handling, dependency, credential, permission, and cross-site boundaries. No go-live, new public exposure, security clearance, or unsupported revenue attribution is approved.",
+        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the next implementation only after capacity and site-overlap clearance. Do not create a duplicate request. Limit scope to affiliate CTA hierarchy, adjacent disclosure placement, accessibility, responsive layout, link/build validation, available affiliate-click measurement, and single-diff rollback. Do not claim revenue, ROI, or causal lift; retain aggregate affiliate revenue as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, admit at most the already-queued allthingsmasonic.com CTA refinement, subject to site-overlap clearance. Require deterministic tests, build/link/disclosure checks, keyboard and responsive validation, an isolated rollback diff, and measurement using the recorded affiliate-click and attributable order/shipment baseline. Preserve aggregate affiliate income as unattributed and make no causal-lift, revenue, ROI, or margin claim before supported measurement.",
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net planning-only. After a delivery slot is released, complete exactly one verified launch-readiness artifact for the selected candidate before any build admission. Do not publish, deploy, add domains, spend, or claim telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

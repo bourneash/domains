@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.193Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:08:38.665Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Affiliate integrity priorities after capacity clearance: repair stale or broken affiliate references on americastrikes.com; resolve the registered Amazon Associates tag prerequisite for amputeenews.com; validate live affiliate destinations against registered tracking IDs; and reconcile provider aggregate rows without reassigning unattributed income. Preserve existing disclosures and add no telemetry unless already supported by the current instrumentation.",
+        "summary": "Preserve unknown revenue and do not infer ROI. Amazon's 2026-09-21 report contains 6,219 clicks, 28 ordered items, and $4.92 commission entirely under aggregate tracking ID \"other\"; retain it as unattributed. Prioritize existing repair work only: execute the queued allthingsmasonic.com CTA/disclosure refinement after capacity and overlap clearance; preserve the amputeenews.com registered-tag prerequisite; validate the existing americastrikes.com OOS affiliate replacement and stale-reference repairs. No new telemetry, affiliate expansion, or duplicate queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the aggregate \"other\" row as unknown site attribution. Require every new affiliate link to use a registered site tracking ID, and reconcile destination, tracking ID, click event, order, shipped item, and commission fields before assigning site revenue. Site-attributed revenue remains zero in the available report; do not allocate the $4.92 aggregate commission.",
         "requested_action": null,
         "proposal_id": null
       }

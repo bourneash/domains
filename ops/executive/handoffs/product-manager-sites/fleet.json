@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:26:14.296Z",
+  "generated_at": "2026-10-01T10:08:38.664Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site product review: add no new proposals or queue work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests have failed, and only 6 outcomes are proven. Preserve the existing saveusfarms.com repair-or-close case. After a slot is released and site overlap clears, execute the already-queued allthingsmasonic.com CTA refinement using the recorded baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks, with rollback to the isolated diff; do not claim revenue or causal lift before attribution supports it.",
+        "summary": "Recommend no new managed-site admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve current security, compliance, attribution, and launch gates. After CTO releases capacity and site-overlap clears, execute the already-queued allthingsmasonic.com CTA refinement: clarify affiliate-entry hierarchy and disclosure placement, validate links/accessibility/build, measure affiliate clicks and attributable outcomes for 14 days or 100 relevant impressions/clicks, and roll back the single diff if validation or link health regresses. Keep rodhat.com SEO and scaffold candidates deferred until capacity and readiness gates clear; do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

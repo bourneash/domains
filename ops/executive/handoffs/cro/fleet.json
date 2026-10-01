@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.194Z",
+  "generated_at": "2026-10-01T10:08:38.665Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: reject all three new scaffold change requests this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests failed, and only 6 outcomes are proven. Preserve the canonical saveusfarms.com repair-or-close case and existing launch/security gates. After CTO releases capacity and overlap clears, run the already-queued allthingsmasonic.com CTA refinement against its recorded baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks; rollback the isolated diff if validation fails. Do not claim revenue, ROI, causal lift, or security clearance.",
+        "summary": "Retain no duplicate allthingsmasonic.com work. After capacity and site-overlap clearance, execute the existing CTA/disclosure refinement as the primary revenue experiment. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Measure affiliate clicks and attributable outcomes for 14 days or 100 relevant impressions/clicks; do not allocate the $4.92 aggregate commission or claim causal lift. Keep rodhat.com as the next capacity-gated SEO test: one title/meta refinement on /tips/2026-09-02-scm-rights-fd-passing, with CTR and sessions as metrics.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Post-capacity CRO priorities: first validate the allthingsmasonic.com CTA experiment; then repair affiliate integrity on americastrikes.com, resolve the registered Amazon Associates tag prerequisite for amputeenews.com, and validate live affiliate destinations against registered tracking IDs. Preserve Amazon's 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission as aggregate unattributed data; do not assign it to any site or infer ROI. Treat complicated.work, deadlymaracas.com, and driveford.net as planning-only until launch-readiness, legal, security, measurement, rollback, and preview gates are evidenced.",
+        "summary": "Two control-plane opportunities are retained for later CTO sequencing: canonical proposal-to-request reconciliation and capability-aware routing. Evidence includes 105 approved proposals without execution requests, 21 failed requests, repeated fallback-owner failures, and 10/10 active slots. Smallest prototypes are read-only reconciliation reports and routing fixtures; do not deploy, change schedules, credentials, permissions, or admit new work while capacity and measurement debt remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

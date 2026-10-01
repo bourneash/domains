@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.194Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:08:38.665Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Site-factory disposition: reject the three new scaffold build admissions this cycle because delivery is saturated at 10/10 slots, measurement debt remains open, and launch readiness is not yet verified. Preserve the small pipeline as planning-only: complicated.work, deadlymaracas.com, and driveford.net. Strongest candidate: complicated.work, score 84, existing scaffold. Exactly one next step: after CTO releases one delivery slot, complete the existing canonical launch-readiness artifact for complicated.work covering owner, bounded site brief, reusable template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only launch gates. Do not add domains, spend, deploy, publish, or claim telemetry, revenue, ROI, or readiness until required owner, legal, security, measurement, and rollback gates are evidenced.",
+        "summary": "Maintain a three-site planning pipeline: complicated.work, deadlymaracas.com, and driveford.net. All remain planning-only because delivery capacity is 10/10 and verified launch-readiness artifacts are incomplete. Strongest candidate is complicated.work: scaffold lifecycle, site capability only, analytics not configured, and build admission requires a verified readiness artifact. Do not add domains, spend, deploy, publish, or claim telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Exactly one next step: after CTO releases one delivery slot, complete and verify the complicated.work launch-readiness artifact. Cover owner and approval, audience and bounded scope, reusable template, content seed, SEO baseline, analytics and affiliate readiness without inventing coverage, legal/compliance checklist, security evidence, measurement plan, rollback point, and preview-only launch gate. Do not begin a build or public exposure until every required gate has an owner and disposition.",
         "requested_action": null,
         "proposal_id": null
       }

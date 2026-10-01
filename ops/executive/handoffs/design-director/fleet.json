@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.098Z",
+  "generated_at": "2026-10-01T10:08:38.665Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b; do not create duplicate work while delivery is saturated. After one slot is released and site overlap clears, ship the allthingsmasonic.com affiliate-entry refinement defined below. No conversion or revenue lift is claimed before measurement.",
+        "summary": "Preserve and execute existing request 4719e525-763b-42a4-9f16-e71e1c38b17b; do not create duplicate work. Scope is the homepage and highest-intent commercial entry surfaces: clarify affiliate CTA hierarchy, place disclosure adjacent to relevant links, preserve destination URLs, and improve keyboard/focus/mobile presentation. Preview must show unchanged content outside the bounded CTA diff. Validate links, accessibility, build, and disclosure behavior. Measure affiliate clicks and attributable outcomes for 14 days or 100 relevant impressions/clicks; do not claim lift or assign aggregate revenue. Roll back the single diff if tests, link health, layout, or disclosure checks regress.",
         "requested_action": null,
         "proposal_id": null
       }

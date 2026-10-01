@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:26:14.296Z",
+  "generated_at": "2026-10-01T10:08:38.664Z",
   "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet product review: do not add new proposals or queue work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, approved-proposal execution is 64%, and only 6 outcomes are proven. Preserve the existing saveusfarms.com repair-or-close case, then run the already-queued allthingsmasonic.com CTA experiment after capacity and overlap clearance.\n\nHighest-leverage capabilities, to prioritize after capacity clears: (1) canonical queue reconciliation and deduplication across scheduler, task board, and executive control plane; target fewer duplicate handoffs and higher approved-work execution. (2) A measurement-debt workflow that automatically advances, closes, or escalates deployed improvements and failed requests using existing telemetry only; target reducing the 39 pending measurements and 21 failed requests. (3) Restore the existing read-only operations evidence path for deploy, uptime, errors, and fleet-doctor results; preserve unknowns until evidence exists. (4) Standardize owner/role fallback routing where human-triage or content roles are unavailable, with explicit handoff and rollback records. (5) Expand AI-usage coverage only through an approved implementation path; current evidence covers 4 sites and must not be generalized.\n\nPrioritization: control-plane reconciliation first for operator time saved and reversibility; measurement debt second for reliability and measurable outcomes; operations evidence third for safety; routing fourth for adoption; AI-cost coverage fifth for cost accountability. No new telemetry, schedule changes, access grants, deployments, or production mutations are recommended. Keep private launch and security-sensitive gates unchanged.",
+        "summary": "The fleet is operationally saturated and under-actionable: 10/10 delivery slots are occupied, 39 improvements await measurement, 21 requests failed, 105 approved proposals lack execution requests, and only 64% of approved proposals have execution. Scheduler evidence shows 54 no-action ticks in 61 cycles, a 32-cycle no-action streak, and zero queue actions despite queue eligibility. Prioritize three reversible control-plane capabilities: canonical proposal-to-request reconciliation with deduplication and WIP/site-overlap limits; capability-aware task routing with explicit fallback and retry ownership; and scheduler actionability guardrails that require one bounded delivery, follow-up, or blocker action when execution is available. Preserve current security, launch, capacity, and measurement gates. Do not add telemetry, change schedules, deploy, or admit new implementation work until existing capacity and repair obligations clear.",
         "requested_action": null,
         "proposal_id": null
       }

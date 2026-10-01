@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.098Z",
+  "generated_at": "2026-10-01T10:08:38.665Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Containment and measurement this cycle. Evidence: 10/10 implementation slots are occupied, 39 improvements await measurement, 21 requests have failed, and only 6 outcomes are proven. Do not admit new SEO work or request duplicate telemetry. Preserve the existing queued allthingsmasonic.com CTA refinement for execution only after CTO releases a slot and site overlap clears. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Metric: affiliate clicks and available attributable outcomes over 14 days or 100 relevant impressions/clicks. Acceptance: deterministic tests, build/link/disclosure checks, measurable CTA interaction, and documented attribution limits. Rollback: revert only the CTA refinement if validation fails or relevant link health regresses. No revenue or causal lift is claimed before measurement.",
+        "summary": "Route one bounded SEO implementation for rodhat.com after a delivery slot is released. Target /tips/2026-09-02-scm-rights-fd-passing. Baseline: 79 impressions, position 7.1, 4 clicks, 0 sessions, 0 conversions. Apply one title/meta refinement, preserve the URL and canonical, validate build and links, then measure CTR and sessions for 14 days or 100 relevant impressions. Roll back only the single metadata diff if validation or performance regresses. Do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

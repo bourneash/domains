@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.194Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:08:38.666Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Compliance baseline is technical only: 35 pass, 20 fail, and 6 unknown across the scanned portfolio. Create no site-specific disclosure claim from the aggregate result. After capacity clearance, validate affiliate disclosure presence, placement, and destination consistency per affected site using retained compliance evidence; preserve unknowns where the scan lacks site-level proof. No production release should clear a disclosure gap without the existing review gate.",
+        "summary": "Risk disposition: blocked for bounded public beta and full launch. Keep SearchWoot private. Woot evidence confirms API access but not rights to store, derive, cache, publicly display, alert on, affiliate-link, or advertise returned data; public terms restrict commercial/public reuse. Compliance is technical-only: 35 pass, 20 fail, 6 unknown, including 20 banner/accept/reject/GA4 findings and 4 privacy/terms findings. Security, accuracy/freshness, measurement, attribution, and owner gates remain incomplete. Ordinary reversible growth may continue only if it adds no new credentials, permissions, dependencies, data collection, cross-site behavior, or unsupported claims. Human counsel is required before any rights exception, public data use, affiliate expansion, or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible growth that preserves existing consent, disclosures, data handling, and claims boundaries. Exact decision: keep SearchWoot private, do not send rights outreach, and reject the three new scaffold admissions this cycle. Evidence: Woot terms do not establish rights to store, derive, cache, publicly display, alert on, affiliate, or advertise returned data; 0/4 legal tasks are closed; security, accuracy/freshness, measurement, and owner gates remain incomplete; compliance is technical-only at 35 pass, 20 fail, 6 unknown; delivery is saturated at 10/10 slots. Next evidence action: attach one dated read-only bundle covering the repository/config data-flow and retention table, deployed consent behavior, GA4 property/data-sharing and retention settings, log-field/access inventory, vendor terms/DPA status, and incident/request procedures. Human counsel is required for upstream redistribution rights, commercial/public display, affiliate or advertising use, and jurisdiction-specific privacy treatment.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data = blocked pending written permission and human-counsel review; user alert rules and sync results = evidence_needed pending data inventory, retention/deletion/correction, processor terms, and notification consent/unsubscribe evidence; GA4 = evidence_needed pending deployed consent withdrawal behavior, property/data-sharing and retention settings, and jurisdiction review; operational logs and Cloudflare data = evidence_needed pending log-field inventory, retention/access controls, vendor terms/DPA review, and incident/request procedures. No item is clear. Smallest next action for each is a read-only evidence capture; do not enable tracking, expand notifications, collect new data, send outreach, or change the private gate.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Ordinary growth is not blocked merely by incomplete telemetry, but no disclosure, affiliate, copyright/trademark, provenance, platform-policy, claims, or age-sensitive gap may be cleared without site-specific evidence. Preserve the existing allthingsmasonic.com CTA request only as conditional implementation after capacity and overlap clearance; retain its recorded affiliate baseline and require disclosure/link validation, deterministic tests, and rollback evidence. Do not claim revenue, ROI, attribution, or causal lift.",
+        "summary": "Progress: source-rights evidence is documented but confirms access only; data-flow and consent/analytics evidence are partial; logs, vendors, and incident handling remain unevidenced. No task is closed. Next evidence action: attach one dated read-only bundle containing the repository/config data-flow table, deployed consent capture, GA4 property/data-sharing and retention settings, log-field and retention inventory, vendor terms/DPA status, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       }

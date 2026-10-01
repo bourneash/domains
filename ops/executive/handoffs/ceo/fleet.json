@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.194Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:08:38.665Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all three proposed scaffold change_requests under EXEC_CONV_12. Evidence: implementation capacity is saturated at 10/10, 39 improvements await measurement, and launch-readiness is unverified. Preserve complicated.work, deadlymaracas.com, and driveford.net as planning-only. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: preserve the existing allthingsmasonic.com CTA refinement as the next implementation only after capacity and site-overlap clearance. Do not create duplicate queue work or new proposals this cycle.",
+        "summary": "Recommendation: preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com, but reject new rodhat.com admission and both control-plane proposals this cycle. Evidence: delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests failed. The rodhat baseline is useful but execution is capacity-blocked. CTO should release one slot with repair-or-close evidence before the next admission.",
         "requested_action": null,
         "proposal_id": null
       }
