@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.193Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:47:59.897Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal-review",
-        "title": "b3bf3715-5a0b-45d7-8fe9-85c8aa6c2175",
-        "summary": "No concrete site-level hypothesis or measurable near-term revenue path is evidenced, and delivery capacity is saturated.",
-        "requested_action": "declined",
-        "proposal_id": "b3bf3715-5a0b-45d7-8fe9-85c8aa6c2175"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "e08d882b-15ca-4334-b395-6532b9432062",
-        "summary": "No concrete site-level hypothesis or measurable near-term revenue path is evidenced, and delivery capacity is saturated.",
-        "requested_action": "declined",
-        "proposal_id": "e08d882b-15ca-4334-b395-6532b9432062"
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep SearchWoot private and leave rights outreach unsent under EXEC_CONV_12. Woot rights remain unconfirmed; 0/4 legal tasks are closed, security/operations evidence is incomplete, and delivery is saturated at 10/10 slots. Revenue and ROI are not calculable; Amazon’s $4.92 aggregate commission remains unattributed. Please confirm only the keep-private disposition.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

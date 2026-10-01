@@ -2,51 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:38:25.788Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:47:59.899Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security report-only proposal as duplicate planning. Preserve the existing security-fleet-evidence-2026-10-01 work item and its evidence_needed disposition; continue only authorized read-only evidence capture.",
+        "summary": "Reject duplicate security work and all new production or revenue claims. Delivery remains saturated at 10/10; Amazon’s $4.92 aggregate commission is unattributed, AI-cost coverage is incomplete, and causal lift, ROI, margin, and production readiness are unsupported. Keep existing private, preview-only, measurement, and security gates. CTO must complete or close the canonical repair case and release capacity before any queued implementation proceeds.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, monetization, ROI, margin, forecast, and causal-lift claims. Delivery remains saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and Amazon’s aggregate $4.92 commission remains unattributed.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, production-readiness, and security-clearance claims. Amazon’s $4.92 commission remains unattributed; delivery is saturated at 10/10 slots with measurement and repair debt. Route only the three bounded preview candidates below as capacity- and launch-gated engineer work; they must not execute or publish until CTO releases a slot and site-factory completes readiness evidence. Keep private-launch and security gates active.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing capacity gate: CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, measurement, and release-boundary evidence before admitting any implementation work.",
+        "summary": "Route three reversible, preview-only scaffold candidates to engineer across distinct sites. Do not execute until the CTO releases one delivery slot and site-factory completes the required readiness artifact. No publication, credentials, configuration, tracking, spending, domain changes, or affiliate activation is authorized.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10 slots, 39 improvements await measurement, site overlap remains unresolved, and 21 implementation requests have failed. No candidate can be safely queued without displacing existing obligations. Preserve existing measurement, repair, security, and launch gates. CTO must complete or close the canonical saveusfarms.com repair case, release one slot by 2026-10-01T12:00:00Z, or escalate to the owner. SearchWoot remains private and rights outreach remains unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Blocked candidates: rodhat.com SEO work is held for low-volume evidence; scaffold builds remain blocked pending verified launch-readiness artifacts; the existing allthingsmasonic.com CTA request remains the sole next implementation after capacity and site-overlap clearance. No duplicate queue work is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "Retain only as isolated disposable-workspace research context. Do not queue, install dependencies, access production, change configuration, or adopt.",
-        "requested_action": "accepted_research",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

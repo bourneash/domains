@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.191Z",
-  "summary": "revenue-ops checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:47:59.897Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep new affiliate work capacity-gated: delivery is saturated at 10/10 slots, with 39 improvements awaiting measurement and 21 failed requests. Preserve the existing allthingsmasonic.com request as the next implementation after one slot is released and site overlap clears. Do not assign Amazon's $4.92 aggregate commission to any site.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the Amazon aggregate row as unattributed. The 2026-09-21 dataset reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but $4.92 is attached to tracking_id other and cannot be assigned to a site. Require registered site tracking IDs for every new affiliate link.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "After capacity clears, execute only the existing canonical affiliate repairs: allthingsmasonic.com CTA refinement and amputeenews.com tag prerequisite. Route existing americastrikes.com broken/stale affiliate-reference repairs through the available engineer owner; do not create duplicate requests.",
+        "summary": "Amazon data for 2026-09-21 contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in aggregate tracking_id other; it cannot be assigned to a site. Do not infer ROI or site revenue. Delivery is saturated at 10/10, so preserve existing queued repairs and execute only after capacity and site-overlap gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

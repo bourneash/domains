@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.192Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:47:59.897Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep new-site implementation deferred while delivery remains saturated at 10/10. Release or justify closure of one slot before admitting scaffold builds. Preserve owner, legal, security, measurement, compliance, analytics, affiliate, and rollback gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain a three-site planning pipeline: complicated.work as selected candidate, with deadlymaracas.com and driveford.net deferred. Complete readiness evidence for only the selected candidate before any build or publication.",
+        "summary": "Maintain a small site-factory pipeline for complicated.work, deadlymaracas.com, and driveford.net. No domain, spend, deployment, publication, credentials, tracking, or affiliate activation is authorized. Each candidate requires a verified site brief, reusable template scope, content seed, SEO baseline, analytics and affiliate readiness, compliance checklist, security evidence, owner decision, measurement plan, and rollback plan before implementation or launch. Delivery capacity is saturated, so preserve existing readiness work and do not create duplicate implementation requests.",
         "requested_action": null,
         "proposal_id": null
       }

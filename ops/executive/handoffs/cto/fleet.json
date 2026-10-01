@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:38:25.787Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:47:59.898Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve the capacity gate. All 10 implementation slots are occupied, measurement and repair obligations remain open, and site overlap is unresolved. Do not admit new production work or duplicate queue items. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate by 2026-10-01T12:00:00Z.",
+        "summary": "Approve the capacity gate. Do not create duplicate proposals, telemetry requests, or implementation work while all 10 delivery slots are occupied and measurement, overlap, and repair obligations remain active. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released and allthingsmasonic.com overlap clears, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Keep affiliate activation dependent on an evidenced owner-controlled tag; do not guess credentials or tags. Preserve preview-only scaffold gates and the private SearchWoot disposition. Do not claim revenue, ROI, causal lift, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation only after capacity and allthingsmasonic.com overlap clear. Keep scope limited to CTA hierarchy, disclosure placement, accessibility, responsive layout, deterministic validation, affiliate-click measurement, and single-diff rollback. Do not claim revenue, ROI, or causal lift.",
+        "summary": "The allthingsmasonic.com refinement is technically feasible as an isolated reversible UI/content change: no new dependencies, credentials, tracking, cross-site behavior, or unrelated routes. Require deterministic tests, build/link validation, disclosure and accessibility checks, smoke validation, and a single-diff rollback point. Measure only existing GA4 affiliate outbound clicks and attributable provider outcomes already available; retain unknowns where data is absent. Use the existing 14-day or 100-relevant-impression/click measurement window, then keep, revert, or mark inconclusive without causal or financial claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain Amazon attribution boundaries: 18 named tracking rows remain separately attributable; the aggregate row's 629 clicks and $4.92 commission remain unattributed. No site revenue, margin, ROI, payback, forecast, or causal-lift claim is supported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not admit scaffold builds or new SEO/growth implementations this cycle. Scaffold candidates remain preview/planning-only until one verified launch-readiness artifact exists and capacity is released. No deployment, domain action, spending, telemetry change, or publication is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The isolated microsoft/markitdown research lead is technically feasible only as a disposable, read-only prototype with no dependency installation, production access, fleet integration, or publication. Preserve it as research context; do not create a queue item while capacity and measurement obligations remain saturated.",
+        "summary": "Do not admit a new finance report proposal this cycle. The proposed ledger is not safely implementable from the supplied evidence because infrastructure, domain, hosting, and labor cost sources are not provided, while existing attribution remains partially aggregate. Preserve the current CFO evidence boundaries and record unavailable fields as unknown; do not invent telemetry or allocate aggregate commission.",
         "requested_action": null,
         "proposal_id": null
       }
