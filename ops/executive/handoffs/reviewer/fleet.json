@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:51:12.941Z",
+  "generated_at": "2026-10-01T15:02:08.185Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three medium-priority, reversible engineer revalidation repairs on distinct sites: 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com. Queue them as capacity-gated; do not execute until CTO reconciles the conflicting slot ledger and releases one delivery slot by 2026-10-01T18:00Z. Reject unsupported revenue or causal-lift claims, high-priority queue expansion, duplicate telemetry, credential/configuration changes, spending, and production work without measurable outcomes.",
+        "summary": "Approve only three medium-priority, reversible engineer revalidation repairs on 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com. Queue them as capacity-gated; do not execute until CTO reconciles the conflicting slot ledger and releases one delivery slot by 2026-10-01T18:00Z. Preserve attribution, security, credential, configuration, spending, schedule, telemetry, and production boundaries.",
         "requested_action": null,
         "proposal_id": null
       }
