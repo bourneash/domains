@@ -5641,6 +5641,13 @@ async function loadBoard() {
       })
     )
   );
+  $$('.task').forEach(el =>
+    el.addEventListener('keydown', e => {
+      if (!['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
+      el.click();
+    })
+  );
   if (!FRESH) applyUISnap();
   stamp();
 }
@@ -5660,7 +5667,7 @@ function boardCard(t) {
   const role = t.assigned_role ? `<span class="badge b-blue">${esc(t.assigned_role)}</span>` : '';
   const type = t.type ? `<span class="badge b-gray">${esc(t.type)}</span>` : '';
   const blk = t.blocked_on ? '<span class="blocked-tag">blocked</span>' : '';
-  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}">
+  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} in ${esc(STAGE_LABEL[t.column] || t.column)}">
     <div class="t-title">${esc(t.title)}${blk}</div>
     <div class="t-meta">${prioTag(t.priority)}${role}${type}</div>
     ${t.excerpt ? `<div class="t-excerpt">${esc(t.excerpt)}</div>` : ''}
@@ -5804,6 +5811,13 @@ function renderFleet() {
       })
     )
   );
+  $$('.tree-task, .ttr').forEach(el =>
+    el.addEventListener('keydown', e => {
+      if (!['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
+      el.click();
+    })
+  );
   $$('.tree-all').forEach(b =>
     b.addEventListener('click', () =>
       $$('.tree-site').forEach(d => {
@@ -5829,7 +5843,7 @@ function fleetTree(rows) {
   const bySite = {};
   for (const t of rows) (bySite[t.site] = bySite[t.site] || []).push(t);
   const groups = Object.entries(bySite).sort((a, b) => b[1].length - a[1].length);
-  const ctrls = `<div class="tree-controls"><button class="tree-all" data-open="1">expand all</button><button class="tree-all" data-open="0">collapse all</button></div>`;
+  const ctrls = `<div class="tree-controls"><button type="button" class="tree-all" data-open="1">expand all</button><button type="button" class="tree-all" data-open="0">collapse all</button></div>`;
   const body = groups
     .map(([site, tasks]) => {
       const ip = tasks.filter(t => t.column === 'in-progress').length;
@@ -5844,7 +5858,7 @@ function fleetTree(rows) {
               : '';
           return (
             label +
-            `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}">
+            `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)}">
         <span class="prio ${prioClass(t.priority)} tree-pri">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span>
         <span class="tree-type">${esc(t.type || '')}</span>
         <span class="tree-title">${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}</span>
@@ -5874,7 +5888,7 @@ function fleetTable(rows) {
           : '';
       return (
         divider +
-        `<tr class="ttr ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}">
+        `<tr class="ttr ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} for ${esc(t.site)}">
       <td><span class="prio ${prioClass(t.priority)}">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span></td>
       <td class="mono">${esc(t.site)}</td>
       <td><span class="badge b-gray">${STAGE_LABEL[t.column]}</span></td>
@@ -5886,7 +5900,7 @@ function fleetTable(rows) {
       );
     })
     .join('');
-  return `<div class="card"><div class="table-wrap"><table class="tasks-table">
+  return `<div class="card"><div class="table-wrap"><table class="tasks-table"><caption class="sr-only">Fleet tasks</caption>
     <thead><tr><th>P</th><th>Site</th><th>Stage</th><th>Type</th><th>Title</th><th>Role</th><th>Created</th></tr></thead>
     <tbody>${body}</tbody></table></div></div>`;
 }

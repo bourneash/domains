@@ -427,6 +427,14 @@ test('Git repository rows are keyboard-operable disclosures', () => {
   assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'false'\)/);
 });
 
+test('Task cards and fleet rows are keyboard-operable editors', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0" aria-label="Open task/);
+  assert.match(app, /class="tree-task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"/);
+  assert.match(app, /class="ttr \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"/);
+  assert.match(app, /\$\$\('\.tree-task, \.ttr'\)\.forEach\(el =>\n    el\.addEventListener\('keydown'/);
+});
+
 test('sidebar category navigation and disclosure use separate controls', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
