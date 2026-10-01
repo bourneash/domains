@@ -140,6 +140,63 @@ test('independent explicit delivery categories can proceed during measurement', 
   );
 });
 
+test('shared affiliate and CTA scope outweighs different category labels', () => {
+  const request = {
+    site: 'example.com',
+    status: 'queued',
+    category: 'engineering',
+    delivery_mode: 'direct',
+    title: 'Improve affiliate conversion path',
+    body: 'Revise affiliate CTA clarity on existing commercial pages.',
+    created_at: '2026-10-01T00:00:00.000Z',
+  };
+  const runs = [
+    {
+      site: 'example.com',
+      state: 'measuring',
+      title: 'Ship homepage design refresh',
+      measurement_due: '2026-10-07',
+      baseline: { request_category: 'engineering' },
+    },
+    {
+      site: 'example.com',
+      state: 'measuring',
+      title: 'Repair one SEO or affiliate revenue path',
+      measurement_due: '2026-10-13',
+      baseline: { request_category: 'seo' },
+    },
+    {
+      site: 'example.com',
+      state: 'measuring',
+      title: 'Ship a design or UX improvement',
+      measurement_due: '2026-10-13',
+      baseline: { request_category: 'design', evidence: 'Improve CTA clarity.' },
+    },
+  ];
+  assert.equal(view.measurementConflict(request, runs[1]), true);
+  assert.equal(view.measurementConflict(request, runs[2]), true);
+  const [row] = view.enrichChangeRequests(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-overlap-')),
+    [request],
+    { max_concurrent: 1 },
+    runs,
+    Date.parse('2026-10-01T12:00:00.000Z')
+  );
+  assert.equal(row.measurement_window.due_at, '2026-10-13');
+  assert.equal(row.queue_block.next_check_at, '2026-10-13T00:00:00.000Z');
+  assert.equal(
+    view.measurementConflict(
+      { site: 'example.com', category: 'seo', title: 'Improve /commercial metadata' },
+      {
+        site: 'example.com',
+        baseline: { request_category: 'design' },
+        title: 'Tune /commercial layout',
+      }
+    ),
+    true
+  );
+});
+
 test('independent lanes are not held by a stale measurement retry date', () => {
   const request = {
     site: 'example.com',

@@ -42,20 +42,28 @@ function measurementCategory(value = {}) {
     .toLowerCase();
 }
 
+function measurementTopics(value = {}) {
+  const text = `${textOf(value)}\n${value.baseline?.evidence || ''}`;
+  const topics = new Set();
+  if (/\baffiliate\b/i.test(text)) topics.add('affiliate');
+  if (/\b(?:CTA|call[- ]to[- ]action)\b/i.test(text)) topics.add('cta');
+  return topics;
+}
+
 // A measurement run blocks only a production request that could change the
 // same measured surface. When either side has no reliable URL/path scope we
 // stay conservative and hold it; diagnostics and control-plane work are
 // explicitly exempt above.
 function measurementConflict(request = {}, run = {}) {
   if (isMeasurementSafe(request)) return false;
-  // A measurement window owns one delivery lane, not an entire site. The
-  // improvement runner records the originating request category in the
-  // baseline; allow an independent SEO/marketing/design lane to proceed when
-  // both sides are explicit and differ. Unknown categories remain
-  // conservative and continue to require path scope or an override.
+  // Category labels alone cannot prove independence: an engineering request
+  // for affiliate CTAs overlaps an SEO/affiliate or design/CTA experiment.
+  // Preserve those shared measured topics before checking nominal lanes.
+  const requestTopics = measurementTopics(request);
+  const runTopics = measurementTopics(run);
+  if ([...requestTopics].some(topic => runTopics.has(topic))) return true;
   const requestCategory = measurementCategory(request);
   const runCategory = measurementCategory(run);
-  if (requestCategory && runCategory && requestCategory !== runCategory) return false;
   const requestPaths = measurementScope(request);
   const runPaths = measurementScope(run);
   if (requestPaths.length && runPaths.length)
@@ -67,6 +75,10 @@ function measurementConflict(request = {}, run = {}) {
           runPath.startsWith(`${requestPath}/`)
       )
     );
+  // A measurement window owns one delivery lane, not an entire site. Allow
+  // genuinely independent explicit categories to proceed when no path or
+  // measured-topic overlap has been found.
+  if (requestCategory && runCategory && requestCategory !== runCategory) return false;
   return true;
 }
 
