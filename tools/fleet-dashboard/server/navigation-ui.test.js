@@ -2020,8 +2020,12 @@ test('Cron cards isolate schedule overflow and use explicit action buttons', () 
   const card = app.slice(start, end);
   const rowEnd = app.indexOf('// Look up the live entry object', end);
   const row = app.slice(end, rowEnd);
-  assert.match(card, /<div class="table-wrap"><table class="cm-jobs">/);
+  assert.match(card, /<div class="table-wrap"><table class="cm-jobs"><caption class="sr-only">/);
   assert.match(card, /<button type="button" class="cm-collapse"/);
+  assert.match(card, /aria-controls="\$\{esc\(bodyId\)\}"/);
+  assert.match(app, /function cmHasCollapsePreference\(\)/);
+  assert.match(app, /Open Scheduler →/);
+  assert.match(app, /!s\.failed && !s\.needsRebuild/);
   assert.match(card, /<button type="button" class="btn sm cm-addjob"/);
   assert.match(row, /type="button" class="btn sm cm-toggle"/);
   assert.match(row, /type="button" class="btn sm danger cm-remove"/);

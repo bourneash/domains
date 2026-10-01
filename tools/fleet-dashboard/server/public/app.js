@@ -6334,6 +6334,13 @@ function cmSaveCollapsed() {
     localStorage.setItem('fd.cron.collapsed', JSON.stringify([...CM.collapsed]));
   } catch {}
 }
+function cmHasCollapsePreference() {
+  try {
+    return localStorage.getItem('fd.cron.collapsed') !== null;
+  } catch {
+    return false;
+  }
+}
 function cmRel(iso) {
   if (!iso) return null;
   const d = new Date(iso);
@@ -6366,18 +6373,27 @@ async function renderCron() {
     const rank = s => (s.failed ? 0 : s.needsRebuild ? 1 : s.status === 'running' ? 2 : 3);
     return rank(a) - rank(b);
   });
+  // Keep the first visit focused on systems that need operator attention.
+  // An explicit Expand all / Collapse all choice is persisted and always wins
+  // over this default, so returning operators keep their preferred density.
+  if (!cmHasCollapsePreference()) {
+    systems
+      .filter(s => !s.failed && !s.needsRebuild)
+      .forEach(s => CM.collapsed.add(s.slug));
+    cmSaveCollapsed();
+  }
 
   const running = systems.filter(s => s.status === 'running').length;
   const failed = systems.filter(s => s.failed);
   const dirty = systems.filter(s => s.needsRebuild).length;
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">Cron</h2><span class="muted">every crontab across ${systems.length} systems · edit a schedule, diff vs the running container, rebuild</span></div><button type="button" class="btn" id="cron-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">Cron</h2><span class="muted">legacy line-level control across ${systems.length} systems · edit, diff, and rebuild</span></div><div class="page-actions"><a class="btn sm" href="#scheduler">Open Scheduler →</a><button type="button" class="btn" id="cron-refresh">↻ Refresh</button></div></div>
     <div class="task-toolbar">
       <strong>${systems.length} systems</strong>
       <span class="muted"><span class="cm-st on"></span>${running} running · <span class="cm-st off"></span>${failed.length} failed · ${dirty} need rebuild</span>
-      <button class="btn sm" id="cm-collapse-all" style="margin-left:auto">Collapse all</button>
-      <button class="btn sm" id="cm-expand-all">Expand all</button>
+      <button type="button" class="btn sm" id="cm-collapse-all" style="margin-left:auto">Collapse all</button>
+      <button type="button" class="btn sm" id="cm-expand-all">Expand all</button>
     </div>
     <div class="cm-systems">${systems.map(s => cmCard(s)).join('')}</div>
     <p class="muted" style="margin-top:12px">Each card is one cron container (a site or tool). Edits write the on-disk <span class="mono">crontab.docker</span>; the container keeps running its baked-in copy until you <b>Rebuild &amp; restart</b>. <b>Pause/Resume</b> on a worker role toggles its <span class="mono">.&lt;role&gt;-disabled</span> flag (instant, no rebuild). <span class="cm-badge stale">stale</span> = disk crontab changed since the last build — rebuild or revert.</p>`;
@@ -6437,17 +6453,18 @@ function cmCard(sys) {
     ? `<span class="cm-hint">${isStale ? 'running stale crontab — rebuild or revert' : 'crontab changed — rebuild to apply'}</span>`
     : '';
 
-  return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}" data-fleet-row data-site="${esc(sys.kind === 'site' ? sys.slug : '')}">
+  const bodyId = `cm-body-${sys.slug}`;
+  return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}" data-fleet-row data-site="${esc(sys.kind === 'site' ? sys.slug : '')}" aria-labelledby="cm-title-${esc(sys.slug)}">
     <div class="cm-head" data-slug="${esc(sys.slug)}">
-      <button type="button" class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
-      <span class="cm-name">${esc(sys.slug)}</span>
+      <button type="button" class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" aria-controls="${esc(bodyId)}" aria-label="${collapsed ? 'Expand' : 'Collapse'} ${esc(sys.slug)} cron jobs" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
+      <span class="cm-name" id="cm-title-${esc(sys.slug)}">${esc(sys.slug)}</span>
       <span class="cm-kind">${esc(sys.kind)}</span>
       <span class="cm-badge ${badgeCls}" title="${badgeTitle}">${esc(badgeLabel)}</span>
       ${sys.needsRebuild && !isStale ? '<span class="cm-badge stale">needs rebuild</span>' : ''}
       <span class="cm-container mono">${esc(sys.container)}</span>
     </div>
-    <div class="cm-body${collapsed ? ' hidden' : ''}" data-rk="cron:${esc(sys.slug)}">
-      <div class="table-wrap"><table class="cm-jobs">
+    <div class="cm-body${collapsed ? ' hidden' : ''}" id="${esc(bodyId)}" data-rk="cron:${esc(sys.slug)}">
+      <div class="table-wrap"><table class="cm-jobs"><caption class="sr-only">${esc(sys.slug)} cron jobs and controls</caption>
         <thead><tr><th>State</th><th>Job</th><th>Schedule</th><th>Last run</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
@@ -6559,6 +6576,7 @@ function cmApplyCollapsed(slug) {
     const body = $(`.cm-body[data-rk="cron:${CSS.escape(s)}"]`);
     if (body) body.classList.toggle('hidden', collapsed);
     btn.textContent = collapsed ? '▸' : '▾';
+    btn.setAttribute('aria-label', `${collapsed ? 'Expand' : 'Collapse'} ${s} cron jobs`);
     btn.setAttribute('aria-expanded', String(!collapsed));
   });
 }
