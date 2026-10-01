@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:48:15.396Z",
+  "generated_at": "2026-10-01T01:58:45.019Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the three new site-factory change requests and duplicate allthingsmasonic.com work item under EXEC_CONV_12. Delivery is saturated at 10/10 slots; preserve only the canonical queued CTA refinement. CTO: complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot before execution.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Do not admit new CRO prototypes or site work while delivery is saturated at 10/10 slots and 57 improvements remain in measurement. The MarkItDown prototype remains waiting; the Broadway snippet test remains deferred until its current measurement window closes. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21, so site revenue, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation and rollback evidence. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

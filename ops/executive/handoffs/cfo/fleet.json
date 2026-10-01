@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:48:15.396Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:58:45.020Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve financial containment. Reject the three new site-factory change requests and duplicate CTA work this cycle; retain only the canonical allthingsmasonic.com CTA refinement after capacity release. Do not approve new spend, forecasts, ROI, margin, or causal-lift claims. AI usage cost was $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors and 5 transient errors. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is aggregate and unattributed; named site rows show $0 attributed commission. The periods and attribution scopes do not support a revenue, contribution-margin, ROI, or cost-to-learn claim.",
+        "summary": "CFO recommendation: maintain financial containment. Do not authorize new spend, paid acquisition, production expansion, or new monetization work this cycle. Delivery is saturated at 10/10 slots, while revenue support is weak: Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; all commission is in aggregate tracking ID other, so site revenue and ROI are unsupported. AI usage cost was $1,002.46 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors, but it cannot be compared directly with the single-day revenue window. Infrastructure, domain, hosting, labor, and other operating costs are not present, so contribution margin, payback, budget exposure, and total cost-to-learn are not calculable. Preserve existing measurement and repair work; admit no new work until one slot is released and financial attribution evidence improves.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial measurement blocker: full contribution margin and budget exposure are not calculable because infrastructure, hosting, domain, marketing, fixed-cost, and budget-limit values are blank. Cost-to-learn is also not calculable because AI usage is not joined to individual tasks or changes and outcome windows are not matched. Minimum measurement: a dated ledger keyed by site, task/change, and period containing AI, infrastructure, hosting, domain, and marketing costs, reconciled to registered affiliate clicks, ordered items, shipped items, commission, and treatment-versus-control outcomes. Until that ledger exists, use impressions, clicks, sessions, conversions, social counts, and opportunity scores only as operating indicators, not financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the canonical allthingsmasonic.com CTA refinement only as a capacity-gated, reportable implementation. Its available baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered clicks for 14 days or 100 new relevant impressions/clicks, whichever comes first, while preserving destinations and tracking IDs. Click movement alone must not be presented as revenue, margin, ROI, or payback.",
+        "summary": "Financial disposition: treat all revenue forecasts, site-level ROI claims, contribution-margin claims, and causal-lift claims as unsupported. The available evidence supports only $4.92 aggregate commission for 2026-09-21 and $0 site-attributed income; the aggregate row cannot be assigned to sites without inventing attribution. Monthly AI spend is $1,002.46 for September, but infrastructure and other costs are unknown. Minimum evidence for a finance-grade decision is a period-matched ledger by site and content identifier covering affiliate clicks, ordered and shipped items, commission, AI cost, infrastructure/hosting, domains, and any paid marketing or labor allocation.",
         "requested_action": null,
         "proposal_id": null
       }

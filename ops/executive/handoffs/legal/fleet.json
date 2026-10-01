@@ -2,49 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:48:15.397Z",
-  "summary": "legal checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:58:45.020Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or go-live; conditional for ordinary reversible work that adds no new data collection, sharing, monetization, or cross-site behavior. Evidence: Woot documentation establishes API access but not redistribution, storage, derivative, display, caching, alert, affiliate, or advertising rights; current Woot terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Compliance is technical baseline only: 36 pass, 19 fail, 6 unknown. Security and operations sweeps have no results. Revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so no site revenue, ROI, margin, accuracy, or causal-lift claim is supported. Exact decision: keep SearchWoot private, leave rights outreach unsent pending human counsel and owner authorization, and preserve all non-legal gates.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible internal/read-only work. Recommendation: keep the private gate, leave Woot rights outreach unsent, and require human counsel review before any public display, affiliate, advertising, alert expansion, or upstream-data redistribution. Evidence: Woot documentation confirms API access but not redistribution rights; public terms restrict commercial/public use and derivative product-listing use. Security is evidence_needed because fleet-doctor and operations sweeps have no results; accuracy/freshness, measurement/attribution, and owner gates are blocked. Compliance is a technical baseline only: 36 pass, 19 fail, 6 unknown. No go-live proposal is approved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: the four existing legal tasks remain open; no task is closed because the supplied evidence is partial and does not prove rights, retention/deletion controls, GA4 settings, vendor coverage, or incident procedures. Next evidence action: attach one dated read-only bundle containing the authoritative rights record, repository/configuration data-flow and retention table, deployed consent and GA4 configuration capture, and logs/vendors/incident inventory. Do not send outreach, change the private gate, enable tracking, or modify production.",
+        "summary": "Launch-readiness tracking remains active. Four existing legal tasks remain open; none are closed because the snapshot does not evidence completion. Next evidence action: attach one dated read-only bundle covering Woot rights, SearchWoot data flow/retention, GA4 consent/configuration, and logs/vendors/incident handling to the existing checklist. Do not request duplicate telemetry, change production, enable tracking, send outreach, or clear the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: Woot API deal and price-history data — blocked for public display, historical derivatives, alerts, affiliate, or advertising use. Missing current written permission or API agreement, field-level rights, provenance, freshness/stale-data behavior, correction and takedown rules. Smallest next action: compile the existing terms and API evidence into a field-level rights matrix and identify the exact permission request for later human-counsel and owner review.",
+        "summary": "Concrete decision required: confirm SearchWoot remains private and rights outreach remains unsent pending human counsel review and completion of technical gates. This is a risk triage disposition, not legal advice or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: user alert rules and sync results — evidence_needed. The stated purpose is limited, but retention, deletion, correction, access, notification consent, unsubscribe behavior, access identifiers, and Slack processor terms are not evidenced. Smallest next action: produce a read-only data-flow table from the repository and deployed configuration, including fields, recipients, retention, deletion, and unsubscribe paths.",
+        "summary": "For the existing SearchWoot evidence workstream, produce a read-only table from repository and deployed configuration showing alert rules, access/session identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior. This is the smallest next action for the open data-flow task; do not expand notifications or change configuration.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use review: GA4 analytics — conditional only for explicit analytics consent and measurement-only use. Missing deployed consent and withdrawal evidence, GA4 property/data-sharing settings, retention settings, vendor disclosure confirmation, and jurisdiction-specific human-counsel review. Smallest next action: capture current consent behavior and GA4 configuration without enabling new tracking, remarketing, advertising, or customer matching.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review: operational logs and Cloudflare hosting data — evidence_needed for launch. Operational purpose is bounded, but log fields, retention/access controls, vendor terms or DPA coverage, incident handling, subpoena/abuse handling, and data-subject request procedures are not evidenced. Smallest next action: create a read-only log-field, vendor, retention, access, incident, and request-procedure inventory.",
+        "summary": "Measurement remains a launch blocker but not a blocker to ordinary reversible growth. Available Amazon evidence is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; commission is aggregate under tracking ID other and cannot support site revenue, ROI, margin, or causal-lift claims. Next action: retain the attribution boundary and reconcile only when site/content identifiers and direct costs are available.",
         "requested_action": null,
         "proposal_id": null
       }
