@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:48:37.476Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:57:31.929Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve only the read-only finance baseline. Do not admit new implementation, control-plane, site-factory, SEO, or research work this cycle. Capacity remains 10/10, with 39 improvements awaiting measurement, 21 failed requests, 7 repair follow-ups, and unresolved site overlap. Preserve existing allthingsmasonic.com request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation after the canonical saveusfarms.com repair case is completed or justifiably closed, one slot is released, and overlap clears. Keep security, legal, attribution, measurement, and private-launch gates unchanged; do not claim revenue, ROI, or causal lift.",
+        "summary": "Keep site-factory implementation blocked while all ten delivery slots are occupied. Complete or justifiably close the canonical saveusfarms.com repair case with validation, build, rollback, release-boundary, attribution, measurement, and deduplication evidence before any scaffold build is admitted.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the proposed read-only finance baseline using existing telemetry only. It is technically feasible, isolated, reversible, and does not consume an implementation slot. Preserve aggregate provider revenue as unattributed, report missing cost coverage explicitly, and do not request duplicate telemetry or infer profitability, ROI, or causal lift.",
+        "summary": "Capacity gate upheld: reject all new admissions and duplicates. Preserve existing allthingsmasonic.com request 4719e525-763b-42a4-9f16-e71e1c38b17b as next implementation only after one slot is released and site overlap clears. Complete or close the canonical saveusfarms.com repair case with validation and rollback evidence by 2026-10-02T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create duplicate site-factory work. Preserve the existing readiness gate and planning-only pipeline; no build, preview publication, analytics configuration, affiliate setup, domain change, or deployment is authorized while capacity and launch-readiness gates remain unresolved.",
+        "summary": "Approve containment: no new implementation, research, telemetry, scaffold, spending, credential, domain, dependency, or production changes while all 10 delivery slots are occupied. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause, deterministic validation, build, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-02T09:00:00Z; escalate if unresolved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation. Execute only after capacity release and site-overlap clearance. Limit scope to CTA hierarchy, adjacent existing disclosure placement, keyboard/focus accessibility, responsive layout, and unchanged destinations/tracking/content meaning. Require deterministic tests, build, link/disclosure checks, keyboard/focus and responsive validation, exact diff, rollback point, and measurement of affiliate clicks plus attributable ordered/shipped items for 14 days or 100 relevant impressions/clicks. Retain unknowns; do not claim revenue, ROI, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep scaffold work planning-only. After capacity clears, complete exactly one verified launch-readiness artifact for complicated.work covering owner decision, bounded scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only status. Do not deploy, publish, add domains or tracking, spend, or treat missing telemetry as zero.",
         "requested_action": null,
         "proposal_id": null
       }

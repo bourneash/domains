@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:48:37.476Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:57:31.930Z",
+  "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: hold new discretionary spend and new implementation admissions. Revenue evidence is insufficient for investment claims: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all $4.92 is in an aggregate unattributed row; site-attributed income is $0. Contribution margin, ROI, and revenue forecast are not calculable because infrastructure, domains, labor, and other direct costs are absent, and revenue data is stale as of 2026-09-21. AI spend is $2.2785467 on 16 calls across only 4 instrumented sites; fleet-wide AI cost is unknown because 4 of 38 expected sites are observed. Preserve existing measurement and attribution gates, and do not fund the proposed control-plane build until its avoided-cost or revenue benefit is measured.",
+        "summary": "CFO recommendation: maintain financial containment. Authorize no new spend, billing changes, production implementation, or forecast claims this cycle. Preserve the existing allthingsmasonic.com CTA refinement only as a bounded, reportable experiment after capacity release and five-item site-overlap clearance. Amazon data for 2026-09-21 supports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site-attributed commission is $0. Do not assign the aggregate amount to any site or claim revenue, ROI, contribution margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial gate: do not admit the proposed execution control-plane work as funded implementation while delivery is saturated at 10/10 slots and its financial return is unquantified. If capacity is later released, use existing control-plane telemetry to produce a report-only baseline of duplicate requests, approval-to-execution delay, failed-request rework, and operator time; no new telemetry or production mutation is authorized by CFO.",
+        "summary": "If the existing allthingsmasonic.com request proceeds, require the exact diff, deployment date, rollback point, incremental implementation cost, measurement window, affiliate clicks, attributable ordered items, shipped items, and commission before evaluating contribution impact or cost-to-learn. Do not duplicate the existing request or admit new finance-sensitive work while delivery remains 10/10 occupied.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial evidence is incomplete. Contribution margin, fleet budget exposure, infrastructure spend, and cost-to-learn are not calculable because fixed costs, domain renewals, hosting/infrastructure, tooling, paid marketing, labor allocation, and change-level incremental costs are absent. The minimum finance package is a monthly site ledger for those cost categories plus provider revenue exports mapped to registered tracking IDs. Until then, unknown is not zero.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "AI spend is only partially observable: 2026-10-01 records $2.2785467 across 16 calls and four instrumented sites, with $0.3480626 recorded for saveusfarms.com and $0.5246586 for seedstosauce.com; coverage is 4 of 38 expected sites. The observed average is approximately $0.1424 per call, but this is not a fleet unit-cost or ROI measure. Infrastructure and non-AI tooling spend are unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain provider date, tracking ID, clicks, ordered items, shipped items, commission, and site/content mapping in every revenue report. Report named tracking rows separately from aggregate rows. Do not treat site-level $0 commission as proof of zero earnings outside the named rows, and do not treat aggregate commission as site revenue.",
         "requested_action": null,
         "proposal_id": null
       }

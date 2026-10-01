@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:48:37.475Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:57:31.930Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: reject the new capacity-aware execution-control-plane proposal this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests failed, 7 failure follow-ups remain open, and 105 approved proposals lack execution requests. The opportunity is credible, but adding control-plane work now would increase delivery debt. Preserve the idea as deferred product context; revisit only after one slot is released and existing repair and measurement obligations are reduced.",
+        "summary": "Retain containment and do not admit new CRO implementation this cycle. The only evidence-backed revenue experiment is the existing allthingsmasonic.com CTA refinement after capacity release and five-item site-overlap clearance. Baseline: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21; the $4.92 aggregate commission remains unattributed. Metric: affiliate clicks plus attributable ordered/shipped items over 14 days or 100 relevant impressions/clicks. Time-to-learn: the first threshold reached. Smallest reversible prototype: CTA hierarchy, adjacent disclosure placement, keyboard/focus states, and responsive spacing on existing commercial surfaces, preserving destinations, tracking, and content meaning. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one implementation slot before admitting any new work. After site-overlap clearance, preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as the sole next revenue experiment.",
+        "summary": "Preserve and execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b after the canonical saveusfarms.com repair case releases a slot and allthingsmasonic.com overlap is cleared. Acceptance: deterministic tests, build, link and disclosure checks, keyboard/focus audit, responsive validation, unchanged affiliate destinations/tracking, exact diff, rollback point, and measurement setup. Roll back only this bounded change if validation fails or the relevant metric regresses.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommendation: retain no new revenue experiment, product proposal, change request, or research request this cycle. Existing evidence supports only bounded continuation: allthingsmasonic.com CTA/disclosure refinement after capacity release; complicated.work readiness evidence as planning-only; and existing measurement, security, compliance, and attribution gates. Amazon revenue remains aggregate and unattributed, so do not claim site revenue, ROI, or causal lift.",
+        "summary": "Do not retain new GitHub-driven product proposals. markitdown and mermaid have plausible SEO/content use cases and MIT licenses, while shadcn-ui/ui has a plausible UX use case and MIT license; however, repo-lab evidence is discovery-only, dependency installation was not performed, security and maintenance risk remain unvalidated, and current delivery capacity is 10/10 occupied. Revisit only through a disposable prototype after measurement debt and capacity gates clear. Smallest prototype would convert one approved internal content artifact or render one isolated component without production access, dependencies added to the fleet, or deployment.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep complicated.work as the first planning-only product opportunity. Do not build or publish yet: analytics are not configured and launch-readiness, legal/compliance, security, attribution, and rollback evidence are incomplete. After capacity clears, produce exactly one readiness artifact. Smallest reversible prototype is a preview-only branded homepage with one content seed and no public exposure, tracking expansion, affiliate activation, domain changes, or spend. Metric: launch-checklist completeness and preview-quality acceptance; time-to-learn: one readiness cycle.",
         "requested_action": null,
         "proposal_id": null
       }

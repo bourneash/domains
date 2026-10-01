@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:48:37.475Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:57:31.930Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the bounded site-factory pipeline: complicated.work, deadlymaracas.com, and driveford.net. All remain planning-only because implementation capacity is saturated and launch-readiness evidence is incomplete. Do not add domains, spend, deploy, or launch.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Strongest candidate: complicated.work. Exactly one next step: complete and verify its launch-readiness artifact covering owner approval, bounded template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only status. Keep build and publication blocked until all required gates pass.",
+        "summary": "Reject the proposed new scaffold pipeline work item as duplicate planning overhead. Preserve existing d80920d0-382a-4d27-9dc9-112f340cb408; after capacity clears, complete one readiness artifact for complicated.work only. No build, publication, tracking, spend, or domain onboarding yet.",
         "requested_action": null,
         "proposal_id": null
       }
