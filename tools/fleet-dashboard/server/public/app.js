@@ -329,6 +329,7 @@ function applyAccessLevel(level) {
 
 function stamp() {
   $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString();
+  $('#app')?.setAttribute('aria-busy', 'false');
   $$('.fd-stale-banner').forEach(banner => banner.remove());
 }
 
@@ -15791,6 +15792,7 @@ async function renderSiteDetail() {
 }
 
 function render() {
+  $('#app')?.setAttribute('aria-busy', 'true');
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
   if (ddBtn) ddBtn.classList.toggle('active', STATE.view === 'agent');

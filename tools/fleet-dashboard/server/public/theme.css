@@ -777,13 +777,24 @@ td.site, .site-link { font-weight: 620; letter-spacing: -.01em; }
 
 /* --------------------------------------------------------------- loading -- */
 .loading {
-  position: relative; color: transparent !important;
+  position: relative; display: flex; align-items: center; gap: 11px;
+  color: var(--muted) !important; font-size: 13px; font-weight: 600;
   border-radius: var(--radius);
   background: linear-gradient(100deg, rgba(255,255,255,.035) 30%, rgba(255,255,255,.09) 50%, rgba(255,255,255,.035) 70%);
   background-size: 220% 100%;
   animation: shimmer 1.35s linear infinite;
-  min-height: 92px;
+  min-height: 72px; padding: 18px 20px;
 }
+.loading::before {
+  content: ''; width: 16px; height: 16px; flex: none;
+  border: 2px solid rgba(255,255,255,.16); border-top-color: var(--a1);
+  border-radius: 50%; animation: loading-spin .75s linear infinite;
+}
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+:root[data-theme="light"] .loading {
+  background: linear-gradient(100deg, rgba(40,70,110,.045) 30%, rgba(40,70,110,.105) 50%, rgba(40,70,110,.045) 70%);
+}
+:root[data-theme="light"] .loading::before { border-color: rgba(40,70,110,.16); border-top-color: var(--a1); }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -60% 0; } }
 /* Social Hub has dense, full-width surfaces. A shimmer over those surfaces
    reads as a bright page flash, especially on Calendar's large grid. */
@@ -1747,6 +1758,8 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   .actions #updated, .actions .auto-next { display: none; }
   .actions .density-toggle { width: 34px; padding: 7px 8px; overflow: hidden; font-size: 0; }
   .actions .density-toggle::before { content: '◐'; font-size: 15px; }
+  .actions .theme-toggle { width: 34px; min-width: 34px; padding: 7px 8px; overflow: hidden; font-size: 0; }
+  .actions .theme-toggle::before { content: '☼'; font-size: 15px; }
   .actions #refresh { width: 34px; padding: 7px 8px; overflow: hidden; font-size: 0; }
   .actions #refresh::before { content: '↻'; font-size: 16px; }
   .fleet-filter-wrap { order: 3; flex: 1 1 100%; width: 100%; margin: 0; padding: 7px 0 0; border-top: 1px solid rgba(255,255,255,.06); }
