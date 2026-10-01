@@ -1241,6 +1241,14 @@ test('secondary async panels use the shared compact loading treatment', () => {
   assert.match(app, /pre\.classList\.remove\('async-loading'\)/);
 });
 
+test('workbench board styling has one authoritative responsive definition', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.equal((style.match(/\.wb-board\s*\{\s*display:/g) || []).length, 1);
+  assert.equal((style.match(/\.wb-card\s*\{\s*display:/g) || []).length, 1);
+  assert.equal((style.match(/\.wb-head\s*\{\s*align-items: flex-end/g) || []).length, 1);
+  assert.match(style, /\.wb-link-list\s*\{/);
+});
+
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const facts = app.slice(
