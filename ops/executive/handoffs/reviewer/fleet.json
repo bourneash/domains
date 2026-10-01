@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:16:57.642Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:28:16.356Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new proposals, production work, telemetry requests, research requests, prototypes, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, measurement and repair queues remain active, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, forecasts, and causal lift are unsupported. Keep launch and security gates unchanged. CTO should complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z. Only after a slot is released may the existing allthingsmasonic.com CTA refinement proceed against its registered-click baseline, without revenue or causal-lift claims.",
+        "summary": "Reject new production work, prototypes, site-factory admissions, high-priority queue work, duplicate telemetry, spend, and unsupported revenue or causal-lift claims. Delivery is saturated at 10/10 slots; Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so site economics remain unknown. Keep existing launch and security gates unchanged and leave rights outreach unsent. The smallest defensible next step is completing or closing the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admitting only the already-queued allthingsmasonic.com CTA refinement if capacity is released.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, forecast, causal-lift, launch, spend, credential, configuration, and security-clearance claims. Revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. Delivery is saturated at 10/10 slots. Route only the three bounded SEO candidates below as capacity-gated engineer work; execute no candidate until CTO releases capacity with evidence by 2026-10-01T09:00Z. Keep private-launch and security gates unchanged.",
+        "summary": "Complete or close the existing saveusfarms.com repair case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Do not create duplicate requests or admit new candidates before a slot is released.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep public-exposure and security-sensitive release gates unchanged. Do not retrieve credentials, modify permissions or configuration, add dependencies, deploy, conduct external outreach, or create duplicate security work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue remains limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown. Delivery is saturated at 10/10 slots, so the three reversible engineer candidates below are routed as capacity-gated specifications only and must not execute until existing work clears. Keep private-launch and security-sensitive release gates unchanged. CTO must complete or close the existing saveusfarms.com repair case with dated validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
