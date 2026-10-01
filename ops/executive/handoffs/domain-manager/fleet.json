@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:54:06.484Z",
+  "generated_at": "2026-10-01T21:16:00.493Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete complicated.work preview launch-readiness artifact before scaffold build",
-        "summary": "Implementation is blocked by the required verified launch-readiness artifact. complicated.work is a parked scaffold with analytics unconfigured and compliance failures for banner, consent controls, and GA4 evidence.",
-        "requested_action": "Create one dated, read-only readiness artifact covering owner approval, scope, content seed, SEO metadata, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Do not publish, deploy, add tracking, or change configuration.",
+        "title": "Improve howfishthink.com homepage organic click-through",
+        "summary": "Apply one reversible metadata and above-the-fold clarity pass to the homepage without changing analytics, affiliate behavior, disclosures, or production deployment.",
+        "requested_action": "After the authoritative delivery-slot and measurement gates clear, assign an engineer to implement and validate this isolated homepage change.",
         "proposal_id": null
       }
     ]

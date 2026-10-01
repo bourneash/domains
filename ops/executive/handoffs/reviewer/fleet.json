@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:11:12.095Z",
+  "generated_at": "2026-10-01T21:16:00.492Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. No candidate has evidenced site-specific baseline, minimum threshold, tests, rollback, attribution boundary, and authoritative capacity. Retain only principal-engineer reconciliation under d4abc482-75de-438f-9fcf-5223f339c860. Owner concern: Amazon commission remains aggregate and unattributed; ROI, revenue, causal lift, and production readiness are unsupported. Principal-engineer must document the authoritative slot count and saveusfarms.com repair disposition by 2026-10-02T12:00Z, release a slot only after all gates are evidenced, or escalate to the owner.",
+        "summary": "Reject the proposed howfishthink.com implementation this cycle. The homepage baseline values are not supplied, telemetry is insufficient to support the proposed CTR outcome, and the authoritative delivery capacity and measurement gates remain unresolved. Retain only principal-engineer capacity reconciliation; unblock this candidate only after the owner receives a dated baseline, threshold, tests, rollback point, and authoritative slot disposition by 2026-10-02T12:00Z. Escalate unresolved evidence or capacity to the owner at that deadline. No financial, causal-lift, or production-readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
