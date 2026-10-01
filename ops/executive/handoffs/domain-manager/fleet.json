@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:15.090Z",
+  "generated_at": "2026-10-01T10:19:20.824Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish pervypotion.com root-page and measurement readiness baseline",
-        "summary": "Pervypotion.com lacks configured analytics evidence in the authoritative snapshot, so no traffic, conversion, monetization, or UX claim is supportable. Existing fleet capacity is saturated; perform only a bounded read-only evidence capture.",
-        "requested_action": "Inspect the exact repository files rendering `/`, site configuration, analytics wiring, monetization surfaces, disclosures, and build/test commands. Record exact paths, current audience proposition, visible primary action, affiliate readiness, accessibility issues, and the smallest reversible implementation candidate. Do not modify production, add telemetry, deploy, spend, or claim performance.",
+        "title": "Prepare pokererotic.com launch-readiness and measurement brief",
+        "summary": "Site-specific implementation is blocked by missing authoritative evidence for current page structure, audience positioning, analytics readiness, monetization readiness, compliance state, and active-work overlap.",
+        "requested_action": "Create one timestamped read-only brief covering the existing repository/page entry points, audience and content scope, highest-intent conversion surface, analytics and affiliate readiness, compliance/security gates, exact implementation candidate, baseline availability, and one smallest next implementation step. Do not deploy, add telemetry, change configuration, spend, or claim traffic, revenue, attribution, or conversion impact.",
         "proposal_id": null
       }
     ]
