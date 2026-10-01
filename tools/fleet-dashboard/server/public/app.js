@@ -8657,9 +8657,9 @@ async function renderGuides() {
     <div class="task-toolbar guide-toolbar" role="group" aria-label="Guide queue controls">
       <label class="guide-site-control">Site<select id="guide-site" aria-label="Guide site">${opts}</select></label>
       <div id="guide-config" class="guide-config" aria-live="polite"></div>
-      <button class="btn primary sm guide-new-btn" id="new-idea">+ New Idea</button>
+      <button type="button" class="btn primary sm guide-new-btn" id="new-idea">+ New Idea</button>
     </div>
-    <div id="guide-content"><div class="loading">Loading guide queue…</div></div>`;
+    <div id="guide-content" aria-live="polite" aria-busy="true"><div class="loading" role="status">Loading guide queue…</div></div>`;
   $('#guide-site').addEventListener('change', e => {
     GUIDE.site = e.target.value;
     loadGuideBoard();
@@ -8671,8 +8671,10 @@ async function renderGuides() {
 async function loadGuideBoard() {
   const content = $('#guide-content'),
     cfgEl = $('#guide-config');
+  content.setAttribute('aria-busy', 'true');
   if (!GUIDE.site) {
     content.innerHTML = '<div class="empty">No sites found.</div>';
+    content.setAttribute('aria-busy', 'false');
     return;
   }
   let data, config;
@@ -8683,6 +8685,7 @@ async function loadGuideBoard() {
     ]);
   } catch (e) {
     renderViewError(content, e.message);
+    content.setAttribute('aria-busy', 'false');
     return;
   }
   GUIDE.data = data;
@@ -8710,6 +8713,7 @@ async function loadGuideBoard() {
       : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
     return `<div class="col"><div class="col-head"><h3>${GUIDE_COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div></div>`;
   }).join('')}</div>`;
+  content.setAttribute('aria-busy', 'false');
   $$('.guide-card').forEach(el =>
     el.addEventListener('click', e => {
       if (e.target.closest('button')) return;
@@ -12692,7 +12696,8 @@ function cqExceptionCard(r) {
 async function renderChangeQueue({ background = false } = {}) {
   if (CHANGE_QUEUE_RENDERING) return;
   CHANGE_QUEUE_RENDERING = true;
-  if (FRESH && !background) app.innerHTML = '<div class="loading">Loading change queue…</div>';
+  if (FRESH && !background)
+    app.innerHTML = '<div class="loading" role="status" aria-live="polite">Loading change queue…</div>';
   let data;
   try {
     data = await api('GET', '/api/change-requests');
@@ -13106,7 +13111,7 @@ async function renderChangeQueueDetail(id) {
     return;
   }
   panel.innerHTML =
-    '<section class="card cq-detail-card"><div class="loading">Loading actions and request details…</div></section>';
+    '<section class="card cq-detail-card"><div class="loading" role="status" aria-live="polite">Loading actions and request details…</div></section>';
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   try {
     const data = await api('GET', `/api/change-requests/${encodeURIComponent(id)}`);

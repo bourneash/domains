@@ -670,6 +670,14 @@ test('Cron log source switcher exposes complete tab semantics', () => {
   assert.match(index, /id="cm-log-out" class="cn-logs-box" role="tabpanel" tabindex="0"/);
 });
 
+test('Change Queue and Guides use shared loading announcements', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="loading" role="status" aria-live="polite">Loading change queue/);
+  assert.match(app, /cq-detail-card"><div class="loading" role="status" aria-live="polite">/);
+  assert.match(app, /id="guide-content" aria-live="polite" aria-busy="true"/);
+  assert.match(app, /content\.setAttribute\('aria-busy', 'false'\)/);
+});
+
 test('role enrollment and bulk health actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const roles = app.slice(
