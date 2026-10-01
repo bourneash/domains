@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:43:14.757Z",
+  "generated_at": "2026-10-01T10:45:21.835Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects new production admissions this cycle. All 10 implementation slots are occupied, measurement debt and failed requests remain unresolved, revenue attribution is incomplete, and scaffold launch-readiness evidence is missing. CTO must complete or justifiably close the existing saveusfarms.com repair case and release one slot by 2026-10-01T12:00:00Z, escalating unresolved capacity to the owner then. No new candidate is safely queueable before that unblock.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, attribution, causal-lift, unsafe, duplicate, and immediate production claims. Amazon's $4.92 commission is aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and failed requests. Preserve only three capacity-gated reversible engineer specifications below. CTO must complete or close the canonical saveusfarms.com repair case with validation, rollback, and release-boundary evidence by 2026-10-01T12:00:00Z, then escalate unresolved capacity to the owner. Keep all launch, security, legal, attribution, and measurement gates active.",
         "requested_action": null,
         "proposal_id": null
       }
