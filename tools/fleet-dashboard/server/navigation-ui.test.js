@@ -64,6 +64,15 @@ test('site command centers are shareable first-class routes', () => {
   assert.ok((siteView.match(/class="table-wrap"><table/g) || []).length >= 2);
 });
 
+test('site command deep links retain domain context in the shell title', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /rootView === 'site'/);
+  assert.match(shell, /location\.hash\.match/);
+  assert.match(shell, /const rawSite =/);
+  assert.match(shell, /<span class="ctx-g">Domain Control<\/span>/);
+  assert.match(shell, /document\.title = `\$\{siteLabel\} · Domain Fleet Manager`/);
+});
+
 test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').view, 'agent');
   assert.equal(routeFor('#agents/executive').agent, 'executive');

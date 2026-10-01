@@ -1455,13 +1455,27 @@
         activeSec && activeSec !== 'pinned' && !isRoot
           ? $(`.rl-sec[data-sec="${activeSec}"] .rl-h-t`, rail)?.textContent || ''
           : '';
-      ctx.innerHTML = grp
-        ? `<span class="ctx-g">${esc(grp)}</span><span class="ctx-s">/</span><span class="ctx-v">${esc(activeLabel)}</span>`
-        : `<span class="ctx-v">${esc(activeLabel || 'Fleet')}</span>`;
-      document.title =
-        activeLabel && activeLabel !== 'Fleet'
-          ? `${activeLabel} · Domain Fleet Manager`
-          : 'Domain Fleet Manager';
+      let siteLabel = '';
+      if (rootView === 'site') {
+        const rawSite = location.hash.match(/^#site\/([^/?]+)/)?.[1] || '';
+        try {
+          siteLabel = decodeURIComponent(rawSite);
+        } catch {
+          siteLabel = rawSite;
+        }
+      }
+      if (siteLabel) {
+        ctx.innerHTML = `<span class="ctx-g">Domain Control</span><span class="ctx-s">/</span><span class="ctx-v">${esc(siteLabel)}</span>`;
+        document.title = `${siteLabel} · Domain Fleet Manager`;
+      } else {
+        ctx.innerHTML = grp
+          ? `<span class="ctx-g">${esc(grp)}</span><span class="ctx-s">/</span><span class="ctx-v">${esc(activeLabel)}</span>`
+          : `<span class="ctx-v">${esc(activeLabel || 'Fleet')}</span>`;
+        document.title =
+          activeLabel && activeLabel !== 'Fleet'
+            ? `${activeLabel} · Domain Fleet Manager`
+            : 'Domain Fleet Manager';
+      }
     }
     syncNavigationCurrent();
   }
