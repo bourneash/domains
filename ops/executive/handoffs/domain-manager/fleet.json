@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:50:19.365Z",
+  "generated_at": "2026-10-01T09:53:03.963Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete drivegm.net launch-readiness evidence brief",
-        "summary": "drivegm.net is a parked scaffold with site and operations capabilities but no configured analytics evidence in the supplied snapshot. Complete the smallest evidence artifact before any build, monetization, or public exposure decision.",
-        "requested_action": "Inspect only the existing drivegm.net scaffold repository and retained registry metadata. Produce a timestamped launch-readiness brief covering audience, homepage scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only gates. Record exactly one next owner action or blocker. Do not deploy, publish, add tracking, add dependencies, spend, or change production.",
+        "title": "Complete elevatorfriends.com launch-readiness artifact before implementation",
+        "summary": "elevatorfriends.com is a scaffold with no verified launch-readiness artifact and analytics are not configured. Complete the smallest evidence artifact before admitting public-surface implementation.",
+        "requested_action": "Create a timestamped launch-readiness artifact covering audience, first public page scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, preview-only gate, and exactly one next owner action. Do not deploy, publish, add tracking, change domains, spend, or claim traffic or revenue.",
         "proposal_id": null
       }
     ]
