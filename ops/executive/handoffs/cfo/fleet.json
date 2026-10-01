@@ -2,42 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:17:26.893Z",
+  "generated_at": "2026-10-01T05:28:58.008Z",
   "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve containment and admit no new finance, implementation, telemetry, or duplicate reporting work this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 108 approved proposals lacking execution. Complete or close the existing capacity-blocking repair case by 2026-10-01T09:00Z before admitting canonical work.",
+        "summary": "CFO recommendation: keep financial containment. Do not approve new spend, revenue forecasts, ROI claims, or monetization expansion. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; $4.92 is aggregate and unattributed, so site revenue, contribution margin, CAC, ROI, and cost-to-learn are not calculable. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 108 approved proposals lacking execution. Complete or close the existing capacity-blocking repair case by 2026-10-01T09:00Z before admitting work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial disposition: revenue claims remain unsupported at site level. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all aggregate under tracking_id=other. Do not claim site revenue, contribution margin, ROI, payback, forecast, or causal lift.",
+        "summary": "AI spend is measurable only for the 2026-10-01 snapshot: $2.2785467 across 16 calls and 4 of 38 expected instrumented sites, averaging $0.14240916875 per call. This is not a cost-to-learn figure because no attributable revenue, incremental contribution, experiment outcome, or per-change cost exists. Treat the $2.2785467 as incurred AI operating spend, not evidence of return; do not extrapolate it fleet-wide.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "September AI spend was 5,531 calls costing $1,002.46, including 234 errors, or approximately $0.181 per call. Current AI telemetry covers only 4 sites, so fleet allocation is incomplete. The $4.92 Amazon amount and September AI cost are non-comparable periods and must not be presented as return or margin.",
+        "summary": "Before any finance-sensitive implementation is admitted, complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Record validation, rollback, release boundary, attribution limits, measurement limits, and deduplication evidence. Do not add billing, tracking, spending, or production changes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin, infrastructure spend, budget exposure, and cost-to-learn are not calculable. Monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank; infrastructure and operations sweeps have no results; experiment-level AI, implementation, labor, and infrastructure costs are not linked to hypotheses or outcomes. Minimum future measurement is an experiment-level ledger joining site, hypothesis, variant, request, dated direct costs, allocated shared costs, attributable revenue, and measured outcome.",
+        "summary": "Preserve Amazon's $4.92 commission as aggregate unattributed revenue for 2026-09-21. Do not allocate the 629 aggregate clicks, 28 ordered items, or commission to any site. For future reporting, require a registered site tracking ID on every monetized link and retain ordered, shipped, commission, and reporting-period fields.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing attribution boundary: keep the $4.92 aggregate commission visible but unassigned, require registered tracking IDs for new links, and reject vanity metrics such as clicks, impressions, ordered items, or shipped items as profitability evidence without attributable commission and complete cost allocation. No additional finance proposal is justified because the required read-only telemetry already exists; the blocker is linkage and allocation.",
+        "summary": "No owner approval is requested for spending or banking activity. The finance blocker is measurement completeness: contribution margin requires site-attributed commission plus direct AI, infrastructure, domain, vendor, and labor costs. Until those fields exist, approve no financial forecast or payback claim. Minimum additional measurement is a dated per-site cost ledger and revenue export; this is a reporting prerequisite, not authorization to spend.",
         "requested_action": null,
         "proposal_id": null
       }

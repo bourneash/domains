@@ -1354,6 +1354,7 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(index, /id="theme-toggle"/);
   assert.match(index, /id="refresh" class="btn" type="button" aria-label="Refresh dashboard data"/);
   assert.match(index, /id="density-toggle"[^>]*aria-pressed="false"/);
+  assert.match(index, /id="theme-toggle"[^>]*aria-pressed="false"/);
   assert.match(index, /<main id="app" aria-busy="true">/);
   assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
   assert.match(app, /function applyThemeUI\(\)/);

@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:17:26.894Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:28:58.009Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for public beta or full launch; keep SearchWoot private. Woot documentation confirms API access but not commercial/public redistribution, storage, historical derivatives, display, alerts, affiliate, advertising, attribution, freshness, correction, or takedown rights. Current public terms point against the proposed use. Human counsel is required before any rights outreach, data-use expansion, affiliate use, advertising, or public exposure. Fleet evidence also shows 35 compliance passes, 20 failures, 6 unknowns; security and operations sweeps have no results; accuracy/freshness, measurement/attribution, and owner gates remain blocked. Ordinary reversible growth may continue only where it does not add data collection, rights exposure, regulated claims, or new monetization.",
+        "summary": "Risk disposition: counsel_required; public launch is blocked. Keep searchwoot.com private and do not send rights outreach or change the gate. Evidence: Woot documentation confirms API access but not redistribution, caching, historical derivatives, public display, alerts, affiliate, or advertising rights; public terms restrict commercial/product-data use. Compliance is technical-only, not certification. Security fleet-doctor and operations sweeps have no results; accuracy, measurement, attribution, and owner gates remain incomplete. Human counsel must review source rights, privacy/jurisdiction treatment, vendor terms, and any affiliate or advertising use. Ordinary reversible growth elsewhere may continue within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Candidate-plan review: retain the capacity gate and reject new site-factory, CRO, telemetry, duplicate-control-plane, and production admissions this cycle. The only supported next action is completion or justified closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, followed by at most the already-canonical allthingsmasonic.com CTA work after capacity release. Preserve affiliate disclosure, destination integrity, accessibility, rollback, and measurement boundaries; do not claim revenue, ROI, conversion lift, or causality. The available Amazon evidence is limited to 2026-09-21 aggregate commission of $4.92 under tracking_id=other and is not site-attributable.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed. Public source documentation and partial repository evidence are attached, but none satisfies its full deliverable. Next evidence action: attach one dated read-only bundle covering the four task gaps, without production changes, new tracking, outreach, or duplicate telemetry requests.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: 0 of 4 SearchWoot legal tasks are closed; all remain open. Existing evidence is partial for data flow and consent/analytics, while source rights are blocked. Do not mark tasks complete based on repository files alone. Next evidence action: attach one dated read-only bundle containing the authoritative source-rights record, field-level data-flow/retention table, deployed consent and GA4 configuration evidence, and log/vendor/incident inventory; then obtain human-counsel review for rights, privacy, and jurisdictional questions.",
+        "summary": "Keep searchwoot.com private. Produce the smallest read-only evidence artifacts for data flow, retention, deletion/correction/access, consent behavior, GA4 configuration, log fields, vendor coverage, and incident handling. Do not enable tracking, change configuration, deploy, or send external requests.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Confirm the exact decision: keep searchwoot.com private, leave Woot rights outreach unsent, and require human counsel review before any bounded beta, affiliate use, advertising, public display, alerts, or expanded data processing.",
         "requested_action": null,
         "proposal_id": null
       }

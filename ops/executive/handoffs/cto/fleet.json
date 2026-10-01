@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:17:26.894Z",
+  "generated_at": "2026-10-01T05:28:58.009Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve the capacity gate and admit no new implementation, preview, CRO, telemetry, or control-plane work while all 10 delivery slots are occupied. Do not queue the three site-factory candidates. The canonical allthingsmasonic.com CTA refinement is technically feasible and reversible, but remains queued until the existing saveusfarms.com repair case is completed or justified closure is documented by 2026-10-01T09:00Z. Require deterministic tests, isolated validation, build evidence, rollback scope, release and security boundaries, deduplication evidence, and observed affiliate-click measurement only. Do not claim revenue, ROI, conversion lift, or causal impact.",
+        "summary": "CTO disposition: reject all new proposals, reports, site-factory work, CRO work, telemetry requests, and queue expansion this cycle. Capacity is saturated at 10/10 active delivery slots, with existing measurement and repair work unresolved. Preserve the canonical allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair case is completed or justifiably closed and one slot is released. Keep all launch and security-sensitive gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing canonical repair and security evidence work only. Do not create duplicate work items or request telemetry already present in the snapshot. After one slot is released, admit at most the existing allthingsmasonic.com CTA request; preserve registered affiliate destinations, disclosure adjacency, accessibility, responsive behavior, and single-diff rollback. Keep private-launch and security-sensitive release gates unchanged.",
+        "summary": "No new work can safely enter the implementation queue this cycle. CTO will complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, record validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, then release one slot or escalate unresolved capacity. Existing private-launch and security gates remain in force.",
         "requested_action": null,
         "proposal_id": null
       }
