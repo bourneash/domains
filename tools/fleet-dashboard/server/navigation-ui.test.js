@@ -972,6 +972,15 @@ test('Activity presents audit volume and outcome hierarchy', () => {
   assert.match(theme, /\.activity-summary \{[^}]*grid-template-columns/);
 });
 
+test('Product Feed presents queue health as a summary strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="pf-summary"/);
+  assert.match(app, /Queues below target<\/span>/);
+  assert.match(app, /Verified products<\/span>/);
+  assert.match(theme, /\.pf-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);

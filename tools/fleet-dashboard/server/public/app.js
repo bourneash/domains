@@ -1563,6 +1563,16 @@ async function renderProductFeed() {
     .join('');
 
   const productItems = (products && products.items) || [];
+  const subscriptionRows = Array.isArray(subs) ? subs : [];
+  const feedDeficits = subscriptionRows.filter(
+    s =>
+      s.available != null &&
+      s.target_available_depth != null &&
+      s.available < s.target_available_depth
+  ).length;
+  const feedQueue = subscriptionRows.reduce((n, s) => n + (s.queued || 0) + (s.publishing || 0), 0);
+  const feedPublished = subscriptionRows.reduce((n, s) => n + (s.published || 0), 0);
+  const feedRejected = subscriptionRows.reduce((n, s) => n + (s.rejected || 0), 0);
   const productRows = productItems
     .map(p => {
       const safeUrl =
@@ -1585,6 +1595,14 @@ async function renderProductFeed() {
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Product Feed</h2><span class="muted">${esc(stats.products || 0)} verified Amazon products · independent site queues (:4761)</span></div>
     ${healthHtml}
+    <section class="pf-summary" aria-label="Product feed summary">
+      <div class="pf-stat"><strong>${subscriptionRows.length}</strong><span>Subscribed sites</span></div>
+      <div class="pf-stat ${feedDeficits ? 'pf-stat-warn' : 'pf-stat-good'}"><strong>${feedDeficits}</strong><span>Queues below target</span></div>
+      <div class="pf-stat"><strong>${feedQueue}</strong><span>Queued / publishing</span></div>
+      <div class="pf-stat pf-stat-good"><strong>${feedPublished}</strong><span>Published</span></div>
+      <div class="pf-stat ${feedRejected ? 'pf-stat-bad' : 'pf-stat-good'}"><strong>${feedRejected}</strong><span>Rejected</span></div>
+      <div class="pf-stat pf-stat-meta"><strong>${stats.products || 0}</strong><span>Verified products</span></div>
+    </section>
     <div class="card">
       <h3>Subscriptions</h3>
       <table>

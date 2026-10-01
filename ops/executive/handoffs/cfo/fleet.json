@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:48:53.126Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:57:21.041Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Do not approve new spend, scale AI usage, or make revenue, ROI, contribution-margin, or forecast claims. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under an unattributed row; named site rows show $0 site-attributed commission. September AI usage is 5,531 calls costing $1,002.46, including 234 errors (4.23%); cost per validated output is not calculable because calls are not mapped to accepted work or revenue. Keep existing capacity and launch gates unchanged until a report-only finance baseline reconciles revenue, AI cost, infrastructure cost, and attributable work.",
+        "summary": "CFO recommendation: preserve containment, admit no new work, and do not make revenue, ROI, contribution-margin, or forecast claims this cycle. September AI usage was 5,531 calls costing $1,002.46, including 234 errors; average AI cost was approximately $0.181 per call. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate under tracking_id=other and cannot be assigned to a site; the date also does not align to the September AI-cost window. Therefore site revenue, contribution margin, payback, and ROI are unsupported. Fleet-level revenue-to-AI-cost comparison is only a non-comparable reference: $4.92 versus $1,002.46, not a valid return calculation. Cost-to-learn is not calculable because experiment-level AI, infrastructure, labor, and implementation costs are not linked to hypotheses or measured outcomes. Minimum measurement needed is a dated experiment ledger linking site/content/change ID to incremental AI cost, infrastructure cost, implementation effort, attributable commission, orders, shipped items, and measurement window. Do not treat 14,734 impressions, 150 clicks, 1,021 sessions, 17 conversions, proposal counts, or output volume as financial returns. Preserve the existing allthingsmasonic.com CTA work only after capacity clears, using outbound affiliate clicks as the primary metric and revenue as secondary. Keep launch and monetization gates unchanged until attribution and direct-cost evidence exist.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance disposition: preserve the existing affiliate-attribution control. The 2026-09-21 Amazon aggregate row contains 629 clicks, 28 ordered items, 6 shipped items, and $4.92 commission that cannot be assigned to a site. Require every new affiliate link to use a registered tracking ID, but do not represent tracking coverage as revenue attribution. No duplicate telemetry request is needed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Cost-to-learn conclusion: AI spend is measurable, but learning efficiency is not. September cost per AI call is approximately $0.1812 ($1,002.46 / 5,531), while cost per error is approximately $4.28 ($1,002.46 / 234); neither is a unit-economic or contribution-margin metric. A validated cost-to-learn figure requires work-item-level AI cost, accepted-output status, measurement result, and attributable revenue or avoided cost.",
+        "summary": "CFO handoff: retain the existing capacity gate. No finance implementation or duplicate telemetry request is justified because current read-only financial and AI telemetry is available; the blocker is missing linkage and cost allocation. If capacity later permits, the minimum report-only finance artifact should be an experiment-level unit-economics ledger, not a new dashboard or production change.",
         "requested_action": null,
         "proposal_id": null
       }

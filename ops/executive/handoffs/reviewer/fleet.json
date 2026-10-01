@@ -2,51 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:48:53.126Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:57:21.041Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Independent review: reject all new production, implementation, queue, CRO, site-factory, telemetry, spend, and duplicate evidence work this cycle. Delivery is saturated at 10/10 slots; attribution supports only $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, ROI, margin, forecasts, and causal lift remain unsupported. Preserve existing private-launch and security gates. CTO should complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only canonical approved work. Owner action: confirm SearchWoot remains private and rights outreach unsent.",
+        "summary": "Reviewer disposition: reject all new proposals, production work, CRO/site-factory work, telemetry requests, spending, and queue expansion. Delivery is saturated at 10/10 slots; financial claims remain unsupported because the only commission evidence is aggregate and unattributed. Preserve existing security and private-launch gates. CTO must complete or close the existing repair case with validation, rollback, attribution, measurement, and deduplication evidence before any canonical queued implementation proceeds.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed finance baseline as a new proposal this cycle. Existing AI, revenue, attribution, and cost telemetry is already available; no duplicate report or telemetry request is justified. Preserve unknowns and do not claim unit economics, cost-to-learn, profitability, or forecasts.",
+        "summary": "Reviewer disposition: reject new production, high-priority, duplicate, telemetry, spend, and security-sensitive work. Route only three low-risk SEO candidates as capacity-gated engineer specifications; do not execute while delivery is saturated at 10/10 slots. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner. Revenue, ROI, margin, and causal-lift claims remain unsupported because available Amazon commission is aggregate and unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security proposal as duplicate admission. The canonical read-only security evidence matrix is already in progress. Continue that existing work only; keep security-sensitive releases and gated public exposure blocked until dated control evidence and owner disposition exist.",
+        "summary": "Three bounded SEO specifications are routed to engineer as capacity-gated only. Do not admit or execute them until one active slot is released and existing site-overlap work is resolved. If capacity remains unresolved by 2026-10-01T09:00Z, escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue, ROI, margin, and causal-lift claims remain unsupported: available affiliate commission is aggregate and unattributed. Delivery is saturated at 10/10 slots, so the three evidence-backed implementation candidates below are routed to engineer but capacity-gated. CTO must complete or justify closure of the existing saveusfarms.com repair case, release a slot, or escalate to the owner by 2026-10-01T09:00Z. Security and private-launch gates remain unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "cfo-2026-10-01-finance-unit-economics-baseline",
-        "summary": "Rejected as a new proposal this cycle. Existing telemetry is sufficient for a bounded disposition, while attribution and low-volume evidence do not support financial claims or unit economics.",
-        "requested_action": "declined",
-        "proposal_id": "cfo-2026-10-01-finance-unit-economics-baseline"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-2026-10-01-canonical-evidence-needed-disposition",
-        "summary": "Duplicate of the canonical in-progress security evidence matrix; preserve existing gates without creating new work.",
-        "requested_action": "declined",
-        "proposal_id": "security-2026-10-01-canonical-evidence-needed-disposition"
       }
     ]
   }

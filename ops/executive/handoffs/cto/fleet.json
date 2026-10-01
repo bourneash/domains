@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:48:53.126Z",
+  "generated_at": "2026-10-01T04:57:21.041Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve no new implementation admission this cycle. Preserve the canonical allthingsmasonic.com CTA request capacity-gated until the existing saveusfarms.com repair-or-close case has documented ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Keep launch and security gates unchanged; do not claim site revenue, ROI, margin, or causal lift.",
+        "summary": "CTO review: preserve containment and admit no new implementation while delivery is saturated at 10/10 active slots. The candidate control-plane improvement is technically feasible in principle, but it is not safe to queue now: current evidence shows no available capacity, repeated duplicate/stranded work, failed requests, and incomplete execution linkage. Do not infer that a new deduplication system will reduce triage time or improve reliability without an isolated prototype and measured outcome.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create or admit duplicate implementation, site-factory, CRO, SEO, telemetry, or prototype work while capacity is saturated. After one slot is released, execute only the canonical allthingsmasonic.com request, subject to its existing tests, rollback, disclosure, accessibility, destination, and registered affiliate-click measurement criteria.",
+        "summary": "After one slot is released, admit only the existing canonical allthingsmasonic.com CTA refinement. Keep scope to one isolated site change, deterministic tests, destination and tracking-ID validation, disclosure/accessibility checks, and single-diff rollback. Measure outbound affiliate clicks against the recorded 61-click baseline; retain ordered items and commission as secondary fields without revenue, ROI, or causal claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed standalone affiliate-attribution implementation as new queue work. Preserve registered tracking-ID validation as an acceptance check within future canonical link changes and retain the aggregate provider row as unattributed. Do not infer site revenue, ROI, margin, or causal lift.",
+        "summary": "Reject or defer the proposed fleet-wide admission/deduplication implementation, AI-cost guardrails, work-graph expansion, site-factory builds, CRO prototypes, and new telemetry requests this cycle. A control-plane change would require an isolated worktree or disposable control-plane fixture, explicit idempotency and capability tests, queue/measurement/rollback linkage tests, failure recovery validation, owner-approved implementation, and a measurable baseline. Existing operational and fleet-doctor evidence is incomplete, so no reliability or isolation claim is currently supportable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the unit-economics baseline only as bounded offline report-only work using existing retained artifacts. It must not request telemetry, access billing or banking systems, create an implementation slot, or authorize spend. Report aggregate commission and AI cost separately from revenue, profit, and margin; mark unavailable fields explicitly.",
+        "summary": "Keep private-launch and security-sensitive release gates unchanged. Do not add dependencies, credentials, permissions, cross-site behavior, production configuration, external outreach, or public exposure. The strongest site-factory candidate remains preview-only and cannot enter the implementation queue until launch-readiness, compliance, security, measurement, owner, and rollback evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }
