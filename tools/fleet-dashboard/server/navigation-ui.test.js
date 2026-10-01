@@ -1491,7 +1491,10 @@ test('Containers provides scoped search and operational filters', () => {
   assert.match(app, /id="cn-kind"/);
   assert.match(app, /function applyContainerFilter\(\)/);
   assert.match(app, /data-cn-status/);
-  assert.match(app, /class="card cn-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="card cn-table"><div class="table-wrap"><table><caption class="sr-only">Container runtime status and lifecycle controls<\/caption>/);
+  assert.match(app, /class="btn sm cn-logs" data-id="\$\{esc\(r\.id\)\}" aria-expanded="false" aria-controls="cn-detail-/);
+  assert.match(app, /aria-label="Restart \$\{esc\(r\.name\)\}"/);
+  assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
   assert.match(app, /class="cn-help"><summary>What container actions do/);
   assert.match(theme, /\.cn-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.cn-table \{[^}]*overflow: hidden/);

@@ -5268,23 +5268,23 @@ async function renderContainers() {
         r.kind === 'cron' ? 'cron' : r.kind === 'worker' ? 'worker run' : r.service || r.kind;
       const svc = `<span class="badge ${r.kind === 'cron' ? 'b-blue' : r.kind === 'worker' ? 'b-purple' : 'b-gray'}">${esc(label)}</span>`;
       const acts = [
-        `<button type="button" class="btn sm cn-logs" data-id="${esc(r.id)}">📜 Logs</button>`,
+        `<button type="button" class="btn sm cn-logs" data-id="${esc(r.id)}" aria-expanded="false" aria-controls="cn-detail-${esc(r.id)}" aria-label="Show logs for ${esc(r.name)}">📜 Logs</button>`,
       ];
       if (r.running)
         acts.push(
-          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="restart" data-name="${esc(r.name)}">↻ Restart</button>`
+          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="restart" data-name="${esc(r.name)}" aria-label="Restart ${esc(r.name)}">↻ Restart</button>`
         );
       else
         acts.push(
-          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}">▶ Start</button>`
+          `<button type="button" class="btn sm cn-act" data-id="${esc(r.id)}" data-act="start" data-name="${esc(r.name)}" aria-label="Start ${esc(r.name)}">▶ Start</button>`
         );
       if (r.kind === 'cron')
         acts.push(
-          `<button type="button" class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`
+          `<button type="button" class="btn sm cn-bounce" data-slug="${esc(r.slug)}" data-name="${esc(r.name)}" aria-label="Rebuild ${esc(r.name)}" title="Rebuild image + recreate (Dockerfile/dependency changes)">⟳ Rebuild</button>`
         );
       if (r.running)
         acts.push(
-          `<button type="button" class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`
+          `<button type="button" class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}" aria-label="Stop ${esc(r.name)}">⏹ Stop</button>`
         );
       const state = !r.running ? 'stopped' : r.unhealthy ? 'unhealthy' : 'healthy';
       return `<tr class="cn-row" data-id="${esc(r.id)}" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}" data-cn-name="${esc(`${r.name} ${r.slug || ''} ${r.service || ''}`.toLowerCase())}" data-cn-status="${state}" data-cn-kind="${esc(r.kind)}">
@@ -5295,14 +5295,14 @@ async function renderContainers() {
       <td class="mono muted">${esc(r.running ? r.runningFor : '—')}</td>
       <td class="cn-actions">${acts.join(' ')}</td>
     </tr>
-    <tr class="cn-detail-row hidden" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6">
+    <tr class="cn-detail-row hidden" id="cn-detail-${esc(r.id)}" data-detail="${esc(r.id)}" data-rk="cn:${esc(r.id)}"><td colspan="6">
       <div class="cn-log-toolbar muted">
         <span>logs · <span class="live-tag">live</span></span>
         <span class="cm-spacer"></span>
         <input class="cm-input cn-log-filter" data-id="${esc(r.id)}" type="text" placeholder="Filter lines…" spellcheck="false" />
         <label class="cm-chk"><input type="checkbox" class="cn-log-wrap" data-id="${esc(r.id)}" /> Wrap</label>
-        <button type="button" class="btn sm cn-log-copy" data-id="${esc(r.id)}">Copy</button>
-        <button type="button" class="btn sm cn-log-download" data-id="${esc(r.id)}" data-name="${esc(r.name)}">Download</button>
+        <button type="button" class="btn sm cn-log-copy" data-id="${esc(r.id)}" aria-label="Copy logs for ${esc(r.name)}">Copy</button>
+        <button type="button" class="btn sm cn-log-download" data-id="${esc(r.id)}" data-name="${esc(r.name)}" aria-label="Download logs for ${esc(r.name)}">Download</button>
       </div>
       <pre class="cn-logs-box" id="cl-${esc(r.id)}" data-rkh="cn:${esc(r.id)}"></pre></td></tr>`;
     })
@@ -5324,7 +5324,7 @@ async function renderContainers() {
       <span id="cn-filter-count" class="muted" role="status" aria-live="polite"></span>
       <button type="button" class="btn sm" id="restart-crons" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
-    <div class="card cn-table"><div class="table-wrap"><table>
+    <div class="card cn-table"><div class="table-wrap"><table><caption class="sr-only">Container runtime status and lifecycle controls</caption>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No domains containers running.</td></tr>'}</tbody>
     </table></div></div>
@@ -5403,7 +5403,11 @@ function containerStatus(r) {
 }
 
 function wireContainerRows() {
-  $$('.cn-logs').forEach(b => b.addEventListener('click', () => toggleContainerLogs(b.dataset.id)));
+  $$('.cn-logs').forEach(b => {
+    const detail = $(`tr[data-detail="${CSS.escape(b.dataset.id)}"]`);
+    b.setAttribute('aria-expanded', String(Boolean(detail && !detail.classList.contains('hidden'))));
+    b.addEventListener('click', () => toggleContainerLogs(b.dataset.id));
+  });
   $$('.cn-act').forEach(b =>
     b.addEventListener('click', () =>
       containerAction(b.dataset.id, b.dataset.act, b.dataset.name, b)
@@ -5452,11 +5456,14 @@ function wireContainerRows() {
 async function toggleContainerLogs(id) {
   const row = $(`tr[data-detail="${CSS.escape(id)}"]`);
   const box = $(`#cl-${CSS.escape(id)}`);
+  const trigger = $(`.cn-logs[data-id="${CSS.escape(id)}"]`);
   if (!row.classList.contains('hidden')) {
     row.classList.add('hidden');
+    trigger?.setAttribute('aria-expanded', 'false');
     return;
   }
   row.classList.remove('hidden');
+  trigger?.setAttribute('aria-expanded', 'true');
   box.classList.add('async-loading');
   box.textContent = 'Loading logs…';
   await fetchContainerLog(id, box);
