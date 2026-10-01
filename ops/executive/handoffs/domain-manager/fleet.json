@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:48:05.405Z",
+  "generated_at": "2026-10-01T10:50:19.626Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Map the homepage conversion surface and route one reversible UX fix",
-        "summary": "shoptopless.com is live with existing analytics evidence of 85 sessions, 230 impressions, 0 clicks, and 1 conversion in the current snapshot. Exact homepage CTA hierarchy, disclosure placement, destination URLs, repository files, and current active work are not evidenced, while implementation capacity is saturated at 10/10 slots.",
-        "requested_action": "Perform one bounded read-only inspection of the homepage (/) and repository to identify the exact template, stylesheet, CTA destinations, disclosure placement, accessibility issues, and any overlapping work. Select exactly one reversible implementation for the next available slot; do not deploy, add tracking, alter monetization, or claim causal lift.",
+        "title": "Hold new totaljerks.com implementation until active measurement clears",
+        "summary": "Do not add or duplicate work for totaljerks.com while the existing treatment work remains in measurement and fleet delivery capacity is saturated at 10/10 slots.",
+        "requested_action": "Preserve the existing work, then recheck queue status after the active measurement window and capacity gate clear. If eligible, route exactly one bounded reversible improvement with exact page/file scope, deterministic tests, baseline, acceptance threshold, and rollback point. Do not request telemetry or claim lift.",
         "proposal_id": null
       }
     ]
