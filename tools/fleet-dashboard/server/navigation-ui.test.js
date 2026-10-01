@@ -896,10 +896,20 @@ test('dashboard includes a keyboard skip link to the current page content', () =
   assert.match(theme, /\.skip-link:focus/);
 });
 
+test('Build Usage exposes a scoped refresh control', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /type="button" class="btn" id="cfb-refresh"/);
+  assert.match(
+    app,
+    /\$\('#cfb-refresh'\)\.addEventListener\('click', \(\) => renderCloudflareBuilds\(\)\)/
+  );
+});
+
 test('Retention presents policy posture before editable rows', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="retention-summary" aria-label="Retention policy summary"/);
+  assert.match(app, /type="button" class="btn" id="retention-refresh"/);
   assert.match(app, /class="retention-toolbar" role="group" aria-label="Retention policy actions"/);
   assert.match(app, /class="retention-days" type="number"/);
   assert.match(app, /class="retention-help"><summary>How the policy is applied/);
@@ -1557,6 +1567,7 @@ test('fleet task table stays bounded while preserving its wide scan columns', ()
 
 test('Cron cards isolate schedule overflow and use explicit action buttons', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /type="button" class="btn" id="cron-refresh"/);
   const start = app.indexOf('function cmCard(sys)');
   const end = app.indexOf('function cmRow(sys, e)', start);
   assert.ok(start >= 0 && end > start);

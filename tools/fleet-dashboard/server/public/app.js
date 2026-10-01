@@ -2492,7 +2492,7 @@ async function renderCloudflareBuilds() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Build Usage</h2><span class="muted">Cloudflare Workers Builds · commits, minutes, cost projection, and live trigger policy</span></div>
+    <div class="page-head"><div><h2 class="page-title">Build Usage</h2><span class="muted">Cloudflare Workers Builds · commits, minutes, cost projection, and live trigger policy</span></div><button type="button" class="btn" id="cfb-refresh">↻ Refresh</button></div>
     <div class="cfb-controls" aria-label="Build history range">
       <div class="seg">
         ${[7].map(days => `<button class="seg-btn cfb-range ${CF_BUILDS.days === days ? 'active' : ''}" data-days="${days}">${days}d</button>`).join('')}
@@ -2519,6 +2519,7 @@ async function renderCloudflareBuilds() {
     ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. Build history is retained locally for 7 days and refreshed hourly; live trigger policy remains current.</p>`;
 
+  $('#cfb-refresh').addEventListener('click', () => renderCloudflareBuilds());
   $$('.cfb-range').forEach(button =>
     button.addEventListener('click', () => {
       CF_BUILDS.days = Number(button.dataset.days) || 30;
@@ -4453,7 +4454,7 @@ async function renderRetention() {
   const deletionEnabled = d.classes.some(c => c.delete_after_days != null);
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Retention</h2><span class="muted">how long the fleet keeps each class of data</span></div>
+    <div class="page-head"><div><h2 class="page-title">Retention</h2><span class="muted">how long the fleet keeps each class of data</span></div><button type="button" class="btn" id="retention-refresh">↻ Refresh</button></div>
     <section class="retention-summary" aria-label="Retention policy summary">
       <div class="retention-stat"><strong>${d.classes.length}</strong><span>Policy classes</span></div>
       <div class="retention-stat"><strong>${d.defaults.retain_days}<small>d</small></strong><span>Default raw retention</span></div>
@@ -4472,6 +4473,7 @@ async function renderRetention() {
     </table></div></div>
     <details class="retention-help"><summary>How the policy is applied</summary><p>Retention means <b>compress, not delete</b>. Files past the window are gzipped (stats ledgers) or rolled into one archive per site per day (role logs), verified, and kept. <b>Deletion is file-only</b> and off everywhere; an undeclared path is reported, never swept. The policy is applied nightly at 04:45 by <code>tools/scripts/prune-fleet-data.py</code>.</p></details>`;
 
+  $('#retention-refresh')?.addEventListener('click', () => renderRetention());
   $('#retention-save')?.addEventListener('click', async () => {
     const msg = $('#retention-msg');
     const inputs = $$('[data-retain]');
@@ -6222,7 +6224,7 @@ async function renderCron() {
   const dirty = systems.filter(s => s.needsRebuild).length;
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Cron</h2><span class="muted">every crontab across ${systems.length} systems · edit a schedule, diff vs the running container, rebuild</span></div>
+    <div class="page-head"><div><h2 class="page-title">Cron</h2><span class="muted">every crontab across ${systems.length} systems · edit a schedule, diff vs the running container, rebuild</span></div><button type="button" class="btn" id="cron-refresh">↻ Refresh</button></div>
     <div class="task-toolbar">
       <strong>${systems.length} systems</strong>
       <span class="muted"><span class="cm-st on"></span>${running} running · <span class="cm-st off"></span>${failed.length} failed · ${dirty} need rebuild</span>
@@ -6232,6 +6234,7 @@ async function renderCron() {
     <div class="cm-systems">${systems.map(s => cmCard(s)).join('')}</div>
     <p class="muted" style="margin-top:12px">Each card is one cron container (a site or tool). Edits write the on-disk <span class="mono">crontab.docker</span>; the container keeps running its baked-in copy until you <b>Rebuild &amp; restart</b>. <b>Pause/Resume</b> on a worker role toggles its <span class="mono">.&lt;role&gt;-disabled</span> flag (instant, no rebuild). <span class="cm-badge stale">stale</span> = disk crontab changed since the last build — rebuild or revert.</p>`;
 
+  $('#cron-refresh').addEventListener('click', () => renderCron());
   cmWireCards();
   // Apply to the DOM directly, NOT via softRender() — softRender captures the
   // current [data-rk] visibility and re-applies it in applyUISnap(), which would
