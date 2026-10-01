@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:44:58.237Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T17:51:35.571Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject both live-site implementation requests. Conflicting capacity ledgers, low-volume descriptive telemetry, absent site-attributed revenue, and incomplete security/operations evidence do not support execution or financial, ROI, causal-lift, or production-readiness claims. Retain only the existing bounded capacity-reconciliation decision and SearchWoot read-only launch-readiness evidence bundle. CTO must reconcile capacity and release one slot by 2026-10-01T18:00Z; otherwise escalate to the owner. No credentials, configuration, spend, schedules, duplicate telemetry, tracking, or production changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all proposed implementation candidates this cycle. Conflicting capacity ledgers and low-volume descriptive telemetry block production work; no revenue, ROI, causal-lift, or production-readiness claim is supported. CTO must reconcile the authoritative capacity ledger and release one delivery slot by 2026-10-01T18:00:00Z. If unresolved, escalate to the owner. No credentials, configuration, spend, schedules, tracking, duplicate telemetry, or production changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No qualifying research request is added: the remaining gaps concern internal capacity and telemetry, which public read-only research cannot resolve without duplicating the shared telemetry contract.",
+        "summary": "Route only three bounded, reversible engineer changes: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Queue execution remains gated on CTO capacity reconciliation and site-specific measurement evidence. Reject revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. CTO must release one slot by 2026-10-01T18:00Z or escalate to the owner; no credentials, configuration, spend, schedules, tracking, duplicate telemetry, or production expansion are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
