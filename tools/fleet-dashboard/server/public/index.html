@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Domain Fleet Manager</title>
+  <meta name="description" content="Operational command center for domain health, scheduled roles, delivery, work queues, and audit evidence." />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
@@ -58,7 +59,7 @@
     <div class="fleet-filter-wrap" title="Filter the current view's rows by site name">
       <input id="fleet-filter" class="cm-input fleet-filter" type="search" placeholder="Filter sites…" aria-label="Filter sites" />
       <button id="fleet-filter-clear" class="fleet-filter-clear" type="button" aria-label="Clear site filter" title="Clear site filter" hidden>×</button>
-      <span id="fleet-filter-count" class="fleet-filter-count" aria-live="polite"></span>
+      <span id="fleet-filter-count" class="fleet-filter-count" role="status" aria-live="polite"></span>
     </div>
     <div class="actions">
       <span id="updated" class="muted" role="status" aria-live="polite"></span>

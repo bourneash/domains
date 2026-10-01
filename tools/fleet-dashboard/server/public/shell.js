@@ -94,12 +94,12 @@
 
   /* ---------------------------------------------------------- 1. VITALS -- */
   const railHTML = `
-    <div class="vt" data-vt="sites" data-vt-action="control" role="button" tabindex="0" aria-label="Open all fleet sites" style="--vt-c:var(--a1)"><div class="vt-k">Fleet</div><div class="vt-v">—</div><div class="vt-sub">sites discovered</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="fresh" data-vt-action="control?filter=fresh" role="button" tabindex="0" aria-label="Show sites with fresh roles" style="--vt-c:var(--green)"><div class="vt-k">Roles fresh</div><div class="vt-v">—</div><div class="vt-sub">ran within window</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="attention" data-vt-action="control?filter=attention" role="button" tabindex="0" aria-label="Show sites needing role attention" style="--vt-c:var(--yellow)"><div class="vt-k">Needs attention</div><div class="vt-v">—</div><div class="vt-sub">stale or overdue roles</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="paused" data-vt-action="control?filter=paused" role="button" tabindex="0" aria-label="Show sites with paused roles" style="--vt-c:var(--purple)"><div class="vt-k">Paused</div><div class="vt-v">—</div><div class="vt-sub">disabled by flag</div><div class="vt-meter"><i></i></div></div>
-    <div class="vt" data-vt="containers" data-vt-action="containers" role="button" tabindex="0" aria-label="Open container status" style="--vt-c:var(--a3)"><div class="vt-k">Containers</div><div class="vt-v">—</div><div class="vt-sub">running</div><div class="vt-bars"></div></div>
-    <div class="vt" data-vt="health" data-vt-action="control?sort=health" role="button" tabindex="0" aria-label="Show worst role health first" style="--vt-c:var(--green)"><div class="vt-k">Fleet role health</div><div class="vt-v">—</div><div class="vt-sub">scheduled-role freshness</div><div class="vt-meter"><i></i></div></div>`;
+    <div class="vt" data-vt="sites" data-vt-action="control" role="button" tabindex="0" style="--vt-c:var(--a1)"><div class="vt-k">Fleet</div><div class="vt-v">—</div><div class="vt-sub">sites discovered</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="fresh" data-vt-action="control?filter=fresh" role="button" tabindex="0" style="--vt-c:var(--green)"><div class="vt-k">Roles fresh</div><div class="vt-v">—</div><div class="vt-sub">ran within window</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="attention" data-vt-action="control?filter=attention" role="button" tabindex="0" style="--vt-c:var(--yellow)"><div class="vt-k">Needs attention</div><div class="vt-v">—</div><div class="vt-sub">stale or overdue roles</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="paused" data-vt-action="control?filter=paused" role="button" tabindex="0" style="--vt-c:var(--purple)"><div class="vt-k">Paused</div><div class="vt-v">—</div><div class="vt-sub">disabled by flag</div><div class="vt-meter"><i></i></div></div>
+    <div class="vt" data-vt="containers" data-vt-action="containers" role="button" tabindex="0" style="--vt-c:var(--a3)"><div class="vt-k">Containers</div><div class="vt-v">—</div><div class="vt-sub">running</div><div class="vt-bars"></div></div>
+    <div class="vt" data-vt="health" data-vt-action="control?sort=health" role="button" tabindex="0" style="--vt-c:var(--green)"><div class="vt-k">Fleet role health</div><div class="vt-v">—</div><div class="vt-sub">scheduled-role freshness</div><div class="vt-meter"><i></i></div></div>`;
 
   const rail = document.createElement('section');
   rail.id = 'vitals';

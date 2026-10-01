@@ -86,9 +86,17 @@
   --text:      #25324a;
   --text-hi:   #101a2e;
   --muted:     #64728a;
-  --faint:     #8a98ad;
-  --accent:    #2877d4;
+  --faint:     #53627c;
+  --a1:        #1f65b5;
+  --a2:        #6d4bb2;
+  --a3:        #087f70;
+  --accent:    #1f65b5;
   --accent-ink:#ffffff;
+  --green:     #16764f;
+  --yellow:    #8a5a00;
+  --red:       #b5263d;
+  --purple:    #6d4bb2;
+  --cyan:      #087f70;
   --control-bg: #edf3fb;
   --control-bg-hover: #e2ecf9;
   --control-bg-active: #d7e6fa;
@@ -132,6 +140,13 @@
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea,
 :root[data-theme="light"] input { background: #fff; color: var(--text); border-color: var(--control-border); }
+:root[data-theme="light"] .btn.primary {
+  background: #1f65b5;
+  border-color: #1f65b5;
+}
+:root[data-theme="light"] .btn.primary:hover {
+  background: #185497;
+}
 :root[data-theme="light"] .cn-logs-box { background: #f7f9fc; color: #33425c; }
 :root[data-theme="light"] .modal { background: rgba(32,49,76,.32); }
 :root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #bdc9d9; background-clip: padding-box; }

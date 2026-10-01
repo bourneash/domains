@@ -921,7 +921,8 @@ test('fleet filtering reports live match counts', () => {
   assert.match(app, /\$\('#fleet-filter-count'\)/);
   assert.match(app, /\$\{visible\}\/\$\{rows\.length\} rows/);
   assert.match(app, /matching rows/);
-  assert.match(index, /id="fleet-filter-count"[^>]*aria-live="polite"/);
+  assert.match(index, /id="fleet-filter-count"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(index, /<meta name="description" content="Operational command center for domain health/);
   assert.match(theme, /\.fleet-filter-count/);
   assert.match(app, /ff\.addEventListener\('keydown'/);
   assert.match(app, /e\.key === 'Escape' && ff\.value/);
@@ -959,6 +960,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /@media \(max-width: 720px\) \{[\s\S]*#vitals \{\s*display: grid; grid-template-columns: repeat\(6, 168px\); grid-template-rows: auto auto;/);
   assert.match(theme, /\.vt-scope \{ grid-column: 1 \/ -1; width: max-content; white-space: nowrap;/);
+  assert.match(theme, /:root\[data-theme="light"\] \{[\s\S]*--a1:\s+#1f65b5;/);
   assert.match(theme, /\.vt \{ flex: 0 0 168px; min-width: 168px; \}/);
   assert.match(theme, /\.actions \{\s*gap: 14px; min-width: 0; max-width: 100%; box-sizing: border-box;\s*flex-wrap: wrap; justify-content: flex-end;/);
   assert.match(theme, /@media \(max-width: 1400px\) \{[\s\S]*\.actions \{ flex: 0 1 calc\(100% - 44px\); width: calc\(100% - 44px\); \}/);
