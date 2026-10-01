@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:24:07.584Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:33:01.892Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the howtofry.com preview build and all production, monetization, tracking, social-automation, credential, dependency, spending, and queue-admission actions this cycle. Capacity is unresolved, analytics and affiliate attribution are absent, and launch/security/readiness evidence is incomplete. Preserve only bounded public research to close specific rights, disclosure, and observable-surface gaps; make no financial, ROI, causal-lift, or production-readiness claims.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject howtofry.com preview execution, production, monetization, tracking, social automation, spending, and financial claims this cycle. Analytics, affiliate attribution, launch evidence, and capacity remain unresolved. Route only the three existing reversible revalidation repairs below as medium-priority engineer work; execution remains gated until CTO reconciles capacity and releases a slot by 2026-10-01T18:00:00Z. Escalate unresolved capacity to the owner then.",
+        "summary": "Reviewer rejects unsupported revenue or causal-lift claims, high-priority expansion, duplicate telemetry, and production execution while capacity, infrastructure validation, and attribution gates remain unresolved. Three bounded medium-priority revalidations are routed to engineer as capacity-gated work; CTO must reconcile the slot ledger and release capacity by 2026-10-01T18:00Z or escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
