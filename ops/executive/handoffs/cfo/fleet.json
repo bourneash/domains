@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:08:32.654Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:37:58.130Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend no new monetization, spend, or production admissions this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all under an aggregate unattributed row; named site rows show $0 site-attributed commission. Do not present this as site revenue, forecast, ROI, margin, or causal lift. The recorded AI window for 2026-09-01 through 2026-09-30 is $1,002.45979265 across 5,531 calls with 234 errors; it is not period-comparable to the one-day revenue extract. Preserve the capacity gate and execute only already-approved work after a slot is released.",
+        "summary": "CFO recommendation: reject both candidate product proposals this cycle and authorize no discretionary spend expansion. September AI usage was 5,531 calls costing $1,002.45979265, with 234 errors and 5 transient errors. Revenue evidence is only 2026-09-21 Amazon data: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking_id=other. Site revenue is $0 attributed, but the $4.92 aggregate cannot be assigned to sites; ROI, contribution margin, payback, and causal lift are therefore unsupported. Delivery is saturated at 10/10 slots. Keep existing approved work capacity-gated and retain only a report-only finance reconciliation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin, site-level ROI, and cost-to-learn are not calculable from the brief. Minimum measurement: aligned daily revenue and AI, infrastructure, domain, and other direct costs by site and workflow; stable tracking-ID/content mapping; shipped commission rather than ordered-item counts; and a ledger of validated learnings tied to experiment or improvement IDs. Until then, use only recorded AI spend as cost exposure and label revenue as unattributed or unknown.",
+        "summary": "Finance gate: do not implement AI cost enforcement or admit new control-plane work while delivery is saturated. Existing AI limits are unset, so no savings forecast or budget headroom is calculable. Preserve usage records and require the report-only finance baseline before defining thresholds. No provider, credential, billing, schedule, or production changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Budget exposure is visible but budget variance is unknown: recorded AI cost is $1,002.46 for September 2026, while monthly spend limit, fixed costs, marketing budget, and revenue floor are blank. Do not infer authorization, runway, or affordability. Minimum measurement: owner-approved budget ceilings plus daily actuals for AI, infrastructure, domains, and marketing reconciled to those ceilings. No money movement, billing changes, banking access, or contracts are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Clicks, impressions, sessions, ordered items, SEO conversions, and shipped items are operating indicators, not supported revenue or profit claims. The 2026-09-21 Amazon row has 28 ordered items but only 6 shipped items and $4.92 aggregate commission, with no site assignment. Preserve the distinction between traffic, affiliate clicks, orders, shipped items, commission, and contribution margin in all executive reporting.",
+        "summary": "Contribution margin and cost-to-learn are not calculable from the brief. Minimum measurement is same-period site-level revenue linked to a registered tracking identifier, plus direct AI, infrastructure, domain, payment, and other attributable delivery costs; for learning, each experiment also needs incremental cost, exposure, treatment/control or pre/post outcome, and a stable change identifier. Do not treat clicks, sessions, impressions, proposal counts, or conversions as profit.",
         "requested_action": null,
         "proposal_id": null
       }

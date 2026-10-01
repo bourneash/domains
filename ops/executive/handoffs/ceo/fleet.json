@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:57:21.606Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:37:58.130Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the three new site-factory change requests this cycle and preserve only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com after capacity clears. Evidence: delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 requests have failed. SearchWoot remains private because rights, security, accuracy, measurement, and owner gates are incomplete. Revenue is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, margin, ROI, and causal lift are unknown. Smallest next step: CTO completes or justifies closure of the existing saveusfarms.com repair case and releases one slot by 2026-10-01T09:00Z. Owner decision: confirm SearchWoot remains private and rights outreach unsent under EXEC_CONV_12.",
+        "summary": "Recommendation: reject the two new fleet-control proposals this cycle and preserve them as deferred planning context. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, 108 approved proposals lacking execution, and 216 stranded work items. Revenue evidence remains limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admits only canonical approved work. Owner decision under EXEC_CONV_12: confirm SearchWoot remains private and rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: preserve the existing capacity gate and do not admit duplicate control-plane, AI-guardrail, site-factory, or CRO work. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, tests, validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z; release one slot only after that evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       }

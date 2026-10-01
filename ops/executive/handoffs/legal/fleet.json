@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:08:32.654Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:37:58.130Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked. Recommendation: keep SearchWoot private and leave rights outreach unsent pending owner authorization and human counsel review. Evidence: Woot documentation confirms API access but not commercial/public redistribution, storage, historical derivatives, display, caching, alerts, affiliate, or advertising rights; current public terms restrict product-listing, price, and derivative use. Legal launch tasks remain open, and accuracy/freshness, measurement/attribution, security/release, and owner gates are blocked. Existing technical compliance is mixed at 36 pass, 19 fail, and 6 unknown; this is not certification. Ordinary reversible growth may continue only when it adds no new data collection, credentials, permissions, dependencies, cross-site behavior, or unreviewed claims. Next evidence action: attach one dated consolidated evidence bundle covering the four open legal tasks without changing production or sending outreach.",
+        "summary": "Risk disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible internal/read-only evidence work. Evidence shows Woot API access documentation but no redistribution, commercial display, caching, historical-derivative, alert, affiliate, attribution, freshness, correction, or takedown permission. Woot public terms restrict collection and use of listings, descriptions, and prices. Compliance, security, accuracy/freshness, measurement, and owner gates also remain incomplete. Exact decision: keep SearchWoot private, leave rights outreach unsent pending human-counsel review and owner authorization, and permit only bounded evidence work that does not expand data collection, exposure, monetization, or integrations.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing SearchWoot evidence workstream without creating duplicate requests. Next evidence action: attach one dated read-only bundle covering repository data flow, retention/deletion/correction/access behavior, consent and GA4 configuration evidence, log fields and retention, vendor/DPA status, and incident/request procedures. Do not change production, enable tracking, send outreach, or alter the private gate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Compliance baseline is technical triage only: 36 pass, 19 fail, and 6 unknown across 61 sites; open findings include banner, accept, reject, GA4, privacy, and terms checks. Analytics is generally configured for the measured live fleet, but configuration does not establish lawful consent, disclosure, rights, or monetization. Revenue evidence is limited to 2026-09-21 Amazon data: $4.92 aggregate commission under tracking_id=other; do not claim site revenue, ROI, margin, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

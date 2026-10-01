@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:08:32.653Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:37:58.129Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new CRO admissions this cycle. Delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 requests failed. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Test CTA hierarchy, adjacent disclosure placement, keyboard focus, accessible names, responsive layout, and link integrity while preserving destinations and affiliate identifiers. Measure registered affiliate clicks and available conversions for 14 days or 100 relevant impressions/clicks. Report measured, inconclusive, or regressed without revenue, ROI, margin, or causal-lift claims. Roll back only the bounded diff if validation fails.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain these as deferred research only. microsoft/markitdown is MIT-licensed, had supported fleet fit, and passed 8/8 available bounded checks; fleet use case: convert a fixed sample of source files into draft Markdown for SEO/content discovery. Smallest reversible prototype: disposable-workspace conversion of a fixed sample with no dependency installation or production access. Metric: editorial acceptance rate and time-to-draft versus the current process. Time-to-learn: one bounded prototype cycle. Risks: parser coverage, malformed or lossy conversion, transitive dependency exposure, maintenance burden, and license fit for all future dependencies remain unevidenced. shadcn-ui/ui is MIT-licensed and passed 3/3 available checks; fleet use case: test a single accessible CTA component against an existing page fixture. Prototype metric: accessibility/build pass rate and reviewer acceptance, not conversion lift. Time-to-learn: one isolated fixture cycle. Risks: framework/runtime fit, bundle impact, dependency exposure, maintenance ownership, and production security remain unevidenced. mermaid-js/mermaid is MIT-licensed with supported fit but no native checks; fleet use case: render one static explanatory diagram for a high-intent guide. Prototype metric: successful deterministic render and editorial acceptance. Time-to-learn: one isolated render cycle. Risks: client/server rendering behavior, bundle/performance cost, dependency and supply-chain exposure, maintenance burden, and accessibility quality remain unevidenced. No adoption, installation, deployment, or production experiment is approved while capacity and security gates remain open.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission under aggregate tracking ID other; named site rows show $0 site-attributed commission. Preserve the aggregate as unattributed and do not infer site revenue, ROI, margin, or causal lift. The recorded AI-usage window shows $1,002.45979265 cost and 234 errors across 5,531 calls. A future review-only guardrail opportunity could compare cost and error rate by site or workflow before and after threshold recommendations, but it must remain deferred until capacity clears; no schedules, credentials, providers, workloads, or telemetry should change.",
+        "summary": "CRO handoff: after one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement. Measure affiliate outbound clicks against the recorded 61-click baseline, retain ordered items and commission as secondary fields, and preserve disclosure, consent, accessibility, destination integrity, and rollback boundaries. Do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }
