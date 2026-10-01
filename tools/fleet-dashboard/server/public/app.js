@@ -338,6 +338,7 @@ function stamp() {
 // operator workflow; the next successful render removes this notice via stamp().
 function renderViewError(target, message) {
   if (!target) return;
+  $('#app')?.setAttribute('aria-busy', 'false');
   const text = String(message || 'The view could not be refreshed.');
   if (!FRESH && target.firstElementChild) {
     target.querySelector('.fd-stale-banner')?.remove();
