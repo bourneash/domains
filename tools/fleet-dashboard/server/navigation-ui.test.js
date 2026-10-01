@@ -171,6 +171,8 @@ test('initial topbar renders shell controls before hydration', () => {
     assert.match(html, new RegExp(`class="[^"]*${marker}`));
   }
   assert.match(html, /aria-label="⌘ K — Open command palette"/);
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /\.fd-network-status\[hidden\] \{ display: none; \}/);
 });
 
 test('private dashboard publishes valid non-indexing metadata', () => {

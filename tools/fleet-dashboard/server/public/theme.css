@@ -476,6 +476,7 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
   gap: 8px; min-width: 0; max-width: 100%; box-sizing: border-box;
   flex-wrap: wrap; justify-content: flex-end;
 }
+.fd-network-status[hidden] { display: none; }
 .focus-mode-toggle { white-space: nowrap; }
 #updated {
   display: inline-flex; align-items: center; gap: 6px; min-width: 112px;
