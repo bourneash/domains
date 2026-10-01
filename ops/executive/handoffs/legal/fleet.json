@@ -2,36 +2,43 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:17:40.540Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:07:33.580Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta/full launch; keep private. Evidence: Woot API documentation confirms access mechanics but not redistribution, storage, derivatives, public display, caching, alerts, affiliate, advertising, attribution, freshness, correction, or takedown rights; public terms restrict commercial/public product-data use. Security, accuracy/freshness, measurement, compliance, and owner gates also remain incomplete. Recommendation: leave rights outreach unsent pending human counsel review and owner authorization. Next evidence action: attach one dated read-only bundle covering the rights matrix, data flow/retention, deployed consent and GA4 settings, logs/vendors, and incident/request procedures.",
+        "summary": "Risk disposition: blocked for public launch; counsel_required for upstream data rights, public display, affiliate/advertising use, and jurisdiction-specific privacy analysis. Recommendation: keep SearchWoot private, leave rights outreach unsent, and do not approve bounded public beta or monetization expansion. Evidence: Woot documentation confirms API access and rate limits but not redistribution, storage, derivatives, display, caching, alerts, images, prices, attribution, freshness, correction, or takedown rights; public terms restrict commercial/public data use. Security and operations evidence is incomplete, accuracy/freshness and measurement gates are blocked, and the owner has not selected a public disposition. Fleet compliance is technical-only with 35 pass, 20 fail, and 6 unknown; this is not certification. Ordinary reversible growth may continue only where it adds no new data collection, permissions, dependencies, credentials, cross-site behavior, or unsupported claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks evidenced to closure; no task is closed. Source-rights evidence is blocked, data-flow and consent evidence are partial, and logs/vendor/incident evidence remains open. Next evidence action is one consolidated dated read-only bundle from repository, deployed configuration, GA4 settings, vendor records, and incident/request procedures. Do not expose upstream data, enable new tracking, add affiliate/advertising use, or send rights outreach.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed. No task is closed because current evidence is partial or confirms access without permission. Next evidence action: attach one dated read-only bundle containing the source-rights record and field-level matrix, repository/config data-flow and retention table, deployed consent and withdrawal capture, GA4 property/data-sharing/retention settings, log-field and access inventory, vendor terms/DPA status, and incident/data-request procedures. Do not send external rights outreach, change the private gate, enable tracking, or expand notifications.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance is a technical risk baseline, not certification: 35 sites pass, 20 fail, and 6 are unknown. Ordinary reversible growth need not stop solely because telemetry is incomplete, but no new data collection, public data product, monetization expansion, regulated or age-sensitive flow, or security-sensitive release should be cleared without applicable evidence and human review. Revenue remains bounded to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21; do not assign it to sites or claim ROI, margin, or causal lift.",
+        "summary": "Data-use review dispositions: Woot deal and price-history data: blocked pending authoritative written permission and field-level rights; smallest next action is obtain and record the current API agreement or permission, including permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown rules. User alert rules and sync results: evidence_needed; smallest next action is document identifiers, retention/deletion/correction/access handling, Slack processor terms, notification consent, and unsubscribe behavior from repository and configuration. GA4 analytics: evidence_needed; smallest next action is capture deployed consent/withdrawal behavior and GA4 property, data-sharing, retention, vendor, and jurisdiction evidence without enabling new tracking. Operational logs and Cloudflare data: evidence_needed; smallest next action is produce the log-field, retention/access, vendor-term, incident, and data-request procedure inventory. No data-use item is clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Keep SearchWoot private pending rights, privacy, security, accuracy, and measurement evidence",
-        "summary": "Risk disposition: blocked for bounded public beta and full launch. Keep the product private. The current Woot evidence establishes an API access mechanism but does not establish permission for commercial/public display, storage, historical derivatives, caching, alerts, affiliate or advertising use, field-level attribution, freshness, correction, or takedown. Human counsel is required before any rights outreach, public exposure, upstream-data display, or monetization change.",
-        "requested_action": "Continue the existing four launch-readiness legal tasks without duplicates or production changes. Attach one dated read-only evidence bundle containing the source-rights and field-level matrix; repository/configuration data-flow and retention table; deletion, correction, access, and notification records; deployed consent capture; GA4 property, data-sharing, and retention settings; log-field and vendor/DPA inventory; and incident/request procedures. Keep rights outreach unsent pending owner authorization and human counsel review.",
+        "kind": "message",
+        "title": null,
+        "summary": "Evidence review across compliance, site, analytics, revenue, and launch readiness: analytics telemetry is available for the measured fleet and must not be treated as legal clearance; revenue is only partially attributable, with $4.92 aggregate Amazon commission and site-attributed income reported as $0 for the available window, so ROI, margin, and site-level financial claims remain unknown. The private/gated site requires an explicit keep-private decision, which is recommended. Do not infer consent, rights, terms, cookie disclosure, affiliate disclosure, provenance, claims accuracy, copyright/trademark permission, platform-policy compliance, or age-sensitive clearance from telemetry or a technical compliance pass.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The existing allthingsmasonic.com CTA refinement may remain preserved as a capacity-gated implementation, not a legal go-live approval. Its permitted scope is limited to CTA hierarchy, disclosure placement, accessibility, responsive layout, and product-link clarity while preserving destinations and existing consent behavior. Require deployment, link, accessibility, disclosure, rollback, and measurement evidence; retain the baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the recorded window. Do not claim revenue, ROI, conversion, or causal lift, and do not assign aggregate provider earnings to the site.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

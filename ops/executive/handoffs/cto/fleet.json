@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:17:40.540Z",
+  "generated_at": "2026-10-01T07:07:33.579Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Create no new queue, proposal, telemetry, prototype, spend, or duplicate control-plane work. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence.",
+        "summary": "Approve containment with one exception: preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com without duplication. Do not admit new site-factory, CRO, research, telemetry, affiliate, spend, or SEO work this cycle. Execute only after the existing saveusfarms.com repair case is completed or justifiably closed, one delivery slot is released, and site overlap is cleared.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Use the existing capacity-blocking repair work only. Release one delivery slot after its validation or justified closure evidence is recorded; escalate unresolved capacity to the owner at 2026-10-01T09:00Z. Do not create a duplicate work item.",
+        "summary": "The preserved implementation is technically feasible and isolated: limit changes to CTA hierarchy, disclosure placement, keyboard/focus accessibility, responsive layout, and product-link clarity. Do not change affiliate destinations, credentials, domains, dependencies, telemetry, or cross-site behavior. Require deterministic tests, build and link validation, consent/disclosure preservation, deployment verification, a single-diff rollback point, and measurement through existing analytics and affiliate attribution only.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After CTO releases one slot and confirms site clearance, execute only the existing canonical allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b. Preserve registered destinations, adjacent affiliate disclosure, keyboard/focus behavior, contrast, responsive layout, existing routes, and dependencies. Run deterministic tests, build and link validation. Measure observed Amazon clicks plus available site-attributed outcomes and direct change cost for 14 days or 100 relevant new impressions/clicks; unavailable outcomes remain unknown. Roll back the single diff if validation fails.",
+        "summary": "Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks, ordered items, shipped items, site-attributed commission, and direct change cost for 14 days or 100 relevant new impressions or clicks. Keep unavailable outcomes unknown; do not assign aggregate provider earnings to this site or claim ROI or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Confirm the existing containment disposition: keep SearchWoot private and leave rights outreach unsent. Rights, security, accuracy, measurement, compliance, and owner gates remain incomplete; no public exposure or security-sensitive release is authorized.",
+        "summary": "Keep complicated.work and all other deferred candidates as planning context only. Do not create queue work or a launch-readiness artifact until implementation capacity is released and the canonical request has completed or closed. Public exposure, deployment, new telemetry, dependencies, spend, and domain changes remain unauthorized.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,49 +2,56 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:17:40.540Z",
-  "summary": "reviewer checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:07:33.580Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, high-priority, site-factory, CRO, spend, telemetry, and duplicate queue work. Revenue, ROI, margin, and causal-lift claims remain unsupported; preserve financial containment. Keep the private launch gate unchanged and leave rights outreach unsent. CTO must complete or justifiably close the existing capacity-blocking repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence.",
+        "summary": "Reject all new site-factory, CRO, SEO, telemetry, affiliate, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, measurement backlog is unresolved, and existing repair work must be completed or closed first.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing capacity-blocking repair case by 2026-10-01T09:00Z. Release one delivery slot only after dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence are recorded. Do not create duplicate work.",
+        "summary": "Preserve only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. It may execute only after the saveusfarms.com repair case is completed or justifiably closed, one slot is released, and site overlap is cleared. Require deterministic tests, build/link validation, consent and disclosure preservation, deployment verification, rollback, and existing-telemetry measurement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing canonical read-only security evidence matrix without duplication. Preserve evidence_needed status and all private-launch and security-sensitive release gates. Do not request duplicate telemetry, access credentials or private containers, change permissions or configuration, deploy, add dependencies, exploit targets, or conduct external outreach.",
+        "summary": "Reject unsupported financial, ROI, margin, payback, forecast, and causal-lift claims. Amazon reporting covers 2026-09-21 only; $4.92 is aggregate and unattributed, while allthingsmasonic.com has 61 clicks, 0 ordered items, and $0 site-attributed commission. Preserve unavailable outcomes as unknown and require site-specific tracking IDs and costs.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Queue three low-priority, reversible SEO candidates as capacity-gated specifications only: saveusfarms.com CTR metadata refinement, greatamericanlakes.com informational-page snippet refinement, and xxxtea.com gallery snippet refinement. Do not execute until CTO releases a slot, confirms no duplicate active work, and measurement windows/site clearance permit execution. Acceptance: exact single-page diff, deterministic tests, build/link validation, recorded baseline, 14-day or 100-relevant-impression measurement, and single-diff rollback. Metrics: page impressions, clicks, and CTR only; no revenue or causal claims.",
+        "summary": "Maintain private launch and security-sensitive release gates. Continue the existing canonical read-only security evidence matrix using authorized metadata and retained artifacts only; do not retrieve credentials, alter configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Release capacity before executing any new candidate. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner at the deadline.",
+        "summary": "Keep SearchWoot private and leave rights outreach unsent. Rights, security, accuracy, compliance, measurement, and owner gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Confirm containment: keep SearchWoot private and leave rights outreach unsent. Rights, security, accuracy, compliance, measurement, and owner gates remain incomplete. No public exposure, monetization expansion, spend, or unsupported financial claims are authorized.",
+        "summary": "Containment upheld. No new implementation candidates are admitted: delivery is saturated at 10/10 slots, measurement backlog and failed requests remain material, and revenue attribution is insufficient for financial claims. Preserve only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b after CTO completes or justifiably closes the saveusfarms.com repair case by 2026-10-01T09:00Z and releases one slot. Keep SearchWoot private and rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Candidate routing disposition: rodhat.com SEO, scaffold builds, and other new candidates remain explicitly capacity-gated. No candidate may be queued or executed until the CTO records repair validation or justified closure, releases one slot, and confirms site-overlap clearance. Escalate unresolved capacity to the owner at 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
