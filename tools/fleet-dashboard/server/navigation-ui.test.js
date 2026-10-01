@@ -1142,6 +1142,17 @@ test('Analytics keeps health and site detail tables bounded', () => {
   );
 });
 
+test('AI usage keeps dense cost and diagnostics tables bounded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderAIUsage()');
+  const end = app.indexOf('/* ===================== DEPLOYS ===================== */', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.ok((view.match(/class="table-wrap"><table/g) || []).length >= 8);
+  const diagnostics = view.slice(view.indexOf('<details class="card aiu-diagnostics"'));
+  assert.ok((diagnostics.match(/class="table-wrap"><table/g) || []).length >= 4);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
