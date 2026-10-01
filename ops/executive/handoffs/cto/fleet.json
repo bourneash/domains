@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.105Z",
+  "generated_at": "2026-10-01T07:47:21.023Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new proposals, telemetry requests, research, prototypes, site-factory admissions, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, measurement and repair work remain active, and operational/security evidence is incomplete. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Release one slot or escalate to the owner. Only then may existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com proceed, subject to site-overlap clearance and normal review gates. Keep SearchWoot private and leave rights outreach unsent.",
+        "summary": "CTO disposition: reject both new product proposals and all new admissions this cycle. Delivery is saturated at 10/10 slots, measurement backlog and failed requests remain unresolved, and no new queue, telemetry, research, prototype, spend, or production work is technically admissible. Preserve only existing canonical work. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then admit at most the existing allthingsmasonic.com CTA refinement after site-overlap clearance. Keep SearchWoot private and leave rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing consent, disclosure, credential, dependency, security, and attribution boundaries. Do not invent telemetry or financial outcomes. For the existing allthingsmasonic.com CTA request, retain the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; measure available post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. Classify unavailable financial or causal outcomes as unknown. Roll back only the bounded change if validation or release gates fail.",
+        "summary": "Technical review confirms the proposed fleet work-admission and measurement-debt concepts are feasible as future read-only products, but neither should enter the queue now. They would add implementation and validation load without resolving the canonical repair or saturated capacity. Preserve them as unexecuted planning context; do not create telemetry, dependencies, permissions, schedules, or production changes.",
         "requested_action": null,
         "proposal_id": null
       }

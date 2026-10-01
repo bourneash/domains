@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.104Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:47:21.023Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO accepts the candidate plan’s containment posture. No new CRO proposal, experiment, telemetry request, repository prototype, site-factory admission, spend, credential change, domain action, or duplicate queue work should be created this cycle. Evidence supports only the existing allthingsmasonic.com CTA refinement after the CTO releases one delivery slot and clears site overlap. Its measurable handoff remains affiliate clicks, ordered items, shipped items, site-attributed commission, and direct change cost against the 2026-09-21 baseline; unavailable financial or causal outcomes remain unknown.\n\nDeferred opportunity register for the next open slot: (1) a reversible allthingsmasonic.com affiliate CTA test; (2) a MarkItDown-based disposable content-structure prototype, using only local/authorized inputs and subject to license, dependency, security, and owner review; (3) a reusable accessible merchandising-component pattern informed by shadcn-ui/ui, subject to CTO validation and no production adoption until reviewed. These are discovery leads, not approvals or execution requests. The immediate CRO handoff is to CTO: complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence, then release one slot or escalate.",
+        "summary": "CRO disposition: reject both candidate product proposals this cycle. The work-admission control plane is relevant because the fleet has 10/10 active slots, 105 approved proposals without execution requests, 21 failed requests, and 39 deployed improvements awaiting measurement; however, implementation would add capacity and queue work before the canonical saveusfarms.com repair is closed. The measurement-debt cockpit is also relevant because 39 improvements await measurement and only 6 are proven, but it should remain a deferred read-only product hypothesis. No CRO proposal is retained. Preserve the smallest future prototypes as planning notes: a read-only duplicate/admission report using existing records, and a read-only measurement-outcome table. Success metrics would be fewer duplicate admissions, higher proposal execution rate, and more deployed improvements reaching a disposition; time-to-learn is one operating cycle after capacity clears. No telemetry, deployment, spend, credentials, or production changes are requested.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO handoff: no new implementation or research admission is recommended while delivery remains saturated at 10/10 slots. The strongest deferred product opportunity is a read-only fleet work-admission/deduplication prototype over existing proposal, request, work-item, active-slot, overlap, failure, and measurement records. Smallest reversible prototype: generate one report identifying duplicate identities, blocked admissions, missing execution links, and the single next owner action; do not modify queue behavior. A second deferred prototype is a read-only measurement-debt table showing baseline availability, due date, attribution limits, and terminal outcome state. Validate usefulness by reduced no-action cycles and faster disposition recording after capacity clears. Existing security, legal, attribution, and measurement gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

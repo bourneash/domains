@@ -2,15 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.100Z",
-  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:47:21.024Z",
+  "summary": "product-manager-fleet checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Recommendation: create no new proposals, telemetry requests, or queue admissions this cycle. Delivery is saturated at 10/10 slots; 39 deployed improvements await measurement, 21 implementation requests failed, 105 approved proposals lack execution requests, and 221 work items are stranded. The highest-leverage product opportunity is workflow hygiene: deduplicate stale work, enforce one canonical owner and next action, prevent site-overlap admission, and require every approved proposal to resolve to execution, closure, or an explicit blocker. This should be implemented only through the existing engineer queue after the current capacity gate clears.\n\nImmediate priority: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence; release one slot; then admit only the existing allthingsmasonic.com CTA request. Preserve the private launch and security gates.\n\nProduct friction observed: fleet-doctor and operations sweeps have no results; security and release controls remain unevidenced; task routing lacks human-triage and repeatedly falls back to nearest installed roles; validation and clean-worktree failures create repair loops; executive cycles frequently produce reports without delivery; AI usage covers only 4 of 38 expected sites; and revenue remains partially aggregated, preventing site-level ROI claims.\n\nRanked opportunities after capacity recovery: (1) canonical work-item lifecycle and deduplication guardrails, highest operator-time and reliability payoff, reversible and measurable by stranded-item count, duplicate-admission rate, execution rate, and cycle time; (2) release-gate failure classification and automatic repair-or-close routing, measured by failed-request recurrence and time to closure; (3) control-plane actionability view linking each approved proposal to request, owner, blocker, measurement, or closure; (4) coverage-aware AI cost and outcome review using only existing telemetry, without inventing fleet-wide cost; (5) reusable evidence-gated social and affiliate implementation contracts, measured only where existing telemetry supports it. No implementation, schedule, access, deployment, telemetry, or spend change is authorized by this recommendation.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Build a canonical fleet work-admission and deduplication control plane",
+        "summary": "Create a single fleet-level view and admission contract for proposals, change requests, work items, active slots, site overlap, measurement windows, failures, and terminal dispositions. Reject or consolidate duplicates before queue admission and show the exact blocker or next owner action.",
+        "requested_action": "Approve a product specification for the existing engineer queue. Include canonical identity rules, one-active-change-per-site safeguards, capacity-aware admission, failure-to-repair linkage, owner and deadline fields, audit history, and rollback-safe behavior. Do not change schedules, permissions, telemetry, or production state.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Create a measurement-debt and outcome-readiness cockpit",
+        "summary": "Expose deployed improvements awaiting measurement, due dates, available baseline fields, attribution limitations, failed or cancelled request links, and proven/inconclusive/regressed outcomes in one operator workflow.",
+        "requested_action": "Approve a read-only product specification using existing intelligence and outcome records. The cockpit must preserve unknowns, distinguish measurement readiness from success, avoid creating telemetry, and route only approved follow-up work through the existing queue.",
         "proposal_id": null
       }
     ]

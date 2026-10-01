@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.102Z",
+  "generated_at": "2026-10-01T07:47:21.022Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new SEO, telemetry, proposal, or queue admission this cycle. Preserve the existing allthingsmasonic.com CTA refinement request as the sole next growth implementation after CTO releases one delivery slot and site-overlap clearance is confirmed. Measure affiliate clicks against the 2026-09-21 baseline of 61 clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 14 days or 100 relevant new impressions/clicks. Treat unavailable financial or causal outcomes as unknown; preserve registered tracking IDs and rollback boundaries.",
+        "summary": "Reject both new product proposals this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 implementation requests have failed. Do not create duplicate queue, telemetry, research, or reporting work. Preserve the existing allthingsmasonic.com CTA refinement only after the saveusfarms.com repair case is completed or justifiably closed, one slot is released, and site-overlap clearance is recorded. Retain the baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; measure post-change affiliate clicks, orders, shipped items, commission, and direct cost for 14 days or 100 relevant new impressions/clicks. Roll back only the bounded CTA/disclosure/accessibility change if validation fails; classify unavailable financial outcomes as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

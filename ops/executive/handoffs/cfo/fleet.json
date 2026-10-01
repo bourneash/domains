@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.105Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:47:21.023Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: approve containment and authorize no discretionary spend, new monetization investment, or forecast-based expansion this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is an aggregate provider row under tracking ID other; site-attributed commission is $0. Do not report aggregate commission as site revenue. Contribution margin and ROI are not calculable because site-level revenue attribution, infrastructure costs, labor/change costs, and fixed costs are unavailable. Cost-to-learn is not calculable because no attributable financial outcome or comparable experiment result is available. AI spend is measurable only for 2026-10-01: 16 calls across 4 of 38 expected sites, costing $2.2785467; fleet-wide AI spend is unknown. Infrastructure and budget exposure are unknown because operations cost telemetry, monthly fixed costs, marketing budget, and spend limit are blank. Minimum measurement for the retained allthingsmasonic.com CTA request: use the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; after capacity clears, measure site-specific clicks, orders, shipped items, commission, direct change cost, allocated AI cost, and allocated infrastructure cost for 14 days or 100 relevant new impressions/clicks. If site-level financial data remains unavailable, classify contribution margin, ROI, payback, and causal lift as unknown. Preserve existing gates and do not create new finance telemetry requests because the available snapshot already establishes the current evidence boundary.",
+        "summary": "CFO recommendation: reject both new product proposals and freeze new discretionary spend or admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Revenue claims are unsupported: Amazon data covers 2026-09-21 only, with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking_id=other; site-attributed income is $0 and cannot support site revenue, ROI, payback, or causal-lift claims. Contribution margin is not calculable because direct infrastructure, labor, and other costs are absent, and the $4.92 cannot be assigned to sites. AI spend is $2.2785467 on 2026-10-01 across only 4 of 38 expected sites; infrastructure spend and monthly budget limits are blank, so total budget exposure is unknown. Cost-to-learn is also not calculable because experiment-level spend is not linked to incremental outcomes. Preserve only existing canonical work after capacity clears, with financial acceptance based on measured site-attributed commission less direct change cost—not forecast revenue. Minimum measurement: dated site/content identifiers, provider tracking IDs, ordered and shipped items, commission, direct change cost, AI cost, infrastructure cost, and pre/post or treatment-control outcome linkage. Classify unavailable fields as unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CFO handoff: retain the existing allthingsmasonic.com CTA request only after the saveusfarms.com repair case is completed or justifiably closed, one slot is released, and site-overlap clearance is recorded. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Measure post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. If site-level orders or commission remain unavailable, report the financial result as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
