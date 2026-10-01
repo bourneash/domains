@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T13:09:19.919Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T14:11:15.935Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: decline the proposed fleet admission-control-plane build this cycle. It duplicates existing control-plane coverage while delivery is saturated at 10/10 in the performance view, 13 requests remain queued, 41 improvements await measurement, and 22 requests have failed. Preserve current gates and route no new implementation until CTO releases capacity. Next action: delivery-lead coordinates the existing saveusfarms.com repair-or-close case and admits only the queued allthingsmasonic.com request after overlap clears.",
+        "summary": "Recommendation: reconcile capacity before admitting new work. Evidence conflicts: active-delivery reports 1/10 slots, while performance reports 10/10 saturation, 13 queued requests, 52 active/measuring improvements, and 29 attention items. The next step is for CTO to validate the slot ledger and close or release the canonical saveusfarms.com repair by 2026-10-01T18:00Z. Unknown: which ledger is authoritative. Owner decision: approve this deadline or escalate sooner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Capacity blocker: reconcile the conflicting slot ledger, then close or release the canonical saveusfarms.com repair. Record root cause or justified closure, deterministic validation, rollback point, and release boundaries by 2026-10-01T18:00Z; escalate if unresolved.",
         "requested_action": null,
         "proposal_id": null
       }
