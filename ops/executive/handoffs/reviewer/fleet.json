@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:23:10.876Z",
+  "generated_at": "2026-10-01T10:25:10.022Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, attribution, causal-lift, unsafe, duplicate, and production claims. Amazon commission remains aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and unresolved failures. Route only three capacity-gated, reversible engineer specifications; do not execute until CTO releases a slot and site overlap clears. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T12:00:00Z, then escalate unresolved capacity to the owner.",
+        "summary": "Reviewer disposition: reject the report-only Sinderella.org proposal because it does not satisfy the implementation mandate, while fleet capacity is saturated at 10/10 slots. No new production work is safe to admit: rodhat.com remains blocked by low-volume evidence, Sinderella.org is capacity-blocked, and scaffold candidates lack verified launch-readiness evidence. CTO must complete or close the canonical saveusfarms.com repair case and release one slot by 2026-10-01T12:00:00Z; escalate unresolved capacity to the owner then. Preserve existing measurement, security, legal, and attribution gates; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:21:04.776Z",
+  "generated_at": "2026-10-01T10:25:10.022Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Map reviewtattoo.com homepage conversion surface and select one reversible improvement",
-        "summary": "reviewtattoo.com has configured GA4 and GSC, but the authoritative snapshot does not provide page-level SEO, conversion, revenue, repository-file, or active-queue evidence for this site. Delivery capacity is saturated at 10/10, so implementation should wait until a slot is released.",
-        "requested_action": "Inspect the existing reviewtattoo.com homepage and repository in read-only mode. Record the exact homepage route, template/component files, stylesheet files, visible audience promise, primary CTA, disclosure state, mobile/accessibility issues, and one bounded reversible improvement. Do not request duplicate telemetry, modify production, deploy, add tracking, or claim lift.",
+        "title": "Map and prepare one reversible affiliate-entry improvement for sinderella.org",
+        "summary": "Sinderella.org has a named affiliate tracking ID with 50 clicks, 0 ordered items, and $0 commission in the 2026-09-21 report, but the snapshot does not identify the highest-intent page, exact source files, CTA placement, or disclosure state. A bounded repository inspection is required before implementation.",
+        "requested_action": "Inspect the sinderella.org repository entry surface and affiliate destination path, identify the exact homepage/commercial page and source files, then specify one reversible CTA hierarchy or disclosure-placement diff. Do not deploy, modify production, add tracking, or claim lift.",
         "proposal_id": null
       }
     ]
