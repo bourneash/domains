@@ -232,10 +232,19 @@ function actionCandidates(
   for (let offset = 0; offset < ordered.length && bySite.size < 12; offset++) {
     const row = ordered[(rotation + offset) % ordered.length];
     if (!row || bySite.has(row.site)) continue;
+    const baselineKey = `site-baseline:${row.site}`;
+    const baselineTitle = `Run bounded revenue-readiness baseline for ${row.site}`;
+    if (
+      completed.keys.has(baselineKey) ||
+      completed.titles.has(
+        `${String(row.site).toLowerCase()}:${normalizeActionTitle(baselineTitle)}`
+      )
+    )
+      continue;
     bySite.set(row.site, {
       site: row.site,
-      key: `site-baseline:${row.site}`,
-      title: `Run bounded revenue-readiness baseline for ${row.site}`,
+      key: baselineKey,
+      title: baselineTitle,
       type: 'portfolio-baseline',
       evidence: {
         lifecycle: row.lifecycle || null,

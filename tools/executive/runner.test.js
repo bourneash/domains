@@ -705,7 +705,10 @@ test('blocked intelligence priorities do not become executable candidates', () =
     },
     ['example.com', 'ready.example']
   );
-  assert.deepEqual(candidates.map(item => item.site), ['ready.example']);
+  assert.deepEqual(
+    candidates.map(item => item.site),
+    ['ready.example']
+  );
 });
 
 test('supports over-sampling candidates before capacity filtering', () => {
@@ -730,6 +733,31 @@ test('supports over-sampling candidates before capacity filtering', () => {
   assert.deepEqual(
     candidates.map(row => row.site),
     ['site-0.example.com', 'site-1.example.com', 'site-2.example.com', 'site-3.example.com']
+  );
+});
+
+test('a verified rotating site baseline is not proposed again on the next cycle', () => {
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-10-01T18:10:00.000Z',
+      decision_support: {
+        priorities: {
+          scorecards: [
+            { site: 'done.example', lifecycle: 'live', opportunity_score: 90 },
+            { site: 'new.example', lifecycle: 'live', opportunity_score: 80 },
+          ],
+        },
+      },
+    },
+    ['done.example', 'new.example'],
+    {
+      keys: new Set(['site-baseline:done.example']),
+      titles: new Set(),
+    }
+  );
+  assert.deepEqual(
+    candidates.map(item => item.site),
+    ['new.example']
   );
 });
 
