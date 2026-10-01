@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:51:35.571Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:01:58.355Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Route only three bounded, reversible engineer changes: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Queue execution remains gated on CTO capacity reconciliation and site-specific measurement evidence. Reject revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. CTO must release one slot by 2026-10-01T18:00Z or escalate to the owner; no credentials, configuration, spend, schedules, tracking, duplicate telemetry, or production expansion are authorized.",
+        "summary": "Route only three medium-priority, reversible engineer changes across distinct sites: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Execution remains gated on CTO capacity reconciliation and site-specific measurement evidence. Reject revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. No credentials, configuration, spend, schedules, tracking, duplicate telemetry, or production expansion are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Unqueued candidates remain blocked: scaffold builds require site-factory launch-readiness evidence by 2026-10-02T12:00:00Z; security-sensitive or monetization expansion requires security, legal, attribution, and owner gates; high-priority queue work is rejected pending evidence and capacity reconciliation. CTO must release one authoritative delivery slot or escalate reassignment to the owner by 2026-10-02T12:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
