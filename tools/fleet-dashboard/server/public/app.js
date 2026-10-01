@@ -2553,14 +2553,14 @@ async function renderHealth() {
         </tr>`
         )
         .join('');
-      return `<div class="card" data-fleet-row data-site="${esc(g)}" style="margin-bottom:12px">
-        <div class="page-head" style="padding:10px 14px 0">
-          <h2 class="page-title" style="font-size:15px">${siteLink(g)}</h2>
+      return `<div class="card health-card" data-fleet-row data-site="${esc(g)}">
+        <div class="health-card-head">
+          <h2 class="page-title">${siteLink(g)}</h2>
           <span class="muted">${badge} · ${s.passing}/${s.total} checks green</span>
         </div>
         ${
           failingRows
-            ? `<table><thead><tr><th>Failing check</th><th>Status</th><th>Detail</th></tr></thead><tbody>${failingRows}</tbody></table>`
+            ? `<div class="table-wrap"><table><thead><tr><th>Failing check</th><th>Status</th><th>Detail</th></tr></thead><tbody>${failingRows}</tbody></table></div>`
             : ''
         }
       </div>`;
@@ -2583,7 +2583,7 @@ async function renderHealth() {
     </section>
     ${errNote}
     ${cards || '<div class="empty">No sites monitored — check that tools/fleet-gatus is running and its config has been generated.</div>'}
-    <p class="muted" style="margin-top:12px">Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and currently has no automated coverage — see tools/fleet-gatus/README.md.</p>`;
+    <details class="health-help"><summary>How site health is measured</summary><p>Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and currently has no automated coverage — see <code>tools/fleet-gatus/README.md</code>.</p></details>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();

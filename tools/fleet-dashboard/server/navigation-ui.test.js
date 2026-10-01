@@ -926,7 +926,10 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(app, /class="health-summary"/);
   assert.match(app, /Sites needing attention<\/span>/);
   assert.match(app, /Failing checks<\/span>/);
+  assert.match(app, /class="health-card-head"/);
+  assert.match(app, /class="health-help"><summary>How site health is measured/);
   assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
+  assert.match(style, /\.health-card-head \{[^}]*justify-content/);
 });
 
 test('Containers provides scoped search and operational filters', () => {
