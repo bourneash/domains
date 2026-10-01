@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:31:20.612Z",
+  "generated_at": "2026-10-01T16:51:40.265Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: keep new implementation admission capacity-gated until 2026-10-01T18:00Z. Evidence: active_delivery reports 4/10 slots with 6 open, while performance reports saturation, 9 queued requests, 54 active improvements, and 28 attention items. Unknown: which capacity ledger is authoritative. Smallest next step: CTO reconciles the ledger and closes or repairs the canonical saveusfarms.com case. Owner decision: approve this deadline or escalate sooner. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
         "requested_action": null,
         "proposal_id": null
       }
