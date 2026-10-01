@@ -1275,6 +1275,25 @@ test('Cron cards isolate schedule overflow and use explicit action buttons', () 
   assert.match(row, /type="button" class="btn sm danger cm-remove"/);
 });
 
+test('Engineer and Git Hygiene action controls declare button intent', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const engineers = app.slice(
+    app.indexOf('async function renderEngineers()'),
+    app.indexOf('/* ===================== GIT ===================== */')
+  );
+  const hygiene = app.slice(
+    app.indexOf('async function renderGitHygiene()'),
+    app.indexOf(
+      'function applyGitHygieneFilter()',
+      app.indexOf('async function renderGitHygiene()')
+    )
+  );
+  assert.match(engineers, /type="button" class="btn sm tasks-link"/);
+  assert.match(engineers, /type="button" class="btn sm run-eng"/);
+  assert.match(engineers, /type="button" class="btn sm .*ag-toggle"/);
+  assert.ok((hygiene.match(/type="button" class="btn sm gh-act/g) || []).length >= 5);
+});
+
 test('Guides route provides queue context, summary, and keyboard access', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

@@ -656,14 +656,14 @@ async function renderEngineers() {
       if (r.engineer && !r.cron_up) flags.unshift('no-cron-container');
       const flagHtml = flags.length ? `<span class="flag">${esc(flags.join(', '))}</span>` : '';
       const cover = healthCell(h);
-      const tasksBtn = `<button class="btn sm tasks-link" data-site="${esc(r.site)}" title="Open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
+      const tasksBtn = `<button type="button" class="btn sm tasks-link" data-site="${esc(r.site)}" title="Open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
       const engineerCell = (roleData.sites || []).find(s => s.site === r.site)?.cells?.engineer;
       const runBtn = r.engineer
-        ? `<button class="btn sm run-eng" data-site="${esc(r.site)}"${r.cron_up ? '' : ' disabled title="cron container not running"'}>▶ Run</button> `
+        ? `<button type="button" class="btn sm run-eng" data-site="${esc(r.site)}"${r.cron_up ? '' : ' disabled title="cron container not running"'}>▶ Run</button> `
         : '';
       const pauseBtn =
         r.engineer && engineerCell?.worker
-          ? `<button class="btn sm ${engineerCell.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${engineerCell.enabled ? 1 : 0}">${engineerCell.enabled ? '⏸ Pause' : '▶ Resume'}</button> `
+          ? `<button type="button" class="btn sm ${engineerCell.enabled ? 'danger' : 'primary'} ag-toggle" data-site="${esc(r.site)}" data-role="engineer" data-enabled="${engineerCell.enabled ? 1 : 0}">${engineerCell.enabled ? '⏸ Pause' : '▶ Resume'}</button> `
           : '';
       const actions = r.engineer
         ? runBtn +
@@ -672,7 +672,7 @@ async function renderEngineers() {
           (ah
             ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="engineer">Expand</button>`
             : '') +
-          ` <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
+          ` <button type="button" class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
         : tasksBtn;
       return `<tr>
       <td class="site">${siteLink(r.site)}</td>
@@ -1094,11 +1094,11 @@ async function renderGitHygiene() {
       <td><span class="muted">${esc(i.reason)}</span></td>
       <td class="mono muted">${esc((i.first_seen || '').slice(0, 10))}</td>
       <td class="nowrap">
-        <button class="btn sm gh-act" data-act="commit" data-i="${n}" title="Commit this path once">Commit</button>
-        <button class="btn sm gh-act" data-act="ignore" data-i="${n}" title="Add to this repo's .gitignore and untrack it">Ignore</button>
-        <button class="btn sm gh-act" data-act="always-commit" data-i="${n}" title="Commit AND add a policy rule so this class never asks again">Always commit</button>
-        <button class="btn sm gh-act" data-act="always-ignore" data-i="${n}" title="Ignore AND add a policy rule so this class never asks again">Always ignore</button>
-        <button class="btn sm gh-act" data-act="dismiss" data-i="${n}" title="Drop from the queue without touching the repo">Dismiss</button>
+        <button type="button" class="btn sm gh-act" data-act="commit" data-i="${n}" title="Commit this path once">Commit</button>
+        <button type="button" class="btn sm gh-act" data-act="ignore" data-i="${n}" title="Add to this repo's .gitignore and untrack it">Ignore</button>
+        <button type="button" class="btn sm gh-act" data-act="always-commit" data-i="${n}" title="Commit AND add a policy rule so this class never asks again">Always commit</button>
+        <button type="button" class="btn sm gh-act" data-act="always-ignore" data-i="${n}" title="Ignore AND add a policy rule so this class never asks again">Always ignore</button>
+        <button type="button" class="btn sm gh-act" data-act="dismiss" data-i="${n}" title="Drop from the queue without touching the repo">Dismiss</button>
       </td></tr>`
         )
         .join('')
