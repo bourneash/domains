@@ -50,7 +50,9 @@ function schBadge(status) {
 
 async function renderScheduler() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Reading scheduler…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="loading" role="status" aria-live="polite">Reading scheduler…</div>';
   let st, jobs, runs;
   try {
     [st, jobs, runs] = await Promise.all([
@@ -123,8 +125,8 @@ async function renderScheduler() {
           SCH.inst === 'scheduler-fleet'
             ? ''
             : s.adopted
-              ? `<button class="btn sm" data-act="release" data-site="${esc(s.site)}">Release → legacy</button>`
-              : `<button class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}">Adopt</button>`
+              ? `<button type="button" class="btn sm" data-act="release" data-site="${esc(s.site)}">Release → legacy</button>`
+              : `<button type="button" class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}">Adopt</button>`
         }</td></tr>`
         )
         .join('')}
@@ -238,6 +240,7 @@ function wireScheduler() {
     if (runRow) {
       const id = +runRow.dataset.id;
       SCH.openRun = SCH.openRun === id ? null : id;
+      runRow.setAttribute('aria-expanded', String(SCH.openRun === id));
       $$('tr.sch-out', root).forEach(r => r.classList.add('hidden'));
       if (SCH.openRun) {
         $(`tr.sch-out[data-for="${id}"]`).classList.remove('hidden');

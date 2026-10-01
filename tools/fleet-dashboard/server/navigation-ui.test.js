@@ -655,6 +655,8 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /class="sch-run" data-id="\$\{r\.id\}" role="button" tabindex="0"/);
   assert.match(scheduler, /root\.addEventListener\('keydown'/);
   assert.match(scheduler, /type="button" class="btn sm" id="sch-pause"/);
+  assert.match(scheduler, /role="status" aria-live="polite">Reading scheduler/);
+  assert.match(scheduler, /runRow\.setAttribute\('aria-expanded', String\(SCH\.openRun === id\)\)/);
   assert.doesNotMatch(scheduler, /\bprompt\(/);
   assert.doesNotMatch(scheduler, /\bconfirm\(/);
 });
