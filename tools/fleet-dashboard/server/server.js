@@ -373,6 +373,29 @@ function shouldRecoverStaleDeliveryClaim(
   );
 }
 
+function shouldResumePendingDelivery(
+  request,
+  run,
+  currentWorkerId,
+  now = Date.now(),
+  maxAgeMs = AUTOMATIC_DELIVERY_CLAIM_MAX_MS
+) {
+  const claimedAt = Date.parse(run?.outcome?.delivery_claimed_at || '');
+  return Boolean(
+    request?.status === 'delivery_pending' &&
+    ['building', 'review'].includes(run?.state) &&
+    run.agent?.phase === 'reviewer' &&
+    run.agent?.status === 'completed' &&
+    Number(run.agent?.exit_code) === 0 &&
+    run.outcome?.delivery_claimed === true &&
+    run.outcome?.delivery_claimed_by &&
+    run.outcome.delivery_claimed_by !== currentWorkerId &&
+    run.outcome?.delivery_blocked !== true &&
+    Number.isFinite(claimedAt) &&
+    now - claimedAt >= Number(maxAgeMs)
+  );
+}
+
 // A dashboard restart can leave the old worker's delivery claim behind while
 // the reviewer has already completed successfully. A durable reviewer PASS is
 // the handoff authority here: the recovery sweep only calls this path after it
@@ -3270,7 +3293,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function recoverAutomaticReviewHandoffs() {
     for (const request of events.listChangeRequests({ limit: 1000 })) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
-      if (!['reviewing', 'review', 'blocked_infrastructure'].includes(request.status)) continue;
+      if (
+        !['reviewing', 'review', 'blocked_infrastructure', 'delivery_pending'].includes(
+          request.status
+        )
+      )
+        continue;
       // A reviewer PASS whose delivery hit a repository-state problem is
       // intentionally parked for an operator. Do not rediscover the PASS and
       // repeat the same deployment attempt on every recovery sweep.
@@ -3297,6 +3325,39 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           correlation_id: run.correlation_id,
           payload: { request_id: request.request_id, handoff_age_ms: handoffAge },
         });
+      }
+      if (request.status === 'delivery_pending') {
+        if (
+          shouldResumePendingDelivery(request, run, queueWorkerId) &&
+          !activeAutomaticReviews.has(request.request_id)
+        ) {
+          const reviewer = improvementAgent.reviewResult(
+            improvementAgent.status(root, run).log_tail
+          );
+          // The queue status alone is not approval evidence. Resume only a
+          // durable reviewer PASS from the prior process; never guess it.
+          if (reviewer.marker === 'PASS') {
+            activeAutomaticReviews.set(request.request_id, Date.now());
+            events.record({
+              event_type: 'improvement.delivery_handoff_resumed',
+              source: 'fleet-dashboard',
+              site_id: `site:${run.site}`,
+              entity_type: 'improvement',
+              entity_id: run.run_id,
+              correlation_id: run.correlation_id,
+              payload: {
+                request_id: request.request_id,
+                previous_claimed_by: run.outcome.delivery_claimed_by,
+              },
+            });
+            completeAutomaticReview(request.request_id, run, {
+              ...reviewer,
+              code: run.agent.exit_code,
+              timedOut: false,
+            }).finally(() => activeAutomaticReviews.delete(request.request_id));
+          }
+        }
+        continue;
       }
       // A process can die after claiming delivery but before the deterministic
       // deployment handoff completes. Once the bounded claim window expires,
@@ -8883,6 +8944,7 @@ module.exports = {
   shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
+  shouldResumePendingDelivery,
   shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
   requiresInstalledSiteOwner,

@@ -16,6 +16,7 @@ const {
   shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,
   shouldRecoverStaleDeliveryClaim,
+  shouldResumePendingDelivery,
   shouldRecoverReviewerDeliveryClaim,
   shouldValidateBeforeDelivery,
   requiresInstalledSiteOwner,
@@ -295,6 +296,53 @@ test('stale delivery claims recover only after a validated reviewer handoff', ()
       { ...run, outcome: { ...run.outcome, delivery_claimed_at: '2026-09-23T14:50:00.000Z' } },
       now,
       15 * 60 * 1000
+    ),
+    false
+  );
+});
+
+test('a pending delivery resumes only after a foreign claim is stale and review completed', () => {
+  const now = Date.parse('2026-10-01T17:00:00.000Z');
+  const run = {
+    state: 'building',
+    outcome: {
+      delivery_claimed: true,
+      delivery_claimed_at: '2026-10-01T16:40:00.000Z',
+      delivery_claimed_by: 'old-dashboard',
+    },
+    agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+  };
+  const pending = { status: 'delivery_pending' };
+  assert.equal(shouldResumePendingDelivery(pending, run, 'new-dashboard', now), true);
+  assert.equal(shouldResumePendingDelivery(pending, run, 'old-dashboard', now), false);
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      { ...run, outcome: { ...run.outcome, delivery_claimed_at: '2026-10-01T16:50:00.000Z' } },
+      'new-dashboard',
+      now
+    ),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      { ...run, agent: { ...run.agent, status: 'running' } },
+      'new-dashboard',
+      now
+    ),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery({ status: 'reviewing' }, run, 'new-dashboard', now),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      { ...run, outcome: { ...run.outcome, delivery_blocked: true } },
+      'new-dashboard',
+      now
     ),
     false
   );
