@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:02:15.987Z",
+  "generated_at": "2026-10-01T10:04:24.327Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only girlpain.com request as duplicate measurement work. Preserve the existing CTA run and unknown analytics state. Route only the rodhat.com SEO candidate as a capacity-gated engineer specification; CTO must release a slot by 2026-10-01T12:00:00Z or escalate unresolved capacity to the owner. Revenue, ROI, and causal lift remain unsupported.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, and production claims. Revenue remains aggregate/unattributed, telemetry is low-volume for the available SEO opportunities, and delivery is saturated at 10/10 with measurement debt. Route one preview-only engineer task for rodhat.com; do not deploy. Leave complicated.work, deadlymaracas.com, and driveford.net blocked pending CTO slot release and site-factory readiness evidence. CTO unblock action is overdue; escalate unresolved capacity at the 2026-10-01T11:00:00Z executive review.",
         "requested_action": null,
         "proposal_id": null
       }
