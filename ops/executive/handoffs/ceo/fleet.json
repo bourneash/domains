@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T19:01:42.549Z",
+  "generated_at": "2026-10-01T19:11:08.348Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep new implementation admission gated and escalate the unresolved capacity ledger to the owner. Evidence from the 2026-10-01 19:00Z snapshot conflicts: active_delivery shows 1 occupied slot and 9 open, while execution shows 3 queued requests, 10 blocked reviews, and 24 failed requests; fleet-doctor and operations evidence are unavailable. Amazon’s 2026-09-21 $4.92 commission remains aggregate and unattributed. Unknown: which capacity ledger is authoritative. Smallest next step: principal-engineer documents the saveusfarms.com repair disposition and authoritative slot count by 2026-10-02T12:00Z. Owner decision: approve this deadline or escalate sooner.",
+        "summary": "Recommendation: approve principal-engineer ownership of capacity reconciliation under d4abc482-75de-438f-9fcf-5223f339c860, with a 2026-10-02T12:00Z deadline. Evidence conflicts: active_delivery shows 1/10 occupied slots and 9 open, while execution shows 3 queued requests, 10 blocked reviews, and 24 failed requests; fleet-doctor and operations evidence are unavailable. Revenue remains non-attributable: Amazon’s 2026-09-21 $4.92 commission is aggregate. Unknown: which capacity ledger is authoritative. Smallest next step: document the saveusfarms.com repair disposition, reconcile the ledger, and release one slot or escalate. Owner decision: approve this reassignment and deadline.",
         "requested_action": null,
         "proposal_id": null
       }
