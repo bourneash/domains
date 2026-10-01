@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:19:30.281Z",
+  "generated_at": "2026-10-01T03:29:07.136Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend preserving containment and rejecting any revenue, margin, ROI, forecast, or payback claim this cycle. Known evidence is limited to $4.92 aggregate Amazon commission, 28 ordered items, and 6 shipped items for 2026-09-21; all commission is unattributed to sites. AI usage records $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, with 234 errors and 5 transient errors. Comparing these amounts would be misleading because periods and attribution do not align; nevertheless, the observed AI cost is materially larger than the only observed aggregate commission. Contribution margin, total infrastructure spend, budget exposure, and cost-to-learn are not calculable because non-AI direct costs, budget ceilings, period-matched revenue, and workflow-level outcome linkage are absent. Do not expand AI-heavy or monetization work until a read-only finance baseline records these gaps and the minimum measurements needed to close them.",
+        "summary": "Recommendation: maintain financial containment, approve no discretionary spend or revenue forecasts, and preserve only already-queued reversible work after capacity release. Revenue is supported only for 2026-09-21: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID \"other\"; named site rows show $0 site-attributed commission. Site revenue, contribution margin, ROI, and causal lift are therefore unknown. September AI usage is $1,002.46 across 5,531 calls and 39 instrumented sites, including 234 errors; AI cost per call is approximately $0.18, but cost-to-learn per proven outcome is not calculable because costs are not linked to measured outcomes. Infrastructure, hosting, domains, labor, and marketing spend are unavailable; fixed-cost, marketing-budget, revenue-target, and revenue-floor fields are blank. Do not claim profitability or extrapolate the one-day Amazon result to monthly revenue. Minimum finance evidence required for a valid margin view: period-aligned revenue by registered site/tracking ID, AI cost by site/task, hosting/infrastructure/domain billing, and any included labor or marketing costs.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Amazon attribution is only partially usable: 18 named tracking rows are mapped, but the 2026-09-21 provider aggregate contains 629 clicks, 28 ordered items, and $4.92 commission under an aggregate row that cannot be assigned to any site. Site-attributed income is $0. Do not convert named affiliate clicks, SEO impressions, sessions, or conversions into revenue claims. The minimum required evidence is a period-matched provider export where every new affiliate link uses its registered tracking ID and commission is attributable to site and content identifiers.",
+        "summary": "Keep the 2026-09-21 Amazon result explicitly bounded: $4.92 aggregate commission cannot be assigned to a site, while named tracking rows currently support $0 site-attributed commission. Do not publish site revenue, ROI, margin, forecast, or causal-lift claims without period-aligned site identifiers and cost evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Please preserve the current no-expansion boundary while documenting the existing finance evidence gap. AI usage is observed at $1,002.45979265 for September 2026, but total infrastructure cost is unknown because operations sweeps have no results and the snapshot contains no hosting, egress, domain, storage, or other direct-cost ledger. The minimum report-only artifact is a period-matched cost table by site or workflow with source timestamps, observed AI cost, infrastructure cost fields, and explicit unknowns; do not change routing, billing, credentials, or runtime controls.",
+        "summary": "Infrastructure spend is not calculable from the brief: operations has no deploy, uptime, error, or billing sweep results, and no fixed-cost or monthly spend limit is configured. Record this as an evidence gap in the finance baseline; do not access banking, change billing, or incur spend.",
         "requested_action": null,
         "proposal_id": null
       }

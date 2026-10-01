@@ -2,23 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:19:30.282Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:29:07.136Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security report-only proposal as duplicative: the canonical fleet security evidence work item is already in progress. Preserve that work unchanged using authorized metadata and retained artifacts only. Keep private-launch and security-sensitive release gates unchanged. No production, credentials, configuration, spending, telemetry, external outreach, or certification claims are authorized. Financial and causal claims remain unsupported because commission is aggregate/unattributed and periods do not match.",
+        "summary": "Reject new americastrikes.com implementation, site-factory admission, CRO prototype, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, measurement is active, and revenue evidence supports only $4.92 aggregate unattributed Amazon commission for 2026-09-21 with $0 site-attributed commission. Preserve only canonical allthingsmasonic.com CTA refinement after the existing saveusfarms.com repair case releases one slot. Keep private launch and security-sensitive gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial claims remain unsupported: the only observed commission is $4.92 aggregate and unattributed, while AI cost is $1,002.46 for a different period. Security and operations evidence remain incomplete, and delivery is saturated at 10/10 slots. I rejected new production, spend, telemetry, launch, and duplicate work. I routed six reversible, engineer-owned SEO candidates as capacity-gated specifications only; no execution may begin until the CTO releases a slot by completing or closing the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Existing launch and security gates remain unchanged.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Admit no new implementation before one slot is released.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Do not clear gates, retrieve credentials, alter permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Delivery remains saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Escalate unresolved capacity to the owner at the deadline.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Three low-risk candidates are routed as capacity-gated specifications only. Do not execute, deploy, add tracking, change credentials/configuration, spend, or duplicate existing work until CTO releases a slot and confirms deduplication.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Amazon evidence supports only $4.92 aggregate unattributed commission for 2026-09-21; named site rows support $0 site-attributed commission. Revenue, ROI, margin, forecasts, and causal lift remain unknown. Keep SearchWoot private and rights outreach unsent while rights, security, accuracy, measurement, and owner gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "3943617d-d299-4fe7-94da-08645d281e65",
+        "summary": null,
+        "requested_action": "accepted_research",
+        "proposal_id": "3943617d-d299-4fe7-94da-08645d281e65"
       }
     ]
   }

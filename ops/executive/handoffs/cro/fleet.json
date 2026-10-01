@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:19:30.280Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:29:07.135Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend rejecting new production admission and duplicate control-plane work this cycle: delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests failed. Preserve the canonical allthingsmasonic.com CTA refinement after CTO releases capacity. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered affiliate clicks and available conversions for 14 days or 100 relevant impressions/clicks; do not claim revenue or causal lift. GitHub signals remain research-only: MIT candidates have plausible fit, but no adoption decision is supported without a disposable prototype, dependency review, security review, maintenance assessment, and owner-approved implementation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released, execute only the existing allthingsmasonic.com commercial-path refinement. Do not admit new CRO prototypes while capacity remains saturated.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The only near-term executable revenue experiment is the existing allthingsmasonic.com CTA refinement. Two product opportunities are retained as capacity-gated specifications: measurement-aware outcome closure and AI cost-to-verified-outcome review. Both use existing telemetry, preserve unknowns, require no new tracking or spend, and must not enter delivery until capacity is released.",
+        "summary": "Do not infer site revenue from the $4.92 aggregate Amazon commission or assign it across domains. Retain amputeenews.com affiliate activation only as an owner-evidence prerequisite for its registered Associates tag, and retain americastrikes.com affiliate-reference repairs as existing queued work. No duplicate requests, spend, credential changes, or new tracking are warranted while delivery is saturated and measurement windows remain active.",
         "requested_action": null,
         "proposal_id": null
       }

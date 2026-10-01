@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:19:30.281Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:29:07.136Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. No new production, site-factory, CRO, SEO, telemetry, spending, prototype, or duplicate queue work should enter delivery while all 10 implementation slots are occupied and measurement backlog remains active. Existing private-launch and security-sensitive release gates remain unchanged; operations and fleet-doctor evidence is insufficient for broader release clearance.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after the evidence is recorded.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after the evidence is complete; do not create a duplicate request.",
+        "summary": "After one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement. Limit scope to CTA hierarchy, adjacent disclosure preservation, accessible names, visible focus, responsive layout, and existing destination validation. Add no tracking, dependencies, credentials, or spend. Validate deterministic tests, build output, link integrity, accessibility, and mobile/desktop behavior. Measure existing affiliate clicks and available GA4 outcomes against the recorded 61-click baseline for 14 days or 100 relevant impressions/clicks. Revert the single diff on validation failure or regression.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com after capacity is released. Its scope is technically feasible and isolated: CTA hierarchy, adjacent affiliate disclosure, preserved destinations and registered tracking, accessible focus states and names, 44px tap targets, responsive validation, deterministic tests, build/link/disclosure checks, and single-diff rollback. Do not add dependencies, tracking, imagery, claims, unrelated routes, or configuration changes. Measure only registered affiliate clicks and available site conversions for 14 days or 100 relevant impressions/clicks; revenue and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The proposed CFO reconciliation is safe only as a report-only artifact using existing records, but it must not become a new implementation slot or duplicate telemetry request. Preserve the existing CFO handoff and record period mismatch, attribution boundaries, missing direct-cost fields, and missing budget ceilings. Do not calculate ROI, margin, payback, or cost-to-learn where identifiers and measurement windows do not align.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep gated products private and preserve security-sensitive release gates. Continue the existing consolidated read-only evidence matrix using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, change permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Reject new site-factory, finance-report, SEO, affiliate-repair, prototype, telemetry, and duplicate implementation admissions this cycle. Delivery is saturated at 10/10 slots and active measurement remains in progress. Preserve only the existing canonical allthingsmasonic.com CTA refinement after the saveusfarms.com repair case releases one slot. Revenue, ROI, margin, and causal lift remain unknown; aggregate provider revenue must not be assigned to a site.",
         "requested_action": null,
         "proposal_id": null
       }

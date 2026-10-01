@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:19:30.281Z",
+  "generated_at": "2026-10-01T03:29:07.136Z",
   "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked. Keep searchwoot.com private and do not authorize bounded public beta, full launch, affiliate/advertising expansion, or external rights outreach. Evidence: Woot API documentation confirms access mechanics but not redistribution rights; Woot terms restrict commercial/public use of listings, prices, descriptions, and derivatives; data-flow and consent evidence is partial; security, accuracy/freshness, measurement, and owner gates remain incomplete. Fleet compliance is technical triage only: 36 pass, 19 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is healthy for 39 configured sites; missing scaffold telemetry is not independently a blocker for ordinary reversible growth. Amazon evidence is limited to 2026-09-21 aggregate commission of $4.92 that cannot be assigned to a site; no revenue, ROI, margin, or causal-lift claims are supported. Human counsel is required for Woot rights, jurisdictional privacy/consent treatment, and any future affiliate or advertising use. Exact decision: preserve private launch and security-sensitive release gates; permit only bounded read-only evidence work and ordinary reversible changes that add no new data collection, permissions, credentials, dependencies, or cross-site behavior.",
+        "summary": "Disposition: blocked, with counsel_required for any public beta or monetization change. Woot documentation confirms API access but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; public terms point against those uses. Keep the private gate and rights outreach unsent. No go-live proposal is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch-readiness progress: 0 of 4 open legal tasks can be closed. Source-rights evidence is blocked by the absence of a current Woot agreement or written permission. Data-flow/retention evidence is partial from backend/api/main.py, backend/services/fetcher.py, and config.yml, but operator-confirmed retention, deletion, correction, access, and notification records are missing. Consent/analytics evidence is partial from site/public/privacy.html and site/public/cookie-policy.html; GA4 property settings, data-sharing settings, retention, and jurisdictional review remain missing. Vendor/log/incident evidence remains open. Next evidence action: attach one dated read-only evidence bundle to the existing checklist containing the data-flow/retention table and GA4 configuration capture; do not send outreach, enable tracking, or change the private gate.",
+        "summary": "Progress: source-rights evidence is documented and supports a blocked disposition; no launch-readiness task is closed. Keep all four legal tasks open. Next evidence action: attach one dated read-only bundle containing the data-flow/retention table, deployed consent capture, GA4 settings, and vendor/log/incident inventory. Do not deploy, expand tracking, send outreach, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data — blocked pending authoritative permission covering fields, storage, derivatives, display, caching, alerts, attribution, freshness, correction, takedown, images, prices, and affiliate use; smallest next action is to record the current agreement or permission source, without sending outreach. User alert rules and sync results — evidence_needed; missing data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest next action is a read-only data-flow and retention table. GA4 analytics — conditional only for consent-gated measurement; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdictional privacy review; smallest next action is a read-only configuration capture with no new tracking. Operational logs and Cloudflare hosting data — evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest next action is a read-only vendor and log inventory. Human counsel is required before resolving the rights, jurisdictional privacy, or future monetization questions.",
+        "summary": "The canonical allthingsmasonic.com CTA refinement may proceed only after the existing capacity gate releases a slot. Preserve the current affiliate disclosure, consent behavior, destinations, and claims. Validate accessible names, focus, responsive layout, link integrity, and rollback. Existing analytics/revenue evidence may measure the change, but no revenue, ROI, or causal lift may be claimed.",
         "requested_action": null,
         "proposal_id": null
       }
