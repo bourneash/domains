@@ -302,6 +302,10 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /wbCollapsedRecords/);
   assert.match(app, /linked records/);
   assert.match(app, /duplicate set/);
+  assert.match(app, /aria-label="Workbench case pages"/);
+  assert.match(app, /Workbench cases per page/);
+  assert.match(app, /Showing \$\{pageStart \+ 1\}/);
+  assert.match(app, /WORKBENCH_UI\.page = 1/);
   assert.match(app, /Add owner direction to this case/);
 });
 

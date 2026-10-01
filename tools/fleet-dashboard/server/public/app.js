@@ -16324,7 +16324,7 @@ async function renderExecutive() {
   stamp();
 }
 
-const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '', query: '' };
+const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '', query: '', page: 1, pageSize: 25 };
 let workbenchSearchTimer;
 
 function workItemBadge(value, type = 'status') {
@@ -16432,9 +16432,13 @@ async function renderWorkbench() {
   }));
   const wbCollapsedRecords = visible.length - threads.length;
   const wbDuplicateGroups = threads.filter(thread => thread.duplicateCount > 1).length;
+  const pageCount = Math.max(1, Math.ceil(threads.length / WORKBENCH_UI.pageSize));
+  WORKBENCH_UI.page = Math.min(WORKBENCH_UI.page, pageCount);
+  const pageStart = (WORKBENCH_UI.page - 1) * WORKBENCH_UI.pageSize;
+  const pageThreads = threads.slice(pageStart, pageStart + WORKBENCH_UI.pageSize);
   const options = (values, selected, label) =>
     `<option value="">${label}</option>${values.map(value => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(value.replace('_', ' '))}</option>`).join('')}`;
-  const rows = threads
+  const rows = pageThreads
     .map(
       ({ item, duplicateCount }) => `<article class="wb-item" data-work-id="${esc(item.work_id)}">
     <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}${duplicateCount > 1 ? `<span class="wb-duplicate-note" title="${duplicateCount} records share this case title; the latest actionable record is shown.">${duplicateCount} linked records</span>` : ''}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
@@ -16449,7 +16453,7 @@ async function renderWorkbench() {
     <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
     <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4" aria-label="Filter workbench cases by status">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
-    <section class="wb-list">${rows || '<div class="empty">No workbench cases match this view.</div>'}</section></div>`;
+    <section class="wb-list" aria-label="Workbench cases">${rows || '<div class="empty">No workbench cases match these filters.</div>'}</section><nav class="wb-pagination" aria-label="Workbench case pages"><span class="muted" id="wb-page-status" role="status" aria-live="polite">${threads.length ? `Showing ${pageStart + 1}–${Math.min(pageStart + WORKBENCH_UI.pageSize, threads.length)} of ${threads.length} case threads` : 'No case threads to show'}</span><label class="muted">Rows <select id="wb-page-size" class="cm-input" aria-label="Workbench cases per page">${[10, 25, 50].map(size => `<option value="${size}" ${WORKBENCH_UI.pageSize === size ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="wb-page-prev" aria-label="Previous workbench page" ${WORKBENCH_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="wb-page-next" aria-label="Next workbench page" ${WORKBENCH_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></nav></div>`;
   const wbCount = $('.wb-count');
   if (wbCount) {
     wbCount.textContent = `${visible.length - wbCollapsedRecords} case threads · ${visible.length} records shown${wbDuplicateGroups ? ` · ${wbDuplicateGroups} duplicate set${wbDuplicateGroups === 1 ? '' : 's'} collapsed` : ''}`;
@@ -16466,19 +16470,36 @@ async function renderWorkbench() {
     const value = e.target.value.trim().toLowerCase();
     workbenchSearchTimer = setTimeout(() => {
       WORKBENCH_UI.query = value;
+      WORKBENCH_UI.page = 1;
       softRender();
     }, 180);
   };
   $('#wb-filter-status').onchange = e => {
     WORKBENCH_UI.status = [...e.target.selectedOptions].map(option => option.value).join(',');
+    WORKBENCH_UI.page = 1;
     softRender();
   };
   $('#wb-filter-owner').onchange = e => {
     WORKBENCH_UI.owner = e.target.value;
+    WORKBENCH_UI.page = 1;
     softRender();
   };
   $('#wb-filter-kind').onchange = e => {
     WORKBENCH_UI.kind = e.target.value;
+    WORKBENCH_UI.page = 1;
+    softRender();
+  };
+  $('#wb-page-size').onchange = e => {
+    WORKBENCH_UI.pageSize = Number(e.target.value) || 25;
+    WORKBENCH_UI.page = 1;
+    softRender();
+  };
+  $('#wb-page-prev').onclick = () => {
+    WORKBENCH_UI.page = Math.max(1, WORKBENCH_UI.page - 1);
+    softRender();
+  };
+  $('#wb-page-next').onclick = () => {
+    WORKBENCH_UI.page = Math.min(pageCount, WORKBENCH_UI.page + 1);
     softRender();
   };
   $('#wb-create').onclick = async () => {

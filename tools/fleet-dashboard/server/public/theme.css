@@ -990,6 +990,11 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .wb-toolbar select[multiple] { min-width: 175px; min-height: 74px; }
 .wb-count { margin-left: auto; padding-bottom: 7px; }
 .wb-list { display: flex; flex-direction: column; gap: 9px; }
+.wb-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.wb-pagination > span { margin-right: auto; }
+.wb-pagination label { display: flex; align-items: center; gap: 7px; }
+.wb-pagination select { min-width: 76px; }
+@media (max-width: 520px) { .wb-pagination { justify-content: center; } .wb-pagination > span { flex-basis: 100%; margin: 0; text-align: center; } .wb-pagination .btn { flex: 1; } }
 .wb-item { padding: 15px 17px; background: var(--grad-panel), linear-gradient(180deg, rgba(19,24,34,.92), rgba(14,18,26,.92)); border: 1px solid rgba(255,255,255,.075); border-radius: var(--radius-sm); box-shadow: var(--sh-1); }
 .wb-item:hover { border-color: rgba(94,169,255,.25); box-shadow: var(--sh-2); }
 .wb-item-head, .wb-item-foot { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
@@ -2960,6 +2965,7 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .wb-kpis > div,
 :root[data-theme="light"] .wb-item,
 :root[data-theme="light"] .wb-toolbar,
+:root[data-theme="light"] .wb-pagination,
 :root[data-theme="light"] .ex-workspace-nav,
 :root[data-theme="light"] .ex-inventory-card,
 :root[data-theme="light"] .ex-request-detail,
