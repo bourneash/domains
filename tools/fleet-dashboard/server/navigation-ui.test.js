@@ -1035,6 +1035,11 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(app, /Failing checks<\/span>/);
   assert.match(app, /class="health-card-head"/);
   assert.match(app, /class="health-help"><summary>How site health is measured/);
+  assert.match(app, /type="button" class="btn" id="health-refresh"/);
+  assert.match(
+    app,
+    /\$\('#health-refresh'\)\.addEventListener\('click', \(\) => renderHealth\(\)\)/
+  );
   assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
   assert.match(style, /\.health-card-head \{[^}]*justify-content/);
 });
@@ -1073,6 +1078,11 @@ test('Errors presents scan severity as a readable KPI strip', () => {
     /class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters"/
   );
   assert.match(app, /class="error-help"><summary>How errors are classified/);
+  assert.match(app, /type="button" class="btn" id="errors-refresh"/);
+  assert.match(
+    app,
+    /\$\('#errors-refresh'\)\.addEventListener\('click', \(\) => renderErrors\(\)\)/
+  );
   assert.match(app, /class="card error-card error-table"><div class="table-wrap"><table/);
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.error-banner-bad \{[^}]*border-left/);

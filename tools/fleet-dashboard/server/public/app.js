@@ -2521,7 +2521,9 @@ async function renderCloudflareBuilds() {
 // a site is only absent below if it has no smoke.yaml or is disabled there.
 async function renderHealth() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading site health…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Health</h2><span class="muted">Live uptime and content checks across the fleet</span></div></div><div role="status" aria-live="polite"><div class="loading">Loading site health…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/gatus');
@@ -2574,7 +2576,7 @@ async function renderHealth() {
     : '';
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div>
+    <div class="page-head"><div><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div><button type="button" class="btn" id="health-refresh">↻ Refresh</button></div>
     <section class="health-summary" aria-label="Health summary">
       <div class="health-stat"><strong>${order.length}</strong><span>Sites monitored</span></div>
       <div class="health-stat health-stat-good"><strong>${healthy}</strong><span>Healthy sites</span></div>
@@ -2585,6 +2587,7 @@ async function renderHealth() {
     ${errNote}
     ${cards || '<div class="empty">No sites monitored — check that tools/fleet-gatus is running and its config has been generated.</div>'}
     <details class="health-help"><summary>How site health is measured</summary><p>Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and currently has no automated coverage — see <code>tools/fleet-gatus/README.md</code>.</p></details>`;
+  $('#health-refresh').addEventListener('click', () => renderHealth());
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -2695,7 +2698,9 @@ async function openErrorDrawer(id) {
 
 async function renderErrors() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading error scan…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide retained log scan and alert review</span></div></div><div role="status" aria-live="polite"><div class="loading">Loading error scan…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/errors');
@@ -2753,7 +2758,7 @@ async function renderErrors() {
 
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div>
+    <div class="page-head"><div><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div><button type="button" class="btn" id="errors-refresh">↻ Refresh</button></div>
     <section class="error-summary" aria-label="Error scan summary">
       <div class="error-stat"><strong>${rows.length}</strong><span>Containers scanned</span></div>
       <div class="error-stat ${noisy1h ? 'error-stat-bad' : 'error-stat-good'}"><strong>${noisy1h}</strong><span>Reporting errors · 1h</span></div>
@@ -2792,6 +2797,7 @@ async function renderErrors() {
     <div class="activity-pagination error-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ERRORS_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 containers'}</span><button id="errors-prev" class="btn sm" type="button" ${ERRORS_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ERRORS_UI.page} of ${pageCount}</span><button id="errors-next" class="btn sm" type="button" ${ERRORS_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <details class="error-help"><summary>How errors are classified</summary><p>Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p></details>`;
 
+  $('#errors-refresh').addEventListener('click', () => renderErrors());
   wireErrorRows();
   if (!FRESH) applyUISnap();
   applyFleetFilter();
