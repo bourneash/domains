@@ -7891,7 +7891,9 @@ function backlinkBadge(status) {
 
 async function renderBacklinks() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading backlink coverage…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading backlink coverage…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/backlinks');
@@ -7937,10 +7939,11 @@ async function renderBacklinks() {
   const table = rows
     .map(
       row =>
-        `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td>${backlinkBadge(row.status)}</td><td>${esc(row.latestDate || '—')}</td><td>${esc(row.latestAgeDays == null ? '—' : `${row.latestAgeDays}d`)}</td><td>${esc(row.sources?.join(', ') || '—')}</td><td><button class="btn sm backlink-focus" data-site="${esc(row.site)}">Details</button> <button class="btn sm backlink-accent backlink-file" data-site="${esc(row.site)}">＋ Task</button></td></tr>`
+        `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td>${backlinkBadge(row.status)}</td><td>${esc(row.latestDate || '—')}</td><td>${esc(row.latestAgeDays == null ? '—' : `${row.latestAgeDays}d`)}</td><td>${esc(row.sources?.join(', ') || '—')}</td><td><button type="button" class="btn sm backlink-focus" data-site="${esc(row.site)}">Details</button> <button type="button" class="btn sm backlink-accent backlink-file" data-site="${esc(row.site)}">＋ Task</button></td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div><div><button type="button" id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button type="button" id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide backlink-table"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></div></section>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div></div><div><button type="button" id="backlinks-refresh" class="btn">↻ Refresh</button> <button type="button" id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button type="button" id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide backlink-table"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></div></section>`;
+  $('#backlinks-refresh').addEventListener('click', () => renderBacklinks());
   $('#backlink-site').value = BACKLINK_SITE;
   $('#backlink-site').addEventListener('change', event => {
     BACKLINK_SITE = event.target.value;

@@ -1269,9 +1269,16 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
 test('Backlink Capture keeps coverage tables bounded and actions explicit', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading backlink coverage…<\/div>/
+  );
+  assert.match(app, /type="button" id="backlinks-refresh" class="btn"/);
   assert.match(app, /backlink-table[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /type="button" id="backlinks-baseline"/);
   assert.match(app, /type="button" id="backlinks-run"/);
+  assert.match(app, /type="button" class="btn sm backlink-focus"/);
+  assert.match(app, /type="button" class="btn sm backlink-accent backlink-file"/);
   assert.match(style, /\.backlink-table \{[^}]*overflow: hidden/);
 });
 
