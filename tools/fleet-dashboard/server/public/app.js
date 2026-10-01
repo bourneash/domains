@@ -16003,7 +16003,8 @@ async function renderExecutive() {
   stamp();
 }
 
-const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '' };
+const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '', query: '' };
+let workbenchSearchTimer;
 
 function workItemBadge(value, type = 'status') {
   const classes = {
@@ -16072,10 +16073,15 @@ async function renderWorkbench() {
   const active = all.filter(item => !['done', 'cancelled'].includes(item.status));
   const visible = all.filter(item => {
     const statuses = WORKBENCH_UI.status.split(',').filter(Boolean);
+    const query = WORKBENCH_UI.query.trim().toLowerCase();
+    const searchable = [item.title, item.site, item.owner, item.kind, item.summary, item.next_action, item.waiting_on]
+      .map(value => String(value || '').toLowerCase())
+      .join(' ');
     return (
       (!statuses.length || statuses.includes(item.status)) &&
       (!WORKBENCH_UI.owner || item.owner === WORKBENCH_UI.owner) &&
-      (!WORKBENCH_UI.kind || item.kind === WORKBENCH_UI.kind)
+      (!WORKBENCH_UI.kind || item.kind === WORKBENCH_UI.kind) &&
+      (!query || searchable.includes(query))
     );
   });
   const options = (values, selected, label) =>
@@ -16094,7 +16100,7 @@ async function renderWorkbench() {
   app.innerHTML = `<div class="wb-shell"><div class="page-head wb-head"><div><div class="wb-eyebrow">ASSISTIVE OPERATING QUEUE</div><h2 class="page-title">Executive Workbench</h2><div class="muted">One place for decisions, evidence gaps, reviews, incidents, and learning. Roles can update cases autonomously; humans step in only when a decision or approval is actually required.</div></div><div class="wb-head-actions"><button type="button" class="btn" id="wb-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new-toggle">＋ New case</button></div></div>
     <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
-    <section class="wb-toolbar"><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
+    <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4" aria-label="Filter workbench cases by status">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
     <section class="wb-list">${rows || '<div class="empty">No workbench cases match this view.</div>'}</section></div>`;
   $('#wb-refresh').onclick = () => renderWorkbench();
   $('#wb-new-toggle').onclick = async () => {
@@ -16103,6 +16109,14 @@ async function renderWorkbench() {
     else await closeInlineDraft(panel, 'workbench case draft');
   };
   $('#wb-new-close').onclick = () => closeInlineDraft($('#wb-new'), 'workbench case draft');
+  $('#wb-search').oninput = e => {
+    clearTimeout(workbenchSearchTimer);
+    const value = e.target.value.trim().toLowerCase();
+    workbenchSearchTimer = setTimeout(() => {
+      WORKBENCH_UI.query = value;
+      softRender();
+    }, 180);
+  };
   $('#wb-filter-status').onchange = e => {
     WORKBENCH_UI.status = [...e.target.selectedOptions].map(option => option.value).join(',');
     softRender();

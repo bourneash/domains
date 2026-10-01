@@ -291,6 +291,9 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /button\.setAttribute\('aria-expanded', 'false'\)/);
   assert.match(app, /type="button" class="btn" id="wb-refresh"/);
   assert.match(app, /\$\('#wb-refresh'\)\.onclick = \(\) => renderWorkbench\(\)/);
+  assert.match(app, /id="wb-search" class="cm-input" type="search"/);
+  assert.match(app, /aria-label="Search workbench cases"/);
+  assert.match(app, /searchable\.includes\(query\)/);
 });
 
 test('workbench thread expansion exposes an accessible loading state', () => {
