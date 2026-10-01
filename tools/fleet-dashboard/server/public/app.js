@@ -1434,7 +1434,7 @@ async function renderTaskBudget() {
           return `<div class="muted">⚠ <span class="mono">${esc(d.file)}</span> → assigned_role: <span class="mono">${esc(d.assigned_role)}</span> (no such role installed — never picked up)</div>`;
         })
         .join('');
-      return `<div class="card" style="margin-bottom:14px">
+      return `<div class="card tb-site-card" data-fleet-row data-site="${esc(s.site)}">
       <div class="task-toolbar"><strong>${esc(s.site)}</strong></div>
       ${
         rows
@@ -1450,12 +1450,17 @@ async function renderTaskBudget() {
     .join('');
 
   app.innerHTML = `
-    <div class="task-toolbar">
-      <strong>${roleRows} writer/backlog-driven roles</strong>
-      <span class="muted">${driftRows} static≫computed drift · ${deadRoleRows} dead-role tasks stuck in backlog</span>
-    </div>
+    <div class="page-head"><h2 class="page-title">Task Budget</h2><span class="muted">Configured versus computed writer-role turn budgets, including roles that cannot be dispatched.</span></div>
+    <section class="tb-summary" aria-label="Task budget audit summary">
+      <div class="tb-stat"><strong>${sites.filter(s => s.roles.length || s.dead_role_tasks.length).length}</strong><span>Sites with audit data</span></div>
+      <div class="tb-stat tb-stat-good"><strong>${roleRows}</strong><span>Roles inspected</span></div>
+      <div class="tb-stat ${driftRows ? 'tb-stat-warn' : 'tb-stat-good'}"><strong>${driftRows}</strong><span>Budget drift</span></div>
+      <div class="tb-stat ${deadRoleRows ? 'tb-stat-bad' : 'tb-stat-good'}"><strong>${deadRoleRows}</strong><span>Dead-role tasks</span></div>
+      <div class="tb-stat tb-stat-meta"><strong>±10 turns</strong><span>Drift threshold · fleet search filters sites</span></div>
+    </section>
     ${siteBlocks || '<div class="empty">No sites with backlog-driven roles found.</div>'}`;
   if (!FRESH) applyUISnap();
+  applyFleetFilter();
   stamp();
 }
 

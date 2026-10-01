@@ -940,6 +940,17 @@ test('Git Hygiene presents safety state and searchable review queue', () => {
   assert.match(theme, /\.gh-filter-hidden \{ display: none; \}/);
 });
 
+test('Task Budget presents audit risk and participates in fleet filtering', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="tb-summary"/);
+  assert.match(app, /Budget drift<\/span>/);
+  assert.match(app, /Dead-role tasks<\/span>/);
+  assert.match(app, /class="card tb-site-card" data-fleet-row/);
+  assert.match(app, /applyFleetFilter\(\);/);
+  assert.match(theme, /\.tb-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
