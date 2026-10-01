@@ -832,6 +832,16 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   assert.match(theme, /\.fleet-filter-wrap \{ order: 3; flex: 1 1 100%;/);
 });
 
+test('shared route headers keep context readable beside actions on narrow screens', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /\.page-head > div:first-child \{ flex: 1 1 320px; min-width: 0; \}/);
+  assert.match(style, /\.page-head > \.btn \{ flex: 0 0 auto; margin-left: auto;/);
+  assert.match(
+    style,
+    /@media \(max-width: 620px\) \{[\s\S]*\.page-head > \.btn \{ margin-left: 0; \}/
+  );
+});
+
 test('legacy direct-table cards remain horizontally usable on narrow screens', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /@media \(max-width: 720px\)/);

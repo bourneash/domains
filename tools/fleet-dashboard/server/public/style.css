@@ -54,7 +54,15 @@ body {
 .nav-group .dd-menu { min-width: 172px; }
 
 /* page heading + breadcrumbs */
-.page-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.page-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.page-head > div:first-child { flex: 1 1 320px; min-width: 0; }
+.page-head > div:first-child > .muted,
+.page-head > div:first-child > .crumbs { display: block; max-width: 78ch; margin-top: 4px; line-height: 1.4; }
+.page-head > .btn { flex: 0 0 auto; margin-left: auto; align-self: flex-start; }
+@media (max-width: 620px) {
+  .page-head { gap: 8px; }
+  .page-head > .btn { margin-left: 0; }
+}
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0; }
 .form-grid label, .auto-role > label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 12px; }
 .form-grid .cm-input, .auto-role .cm-input { width: 100%; box-sizing: border-box; }
