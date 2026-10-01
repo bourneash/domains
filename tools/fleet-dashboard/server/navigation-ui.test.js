@@ -379,6 +379,7 @@ test('Engineer health actions keep their role binding explicit', () => {
   assert.match(app, /const ah = healthBy\[`\$\{r\.site\}:engineer`\];/);
   assert.doesNotMatch(app, /const ah = healthBy\[r\.site\];/);
   assert.doesNotMatch(app, /h\.role \|\| role/);
+  assert.match(app, /type="button" class="btn" id="engineer-refresh"/);
   assert.match(app, /class="btn sm ag-health-details"[\s\S]*data-role="engineer"/);
   assert.doesNotMatch(app, /ag-health-details"[^`]*data-role="\$\{esc\(role\)\}"/);
 });
@@ -1193,6 +1194,7 @@ test('Git Hygiene presents safety state and searchable review queue', () => {
 
 test('Task Budget presents audit risk and participates in fleet filtering', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /type="button" class="btn" id="task-budget-refresh"/);
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="tb-summary"/);
   assert.match(app, /Budget drift<\/span>/);
@@ -1234,6 +1236,7 @@ test('Activity presents audit volume and outcome hierarchy', () => {
 
 test('Product Feed presents queue health as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /type="button" class="btn" id="product-feed-refresh"/);
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="pf-summary"/);
   assert.match(app, /Queues below target<\/span>/);
@@ -1246,6 +1249,7 @@ test('Product Feed presents queue health as a summary strip', () => {
 
 test('AI Inventory presents provider and policy coverage as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /type="button" class="btn" id="ai-inventory-refresh"/);
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="aii-summary"/);
   assert.match(app, /AI-backed services<\/span>/);

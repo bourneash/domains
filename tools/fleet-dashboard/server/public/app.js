@@ -763,7 +763,7 @@ async function renderEngineers() {
 
   app.innerHTML = `
     ${breadcrumb('engineer')}
-    <div class="page-head"><h2 class="page-title">Engineer</h2><span class="muted">${eng.length} sites run this agent — live pulse, render, Cloudflare, queue</span></div>
+    <div class="page-head"><div><h2 class="page-title">Engineer</h2><span class="muted">${eng.length} sites run this agent — live pulse, render, Cloudflare, queue</span></div><button type="button" class="btn" id="engineer-refresh">↻ Refresh</button></div>
     <div class="task-toolbar">
       <strong>${eng.length} engineers</strong>
       <span class="muted">${esc(summary)}</span>
@@ -797,6 +797,7 @@ async function renderEngineers() {
       <tbody>${body}</tbody>
     </table></div>
     <p class="muted" style="margin-top:12px">Feat: <b>L</b>=work-lock <b>P</b>=liveness-pulse <b>D</b>=daily-summary · Age <b>!</b> = pulse &gt; 35m (possibly wedged) · Health: <i class="hkey h-ok"></i> healthy <i class="hkey h-bad"></i> issue <i class="hkey h-miss"></i> missed — one per 30-min run, last 24h. <a id="fleet-help-link" class="filter-clear" style="margin-left:0">full column key →</a></p>`;
+  $('#engineer-refresh').addEventListener('click', () => renderEngineers());
   const helpBox = $('#fleet-help');
   const toggleHelp = () => helpBox.classList.toggle('hidden');
   $('#fleet-help-toggle').addEventListener('click', toggleHelp);
@@ -1472,7 +1473,7 @@ async function renderTaskBudget() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Task Budget</h2><span class="muted">Configured versus computed writer-role turn budgets, including roles that cannot be dispatched.</span></div>
+    <div class="page-head"><div><h2 class="page-title">Task Budget</h2><span class="muted">Configured versus computed writer-role turn budgets, including roles that cannot be dispatched.</span></div><button type="button" class="btn" id="task-budget-refresh">↻ Refresh</button></div>
     <section class="tb-summary" aria-label="Task budget audit summary">
       <div class="tb-stat"><strong>${sites.filter(s => s.roles.length || s.dead_role_tasks.length).length}</strong><span>Sites with audit data</span></div>
       <div class="tb-stat tb-stat-good"><strong>${roleRows}</strong><span>Roles inspected</span></div>
@@ -1481,6 +1482,7 @@ async function renderTaskBudget() {
       <div class="tb-stat tb-stat-meta"><strong>±10 turns</strong><span>Drift threshold · fleet search filters sites</span></div>
     </section>
     ${siteBlocks || '<div class="empty">No sites with backlog-driven roles found.</div>'}`;
+  $('#task-budget-refresh').addEventListener('click', () => renderTaskBudget());
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -1526,7 +1528,7 @@ async function renderAIInventory() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">AI Inventory</h2><span class="muted">dispatch-aware provider and model audit of scheduled fleet services</span></div>
+    <div class="page-head"><div><h2 class="page-title">AI Inventory</h2><span class="muted">dispatch-aware provider and model audit of scheduled fleet services</span></div><button type="button" class="btn" id="ai-inventory-refresh">↻ Refresh</button></div>
     <section class="aii-summary" aria-label="AI inventory summary">
       <div class="aii-stat"><strong>${aiBacked}</strong><span>AI-backed services</span></div>
       <div class="aii-stat aii-stat-good"><strong>${enabled}</strong><span>Enabled</span></div>
@@ -1540,6 +1542,7 @@ async function renderAIInventory() {
       <tbody>${rows}</tbody>
     </table></div></div>
     <details class="aii-help"><summary>How to interpret AI inventory</summary><p>“Claude CLI default (unpinned)” and aliases such as <span class="mono">sonnet</span>/<span class="mono">haiku</span> can change without a repository change. Conditional services run deterministic gates before spending model tokens. Rows marked no-AI remain visible to make classifier decisions auditable.</p></details>`;
+  $('#ai-inventory-refresh').addEventListener('click', () => renderAIInventory());
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -1627,7 +1630,7 @@ async function renderProductFeed() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Product Feed</h2><span class="muted">${esc(stats.products || 0)} verified Amazon products · independent site queues (:4761)</span></div>
+    <div class="page-head"><div><h2 class="page-title">Product Feed</h2><span class="muted">${esc(stats.products || 0)} verified Amazon products · independent site queues (:4761)</span></div><button type="button" class="btn" id="product-feed-refresh">↻ Refresh</button></div>
     ${healthHtml}
     <section class="pf-summary" aria-label="Product feed summary">
       <div class="pf-stat"><strong>${subscriptionRows.length}</strong><span>Subscribed sites</span></div>
@@ -1652,6 +1655,7 @@ async function renderProductFeed() {
       </table></div>
     </div>
     <details class="pf-help"><summary>How the product feed is maintained</summary><p>Subscriptions define each site's selection tags and target inventory depth. The collector fills deficits, routes products through review, and only publishes verified records; rejected items remain visible in the queue totals for auditability.</p></details>`;
+  $('#product-feed-refresh').addEventListener('click', () => renderProductFeed());
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
