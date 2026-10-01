@@ -1260,6 +1260,21 @@ test('fleet task table stays bounded while preserving its wide scan columns', ()
   assert.match(view, /<th>Title<\/th><th>Role<\/th><th>Created<\/th>/);
 });
 
+test('Cron cards isolate schedule overflow and use explicit action buttons', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function cmCard(sys)');
+  const end = app.indexOf('function cmRow(sys, e)', start);
+  assert.ok(start >= 0 && end > start);
+  const card = app.slice(start, end);
+  const rowEnd = app.indexOf('// Look up the live entry object', end);
+  const row = app.slice(end, rowEnd);
+  assert.match(card, /<div class="table-wrap"><table class="cm-jobs">/);
+  assert.match(card, /<button type="button" class="cm-collapse"/);
+  assert.match(card, /<button type="button" class="btn sm cm-addjob"/);
+  assert.match(row, /type="button" class="btn sm cm-toggle"/);
+  assert.match(row, /type="button" class="btn sm danger cm-remove"/);
+});
+
 test('Guides route provides queue context, summary, and keyboard access', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

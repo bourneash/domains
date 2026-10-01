@@ -6197,7 +6197,7 @@ function cmCard(sys) {
 
   return `<section class="cm-card${sys.failed ? ' cm-failed' : ''}" data-fleet-row data-site="${esc(sys.kind === 'site' ? sys.slug : '')}">
     <div class="cm-head" data-slug="${esc(sys.slug)}">
-      <button class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
+      <button type="button" class="cm-collapse" data-slug="${esc(sys.slug)}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'}">${collapsed ? '▸' : '▾'}</button>
       <span class="cm-name">${esc(sys.slug)}</span>
       <span class="cm-kind">${esc(sys.kind)}</span>
       <span class="cm-badge ${badgeCls}" title="${badgeTitle}">${esc(badgeLabel)}</span>
@@ -6205,12 +6205,12 @@ function cmCard(sys) {
       <span class="cm-container mono">${esc(sys.container)}</span>
     </div>
     <div class="cm-body${collapsed ? ' hidden' : ''}" data-rk="cron:${esc(sys.slug)}">
-      <table class="cm-jobs">
+      <div class="table-wrap"><table class="cm-jobs">
         <thead><tr><th>State</th><th>Job</th><th>Schedule</th><th>Last run</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>
+      </table></div>
       <div class="cm-foot">${foot.join(' ')}${hint}
-        <button class="btn sm cm-addjob" data-slug="${esc(sys.slug)}" style="margin-left:auto">+ Add job</button>
+        <button type="button" class="btn sm cm-addjob" data-slug="${esc(sys.slug)}" style="margin-left:auto">+ Add job</button>
       </div>
     </div>
   </section>`;
@@ -6227,14 +6227,20 @@ function cmRow(sys, e) {
     : `<span class="cm-job cmd" title="${esc(e.command)}">${esc(e.command)}</span>`;
 
   const acts = [
-    `<button class="btn sm cm-toggle" data-line="${e.lineIndex}">${e.enabled ? 'Pause' : 'Resume'}</button>`,
-    `<button class="btn sm cm-edit" data-line="${e.lineIndex}">Edit</button>`,
+    `<button type="button" class="btn sm cm-toggle" data-line="${e.lineIndex}">${e.enabled ? 'Pause' : 'Resume'}</button>`,
+    `<button type="button" class="btn sm cm-edit" data-line="${e.lineIndex}">Edit</button>`,
   ];
   if (e.hasLog)
-    acts.push(`<button class="btn sm cm-rolelog" data-role="${esc(e.role)}">Log</button>`);
+    acts.push(
+      `<button type="button" class="btn sm cm-rolelog" data-role="${esc(e.role)}">Log</button>`
+    );
   if (e.role && sys.status === 'running')
-    acts.push(`<button class="btn sm cm-run" data-role="${esc(e.role)}">Run</button>`);
-  acts.push(`<button class="btn sm danger cm-remove" data-line="${e.lineIndex}">Remove</button>`);
+    acts.push(
+      `<button type="button" class="btn sm cm-run" data-role="${esc(e.role)}">Run</button>`
+    );
+  acts.push(
+    `<button type="button" class="btn sm danger cm-remove" data-line="${e.lineIndex}">Remove</button>`
+  );
 
   return `<tr class="cm-jobrow${e.enabled ? '' : ' cm-paused'}" data-slug="${esc(sys.slug)}" data-line="${e.lineIndex}">
     <td><span class="cm-state ${e.enabled ? 'on' : 'off'}">${e.enabled ? 'on' : 'paused'}</span></td>
