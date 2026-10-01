@@ -1483,6 +1483,11 @@ test('Tasks route provides context before its mode controls', () => {
   assert.match(view, /class="page-head task-page-head"/);
   assert.match(view, /<h2 class="page-title">Tasks<\/h2>/);
   assert.match(view, /Track work across the fleet/);
+  assert.match(view, /type="button" class="btn" id="tasks-refresh"/);
+  assert.match(
+    view,
+    /\$\('#tasks-refresh'\)\.addEventListener\('click', \(\) => renderTasks\(\)\)/
+  );
   assert.match(view, /role="group" aria-label="Task view mode"/);
   assert.match(view, /class="btn primary sm task-new-btn" id="new-task"/);
   assert.match(theme, /\.task-route-toolbar > \.seg \{ display: flex; \}/);

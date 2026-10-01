@@ -5464,23 +5464,24 @@ async function renderTasks() {
   const prev =
     !FRESH && $('#task-content')
       ? $('#task-content').innerHTML
-      : '<div class="loading">Loading tasks…</div>';
+      : '<div role="status" aria-live="polite"><div class="loading">Loading tasks…</div></div>';
   app.innerHTML = `
     <div class="page-head task-page-head">
       <div>
         <h2 class="page-title">Tasks</h2>
         <span class="muted">Track work across the fleet or open one site’s board for hands-on triage.</span>
-      </div>
+      </div><button type="button" class="btn" id="tasks-refresh">↻ Refresh</button>
     </div>
     <div class="task-toolbar task-route-toolbar">
       <div class="seg" role="group" aria-label="Task view mode">
-        <button class="seg-btn ${TASK.mode === 'fleet' ? 'active' : ''}" data-mode="fleet" aria-pressed="${TASK.mode === 'fleet'}">Fleet</button>
-        <button class="seg-btn ${TASK.mode === 'board' ? 'active' : ''}" data-mode="board" aria-pressed="${TASK.mode === 'board'}">Board</button>
+        <button type="button" class="seg-btn ${TASK.mode === 'fleet' ? 'active' : ''}" data-mode="fleet" aria-pressed="${TASK.mode === 'fleet'}">Fleet</button>
+        <button type="button" class="seg-btn ${TASK.mode === 'board' ? 'active' : ''}" data-mode="board" aria-pressed="${TASK.mode === 'board'}">Board</button>
       </div>
       <div id="task-controls" class="task-controls"></div>
-      <button class="btn primary sm task-new-btn" id="new-task">+ New Task</button>
+      <button type="button" class="btn primary sm task-new-btn" id="new-task">+ New Task</button>
     </div>
     <div id="task-content">${prev}</div>`;
+  $('#tasks-refresh').addEventListener('click', () => renderTasks());
   $$('.seg-btn').forEach(b =>
     b.addEventListener('click', () => {
       TASK.mode = b.dataset.mode;
