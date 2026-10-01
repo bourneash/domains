@@ -340,8 +340,12 @@ function applyAccessLevel(level) {
   ACCESS_LEVEL = level === 'viewer' ? 'viewer' : 'operator';
   document.body.dataset.access = ACCESS_LEVEL;
   const actions = $('.actions');
-  if (!actions || $('.access-badge', actions)) return;
-  const badge = document.createElement('span');
+  if (!actions) return;
+  const badge = $('.access-badge', actions) || document.createElement('span');
+  if (!badge.parentNode) {
+    badge.className = 'access-badge';
+    actions.insertBefore(badge, actions.firstChild);
+  }
   badge.className = `access-badge ${ACCESS_LEVEL === 'viewer' ? 'is-viewer' : 'is-operator'}`;
   badge.textContent = ACCESS_LEVEL === 'viewer' ? 'Read-only' : 'Operator';
   badge.title =

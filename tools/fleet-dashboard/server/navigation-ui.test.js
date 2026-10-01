@@ -164,6 +164,14 @@ test('initial vitals loading reserves the rail geometry to prevent layout shift'
   assert.match(theme, /#vitals\.vitals-pending \{[\s\S]*visibility: hidden;[\s\S]*pointer-events: none;/);
 });
 
+test('initial topbar renders shell controls before hydration', () => {
+  const html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  assert.match(html, /<body class="has-rail">/);
+  for (const marker of ['cmdk-hint', 'focus-mode-toggle', 'view-saves', 'fd-network-status', 'access-badge']) {
+    assert.match(html, new RegExp(`class="[^"]*${marker}`));
+  }
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');

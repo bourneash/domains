@@ -774,12 +774,15 @@
 
   function installNetworkStatus() {
     const actions = $('.actions');
-    if (!actions || $('.fd-network-status', actions)) return;
-    const status = document.createElement('span');
-    status.className = 'fd-network-status';
-    status.setAttribute('role', 'status');
-    status.setAttribute('aria-live', 'polite');
-    actions.insertBefore(status, actions.firstChild);
+    if (!actions) return;
+    let status = $('.fd-network-status', actions);
+    if (!status) {
+      status = document.createElement('span');
+      status.className = 'fd-network-status';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      actions.insertBefore(status, actions.firstChild);
+    }
     let onlineTimer = null;
     let refreshTimer = null;
     const render = online => {
@@ -905,21 +908,26 @@
 
     // ⌘K affordance in the topbar
     const actions = $('.actions');
-    if (actions && !$('.cmdk-hint')) {
-      const hint = document.createElement('button');
-      hint.className = 'cmdk-hint';
+    if (actions) {
+      const hint = $('.cmdk-hint', actions) || document.createElement('button');
+      if (!hint.parentNode) {
+        hint.className = 'cmdk-hint';
+        hint.type = 'button';
+        actions.insertBefore(hint, actions.firstChild);
+      }
       hint.type = 'button';
       hint.title = 'Command palette (⌘K, ?, or /)';
+      hint.setAttribute('aria-label', 'Open command palette');
       hint.innerHTML = `<span>⌘</span><kbd>K</kbd>`;
       hint.onclick = open;
-      actions.insertBefore(hint, actions.firstChild);
-    }
-    if (actions && !$('.focus-mode-toggle')) {
-      const focus = document.createElement('button');
-      focus.className = 'btn sm focus-mode-toggle';
+      const focus = $('.focus-mode-toggle', actions) || document.createElement('button');
+      if (!focus.parentNode) {
+        focus.className = 'btn sm focus-mode-toggle';
+        focus.type = 'button';
+        actions.insertBefore(focus, actions.firstChild);
+      }
       focus.type = 'button';
       focus.onclick = toggleFocusMode;
-      actions.insertBefore(focus, actions.firstChild);
     }
     let focusOn = false;
     try {
@@ -1760,13 +1768,16 @@
     input.focus();
   }
   function setupSavedViews(actions) {
-    if (!actions || $('.view-saves', actions)) return;
-    const wrap = document.createElement('div');
-    wrap.className = 'view-saves';
-    wrap.innerHTML = `
-      <button class="btn sm view-saves-toggle" type="button" aria-expanded="false" aria-haspopup="menu">Saved views</button>
-      <div class="view-saves-menu hidden" role="menu"></div>`;
-    actions.insertBefore(wrap, actions.firstChild);
+    if (!actions) return;
+    let wrap = $('.view-saves', actions);
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'view-saves';
+      wrap.innerHTML = `
+        <button class="btn sm view-saves-toggle" type="button" aria-expanded="false" aria-haspopup="menu">Saved views</button>
+        <div class="view-saves-menu hidden" role="menu"></div>`;
+      actions.insertBefore(wrap, actions.firstChild);
+    }
     const toggle = $('.view-saves-toggle', wrap);
     const menu = $('.view-saves-menu', wrap);
     let restoreFocus = null;

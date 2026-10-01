@@ -21,7 +21,7 @@
     })();
   </script>
 </head>
-<body>
+<body class="has-rail">
   <a class="skip-link" href="#app">Skip to dashboard content</a>
   <header class="topbar">
     <div class="brand">
@@ -62,6 +62,14 @@
       <span id="fleet-filter-count" class="fleet-filter-count" role="status" aria-live="polite"></span>
     </div>
     <div class="actions">
+      <button type="button" class="cmdk-hint" title="Command palette (⌘K, ?, or /)" aria-label="Open command palette"><span>⌘</span><kbd>K</kbd></button>
+      <button type="button" class="btn sm focus-mode-toggle" aria-pressed="false">Focus</button>
+      <div class="view-saves">
+        <button class="btn sm view-saves-toggle" type="button" aria-expanded="false" aria-haspopup="menu">Saved views</button>
+        <div class="view-saves-menu hidden" role="menu"></div>
+      </div>
+      <span class="fd-network-status" role="status" aria-live="polite" hidden></span>
+      <span class="access-badge is-operator">Operator</span>
       <span id="updated" class="muted" role="status" aria-live="polite"></span>
       <button id="update-pill" type="button" class="btn sm hidden" title="A new dashboard version is available" aria-label="↻ Update ready — new dashboard version available">↻ Update ready</button>
       <div class="auto" title="Automatic refresh — updates in place; preserves scroll, open rows and filters. Paused while a task editor is open or the tab is hidden.">
