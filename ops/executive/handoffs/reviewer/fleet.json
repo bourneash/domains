@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:48:06.006Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:01:22.006Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, queue, prototype, telemetry, spend, and duplicate control-plane work this cycle. Delivery is saturated at 10/10 slots, measurement is still open, and revenue, ROI, margin, and causal lift remain unsupported by the one-day aggregate attribution window. Keep the private launch gate unchanged and leave rights outreach unsent. CTO should complete or close the existing repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence; only then may the existing canonical CTA request proceed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain only the existing capacity-gated repair and canonical CTA sequence. Reject the new legal report-only proposal because it duplicates the existing launch-readiness evidence bundle. No new implementation admission is defensible while delivery is saturated and measurement remains open.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots, active measurement and repair work remain open, and revenue attribution is insufficient for financial or causal claims. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, tests, isolated validation, build evidence, rollback, release boundary, attribution limits, measurement limits, and deduplication evidence. After a slot is released, execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Keep SearchWoot private and rights outreach unsent.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, new production, spending, credential, telemetry, and high-priority queue claims. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; delivery is saturated at 10/10 slots. Preserve private-launch and security gates. Route only the three capacity-gated, reversible SEO specifications below; CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit at most one candidate. Owner: confirm containment and keep private-launch decisions unchanged.",
         "requested_action": null,
         "proposal_id": null
       }
