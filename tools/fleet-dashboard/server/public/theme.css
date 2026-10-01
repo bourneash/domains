@@ -1947,6 +1947,28 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .cq-exception-card strong { color: var(--text-hi); }
 :root[data-theme="light"] .cq-status-note { background: rgba(61,160,112,.07); }
 :root[data-theme="light"] .cq-status-note.warn { background: rgba(190,140,25,.09); }
+:root[data-theme="light"] .ui-collapsible.is-collapsed {
+  background: rgba(240,244,250,.9);
+  border-color: var(--border);
+}
+:root[data-theme="light"] .soc-sub {
+  background: rgba(240,244,250,.72);
+}
+:root[data-theme="light"] .seo-type-row i,
+:root[data-theme="light"] .vt-meter {
+  background: rgba(40,70,110,.1);
+}
+:root[data-theme="light"] .seo-coverage div {
+  background: rgba(240,244,250,.8);
+  border-color: var(--border);
+}
+:root[data-theme="light"] .col-head {
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(240,244,250,.94));
+  border-bottom-color: var(--border);
+}
+:root[data-theme="light"] .col-head .count {
+  background: var(--panel-2);
+}
 :root[data-theme="light"] .mobile-rail-toggle {
   background: rgba(40,119,212,.06);
   border-color: rgba(61,86,120,.18);
