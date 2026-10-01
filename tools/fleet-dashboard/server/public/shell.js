@@ -212,6 +212,8 @@
   });
 
   async function loadVitals() {
+    const requestId = (loadVitals.requestId || 0) + 1;
+    loadVitals.requestId = requestId;
     try {
       const [rRes, cRes] = await Promise.all([
         fetch('/api/roles', { credentials: 'same-origin' }),
@@ -223,6 +225,7 @@
       }
       const roles = await rRes.json();
       const allCts = await cRes.json();
+      if (requestId !== loadVitals.requestId) return;
       // The containers tile is the one cell that gets scoped to whatever page
       // it's sitting above: on Social Hub it has no business showing the
       // fleet's 70+ containers (dev sandboxes, every site's crons, ...) when

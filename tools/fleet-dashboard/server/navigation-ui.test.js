@@ -144,6 +144,13 @@ test('compact executive workspace tabs retain their full context', () => {
   assert.match(app, /aria-label="\$\{esc\(`\$\{label\}: \$\{description\}`\)\}"/);
 });
 
+test('fleet vitals ignore stale route-scoped container responses', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /const requestId = \(loadVitals\.requestId \|\| 0\) \+ 1/);
+  assert.match(shell, /if \(requestId !== loadVitals\.requestId\) return;/);
+  assert.match(shell, /const socialScoped = document\.body\.dataset\.view === 'socialhub'/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
