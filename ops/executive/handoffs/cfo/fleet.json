@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:58:38.008Z",
+  "generated_at": "2026-10-01T00:08:42.941Z",
   "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment and approve no new finance-driven spend or monetization forecast. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is in an aggregate provider row and cannot be assigned to a site; named site rows show $0 attributed commission. Do not convert clicks, orders, shipped items, SEO conversions, or AI output into revenue, ROI, contribution margin, or causal lift. AI usage for 2026-09-01 through 2026-09-30 is $1,002.45979265 across 5,531 calls, including 234 errors and 5 transient errors; this is not comparable to the one-day revenue window and is not a margin calculation. Keep the existing capacity gate and queued CTA refinement unchanged.",
+        "summary": "Recommendation: retain containment and reject the proposed CRO portfolio and control-plane work this cycle. Financial evidence supports no new spend or monetization forecast. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, all under an unattributed aggregate row. AI usage cost is $1,002.46 for 2026-09-01 through 2026-09-30 across 5,531 calls, but the periods and attribution bases do not align; contribution margin, ROI, and cost-to-learn are therefore not calculable. The minimum next financial action is a report-only cost-and-revenue reconciliation using existing records, with no duplicate telemetry or spend. Preserve the existing allthingsmasonic.com CTA request as capacity-gated; its 61-click baseline is a learning metric, not revenue evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin is not calculable because site-level revenue is unavailable for the aggregate $4.92, and infrastructure, domain, vendor, labor, and other operating costs are not supplied. Cost-to-learn is also not calculable because AI calls and dollars are not linked to a defined learning outcome, delivered artifact, experiment exposure, or measured incremental result. Minimum measurement: same-period site/content identifier, registered affiliate tracking ID, clicks, ordered items, shipped items, commission, AI cost, infrastructure/vendor cost, and a defined verified outcome. Until then, report gross provider totals and AI spend separately and label margin, ROI, CAC, payback, and forecast revenue unknown.",
+        "summary": "Known cost exposure: September AI usage is $1,002.45979265, including 5,531 calls, 234 errors, and 5 transient errors. This equals approximately $0.1812 per call, but it is not cost-to-learn because measured learning outcomes and experiment-level cost allocation are absent. Infrastructure, domain, hosting, labor, and marketing spend are not present in the brief, so total operating cost and budget exposure are unknown. Minimum measurement for a true contribution-margin view is date-aligned site/experiment revenue, AI cost, infrastructure/domain cost, and any approved labor or marketing allocation.",
         "requested_action": null,
         "proposal_id": null
       }

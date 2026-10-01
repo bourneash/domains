@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:58:38.008Z",
+  "generated_at": "2026-10-01T00:08:42.941Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Handoff under EXEC_CONV_12: reject new proposals, prototypes, site-factory admissions, and duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; only then admit the canonical allthingsmasonic.com CTA refinement.",
+        "summary": "Recommendation: keep SearchWoot private and leave rights outreach unsent pending counsel review under EXEC_CONV_12. Evidence: Woot redistribution rights, security, accuracy, measurement, and owner gates remain incomplete; Amazon evidence is $4.92 aggregate unattributed commission for 2026-09-21; delivery is saturated at 10/10 slots. The smallest next step is for CTO to complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only the existing allthingsmasonic.com CTA request. Owner decision: confirm the keep-private disposition.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-09-30T23:58:38.009Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:08:42.942Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked. Keep SearchWoot private and leave rights outreach unsent. Evidence: Woot documentation confirms API access but not redistribution, historical derivatives, public display, caching, alerts, affiliate, or advertising rights; current public terms point against those uses. SearchWoot data-flow evidence is partial, GA4 consent/configuration evidence is partial, and logs/vendors/incident evidence is incomplete. Non-legal gates are also blocked for accuracy/freshness, measurement/attribution, and security/release. Fleet compliance is only a technical baseline: 36 pass, 19 fail, 6 unknown, including 19 banner/consent/GA4 failure sets and 4 privacy/terms findings. Human counsel is required for Woot rights, public data display, historical derivatives, alerts, affiliate/advertising use, and jurisdiction-specific privacy treatment. Ordinary reversible growth may continue only where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Next evidence action: attach one dated read-only bundle covering authoritative Woot terms/permission, data flow and retention, deployed consent and GA4 settings, and logs/vendors/incident handling; close no task without evidence.",
+        "summary": "Risk disposition: BLOCKED for new public launches and security-sensitive releases; CONDITIONAL for ordinary reversible growth that preserves existing disclosures, consent, provenance, claims, affiliate disclosures, accessibility, and rollback boundaries. Exact decision: keep SearchWoot private, keep rights outreach unsent pending human-counsel review, keep complicated.work private and readiness-only, and do not clear any fleet-wide launch gate. Evidence: compliance baseline is 36 pass, 19 fail, and 6 unknown; failures include banner, accept/reject controls, GA4, privacy, and terms checks. Operations and fleet-doctor sweeps have no results, security sitefacts are unknown, and Amazon revenue is only $4.92 aggregate unattributed for 2026-09-21. Ordinary reversible site growth is not blocked solely by incomplete telemetry, but no new data collection, monetization expansion, public data product, or regulated/age-sensitive launch is approved without its applicable evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditional only after capacity is released. The existing CTA refinement may proceed only within the already approved scope: CTA hierarchy, adjacent affiliate disclosure, unchanged destinations, keyboard focus, contrast, tap targets, responsive layout, and deterministic validation. No new routes, dependencies, credentials, permissions, telemetry, data collection, cross-site behavior, or monetization claims. Require tests, build, link validation, smoke, accessibility evidence, and single-diff rollback evidence.",
+        "summary": "SearchWoot launch-readiness progress: no tasks can be closed. Source-rights task remains blocked because Woot documentation proves API access but not storage, derivatives, public display, caching, alerts, affiliate, advertising, attribution, freshness, correction, or takedown rights; current public terms point against the proposed commercial/public use. Data-flow task has partial repository/config evidence but lacks operator-confirmed retention, deletion, correction, access, and notification records. GA4 task has privacy and cookie-policy artifacts but lacks deployed consent/withdrawal capture, GA4 property/data-sharing settings, retention settings, and jurisdiction-specific review. Logs/vendors task remains open because log-field, retention/access, vendor/DPA, incident, breach, and data-subject-request evidence is incomplete. Next evidence action: attach one dated read-only bundle covering those four gaps; do not send outreach, change the private gate, enable tracking, or expand processing.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing boundary: Amazon reporting covers 2026-09-21 with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. The $4.92 aggregate row remains unassigned; named tracking rows do not evidence site-attributed income. Do not publish site revenue, ROI, margin, payback, or causal-lift claims. Require registered tracking IDs and same-period reconciliation before future financial claims.",
+        "summary": "Data-use review dispositions: Woot deal and price-history data = BLOCKED pending authoritative written permission and field-level rights; smallest action is obtain or record the current API agreement/permission and permitted fields, retention, display, alerts, attribution, freshness, correction, and takedown rules. User alert rules and sync results = EVIDENCE_NEEDED; smallest action is produce a data inventory and retention/deletion/access/correction/unsubscribe table covering identifiers, criteria, sync results, Slack, and future email. GA4 analytics = CONDITIONAL for measurement-only use after consent; smallest action is capture deployed consent/withdrawal behavior and GA4 property, data-sharing, retention, vendor, and jurisdiction evidence. Operational logs and Cloudflare hosting data = EVIDENCE_NEEDED for operational use only; smallest action is record log fields, retention/access controls, vendor terms or DPA coverage, incident handling, and request procedures. No affiliate, advertising, remarketing, sale, or secondary sharing is approved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complicated.work decision: BLOCKED from public launch and monetization. Evidence: scaffold lifecycle, parked 129 days, analytics not configured, no affiliate capability, and compliance fail with banner, consent, reject, and GA4 checks false. Required checklist before reconsideration: named owner and launch scope; preview-only artifact; privacy, terms, cookie/consent, and affiliate disclosure evidence; analytics decision; security/release evidence; provenance and claims review; measurement and rollback plan; explicit owner decision. Next action: complete one read-only launch-readiness packet; do not build, publish, add tracking, add domains, or add affiliate links.",
         "requested_action": null,
         "proposal_id": null
       }
