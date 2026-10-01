@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:02:08.133Z",
+  "generated_at": "2026-10-01T15:15:12.555Z",
   "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep new implementation admission paused until the capacity ledger is reconciled. Evidence: active_delivery reports 1/10 active slots, while performance reports saturation, 13 queued requests, 52 active/measuring improvements, and 29 attention items. Unknown: which ledger is authoritative. Smallest next step: CTO documents root cause or justified closure for the canonical saveusfarms.com repair and releases one slot by 2026-10-01T18:00Z. Owner decision: approve this deadline or escalate sooner.",
+        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal-review",
         "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "The lab result is credible research evidence, but current capacity, measurement debt, and repair backlog provide no justified near-term implementation path.",
+        "summary": "Defer MarkItDown adoption research while capacity is unresolved; CFO and CTO found no measurable revenue or margin case, and implementation capacity is reported saturated.",
         "requested_action": "declined",
         "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
