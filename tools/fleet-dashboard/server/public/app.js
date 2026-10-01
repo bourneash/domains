@@ -2864,6 +2864,24 @@ async function renderErrors() {
   const crit24h = rows.reduce((n, r) => n + r.crit24h, 0);
   const activeAlerts = d.activeAlerts || [];
   const postFailures = d.postFailures || [];
+  const postFailureGroups = [];
+  const postFailureIndex = new Map();
+  postFailures.forEach(f => {
+    // The table intentionally shows an 80-character preview; use that same
+    // visible signature for grouping so repeated deliveries with hidden tail
+    // differences do not reintroduce duplicate-looking rows.
+    const preview = String(f.textPreview || '').slice(0, 80);
+    const key = `${f.channel || ''}\u0000${f.error || ''}\u0000${preview}`;
+    const existing = postFailureIndex.get(key);
+    if (existing) {
+      existing.count++;
+      existing.latestAt = Math.max(existing.latestAt || 0, f.at || 0);
+    } else {
+      const group = { ...f, textPreview: preview, count: 1, latestAt: f.at || 0 };
+      postFailureIndex.set(key, group);
+      postFailureGroups.push(group);
+    }
+  });
 
   const body = pageRows
     .map(r => {
@@ -2876,8 +2894,8 @@ async function renderErrors() {
       <td>${r.count24h ? `<span class="badge ${r.count1h ? 'b-red' : 'b-yellow'}">${r.count24h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${errLevelBadge(level)}</td>
       <td class="mono muted">${esc(when)}</td>
-      <td class="mono muted err-line-cell"><span class="err-snippet" data-tooltip="${esc(r.lastLine || 'No matching line')}" title="${esc(r.lastLine || 'No matching line')}">${esc((r.lastLine || '—').slice(0, 90))}</span><button class="btn sm err-copy" data-id="${esc(r.id)}" type="button" title="Copy the full last line">Copy</button></td>
-      <td class="err-actions"><button class="btn sm err-toggle" data-id="${esc(r.id)}" type="button">📜 Logs</button></td>
+      <td class="mono muted err-line-cell"><span class="err-snippet" data-tooltip="${esc(r.lastLine || 'No matching line')}" title="${esc(r.lastLine || 'No matching line')}">${esc((r.lastLine || '—').slice(0, 90))}</span><button class="btn sm err-copy" data-id="${esc(r.id)}" type="button" aria-label="Copy last line for ${esc(r.name)}" title="Copy the full last line">Copy</button></td>
+      <td class="err-actions"><button class="btn sm err-toggle" data-id="${esc(r.id)}" type="button" aria-label="Open retained logs for ${esc(r.name)}">📜 Logs</button></td>
     </tr>`;
     })
     .join('');
@@ -2899,12 +2917,12 @@ async function renderErrors() {
     }
     ${
       postFailures.length
-        ? `<div class="card error-card error-banner error-banner-warn" role="alert"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) — an alert or all-clear that never reached Slack</div><div class="table-wrap"><table>
-      <thead><tr><th>When</th><th>Channel</th><th>Error</th><th>Message</th></tr></thead>
-      <tbody>${postFailures
+        ? `<div class="card error-card error-banner error-banner-warn" role="alert"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) across ${postFailureGroups.length} failure pattern(s) — an alert or all-clear that never reached Slack</div><div class="table-wrap"><table>
+      <caption class="sr-only">Deduplicated failed Slack delivery patterns</caption><thead><tr><th>Latest</th><th>Events</th><th>Channel</th><th>Error</th><th>Message</th></tr></thead>
+      <tbody>${postFailureGroups
         .map(
           f =>
-            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.at) / 1000) + ' ago')}</td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted">${esc((f.textPreview || '').slice(0, 80))}</td></tr>`
+            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.latestAt) / 1000) + ' ago')}</td><td><span class="badge b-yellow">${f.count}</span></td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted">${esc((f.textPreview || '').slice(0, 80))}</td></tr>`
         )
         .join('')}</tbody>
     </table></div></div>`
@@ -2916,7 +2934,7 @@ async function renderErrors() {
       <label>Scope<select id="errors-scope" class="cm-input"><option value="">All containers</option><option value="site" ${ERRORS_UI.scope === 'site' ? 'selected' : ''}>Site containers</option><option value="tool" ${ERRORS_UI.scope === 'tool' ? 'selected' : ''}>Tool containers</option></select></label>
       <label>Per page<select id="errors-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${ERRORS_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     </div>
-    <div class="card error-card error-table"><div class="table-wrap"><table>
+    <div class="card error-card error-table"><div class="table-wrap"><table><caption class="sr-only">Container error summary and retained log actions</caption>
       <thead><tr>${errorSortButton('name', 'Container')}${errorSortButton('slug', 'Site')}${errorSortButton('count1h', '1h')}${errorSortButton('count24h', '24h')}${errorSortButton('lastLevel', 'Level')}${errorSortButton('lastAt', 'Last')}${errorSortButton('lastLine', 'Last line')}<th>Actions</th></tr></thead>
       <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No containers match the current filters.' : 'No containers scanned yet — the poller sweeps every 3 minutes in the background.'}</td></tr>`}</tbody>
     </table></div></div>

@@ -1512,12 +1512,16 @@ test('Errors presents scan severity as a readable KPI strip', () => {
     /class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters"/
   );
   assert.match(app, /class="error-help"><summary>How errors are classified/);
+  assert.match(app, /const postFailureGroups = \[\]/);
+  assert.match(app, /Deduplicated failed Slack delivery patterns/);
+  assert.match(app, /failed Slack post\(s\) across \$\{postFailureGroups\.length\} failure pattern/);
+  assert.match(app, /aria-label="Open retained logs for \$\{esc\(r\.name\)\}"/);
   assert.match(app, /type="button" class="btn" id="errors-refresh"/);
   assert.match(
     app,
     /\$\('#errors-refresh'\)\.addEventListener\('click', \(\) => renderErrors\(\)\)/
   );
-  assert.match(app, /class="card error-card error-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="card error-card error-table"><div class="table-wrap"><table><caption class="sr-only">Container error summary and retained log actions<\/caption>/);
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.error-banner-bad \{[^}]*border-left/);
 });
