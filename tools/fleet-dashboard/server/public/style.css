@@ -1138,6 +1138,7 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .compliance-note { margin: 0 0 12px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; }
 .compliance-last-scan { margin-left: auto; }
 .compliance-toolbar { gap: 8px; }
+.compliance-scan { margin-left: auto; }
 .compliance-toggle.active { border-color: var(--accent); color: var(--accent); background: rgba(77,163,255,.12); }
 .compliance-filter-tag { border: 1px solid transparent; font: inherit; cursor: pointer; }
 .compliance-filter-tag:hover { filter: brightness(1.2); }
@@ -1191,6 +1192,7 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 @media (max-width: 900px) {
   .compliance-overview { grid-template-columns: 1fr; }
   .compliance-last-scan { margin-left: 0; width: 100%; }
+  .compliance-scan { margin-left: 0; }
 }
 
 /* ---- Domains tab (onboard/offboard) ---- */

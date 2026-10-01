@@ -1090,6 +1090,18 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(theme, /\.aii-table \{[^}]*overflow: hidden/);
 });
 
+test('Compliance keeps scan controls explicit and safe', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    app,
+    /class="task-toolbar compliance-toolbar" role="group" aria-label="Compliance filters and actions"/
+  );
+  assert.match(app, /id="compliance-scan" class="btn sm compliance-scan"/);
+  assert.match(app, /type="button" class="badge .*compliance-status/);
+  assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

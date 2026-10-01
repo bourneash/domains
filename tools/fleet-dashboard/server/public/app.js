@@ -7311,7 +7311,7 @@ async function renderCompliance() {
         : '';
     return `<tr data-fleet-row data-site="${esc(r.site)}">
       <td class="site">${siteLink(r.site)}</td>
-      <td><button class="badge ${statusCls} compliance-status" data-site="${esc(r.site)}" title="Show compliance evidence for ${esc(r.site)}">${esc(r.status)}</button> ${change}</td>
+      <td><button type="button" class="badge ${statusCls} compliance-status" data-site="${esc(r.site)}" title="Show compliance evidence for ${esc(r.site)}">${esc(r.status)}</button> ${change}</td>
       <td>${complianceCheck(c.banner, 'present', 'missing')}</td>
       <td>${complianceCheck(c.accept, 'present', 'missing')}</td>
       <td>${complianceCheck(c.reject, 'present', 'missing')}</td>
@@ -7321,7 +7321,7 @@ async function renderCompliance() {
       <td>${complianceCheck(c.terms, 'linked', 'missing')}</td>
       <td class="compliance-evidence" title="${esc(evidence)}">${diagnostic}${esc(evidence)}</td>
       <td class="mono">${esc(checked)}</td>
-      <td><button class="btn sm compliance-rescan" data-site="${esc(r.site)}" title="Rescan only ${esc(r.site)}">↻ Rescan</button></td>
+      <td><button type="button" class="btn sm compliance-rescan" data-site="${esc(r.site)}" title="Rescan only ${esc(r.site)}">↻ Rescan</button></td>
     </tr>`;
   };
   const sortHeader = (label, key) => {
@@ -7332,13 +7332,13 @@ async function renderCompliance() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div>
-    <div class="task-toolbar compliance-toolbar">
+    <div class="task-toolbar compliance-toolbar" role="group" aria-label="Compliance filters and actions">
       <strong>${rows.length} domains</strong>
-      <button class="badge b-green compliance-filter-tag" data-status="pass" aria-pressed="${COMPLIANCE_UI.statuses.has('pass')}">${counts.pass} pass</button>
-      <button class="badge b-red compliance-filter-tag" data-status="fail" aria-pressed="${COMPLIANCE_UI.statuses.has('fail')}">${counts.fail} fail</button>
-      <button class="badge b-gray compliance-filter-tag" data-status="unknown" aria-pressed="${COMPLIANCE_UI.statuses.has('unknown')}">${counts.unknown} unknown</button>
-      <button id="compliance-open-only" class="btn sm compliance-toggle${COMPLIANCE_UI.openOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.openOnly}">Open items</button>
-      <button id="compliance-stale-only" class="btn sm compliance-toggle${COMPLIANCE_UI.staleOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.staleOnly}">${staleCount} stale</button>
+      <button type="button" class="badge b-green compliance-filter-tag" data-status="pass" aria-pressed="${COMPLIANCE_UI.statuses.has('pass')}">${counts.pass} pass</button>
+      <button type="button" class="badge b-red compliance-filter-tag" data-status="fail" aria-pressed="${COMPLIANCE_UI.statuses.has('fail')}">${counts.fail} fail</button>
+      <button type="button" class="badge b-gray compliance-filter-tag" data-status="unknown" aria-pressed="${COMPLIANCE_UI.statuses.has('unknown')}">${counts.unknown} unknown</button>
+      <button type="button" id="compliance-open-only" class="btn sm compliance-toggle${COMPLIANCE_UI.openOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.openOnly}">Open items</button>
+      <button type="button" id="compliance-stale-only" class="btn sm compliance-toggle${COMPLIANCE_UI.staleOnly ? ' active' : ''}" aria-pressed="${COMPLIANCE_UI.staleOnly}">${staleCount} stale</button>
       <label class="compliance-search-wrap"><span class="muted">Site</span><input id="compliance-search" class="cm-input" type="search" placeholder="Search site name…" value="${esc(COMPLIANCE_UI.search)}" autocomplete="off"></label>
       <select id="compliance-check-filter" class="cm-input" aria-label="Filter by compliance check">
         <option value="all">All checks</option>
@@ -7351,7 +7351,7 @@ async function renderCompliance() {
         <option value="terms">Terms missing</option>
       </select>
       <span id="compliance-visible-count" class="muted"></span>
-      <button id="compliance-scan" class="btn sm" style="margin-left:auto">↻ Scan live sites now</button>
+      <button type="button" id="compliance-scan" class="btn sm compliance-scan">↻ Scan live sites now</button>
     </div>
     <div id="compliance-progress" class="compliance-progress hidden"><div><span id="compliance-progress-label">Preparing scan…</span><span id="compliance-progress-sites" class="muted"></span></div><progress id="compliance-progress-bar" value="0" max="1"></progress></div>
     <div class="compliance-overview">
