@@ -1125,6 +1125,11 @@ test('Site Facts presents coverage and freshness as a summary strip', () => {
   assert.match(app, /class="sf-summary"/);
   assert.match(app, /Checks present<\/span>/);
   assert.match(app, /Awaiting data<\/span>/);
+  assert.match(app, /type="button" class="btn" id="sitefacts-refresh"/);
+  assert.match(
+    app,
+    /\$\('#sitefacts-refresh'\)\.addEventListener\('click', \(\) => reloadSiteFacts\(\)\)/
+  );
   assert.match(app, /class="card sf-table-card"><div class="table-wrap"><table class="sf-table"/);
   assert.match(app, /class="sf-help"><summary>How to read Site Facts/);
   assert.match(theme, /\.sf-summary \{[^}]*grid-template-columns/);
@@ -1385,6 +1390,11 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   const view = app.slice(start, end);
   assert.match(view, /class="loading">Loading Data Hub Images/);
   assert.match(view, /class="page-head"><h2 class="page-title">Data Hub Images/);
+  assert.match(view, /type="button" class="btn" id="datahub-images-refresh"/);
+  assert.match(
+    view,
+    /\$\('#datahub-images-refresh'\)\.addEventListener\('click', \(\) => renderDataHubImages\(\)\)/
+  );
   assert.ok((view.match(/class="table-wrap"><table/g) || []).length >= 3);
   assert.match(view, /type="button" class="btn sm danger dhi-blacklist/);
   assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);

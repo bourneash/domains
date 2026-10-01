@@ -3383,7 +3383,9 @@ function sfCellClass(state) {
 
 async function renderSiteFacts() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading site facts…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><h2 class="page-title">Site Facts</h2><span class="muted">Fleet-wide presence and freshness evidence</span></div><div role="status" aria-live="polite"><div class="loading">Loading site facts…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/sitefacts');
@@ -3420,7 +3422,7 @@ async function renderSiteFacts() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Site Facts</h2><span class="muted">SEO/trust/branding/ads/legal presence checks + Amazon ASIN health — swept hourly, ${d.rows.length} sites</span></div>
+    <div class="page-head"><h2 class="page-title">Site Facts</h2><span class="muted">SEO/trust/branding/ads/legal presence checks + Amazon ASIN health — swept hourly, ${d.rows.length} sites</span><button type="button" class="btn" id="sitefacts-refresh">↻ Refresh</button></div>
     <section class="sf-summary" aria-label="Site facts coverage summary">
       <div class="sf-stat"><strong>${d.rows.length}</strong><span>Sites monitored</span></div>
       <div class="sf-stat sf-stat-good"><strong>${present}</strong><span>Checks present</span></div>
@@ -3434,6 +3436,7 @@ async function renderSiteFacts() {
     </table></div></div>
     <details class="sf-help"><summary>How to read Site Facts</summary><p>Click a site name for the fact-by-fact breakdown, Amazon ASIN health, and manual annotations. <span class="sf-legend sf-legend-present"><i></i>Present</span><span class="sf-legend sf-legend-pending"><i></i>Not yet checked</span><span class="sf-legend sf-legend-missing"><i></i>Missing</span>. These are presence checks, not outages.</p></details>`;
 
+  $('#sitefacts-refresh').addEventListener('click', () => reloadSiteFacts());
   $$('.sf-open').forEach(a =>
     a.addEventListener('click', e => {
       e.preventDefault();
@@ -8345,7 +8348,9 @@ function dhiCountTable(title, counts) {
 
 async function renderDataHubImages() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading Data Hub Images…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><h2 class="page-title">Data Hub Images</h2><span class="muted">Image collection, curation, and consumer evidence</span></div><div role="status" aria-live="polite"><div class="loading">Loading Data Hub Images…</div></div>';
   const [health, stats, imgs, src, eg, pl] = await Promise.all([
     api('GET', '/api/datahub-images/health'),
     api('GET', '/api/datahub-images/stats'),
@@ -8489,7 +8494,7 @@ async function renderDataHubImages() {
     </table></div>`;
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Data Hub Images</h2><span class="muted">privacy-routed image collection, source freshness, curation, and consumer evidence</span></div>
+    <div class="page-head"><h2 class="page-title">Data Hub Images</h2><span class="muted">privacy-routed image collection, source freshness, curation, and consumer evidence</span><button type="button" class="btn" id="datahub-images-refresh">↻ Refresh</button></div>
     ${hubDown ? `<div class="dhi-banner">⚠ Data hub images API unreachable</div>` : ''}
     <div class="dhi-grid">
       <section class="dhi-panel" data-rk="dhi-health"><h3>VPN Health</h3>${healthHtml}</section>
@@ -8500,6 +8505,7 @@ async function renderDataHubImages() {
       <section class="dhi-panel dhi-wide" data-rk="dhi-pulls"><h3>Site Pulls <span class="dhi-sub-h">inbound — who consumed what</span> <span class="live-tag">live</span></h3>${pullsHtml}</section>
     </div>`;
 
+  $('#datahub-images-refresh').addEventListener('click', () => renderDataHubImages());
   // Wire the per-source toggle + per-image curation buttons (re-bound every render).
   $$('.dhi-src-toggle').forEach(b =>
     b.addEventListener('click', () => dhiToggleSource(b.dataset.id, b.dataset.enabled === '1', b))
