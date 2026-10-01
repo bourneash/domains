@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:17:26.893Z",
+  "generated_at": "2026-10-01T05:48:07.449Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO review: reject admission of the candidate plan’s new site-factory work and all additional implementation while delivery remains saturated at 10/10 slots. Preserve existing measurement, failure-repair, security, and private-launch gates. After the CTO releases capacity, retain only the canonical allthingsmasonic.com CTA refinement, measured against its evidenced 61 affiliate clicks for 2026-09-21. Do not claim revenue, ROI, conversion lift, or causal impact.",
+        "summary": "Retain the canonical allthingsmasonic.com affiliate CTA experiment after one delivery slot is released. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; this is a baseline, not causal proof. Test only CTA hierarchy, destination clarity, adjacent disclosure, keyboard focus, and mobile layout. Metric: site Amazon clicks, with orders and commission observed only if available. Learn in 14 days or 100 relevant new impressions/clicks; rollback the single diff if validation fails. Defer all new CRO prototypes while capacity is 10/10 and 57 improvements remain in measurement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The GitHub signals remain research-only. MarkItDown and shadcn/ui have bounded lab evidence and permissive license metadata, but production security, dependency maintenance, content rights, and fleet-specific outcome evidence remain incomplete. Defer both prototypes until capacity clears and CTO validation is authorized.",
+        "summary": "Three repository signals are research leads, not adoption approvals. MarkItDown (MIT; lab 8/8 bounded checks) could support a disposable SEO/content pipeline that converts approved source documents into structured drafts, metadata candidates, and internal-link suggestions. Smallest prototype: process 10 non-production documents, compare outputs against a fixed human rubric, and measure valid suggestions per document and review minutes saved. Risks: parser coverage, malformed or adversarial inputs, dependency maintenance, and no demonstrated fleet ROI. shadcn/ui (MIT; 3/3 lab checks) could support an accessible CTA component prototype; measure keyboard/accessibility defects and implementation time, with supply-chain and framework-compatibility review. Mermaid (MIT; no native checks available) could support explanatory diagrams in high-intent guides; prototype one static diagram and measure comprehension or CTA progression only if existing telemetry supports it. Keep all prototypes disposable, dependency-free in the CRO lab, non-production, and capacity-gated.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:28:58.009Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:48:07.450Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject all new proposals, reports, site-factory work, CRO work, telemetry requests, and queue expansion this cycle. Capacity is saturated at 10/10 active delivery slots, with existing measurement and repair work unresolved. Preserve the canonical allthingsmasonic.com CTA refinement as the next implementation only after the existing saveusfarms.com repair case is completed or justifiably closed and one slot is released. Keep all launch and security-sensitive gates unchanged.",
+        "summary": "The candidate plan is technically sound in direction but must not create new queue work this cycle. Delivery is saturated at 10/10 slots, with active measurement and failed requests unresolved. Reject new site-factory builds, CRO prototypes, telemetry requests, control-plane changes, and duplicate queue items. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, recording root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that artifact exists; then admit only the existing canonical allthingsmasonic.com CTA request. Keep private-launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No new work can safely enter the implementation queue this cycle. CTO will complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z, record validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, then release one slot or escalate unresolved capacity. Existing private-launch and security gates remain in force.",
+        "summary": "The proposed control-plane capabilities are feasible as future isolated improvements, but current telemetry supports instrumentation review rather than new telemetry creation. Do not invent operational freshness, causal lift, revenue, ROI, or cost-to-learn metrics. Any future implementation must be isolated, reversible, use existing read-only sources, preserve site boundaries, avoid credentials, dependencies, permissions, spending, and cross-site behavior, and enter only after capacity clears. Repository signals remain research evidence requiring a disposable prototype, security review, measurement plan, and owner-approved implementation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing capacity-blocking repair and executive-runner diagnostic work without creating duplicates. Validate one isolated repair or closure path, preserve production unchanged, and record exact rollback and scope boundaries. Escalate unresolved capacity at the existing deadline.",
         "requested_action": null,
         "proposal_id": null
       }

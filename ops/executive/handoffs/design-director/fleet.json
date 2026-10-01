@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:16:57.640Z",
+  "generated_at": "2026-10-01T05:48:07.448Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve containment while delivery is saturated at 10/10. Do not create duplicate work. After CTO releases one slot with validation evidence, execute the existing allthingsmasonic.com CTA refinement as the highest-value reversible design action. Scope: homepage/highest-intent merchandising surface only; improve CTA hierarchy, adjacent affiliate disclosure placement, keyboard focus, contrast, tap targets, and responsive spacing without changing destinations, adding tracking, dependencies, or data collection. Preview acceptance: unchanged destinations; visible CTA hierarchy at mobile and desktop widths; disclosure adjacent to affected links; WCAG-focused keyboard, focus, contrast, and target-size checks pass; existing links and smoke/build checks pass. Test: deterministic component/site tests, build, link validation, smoke, keyboard navigation, responsive screenshots, and accessibility scan. Metric: registered affiliate clicks versus the existing 61-click site baseline; measure for 14 days or 100 relevant impressions/clicks. Conversion, revenue, ROI, and causal lift remain unclaimed. Rollback: revert the single isolated diff if any validation gate fails or if material regressions appear.",
+        "summary": "Do not create duplicate work. Once CTO releases a delivery slot, execute request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Scope: existing homepage and highest-intent affiliate/product entry surface; clarify primary product CTAs, preserve required affiliate disclosure, improve keyboard focus and mobile layout, and retain existing imagery and destinations. Preview acceptance: CTA hierarchy is visually distinct, all interactive elements are keyboard reachable, focus is visible, text remains readable at mobile widths, disclosure remains adjacent to commercial links, and no unrelated routes change. Tests: site build, deterministic link/destination checks, accessibility audit for focus/name/contrast, responsive viewport checks, and smoke test. Metric: Amazon affiliate clicks for the site, using the recorded baseline of 61 clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim lift. Measure for 14 days or 100 new relevant impressions/clicks, whichever comes first. Rollback: revert the single isolated change set if validation fails, affiliate destinations break, disclosure moves out of context, or performance/accessibility regresses. No new site work should be admitted while delivery remains saturated at 10/10 slots.",
         "requested_action": null,
         "proposal_id": null
       }

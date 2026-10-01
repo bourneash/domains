@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:28:58.009Z",
+  "generated_at": "2026-10-01T05:48:07.450Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Do not clear fleet-wide go-live, new public exposure, or security-sensitive release gates. Evidence: fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; security control evidence is absent for authentication/access boundaries, secrets, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and disclosure readiness. Compliance is technical-only and reports 35 pass, 20 fail, and 6 unknown. No credential exposure, exploit, or vulnerability is established. Exact decision: preserve current gates; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Disposition: evidence_needed, high severity for fleet-wide security clearance. Fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance is a technical baseline only: 35 pass, 20 fail, and 6 unknown. Exact decision: do not clear security-sensitive releases or claim certification; keep SearchWoot private. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing consolidated read-only security evidence matrix using retained artifacts and authorized metadata only. Record dated evidence, affected scope, owners, severity, and release implications for authentication/access, secrets, isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, alter permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Retain the existing consolidated read-only security evidence matrix and reject duplicate security proposals, telemetry requests, deployments, dependency additions, permission changes, credential access, private-container access, exploitation, and external outreach. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for access, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve current public-exposure and security-sensitive release gates while continuing bounded read-only evidence work. This is risk triage, not penetration testing or certification.",
-        "requested_action": "Keep go-live, new public exposure, and security-sensitive releases gated. Continue the existing read-only evidence matrix using authorized metadata and retained artifacts only. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve security-sensitive release gates and keep SearchWoot private while completing the canonical read-only evidence matrix.",
+        "requested_action": "Continue only the existing authorized evidence work using retained artifacts and metadata. Document authentication and access boundaries, secrets handling, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
         "proposal_id": null
       }
     ]

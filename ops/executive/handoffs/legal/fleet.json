@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:28:58.009Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:48:07.450Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: counsel_required; public launch is blocked. Keep searchwoot.com private and do not send rights outreach or change the gate. Evidence: Woot documentation confirms API access but not redistribution, caching, historical derivatives, public display, alerts, affiliate, or advertising rights; public terms restrict commercial/product-data use. Compliance is technical-only, not certification. Security fleet-doctor and operations sweeps have no results; accuracy, measurement, attribution, and owner gates remain incomplete. Human counsel must review source rights, privacy/jurisdiction treatment, vendor terms, and any affiliate or advertising use. Ordinary reversible growth elsewhere may continue within existing consent, disclosure, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, new data collection, cross-site behavior, monetization, or public upstream-data display. Recommendation: keep the private gate, leave rights outreach unsent, and do not approve go-live. Evidence: Woot API documentation confirms access mechanics but not redistribution, caching, derivatives, historical price display, alerts, affiliate, advertising, image, price, or trademark rights; current public terms restrict commercial/public listing use. Launch-readiness tracking remains active with all four legal tasks open; no task is closed because completion evidence is absent. Compliance is a technical baseline only: 35 pass, 20 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is configured for 39 sites, but configuration does not establish lawful consent or disclosure. Data quality is green for core registry, operations checkout, analytics, SEO, and revenue feeds, but AI-usage coverage is yellow at 4/38 and Amazon attribution is yellow because $4.92 is aggregate and unattributed. Security, accuracy/freshness, measurement, owner disposition, and operational evidence remain incomplete. Human counsel is required for upstream rights, jurisdictional privacy/consent, future affiliate or advertising use, and any age-sensitive or regulated positioning. No legal certification or advice is provided.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed. Public source documentation and partial repository evidence are attached, but none satisfies its full deliverable. Next evidence action: attach one dated read-only bundle covering the four task gaps, without production changes, new tracking, outreach, or duplicate telemetry requests.",
+        "summary": "Data-use review: Woot API deal and price-history data — blocked. Source, purpose, and processing are technically described, but public display, storage, derivatives, caching, alerts, affiliate/advertising use, field rights, attribution, freshness, correction, and takedown permissions are not evidenced. Smallest next action: attach a current API agreement or written permission and field-level rights matrix; keep all upstream-data display and monetization private until then. User alert rules and sync results — evidence_needed. Purpose and processing are described, but data inventory, retention, deletion, correction, access controls, Slack/email processor terms, notification consent, and unsubscribe behavior are missing. Smallest next action: produce one read-only data-flow and retention table from the repository and deployed configuration. GA4 analytics — evidence_needed. Consent-gated intent is stated, but deployed consent/withdrawal behavior, GA4 property and data-sharing settings, retention, vendor disclosure, and jurisdictional review are missing. Smallest next action: capture deployed consent behavior and read-only GA4 settings without enabling tracking or advertising. Operational logs and Cloudflare hosting data — evidence_needed. Operational purpose is clear, but log fields, retention/access controls, vendor terms or DPA coverage, incident handling, and data-subject request procedures are missing. Smallest next action: produce a read-only log/vendor inventory and identify counsel-required gaps.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep searchwoot.com private. Produce the smallest read-only evidence artifacts for data flow, retention, deletion/correction/access, consent behavior, GA4 configuration, log fields, vendor coverage, and incident handling. Do not enable tracking, change configuration, deploy, or send external requests.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Confirm the exact decision: keep searchwoot.com private, leave Woot rights outreach unsent, and require human counsel review before any bounded beta, affiliate use, advertising, public display, alerts, or expanded data processing.",
+        "summary": "Continue the existing four launch-readiness legal tasks without creating duplicates or changing production. Attach one dated read-only evidence bundle containing the source-rights/field matrix, repository and configuration data-flow table, retention/deletion/correction/access records, log and vendor inventory, deployed consent capture, GA4 settings, and incident/request procedures. Do not send external rights outreach, enable tracking, expose upstream data, add affiliate or advertising use, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       }

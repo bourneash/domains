@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:17:26.893Z",
+  "generated_at": "2026-10-01T05:48:07.449Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a bounded site-factory pipeline without admitting new implementation while delivery remains saturated at 10/10 slots. Candidate order: complicated.work, deadlymaracas.com, driveford.net. The strongest candidate is complicated.work because it has an existing scaffold and a scored build opportunity, but public launch remains blocked pending a verified launch-readiness artifact plus owner, legal, security, measurement, and rollback gates. Exactly one next step: CTO completes or justifies closure of the existing capacity-blocking repair case and releases one delivery slot by 2026-10-01T09:00Z; no site-factory build, deployment, domain action, spend, or launch occurs before then.",
+        "summary": "Maintain the small site-factory pipeline: complicated.work (strongest; scaffold, parked 129 days, existing site/ops capabilities), followed by deadlymaracas.com and driveford.net (both scaffold candidates). No build, deployment, domain action, spend, or launch is authorized while delivery is saturated at 10/10 slots and owner, legal, security, measurement, and rollback gates remain incomplete. The strongest candidate requires a launch-readiness artifact covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and launch gate. Exactly one next step: CTO completes or justifies closure of the existing capacity-blocking repair case and releases one delivery slot by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

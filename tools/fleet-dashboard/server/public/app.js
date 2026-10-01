@@ -1057,29 +1057,29 @@ async function renderGitHygiene() {
       <div class="gh-stat ${skipped.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${skipped.length}</strong><span>Skipped repos</span></div>
       <div class="gh-stat gh-stat-meta"><strong>${b.policy.rules.length}</strong><span>Policy rules · ${b.policy.ignoreBlock.length} managed ignore lines</span></div>
     </section>
-    <div class="task-toolbar">
+    <div class="gh-toolbar" role="group" aria-label="Git hygiene actions">
       <strong>Git Hygiene</strong>
       <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${q.length} to review` : ''}</span>
-      <button class="btn sm" id="gh-audit" style="margin-left:auto"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
-      <button class="btn sm" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
+      <button class="btn sm" type="button" id="gh-audit"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
+      <button class="btn sm" type="button" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
     </div>`;
 
   const blockedCard = blocked.length
-    ? `<div class="card"><h3 style="color:var(--red,#e5534b)">⛔ Blocked — credential-shaped paths</h3><table>
+    ? `<div class="card gh-panel"><h3>⛔ Blocked — credential-shaped paths</h3><div class="table-wrap"><table>
         <thead><tr><th>Site</th><th>Path</th><th>Why</th></tr></thead><tbody>${blocked
           .map(
             x =>
               `<tr><td class="site">${esc(x.slug)}</td><td class="mono">${esc(x.path)}</td><td>${esc(x.reason)}</td></tr>`
           )
-          .join('')}</tbody></table>
+          .join('')}</tbody></table></div>
         <p class="muted">A repo with a blocked path is not committed, ignored or pushed at all until this is cleared by hand.</p></div>`
     : '';
 
   const skipCard = skipped.length
-    ? `<div class="card"><h3>Skipped repos</h3><table>
+    ? `<div class="card gh-panel"><h3>Skipped repos</h3><div class="table-wrap"><table>
         <thead><tr><th>Site</th><th>Why</th></tr></thead><tbody>${skipped
           .map(x => `<tr><td class="site">${esc(x.slug)}</td><td>${esc(x.why)}</td></tr>`)
-          .join('')}</tbody></table></div>`
+          .join('')}</tbody></table></div></div>`
     : '';
 
   const queueRows = q.length
@@ -1121,20 +1121,20 @@ async function renderGitHygiene() {
 
   app.innerHTML = `${head}${blockedCard}
     <div class="gh-controls" role="group" aria-label="Search hygiene queue"><label class="gh-search"><span class="sr-only">Search review queue</span><input id="gh-search" class="cm-input" type="search" placeholder="Search site, path, or reason…" value="${esc(GH_FILTER.q)}" autocomplete="off" /></label><span id="gh-filter-count" class="muted" role="status" aria-live="polite"></span></div>
-    <div class="card"><h3>Review queue (${q.length})</h3><table>
+    <div class="card gh-panel"><h3>Review queue (${q.length})</h3><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Path</th><th>Why it needs you</th><th>Since</th><th>Decision</th></tr></thead>
-      <tbody>${queueRows}</tbody></table>
-      <p class="muted">"Always…" writes a rule into <span class="mono">tools/fleet-git/policy.json</span> so the whole class is handled unattended from the next sweep on.</p>
+      <tbody>${queueRows}</tbody></table></div>
+      <details class="gh-help"><summary>What the “Always…” decisions do</summary><p>"Always…" writes a rule into <span class="mono">tools/fleet-git/policy.json</span> so the whole class is handled unattended from the next sweep on.</p></details>
     </div>
     ${skipCard}
-    <div class="card"><h3>Last sweep</h3><table>
+    <div class="card gh-panel"><h3>Last sweep</h3><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Tree</th><th>Commits</th><th>Remote</th><th>Review</th><th>Errors</th></tr></thead>
-      <tbody>${stateRows}</tbody></table></div>
-    <div class="card"><h3>Policy</h3>
+      <tbody>${stateRows}</tbody></table></div></div>
+    <div class="card gh-panel"><h3>Policy</h3>
       <p class="muted">${b.policy.rules.length} rules · managed .gitignore block: ${b.policy.ignoreBlock.length} lines ·
       max ${b.policy.limits.max_files_per_commit} files/commit</p>
-      <button class="btn sm" id="gh-ignore-sync">Preview .gitignore adoption</button>
-      <button class="btn sm" id="gh-ignore-sync-apply">Adopt managed block fleet-wide</button>
+      <button class="btn sm" type="button" id="gh-ignore-sync">Preview .gitignore adoption</button>
+      <button class="btn sm" type="button" id="gh-ignore-sync-apply">Adopt managed block fleet-wide</button>
     </div>`;
 
   const sweepBtn = async apply => {

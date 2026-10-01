@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:28:58.008Z",
+  "generated_at": "2026-10-01T05:48:07.449Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Release one slot only after evidence is recorded; do not admit new work before then.",
+        "summary": "Recommendation: preserve the capacity gate under EXEC_CONV_12. Do not admit new site-factory, CRO, prototype, telemetry, or duplicate queue work while delivery is saturated at 10/10 slots, 57 improvements are measuring, and 21 requests have failed. Preserve the existing allthingsmasonic.com CTA request as the next implementation after capacity clears. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21; site revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO completes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

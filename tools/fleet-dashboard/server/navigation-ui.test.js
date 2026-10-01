@@ -804,6 +804,16 @@ test('Parked inventory presents renewal exposure before the domain table', () =>
   assert.match(theme, /\.parked-stat-bad/);
 });
 
+test('Git Hygiene keeps actions and long review tables bounded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="gh-toolbar" role="group" aria-label="Git hygiene actions"/);
+  assert.match(app, /class="gh-help"><summary>What the “Always…” decisions do/);
+  assert.match(app, /class="card gh-panel"><h3>Review queue/);
+  assert.match(theme, /\.gh-toolbar \{[^}]*flex-wrap/);
+  assert.match(theme, /\.gh-panel \{[^}]*overflow: hidden/);
+});
+
 test('operational API failures use the shared recovery surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
