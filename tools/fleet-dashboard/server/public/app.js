@@ -6918,7 +6918,10 @@ async function cmOpenLogs(slug, source) {
   }
   const seg = $('#cm-log-sources');
   seg.innerHTML = sources
-    .map(s => `<button data-id="${esc(s.id)}">${esc(s.label)}</button>`)
+    .map(
+      (s, i) =>
+        `<button type="button" id="cm-log-source-${i}" data-id="${esc(s.id)}" role="tab" aria-controls="cm-log-out" aria-selected="${s.id === CMLV.source}">${esc(s.label)}</button>`
+    )
     .join('');
   $$('#cm-log-sources button', seg).forEach(b =>
     b.addEventListener('click', () => {
@@ -6930,10 +6933,14 @@ async function cmOpenLogs(slug, source) {
   cmFetchLogs();
 }
 async function cmFetchLogs() {
-  $$('#cm-log-sources button').forEach(b =>
-    b.classList.toggle('active', b.dataset.id === CMLV.source)
-  );
+  const activeButton = $$('#cm-log-sources button').find(b => b.dataset.id === CMLV.source);
+  $$('#cm-log-sources button').forEach(b => {
+    const active = b.dataset.id === CMLV.source;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', String(active));
+  });
   const out = $('#cm-log-out');
+  if (activeButton) out.setAttribute('aria-labelledby', activeButton.id);
   const tail = $('#cm-log-tail').value;
   if (CMLV.source === 'rebuild' && CM.rebuildLog.has(CMLV.slug)) {
     CMLV.raw = CM.rebuildLog.get(CMLV.slug);

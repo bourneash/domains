@@ -651,8 +651,21 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /globalThis\.fleetConfirm\?\.\(/);
   assert.match(scheduler, /confirmLabel: 'Adopt site'/);
   assert.match(scheduler, /confirmLabel: 'Release site'/);
+  assert.match(scheduler, /class="table-wrap"><table class="tbl"/);
+  assert.match(scheduler, /class="sch-run" data-id="\$\{r\.id\}" role="button" tabindex="0"/);
+  assert.match(scheduler, /root\.addEventListener\('keydown'/);
+  assert.match(scheduler, /type="button" class="btn sm" id="sch-pause"/);
   assert.doesNotMatch(scheduler, /\bprompt\(/);
   assert.doesNotMatch(scheduler, /\bconfirm\(/);
+});
+
+test('Cron log source switcher exposes complete tab semantics', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  assert.match(app, /role="tab" aria-controls="cm-log-out" aria-selected=/);
+  assert.match(app, /b\.setAttribute\('aria-selected', String\(active\)\)/);
+  assert.match(app, /out\.setAttribute\('aria-labelledby', activeButton\.id\)/);
+  assert.match(index, /id="cm-log-out" class="cn-logs-box" role="tabpanel" tabindex="0"/);
 });
 
 test('role enrollment and bulk health actions use the shared confirmation surface', () => {

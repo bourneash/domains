@@ -84,15 +84,15 @@ async function renderScheduler() {
   app.innerHTML = `
     <div id="sch-root">
     <div class="page-head"><h2 class="page-title">Scheduler</h2>
-      <button class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" data-inst="scheduler">Sites</button>
-      <button class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" data-inst="scheduler-fleet">Fleet tools</button>
+      <button type="button" class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" data-inst="scheduler">Sites</button>
+      <button type="button" class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" data-inst="scheduler-fleet">Fleet tools</button>
       <span class="muted">${SCH.inst === 'scheduler' ? `one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers` : 'fleet-level jobs (tools/fleet-cron): reapers, auth watchdog, social hub tick, AI optimizer…'}</span></div>
     <div class="task-toolbar">
       <span class="badge ${st.paused ? 'b-red' : 'b-green'}">${st.paused ? 'PAUSED' : 'active'}</span>
       <strong>${st.running} running · ${st.queued} queued</strong>
       <span class="muted">${st.scheduled}/${st.jobs} jobs scheduled · ${failing} failing · up ${Math.round(st.uptime_s / 3600)}h · lag ${st.loop_lag_s}s</span>
       <span class="muted">runs since start: ${['ok', 'failed', 'timeout', 'skipped_overlap', 'skipped_queue', 'missed'].map(k => `${k} ${c[k] || 0}`).join(' · ')}</span>
-      <button class="btn sm" id="sch-pause" style="margin-left:auto">${st.paused ? 'Resume all' : 'Pause all'}</button>
+      <button type="button" class="btn sm" id="sch-pause" style="margin-left:auto">${st.paused ? 'Resume all' : 'Pause all'}</button>
     </div>
     <div class="task-toolbar">
       <span class="muted">Concurrency caps</span>
@@ -106,12 +106,12 @@ async function renderScheduler() {
             `<label class="muted">${l} <input class="sch-cap" data-k="${k}" type="number" min="1" style="width:64px" value="${esc(st.settings[k])}"></label>`
         )
         .join('')}
-      <button class="btn sm" id="sch-caps-save">Save caps</button>
+      <button type="button" class="btn sm" id="sch-caps-save">Save caps</button>
       <span class="muted">Heavy = spawns a worker / runs Claude. Excess fires queue instead of all starting on one minute boundary.</span>
     </div>
 
     <h3 style="margin:14px 0 6px">Sites</h3>
-    <div style="max-height:260px;overflow:auto">
+    <div class="table-wrap" style="max-height:260px">
     <table class="tbl"><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th></th></tr></thead><tbody>
       ${sites
         .map(
@@ -133,7 +133,7 @@ async function renderScheduler() {
 
     <h3 style="margin:18px 0 6px">Jobs ${SCH.site ? `— ${esc(SCH.site)} <a href="#" id="sch-clear">(all sites)</a>` : ''}
       <input id="sch-text" placeholder="filter…" value="${esc(SCH.text)}" style="margin-left:12px;width:180px"></h3>
-    <table class="tbl"><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th></th></tr></thead><tbody>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th></th></tr></thead><tbody>
       ${shown
         .map(
           j => `<tr>
@@ -143,24 +143,24 @@ async function renderScheduler() {
         <td>${j.active ? schFmtNext(j.next_fire) : '—'}</td>
         <td>${j.last_run ? `${schBadge(j.last_run.status)} <span class="muted">${schFmtTime(j.last_run.finished_at || j.last_run.started_at)}</span>` : '<span class="muted">never</span>'}</td>
         <td style="white-space:nowrap">
-          <button class="btn sm" data-act="run" data-id="${j.id}">Run</button>
-          <button class="btn sm" data-act="toggle" data-id="${j.id}" data-en="${j.enabled ? 1 : 0}">${j.enabled ? 'Disable' : 'Enable'}</button>
-          <button class="btn sm" data-act="sched" data-id="${j.id}" data-cur="${esc(j.schedule)}">Edit</button></td></tr>`
+          <button type="button" class="btn sm" data-act="run" data-id="${j.id}">Run</button>
+          <button type="button" class="btn sm" data-act="toggle" data-id="${j.id}" data-en="${j.enabled ? 1 : 0}">${j.enabled ? 'Disable' : 'Enable'}</button>
+          <button type="button" class="btn sm" data-act="sched" data-id="${j.id}" data-cur="${esc(j.schedule)}">Edit</button></td></tr>`
         )
         .join('')}
-    </tbody></table>
+    </tbody></table></div>
 
     <h3 style="margin:18px 0 6px">Recent runs</h3>
-    <table class="tbl"><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
       ${runs
         .map(
-          r => `<tr class="sch-run" data-id="${r.id}" style="cursor:pointer">
+          r => `<tr class="sch-run" data-id="${r.id}" role="button" tabindex="0" aria-expanded="${SCH.openRun === r.id}" aria-controls="sch-out-${r.id}" style="cursor:pointer">
         <td>${schFmtTime(r.queued_at)}</td><td>${esc(r.site)}</td><td>${esc(r.name)}${r.trigger === 'manual' ? ' <span class="badge b-blue">manual</span>' : ''}</td>
         <td>${schBadge(r.status)}</td><td>${r.exit_code ?? ''}</td><td>${schDur(r)}</td><td class="muted">${esc(r.note || '')}</td></tr>
-        <tr class="sch-out ${SCH.openRun === r.id ? '' : 'hidden'}" data-for="${r.id}"><td colspan="7"><pre class="mono" style="white-space:pre-wrap;max-height:280px;overflow:auto;margin:0">${SCH.openRun === r.id ? 'loading…' : ''}</pre></td></tr>`
+        <tr class="sch-out ${SCH.openRun === r.id ? '' : 'hidden'}" id="sch-out-${r.id}" data-for="${r.id}"><td colspan="7"><pre class="mono" style="white-space:pre-wrap;max-height:280px;overflow:auto;margin:0">${SCH.openRun === r.id ? 'loading…' : ''}</pre></td></tr>`
         )
         .join('')}
-    </tbody></table>
+    </tbody></table></div>
     <p class="muted" style="margin-top:12px"><b>Adopt</b> stops the site's legacy cron container, then fires its jobs from this scheduler (no doubled ticks); <b>Release</b> reverses it. Schedules edited here are stored in the scheduler DB, not in <span class="mono">crontab.docker</span>.</p>
     </div>`;
 
@@ -271,7 +271,8 @@ function wireScheduler() {
       if (
         await globalThis.fleetConfirm?.({
           title: `Adopt ${site}`,
-          message: 'This stops and removes its legacy cron container, then runs its jobs from the scheduler.',
+          message:
+            'This stops and removes its legacy cron container, then runs its jobs from the scheduler.',
           confirmLabel: 'Adopt site',
           danger: true,
         })
@@ -293,5 +294,11 @@ function wireScheduler() {
           `${site} released`
         );
     }
+  });
+  root.addEventListener('keydown', e => {
+    const runRow = e.target.closest('.sch-run');
+    if (!runRow || !['Enter', ' '].includes(e.key)) return;
+    e.preventDefault();
+    runRow.click();
   });
 }
