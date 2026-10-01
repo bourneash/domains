@@ -963,6 +963,15 @@ test('Dev Sandboxes presents runtime readiness and scoped filters', () => {
   assert.match(theme, /\.ds-filter-hidden \{ display: none; \}/);
 });
 
+test('Activity presents audit volume and outcome hierarchy', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="activity-summary"/);
+  assert.match(app, /Actions loaded<\/span>/);
+  assert.match(app, /Latest event · \$\{filtered\.length\} matching/);
+  assert.match(theme, /\.activity-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);

@@ -2878,6 +2878,13 @@ async function renderActivity() {
   const start = (ACTIVITY_UI.page - 1) * ACTIVITY_UI.pageSize;
   const pageRows = filtered.slice(start, start + ACTIVITY_UI.pageSize);
   const failed = rows.filter(a => !a.ok).length;
+  const succeeded = rows.length - failed;
+  const writes = rows.filter(a =>
+    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(String(a.method || '').toUpperCase())
+  ).length;
+  const latest = rows[0]?.ts
+    ? fmtAge((Date.now() - new Date(rows[0].ts).getTime()) / 1000) + ' ago'
+    : 'none yet';
 
   const body = pageRows
     .map(a => {
@@ -2897,13 +2904,19 @@ async function renderActivity() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Activity</h2><span class="muted">durable audit trail of every mutating dashboard action — newest first</span></div>
+    <section class="activity-summary" aria-label="Activity audit summary">
+      <div class="activity-stat"><strong>${rows.length}</strong><span>Actions loaded</span></div>
+      <div class="activity-stat activity-stat-good"><strong>${succeeded}</strong><span>Succeeded</span></div>
+      <div class="activity-stat ${failed ? 'activity-stat-bad' : 'activity-stat-good'}"><strong>${failed}</strong><span>Failed</span></div>
+      <div class="activity-stat"><strong>${writes}</strong><span>Mutations</span></div>
+      <div class="activity-stat activity-stat-meta"><strong>${esc(latest)}</strong><span>Latest event · ${filtered.length} matching</span></div>
+    </section>
     <div class="task-toolbar activity-toolbar">
       <label>Search<input id="activity-q" class="cm-input" type="search" placeholder="Path, actor, site…" value="${esc(ACTIVITY_UI.q)}" autocomplete="off"></label>
       <label>Status<select id="activity-status" class="cm-input"><option value="">All statuses</option><option value="ok" ${ACTIVITY_UI.status === 'ok' ? 'selected' : ''}>Succeeded</option><option value="failed" ${ACTIVITY_UI.status === 'failed' ? 'selected' : ''}>Failed</option></select></label>
       <label>Method<select id="activity-method" class="cm-input"><option value="">All methods</option>${['POST', 'PUT', 'PATCH', 'DELETE'].map(m => `<option value="${m}" ${ACTIVITY_UI.method === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <label>Per page<select id="activity-page-size" class="cm-input">${[25, 50, 100].map(n => `<option value="${n}" ${ACTIVITY_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-      <strong class="activity-count">${filtered.length} matching · ${rows.length} loaded</strong>
-      <span class="muted">${failed ? `<span class="flag">${failed} failed</span>` : 'all succeeded'}</span>
+      <strong class="activity-count">${filtered.length} matching</strong>
     </div>
     <div class="card"><table>
       <thead><tr>${activitySortButton('ts', 'Time')}${activitySortButton('actor', 'Actor')}${activitySortButton('method', 'Method')}${activitySortButton('path', 'Path')}${activitySortButton('site', 'Site')}${activitySortButton('status', 'Status')}${activitySortButton('ms', 'Duration')}${activitySortButton('ip', 'IP')}</tr></thead>
