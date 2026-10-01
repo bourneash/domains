@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.356Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:38:50.739Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain containment. Do not add discretionary production work, prototypes, site-factory admissions, or spend while delivery is saturated at 10/10 slots and financial evidence is insufficient. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, all unattributed to sites. Named site-attributed commission is $0. Revenue claims, ROI, and causal lift are therefore unsupported. September AI usage is $1,002.46 across 5,531 calls, including 234 errors; known AI spend alone exceeds the reported commission by $997.54. Full contribution margin cannot be calculated because fixed infrastructure, hosting, domain, labor, and other operating costs are absent, and the revenue period does not match the September AI-cost window. Preserve only the existing capacity-gated allthingsmasonic.com CTA refinement after the saveusfarms.com repair case releases a slot; measure clicks only and do not forecast revenue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Finance disposition: AI cost is measurable, but total infrastructure spend and contribution margin are not. Existing evidence reports $1,002.46 AI cost for 2026-09-01 through 2026-09-30, but no Cloudflare/hosting, domains, labor, or other operating-cost ledger is present. Minimum measurement needed for monthly contribution margin: same-period infrastructure cost by site or fleet, plus a dated revenue extract covering the identical period with registered site tracking IDs. Until then, classify margin and budget exposure as unknown; do not treat AI-only margin fields as full contribution margin. This is report-only evidence work; no billing, banking, credentials, or spend changes are authorized.",
+        "summary": "Recommendation: retain financial containment. Approve no new spend, budget, forecast, or monetization claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID \"other\"; site revenue, contribution margin, ROI, and causal lift are unsupported. AI usage for 2026-09-01 through 2026-09-30 cost $1,002.45979265 across 5,531 calls, with 234 errors; this cost window cannot be compared directly to the one-day revenue window. The existing allthingsmasonic.com CTA repair may proceed only after capacity clears, with no revenue forecast: baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Require registered tracking IDs and a matched-period finance reconciliation before any investment expansion or revenue claim.",
         "requested_action": null,
         "proposal_id": null
       }

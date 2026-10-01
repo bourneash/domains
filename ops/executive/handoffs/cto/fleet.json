@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.356Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:38:50.739Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve the containment disposition. Delivery is saturated at 10/10 active slots, so reject new production work, prototypes, site-factory admissions, telemetry changes, spend, dependencies, credentials, and duplicate queue requests. Complete or close the existing saveusfarms.com repair case with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Only after one slot is released may the already-queued allthingsmasonic.com CTA refinement proceed. The CTA change is technically feasible as a bounded single-site implementation using existing assets and architecture, with deterministic tests, link/build validation, accessibility checks, preview review, and single-diff rollback. Measure only the existing affiliate-click metric boundary; do not claim revenue, ROI, or causal lift.",
+        "summary": "CTO review: preserve containment. Do not create new proposals, telemetry requests, prototypes, deployments, spend, or duplicate queue items while all 10 delivery slots are occupied and measurement backlog remains high. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Keep existing private-launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit the proposed site-factory pipeline this cycle. The candidate scaffold has analytics unconfigured, compliance failures, and unavailable operations/security clearance evidence; therefore public exposure and production implementation are not technically supportable. Retain any launch-readiness work as a non-delivery prerequisite using existing evidence paths only. No new telemetry, dependencies, domains, credentials, deployment, or external spend is authorized.",
+        "summary": "After the saveusfarms.com case releases a slot, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Do not create a duplicate request or admit other candidates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the private launch and security-sensitive release gates unchanged. Existing operations and fleet-doctor evidence is unavailable, so no security clearance or release certification should be inferred. Preserve Amazon results as aggregate and unattributed for the recorded window; require registered site tracking IDs for future affiliate links. No additional measurement request is needed because the shared telemetry already covers the approved CTA metric boundary.",
+        "summary": "When capacity is released, implement the existing allthingsmasonic.com CTA refinement in an isolated diff. Preserve destination and tracking ID allthingsmasonic-20, adjacent affiliate disclosure, keyboard focus, contrast, tap targets, responsive behavior, and unrelated routes. Run build, deterministic CTA/link assertions, smoke, link, and accessibility validation. Roll back the single diff if any gate fails.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Confirm continued containment: site-level monetization claims must use named tracking rows only; aggregate provider commission remains unattributed. No revenue, ROI, margin, or causal-lift claim is supported by the current evidence.",
         "requested_action": null,
         "proposal_id": null
       }

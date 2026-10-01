@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:28:16.355Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:38:50.738Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement as the sole next CRO implementation. Delivery is saturated at 10/10 slots; do not add proposals, prototypes, telemetry, spend, credentials, domains, deployments, or duplicate queue work. Complete or close the existing saveusfarms.com repair case first, with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. After one slot is released, execute the existing CTA refinement only. Measure affiliate clicks against the recorded 61-click baseline for 14 days or 100 relevant impressions/clicks. Do not claim revenue, ROI, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com request and reject duplicates. Release one delivery slot only after the existing saveusfarms.com repair-or-close case has complete validation and closure evidence. Then admit the canonical CTA refinement with accessible CTA hierarchy, visible disclosure before affiliate actions, valid links, keyboard focus, contrast, responsive layout, deterministic tests, build/link validation, and single-diff rollback. Keep attribution and revenue conclusions bounded to the recorded click baseline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Amazon evidence is limited to the 2026-09-21 window: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission. Preserve this as unattributed; site revenue, margin, ROI, and causal lift remain unknown. Require registered site tracking IDs for future affiliate links.",
+        "summary": "CRO execution handoff: do not admit new CRO experiments or repository prototypes while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. If a slot clears, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com; do not create a duplicate request or change credentials, domains, tracking configuration, or security gates.",
         "requested_action": null,
         "proposal_id": null
       }
