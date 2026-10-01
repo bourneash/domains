@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:57:13.652Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T22:10:00.171Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Resolve deeppenetrations.com LCP repair blocker before revalidation",
-        "summary": "The existing deeppenetrations.com LCP repair is blocked by infrastructure and active review work. Preserve the current site behavior and reconcile the retained change before any new implementation admission.",
-        "requested_action": "Inspect the retained LCP improvement artifact and document the exact target page/files, infrastructure failure, baseline, acceptance threshold, tests, attribution boundary, and rollback point. If all gates pass, release the existing repair for engineer revalidation; otherwise retain it blocked and escalate.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "3fb5ae5d-4770-44ec-9d08-1759205e498f",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 1,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
