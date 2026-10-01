@@ -657,6 +657,7 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /confirmLabel: 'Adopt site'/);
   assert.match(scheduler, /confirmLabel: 'Release site'/);
   assert.match(scheduler, /class="table-wrap"><table class="tbl"/);
+  assert.match(scheduler, /<div class="page-head"><h1 class="sr-only">Scheduler<\/h1>/);
   assert.match(scheduler, /class="sch-run" data-id="\$\{r\.id\}" role="button" tabindex="0"/);
   assert.match(scheduler, /root\.addEventListener\('keydown'/);
   assert.match(scheduler, /type="button" class="btn sm" id="sch-pause"/);

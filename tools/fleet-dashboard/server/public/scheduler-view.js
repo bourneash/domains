@@ -85,7 +85,7 @@ async function renderScheduler() {
 
   app.innerHTML = `
     <div id="sch-root">
-    <div class="page-head"><h2 class="page-title">Scheduler</h2>
+    <div class="page-head"><h1 class="sr-only">Scheduler</h1>
       <button type="button" class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" data-inst="scheduler">Sites</button>
       <button type="button" class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" data-inst="scheduler-fleet">Fleet tools</button>
       <span class="muted">${SCH.inst === 'scheduler' ? `one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers` : 'fleet-level jobs (tools/fleet-cron): reapers, auth watchdog, social hub tick, AI optimizer…'}</span></div>
