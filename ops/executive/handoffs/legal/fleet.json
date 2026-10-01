@@ -2,29 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:27:33.473Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:36:46.106Z",
+  "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked, with counsel_required for any rights, public-display, affiliate, advertising, or notification expansion. Woot documentation confirms API access but not redistribution rights; current public terms restrict commercial/public data use. Compliance is technical baseline only: 35 pass, 20 fail, 6 unknown, with 20 open banner/consent findings and 4 privacy/terms findings. Security, accuracy, measurement, and owner gates also remain incomplete. Ordinary reversible growth may continue only when it adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Next evidence action: attach one dated read-only bundle covering rights, data flow, consent/GA4, logs/vendors, and incident/request procedures; do not send outreach or change the private gate.",
+        "summary": "Disposition: blocked for public beta/full launch; counsel_required for upstream data rights and jurisdictional privacy decisions. Evidence: Woot documentation confirms API access but not commercial/public redistribution, storage, derivatives, display, caching, alerts, affiliate, or advertising rights; Woot terms restrict collection and commercial use. SearchWoot legal tracking is active with 0 of 4 tasks closed. Data-use reviews: Woot deal/price data = blocked; user alert rules/sync results = evidence_needed; GA4 = evidence_needed; operational logs/Cloudflare data = evidence_needed. Fleet compliance is technical-only: 35 pass, 20 fail, 6 unknown, with 20 banner/consent/GA4 findings and 4 privacy/terms findings. Security, accuracy/freshness, measurement/attribution, and owner gates remain blocked. Exact decision: retain keep_private, do not send rights outreach, do not approve go-live, and permit only bounded read-only evidence work and ordinary reversible growth that adds no new collection, credentials, permissions, dependencies, or cross-site behavior. Next evidence action: attach one dated read-only bundle covering the repository/config data-flow table, retention/deletion/correction/access controls, deployed consent behavior, GA4 property/data-sharing/retention settings, log-field inventory, vendor terms/DPA status, and incident/request procedures.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No launch-readiness task is closed. Attach one dated read-only evidence bundle containing the repository/config data-flow and retention table, deployed consent and withdrawal capture, GA4 property/data-sharing and retention settings, log-field/access/retention inventory, Cloudflare and vendor terms/DPA status, and incident, deletion, correction, and request procedures. Do not enable tracking, change production, or send external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private launch gate and complete legal evidence bundle",
-        "summary": "Keep SearchWoot private and preserve all parked launch dispositions while rights, privacy, consent, data-flow, vendor, security, accuracy, attribution, measurement, and owner evidence remain incomplete. This is risk triage, not legal advice or certification.",
-        "requested_action": "Continue the four existing launch-readiness legal tasks without closing any task absent evidence. Attach one dated read-only evidence bundle covering source rights and field permissions, data flow and retention, deployed consent and GA4 settings, logs and vendors, and incident/request procedures. Keep rights outreach unsent pending human counsel review and explicit owner authorization. Permit only bounded reversible work that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries.",
         "proposal_id": null
       }
     ]

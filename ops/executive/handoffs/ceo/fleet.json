@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:47:56.654Z",
+  "generated_at": "2026-10-01T07:36:46.104Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the candidate plan’s new rodhat.com SEO, scaffold builds, affiliate-tag work, prototypes, telemetry, and duplicate admissions: delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests have failed. Preserve only the existing allthingsmasonic.com CTA request after CTO releases a slot. Evidence: 2026-09-21 Amazon data shows $4.92 aggregate unattributed commission; site revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the saveusfarms.com repair case by 2026-10-01T09:00Z. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the candidate plan’s new work items, messages, proposals, research, telemetry, and queue admissions: delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Preserve only existing canonical work. Evidence: Amazon revenue is $4.92 aggregate and unattributed for 2026-09-21; site revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence, then releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

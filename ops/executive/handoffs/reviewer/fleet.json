@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:27:33.474Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:36:46.107Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed preview builds, new site-factory admissions, affiliate repair handoffs, and duplicate evidence work. Delivery is saturated at 10/10 slots; active measurement, failed requests, site overlap, and unresolved repair work remain. Revenue, ROI, margin, and causal-lift claims are unsupported because reported commission is aggregate and unattributed. Preserve only the already-queued allthingsmasonic.com CTA request after CTO releases a slot and overlap clears, with its existing measurement and rollback conditions. Keep SearchWoot private and rights outreach unsent.",
+        "summary": "Reject all new proposals, queue admissions, telemetry, research, spend, and production work this cycle. Revenue, ROI, margin, and causal lift remain unsupported because the only commission evidence is $4.92 aggregate and unattributed for 2026-09-21. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence, then release one slot or escalate. Keep SearchWoot private and leave rights outreach unsent. Confirm the keep-private disposition.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot before admitting any new work. Do not admit the proposed scaffold builds, affiliate handoffs, or duplicate security/legal evidence tasks.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Record root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Release one delivery slot or escalate unresolved capacity. After release, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b, subject to site-overlap clearance and normal gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject new production, queue, telemetry, spend, research, and duplicate work this cycle. Delivery is saturated at 10/10 slots and financial attribution is insufficient for revenue, ROI, margin, or causal-lift claims. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence; release one slot or escalate. Then admit only the existing allthingsmasonic.com CTA request, subject to site-overlap clearance. Keep the private launch gate unchanged and leave rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Record root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot or escalate unresolved capacity to the owner. Do not admit new candidates before that evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }

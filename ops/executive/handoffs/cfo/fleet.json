@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:27:33.472Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:36:46.105Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve no new spend, monetization expansion, budget commitment, revenue forecast, ROI claim, or contribution-margin claim. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is aggregate tracking_id=other and cannot be assigned to a site; named site rows show $0 attributed commission. Site revenue, contribution margin, CAC, payback, and causal lift are unsupported. Preserve only the existing allthingsmasonic.com CTA request after capacity and site-overlap clearance, using its 2026-09-21 baseline of 61 clicks, 0 ordered items, and $0 site-attributed commission.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI cost is measurable but cost-to-learn is not calculable: on 2026-10-01, 16 calls cost $2.2785467 across 4 of 38 expected sites, while incremental validated outcomes and costs for 34 sites are missing. Infrastructure, fixed, marketing, and labor budgets are blank, so total budget exposure, contribution margin, and payback are not calculable. Do not treat 5,000 audited actions, 587 improvements started, 1,821 impressions, or 48 clicks as financial performance.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement only after one delivery slot is released and site overlap is cleared. Measure post-change affiliate clicks, ordered items, shipped items, commission, direct change cost, allocated AI cost, and allocated infrastructure cost for 14 days or 100 relevant new impressions/clicks. Calculate contribution as attributable commission less directly attributable costs; if site-level orders or commission remain unavailable, classify the result as unknown. No revenue, ROI, or causal-lift claim is authorized.",
+        "summary": "Financial recommendation: approve containment and authorize no discretionary spend, new monetization investment, or forecast-based expansion this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is an aggregate provider row under tracking ID other; site-attributed commission is $0. Do not report aggregate commission as site revenue. Contribution margin and ROI are not calculable because site-level revenue attribution, infrastructure costs, labor/change costs, and fixed costs are unavailable. Cost-to-learn is not calculable because no attributable financial outcome or comparable experiment result is available. AI spend is measurable only for 2026-10-01: 16 calls across 4 of 38 expected sites, costing $2.2785467; fleet-wide AI spend is unknown. Infrastructure and budget exposure are unknown because operations cost telemetry, monthly fixed costs, marketing budget, and spend limit are blank. Minimum measurement for the retained allthingsmasonic.com CTA request: use the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; after capacity clears, measure site-specific clicks, orders, shipped items, commission, direct change cost, allocated AI cost, and allocated infrastructure cost for 14 days or 100 relevant new impressions/clicks. If site-level financial data remains unavailable, classify contribution margin, ROI, payback, and causal lift as unknown. Preserve existing gates and do not create new finance telemetry requests because the available snapshot already establishes the current evidence boundary.",
         "requested_action": null,
         "proposal_id": null
       }

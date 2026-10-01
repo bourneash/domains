@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:27:33.473Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:36:46.106Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally. Evidence timestamp: 2026-10-01T04:50:05.408Z. The security baseline covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are therefore unknown. Compliance is technical-only: 35 pass, 20 fail, 6 unknown; this is not certification. No credential exposure, exploit, or vulnerability is established. Recommendation: keep public exposure and security-sensitive release gates unchanged; allow only reversible work that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim clearance or a clean bill of health.",
+        "summary": "Disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security baseline covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are not evidenced. No credential exposure, exploit, or vulnerability is established. Compliance reports 35 pass, 20 fail, and 6 unknown and is technical baseline only, not certification. Exact decision: do not clear go-live or security-sensitive releases; preserve existing private and gated dispositions; continue only canonical read-only evidence work and bounded reversible growth; do not create duplicate telemetry, retrieve credentials, access private containers, exploit targets, modify permissions/configuration, add dependencies, deploy, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing security evidence work item security-fleet-evidence-2026-10-01; do not create duplicate telemetry or implementation. Record dated evidence or explicit unknowns for authentication/access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Preserve private-launch and security-sensitive release gates. No credentials, permission changes, private-container access, exploitation, dependency additions, configuration changes, deployment, or external disclosure outreach are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Conditionally support the existing reversible allthingsmasonic.com CTA work only after capacity and site-overlap clearance, with normal build, release, disclosure, rollback, and measurement gates. Do not admit the preview builds as public exposure: preview-only work may proceed only after capacity release, without credentials, DNS changes, new dependencies, data collection, or production publication, and with security unknowns preserved. SearchWoot remains private because source rights, data-flow, consent, logging, incident, and security evidence are incomplete.",
+        "summary": "Security accepts the candidate plan's containment posture only as a conditional risk disposition, not as security clearance. Reject new production, queue, dependency, credential, configuration, telemetry, and research admissions this cycle. Retain only existing canonical work after capacity and site-overlap clearance, with normal release review. Reassess when dated evidence exists for access control, secrets, isolation, release integrity, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       }

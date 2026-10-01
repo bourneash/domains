@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.448Z",
+  "generated_at": "2026-10-01T07:36:46.102Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create duplicate work. Once CTO releases a delivery slot, execute request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Scope: existing homepage and highest-intent affiliate/product entry surface; clarify primary product CTAs, preserve required affiliate disclosure, improve keyboard focus and mobile layout, and retain existing imagery and destinations. Preview acceptance: CTA hierarchy is visually distinct, all interactive elements are keyboard reachable, focus is visible, text remains readable at mobile widths, disclosure remains adjacent to commercial links, and no unrelated routes change. Tests: site build, deterministic link/destination checks, accessibility audit for focus/name/contrast, responsive viewport checks, and smoke test. Metric: Amazon affiliate clicks for the site, using the recorded baseline of 61 clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not claim lift. Measure for 14 days or 100 new relevant impressions/clicks, whichever comes first. Rollback: revert the single isolated change set if validation fails, affiliate destinations break, disclosure moves out of context, or performance/accessibility regresses. No new site work should be admitted while delivery remains saturated at 10/10 slots.",
+        "summary": "Do not admit new design work while delivery is saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA refinement request as the sole next design implementation after the CTO releases one slot and clears site overlap. Scope: improve affiliate CTA hierarchy, product-link clarity, disclosure placement, keyboard focus, contrast, touch targets, and responsive layout on the existing merchandising surface. Do not add tracking, dependencies, credentials, imagery spend, or new monetization claims.",
         "requested_action": null,
         "proposal_id": null
       }

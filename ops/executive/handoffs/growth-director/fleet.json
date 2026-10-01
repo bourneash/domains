@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.448Z",
+  "generated_at": "2026-10-01T07:36:46.102Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new SEO or growth implementation should be admitted while delivery is saturated at 10/10 slots and active measurement remains unresolved. Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as the next growth implementation; do not create a duplicate. Target: homepage and highest-intent affiliate/product entry surface. Baseline: 61 Amazon clicks, 0 ordered items, $0 site-attributed commission for 2026-09-21. Metric: site Amazon clicks, with ordered items and commission tracked only as observed. Sample window: 14 days after verified deployment or 100 relevant new impressions/clicks, whichever comes first. Acceptance: CTA hierarchy and destination clarity improve without changing unrelated routes; affiliate disclosure remains adjacent; keyboard focus, mobile layout, link checks, build, accessibility, and smoke tests pass. Rollback: revert only the single bounded CTA diff if validation fails, links break, disclosure moves, or the metric declines materially. CTO must first release a delivery slot through the existing repair closure process; no new telemetry, spend, claims, or duplicate work.",
+        "summary": "No new SEO, telemetry, proposal, or queue admission this cycle. Preserve the existing allthingsmasonic.com CTA refinement request as the sole next growth implementation after CTO releases one delivery slot and site-overlap clearance is confirmed. Measure affiliate clicks against the 2026-09-21 baseline of 61 clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 14 days or 100 relevant new impressions/clicks. Treat unavailable financial or causal outcomes as unknown; preserve registered tracking IDs and rollback boundaries.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:27:33.472Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:36:46.105Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. Do not admit new site-factory builds, affiliate-tag work, prototypes, finance work, telemetry requests, or duplicate queue items while delivery remains saturated at 10/10 slots and measurement obligations are unresolved. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. After one slot is released and site overlap is cleared, execute only the existing allthingsmasonic.com CTA refinement request 4719e525-763b-42a4-9f16-e71e1c38b17b.",
+        "summary": "Reject all new proposals, telemetry requests, research, prototypes, site-factory admissions, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, measurement and repair work remain active, and operational/security evidence is incomplete. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Release one slot or escalate to the owner. Only then may existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com proceed, subject to site-overlap clearance and normal review gates. Keep SearchWoot private and leave rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed finance baseline is technically safe and reversible, but its evidence is already present in the authoritative snapshot and existing handoffs. Do not create duplicate report-only work this cycle. Retain its acceptance criteria for the existing canonical CTA measurement: preserve the 2026-09-21 affiliate baseline, keep aggregate commission unattributed, and classify site revenue, ROI, margin, and cost-to-learn as unknown or not calculable where required fields are absent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not queue or execute the complicated.work or deadlymaracas.com preview builds this cycle. Their isolation and reversibility are adequate, but active capacity is saturated and launch, security, analytics, affiliate, and measurement gates remain incomplete. Preserve the existing readiness candidates without creating implementation work.",
+        "summary": "Preserve existing consent, disclosure, credential, dependency, security, and attribution boundaries. Do not invent telemetry or financial outcomes. For the existing allthingsmasonic.com CTA request, retain the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; measure available post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. Classify unavailable financial or causal outcomes as unknown. Roll back only the bounded change if validation or release gates fail.",
         "requested_action": null,
         "proposal_id": null
       }
