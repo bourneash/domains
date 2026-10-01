@@ -1209,6 +1209,10 @@ test('Git Operations presents repository state with local filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="git-summary"/);
+  assert.match(app, /<nav class="git-page-tabs" aria-label="Git workspace">/);
+  assert.match(app, /active === 'operations' \? 'aria-current="page"'/);
+  assert.match(app, /active === 'hygiene' \? 'aria-current="page"'/);
+  assert.doesNotMatch(app, /class="git-page-tabs" role="tablist"/);
   assert.match(app, /id="git-search"/);
   assert.match(app, /id="git-status"/);
   assert.match(app, /type="button" class="btn sm" id="git-refresh"/);

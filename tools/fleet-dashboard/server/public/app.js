@@ -1390,10 +1390,10 @@ function applyGitFilter() {
 }
 
 function gitPageTabs(active) {
-  return `<div class="git-page-tabs" role="tablist" aria-label="Git">
-    <a class="git-page-tab${active === 'operations' ? ' active' : ''}" role="tab" aria-selected="${active === 'operations'}" href="#git">Repository Operations</a>
-    <a class="git-page-tab${active === 'hygiene' ? ' active' : ''}" role="tab" aria-selected="${active === 'hygiene'}" href="#git/hygiene">Fleet Hygiene</a>
-  </div>`;
+  return `<nav class="git-page-tabs" aria-label="Git workspace">
+    <a class="git-page-tab${active === 'operations' ? ' active' : ''}" ${active === 'operations' ? 'aria-current="page"' : ''} href="#git">Repository Operations</a>
+    <a class="git-page-tab${active === 'hygiene' ? ' active' : ''}" ${active === 'hygiene' ? 'aria-current="page"' : ''} href="#git/hygiene">Fleet Hygiene</a>
+  </nav>`;
 }
 
 /* ===================== TASK BUDGET ===================== */
