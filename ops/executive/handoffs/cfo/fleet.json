@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:08:42.941Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:16:57.641Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain containment and reject the proposed CRO portfolio and control-plane work this cycle. Financial evidence supports no new spend or monetization forecast. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, all under an unattributed aggregate row. AI usage cost is $1,002.46 for 2026-09-01 through 2026-09-30 across 5,531 calls, but the periods and attribution bases do not align; contribution margin, ROI, and cost-to-learn are therefore not calculable. The minimum next financial action is a report-only cost-and-revenue reconciliation using existing records, with no duplicate telemetry or spend. Preserve the existing allthingsmasonic.com CTA request as capacity-gated; its 61-click baseline is a learning metric, not revenue evidence.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Known cost exposure: September AI usage is $1,002.45979265, including 5,531 calls, 234 errors, and 5 transient errors. This equals approximately $0.1812 per call, but it is not cost-to-learn because measured learning outcomes and experiment-level cost allocation are absent. Infrastructure, domain, hosting, labor, and marketing spend are not present in the brief, so total operating cost and budget exposure are unknown. Minimum measurement for a true contribution-margin view is date-aligned site/experiment revenue, AI cost, infrastructure/domain cost, and any approved labor or marketing allocation.",
+        "summary": "CFO recommendation: retain containment, approve no new spend, monetization forecast, or budget commitment. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The full $4.92 is in an aggregate provider row and cannot be assigned to a site; named site rows show $0 attributed commission. Revenue, contribution margin, ROI, and causal lift are unsupported.\n\nAI usage for 2026-09-01 through 2026-09-30 was $1,002.45979265 across 5,531 calls, including 234 errors and 5 transient errors. This cannot be compared with the one-day revenue window or treated as portfolio margin. Cost-to-learn is not calculable because no per-change AI/infrastructure cost allocation, control or baseline delta, and validated outcome value are available. Minimum measurement: same-period per-change AI and infrastructure cost, treatment/control outcome delta, and attributable revenue or qualified conversion value.\n\nInfrastructure spend, fixed monthly costs, marketing budget, revenue target, and spend limit are blank, so budget exposure and forecast runway are not calculable. Do not convert clicks, orders, shipped items, SEO conversions, or AI output into financial performance. Keep the existing capacity gate and execute only the queued allthingsmasonic.com CTA refinement after the CTO releases one slot; measure registered affiliate clicks and site outcomes without claiming revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

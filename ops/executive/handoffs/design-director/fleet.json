@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.743Z",
+  "generated_at": "2026-10-01T00:16:57.640Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing queued allthingsmasonic.com CTA refinement as the next implementation after CTO releases one delivery slot. Do not create duplicate work. Scope: existing merchandising and affiliate-entry surfaces only; improve CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, and responsive layout without changing destinations, tracking, or affiliate configuration. Preview and acceptance require deterministic tests, link integrity, disclosure preservation, keyboard access, mobile layout validation, and a single-diff rollback. Measure registered affiliate clicks against the available 61-click baseline from 2026-09-21; orders, commission, revenue, ROI, and causal lift remain unknown.",
+        "summary": "Preserve containment while delivery is saturated at 10/10. Do not create duplicate work. After CTO releases one slot with validation evidence, execute the existing allthingsmasonic.com CTA refinement as the highest-value reversible design action. Scope: homepage/highest-intent merchandising surface only; improve CTA hierarchy, adjacent affiliate disclosure placement, keyboard focus, contrast, tap targets, and responsive spacing without changing destinations, adding tracking, dependencies, or data collection. Preview acceptance: unchanged destinations; visible CTA hierarchy at mobile and desktop widths; disclosure adjacent to affected links; WCAG-focused keyboard, focus, contrast, and target-size checks pass; existing links and smoke/build checks pass. Test: deterministic component/site tests, build, link validation, smoke, keyboard navigation, responsive screenshots, and accessibility scan. Metric: registered affiliate clicks versus the existing 61-click site baseline; measure for 14 days or 100 relevant impressions/clicks. Conversion, revenue, ROI, and causal lift remain unclaimed. Rollback: revert the single isolated diff if any validation gate fails or if material regressions appear.",
         "requested_action": null,
         "proposal_id": null
       }

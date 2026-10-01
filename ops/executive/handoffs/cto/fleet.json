@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:08:42.942Z",
+  "generated_at": "2026-10-01T00:16:57.641Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment only. Do not admit new implementation, prototypes, site-factory work, telemetry, spend, credentials, domains, or duplicate queue items while delivery is saturated at 10/10 slots. Keep SearchWoot private and leave rights outreach unsent pending counsel review. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. After one slot is released, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve its registered destination and tracking ID allthingsmasonic-20, adjacent disclosure, accessibility, responsive behavior, smoke checks, and single-diff rollback. Measure registered outbound clicks only against the existing 61-click baseline for 14 days or 100 relevant impressions/clicks; do not claim orders, revenue, ROI, margin, or causal lift.",
+        "summary": "CTO review: approve containment with corrections. Do not create proposals, telemetry requests, prototypes, deployments, spend, or duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case with dated root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Only after a slot is released may the existing allthingsmasonic.com CTA refinement proceed; no new work is admitted.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new control-plane, AI-guardrail, CRO prototype, SEO, content, and site-factory implementation admissions this cycle. Preserve future candidates as deferred specifications only. Complicated.work remains readiness-only and private because analytics, compliance, owner, security, measurement, and rollback evidence are incomplete.",
+        "summary": "Retain the existing allthingsmasonic.com CTA request as capacity-gated. Execute only after CTO records release of one delivery slot and confirms no duplicate or conflicting implementation is active. Limit scope to CTA hierarchy, adjacent disclosure placement, unchanged destinations, keyboard focus, contrast, tap targets, responsive layout, deterministic tests, build/link validation, smoke, accessibility checks, and single-diff rollback. Measure only registered affiliate clicks and existing available site outcomes against the recorded 61-click baseline; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The finance reconciliation is safe only as a bounded report-only evidence task using existing snapshots. It must preserve the Amazon aggregate attribution boundary, align source periods explicitly, report AI cost separately, and list missing infrastructure, labor, marketing, and site-attributed revenue fields. It must not request telemetry, access billing or banking, spend, or claim margin, ROI, or cost-to-learn.",
+        "summary": "Technical corrections: the plan must not treat the allthingsmasonic.com CTA as immediately queue-eligible, must not add site-wide or cross-site changes, and must not add telemetry, dependencies, credentials, permissions, data collection, or new destinations. Existing measurement and repair queues remain the priority; private-launch and security-sensitive release gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

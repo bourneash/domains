@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T00:08:42.941Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:16:57.641Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain containment and route only the existing allthingsmasonic.com CTA refinement after CTO releases one delivery slot. Do not add duplicate queue work, telemetry, spend, credentials, domains, deployments, or new prototypes while delivery is saturated at 10/10 slots. Preserve Amazon attribution limits: 6,219 aggregate clicks, 28 ordered items, 6 shipped items, and $4.92 unattributed commission for 2026-09-21; site revenue, ROI, and causal lift remain unknown.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred experiment portfolio: (1) allthingsmasonic.com CTA hierarchy and disclosure-preserving merchandising refinement, using the existing 61-click baseline; (2) one-at-a-time SEO snippet or landing-page tests on evidenced search opportunities such as AIS status codes, Erie muskie, or gallery queries; (3) an execution-integrity control-plane specification to reduce stranded and duplicate work. Each remains reversible and capacity-gated; no causal lift or revenue is claimed.",
+        "summary": "CRO disposition: preserve containment and reject new proposals, prototypes, telemetry requests, deployments, spend, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. After CTO completes or closes the existing saveusfarms.com repair case with root-cause or closure evidence, validation, rollback, release-boundary, attribution, measurement, and deduplication evidence, execute only the existing allthingsmasonic.com CTA refinement. Measure registered affiliate clicks and existing site outcomes for 14 days or 100 relevant impressions/clicks against the available 61-click baseline. Do not claim revenue, ROI, margin, or causal lift. Preserve private-launch and security gates.",
         "requested_action": null,
         "proposal_id": null
       }

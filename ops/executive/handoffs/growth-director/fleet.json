@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-09-30T21:10:02.743Z",
-  "summary": "growth-director checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T00:16:57.641Z",
+  "summary": "growth-director checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA refinement as the sole next growth implementation after one delivery slot clears. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Scope remains CTA hierarchy, product-link clarity, disclosure placement, keyboard/focus states, and responsive layout. Measure registered affiliate clicks only; revenue, ROI, margin, and causal lift remain unknown. Do not create duplicate work, telemetry, tracking, or affiliate configuration changes.",
+        "summary": "Preserve containment this cycle. Delivery is saturated at 10/10 slots, so do not create new SEO proposals, telemetry requests, prototypes, deployments, or duplicate work. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, and measurement evidence. After one slot clears, execute only the existing allthingsmasonic.com CTA refinement.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "After CTO releases one slot, implement the existing allthingsmasonic.com homepage/highest-intent merchandising CTA refinement. Baseline: 61 registered affiliate clicks for the available 2026-09-21 revenue window; site-attributed revenue and causal lift are unknown. Metric: registered affiliate clicks and existing site outcomes. Measurement window: 14 days or 100 relevant impressions/clicks, whichever comes first. Acceptance: unchanged destinations; clearer CTA hierarchy; adjacent disclosure; keyboard focus, contrast, tap-target, responsive-layout, link, smoke, build, and accessibility checks pass. Rollback: revert only this single diff if validation fails or measured outcomes regress.",
         "requested_action": null,
         "proposal_id": null
       }
