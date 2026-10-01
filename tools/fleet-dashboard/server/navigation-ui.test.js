@@ -98,6 +98,14 @@ test('shared API reads abandon stale route responses before renderers continue',
   assert.match(app, /message === 'route changed while data was loading'/);
 });
 
+test('private dashboard publishes valid non-indexing metadata', () => {
+  const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
+  const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
+  assert.match(robots, /^User-agent: \*\nDisallow: \/\s*$/);
+  assert.match(llms, /^# Domain Fleet Manager/m);
+  assert.match(llms, /private and requires operator authentication/i);
+});
+
 test('Executive deep links retain their operating workspace context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /rootView === 'executive'/);

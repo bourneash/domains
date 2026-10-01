@@ -1,0 +1,8 @@
+# Domain Fleet Manager
+
+> Private operator dashboard for domain health, scheduled roles, delivery, work queues, and audit evidence.
+
+## Access
+
+- This dashboard is private and requires operator authentication.
+- Do not index, quote, or expose dashboard data outside an authenticated operator session.
