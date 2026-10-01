@@ -1477,6 +1477,10 @@ async function renderAIInventory() {
   }
 
   const s = data.summary || {};
+  const aiBacked = s.ai || 0;
+  const services = s.services || 0;
+  const noAi = Math.max(0, services - aiBacked);
+  const enabled = Math.max(0, aiBacked - (s.disabled || 0));
   const providerClass = r =>
     r.provider === 'None' ? 'b-gray' : r.policy === 'Local' ? 'b-purple' : 'b-blue';
   const status = r =>
@@ -1499,10 +1503,14 @@ async function renderAIInventory() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">AI Inventory</h2><span class="muted">dispatch-aware provider and model audit of scheduled fleet services</span></div>
-    <div class="task-toolbar">
-      <strong>${s.ai || 0} AI-backed / ${s.services || 0} scheduled services</strong>
-      <span class="muted">${s.remote || 0} remote · ${s.local || 0} local · ${s.conditional || 0} conditional · ${s.disabled || 0} disabled</span>
-    </div>
+    <section class="aii-summary" aria-label="AI inventory summary">
+      <div class="aii-stat"><strong>${aiBacked}</strong><span>AI-backed services</span></div>
+      <div class="aii-stat aii-stat-good"><strong>${enabled}</strong><span>Enabled</span></div>
+      <div class="aii-stat"><strong>${s.remote || 0}</strong><span>Remote providers</span></div>
+      <div class="aii-stat"><strong>${s.local || 0}</strong><span>Local providers</span></div>
+      <div class="aii-stat ${s.disabled ? 'aii-stat-warn' : 'aii-stat-good'}"><strong>${s.disabled || 0}</strong><span>Disabled</span></div>
+      <div class="aii-stat aii-stat-meta"><strong>${noAi}</strong><span>No-AI services · ${s.conditional || 0} conditional</span></div>
+    </section>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
       <tbody>${rows}</tbody>
