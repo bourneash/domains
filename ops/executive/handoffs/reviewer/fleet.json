@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:50:11.003Z",
+  "generated_at": "2026-10-01T20:51:08.804Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation and high-priority queue admission this cycle. No candidate has sufficient site-specific baseline, measurable threshold, attribution boundary, rollback evidence, and cleared capacity/release gates. Retain only principal-engineer capacity reconciliation under d4abc482-75de-438f-9fcf-5223f339c860; document the authoritative slot count and saveusfarms.com repair disposition by 2026-10-02T12:00Z, then release one slot or escalate. Aggregate commission remains unattributed; no revenue, ROI, margin, causal-lift, launch-readiness, or production-readiness claims are supported.",
+        "summary": "Reject all new implementation and high-priority queue admission this cycle. Capacity reconciliation, low-volume outcome evidence, unattributed aggregate revenue, and incomplete security/operations evidence prevent defensible production work. Retain only the existing capacity/queue reconciliation, bounded public-surface research, and escalation path. No revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
