@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:46:13.952Z",
+  "generated_at": "2026-10-01T14:49:08.798Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Revalidate the preserved Alien Council AI-usage cancellation-control change",
-        "summary": "Revalidate the existing infrastructure-blocked change for aliencouncil.com without creating overlapping site work or changing production behavior outside its preserved diff.",
-        "requested_action": "Engineer inspects the retained failure artifact and preserved diff, repairs only the reviewer/infrastructure failure, runs isolated validation, and records a requeue-or-close disposition. Do not add dependencies, credentials, telemetry, routes, or unrelated files.",
+        "title": "Map artตogogh.com homepage implementation surface before next change",
+        "summary": "The site has an active improvement in measurement through 2026-10-10, so adding implementation would overlap. Exact homepage files and the current improvement scope are not present in the snapshot.",
+        "requested_action": "After the active measurement window closes, identify the exact homepage route, template, stylesheet, asset files, current improvement boundary, and one non-overlapping reversible follow-up. Do not modify production or request duplicate telemetry.",
         "proposal_id": null
       }
     ]
