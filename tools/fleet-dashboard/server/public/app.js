@@ -4580,16 +4580,22 @@ async function renderParked() {
     .join('');
 
   el.innerHTML = `
-    <div class="page-head" style="margin-top:28px"><h2 class="page-title">Parked inventory</h2><span class="muted">registry entries with <code>status: scaffold</code> — bought and bootstrapped, never built</span></div>
-    <div class="task-toolbar">
-      <strong>${s.scaffolds} parked</strong>
-      <span class="muted">${s.parked_pct}% of ${s.total_registry_entries} registry entries · oldest ${s.oldest_days_parked ?? '?'}d${s.unknown_renewal ? ` · ${s.unknown_renewal} with no renewal date` : ''}${s.auto_renew_off ? ` · <b class="r-overdue">${s.auto_renew_off} with auto-renew OFF</b>` : ''}</span>
+    <div class="page-head parked-page-head"><h2 class="page-title">Parked inventory</h2><span class="muted">registry entries with <code>status: scaffold</code> — bought and bootstrapped, never built</span></div>
+    <section class="parked-summary" aria-label="Parked inventory summary">
+      <div class="parked-stat parked-stat-warn"><strong>${s.scaffolds}</strong><span>Parked domains</span></div>
+      <div class="parked-stat"><strong>${s.parked_pct}%</strong><span>Of registry entries</span></div>
+      <div class="parked-stat ${s.oldest_days_parked >= 365 ? 'parked-stat-bad' : 'parked-stat-warn'}"><strong>${s.oldest_days_parked ?? '?'}<small>d</small></strong><span>Oldest parked</span></div>
+      <div class="parked-stat ${s.unknown_renewal ? 'parked-stat-warn' : 'parked-stat-good'}"><strong>${s.unknown_renewal || 0}</strong><span>Renewal dates unknown</span></div>
+      <div class="parked-stat ${s.auto_renew_off ? 'parked-stat-bad' : 'parked-stat-good'}"><strong>${s.auto_renew_off || 0}</strong><span>Auto-renew off</span></div>
+    </section>
+    <div class="parked-toolbar" role="group" aria-label="Parked inventory context">
+      <div><strong>Renewal exposure</strong><span class="muted">${s.total_registry_entries} registry entries · ${s.unknown_renewal || 0} missing renewal date${s.unknown_renewal === 1 ? '' : 's'}</span></div>
     </div>
-    <div class="card"><table class="rmatrix">
+    <div class="card parked-table"><div class="table-wrap"><table class="rmatrix">
       <thead><tr><th>Domain</th><th>Parked</th><th>Scaffolded</th><th>Renewal</th><th>Also provisioned</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px"><b>Parked</b> is measured from the site repo's first commit — bootstrap-domain.sh's initial push — so it cannot drift. <b>Renewal</b> comes from Cloudflare Registrar via <code>tools/registrar</code>, refreshed daily; a hand-owned <code>registrar_expires</code> in <code>registry/fleet.yaml</code> overrides it for domains registered elsewhere. "unknown" means neither source has it.</p>`;
+    </table></div></div>
+    <details class="parked-help"><summary>How parked age and renewal are calculated</summary><p><b>Parked</b> is measured from the site repo's first commit — bootstrap-domain.sh's initial push — so it cannot drift. <b>Renewal</b> comes from Cloudflare Registrar via <code>tools/registrar</code>, refreshed daily; a hand-owned <code>registrar_expires</code> in <code>registry/fleet.yaml</code> overrides it for domains registered elsewhere. "unknown" means neither source has it.</p></details>`;
 }
 
 // F13: pause/resume one role across every site that schedules it as a

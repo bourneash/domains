@@ -794,6 +794,16 @@ test('Doctor presents sweep posture before failure details', () => {
   assert.match(theme, /\.doctor-stat-bad/);
 });
 
+test('Parked inventory presents renewal exposure before the domain table', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="parked-summary" aria-label="Parked inventory summary"/);
+  assert.match(app, /class="parked-toolbar" role="group" aria-label="Parked inventory context"/);
+  assert.match(app, /class="parked-help"><summary>How parked age and renewal are calculated/);
+  assert.match(theme, /\.parked-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.parked-stat-bad/);
+});
+
 test('operational API failures use the shared recovery surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
