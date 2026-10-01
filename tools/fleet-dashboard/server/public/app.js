@@ -2062,19 +2062,19 @@ async function renderAIUsage() {
     </section>
     ${
       modelDriftCalls
-        ? `<div class="empty" style="margin-bottom:14px; color: var(--red)">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        ? `<div class="empty aiu-notice aiu-notice-danger">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
         : ''
     }
     ${
       mixedCompactionCalls
-        ? `<div class="empty" style="margin-bottom:14px">ℹ <strong>${mixedCompactionCalls} call${mixedCompactionCalls === 1 ? '' : 's'}</strong> included multiple model families (${fmtUSD(mixedCompactionCostUsd)}). These are tracked as mixed compaction usage, not model drift, when the requested family is present.</div>`
+        ? `<div class="empty aiu-notice">ℹ <strong>${mixedCompactionCalls} call${mixedCompactionCalls === 1 ? '' : 's'}</strong> included multiple model families (${fmtUSD(mixedCompactionCostUsd)}). These are tracked as mixed compaction usage, not model drift, when the requested family is present.</div>`
         : ''
     }
     <div class="card aiu-chart-card">
       <div class="task-toolbar"><strong>${bucket === 'hour' ? 'Hourly' : 'Daily'} spend</strong><span class="muted">Hover a bar for cost, calls, and tokens · drag across bars to zoom into that range. Times are UTC.</span>${AI_USAGE.range === 'custom' ? '<button id="aiu-reset-zoom" class="btn sm">↺ Reset zoom</button>' : ''}</div>
       ${usageChart(filteredPeriods, bucket)}
     </div>
-    <div class="card" style="margin-bottom:14px">
+    <div class="card aiu-panel">
       <div class="task-toolbar"><strong>Runtime model resolution</strong><span class="muted">Observed model comes from Claude's response; requested model is the caller's flag. Differences expose alias/routing drift.</span></div>
       ${
         runtimeModelRows
@@ -2083,11 +2083,11 @@ async function renderAIUsage() {
       }
       ${
         requestedModelRows
-          ? `<div class="task-toolbar" style="margin-top:12px"><strong>Requested models</strong></div><div class="table-wrap"><table><thead><tr>${aiuTh('Requested model', 'Model alias/name the caller asked for via --model.')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${requestedModelRows}</tbody></table></div>`
+          ? `<div class="task-toolbar aiu-subhead"><strong>Requested models</strong></div><div class="table-wrap"><table><thead><tr>${aiuTh('Requested model', 'Model alias/name the caller asked for via --model.')}${aiuTh('Calls', 'Number of tracked claude -p invocations in this selection.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${requestedModelRows}</tbody></table></div>`
           : ''
       }
     </div>
-    <div class="card" style="margin-bottom:14px">
+    <div class="card aiu-panel">
       <div class="task-toolbar"><strong>By site</strong></div>
       ${
         siteTableRows
@@ -2098,7 +2098,7 @@ async function renderAIUsage() {
           : '<div class="empty">No tracked usage yet.</div>'
       }
     </div>
-    <div class="card" style="margin-bottom:14px">
+    <div class="card aiu-panel">
       <div class="task-toolbar"><strong>By site &amp; role</strong></div>
       ${
         roleTableRows
@@ -2109,7 +2109,7 @@ async function renderAIUsage() {
           : '<div class="empty">No tracked usage yet.</div>'
       }
     </div>
-    <div class="card" style="margin-bottom:14px">
+    <div class="card aiu-panel">
       <div class="task-toolbar"><strong>By ${bucket === 'hour' ? 'hour' : 'day'}</strong></div>
       ${
         periodRows
@@ -2126,29 +2126,29 @@ async function renderAIUsage() {
         ${
           usageIncidents.length
             ? `
-        <div class="task-toolbar" style="margin-top:12px"><strong>Alert incidents</strong><span class="muted">Grouped by failure category so fleet-wide outages remain visible above the individual-call sample.</span></div>
+        <div class="task-toolbar aiu-subhead"><strong>Alert incidents</strong><span class="muted">Grouped by failure category so fleet-wide outages remain visible above the individual-call sample.</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Category', 'Normalized alert category.')}${aiuTh('Failure class', 'Producer failure classification.')}${aiuTh('Calls', 'Number of affected calls.')}${aiuTh('Sites', 'Number of affected sites.')}${aiuTh('Cost', 'Total cost of affected calls.')}${aiuTh('Window', 'First and last ledger day.')}</tr></thead><tbody>${incidentRows}</tbody></table></div>`
             : ''
         }
         ${
           usageAlerts.length
             ? `
-        <div class="task-toolbar" style="margin-top:12px"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — highest severity first, last 10</span></div>
+        <div class="task-toolbar aiu-subhead"><strong>Recent cost-control alerts</strong><span class="muted">runs that hit the turn cap, errored, or resolved to a different model than requested — highest severity first, last 10</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Outcome', 'Why this call is flagged: hit the turn cap, errored, or resolved to a different model than requested.')}${aiuTh('Detail', 'Model drift shows requested → actual model; otherwise shows turns used / requested max turns.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for this call.')}</tr></thead><tbody>${alertRows}</tbody></table></div>`
             : ''
         }
         ${
           modelDriftRows.length
             ? `
-        <div class="task-toolbar" style="margin-top:12px"><strong>Model drift by site &amp; role</strong><span class="muted">requested model resolved to a different family (opus/sonnet/haiku) than the CLI actually ran — see claude-tracked.sh</span></div>
+        <div class="task-toolbar aiu-subhead"><strong>Model drift by site &amp; role</strong><span class="muted">requested model resolved to a different family (opus/sonnet/haiku) than the CLI actually ran — see claude-tracked.sh</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Calls', 'Calls where the resolved model family differed from the requested one.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${modelDriftRowsHtml}</tbody></table></div>`
             : ''
         }
-        ${notWired.length ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
-        ${wiredAwaiting.length ? `<div class="empty" style="margin-top:12px">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
-        ${noAiRole.length ? `<div class="empty" style="margin-top:12px">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
-        ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="empty" style="margin-top:12px; color: var(--red)">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
-        <div class="task-toolbar" style="margin-top:16px"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
+        ${notWired.length ? `<div class="empty aiu-notice aiu-notice-danger">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
+        ${wiredAwaiting.length ? `<div class="empty aiu-notice">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
+        ${noAiRole.length ? `<div class="empty aiu-notice">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
+        ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="empty aiu-notice aiu-notice-danger">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
+        <div class="task-toolbar aiu-subhead aiu-subhead-late"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table></div>
       </div>
     </details>`;

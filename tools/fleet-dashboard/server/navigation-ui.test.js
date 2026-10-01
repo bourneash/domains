@@ -1180,6 +1180,24 @@ test('AI usage keeps dense cost and diagnostics tables bounded', () => {
   assert.ok((diagnostics.match(/class="table-wrap"><table/g) || []).length >= 4);
 });
 
+test('AI Usage panels use shared spacing and severity classes', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const start = app.indexOf('async function renderAIUsage()');
+  const end = app.indexOf('/* ===================== DEPLOYS ===================== */', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.match(view, /class="card aiu-panel"/);
+  assert.match(view, /class="empty aiu-notice aiu-notice-danger"/);
+  assert.match(view, /class="task-toolbar aiu-subhead/);
+  assert.doesNotMatch(
+    view,
+    /style="(?:margin-bottom:14px|margin-top:12px|margin-top:16px|margin-bottom:14px; color: var\(--red\))/
+  );
+  assert.match(style, /\.aiu-panel \{ margin-bottom: 14px; \}/);
+  assert.match(style, /\.aiu-notice-danger \{ color: var\(--red\); \}/);
+});
+
 test('operational inventory tables stay bounded on narrow viewports', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const taskBudget = app.slice(

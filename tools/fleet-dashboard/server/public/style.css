@@ -733,6 +733,11 @@ textarea { width: 100%; font-family: var(--mono); font-size: 12.5px; line-height
 .aiu-chart-card { margin-bottom: 14px; padding: 12px 14px 8px; }
 .aiu-chart-card .task-toolbar { margin-bottom: 4px; }
 #aiu-reset-zoom { margin-left: auto; }
+.aiu-panel { margin-bottom: 14px; }
+.aiu-notice { margin: 0 0 14px; }
+.aiu-notice-danger { color: var(--red); }
+.aiu-subhead { margin-top: 12px; }
+.aiu-subhead-late { margin-top: 16px; }
 .aiu-chart-wrap { position: relative; cursor: crosshair; user-select: none; touch-action: pan-y; }
 .aiu-chart-wrap.dragging { user-select: none; }
 .aiu-chart-dragbox { position: absolute; top: 0; bottom: 28px; left: 0; width: 0; display: none; background: rgba(77,163,255,.22); border-left: 1px solid var(--accent); border-right: 1px solid var(--accent); pointer-events: none; }
