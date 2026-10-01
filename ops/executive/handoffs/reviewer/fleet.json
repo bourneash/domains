@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:55:47.195Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:56:57.267Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three proposed scaffold change_requests and admit no new production or queue work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, operations and fleet-doctor evidence are unavailable, and launch readiness is unverified. Preserve only the existing canonical saveusfarms.com repair-or-close case, then the already-queued allthingsmasonic.com CTA refinement after CTO releases capacity and site-overlap clears. Revenue, ROI, margin, and causal lift remain unsupported because provider commission is aggregate and unattributed. Keep private-launch and security gates unchanged; owner should confirm containment and require CTO capacity release before any next admission.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot or escalate unresolved capacity to the owner. Do not admit the rejected scaffold requests or duplicate queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Confirm continued private-launch containment and unchanged security gates. No revenue, ROI, margin, or causal-lift claim is supportable from the current aggregate attribution and low-volume telemetry.",
+        "summary": "Reviewer disposition: reject new production, high-priority, duplicate, and unsupported revenue work this cycle. Capacity is saturated at 10/10; measurement debt and failed requests remain unresolved; Amazon commission is aggregate and unattributed. Route only one bounded, low-risk SEO specification for rodhat.com to engineer, capacity-gated until CTO releases a slot. Keep scaffold candidates unqueued because launch-readiness and measurement evidence are incomplete. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T12:00Z and escalate unresolved capacity then.",
         "requested_action": null,
         "proposal_id": null
       }
