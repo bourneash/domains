@@ -2,35 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:27:26.557Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:28:13.980Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new proposals, production work, queue admissions, telemetry requests, spend, and duplicate evidence work this cycle. Amazon revenue remains $4.92 aggregate and unattributed for 2026-09-21; do not claim site revenue, ROI, margin, payback, or causal lift. Preserve only the existing saveusfarms.com repair-or-close case through 2026-10-01T09:00:00Z, then release one slot or escalate. Keep the private launch and security gates unchanged and leave rights outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00:00Z. Release one delivery slot or escalate unresolved capacity.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate; do not admit new production work before then.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Financial claims remain blocked: Amazon reports $4.92 aggregate unattributed commission for 2026-09-21, with $0 site-attributed income; ROI, margin, payback, and causal lift are unsupported. Confirm SearchWoot remains private and rights outreach unsent under EXEC_CONV_12.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, spend, credential, configuration, and production claims. Amazon commission is $4.92 aggregate and unattributed for 2026-09-21. Keep security and private-launch gates unchanged. Three reversible SEO changes are routed to engineer as capacity-gated specifications only; no execution is authorized until CTO releases capacity. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
