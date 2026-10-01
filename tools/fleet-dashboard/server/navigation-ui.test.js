@@ -687,6 +687,17 @@ test('error log drawer supports focus return and async announcements', () => {
   assert.match(app, /\$\('#err-drawer-close', shell\)\?\.focus\(\)/);
 });
 
+test('executive run drawer keeps the same keyboard and live-region contract', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /let EXEC_RUN_LOG_RETURN_FOCUS = null/);
+  assert.match(app, /aria-describedby="ex-run-drawer-status"/);
+  assert.match(app, /id="ex-run-drawer-status" role="status" aria-live="polite"/);
+  assert.match(app, /id="ex-run-drawer-close" class="icon-btn"/);
+  assert.match(app, /EXEC_RUN_LOG_RETURN_FOCUS = active instanceof HTMLElement \? active : null/);
+  assert.match(app, /if \(event\.key === 'Escape'\) closeExecutiveRunLog\(\)/);
+  assert.match(app, /returnFocus\?\.isConnected && !returnFocus\.closest\('\.hidden'\)/);
+});
+
 test('table expanders use semantic buttons instead of placeholder links', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

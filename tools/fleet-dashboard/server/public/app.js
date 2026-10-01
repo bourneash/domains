@@ -16463,6 +16463,7 @@ async function renderExecOverwatch() {
 }
 
 let EXEC_RUN_LOG_REQUEST = 0;
+let EXEC_RUN_LOG_RETURN_FOCUS = null;
 const EXEC_RUN_LOG_UI = {
   actionId: null,
   query: '',
@@ -16573,6 +16574,9 @@ function closeExecutiveRunLog() {
   $('#ex-run-log-drawer')?.remove();
   EXEC_RUN_UI.selected = null;
   EXEC_RUN_LOG_UI.actionId = null;
+  const returnFocus = EXEC_RUN_LOG_RETURN_FOCUS;
+  EXEC_RUN_LOG_RETURN_FOCUS = null;
+  if (returnFocus?.isConnected && !returnFocus.closest('.hidden')) returnFocus.focus();
 }
 
 async function openExecutiveRunLog(actionId) {
@@ -16584,16 +16588,27 @@ async function openExecutiveRunLog(actionId) {
     EXEC_RUN_LOG_UI.kind = 'important';
     EXEC_RUN_LOG_UI.sort = 'newest';
   }
-  $('#ex-run-log-drawer')?.remove();
+  const existing = $('#ex-run-log-drawer');
+  if (!existing) {
+    const active = document.activeElement;
+    EXEC_RUN_LOG_RETURN_FOCUS = active instanceof HTMLElement ? active : null;
+  }
+  existing?.remove();
   document.body.insertAdjacentHTML(
     'beforeend',
-    `<div id="ex-run-log-drawer" class="ex-run-drawer-shell" role="dialog" aria-modal="true" aria-labelledby="ex-run-drawer-title"><div class="ex-run-drawer-backdrop" data-ex-run-log-close></div><aside class="ex-run-drawer"><div class="ex-run-drawer-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h2 id="ex-run-drawer-title">Loading run log…</h2><p class="muted" id="ex-run-drawer-status">Fetching this run’s retained transcript and actions.</p></div><button class="icon-btn" type="button" data-ex-run-log-close aria-label="Close run log">×</button></div><div class="ex-run-drawer-toolbar"><button class="btn sm" type="button" id="ex-run-log-refresh">↻ Refresh log</button><span class="muted">This panel stays open during dashboard updates.</span></div><div class="ex-run-drawer-body"><div class="ex-run-drawer-loading" role="status">Loading run log…</div></div></aside></div>`
+    `<div id="ex-run-log-drawer" class="ex-run-drawer-shell" role="dialog" aria-modal="true" aria-labelledby="ex-run-drawer-title" aria-describedby="ex-run-drawer-status"><div class="ex-run-drawer-backdrop" data-ex-run-log-close></div><aside class="ex-run-drawer"><div class="ex-run-drawer-head"><div><div class="ex-eyebrow">RUN DOSSIER</div><h2 id="ex-run-drawer-title">Loading run log…</h2><p class="muted" id="ex-run-drawer-status" role="status" aria-live="polite">Fetching this run’s retained transcript and actions.</p></div><button id="ex-run-drawer-close" class="icon-btn" type="button" data-ex-run-log-close aria-label="Close run log">×</button></div><div class="ex-run-drawer-toolbar"><button class="btn sm" type="button" id="ex-run-log-refresh">↻ Refresh log</button><span class="muted">This panel stays open during dashboard updates.</span></div><div class="ex-run-drawer-body"><div class="ex-run-drawer-loading" role="status">Loading run log…</div></div></aside></div>`
   );
   const shell = $('#ex-run-log-drawer');
   $$('[data-ex-run-log-close]', shell).forEach(button =>
     button.addEventListener('click', closeExecutiveRunLog)
   );
   $('#ex-run-log-refresh', shell)?.addEventListener('click', () => openExecutiveRunLog(actionId));
+  shell.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeExecutiveRunLog();
+  });
+  requestAnimationFrame(() => {
+    if (shell?.isConnected) $('#ex-run-drawer-close', shell)?.focus();
+  });
   try {
     const detail = await api('GET', `/api/executive/run/${encodeURIComponent(actionId)}`);
     if (requestId !== EXEC_RUN_LOG_REQUEST || !$('#ex-run-log-drawer')) return;
