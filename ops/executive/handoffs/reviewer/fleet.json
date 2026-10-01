@@ -2,42 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:58:45.020Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:16:58.345Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, forecast, and causal-lift claims. Available evidence is $4.92 aggregate unattributed commission for 2026-09-21; site-level financial conclusions remain unknown. Confirm financial containment and keep the private launch gate unchanged pending rights, security, accuracy, measurement, and owner evidence.",
+        "summary": "Reject the proposed security report-only item as duplicate existing evidence work. Keep delivery at 10/10 slots, complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, and execute only the canonical allthingsmasonic.com CTA refinement after capacity release. Revenue, ROI, margin, causal lift, and production readiness remain unsupported; the $4.92 provider aggregate is unattributed. Keep private launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release capacity only after completion; admit no new work before then.",
+        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement and failed-request repair work. Revenue, ROI, margin, and causal-lift claims remain unsupported because the available $4.92 Amazon commission is aggregate and unattributed. Keep SearchWoot private and rights outreach unsent. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence; escalate unresolved capacity to the owner at that deadline. After a slot is released, execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement and repair work. Revenue claims remain unsupported: available affiliate evidence is $4.92 aggregate unattributed commission for 2026-09-21, with $0 site-attributed income. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence; unresolved capacity escalates to the owner at that deadline. After a slot is released, admit at most one canonical candidate, beginning with the existing allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent pending required gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot only after the evidence is complete; do not admit new implementation before then. Escalate unresolved capacity to the owner at the deadline.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve private-launch and security-sensitive release gates. Do not retrieve credentials, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or claim certification.",
+        "summary": "Do not admit new candidates while active delivery remains 10/10. Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after evidence is recorded; escalate unresolved capacity to the owner at the deadline. Then admit at most the existing canonical allthingsmasonic.com CTA request; do not create duplicate work.",
         "requested_action": null,
         "proposal_id": null
       }

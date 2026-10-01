@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:58:45.020Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:16:58.345Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Do not create duplicate work or admit new implementation while delivery remains saturated.",
+        "summary": "Approve containment. Do not create new implementation, telemetry, experiment, site-factory, CRO, or duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case with the required validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only afterward, then execute canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve destinations, tracking IDs, consent, disclosures, accessibility, responsive behavior, and cross-site isolation. Measure only registered affiliate clicks for 14 days or 100 new relevant impressions/clicks; do not claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO approves containment. Delivery is saturated at 10/10 active slots, with 57 improvements measuring and 21 failed requests. Preserve launch and security gates; do not admit new production, site-factory, prototype, telemetry, spend, or duplicate queue work this cycle. Existing read-only snapshot evidence is sufficient for current decisions.",
+        "summary": "Do not create or queue a new launch-readiness request this cycle. Existing capacity and measurement gates take precedence; retain the candidate as deferred planning context only, with no deployment, preview publication, telemetry request, spend, dependency, or domain change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, execute only the existing canonical allthingsmasonic.com CTA refinement. Do not create another request. Preserve destinations and imagery; clarify the existing affiliate action and adjacent disclosure; retain responsive, keyboard, contrast, semantic-link, and 44px touch-target requirements. Validate tests, build, links, disclosure, accessibility, and functional behavior. Measure only existing outbound affiliate clicks and eligible sessions for 14 days; do not claim revenue or causal lift.",
+        "summary": "Retain repository candidates as research-only context. Do not commission prototypes, install dependencies, add dependencies, deploy, spend, or claim security, maintenance, conversion, or revenue impact until capacity and measurement gates clear.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer the reusable control-plane integrity layer as a backlog specification, not an active implementation. Its scope may cover canonical deduplication, slot ownership, failure-to-repair linkage, approval-to-request traceability, and blocker aging using existing snapshot fields only. No new telemetry, production mutation, dependency, or queue admission is authorized until capacity is released and a bounded implementation contract exists.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the site-factory pipeline as preview-only and capacity-gated. Do not publish, deploy, add domains, enable analytics or affiliate collection, or spend money. No site-factory work enters the queue until the existing repair-or-close case releases a slot and launch, security, compliance, measurement, ownership, and rollback gates are evidenced.",
+        "summary": "Do not begin request 4719e525-763b-42a4-9f16-e71e1c38b17b until one delivery slot is released. Then implement only the bounded CTA, disclosure, accessibility, and responsive refinement with deterministic tests, accessibility audit, build, link validation, smoke test, visual review, and isolated rollback.",
         "requested_action": null,
         "proposal_id": null
       }

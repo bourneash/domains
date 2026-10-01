@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:58:45.019Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:16:58.344Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Do not admit new CRO prototypes or site work while delivery is saturated at 10/10 slots and 57 improvements remain in measurement. The MarkItDown prototype remains waiting; the Broadway snippet test remains deferred until its current measurement window closes. Revenue evidence is limited to $4.92 aggregate unattributed Amazon commission for 2026-09-21, so site revenue, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation and rollback evidence. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Do not admit new site-factory, CRO, SEO, telemetry, spend, or duplicate queue work while delivery is saturated at 10/10 slots and 57 improvements remain in measurement. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Evidence: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission on 2026-09-21; aggregate $4.92 commission remains unattributed. Site revenue, ROI, margin, and causal lift are unknown. Smallest next step: CTO records repair validation or justified closure and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Handoff: reject the candidate plan’s new site-factory brief, CRO prototypes, and duplicate allthingsmasonic.com work because capacity is saturated. Preserve the canonical CTA request unchanged and complete the existing saveusfarms.com repair-or-close case with root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

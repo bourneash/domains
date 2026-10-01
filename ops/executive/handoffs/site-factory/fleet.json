@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:37:59.310Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:16:58.344Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small site-factory pipeline of complicated.work, deadlymaracas.com, and driveford.net as preview-only candidates. Do not add domains, spend, deploy, publish, enable analytics, or enable affiliate collection. The strongest candidate is complicated.work because it is an existing scaffold with a queued readiness repair; its audience, content direction, analytics, affiliate readiness, compliance, security, ownership, and launch evidence remain incomplete. Preserve the existing request and avoid duplicates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "After one delivery slot is released, execute only the existing complicated.work preview-readiness request. Keep public exposure disabled and use the existing scaffold. Do not proceed until owner, Legal, Security, measurement, and rollback gates are recorded.",
+        "summary": "Maintain a small capacity-gated pipeline: howtofry.com for launch-readiness assessment, followed only after verified gates by the existing scaffold-build candidates. No new domains, spend, deployment, or public launch is authorized. Strongest candidate next step: create one timestamped, read-only launch-readiness brief for howtofry.com covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance, owner, legal, security, measurement, and rollback gates. Preserve unknowns; do not invent telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

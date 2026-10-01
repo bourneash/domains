@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:58:45.020Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:16:58.345Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: maintain financial containment. Do not authorize new spend, paid acquisition, production expansion, or new monetization work this cycle. Delivery is saturated at 10/10 slots, while revenue support is weak: Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; all commission is in aggregate tracking ID other, so site revenue and ROI are unsupported. AI usage cost was $1,002.46 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors, but it cannot be compared directly with the single-day revenue window. Infrastructure, domain, hosting, labor, and other operating costs are not present, so contribution margin, payback, budget exposure, and total cost-to-learn are not calculable. Preserve existing measurement and repair work; admit no new work until one slot is released and financial attribution evidence improves.",
+        "summary": "Recommendation: approve no new spend, forecasts, ROI claims, or additional implementation this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then retain only the canonical allthingsmasonic.com CTA refinement. Its 2026-09-21 baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission. The provider aggregate contains 629 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but cannot be assigned to a site. Do not present clicks, sessions, conversions, or opportunity scores as financial returns.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial disposition: treat all revenue forecasts, site-level ROI claims, contribution-margin claims, and causal-lift claims as unsupported. The available evidence supports only $4.92 aggregate commission for 2026-09-21 and $0 site-attributed income; the aggregate row cannot be assigned to sites without inventing attribution. Monthly AI spend is $1,002.46 for September, but infrastructure and other costs are unknown. Minimum evidence for a finance-grade decision is a period-matched ledger by site and content identifier covering affiliate clicks, ordered and shipped items, commission, AI cost, infrastructure/hosting, domains, and any paid marketing or labor allocation.",
+        "summary": "Contribution margin and budget exposure are not calculable: monthly revenue targets, fixed costs, marketing budget, spend limit, infrastructure, hosting, domain, and marketing costs are blank. Cost-to-learn is not calculable because AI usage is not joined to individual tasks or changes and outcome windows are unmatched. AI usage cost was $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors and 5 transient errors. Minimum measurement is a dated ledger keyed by site, task/change, and period covering AI, infrastructure, hosting, domain, and marketing costs, reconciled to affiliate clicks, orders, shipped items, commission, and matched treatment/control outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. Preserve destinations, tracking IDs, disclosures, consent, and existing behavior. Measure registered affiliate clicks for 14 days or 100 new relevant impressions/clicks, whichever comes first. Click movement is not evidence of revenue, contribution margin, ROI, payback, or causal lift. Roll back the isolated diff if validation or attribution boundaries regress.",
         "requested_action": null,
         "proposal_id": null
       }
