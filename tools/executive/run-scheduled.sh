@@ -75,6 +75,7 @@ const approvedWorkStatus = Number(process.argv[5]);
 const checkinStatus = Number(process.argv[6]);
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
+const schedulerOutput = require(`${root}/tools/executive/scheduler-output`);
 const store = eventstore.open(root);
 try {
   const scheduled = store.getExecutiveAction(actionId);
@@ -100,11 +101,13 @@ try {
         !['blocker', 'report-only', 'tracking'].includes(String(row.actionability || ''))
       );
     });
-  const failedToDeliver =
-    exitCode === 0 &&
-    tick?.status === 'completed' &&
-    newRequests.length === 0 &&
-    newExecutableWork.length === 0;
+  const newExecutableRequests = schedulerOutput.executableRequests(newRequests);
+  const failedToDeliver = schedulerOutput.failedToDeliver({
+    exitCode,
+    tickStatus: tick?.status,
+    requests: newRequests,
+    workItems: newExecutableWork,
+  });
   const ceo = store.getAgent('fleet-ceo');
   const ceoRun = ceo
     ? store
@@ -175,6 +178,7 @@ try {
       provider_deferred: providerDeferred,
       delivery_status: failedToDeliver ? 'failed_to_deliver' : 'delivered_or_blocked',
       new_change_requests: newRequests.length,
+      new_executable_change_requests: newExecutableRequests.length,
       new_executable_work_items: newExecutableWork.length,
       owner_request_acknowledged: ownerAcknowledged,
       failed_stage:
