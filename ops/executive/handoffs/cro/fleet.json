@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:48:06.005Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:19:30.280Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO recommends no new implementation admission this cycle. Delivery is saturated at 10/10 slots, 57 improvements are measuring, and duplicate/overlapping work is already present. After CTO releases capacity, execute only the existing allthingsmasonic.com CTA refinement against the recorded 61 Amazon-click baseline for 2026-09-21. Measure existing affiliate clicks and GA4 outcomes for 14 days or 100 relevant impressions/clicks; revenue and causal lift remain unknown. Do not add tracking, dependencies, credentials, spend, or cross-site behavior.",
+        "summary": "Recommend rejecting new production admission and duplicate control-plane work this cycle: delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests failed. Preserve the canonical allthingsmasonic.com CTA refinement after CTO releases capacity. Baseline: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered affiliate clicks and available conversions for 14 days or 100 relevant impressions/clicks; do not claim revenue or causal lift. GitHub signals remain research-only: MIT candidates have plausible fit, but no adoption decision is supported without a disposable prototype, dependency review, security review, maintenance assessment, and owner-approved implementation.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed canonical work graph is strategically sound but must remain deferred until current repair and capacity gates clear. Evidence supports the problem: 108 approved proposals lack execution requests, 21 implementation requests failed, 57 improvements await measurement, and 10/10 delivery slots are occupied. A smallest reversible prototype would be a read-only ledger view linking one decision to one canonical request, duplicate detection, owner/stale-state visibility, failure repair path, capacity state, and measurement due state using existing fields only. Expected metric: higher approval-to-execution rate, fewer duplicate admissions and stale owned items, and fewer no-action executable cycles. Time-to-learn: one control-plane measurement window after release. Risks: control-plane regression, incorrect deduplication, stale joins, and maintenance burden; require CTO review, deterministic tests, rollback, and no changes to schedules, permissions, telemetry collection, credentials, or deployment behavior.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released, execute only the existing allthingsmasonic.com commercial-path refinement. Do not admit new CRO prototypes while capacity remains saturated.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The only near-term executable revenue experiment is the existing allthingsmasonic.com CTA refinement. Two product opportunities are retained as capacity-gated specifications: measurement-aware outcome closure and AI cost-to-verified-outcome review. Both use existing telemetry, preserve unknowns, require no new tracking or spend, and must not enter delivery until capacity is released.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,36 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:48:06.005Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:19:30.281Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked, with counsel_required escalation for upstream data rights and any public, affiliate, advertising, or alert use. Evidence: Woot API documentation confirms access mechanics but not redistribution rights; current public terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Compliance is technical-only (36 pass, 19 fail, 6 unknown), operations and security sweeps are unavailable, and accuracy, measurement, attribution, and owner gates remain incomplete. Exact decision: keep SearchWoot private, do not send rights outreach, do not enable affiliate or advertising use, and permit only bounded read-only evidence work or reversible changes that add no data collection or public exposure. Human counsel must review any proposed Woot data use, privacy/jurisdiction treatment, and future monetization.",
+        "summary": "Disposition: blocked. Keep searchwoot.com private and do not authorize bounded public beta, full launch, affiliate/advertising expansion, or external rights outreach. Evidence: Woot API documentation confirms access mechanics but not redistribution rights; Woot terms restrict commercial/public use of listings, prices, descriptions, and derivatives; data-flow and consent evidence is partial; security, accuracy/freshness, measurement, and owner gates remain incomplete. Fleet compliance is technical triage only: 36 pass, 19 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is healthy for 39 configured sites; missing scaffold telemetry is not independently a blocker for ordinary reversible growth. Amazon evidence is limited to 2026-09-21 aggregate commission of $4.92 that cannot be assigned to a site; no revenue, ROI, margin, or causal-lift claims are supported. Human counsel is required for Woot rights, jurisdictional privacy/consent treatment, and any future affiliate or advertising use. Exact decision: preserve private launch and security-sensitive release gates; permit only bounded read-only evidence work and ordinary reversible changes that add no new data collection, permissions, credentials, dependencies, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The candidate plan is conditionally acceptable only for containment and evidence work. Reject new launch, monetization, telemetry, prototype, and duplicate implementation admissions while delivery is saturated at 10/10 slots. The existing canonical CTA work may proceed only after the CTO releases capacity and its stated disclosure, accessibility, validation, rollback, and measurement gates pass. No revenue, ROI, margin, or causal-lift claim is supported by the available aggregate revenue evidence.",
+        "summary": "SearchWoot launch-readiness progress: 0 of 4 open legal tasks can be closed. Source-rights evidence is blocked by the absence of a current Woot agreement or written permission. Data-flow/retention evidence is partial from backend/api/main.py, backend/services/fetcher.py, and config.yml, but operator-confirmed retention, deletion, correction, access, and notification records are missing. Consent/analytics evidence is partial from site/public/privacy.html and site/public/cookie-policy.html; GA4 property settings, data-sharing settings, retention, and jurisdictional review remain missing. Vendor/log/incident evidence remains open. Next evidence action: attach one dated read-only evidence bundle to the existing checklist containing the data-flow/retention table and GA4 configuration capture; do not send outreach, enable tracking, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness remains active, not closed. Four tasks remain open; none has sufficient evidence for closure. Progress is limited to recorded Woot documentation, partial repository data-flow files, privacy/cookie pages, and draft terms. Next evidence action: attach one dated read-only bundle containing the repository/configuration data-flow and retention table, vendor/log inventory, deployed consent and GA4 configuration capture, and unresolved counsel questions to the existing checklist. Do not request duplicate telemetry, contact Woot, or change the private gate.",
+        "summary": "Data-use dispositions: Woot deal and price-history data — blocked pending authoritative permission covering fields, storage, derivatives, display, caching, alerts, attribution, freshness, correction, takedown, images, prices, and affiliate use; smallest next action is to record the current agreement or permission source, without sending outreach. User alert rules and sync results — evidence_needed; missing data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest next action is a read-only data-flow and retention table. GA4 analytics — conditional only for consent-gated measurement; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdictional privacy review; smallest next action is a read-only configuration capture with no new tracking. Operational logs and Cloudflare hosting data — evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest next action is a read-only vendor and log inventory. Human counsel is required before resolving the rights, jurisdictional privacy, or future monetization questions.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain private launch gate and complete legal evidence bundle",
-        "summary": "Maintain the private launch disposition while completing the existing launch-readiness evidence tasks. No public beta, full launch, alert expansion, affiliate use, advertising, or upstream rights outreach is authorized.",
-        "requested_action": "Attach one dated read-only evidence bundle to the existing checklist covering Woot source rights and field-level permissions, data flow and retention, deployed consent and GA4 settings, logs and vendors, incident and request procedures, and counsel-required questions. Preserve unknowns and do not change production, collect new data, send outreach, or clear any launch gate.",
         "proposal_id": null
       }
     ]

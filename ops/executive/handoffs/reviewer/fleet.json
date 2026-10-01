@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:01:22.006Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:19:30.282Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, new production, spending, credential, telemetry, and high-priority queue claims. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; delivery is saturated at 10/10 slots. Preserve private-launch and security gates. Route only the three capacity-gated, reversible SEO specifications below; CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit at most one candidate. Owner: confirm containment and keep private-launch decisions unchanged.",
+        "summary": "Reject the new security report-only proposal as duplicative: the canonical fleet security evidence work item is already in progress. Preserve that work unchanged using authorized metadata and retained artifacts only. Keep private-launch and security-sensitive release gates unchanged. No production, credentials, configuration, spending, telemetry, external outreach, or certification claims are authorized. Financial and causal claims remain unsupported because commission is aggregate/unattributed and periods do not match.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Financial claims remain unsupported: the only observed commission is $4.92 aggregate and unattributed, while AI cost is $1,002.46 for a different period. Security and operations evidence remain incomplete, and delivery is saturated at 10/10 slots. I rejected new production, spend, telemetry, launch, and duplicate work. I routed six reversible, engineer-owned SEO candidates as capacity-gated specifications only; no execution may begin until the CTO releases a slot by completing or closing the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Existing launch and security gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

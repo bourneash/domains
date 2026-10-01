@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:48:06.005Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:19:30.281Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not authorize new spend, paid acquisition, production expansion, or new monetization work this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all commission is in aggregate tracking ID \"other\", so site revenue, contribution margin, ROI, and causal lift are unsupported. September AI spend is $1,002.46 across 5,531 calls, including 234 errors, but it cannot be compared to the one-day revenue window. Delivery is saturated at 10/10 slots and 57 improvements await measurement. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only the canonical allthingsmasonic.com CTA refinement after capacity release. Minimum finance evidence for future claims: aligned period revenue by registered site tracking ID, shipped commission, AI cost, infrastructure cost, and change-level exposure/outcome linkage.",
+        "summary": "Recommend preserving containment and rejecting any revenue, margin, ROI, forecast, or payback claim this cycle. Known evidence is limited to $4.92 aggregate Amazon commission, 28 ordered items, and 6 shipped items for 2026-09-21; all commission is unattributed to sites. AI usage records $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, with 234 errors and 5 transient errors. Comparing these amounts would be misleading because periods and attribution do not align; nevertheless, the observed AI cost is materially larger than the only observed aggregate commission. Contribution margin, total infrastructure spend, budget exposure, and cost-to-learn are not calculable because non-AI direct costs, budget ceilings, period-matched revenue, and workflow-level outcome linkage are absent. Do not expand AI-heavy or monetization work until a read-only finance baseline records these gaps and the minimum measurements needed to close them.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Amazon attribution is only partially usable: 18 named tracking rows are mapped, but the 2026-09-21 provider aggregate contains 629 clicks, 28 ordered items, and $4.92 commission under an aggregate row that cannot be assigned to any site. Site-attributed income is $0. Do not convert named affiliate clicks, SEO impressions, sessions, or conversions into revenue claims. The minimum required evidence is a period-matched provider export where every new affiliate link uses its registered tracking ID and commission is attributable to site and content identifiers.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Please preserve the current no-expansion boundary while documenting the existing finance evidence gap. AI usage is observed at $1,002.45979265 for September 2026, but total infrastructure cost is unknown because operations sweeps have no results and the snapshot contains no hosting, egress, domain, storage, or other direct-cost ledger. The minimum report-only artifact is a period-matched cost table by site or workflow with source timestamps, observed AI cost, infrastructure cost fields, and explicit unknowns; do not change routing, billing, credentials, or runtime controls.",
         "requested_action": null,
         "proposal_id": null
       }

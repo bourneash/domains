@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:48:06.005Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:19:30.281Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the containment plan. Do not admit new implementation, prototype, site-factory, SEO, telemetry, spend, dependency, credential, or cross-site work while delivery is saturated at 10/10 slots and active measurement remains open. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or justified-closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Do not create a duplicate work item.",
+        "summary": "Approve containment. No new production, site-factory, CRO, SEO, telemetry, spending, prototype, or duplicate queue work should enter delivery while all 10 implementation slots are occupied and measurement backlog remains active. Existing private-launch and security-sensitive release gates remain unchanged; operations and fleet-doctor evidence is insufficient for broader release clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Preserve the bounded scope: CTA hierarchy, adjacent existing affiliate disclosure, accessible names and visible focus, responsive spacing, existing destinations, deterministic tests, build, link validation, accessibility audit, smoke test, visual review, and single-diff rollback. Add no dependencies, tracking, credentials, permissions, data collection, or cross-site behavior. Use the existing 61 Amazon-click baseline for the available 2026-09-21 window and existing GA4/affiliate fields; do not claim revenue, ROI, or causal lift.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after the evidence is complete; do not create a duplicate request.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed work-graph capability is technically feasible only as a later isolated, read-only control-plane change. Defer it until capacity clears and the existing repair case is closed. If later admitted, require one canonical decision-to-request mapping, idempotent duplicate prevention, stale-owner and measurement-state visibility, preserved historical records, deterministic join tests, access isolation, feature-flag rollback, and validation against existing fields only. Do not add telemetry or change queue authority in the prototype.",
+        "summary": "Preserve only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com after capacity is released. Its scope is technically feasible and isolated: CTA hierarchy, adjacent affiliate disclosure, preserved destinations and registered tracking, accessible focus states and names, 44px tap targets, responsive validation, deterministic tests, build/link/disclosure checks, and single-diff rollback. Do not add dependencies, tracking, imagery, claims, unrelated routes, or configuration changes. Measure only registered affiliate clicks and available site conversions for 14 days or 100 relevant impressions/clicks; revenue and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private launch and security-sensitive release gates unchanged. Fleet-doctor and operations sweeps have no results, and material control evidence remains incomplete. Permit only bounded reversible work that adds no credentials, permissions, dependencies, data collection, public exposure, or cross-site behavior. Keep rights outreach unsent.",
+        "summary": "The proposed CFO reconciliation is safe only as a report-only artifact using existing records, but it must not become a new implementation slot or duplicate telemetry request. Preserve the existing CFO handoff and record period mismatch, attribution boundaries, missing direct-cost fields, and missing budget ceilings. Do not calculate ROI, margin, payback, or cost-to-learn where identifiers and measurement windows do not align.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep gated products private and preserve security-sensitive release gates. Continue the existing consolidated read-only evidence matrix using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, change permissions or configuration, add dependencies, deploy, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       }
