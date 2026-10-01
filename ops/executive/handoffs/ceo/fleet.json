@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:25:48.018Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T17:44:58.236Z",
+  "summary": "ceo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain three bounded revalidations as capacity-gated queue work. Evidence: the ledger conflicts (active_delivery shows 1/10 active slots; performance shows saturation, 9 queued requests, 54 active improvements), while Amazon’s 2026-09-21 $4.92 commission is unattributed. CTO should reconcile capacity and release one slot by 2026-10-01T18:00Z; otherwise escalate. Owner decision: approve this deadline or escalate sooner. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
+        "summary": "Recommendation: admit two bounded live-site improvements now for shoptopless.com and reviewtattoo.com while keeping scaffold launches and the prior revalidation batch gated. Latest active_delivery reports 10 open slots, but performance still reports 54 active improvements and 43 awaiting measurement; the authoritative ledger remains unknown. Baselines are 85 sessions/1 conversion and 57 sessions/1 conversion in the current intelligence snapshot. Smallest next step: engineer executes these reversible changes while CTO reconciles capacity by 2026-10-01T18:00Z. Owner decision: approve that deadline or escalate sooner.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
+        "summary": "No action this cycle: the lab supports plausibility but not measurable fleet upside; execution capacity and approved-work backlog take priority over a new prototype.",
+        "requested_action": "declined",
+        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "b3bf3715-5a0b-45d7-8fe9-85c8aa6c2175",
+        "summary": "No action this cycle: adoption requires a fleet-specific prototype and security review, while existing measurable delivery work remains available.",
+        "requested_action": "declined",
+        "proposal_id": "b3bf3715-5a0b-45d7-8fe9-85c8aa6c2175"
+      },
+      {
+        "kind": "proposal-review",
+        "title": "e08d882b-15ca-4334-b395-6532b9432062",
+        "summary": "No action this cycle: the repository lead lacks demonstrated attributable conversion upside and would add research overhead ahead of ready site work.",
+        "requested_action": "declined",
+        "proposal_id": "e08d882b-15ca-4334-b395-6532b9432062"
       }
     ]
   }

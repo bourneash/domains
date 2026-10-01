@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:25:48.020Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T17:44:58.237Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditionally approve retaining the three reversible revalidations as capacity-gated engineer queue work. Do not execute until the authoritative slot ledger is reconciled and one slot is released by 2026-10-01T18:00Z. Preserve isolated worktrees, no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site, and rollback boundaries. Do not claim revenue, ROI, causal lift, production readiness, or AI cost-to-learn. Record only available baselines and leave unavailable telemetry explicitly unknown.",
+        "summary": "Conditionally retain the two bounded live-site improvements as capacity-gated engineer queue work. Do not execute until the authoritative capacity ledger is reconciled and one slot is released by 2026-10-01T18:00Z. Preserve isolated worktrees, no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site, and rollback boundaries. Treat the supplied sessions and conversions as descriptive baselines only; do not claim revenue, ROI, causal lift, or production readiness. Measure only available site analytics after deployment, with conversion rate as an observational metric and unknown attribution or financial impact left explicit.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject broader implementation admission this cycle. Existing capacity records conflict, operations and security sweeps are unavailable, and aggregate revenue is unattributed. Preserve the existing private-launch and security-sensitive release gates; do not create duplicate telemetry requests or require unrelated AI-cost coverage for these bounded changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "No fleet-specific prototype, measurable outcome, or available capacity is evidenced; defer adoption.",
-        "requested_action": "declined",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }
