@@ -4468,7 +4468,7 @@ async function renderRetention() {
  */
 async function renderDoctor() {
   const app = $('#app');
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><p class="muted">Loading\u2026</p>`;
+  app.innerHTML = `<div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div><div class="loading">Loading fleet doctor\u2026</div>`;
 
   let d;
   try {
