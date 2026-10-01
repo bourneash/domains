@@ -6964,10 +6964,10 @@ async function renderDataHub() {
     )
     .join('');
   const egressHtml = `
-    <table class="dh-egress">
+    <div class="table-wrap"><table class="dh-egress">
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 2b: Site Pulls (inbound — who consumed what, when) ----
   const pulls = (pl && pl.pulls) || [];
@@ -6986,10 +6986,10 @@ async function renderDataHub() {
     })
     .join('');
   const pullsHtml = `
-    <table class="dh-egress dh-pulls">
+    <div class="table-wrap"><table class="dh-egress dh-pulls">
       <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
       <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 3: Source Freshness (+ enabled/disabled toggle) ----
   const srcs = (src && src.sources) || [];
@@ -7010,7 +7010,7 @@ async function renderDataHub() {
       const statusCell = off
         ? '<span class="dh-b dh-skip">disabled</span>'
         : `${dhBadge(st.status)}${stale}`;
-      const toggle = `<button class="btn sm ${off ? 'primary' : 'danger'} dh-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
+      const toggle = `<button type="button" class="btn sm ${off ? 'primary' : 'danger'} dh-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
       return `<tr class="${off ? 'dh-row-off' : ''}">
       <td>${esc(s.id)}${ovr}</td>
       <td>${esc(s.type)}</td>
@@ -7022,10 +7022,10 @@ async function renderDataHub() {
     .join('');
   const srcHtml = `
     <div class="dh-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}</div>
-    <table class="dh-sources">
+    <div class="table-wrap"><table class="dh-sources">
       <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th><th></th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="5" class="muted">no source state</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 4: Datasets ----
   const dss = (ds && ds.datasets) || [];
@@ -7038,10 +7038,10 @@ async function renderDataHub() {
     )
     .join('');
   const dsHtml = `
-    <table class="dh-datasets">
+    <div class="table-wrap"><table class="dh-datasets">
       <thead><tr><th>dataset</th><th>rows</th><th>latest</th></tr></thead>
       <tbody>${dsRows || '<tr><td colspan="3" class="muted">no datasets</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 5: Source×Site Matrix ----
   let matrixHtml = '<div class="muted">no matrix</div>';
@@ -7061,9 +7061,9 @@ async function renderDataHub() {
       .join('');
     matrixHtml = `
       <div class="dh-matrix-sub">RSS subscriptions (by tag)</div>
-      <table class="dh-matrix"><tbody>${rssRows}</tbody></table>
+      <div class="table-wrap"><table class="dh-matrix"><tbody>${rssRows}</tbody></table></div>
       <div class="dh-matrix-sub">Dataset subscriptions</div>
-      <table class="dh-matrix"><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table>`;
+      <div class="table-wrap"><table class="dh-matrix"><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table></div>`;
   }
 
   app.innerHTML = `
@@ -7083,7 +7083,8 @@ async function renderDataHub() {
       <section class="dh-panel" data-rk="dh-sources"><h3>Source Freshness</h3>${srcHtml}</section>
       <section class="dh-panel" data-rk="dh-datasets"><h3>Datasets</h3>${dsHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-matrix"><h3>Source × Site Matrix</h3>${matrixHtml}</section>
-    </div>`;
+    </div>
+    <details class="dh-help"><summary>How Data Hub protects and routes collection</summary><p>Private sources are fetched through the configured VPN exits, while the egress ledger records the target, path, exit IP, and outcome. Site pulls show who consumed collected data; home-IP leaks are surfaced as a hard warning. Source toggles apply on the next collection cycle.</p></details>`;
 
   // Wire the per-source enable/disable toggles (re-bound every render).
   $$('.dh-src-toggle').forEach(b =>

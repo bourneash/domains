@@ -1093,11 +1093,16 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="dh-summary"/);
   assert.match(app, /VPN exits online<\/span>/);
   assert.match(app, /Home-IP leaks<\/span>/);
   assert.match(app, /Sources enabled<\/span>/);
+  assert.match(app, /class="dh-help"><summary>How Data Hub protects and routes collection/);
+  assert.match(app, /class="table-wrap"><table class="dh-egress"/);
+  assert.match(app, /type="button" class="btn sm .*dh-src-toggle/);
   assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
+  assert.match(style, /\.dh-help \{[^}]*border-top/);
 });
 
 test('fleet task view presents the filtered slice as a summary strip', () => {
