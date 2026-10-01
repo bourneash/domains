@@ -1457,10 +1457,13 @@ test('Domain Control presents fleet role health as a summary strip', () => {
     app,
     /\$\('#control-refresh'\)\.addEventListener\('click', \(\) => renderControl\(\)\)/
   );
+  assert.match(app, /Fleet role coverage<\/h2>/);
+  assert.match(app, /one row per site · open a role header for its agent/);
   assert.match(app, /Fully green sites<\/span>/);
   assert.match(app, /Sites needing attention<\/span>/);
   assert.match(app, /Sites with paused roles<\/span>/);
   assert.match(app, /Common role columns<\/span>/);
+  assert.match(app, /Has fresh roles/);
   assert.doesNotMatch(app, /Fresh role cells<\/span>/);
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.rmatrix thead th \{[\s\S]*position: sticky/);
@@ -2094,7 +2097,7 @@ test('fleet vitals cards provide destinations and role-health context', () => {
   assert.match(shell, /openVitalView/);
   assert.match(app, /controlFilter/);
   assert.match(app, /CONTROL\.filter === 'fresh'/);
-  assert.match(app, /Fresh roles/);
+  assert.match(app, /Has fresh roles/);
 });
 
 test('category cards share the sidebar icon system', () => {
