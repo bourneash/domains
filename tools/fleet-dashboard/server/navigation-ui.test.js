@@ -863,6 +863,19 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
 });
 
+test('Containers provides scoped search and operational filters', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="cn-summary"/);
+  assert.match(app, /id="cn-search"/);
+  assert.match(app, /id="cn-status"/);
+  assert.match(app, /id="cn-kind"/);
+  assert.match(app, /function applyContainerFilter\(\)/);
+  assert.match(app, /data-cn-status/);
+  assert.match(theme, /\.cn-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.cn-filter-hidden \{ display: none; \}/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);

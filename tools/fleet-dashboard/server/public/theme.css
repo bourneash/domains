@@ -954,6 +954,71 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
 }
 
+/* ---------------------------------------------------------- containers ---- */
+.cn-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(112px, 1fr)) minmax(220px, 1.7fr);
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.cn-summary-stat, .cn-summary-meta {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  background: var(--grad-panel), var(--panel);
+  box-shadow: var(--sh-1);
+}
+.cn-summary-stat strong, .cn-summary-meta strong {
+  display: block;
+  color: var(--text-hi);
+  font-size: 20px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.cn-summary-stat span, .cn-summary-meta span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.cn-summary-good { border-top-color: var(--green); }
+.cn-summary-good strong { color: var(--green); }
+.cn-summary-bad { border-top-color: var(--red); }
+.cn-summary-bad strong { color: var(--red); }
+.cn-summary-warn { border-top-color: var(--yellow); }
+.cn-summary-warn strong { color: var(--yellow); }
+.cn-summary-meta { display: flex; flex-direction: column; justify-content: center; }
+.cn-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+.cn-controls label { display: block; }
+.cn-controls .cm-input { min-height: 32px; padding: 6px 9px; }
+.cn-search { flex: 1 1 260px; }
+.cn-search .cm-input { width: 100%; }
+.cn-controls > .muted { margin-right: auto; font: 11px var(--mono); white-space: nowrap; }
+.cn-filter-hidden { display: none; }
+@media (max-width: 980px) {
+  .cn-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cn-summary-meta { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .cn-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .cn-summary-meta { grid-column: auto; }
+  .cn-controls > label, .cn-controls > label .cm-input, .cn-controls > #restart-crons { width: 100%; }
+  .cn-controls > .muted { width: 100%; margin: 0 0 2px; }
+}
+
 /* ------------------------------------------------------ vitals rail (new) -- */
 #vitals {
   display: flex; align-items: stretch; gap: 10px;

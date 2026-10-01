@@ -36,6 +36,7 @@ const EXEC_RUN_UI = {
 const EXEC_INBOX = { browserNotified: false };
 const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
+const CN_FILTER = { q: '', status: 'all', kind: 'all' };
 // Route/bootstrap changes can trigger two renders close together (for example
 // when the live stream opens while the initial hash is settling). Reuse the
 // same short-lived read rather than starting a second identical fan-out.
@@ -4849,7 +4850,8 @@ async function renderContainers() {
         acts.push(
           `<button class="btn sm danger cn-act" data-id="${esc(r.id)}" data-act="stop" data-name="${esc(r.name)}">⏹ Stop</button>`
         );
-      return `<tr class="cn-row" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}">
+      const state = !r.running ? 'stopped' : r.unhealthy ? 'unhealthy' : 'healthy';
+      return `<tr class="cn-row" data-id="${esc(r.id)}" data-fleet-row data-site="${esc(r.scope === 'site' ? r.slug : '')}" data-cn-name="${esc(`${r.name} ${r.slug || ''} ${r.service || ''}`.toLowerCase())}" data-cn-status="${state}" data-cn-kind="${esc(r.kind)}">
       <td class="mono">${esc(r.name)}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${svc}</td>
@@ -4871,10 +4873,19 @@ async function renderContainers() {
     .join('');
 
   app.innerHTML = `
-    <div class="task-toolbar">
-      <strong>${rows.length} containers</strong>
-      <span class="muted">${dotLegend('fresh', tally.healthy + ' healthy')} · ${dotLegend('overdue', tally.unhealthy + ' unhealthy')} · ${dotLegend('paused', tally.stopped + ' stopped')} · ${cronUp}/${cron.length} cron up · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span>
-      <button class="btn sm" id="restart-crons" style="margin-left:auto" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
+    <section class="cn-summary" aria-label="Container fleet summary">
+      <div class="cn-summary-stat"><strong>${rows.length}</strong><span>Total containers</span></div>
+      <div class="cn-summary-stat cn-summary-good"><strong>${tally.healthy}</strong><span>Healthy</span></div>
+      <div class="cn-summary-stat ${tally.unhealthy ? 'cn-summary-bad' : ''}"><strong>${tally.unhealthy}</strong><span>Unhealthy</span></div>
+      <div class="cn-summary-stat ${tally.stopped ? 'cn-summary-warn' : ''}"><strong>${tally.stopped}</strong><span>Stopped</span></div>
+      <div class="cn-summary-meta"><strong>${cronUp}/${cron.length}</strong><span>Legacy cron online · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span></div>
+    </section>
+    <div class="cn-controls" role="group" aria-label="Filter containers">
+      <label class="cn-search"><span class="sr-only">Search containers</span><input id="cn-search" class="cm-input" type="search" placeholder="Search container, site, or service…" value="${esc(CN_FILTER.q)}" autocomplete="off" /></label>
+      <label><span class="sr-only">Container status</span><select id="cn-status" class="cm-input"><option value="all">All statuses</option><option value="healthy">Healthy</option><option value="unhealthy">Unhealthy</option><option value="stopped">Stopped</option></select></label>
+      <label><span class="sr-only">Container type</span><select id="cn-kind" class="cm-input"><option value="all">All types</option><option value="cron">Cron</option><option value="worker">Worker runs</option><option value="site">Site services</option><option value="tool">Fleet tools</option></select></label>
+      <span id="cn-filter-count" class="muted" role="status" aria-live="polite"></span>
+      <button class="btn sm" id="restart-crons" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
     <div class="card"><table>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
@@ -4883,10 +4894,41 @@ async function renderContainers() {
     <p class="muted" style="margin-top:12px"><b>Restart</b> = quick bounce (re-runs the container; picks up bind-mounted crontab / role-flag changes). <b>Rebuild</b> = rebuild image + force-recreate (for Dockerfile / dependency changes). All actions are guard-railed to containers inside the domains repo.</p>`;
 
   wireContainerRows();
+  $('#cn-status').value = CN_FILTER.status;
+  $('#cn-kind').value = CN_FILTER.kind;
+  $('#cn-search').addEventListener('input', e => {
+    CN_FILTER.q = e.target.value;
+    applyContainerFilter();
+  });
+  $('#cn-status').addEventListener('change', e => {
+    CN_FILTER.status = e.target.value;
+    applyContainerFilter();
+  });
+  $('#cn-kind').addEventListener('change', e => {
+    CN_FILTER.kind = e.target.value;
+    applyContainerFilter();
+  });
   $('#restart-crons').addEventListener('click', restartAllCrons);
   if (!FRESH) applyUISnap();
+  applyContainerFilter();
   applyFleetFilter();
   stamp();
+}
+
+function applyContainerFilter() {
+  const q = CN_FILTER.q.trim().toLowerCase();
+  const matches = $$('tr.cn-row').filter(row => {
+    const textMatch = !q || (row.dataset.cnName || '').includes(q);
+    const statusMatch = CN_FILTER.status === 'all' || row.dataset.cnStatus === CN_FILTER.status;
+    const kindMatch = CN_FILTER.kind === 'all' || row.dataset.cnKind === CN_FILTER.kind;
+    const visible = textMatch && statusMatch && kindMatch;
+    row.classList.toggle('cn-filter-hidden', !visible);
+    const detail = $(`tr[data-detail="${CSS.escape(row.dataset.id || '')}"]`);
+    if (detail && !visible) detail.classList.add('hidden');
+    return visible;
+  });
+  const count = $('#cn-filter-count');
+  if (count) count.textContent = `${matches.length}/${$$('tr.cn-row').length} shown`;
 }
 
 async function restartAllCrons() {
