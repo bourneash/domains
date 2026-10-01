@@ -189,7 +189,8 @@ function launch({
     phase === 'reviewer'
       ? `You are the automated release reviewer for a site improvement in an isolated git worktree.\n\n` +
         `Read and obey AGENTS.md and CLAUDE.md in the workspace. Review the requested change and the actual diff. ` +
-        `If the worktree is dirty, inspect git diff; if it is clean, inspect the improvement commit with git diff HEAD^ HEAD. ` +
+        `Inspect the complete improvement against its merge base with the site's default branch (git diff main...HEAD, or master...HEAD where applicable), plus any uncommitted git diff HEAD. The work may span multiple commits; do not judge only HEAD^ HEAD. ` +
+        `The dashboard may move the linked ops/tasks file as workflow bookkeeping. Do not reject that move alone; flag unrequested task-content edits or unrelated production changes. ` +
         `Run focused checks when useful. Do not edit files, commit, push, deploy, switch branches, or modify ops/tasks. ` +
         `Check that the request is actually satisfied, that site instructions are respected, and that the change is safe to ship. ` +
         `For monetization, affiliate, advertising, analytics, or credential-related work, treat tags, IDs, accounts, approvals, registries, and active-program status as unavailable unless the workspace contains explicit authoritative evidence. Never accept a value invented by the implementation agent, inferred from a domain, or copied from a default. Reject any diff that creates or activates such a value without evidence, changes a site brief to claim approval, or bypasses an owner/legal gate; explain the exact missing evidence. ` +

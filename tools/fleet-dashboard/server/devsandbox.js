@@ -97,6 +97,27 @@ function classifyLighthouseResult(lh, report) {
     for (const key of Object.keys(thresholds))
       scores[key] = Math.round(report.categories[key].score * 100);
   }
+  const seoRefs = reportAvailable ? report.categories.seo.auditRefs || [] : [];
+  const weightedSeoRefsComplete = seoRefs
+    .filter(ref => Number(ref.weight) > 0)
+    .every(ref => typeof report.audits?.[ref.id]?.score === 'number');
+  const failingSeoAudits = seoRefs
+    .filter(ref => Number(ref.weight) > 0 && Number(report.audits?.[ref.id]?.score) < 1)
+    .map(ref => ref.id);
+  const noindexEvidence = (report?.audits?.['is-crawlable']?.details?.items || []).some(item =>
+    /<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["'][^"']*\bnoindex\b/i.test(
+      String(item?.source?.snippet || '')
+    )
+  );
+  const seoPrivatePreview =
+    reportAvailable &&
+    weightedSeoRefsComplete &&
+    failingSeoAudits.includes('is-crawlable') &&
+    failingSeoAudits.every(id => ['is-crawlable', 'robots-txt'].includes(id)) &&
+    noindexEvidence &&
+    ['performance', 'accessibility', 'best-practices'].every(
+      key => scores[key] >= thresholds[key]
+    );
   // A missing or incomplete report is not a measured zero. It means the
   // isolated browser did not provide usable scores, regardless of stderr.
   const infrastructureWarning = !reportAvailable;
@@ -121,6 +142,7 @@ function classifyLighthouseResult(lh, report) {
         : 'unavailable',
       scores,
       checks,
+      seo_private_preview: seoPrivatePreview,
       error: lh.code === 0 ? null : lh.stderr.trim().slice(-1000),
       warning: infrastructureWarning
         ? 'Lighthouse browser runtime did not provide usable page scores; build and preview gates remain authoritative.'

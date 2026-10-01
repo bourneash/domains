@@ -108,6 +108,38 @@ test('Lighthouse crash cannot turn a partial report into measured passing scores
   assert.ok(Object.values(result.lighthouse.checks).every(check => check.status === 'warn'));
 });
 
+test('private noindex exception requires explicit Lighthouse audit evidence', () => {
+  const report = {
+    categories: {
+      performance: { score: 0.91 },
+      accessibility: { score: 0.97 },
+      'best-practices': { score: 0.95 },
+      seo: {
+        score: 0.54,
+        auditRefs: [
+          { id: 'is-crawlable', weight: 4 },
+          { id: 'robots-txt', weight: 1 },
+          { id: 'meta-description', weight: 1 },
+        ],
+      },
+    },
+    audits: {
+      'is-crawlable': {
+        score: 0,
+        details: { items: [{ source: { snippet: '<meta name="robots" content="noindex,nofollow">' } }] },
+      },
+      'robots-txt': { score: 0 },
+      'meta-description': { score: 1 },
+    },
+  };
+  const privateResult = devsandbox.classifyLighthouseResult({ code: 0, stderr: '' }, report);
+  assert.equal(privateResult.lighthouse.seo_private_preview, true);
+  assert.equal(privateResult.lighthouse.checks.seo.status, 'fail');
+  report.audits['meta-description'].score = 0;
+  const brokenResult = devsandbox.classifyLighthouseResult({ code: 0, stderr: '' }, report);
+  assert.equal(brokenResult.lighthouse.seo_private_preview, false);
+});
+
 test('commands in existing developer sandboxes inherit the IPv4-first runtime', () => {
   assert.deepEqual(devsandbox.sandboxExecCommand('imp-12345678', ['dd-dev', 'status']), [
     'exec',

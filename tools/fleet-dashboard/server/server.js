@@ -517,6 +517,7 @@ function applyQualityPolicy(root, site, validation) {
   let required = defaultRequired;
   let source = 'fleet-default';
   let policyError = null;
+  let allowPrivateNoindex = false;
   try {
     if (fs.existsSync(policyPath)) {
       const parsed = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
@@ -525,19 +526,33 @@ function applyQualityPolicy(root, site, validation) {
       required = [...new Set(parsed.required.map(String))];
       if (required.some(gate => !QUALITY_GATES.includes(gate)))
         throw new Error(`required gates must be one of ${QUALITY_GATES.join(', ')}`);
+      if (
+        parsed.allow_private_noindex !== undefined &&
+        typeof parsed.allow_private_noindex !== 'boolean'
+      )
+        throw new Error('allow_private_noindex must be a boolean');
+      allowPrivateNoindex = parsed.allow_private_noindex === true;
       source = policyPath;
     }
   } catch (error) {
     policyError = error.message;
     required = defaultRequired;
+    allowPrivateNoindex = false;
   }
+  const privateBrowserPass =
+    allowPrivateNoindex &&
+    validation.browser?.lighthouse?.seo_private_preview === true &&
+    Object.keys(validation.browser?.screenshots || {}).length > 0 &&
+    Object.values(validation.browser?.screenshots || {}).every(check =>
+      ['pass', 'warn'].includes(check?.status)
+    );
   const status = {
     diff: validation.checks?.diff?.status,
     tests: validation.checks?.tests?.status,
     build: validation.checks?.build?.status,
     preview: validation.preview?.passed === true ? 'pass' : 'fail',
     browser:
-      validation.browser?.passed === true
+      validation.browser?.passed === true || privateBrowserPass
         ? 'pass'
         : validation.browser?.infrastructure_warning === true
           ? 'warn'
@@ -552,7 +567,7 @@ function applyQualityPolicy(root, site, validation) {
   return {
     ...validation,
     passed,
-    policy: { required, source, error: policyError, status },
+    policy: { required, source, error: policyError, status, allow_private_noindex: allowPrivateNoindex },
   };
 }
 

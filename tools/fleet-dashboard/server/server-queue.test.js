@@ -2,6 +2,9 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
@@ -433,6 +436,48 @@ test('browser runtime warnings do not reject otherwise passing delivery gates', 
   });
   assert.equal(validation.passed, true);
   assert.equal(validation.policy.status.browser, 'warn');
+});
+
+test('private noindex policy preserves browser gate for all other audit failures', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-private-quality-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const ops = path.join(root, 'sites', 'private.example', 'ops');
+  fs.mkdirSync(ops, { recursive: true });
+  fs.writeFileSync(
+    path.join(ops, 'change-queue-quality.json'),
+    JSON.stringify({
+      required: ['diff', 'tests', 'build', 'preview', 'browser'],
+      allow_private_noindex: true,
+    })
+  );
+  const input = {
+    checks: { diff: { status: 'pass' }, tests: { status: 'pass' }, build: { status: 'pass' } },
+    preview: { passed: true },
+    browser: {
+      passed: false,
+      infrastructure_warning: false,
+      screenshots: { preview: { status: 'warn' }, production: { status: 'pass' } },
+      lighthouse: { seo_private_preview: true },
+    },
+  };
+  const allowed = applyQualityPolicy(root, 'private.example', input);
+  assert.equal(allowed.passed, true);
+  assert.equal(allowed.policy.status.browser, 'pass');
+  const otherFailure = applyQualityPolicy(root, 'private.example', {
+    ...input,
+    browser: { ...input.browser, lighthouse: { seo_private_preview: false } },
+  });
+  assert.equal(otherFailure.passed, false);
+  const screenshotFailure = applyQualityPolicy(root, 'private.example', {
+    ...input,
+    browser: {
+      ...input.browser,
+      screenshots: { preview: { status: 'fail' } },
+    },
+  });
+  assert.equal(screenshotFailure.passed, false);
+  const publicSite = applyQualityPolicy(root, 'public.example', input);
+  assert.equal(publicSite.passed, false);
 });
 
 test('preview infrastructure failures remain a review block, not a code failure', () => {
