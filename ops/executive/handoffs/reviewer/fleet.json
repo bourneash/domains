@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:52:27.565Z",
+  "generated_at": "2026-10-01T20:54:06.483Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admission this cycle. No candidate has evidenced capacity, site-specific baseline, minimum threshold, tests, attribution boundary, rollback point, and release clearance together. Aggregate affiliate commission remains unattributed, while security and operations evidence are incomplete. Retain only principal-engineer reconciliation; release one slot or escalate by 2026-10-02T12:00Z.",
+        "summary": "Reject new implementation admission this cycle. The only proposed artifact duplicates existing complicated.work readiness work; the three previously considered implementation candidates remain blocked by active review/measurement gates, low-volume or missing outcome evidence, unresolved capacity reconciliation, and incomplete security/operations evidence. No revenue, ROI, margin, causal-lift, launch-readiness, or production-readiness claims are supported. Principal-engineer must document the authoritative slot count and saveusfarms.com repair disposition by 2026-10-02T12:00Z; release a slot only after candidate-specific baselines, thresholds, tests, attribution boundaries, and rollback criteria are evidenced, otherwise escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

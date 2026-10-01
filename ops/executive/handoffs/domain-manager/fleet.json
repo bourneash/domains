@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:50:11.004Z",
+  "generated_at": "2026-10-01T20:54:06.484Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Hold CTA implementation until the active review gate clears",
-        "summary": "0xroulette.com is blocked by an active review item. Avoid overlapping work; preserve the existing homepage CTA review and document the smallest admissible implementation once that review and capacity reconciliation complete.",
-        "requested_action": "Update the existing review artifact for the homepage entry page (/) with the exact CTA source files, current destination URLs, accessibility findings, baseline, acceptance threshold, and rollback point. Do not create a duplicate implementation request or change production.",
+        "title": "Complete complicated.work preview launch-readiness artifact before scaffold build",
+        "summary": "Implementation is blocked by the required verified launch-readiness artifact. complicated.work is a parked scaffold with analytics unconfigured and compliance failures for banner, consent controls, and GA4 evidence.",
+        "requested_action": "Create one dated, read-only readiness artifact covering owner approval, scope, content seed, SEO metadata, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Do not publish, deploy, add tracking, or change configuration.",
         "proposal_id": null
       }
     ]
