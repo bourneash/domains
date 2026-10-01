@@ -38,6 +38,7 @@ const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
 const CN_FILTER = { q: '', status: 'all', kind: 'all' };
 const DEPLOY_FILTER = { q: '', status: 'all' };
+const GIT_FILTER = { q: '', status: 'all' };
 // Route/bootstrap changes can trigger two renders close together (for example
 // when the live stream opens while the initial hash is settling). Reuse the
 // same short-lived read rather than starting a second identical fan-out.
@@ -1254,7 +1255,8 @@ async function renderGit() {
       const repoLink = r.remoteWebUrl
         ? ` <a href="${esc(r.remoteWebUrl)}" target="_blank" rel="noopener" class="rcol-link" title="Open repo on GitHub">↗</a>`
         : '';
-      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-fleet-row data-site="${esc(r.slug)}">
+      const gitStatus = r.dirty > 0 ? 'dirty' : r.syncState === 'synced' ? 'synced' : r.syncState;
+      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-git-name="${esc(`${r.slug} ${r.branch || ''}`.toLowerCase())}" data-git-status="${esc(gitStatus)}" data-fleet-row data-site="${esc(r.slug)}">
       <td class="site">${esc(r.slug)}${repoLink} <span class="muted">▸</span></td>
       <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
@@ -1266,11 +1268,18 @@ async function renderGit() {
 
   app.innerHTML = `
     ${gitPageTabs('operations')}
-    <div class="task-toolbar">
-      <strong>${rows.length} repos</strong>
-      <span class="muted">${dirtyCount} dirty · ${pushCount} need push · ${pullCount} need pull</span>
-      <button class="btn sm" id="pull-all" style="margin-left:auto"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button>
-      <button class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button>
+    <section class="git-summary" aria-label="Git fleet summary">
+      <div class="git-stat"><strong>${rows.length}</strong><span>Repositories</span></div>
+      <div class="git-stat git-stat-good"><strong>${rows.length - dirtyCount}</strong><span>Clean trees</span></div>
+      <div class="git-stat ${dirtyCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${dirtyCount}</strong><span>Dirty trees</span></div>
+      <div class="git-stat ${pushCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${pushCount}</strong><span>Need push</span></div>
+      <div class="git-stat ${pullCount ? 'git-stat-bad' : 'git-stat-good'}"><strong>${pullCount}</strong><span>Need pull</span></div>
+      <div class="git-actions"><button class="btn sm" id="pull-all"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button><button class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button></div>
+    </section>
+    <div class="git-controls" role="group" aria-label="Filter repositories">
+      <label class="git-search"><span class="sr-only">Search repositories</span><input id="git-search" class="cm-input" type="search" placeholder="Search repository or branch…" value="${esc(GIT_FILTER.q)}" autocomplete="off" /></label>
+      <label><span class="sr-only">Repository status</span><select id="git-status" class="cm-input"><option value="all">All states</option><option value="dirty">Dirty tree</option><option value="synced">Synced</option><option value="ahead">Need push</option><option value="behind">Need pull</option><option value="diverged-behind">Diverged</option><option value="no-upstream">No upstream</option></select></label>
+      <span id="git-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
@@ -1287,6 +1296,16 @@ async function renderGit() {
   if (pa) pa.addEventListener('click', pushAllSites);
   const pua = $('#pull-all');
   if (pua) pua.addEventListener('click', pullAllSites);
+  $('#git-status').value = GIT_FILTER.status;
+  $('#git-search').addEventListener('input', e => {
+    GIT_FILTER.q = e.target.value;
+    applyGitFilter();
+  });
+  $('#git-status').addEventListener('change', e => {
+    GIT_FILTER.status = e.target.value;
+    applyGitFilter();
+  });
+  applyGitFilter();
   if (!FRESH) applyUISnap();
   // applyUISnap re-injects the saved innerHTML of any expanded detail but not its
   // event listeners — re-wire the live ops for every still-open detail panel.
@@ -1296,6 +1315,23 @@ async function renderGit() {
   });
   applyFleetFilter();
   stamp();
+}
+
+function applyGitFilter() {
+  const q = GIT_FILTER.q.trim().toLowerCase();
+  const rows = $$('.git-row');
+  const visible = rows.filter(row => {
+    const matchesQuery = !q || (row.dataset.gitName || '').includes(q);
+    const matchesStatus =
+      GIT_FILTER.status === 'all' || row.dataset.gitStatus === GIT_FILTER.status;
+    const show = matchesQuery && matchesStatus;
+    row.classList.toggle('git-filter-hidden', !show);
+    const detail = $(`tr[data-detail="${CSS.escape(row.dataset.slug || '')}"]`);
+    if (detail && !show) detail.classList.add('hidden');
+    return show;
+  });
+  const count = $('#git-filter-count');
+  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
 }
 
 function gitPageTabs(active) {

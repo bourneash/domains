@@ -906,6 +906,18 @@ test('Site Facts presents coverage and freshness as a summary strip', () => {
   assert.match(theme, /\.sf-summary \{[^}]*grid-template-columns/);
 });
 
+test('Git Operations presents repository state with local filters', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="git-summary"/);
+  assert.match(app, /id="git-search"/);
+  assert.match(app, /id="git-status"/);
+  assert.match(app, /function applyGitFilter\(\)/);
+  assert.match(app, /data-git-status/);
+  assert.match(theme, /\.git-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
