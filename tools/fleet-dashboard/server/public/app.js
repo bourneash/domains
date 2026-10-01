@@ -16047,7 +16047,7 @@ async function renderWorkbench() {
     <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
     <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>${item.waiting_on ? `<div class="wb-next"><span class="wb-label">WAITING ON</span>${esc(item.waiting_on)}</div>` : ''}
     <div class="wb-next"><span class="wb-label">NEXT</span>${esc(item.next_action || 'No next action recorded.')}</div>
-    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" data-thread="${esc(item.work_id)}"></div>
+    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}" data-thread-title="${esc(item.title)}" aria-label="Open thread for ${esc(item.title)}" aria-controls="wb-thread-${esc(item.work_id)}" aria-expanded="false" title="Open thread for ${esc(item.title)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" id="wb-thread-${esc(item.work_id)}" data-thread="${esc(item.work_id)}"></div>
   </article>`
     )
     .join('');
@@ -16135,9 +16135,15 @@ async function renderWorkbench() {
         if (!thread) return;
         if (!thread.classList.contains('hidden')) {
           thread.classList.add('hidden');
+          button.setAttribute('aria-expanded', 'false');
+          button.setAttribute('aria-label', `Open thread for ${button.dataset.threadTitle}`);
+          button.setAttribute('title', button.getAttribute('aria-label'));
           return;
         }
         thread.classList.remove('hidden');
+        button.setAttribute('aria-expanded', 'true');
+        button.setAttribute('aria-label', `Close thread for ${button.dataset.threadTitle}`);
+        button.setAttribute('title', button.getAttribute('aria-label'));
         thread.innerHTML =
           '<div class="async-loading" role="status" aria-live="polite">Loading thread…</div>';
         try {

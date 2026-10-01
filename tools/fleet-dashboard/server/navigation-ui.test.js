@@ -285,6 +285,10 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /Executive Workbench/);
   assert.match(app, /api\/executive\/work-items/);
   assert.match(app, /wb-thread-toggle/);
+  assert.match(app, /aria-label="Open thread for \${esc\(item\.title\)}"/);
+  assert.match(app, /aria-controls="wb-thread-\${esc\(item\.work_id\)}"/);
+  assert.match(app, /button\.setAttribute\('aria-expanded', 'true'\)/);
+  assert.match(app, /button\.setAttribute\('aria-expanded', 'false'\)/);
   assert.match(app, /type="button" class="btn" id="wb-refresh"/);
   assert.match(app, /\$\('#wb-refresh'\)\.onclick = \(\) => renderWorkbench\(\)/);
 });
