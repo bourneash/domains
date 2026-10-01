@@ -1591,9 +1591,9 @@ test('Domain Control presents fleet role health as a summary strip', () => {
     /\$\('#control-refresh'\)\.addEventListener\('click', \(\) => renderControl\(\)\)/
   );
   assert.match(app, /Fleet role coverage<\/h2>/);
-  assert.match(app, /one row per site · open a role header for its agent/);
+  assert.match(app, /role issues include stale, overdue, or missing logs/);
   assert.match(app, /Fully green sites<\/span>/);
-  assert.match(app, /Sites needing attention<\/span>/);
+  assert.match(app, /Sites with role issues<\/span>/);
   assert.match(app, /Sites with paused roles<\/span>/);
   assert.match(app, /Common role columns<\/span>/);
   assert.match(app, /Has fresh roles/);

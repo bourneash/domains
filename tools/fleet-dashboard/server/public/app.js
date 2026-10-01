@@ -4314,7 +4314,7 @@ async function renderControl() {
 
   app.innerHTML = `
     <div class="page-head">
-      <div><h2 class="page-title">Fleet role coverage</h2><span class="muted">one row per site · open a role header for its agent, or a cell for its latest log</span></div>
+      <div><h2 class="page-title">Fleet role coverage</h2><span class="muted">one row per site · role issues include stale, overdue, or missing logs; paused roles are separate</span></div>
       <button type="button" class="btn" id="control-refresh">↻ Refresh</button>
     </div>
     <div id="ctl-bar"></div>
@@ -4389,7 +4389,7 @@ function controlDraw() {
   $('#ctl-bar').innerHTML = `
     <section class="ctl-summary" aria-label="Fleet role coverage summary">
       <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully green sites</span></div>
-      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites needing attention</span></div>
+      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites with role issues</span></div>
       <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
       <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common role columns</span></div>
     </section>
@@ -4397,7 +4397,7 @@ function controlDraw() {
       <div class="seg sm">
         ${seg('all', 'All sites', sites.length)}
         ${seg('fresh', 'Has fresh roles', rolled.filter(x => x.r.fresh > 0).length)}
-        ${seg('attention', 'Needs attention', nAttention)}
+        ${seg('attention', 'Role issues', nAttention)}
         ${seg('paused', 'Has paused', nPaused)}
       </div>
       <div class="seg sm">
