@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:27:26.557Z",
+  "generated_at": "2026-10-01T08:37:52.943Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases. Evidence timestamp: 2026-10-01T04:50:05.408Z. The security baseline covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unknown. Compliance is technical-only: 35 pass, 20 fail, and 6 unknown. No credential exposure, exploit, or vulnerability is established. Exact decision: preserve all public-exposure and security-sensitive release gates; keep SearchWoot private; permit only ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not create duplicate telemetry or evidence work.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; no clean bill of health is supported. Evidence timestamp: 2026-10-01T04:50:05.408Z. Scope: 61 managed sites. Fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No credential exposure, exploit, or vulnerability is established. Compliance is technical-only: 35 pass, 20 fail, 6 unknown; it is not certification. Exact decision: do not clear go-live, public exposure expansion, or security-sensitive releases. Preserve existing private-launch gates and continue the canonical read-only evidence matrix. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing security-fleet-evidence-2026-10-01 work item. Record dated evidence or explicit unknowns, affected scope, owners, severity, and release implications for authentication/access boundaries, secrets exposure, runtime isolation, release/deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident readiness, and security.txt/disclosure readiness. Do not clear gates, access credentials or private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or conduct external outreach.",
+        "summary": "Retain the existing consolidated security evidence matrix; do not create duplicate work. Record dated evidence or explicit unknowns, affected scope, owner, severity, and release implications for authentication/access boundaries, secrets, runtime isolation, release integrity, dependency provenance, TLS, data exposure, monitoring and incident signals, incident response, and security.txt/disclosure readiness. Reassess only when concrete authorized evidence exists. Keep security-sensitive implementation and public-launch gates blocked.",
         "requested_action": null,
         "proposal_id": null
       }

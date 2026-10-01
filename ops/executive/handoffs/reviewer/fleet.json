@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:35:13.035Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:37:52.943Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only saltwaternews.com proposal and all new execution admissions this cycle. Delivery is saturated at 10/10 slots, active measurement and repair work remain unresolved, and site-level revenue, ROI, margin, and causal lift are unsupported because the available $4.92 commission is aggregate and unattributed. Preserve only the existing saveusfarms.com repair-or-close case; CTO must complete or justify closure with validation and rollback evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. The following engineer requests are capacity-gated specifications only and must not execute before their unblock conditions pass.",
+        "summary": "Reject all new proposals, queue admissions, production work, telemetry requests, and research this cycle. Delivery is saturated at 10/10 slots; measurement and repair work remain active. Revenue, ROI, margin, and causal lift are unsupported because Amazon’s $4.92 commission is aggregate and unattributed. Preserve only the existing saveusfarms.com repair-or-close case, then the already-queued allthingsmasonic.com CTA refinement after capacity and site-overlap clearance. Keep SearchWoot private and leave rights outreach unsent.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route one capacity-gated, reversible SEO change for rodhat.com. Do not execute until CTO releases a delivery slot. Keep site-factory candidates blocked pending verified launch-readiness evidence. Revenue, ROI, attribution, and causal lift remain unknown; SearchWoot stays private and security gates remain unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:27:26.555Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:37:52.942Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve financial containment and authorize no new spend, billing changes, launches, or monetization claims this cycle. Revenue is not supported at site level: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in an aggregate row; site-attributed income is $0. Do not assign the $4.92 to any property or claim ROI, margin, payback, or causal lift. The 39 improvements awaiting measurement, 429 delivered requests, SEO impressions/clicks, and proposal counts are activity or traffic metrics, not financial outcomes. AI spend is $2.2785467 on 2026-10-01 across 16 calls, but coverage is only 4 of 38 expected sites; treat fleet AI spend as incomplete. Monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank, so budget exposure cannot be bounded. Maintain the existing capacity gate and permit only the already-queued affiliate CTA work after the CTO repair-or-close case releases a slot and overlap clears.",
+        "summary": "CFO recommendation: reject both new product proposals this cycle and authorize no incremental spend. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests failed. Preserve only canonical repair and already-approved work after capacity clearance. Financial claims remain unsupported: Amazon data covers 2026-09-21 only, with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission entirely in an aggregate unattributed row; site-attributed income is $0. Site revenue, contribution margin, ROI, and causal lift are therefore unknown. AI usage on 2026-10-01 is $2.2785467 across 16 calls, but only 4 of 38 expected sites are covered; do not extrapolate or call this fleet cost. Fixed costs, infrastructure spend, labor cost, monthly budget, and revenue targets are blank, so budget exposure and fleet contribution margin are not calculable. Minimum measurement: dated site-level revenue by registered tracking ID; AI, infrastructure, domain, and any paid-media costs by site and period; and experiment exposure/control with incremental conversions and commission. Until those exist, report revenue as partially attributable, margin as unknown, and forecasts as unsupported. Do not move money, alter billing, access banking, sign contracts, or change gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, $4.92 commission, $0 site-attributed income, and $4.92 aggregate-unattributed income. Require registered tracking IDs for future affiliate links and report provider aggregate rows separately from site revenue. Do not publish revenue, ROI, margin, payback, or causal-lift claims until site/content identifiers, orders, shipped items, commission, and reporting-period reconciliation are available.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep the current financial gate unchanged. Contribution margin and cost-to-learn are not calculable because direct infrastructure/domain costs, labor or execution cost, complete AI usage, experiment exposure/outcome data, and attributable revenue are not available on a common period. Minimum measurement for a finance-ready report: period-matched site-level revenue and commission, direct change cost, infrastructure/domain allocation, complete AI cost by site/work item, and experiment/control outcomes. Do not create duplicate telemetry or spend.",
+        "summary": "Retain the existing saveusfarms.com repair-or-close case and existing allthingsmasonic.com CTA request only after capacity and overlap clearance. Require financial acceptance evidence before any ROI or revenue claim: preserve the 2026-09-21 allthingsmasonic.com baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; measure the same fields after the normal window; and label unavailable revenue or causal lift unknown. Do not add tracking or spend.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:27:26.555Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:37:52.942Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: preserve containment. Do not admit new production, site-factory, CRO, research, telemetry, spend, dependency, credential, configuration, or duplicate queue work while all 10 delivery slots are occupied. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate unresolved capacity. After clearance, admit at most the existing allthingsmasonic.com CTA refinement request, subject to site-overlap clearance and normal review gates. Keep private-launch and security-sensitive release gates unchanged; preserve aggregate affiliate revenue as unattributed and make no revenue, ROI, margin, or causal-lift claims.",
+        "summary": "Reject new control-plane and AI-cost product admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests have failed, and operations/fleet-doctor evidence is unavailable. Preserve existing canonical work and gates; do not create telemetry, research, dependencies, deployments, spend, or duplicate queue items. Revisit the specifications only after capacity is released and the existing repair case is closed or escalated.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Execute only the existing canonical saveusfarms.com repair-or-close path. Do not create duplicate work items, telemetry requests, reports, or queue admissions. If the required validation evidence cannot be completed by 2026-10-01T09:00:00Z, record the blocker and escalate capacity to the owner without changing production.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. Release one slot or escalate to the owner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "After capacity and site-overlap clearance, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve its 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Require deterministic CTA, link, disclosure, accessibility, responsive, build, rollback, and measurement validation; do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

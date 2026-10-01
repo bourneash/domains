@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:17:16.870Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:37:52.942Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small, capacity-gated pipeline: complicated.work, deadlymaracas.com, and driveford.net. The strongest candidate is complicated.work with a site-factory build score of 84 and an existing scaffold. Preserve planning only while delivery is saturated at 10/10 slots. The readiness package must define the site brief, reusable template, initial content seed, SEO metadata and crawl baseline, analytics and affiliate readiness without inventing telemetry, owner assignment, legal/compliance checklist, security review, measurement plan, and preview-only launch gate with rollback. No domain change, spend, credentials, deployment, publication, or launch is authorized before owner, legal, security, measurement, and rollback gates pass. Exactly one next step: after CTO releases one delivery slot, assign an owner to complete the complicated.work launch-readiness brief.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject new site-factory execution this cycle. Existing capacity, measurement windows, failed requests, and the canonical saveusfarms.com repair-or-close case remain unresolved. Keep the three scaffold candidates as bounded planning context only; do not create duplicate queue work or claim analytics, affiliate, revenue, SEO, compliance, security, or launch readiness that is not evidenced.",
+        "summary": "Maintain the bounded site-factory pipeline: complicated.work (strongest candidate, score 84), deadlymaracas.com, and driveford.net. Keep all three planning-only while delivery remains saturated at 10/10 slots and existing repair, measurement, overlap, legal, security, and rollback obligations remain unresolved. For complicated.work, the readiness artifact must cover the site brief, reusable template, content seed, SEO metadata and crawl baseline, analytics and affiliate readiness using only evidenced data, owner assignment, legal/compliance checklist, security review, measurement plan, rollback boundary, and preview-only launch gate. No domain changes, spending, credentials, deployment, publication, or launch are authorized before owner, legal, security, measurement, and rollback gates pass. Exactly one next step: after CTO releases one delivery slot, assign an owner to complete the complicated.work launch-readiness brief.",
         "requested_action": null,
         "proposal_id": null
       }

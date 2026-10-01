@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:27:26.554Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:37:52.942Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain containment and create no new proposal or implementation admission this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 implementation requests failed. The only revenue experiment worth retaining is the already-queued allthingsmasonic.com affiliate CTA refinement after the CTO releases capacity and site overlap clears. Baseline: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Hypothesis: clearer CTA hierarchy, preserved disclosure placement, and improved responsive accessibility increase qualified affiliate clicks without adding tracking or data collection. Primary metric: affiliate clicks; secondary outcomes: ordered items, shipped items, commission, and direct change cost. Learn window: 14 days or 100 relevant new impressions/clicks. Classify unavailable outcomes as unknown; make no revenue, ROI, margin, or causal-lift claim. GitHub candidates remain research-only and are not admitted while capacity and security gates remain unresolved.",
+        "summary": "CRO disposition: retain no new proposals this cycle. The strongest opportunities are a control-plane reconciliation capability and coverage-aware AI-cost reporting, but delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Preserve them as deferred product opportunities; do not create duplicate queue work, telemetry, research, or implementation requests. Revisit after the canonical saveusfarms.com repair-or-close case releases capacity.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00:00Z, recording root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot or escalate. No CRO experiment or product prototype should execute before clearance.",
+        "summary": "Deferred CRO product opportunity: prototype a read-only work-reconciliation view linking each approved proposal to exactly one request, blocker, or closure, with deduplication, site-overlap, active-slot, failure-repair, rollback, and measurement states. Evidence: 105 approved proposals lack execution requests and approved-proposal execution is 64%. Smallest reversible prototype is a read-only report over existing records; metric is approved proposals with a linked request or explicit disposition; learn within one delivery cycle after capacity clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After capacity release and site-overlap clearance, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Smallest reversible prototype: revise one existing affiliate entry surface's CTA hierarchy and adjacent disclosure presentation, preserve destinations and behavior, and validate keyboard focus, mobile layout, links, smoke/build, and rollback. Do not add tracking, dependencies, credentials, cross-site behavior, or new affiliate destinations.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Deferred product opportunity: a capacity-aware control-plane admission and deduplication guard could reduce duplicate and stranded work by enforcing one canonical item per issue, site-overlap checks, required owner/rollback/measurement fields, and escalation for failed or stale work. Evidence supports the problem—105 approved proposals lack execution requests, 21 implementation requests failed, and 229 work items are stranded—but the smallest prototype and validation should wait until the current repair and capacity bottleneck are resolved. No adoption, security, or maintenance conclusion is claimed from the GitHub trend signals.",
+        "summary": "Deferred CRO monetization opportunity: coverage-aware AI usage reporting that distinguishes observed cost from missing coverage and prevents unsupported ROI claims. Evidence: AI usage covers 4 of 38 expected sites, with $2.2785467 observed cost and partial attribution. Smallest reversible prototype is a read-only summary using existing records; metric is AI-usage decisions carrying explicit coverage and attribution status; learn within one reporting cycle after capacity clears.",
         "requested_action": null,
         "proposal_id": null
       }
