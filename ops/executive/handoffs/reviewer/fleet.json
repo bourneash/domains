@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:37:23.670Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:39:27.003Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the new security report-only proposal as duplicate of the existing security-fleet-evidence-2026-10-01 work item. Preserve that canonical read-only evidence work, keep security-sensitive releases and public-exposure gates unchanged, and admit no new implementation while capacity is 10/10. Revenue, ROI, margin, and causal-lift claims remain unsupported; Amazon’s $4.92 commission is aggregate and unattributed.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue only the existing canonical security evidence matrix. Record dated evidence or explicit unknowns from authorized metadata and retained artifacts; do not request duplicate telemetry, clear gates, change credentials or configuration, deploy, add dependencies, or claim certification.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, security-clearance, and production-readiness claims. Delivery is saturated at 10/10 slots, so three bounded SEO changes are routed to engineer as capacity-gated specifications only; no execution occurs until CTO releases capacity and site overlap clears. CTO must complete or close the canonical saveusfarms.com repair case with validation and rollback evidence by 2026-10-02T09:00:00Z or escalate to the owner. Keep SearchWoot private and rights outreach unsent.",
+        "summary": "Reviewer disposition: reject the wetpages.com report-only proposal because it does not satisfy the implementation mandate. Preserve the existing two measurement runs through 2026-10-12. Route only the three bounded, measurable engineer specifications below as capacity-gated; authorize no execution or production change while delivery is saturated at 10/10. CTO must release one slot by 2026-10-01T12:00:00Z by completing or justifiably closing the canonical saveusfarms.com repair case with validation, rollback, and scope evidence; escalate unresolved capacity to the owner by that deadline. Revenue, ROI, attribution, and causal lift remain unclaimed.",
         "requested_action": null,
         "proposal_id": null
       }

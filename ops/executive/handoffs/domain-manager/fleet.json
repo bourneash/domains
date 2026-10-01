@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:33:26.477Z",
+  "generated_at": "2026-10-01T10:39:27.004Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare an implementation-ready homepage CTA brief for weapontester.com",
-        "summary": "A bounded implementation is blocked by missing site-specific homepage file mapping and baseline evidence in the supplied snapshot. Existing analytics and SEO systems are configured for weapontester.com, but no page-level metrics or active work artifact is provided.",
-        "requested_action": "Inspect the existing weapontester.com repository and homepage route only. Identify the exact template, stylesheet, CTA destinations, affiliate disclosures, keyboard/focus behavior, and responsive layout. Record the pre-change baseline from existing GA4/GSC telemetry only; do not add tracking, change production, or claim lift. After one delivery slot is released, convert the brief into one isolated homepage CTA/accessibility implementation request.",
+        "title": "Prepare the next non-overlapping affiliate CTA implementation for wetpages.com",
+        "summary": "wetpages.com already has two active improvements measuring through 2026-10-12, so no overlapping implementation should be queued. The next reversible monetization improvement needs exact source-file and page evidence before admission.",
+        "requested_action": "Inspect the wetpages.com repository and identify the exact homepage or highest-intent commercial-entry page and files used by the active affiliate path. Specify one future CTA/disclosure refinement only; do not modify production, add tracking, or create duplicate implementation work.",
         "proposal_id": null
       }
     ]
