@@ -1675,10 +1675,11 @@ function wireChartZoom(rows, bucket) {
     box.style.width = `${Math.max(0.3, ((hi - lo) / AIU_CHART_GEOM.width) * 100)}%`;
   };
   svg.addEventListener(
-    'mousedown',
+    'pointerdown',
     e => {
-      if (e.button !== 0) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       drag = { startClientX: e.clientX, startVx: aiuChartVX(svg, e.clientX) };
+      svg.setPointerCapture?.(e.pointerId);
       setBox(drag.startVx, drag.startVx);
       wrap.classList.add('dragging');
       e.preventDefault();
@@ -1686,7 +1687,7 @@ function wireChartZoom(rows, bucket) {
     { signal }
   );
   document.addEventListener(
-    'mousemove',
+    'pointermove',
     e => {
       if (!drag) return;
       setBox(drag.startVx, aiuChartVX(svg, e.clientX));
@@ -1694,7 +1695,7 @@ function wireChartZoom(rows, bucket) {
     { signal }
   );
   document.addEventListener(
-    'mouseup',
+    'pointerup',
     e => {
       if (!drag) return;
       const moved = Math.abs(e.clientX - drag.startClientX);
@@ -1711,6 +1712,17 @@ function wireChartZoom(rows, bucket) {
       AI_USAGE.from = rows[lo][bucket].slice(0, 10);
       AI_USAGE.to = rows[hi][bucket].slice(0, 10);
       renderAIUsage();
+    },
+    { signal }
+  );
+  document.addEventListener(
+    'pointercancel',
+    e => {
+      if (!drag) return;
+      drag = null;
+      box.style.display = 'none';
+      wrap.classList.remove('dragging');
+      svg.releasePointerCapture?.(e.pointerId);
     },
     { signal }
   );

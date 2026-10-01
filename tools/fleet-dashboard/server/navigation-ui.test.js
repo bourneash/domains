@@ -835,6 +835,16 @@ test('Change Queue renders one authoritative queue pulse without suppressed focu
   assert.doesNotMatch(app, /\.cq-focus-panel\'\)\?\.remove/);
 });
 
+test('AI Usage chart zoom supports touch and pointer cancellation', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /addEventListener\(\s*['"]pointerdown['"]/);
+  assert.match(app, /addEventListener\(\s*['"]pointermove['"]/);
+  assert.match(app, /addEventListener\(\s*['"]pointerup['"]/);
+  assert.match(app, /addEventListener\(\s*['"]pointercancel['"]/);
+  assert.match(style, /\.aiu-chart-wrap \{[^}]*touch-action:\s*pan-y/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
