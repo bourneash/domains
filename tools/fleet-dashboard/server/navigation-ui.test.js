@@ -1376,6 +1376,9 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /aria-label="Search work board items"/);
   assert.match(app, /\.includes\(query\)/);
   assert.match(app, /aria-label="Open \$\{esc\(item\.title\)\} details"/);
+  assert.match(app, /const diagnosticGroups = \[\]/);
+  assert.match(app, /diagnosticIndex\.get\(key\)/);
+  assert.match(app, /\$\{item\.count\} matches/);
   assert.match(app, /\$\('#wb-board-refresh'\)\.onclick = \(\) => renderWorkflowBoard\(\)/);
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });

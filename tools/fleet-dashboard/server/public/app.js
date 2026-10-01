@@ -13809,11 +13809,25 @@ async function renderWorkflowBoard() {
           `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`
       )
       .join('');
-    const diagnostics = (data.diagnostics || [])
+    const diagnosticGroups = [];
+    const diagnosticIndex = new Map();
+    (data.diagnostics || []).forEach(item => {
+      const key = [item.title, item.status, item.next_action]
+        .map(value => String(value || ''))
+        .join('|');
+      const existing = diagnosticIndex.get(key);
+      if (existing) existing.count += 1;
+      else {
+        const group = { ...item, count: 1 };
+        diagnosticIndex.set(key, group);
+        diagnosticGroups.push(group);
+      }
+    });
+    const diagnostics = diagnosticGroups
       .slice(0, 8)
       .map(
         item =>
-          `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`
+          `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}${item.count > 1 ? ` <span class="badge b-gray">${item.count} matches</span>` : ''}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`
       )
       .join('');
     const filterButtons = WORK_BOARD_COLUMNS.map(
@@ -13834,7 +13848,7 @@ async function renderWorkflowBoard() {
         }</div></div>`
     ).join(
       ''
-    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
     $('#wb-board-refresh').onclick = () => renderWorkflowBoard();
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
     $('#wb-board-search').oninput = event => {
