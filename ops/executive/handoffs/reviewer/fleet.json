@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:46:47.196Z",
+  "generated_at": "2026-10-01T09:48:13.609Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the duplicate deadlymaracas.com readiness proposal. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and the canonical site-factory gate already covers this work. No new implementation or production work is authorized. Preserve the existing gate; site-factory may complete the readiness artifact only after CTO releases capacity. Escalate unresolved capacity to the owner by 2026-10-02T09:00Z.",
+        "summary": "Rejected the driveford.net report-only proposal and all new site-factory builds: launch readiness is unverified and delivery capacity is 10/10. Routed one bounded rodhat.com SEO change to engineer because it has existing evidence and a measurable, reversible scope. Do not admit additional candidates until CTO releases capacity. The complicated.work, deadlymaracas.com, and driveford.net builds remain blocked pending a verified readiness artifact by 2026-10-02T09:00Z; site-factory owns the artifact, with CTO escalation at that deadline. Revenue, ROI, and causal-lift claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }
