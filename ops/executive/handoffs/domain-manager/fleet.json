@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:35:28.299Z",
+  "generated_at": "2026-10-01T15:40:21.255Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Clarify rodhat.com homepage search and entry CTA",
-        "summary": "Ship one reversible homepage refinement to improve the primary visitor entry path and search-result click opportunity without adding tracking, dependencies, or new monetization.",
-        "requested_action": "Queue one engineer implementation for rodhat.com, subject to confirmation that no active rodhat.com work exists when admitted.",
+        "title": "Revalidate preserved ultrarough.com comparison-block prototype",
+        "summary": "Repair and revalidate the existing preserved comparison-block change after the recorded infrastructure failure, without creating a duplicate improvement.",
+        "requested_action": "Route as one capacity-gated engineer repair/revalidation request; if the retained artifact cannot identify the exact page and files, stop and record that evidence blocker rather than broadening scope.",
         "proposal_id": null
       }
     ]
