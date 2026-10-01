@@ -79,6 +79,28 @@ test('joins lifecycle, analytics gaps, task ownership and growth actions', () =>
   assert.equal(out.scorecards[0].allocation, 'repair');
 });
 
+test('returns every recommendation so totals and pagination stay complete', () => {
+  const root = fixture();
+  const actions = Array.from({ length: 275 }, (_, index) => ({
+    key: `action-${index}`,
+    site: 'live.example',
+    title: `Recommendation ${index}`,
+    rankScore: 50,
+    valueScore: 10,
+  }));
+  const out = priorities.build({
+    root,
+    discoveredSites: ['live.example'],
+    analyticsHealth: { sites: { 'live.example': {} } },
+    revenue: {},
+    seo: { actions, sites: [] },
+  });
+  assert.ok(out.items.length > 250);
+  assert.equal(out.items.filter(item => item.action_key?.startsWith('action-')).length, 275);
+  assert.equal(out.totals.recommendations, out.items.length);
+  assert.ok(out.items.some(item => item.action_key === 'action-274'));
+});
+
 test('disabled task roles do not become executive routing candidates', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-priorities-disabled-role-'));
   fs.mkdirSync(path.join(root, 'registry'), { recursive: true });

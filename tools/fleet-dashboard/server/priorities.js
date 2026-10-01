@@ -295,7 +295,7 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
       ready: items.filter(x => x.state === 'ready').length,
       blocked: items.filter(x => x.state === 'blocked').length,
     },
-    items: items.slice(0, 250),
+    items,
     scorecards,
     registry_ok: reg.ok,
     registry_error: reg.error || null,
