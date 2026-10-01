@@ -151,6 +151,14 @@ test('change and Workbench detail timelines stay bounded on narrow screens', () 
   );
 });
 
+test('Data Quality keeps its source table bounded on narrow screens', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /page-title">Data Quality[\s\S]*<section class="card"><div class="table-wrap"><table class="tbl">/
+  );
+});
+
 test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");
