@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:18:07.341Z",
+  "generated_at": "2026-10-01T21:23:59.036Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish noveltyguns.com implementation baseline and select one reversible next change",
-        "summary": "Create a timestamped site baseline before implementation because the current manager context does not expose noveltyguns.com page, file, usability, SEO, monetization, or health evidence. Use only existing authoritative snapshot and repository evidence; preserve unknowns.",
-        "requested_action": "Inspect the existing noveltyguns.com homepage (/), repository entry surface, analytics/SEO configuration, compliance state, and current queue. Record exact files, observable issues, available telemetry, one implementation candidate, deferred items, and any blocker. Do not request duplicate telemetry, modify production, change configuration, add tracking, spend, or claim lift.",
+        "title": "Clarify offshorehookup.com homepage affiliate path",
+        "summary": "Ship one reversible homepage CTA and disclosure refinement for offshorehookup.com. Existing evidence shows 320 site-linked Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; page-level attribution is unavailable.",
+        "requested_action": "Assign engineer to update only the homepage (/), its rendered homepage template, and the existing affiliate-link registry or data source consumed by that page. Improve primary CTA label hierarchy, product relevance copy, destination clarity, and existing affiliate disclosure placement without adding tracking, changing credentials, modifying configuration, adding dependencies, or expanding scope.",
         "proposal_id": null
       }
     ]
