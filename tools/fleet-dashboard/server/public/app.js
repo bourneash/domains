@@ -602,7 +602,9 @@ function editorialTelemetryCell(e, role = '', secondary = false) {
 
 async function renderEngineers() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading fleet audit…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading fleet audit…</div></div>';
   let rows,
     hist = [],
     roleData,
@@ -1029,7 +1031,9 @@ async function runEngineerNow(site, btn) {
 // no git calls of its own — only the two buttons do.
 async function renderGitHygiene() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading hygiene board…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading hygiene board…</div></div>';
   let b;
   try {
     b = await api('GET', '/api/git/hygiene');
@@ -1261,7 +1265,9 @@ function applyGitHygieneFilter() {
 
 async function renderGit() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Scanning repos…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Scanning repos…</div></div>';
   let rows;
   try {
     rows = await api('GET', '/api/git');
@@ -1395,7 +1401,9 @@ function gitPageTabs(active) {
 // render here" pattern as the Engineers view.
 async function renderTaskBudget() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Auditing writer-role turn budgets…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Auditing writer-role turn budgets…</div></div>';
   let sites;
   try {
     sites = await api('GET', '/api/task-budget');
@@ -1481,7 +1489,9 @@ async function renderTaskBudget() {
 /* ===================== AI INVENTORY ===================== */
 async function renderAIInventory() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Tracing scheduled AI dispatches…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Tracing scheduled AI dispatches…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/ai-inventory');
@@ -1553,7 +1563,9 @@ function pfStatusBadge(status) {
 
 async function renderProductFeed() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading product feed…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading product feed…</div></div>';
   const [health, stats, subs, products] = await Promise.all([
     api('GET', '/api/product-feed/health'),
     api('GET', '/api/product-feed/inventory-stats'),
@@ -1845,7 +1857,9 @@ function wireChartZoom(rows, bucket) {
 
 async function renderAIUsage() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Aggregating AI token usage…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Aggregating AI token usage…</div></div>';
   if (AI_USAGE.range !== 'custom') Object.assign(AI_USAGE, aiUsageWindow(AI_USAGE.range));
   let data;
   const params = new URLSearchParams();
@@ -2396,7 +2410,9 @@ function cfbChart(rows) {
 
 async function renderCloudflareBuilds() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading Cloudflare build telemetry…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading Cloudflare build telemetry…</div></div>';
   let data;
   try {
     data = await api('GET', `/api/cloudflare-builds?days=${CF_BUILDS.days}&limit=300`);
@@ -2914,7 +2930,9 @@ function activitySortButton(key, label) {
 
 async function renderActivity() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading action log…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading action log…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/actions?limit=300');
@@ -3054,7 +3072,9 @@ function dsStatusBadge(status) {
 
 async function renderDevSandbox() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading dev sandboxes…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading dev sandboxes…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/devsandbox/sites');
@@ -3986,7 +4006,9 @@ async function pullAllSites() {
 /* ===================== GIT STASHES ===================== */
 async function renderGitStashes(slug) {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading stashes…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading stashes…</div></div>';
   if (!slug) {
     app.innerHTML = '<div class="empty">No site specified.</div>';
     return;
@@ -4162,7 +4184,9 @@ function stateBar(t, cls) {
 
 async function renderControl() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Reading role status…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Reading role status…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/roles');
@@ -4391,7 +4415,9 @@ function controlDraw() {
  */
 async function renderRetention() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading retention policy…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading retention policy…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/retention');
@@ -4820,7 +4846,8 @@ async function toggleRole(site, role, currentlyEnabled) {
 async function renderProductManager(role) {
   const app = $('#app');
   const label = agentLabel(role);
-  if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(label)} queue…</div>`;
+  if (FRESH)
+    app.innerHTML = `<div role="status" aria-live="polite"><div class="loading">Loading ${esc(label)} queue…</div></div>`;
   let messages, proposals, actions, workItems, taskQueue, runStatus;
   try {
     [messages, proposals, actions, workItems, taskQueue, runStatus] = await Promise.all([
@@ -4895,7 +4922,8 @@ async function renderProductManager(role) {
 // run, schedule, pause/resume) + a per-site zoomed log (live-following).
 async function renderGenericAgent(role) {
   const app = $('#app');
-  if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(agentLabel(role))} agent…</div>`;
+  if (FRESH)
+    app.innerHTML = `<div role="status" aria-live="polite"><div class="loading">Loading ${esc(agentLabel(role))} agent…</div></div>`;
   let data, healthData;
   try {
     [data, healthData] = await Promise.all([
@@ -6167,7 +6195,9 @@ function cmRel(iso) {
 
 async function renderCron() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Reading crontabs…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Reading crontabs…</div></div>';
   let systems;
   try {
     systems = await api('GET', '/api/cron/systems');
@@ -9332,7 +9362,9 @@ function socResetFilters() {
 
 async function renderSocial() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading social registry…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading social registry…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/social');
