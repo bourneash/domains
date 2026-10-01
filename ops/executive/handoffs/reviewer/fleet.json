@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:39:27.003Z",
+  "generated_at": "2026-10-01T10:41:19.573Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the wetpages.com report-only proposal because it does not satisfy the implementation mandate. Preserve the existing two measurement runs through 2026-10-12. Route only the three bounded, measurable engineer specifications below as capacity-gated; authorize no execution or production change while delivery is saturated at 10/10. CTO must release one slot by 2026-10-01T12:00:00Z by completing or justifiably closing the canonical saveusfarms.com repair case with validation, rollback, and scope evidence; escalate unresolved capacity to the owner by that deadline. Revenue, ROI, attribution, and causal lift remain unclaimed.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, attribution, causal-lift, unsafe, duplicate, and production claims. Amazon commission remains aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and unresolved failures. Route only the three bounded specifications below as capacity-gated engineer work. CTO must release a slot by 2026-10-01T12:00:00Z by completing or justifiably closing the canonical saveusfarms.com repair case; escalate unresolved capacity to the owner at that deadline. Keep scaffold launches gated pending readiness evidence.",
         "requested_action": null,
         "proposal_id": null
       }
