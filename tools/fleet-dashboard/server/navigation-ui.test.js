@@ -42,10 +42,13 @@ test('optional API reads do not hide authentication failures as empty data', () 
   assert.match(helper, /throw error/);
 });
 
-test('executive inbox and run history are primary reads, never optional empty fallbacks', () => {
+test('executive inbox and run history are bounded and disclose degraded telemetry', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  assert.match(app, /: api\(\s*'GET',\s*`\/api\/executive\/inbox\?limit=50/);
-  assert.match(app, /: api\('GET', '\/api\/executive\/run-status'\)/);
+  assert.match(app, /optional\(\s*'GET',\s*`\/api\/executive\/inbox\?limit=50/);
+  assert.match(app, /optional\('GET', '\/api\/executive\/run-status'/);
+  assert.match(app, /degraded: true/);
+  assert.match(app, /Some executive telemetry is taking longer than expected/);
+  assert.match(app, /routeIs\('executive'\) \|\| routeIs\('agent', 'executive', requestedPage\)/);
 });
 
 test('site command centers are shareable first-class routes', () => {
@@ -84,7 +87,8 @@ test('async agent pages abandon stale route responses', () => {
   assert.match(app, /function routeIs\(view, agent = undefined, agentPage = undefined\)/);
   assert.match(app, /if \(!routeIs\('agent', 'engineer', null\)\) return;/);
   assert.match(app, /if \(!routeIs\('agent', requestedRole, null\)\) return;/);
-  assert.match(app, /if \(!routeIs\('agent', 'executive', requestedPage\)\) return;/);
+  assert.match(app, /const executiveRouteActive = \(\) =>/);
+  assert.match(app, /if \(!executiveRouteActive\(\)\) return;/);
 });
 
 test('shared API reads abandon stale route responses before renderers continue', () => {

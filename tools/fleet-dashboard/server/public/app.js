@@ -15247,6 +15247,8 @@ async function renderExecutive() {
     draft;
   const conversationOnly = STATE.agentPage === 'conversation';
   const dashboardOnly = STATE.agentPage === 'dashboard';
+  const executiveRouteActive = () =>
+    routeIs('executive') || routeIs('agent', 'executive', requestedPage);
   // The dashboard is the first-paint surface. Do not make it wait for data
   // belonging to hidden workspace tabs (transcripts, cases, CRO lab, etc.).
   // Auxiliary reads are deliberately bounded so a sick collector degrades to
@@ -15287,10 +15289,12 @@ async function renderExecutive() {
                 }),
           dashboardOnly
             ? Promise.resolve({ requests: [], notifications: [] })
-            : api(
-                'GET',
-                `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`
-              ),
+              : optional(
+                  'GET',
+                  `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`,
+                  { requests: [], notifications: [], degraded: true },
+                  5000
+                ),
           conversationOnly
             ? optional('GET', '/api/executive/draft', { draft: null })
             : Promise.resolve({ draft: null }),
@@ -15344,7 +15348,7 @@ async function renderExecutive() {
               : optional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
           conversationOnly
             ? Promise.resolve({ active: null, latest: null, runs: [] })
-            : api('GET', '/api/executive/run-status'),
+            : optional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [], degraded: true }, 5000),
           conversationOnly
             ? Promise.resolve({ cases: [] })
             : dashboardOnly
@@ -15381,11 +15385,12 @@ async function renderExecutive() {
       calendar,
     ] = await EXECUTIVE_LOAD_CACHE.promise;
   } catch (e) {
-    if (!routeIs('agent', 'executive', requestedPage)) return;
+    if (!executiveRouteActive()) return;
     renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
   }
-  if (!routeIs('agent', 'executive', requestedPage)) return;
+  if (!executiveRouteActive()) return;
+  const executiveDataDegraded = Boolean(inbox?.degraded || runStatus?.degraded);
   // The inbox endpoint is the canonical source for owner requests. Older
   // responses can still contain the same work item in both the inbox payload
   // and the work-items fallback, so keep the UI keyed to one row per thread.
@@ -15812,6 +15817,7 @@ async function renderExecutive() {
     )
     .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
+    ${executiveDataDegraded ? '<div class="fd-stale-banner" role="status">Some executive telemetry is taking longer than expected. The workspace is usable with the available data; refresh to retry delayed sources.</div>' : ''}
     <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button" aria-label="Enable executive browser alerts" title="Enable executive browser alerts">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" aria-label="${unreadNotifications.length ? `Mark ${unreadNotifications.length} executive alerts read` : 'No unread executive alerts'}" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh" type="button" aria-label="Refresh executive overview" title="Refresh executive overview">↻ Refresh</button></div></header>
     <section class="ex-kpis">${stat(pendingCount, 'owner decisions', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'internal reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
