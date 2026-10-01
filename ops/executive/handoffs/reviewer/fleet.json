@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:41:19.573Z",
+  "generated_at": "2026-10-01T10:43:14.757Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, attribution, causal-lift, unsafe, duplicate, and production claims. Amazon commission remains aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and unresolved failures. Route only the three bounded specifications below as capacity-gated engineer work. CTO must release a slot by 2026-10-01T12:00:00Z by completing or justifiably closing the canonical saveusfarms.com repair case; escalate unresolved capacity to the owner at that deadline. Keep scaffold launches gated pending readiness evidence.",
+        "summary": "Reviewer rejects new production admissions this cycle. All 10 implementation slots are occupied, measurement debt and failed requests remain unresolved, revenue attribution is incomplete, and scaffold launch-readiness evidence is missing. CTO must complete or justifiably close the existing saveusfarms.com repair case and release one slot by 2026-10-01T12:00:00Z, escalating unresolved capacity to the owner then. No new candidate is safely queueable before that unblock.",
         "requested_action": null,
         "proposal_id": null
       }
