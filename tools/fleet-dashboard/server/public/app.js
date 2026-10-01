@@ -1348,7 +1348,7 @@ async function renderGit() {
         ? ` <a href="${esc(r.remoteWebUrl)}" target="_blank" rel="noopener" class="rcol-link" title="Open repo on GitHub">↗</a>`
         : '';
       const gitStatus = r.dirty > 0 ? 'dirty' : r.syncState === 'synced' ? 'synced' : r.syncState;
-      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-git-name="${esc(`${r.slug} ${r.branch || ''}`.toLowerCase())}" data-git-status="${esc(gitStatus)}" data-fleet-row data-site="${esc(r.slug)}">
+      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-git-name="${esc(`${r.slug} ${r.branch || ''}`.toLowerCase())}" data-git-status="${esc(gitStatus)}" data-fleet-row data-site="${esc(r.slug)}" role="button" tabindex="0" aria-label="Open repository details for ${esc(r.slug)}" aria-expanded="false" aria-controls="gd-${esc(r.slug)}">
       <td class="site">${esc(r.slug)}${repoLink} <span class="muted">▸</span></td>
       <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
@@ -1373,7 +1373,7 @@ async function renderGit() {
       <label><span class="sr-only">Repository status</span><select id="git-status" class="cm-input"><option value="all">All states</option><option value="dirty">Dirty tree</option><option value="synced">Synced</option><option value="ahead">Need push</option><option value="behind">Need pull</option><option value="diverged-behind">Diverged</option><option value="no-upstream">No upstream</option></select></label>
       <span id="git-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card aii-table"><div class="table-wrap"><table>
+    <div class="card aii-table"><div class="table-wrap"><table><caption class="sr-only">Fleet repository status</caption>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
       <tbody>${body}</tbody>
     </table></div>`;
@@ -1382,6 +1382,13 @@ async function renderGit() {
   $$('.git-row').forEach(tr =>
     tr.addEventListener('click', e => {
       if (e.target.closest('a')) return;
+      toggleGitDetail(tr.dataset.slug);
+    })
+  );
+  $$('.git-row').forEach(tr =>
+    tr.addEventListener('keydown', e => {
+      if (e.target.closest('a') || !['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
       toggleGitDetail(tr.dataset.slug);
     })
   );
@@ -3651,11 +3658,14 @@ const gitCls = k =>
 async function toggleGitDetail(slug) {
   const row = $(`tr[data-detail="${CSS.escape(slug)}"]`);
   const box = $(`#gd-${CSS.escape(slug)}`);
+  const trigger = $(`tr.git-row[data-slug="${CSS.escape(slug)}"]`);
   if (!row.classList.contains('hidden')) {
     row.classList.add('hidden');
+    trigger?.setAttribute('aria-expanded', 'false');
     return;
   }
   row.classList.remove('hidden');
+  trigger?.setAttribute('aria-expanded', 'true');
   box.innerHTML = '<span class="async-loading">Loading…</span>';
   await fillGitDetail(slug, box);
 }

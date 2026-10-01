@@ -418,6 +418,15 @@ test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#githygiene').gitTab, 'hygiene');
 });
 
+test('Git repository rows are keyboard-operable disclosures', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="git-row"[\s\S]*role="button" tabindex="0" aria-label="Open repository details/);
+  assert.match(app, /aria-expanded="false" aria-controls="gd-\$\{esc\(r\.slug\)\}"/);
+  assert.match(app, /\['Enter', ' '\]\.includes\(e\.key\)/);
+  assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
+  assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'false'\)/);
+});
+
 test('sidebar category navigation and disclosure use separate controls', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
