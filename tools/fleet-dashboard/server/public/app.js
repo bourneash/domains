@@ -2218,6 +2218,44 @@ async function renderAIUsage() {
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table></div>
       </div>
     </details>`;
+  const aiuFilterLabels = {
+    'aiu-quick-select': 'Select AI usage time range',
+    'aiu-from': 'AI usage start date',
+    'aiu-to': 'AI usage end date',
+    'aiu-site': 'Filter AI usage by site',
+    'aiu-role': 'Filter AI usage by role',
+  };
+  Object.entries(aiuFilterLabels).forEach(([id, label]) => {
+    const control = $(`#${id}`);
+    if (control) control.setAttribute('aria-label', label);
+  });
+  const aiuTableLabels = [
+    'Runtime model resolution',
+    'Requested model usage',
+    'AI usage by site',
+    'AI usage by site and role',
+    `AI usage by ${bucket === 'hour' ? 'hour' : 'day'}`,
+    'AI usage alert incidents',
+    'Recent AI usage alerts',
+    'AI usage tracking coverage',
+  ];
+  $$('.aiu-panel table, .aiu-diagnostics table', app).forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.className = 'sr-only';
+      caption.textContent = aiuTableLabels[index] || 'AI usage data table';
+      table.prepend(caption);
+    }
+    const wrap = table.closest('.table-wrap');
+    const panel = table.closest('.aiu-panel, .aiu-diagnostics');
+    if (wrap && panel && !$('.aiu-scroll-hint', panel)) {
+      const hint = document.createElement('div');
+      hint.className = 'aiu-scroll-hint';
+      hint.setAttribute('role', 'note');
+      hint.textContent = 'Swipe horizontally to inspect all columns';
+      wrap.before(hint);
+    }
+  });
   $('#aiu-quick-select').addEventListener('change', event => {
     const key = event.target.value;
     AI_USAGE.range = key;

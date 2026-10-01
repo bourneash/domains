@@ -1767,6 +1767,16 @@ test('AI usage keeps dense cost and diagnostics tables bounded', () => {
   assert.ok((diagnostics.match(/class="table-wrap"><table/g) || []).length >= 4);
 });
 
+test('AI Usage gives dense tables context and mobile scroll guidance', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /const aiuTableLabels = \[/);
+  assert.match(app, /AI usage tracking coverage/);
+  assert.match(app, /Swipe horizontally to inspect all columns/);
+  assert.match(app, /Filter AI usage by site/);
+  assert.match(style, /\.aiu-scroll-hint \{ display: none; \}/);
+});
+
 test('AI Usage panels use shared spacing and severity classes', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
