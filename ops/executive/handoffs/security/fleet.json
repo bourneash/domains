@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:37:23.670Z",
+  "generated_at": "2026-10-01T10:48:37.476Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases. The security baseline covers 61 managed sites, but fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps are absent; and authentication, access boundaries, secrets, runtime isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance is technical-only: 35 pass, 20 fail, 6 unknown. Exact decision: preserve private-launch and security-sensitive release gates; allow only bounded reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Missing evidence is not a clean result or certification.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only at 35 pass, 20 fail, and 6 unknown, not certification. Recommendation: preserve existing private-launch and security-sensitive release gates; do not claim clearance or certification; continue only authorized read-only evidence work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security recommendation: retain the existing evidence matrix and do not admit new security-sensitive implementation or public exposure. Complete dated read-only evidence for access boundaries, secrets handling, runtime isolation, release/deploy controls, dependencies and supply chain, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions, add dependencies, deploy, or request duplicate telemetry.",
+        "summary": "Security gate: do not admit security-sensitive releases or new public exposure until dated evidence exists for access boundaries, secrets, isolation, release/deploy controls, dependencies and supply chain, TLS, data exposure, monitoring, incident response, and disclosure readiness. Existing reversible work may proceed only if it adds no credentials, permissions, dependencies, data collection, or cross-site behavior and passes normal review, validation, rollback, and compliance checks.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
         "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet security clearance is unsupported for go-live, new public exposure, and security-sensitive releases because fleet-doctor and operations results are absent and material controls remain unevidenced. Ordinary reversible growth may continue only within existing consent, disclosure, data-handling, and claims boundaries.",
-        "requested_action": "Continue the canonical read-only security evidence matrix using authorized metadata and retained artifacts only. Record timestamps, affected scope, owners, severity, exact unknowns, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident readiness, and security.txt or disclosure readiness. Preserve private-launch and security-sensitive release gates. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "summary": "Fleet-wide security clearance is unsupported because the security fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve private-launch and security-sensitive release gates while allowing constrained ordinary reversible growth.",
+        "requested_action": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record timestamps, affected scope, owners, severity, exact unknowns, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "proposal_id": null
       }
     ]

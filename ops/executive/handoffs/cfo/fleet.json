@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:37:23.670Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:48:37.476Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: retain containment, authorize no new spend or implementation this cycle, and reject unsupported revenue, contribution-margin, ROI, forecast, and causal-lift claims. Capacity is 10/10; 39 improvements await measurement, 21 implementation requests failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the next revenue experiment only after capacity and site-overlap clearance. Amazon evidence for 2026-09-21 supports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\"; site-attributed commission is $0, so site revenue and ROI are unsupported. Contribution margin, fleet budget exposure, infrastructure spend, and cost-to-learn are not calculable because fixed costs, domain/hosting/tooling costs, labor allocation, marketing spend, and change-level incremental costs are absent. AI usage is partial: $2.2785467 across 16 calls and 4 instrumented sites on 2026-10-01, covering 4 of 38 expected sites; this cannot support fleet-wide AI efficiency claims.",
+        "summary": "Financial recommendation: hold new discretionary spend and new implementation admissions. Revenue evidence is insufficient for investment claims: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all $4.92 is in an aggregate unattributed row; site-attributed income is $0. Contribution margin, ROI, and revenue forecast are not calculable because infrastructure, domains, labor, and other direct costs are absent, and revenue data is stale as of 2026-09-21. AI spend is $2.2785467 on 16 calls across only 4 instrumented sites; fleet-wide AI cost is unknown because 4 of 38 expected sites are observed. Preserve existing measurement and attribution gates, and do not fund the proposed control-plane build until its avoided-cost or revenue benefit is measured.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the revenue attribution boundary. Do not assign the $4.92 aggregate commission for 2026-09-21 to any site, and do not treat site-level $0 commission as proof of zero earnings outside the named tracking rows. Any future revenue report must retain provider date, tracking ID, clicks, ordered items, shipped items, commission, and site/content mapping.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the capacity gate and release no new finance-sensitive implementation. If the existing allthingsmasonic.com CTA refinement proceeds after slot release and overlap clearance, require incremental implementation cost, deployment date, exact diff, rollback point, and measurement window so cost-to-learn and contribution impact can be evaluated.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The minimum finance measurement package is a report-only ledger by site and month covering domain renewals, hosting/infrastructure, AI/API usage, tooling, paid marketing, and allocated labor, plus provider revenue exports mapped to registered tracking IDs. Until those fields exist, contribution margin and budget exposure remain unknown rather than zero. Recommendation remains containment with no spending authorization.",
+        "summary": "Financial gate: do not admit the proposed execution control-plane work as funded implementation while delivery is saturated at 10/10 slots and its financial return is unquantified. If capacity is later released, use existing control-plane telemetry to produce a report-only baseline of duplicate requests, approval-to-execution delay, failed-request rework, and operator time; no new telemetry or production mutation is authorized by CFO.",
         "requested_action": null,
         "proposal_id": null
       }

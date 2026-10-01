@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:27:27.799Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:48:37.475Z",
+  "summary": "revenue-ops checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve no new implementation admissions this cycle. Preserve existing affiliate repair and measurement work, keep the aggregate Amazon commission unassigned, and do not infer site revenue, ROI, or causal lift. After capacity is released, execute only the existing allthingsmasonic.com CTA/disclosure refinement; preserve the amputeenews.com tag prerequisite and validate existing americastrikes.com affiliate repairs.",
+        "summary": "Approve the existing allthingsmasonic.com CTA/disclosure refinement only after capacity and site-overlap clearance. Preserve the $4.92 Amazon aggregate commission as unattributed; do not infer site revenue, ROI, or causal lift. Route known affiliate repairs for americastrikes.com and the amputeenews.com tag prerequisite through existing work without duplicate admissions.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Delivery is saturated at 10/10 slots. Complete or close the canonical saveusfarms.com repair case with validation and rollback evidence, then release one slot. After overlap clearance, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com; do not create duplicate work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Disclosure and compliance evidence remains site-specific and incomplete in the snapshot. Preserve unknowns; do not mark disclosure gaps resolved without mapped scan evidence. Any affiliate disclosure change must retain the existing disclosure and place it adjacent to applicable commercial links.",
         "requested_action": null,
         "proposal_id": null
       }

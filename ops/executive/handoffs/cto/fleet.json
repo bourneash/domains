@@ -2,49 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:37:23.669Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:48:37.476Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate implementation. Do not create a duplicate. Release or justify closure of one active slot after completing the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback, and release-boundary evidence.",
+        "summary": "CTO review: approve only the read-only finance baseline. Do not admit new implementation, control-plane, site-factory, SEO, or research work this cycle. Capacity remains 10/10, with 39 improvements awaiting measurement, 21 failed requests, 7 repair follow-ups, and unresolved site overlap. Preserve existing allthingsmasonic.com request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation after the canonical saveusfarms.com repair case is completed or justifiably closed, one slot is released, and overlap clears. Keep security, legal, attribution, measurement, and private-launch gates unchanged; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve the containment plan. No new implementation requests, research, telemetry requests, or site-factory admissions may enter the queue while all 10 delivery slots are occupied. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause or closure evidence, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-02T09:00:00Z; escalate if unresolved.",
+        "summary": "Approve the proposed read-only finance baseline using existing telemetry only. It is technically feasible, isolated, reversible, and does not consume an implementation slot. Preserve aggregate provider revenue as unattributed, report missing cost coverage explicitly, and do not request duplicate telemetry or infer profitability, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After capacity release and allthingsmasonic.com overlap clearance, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Limit scope to CTA hierarchy, adjacent disclosure placement, keyboard/focus accessibility, and responsive layout. Preserve destinations, tracking, claims, and content meaning. Validate tests, accessibility, responsive behavior, links, disclosure presence, and build; record the exact diff and rollback point. Measure affiliate clicks and attributable ordered/shipped items for 14 days or 100 relevant impressions/clicks; retain unknowns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the attribution boundary. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21 under tracking ID \"other\". Keep the commission unattributed; do not infer site revenue, ROI, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net planning-only. Do not build, publish, alter domains, spend, or deploy. After CTO releases a slot, complete only the existing readiness artifact for complicated.work; preserve owner, legal, security, analytics, affiliate, measurement, compliance, preview, and rollback gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep americastrikes.com stale-affiliate repair and amputeenews.com affiliate activation deferred. Route the former only after capacity clears and affected URLs, destinations, and registered tracking identifiers are verified. Keep the latter blocked until the owner-controlled registered tag is evidenced; never guess a tag or treat missing revenue as zero.",
+        "summary": "Do not create duplicate site-factory work. Preserve the existing readiness gate and planning-only pipeline; no build, preview publication, analytics configuration, affiliate setup, domain change, or deployment is authorized while capacity and launch-readiness gates remain unresolved.",
         "requested_action": null,
         "proposal_id": null
       }

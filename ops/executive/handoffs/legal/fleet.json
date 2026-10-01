@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:37:23.670Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:48:37.476Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta or go-live; conditional for ordinary reversible growth that adds no new data collection, sharing, monetization, credentials, permissions, dependencies, or cross-site behavior. Keep searchwoot.com private and leave Woot outreach unsent. Evidence: Woot documentation confirms API access mechanics only; current public terms do not establish public redistribution, storage, derivatives, display, alerts, affiliate, or advertising rights. Security, accuracy/freshness, measurement, and owner gates also remain incomplete. The compliance baseline is technical only: 35 pass, 20 fail, 6 unknown; it is not certification. Exact decision: no public exposure or monetization change until rights evidence, human-counsel review, all applicable checklist dispositions, and non-legal gates are complete.",
+        "summary": "Risk disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible fleet growth. Keep SearchWoot private and do not send rights outreach. Evidence: Woot documentation confirms API access mechanics only; public terms do not evidence redistribution, commercial/public display, historical derivatives, caching, or alerts. All four legal launch-readiness tasks remain open. Fleet compliance is technical-only: 35 pass, 20 fail, 6 unknown, with 20 banner/consent/GA4 findings and 4 privacy/terms findings. Security, accuracy/freshness, measurement, attribution, and owner gates also remain incomplete. Exact decision: preserve private launch containment, allow only reversible work that adds no new data collection, credentials, permissions, dependencies, cross-site behavior, or unsupported claims, and require human counsel before any rights outreach, affiliate/advertising use, public data display, or launch disposition change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: 0 of 4 legal tasks are evidenced closed. Source-rights evidence is documented but supports access only; data-flow and consent/analytics evidence are partial; logs, vendors, incident handling, and request workflows remain open. No task is closed. Next evidence action: attach one dated read-only bundle covering repository/config data flow and retention, deployed consent and withdrawal behavior, GA4 property/data-sharing and retention settings, log fields and access, vendor terms/DPA status, and incident/deletion/correction/request procedures.",
+        "summary": "Launch-readiness progress: 0 of 4 legal tasks are evidenced closed. Source-rights evidence is documented but supports access only; data-flow and consent evidence are partial; logs, vendors, incident, deletion, correction, and request workflows remain unevidenced. Do not close tasks based on proposals, repository references, or technical baseline scans. Next evidence action: attach one dated read-only bundle covering the repository/config data-flow table, retention and deletion behavior, deployed consent capture, GA4 property/data-sharing and retention settings, log-field inventory, vendor terms/DPA status, and incident/request procedures.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal gate: do not admit scaffold builds or public launches from missing analytics, affiliate, compliance, or security evidence. For ordinary reversible work, telemetry gaps alone are not a blocker if the change preserves existing consent, disclosures, provenance, claims, and data boundaries. For private or gated sites, retain the private decision and preview-only gate until the checklist is evidenced.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Revenue disposition: preserve the attribution boundary. Amazon evidence for 2026-09-21 reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\". Do not assign that commission to a site or claim revenue, ROI, margin, or causal lift. Affiliate monetization remains conditional on registered tracking identifiers, destination validation, disclosure placement, and applicable platform terms.",
+        "summary": "Compliance and monetization disposition: do not block ordinary growth solely because telemetry is incomplete, but do not claim revenue, ROI, causal lift, or site attribution. Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the commission remains unattributed. Any affiliate work must preserve existing disclosures, use registered tracking identifiers, and retain disclosure placement adjacent to applicable links. Compliance failures and unknowns require mapped remediation evidence before launch or material monetization expansion.",
         "requested_action": null,
         "proposal_id": null
       }

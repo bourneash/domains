@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:27:27.799Z",
+  "generated_at": "2026-10-01T10:48:37.475Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposal, change request, research request, or implementation admission this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests have failed, and only 6 outcomes are proven. Amazon reports 6,219 clicks, 28 ordered items, and $4.92 aggregate commission under an unattributed row; site revenue, ROI, and causal lift remain unknown. Preserve existing measurement, security, compliance, attribution, and launch gates.",
+        "summary": "CRO disposition: reject the new capacity-aware execution-control-plane proposal this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests failed, 7 failure follow-ups remain open, and 105 approved proposals lack execution requests. The opportunity is credible, but adding control-plane work now would increase delivery debt. Preserve the idea as deferred product context; revisit only after one slot is released and existing repair and measurement obligations are reduced.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue experiment priority: preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as the next eligible experiment after capacity and site-overlap clearance. Baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 report. Test only CTA hierarchy, disclosure adjacency, accessibility, and responsive presentation; measure affiliate clicks plus attributable orders and commission for 14 days or 100 relevant impressions/clicks. Roll back the single diff if link, disclosure, layout, or validation checks regress. Do not claim lift or assign aggregate revenue.",
+        "summary": "CRO handoff: complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one implementation slot before admitting any new work. After site-overlap clearance, preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as the sole next revenue experiment.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Product opportunity: keep complicated.work as the first scaffold candidate, but limit work to the existing launch-readiness artifact. The smallest reversible prototype is a preview-only evidence package covering audience, bounded template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security unknowns, measurement, owner decision, and rollback. Analytics is not configured, so no traffic, conversion, revenue, or monetization claim is supported. Do not build, publish, add telemetry, add affiliate links, or spend until capacity and gates clear.",
+        "summary": "CRO recommendation: retain no new revenue experiment, product proposal, change request, or research request this cycle. Existing evidence supports only bounded continuation: allthingsmasonic.com CTA/disclosure refinement after capacity release; complicated.work readiness evidence as planning-only; and existing measurement, security, compliance, and attribution gates. Amazon revenue remains aggregate and unattributed, so do not claim site revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
