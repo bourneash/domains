@@ -1840,3 +1840,19 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Pause current issues/);
   assert.match(app, /Rerun historical failures/);
 });
+
+test('automation exposes a site-scoped refresh and loading state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const route = app.slice(
+    app.indexOf('async function renderAutomation()'),
+    app.indexOf('async function renderAgentRuntime()')
+  );
+  assert.match(route, /id="auto-refresh"/);
+  assert.match(route, /type="button" class="btn" id="auto-refresh"/);
+  assert.match(route, /Loading automation controls…/);
+  assert.match(route, /role="status" aria-live="polite"/);
+  assert.match(
+    route,
+    /\$\('#auto-refresh'\)\.addEventListener\('click', \(\) => renderAutomation\(\)\)/
+  );
+});

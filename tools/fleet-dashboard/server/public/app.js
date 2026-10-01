@@ -13729,10 +13729,10 @@ async function renderDataQuality() {
 }
 
 async function renderAutomation() {
-  if (FRESH) app.innerHTML = '<div class="loading">Loading automation controls…</div>';
-  app.innerHTML = `<div class="page-head"><h2 class="page-title">Automation</h2><span class="muted">Approval, cadence, worker switches, schedules, and prompts — per site</span></div>
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Automation</h2><span class="muted">Approval, cadence, worker switches, schedules, and prompts — per site</span></div><button type="button" class="btn" id="auto-refresh">↻ Refresh</button></div>
     <div class="task-toolbar auto-site-toolbar"><button id="auto-site-prev" class="btn sm auto-site-nav" type="button" aria-label="Previous site" title="Previous site">←</button><select id="auto-site" class="cm-input" aria-label="Automation site">${automationSiteOptions(AUTO_SITE)}</select><button id="auto-site-next" class="btn sm auto-site-nav" type="button" aria-label="Next site" title="Next site">→</button><span class="muted">Changes are written to tracked site ops files.</span></div>
-    <div id="auto-body" class="loading">Select a site to manage its automation.</div>`;
+    <div id="auto-body" class="${AUTO_SITE ? 'async-loading' : 'empty'}" ${AUTO_SITE ? 'role="status" aria-live="polite"' : ''}>${AUTO_SITE ? 'Loading automation controls…' : 'Select a site to manage its automation.'}</div>`;
+  $('#auto-refresh').addEventListener('click', () => renderAutomation());
   $('#auto-site').addEventListener('change', e => {
     AUTO_SITE = e.target.value;
     renderAutomation();
