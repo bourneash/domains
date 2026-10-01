@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:44:58.237Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:14:07.040Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed for fleet-wide go-live, new public exposure, and security-sensitive releases; conditional for the two bounded live-site improvements. Fleet-doctor is not OK with no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced. Compliance is technical-only: 37 pass, 18 fail, 6 unknown. Exact decision: retain both changes as isolated, reversible, no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site queue work; do not execute until CTO reconciles capacity and releases one slot by 2026-10-01T18:00Z. Do not claim clearance, certification, or vulnerability absence.",
+        "summary": "Disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; conditional for ordinary reversible growth. Evidence: fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced. Compliance is a technical baseline only: 37 pass, 18 fail, and 6 unknown. Exact decision: preserve private-launch and security-sensitive release gates; reject admission of the totaljerks.com CTA change this cycle; allow only bounded, no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site work after capacity and measurement evidence are resolved. Do not claim clearance, certification, or absence of vulnerabilities.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The proposed totaljerks.com CTA change is not security-blocked by a known vulnerability, but it is not admissible this cycle because capacity and measurement evidence are unresolved. Retain only as planning context; do not create or execute an implementation request until the authoritative slot count and existing CTA measurement are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T18:01:58.355Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:14:07.019Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep new implementation admission blocked and escalate the unresolved capacity conflict. Evidence: active_delivery reports 1/10 active slots with 9 open, while performance reports 56 active improvements, 4 queued requests, and 11 blocked reviews; the authoritative ledger remains unknown. Smallest next step: reconcile the ledger and close or repair the canonical saveusfarms.com case. Owner decision: approve reassigning this reconciliation if CTO cannot resolve it immediately. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Capacity deadline reached without authoritative reconciliation. Keep the three preserved revalidations gated; document the slot ledger, canonical saveusfarms.com disposition, validation evidence, and release one slot or escalate reassignment by 2026-10-02T12:00:00Z. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
+        "summary": "Recommendation: reassign the unresolved capacity reconciliation from CTO to principal-engineer by 2026-10-02T12:00Z. Evidence: the 18:00Z deadline passed; active_delivery reports 1/10 slots while performance reports 56 active improvements and 11 blocked reviews. Unknown: which ledger is authoritative. Smallest next step: document the canonical saveusfarms.com repair disposition and release one slot. Owner decision: approve this reassignment. Reference: d4abc482-75de-438f-9fcf-522fcdf330fa.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:44:58.237Z",
+  "generated_at": "2026-10-01T18:14:07.039Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial recommendation: reject immediate admission of both live-site changes; retain them as capacity-gated only until CTO reconciles the conflicting ledger by 2026-10-01T18:00Z. The 2026-10-01 AI snapshot reports $22.1593508 across only 17 of 38 expected instrumented sites, so fleet AI spend and cost-to-learn are incomplete. The 2026-09-21 Amazon window reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all on aggregate tracking_id other; site-attributed income is $0, so no site revenue, ROI, contribution-margin, or upside claim is supported. Shoptopless.com and reviewtattoo.com have descriptive baselines of 85 sessions/1 conversion and 57 sessions/1 conversion, but no attributable revenue or causal forecast. Contribution margin and budget exposure are not calculable because direct infrastructure, domain, labor/implementation-time, monthly budget, fixed-cost, and complete site-level revenue data are unavailable. Minimum measurement before execution: reconciled capacity, registered tracking IDs mapped to site/content, direct cost and implementation effort by change, and post-change conversions plus attributable commission over the stated 14-day or 100-relevant-session window. No spend, billing, credential, configuration, or production admission is authorized by this review.",
+        "summary": "Financial recommendation: approve the narrow reassignment of the overdue capacity-reconciliation work to principal-engineer, but reject admission of the totaljerks.com CTA change this cycle. The 2026-09-21 revenue window shows 453 Amazon clicks and 0 site-attributed ordered items; the aggregate $4.92 commission cannot support site revenue, ROI, contribution margin, or upside claims. Existing telemetry records 52 sessions and 1 conversion, but CTA attribution and causal lift are not evidenced. Retain no-spend planning only until capacity is reconciled and an existing CTA event or equivalent measurement is confirmed. Contribution margin, budget exposure, and cost-to-learn remain not calculable because direct infrastructure, domain, labor/time, budget, and site-level revenue allocation are unavailable. Minimum measurement: registered tracking ID mapped to site/content, existing CTA-event counts, direct cost by change/site, and implementation effort/time. created_by=cfo.",
         "requested_action": null,
         "proposal_id": null
       }

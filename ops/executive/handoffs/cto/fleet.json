@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:44:58.237Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:14:07.039Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditionally retain the two bounded live-site improvements as capacity-gated engineer queue work. Do not execute until the authoritative capacity ledger is reconciled and one slot is released by 2026-10-01T18:00Z. Preserve isolated worktrees, no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site, and rollback boundaries. Treat the supplied sessions and conversions as descriptive baselines only; do not claim revenue, ROI, causal lift, or production readiness. Measure only available site analytics after deployment, with conversion rate as an observational metric and unknown attribution or financial impact left explicit.",
+        "summary": "Approve the narrow, reversible reassignment of the overdue capacity-reconciliation work to principal-engineer. Scope is limited to authoritative slot-ledger reconciliation, canonical repair disposition, validation evidence, rollback point, and release/security boundaries. Do not execute or admit the totaljerks.com CTA implementation until capacity and existing CTA measurement are evidenced. Preserve no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site, and no-unsupported-financial-claim boundaries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject admission of the totaljerks.com CTA change this cycle. Existing sessions, conversion, and affiliate-click data are descriptive only; CTA attribution, direct cost/time, causal lift, and site-attributed revenue are not evidenced. Preserve the change as planning context without creating an implementation request.",
         "requested_action": null,
         "proposal_id": null
       }
