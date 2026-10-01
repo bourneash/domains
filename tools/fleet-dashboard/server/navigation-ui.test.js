@@ -923,6 +923,7 @@ test('fleet filtering reports live match counts', () => {
   assert.match(app, /matching rows/);
   assert.match(index, /id="fleet-filter-count"[^>]*role="status"[^>]*aria-live="polite"/);
   assert.match(index, /<meta name="description" content="Operational command center for domain health/);
+  assert.match(index, /id="update-pill"[^>]*aria-label="↻ Update ready — new dashboard version available"/);
   assert.match(theme, /\.fleet-filter-count/);
   assert.match(app, /ff\.addEventListener\('keydown'/);
   assert.match(app, /e\.key === 'Escape' && ff\.value/);
