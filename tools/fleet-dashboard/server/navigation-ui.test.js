@@ -100,8 +100,16 @@ test('shared API reads abandon stale route responses before renderers continue',
 
 test('async route renders surface failures without unhandled promise rejections', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  assert.match(app, /function renderRoute\(\)[\s\S]*Promise\.resolve\(pending\)\.catch\(error => renderViewError\(\$\('#app'\), error\)\)/);
+  assert.match(app, /function renderRoute\(\)[\s\S]*Promise\.resolve\(pending\)\.catch\(error => \{/);
+  assert.match(app, /renderViewError\(\$\('#app'\), error\)/);
   assert.doesNotMatch(app, /window\.addEventListener\('hashchange',[\s\S]*?\n\s*render\(\);/);
+});
+
+test('stale route renders retry the current route after a rapid return', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /renderEpoch !== ROUTE_EPOCH/);
+  assert.match(app, /renderRoute\.retryEpoch !== ROUTE_EPOCH/);
+  assert.match(app, /queueMicrotask\(\(\) => \{[\s\S]*renderRoute\(\);/);
 });
 
 test('private dashboard publishes valid non-indexing metadata', () => {

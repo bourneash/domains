@@ -365,13 +365,16 @@ function stamp() {
 // Keep the last usable page visible during background refresh failures. A
 // transient API outage should not erase filters, expanded rows, or an active
 // operator workflow; the next successful render removes this notice via stamp().
-function renderViewError(target, message) {
-  if (
+function isStaleRouteError(message) {
+  return (
     message instanceof StaleRouteError ||
     message?.name === 'StaleRouteError' ||
     (typeof message === 'string' && message.includes('route changed while data was loading'))
-  )
-    return;
+  );
+}
+
+function renderViewError(target, message) {
+  if (isStaleRouteError(message)) return;
   if (!target) return;
   $('#app')?.setAttribute('aria-busy', 'false');
   const text = String(message || 'The view could not be refreshed.');
@@ -16445,8 +16448,23 @@ function render() {
 // previous route cannot become an unhandled promise (or leave a stale global
 // runtime alert) after the operator has already moved on.
 function renderRoute() {
+  const renderEpoch = ROUTE_EPOCH;
   const pending = render();
-  Promise.resolve(pending).catch(error => renderViewError($('#app'), error));
+  Promise.resolve(pending).catch(error => {
+    if (isStaleRouteError(error)) {
+      // If navigation came back to the route that was already open, its
+      // hashchange does not fire a second time. Retry once for the current
+      // epoch so a discarded request cannot leave a permanent loading state.
+      if (renderEpoch !== ROUTE_EPOCH && renderRoute.retryEpoch !== ROUTE_EPOCH) {
+        renderRoute.retryEpoch = ROUTE_EPOCH;
+        queueMicrotask(() => {
+          if (renderRoute.retryEpoch === ROUTE_EPOCH) renderRoute();
+        });
+      }
+      return;
+    }
+    renderViewError($('#app'), error);
+  });
   return pending;
 }
 
