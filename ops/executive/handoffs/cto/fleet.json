@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:24:07.583Z",
+  "generated_at": "2026-10-01T15:35:14.914Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditionally approve the howtofry.com preview concept, but do not admit a new implementation request this cycle. The preview must remain isolated, zero-spend, preview-only, unpublished, and non-monetized. Scope may cover cooking-product guide and recipe drafts, visual system, and draft affiliate/social placements using existing repository capabilities only. Do not add dependencies, credentials, tracking, automation, domains, production configuration, or external outreach. The authoritative records conflict on capacity: active_delivery reports 1/10 active slots while performance reports saturation, 13 queued requests, 52 active or measuring improvements, and 29 attention items. Reconcile capacity and release a slot before queue admission. Before any public launch, require the existing site-factory readiness artifact covering owner approval, content scope, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. No revenue, ROI, margin, or causal-lift claim is supported.",
+        "summary": "Conditionally retain the three reversible revalidation requests as capacity-gated engineer work. Do not execute until the authoritative slot ledger is reconciled and one slot is released by 2026-10-01T18:00Z. Preserve no-spend, no-credential, no-dependency, no-configuration, no-duplicate-telemetry, and no-unsupported-financial-claim boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed preview is technically feasible and reversible only as an isolated repository/worktree artifact. Acceptance requires a bounded preview build, deterministic tests, build validation, link/disclosure checks where applicable, an exact diff, and a rollback point. It must not publish, deploy, alter production, enable affiliate or social automation, add telemetry, install dependencies, or consume external services. Preserve the request as planning context until the canonical capacity and repair obligations are resolved.",
+        "summary": "Reject the proposed finance baseline memo as duplicate report-only planning. Existing revenue, attribution, AI-cost, and execution artifacts already establish the relevant boundaries. Preserve aggregate commission as unattributed and do not request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

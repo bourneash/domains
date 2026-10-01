@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:24:07.583Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:35:14.914Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: conditionally approve the howtofry.com preview-only build, strictly at zero incremental spend and without publication, affiliate activation, social automation, or monetization. Do not approve a revenue, ROI, contribution-margin, or payback forecast. The 2026-09-21 Amazon window reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, but the commission is on tracking_id \"other\" and cannot be assigned to any site; site-attributed income is $0. AI usage on 2026-10-01 cost $10.84 across 11 sites, but howtofry.com has no recorded AI cost and AI coverage is only 11 of 38 expected sites. Infrastructure, domain, labor, and recurring budget costs are not supplied, so contribution margin and cost-to-learn are not calculable. Minimum measurement before launch: registered site tracking ID, site-level clicks/orders/shipped items/commission, itemized AI and infrastructure cost allocation, and a dated baseline for qualified sessions and affiliate clicks. Keep the work capacity-gated because the ledgers conflict: active delivery reports 1/10 slots while performance reports saturation.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Finance disposition: retain the owner-requested preview as a non-revenue prototype only. The authoritative brief has no monthly revenue target, fixed-cost total, marketing budget, revenue floor, or attribution materiality threshold. Therefore no break-even, CAC, ROAS, contribution-margin, or payback claim is supportable. Vanity metrics such as visual quality, recipe count, guide count, social-account setup, impressions, or affiliate clicks must not be treated as financial outcomes without attributable shipped commission and allocated costs.",
+        "summary": "Financial recommendation: retain the three revalidations only as capacity-gated, no-spend work. Do not claim revenue, contribution margin, ROI, causal lift, or forecasted upside. The 2026-09-21 Amazon window reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but all commission is in aggregate tracking_id other; site-attributed income is $0. The 2026-10-01 AI snapshot reports $10.8396 across only 11 of 38 expected instrumented sites, so fleet AI cost and cost-to-learn are incomplete. Contribution margin is not calculable because direct infrastructure, domain, labor, and site-level revenue allocation are unavailable. Minimum measurement: reconcile registered tracking IDs to site/content, capture direct cost by site and change, and record implementation effort/time. Proceed only after capacity is reconciled and measure clicks/CTR/LCP with explicit thresholds; finance approval does not authorize spending, billing, banking, contracts, or legal/tax decisions.",
         "requested_action": null,
         "proposal_id": null
       }

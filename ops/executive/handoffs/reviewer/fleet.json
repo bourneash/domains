@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:33:01.892Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:35:14.915Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects unsupported revenue or causal-lift claims, high-priority expansion, duplicate telemetry, and production execution while capacity, infrastructure validation, and attribution gates remain unresolved. Three bounded medium-priority revalidations are routed to engineer as capacity-gated work; CTO must reconcile the slot ledger and release capacity by 2026-10-01T18:00Z or escalate to the owner.",
+        "summary": "Reject the three production revalidations this cycle: baseline volume or attribution is insufficient, and no defensible acceptance thresholds are evidenced. Preserve the existing security evidence matrix and private-launch gates. Allow only two bounded public-surface research requests for specific implementation evidence; do not request duplicate telemetry or claim financial or causal outcomes.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported financial, causal-lift, launch-readiness, and production claims. Retain three low-risk engineer revalidations as capacity-gated only; CTO must reconcile the slot ledger and release capacity by 2026-10-01T18:00Z, or escalate unresolved capacity to the owner. Preserve all credential, configuration, spend, telemetry, legal, security, and disclosure boundaries.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Material concerns: Amazon aggregate commission is unattributed; AI-cost coverage is incomplete; security and operations evidence is missing; and current telemetry is too low-volume for financial or causal claims. Existing scaffold candidates remain blocked pending site-factory readiness evidence owned by site-factory by 2026-10-02T12:00Z; missed capacity or readiness deadlines escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

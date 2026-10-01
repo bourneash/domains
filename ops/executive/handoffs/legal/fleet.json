@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:24:07.583Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:35:14.914Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for an isolated, zero-spend, unpublished howtofry.com preview; blocked for public launch, affiliate activation, social automation, data collection, monetization, and financial claims. Evidence: analytics is not configured; affiliate, social, content-rights, privacy, terms, cookie disclosure, claims, platform-policy, security, measurement, and rollback readiness are not evidenced. Amazon reports $4.92 aggregate commission on tracking_id \"other\", which cannot be assigned to howtofry.com; no revenue or ROI forecast is supportable. Exact decision: retain preview-only work as planning context, do not admit or execute it until the conflicting capacity ledger is reconciled and a slot is released; do not publish or monetize until a site-specific launch-readiness artifact is complete. Ordinary reversible work may continue only if it adds no tracking, credentials, dependencies, permissions, external outreach, or new data collection. This is risk triage, not legal advice or certification; human counsel is required if affiliate terms, third-party content/images, regulated claims, or audience/age-sensitive issues arise.",
+        "summary": "Fleet legal disposition: conditional for ordinary reversible growth; blocked for new public launches, monetization expansion, or security-sensitive exposure. Compliance baseline is technical only: 35 pass, 20 fail, 6 unknown, with 20 sites lacking banner/accept/reject/GA4 evidence and 4 lacking privacy/terms evidence. Do not treat incomplete telemetry as a growth blocker, but preserve disclosure, consent, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. The three proposed revalidations may remain capacity-gated only; they must not alter tracking, disclosures, affiliate behavior, data collection, or public launch state.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Checklist findings: compliance is a technical baseline only, with 35 pass, 20 fail, and 6 unknown across the fleet; it is not certification. Data quality is green for registry, operational checkouts, analytics, SEO, and Amazon source availability, yellow for incomplete AI-usage coverage and aggregate revenue attribution. Analytics is not configured for howtofry.com, and no telemetry may be invented or requested merely to support this preview. Revenue evidence supports no site-level income, ROI, margin, or payback claim. Required launch checklist before public exposure: verify owner-approved scope and cooking-content provenance; document rights for recipes, text, images, trademarks, and product claims; add and verify privacy, terms, cookie/analytics, and affiliate disclosures; confirm consent-gated analytics before enabling it; document registered affiliate tracking ID and attribution; complete security/release, freshness, rollback, and platform-policy review; confirm age-sensitive and regulated-claim boundaries; record preview evidence and a concrete go/no-go decision.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot launch-readiness remains active and unchanged: 0 of 4 legal tasks are evidenced closed, so none may be closed. Source-rights review is blocked because Woot documentation confirms API access but not storage, historical derivatives, public display, alerts, affiliate, or advertising rights; current public terms point against the proposed public data use. User alert rules, GA4 analytics, and operational logs/Cloudflare processing remain evidence_needed. Smallest next evidence action: attach one dated read-only bundle containing the source-rights matrix, repository/config data-flow and retention table, deployed consent and GA4 property/data-sharing/retention capture, log/vendor/DPA inventory, and incident/deletion/correction/request workflows. Keep outreach unsent and the private gate in place; escalate rights, privacy/jurisdiction, notification, vendor, and future affiliate/advertising questions to human counsel.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot data-use dispositions: Woot API deal and price-history data = blocked; missing written redistribution/commercial permission, field-level rights, attribution, freshness, correction/takedown, and affiliate terms; smallest action: attach a dated rights matrix and prepare a counsel-reviewed permission request without sending it. User alert rules and sync results = evidence_needed; missing data inventory, retention/deletion/correction/access workflow, processor terms, notification consent, and unsubscribe evidence; smallest action: produce a read-only data-flow and retention table from existing repository/config artifacts. GA4 analytics = evidence_needed; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention, vendor disclosure, and jurisdictional review; smallest action: capture current configuration without enabling tracking. Operational logs and Cloudflare hosting data = evidence_needed; missing log-field inventory, retention/access controls, vendor terms/DPA review, and incident/request procedures; smallest action: produce a read-only operator/vendor and incident-handling table.",
+        "summary": "SearchWoot launch-readiness remains blocked and private. Progress is 0 of 4 legal tasks evidenced closed. Data-use decisions: Woot API deal and price-history data is blocked pending written redistribution/commercial permission and field-level rights; user alert rules and sync results are evidence_needed pending data-flow, retention, deletion, processor, consent, and unsubscribe evidence; GA4 is evidence_needed pending deployed consent, property/data-sharing, retention, vendor, and jurisdiction evidence; operational logs and Cloudflare data are evidence_needed pending log-field, retention/access, vendor/DPA, incident, and request procedures. No task may close. Next evidence action: attach one dated read-only bundle covering all four task deliverables and prepare, but do not send, a counsel-reviewed Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }

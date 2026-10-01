@@ -2,23 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:24:07.584Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:35:14.915Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Risk severity is high for public launch, monetization, new data collection, and security-sensitive releases; conditional for an isolated, zero-spend, unpublished preview. Evidence: fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error sweeps; authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: retain howtofry.com only as preview planning context, do not admit or execute until capacity is reconciled, and block publication, affiliate activation, social automation, tracking, credentials, dependencies, data collection, and production changes until the readiness evidence is complete. This is read-only risk triage, not penetration testing or certification.",
+        "summary": "Disposition: evidence_needed. Risk is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: preserve existing private-launch and security-sensitive release gates; do not claim clearance, certification, or absence of vulnerabilities.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Retain howtofry.com as an evidence-gated unpublished preview",
-        "summary": "Allow only an isolated, zero-spend, unpublished preview artifact for howtofry.com. Block public launch, monetization, tracking, social automation, credentials, new dependencies, data collection, and production changes until security and launch evidence is complete.",
-        "requested_action": "Do not admit or execute until the conflicting capacity ledger is reconciled and a slot is released. Then produce one dated site-specific readiness artifact covering authentication and access boundaries, secrets handling, isolation, release/deploy controls, dependency provenance, TLS, data exposure, monitoring and incident response, security.txt/disclosure readiness, rights, disclosures, consent, registered affiliate tracking, rollback, and preview-only status. Keep publication and monetization blocked pending owner, legal, security, measurement, and compliance decisions.",
-        "proposal_id": "07a3becb-03d3-4e73-a0ee-0dc87eee5c07"
+        "title": "Maintain evidence-needed fleet security disposition and constrained growth gate",
+        "summary": "Fleet-wide security clearance is unsupported. Security and operations baselines lack executable sweep results, and material controls remain unevidenced. Preserve security-sensitive release and public-exposure gates while allowing only bounded reversible growth that does not add credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": "Retain the existing security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, conduct external outreach, or claim certification. Exact decision: evidence_needed for go-live and security-sensitive releases; conditional for ordinary reversible growth.",
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain SearchWoot private security gate",
+        "summary": "SearchWoot remains private because access, data-flow, logging, incident, release, and security-control evidence is incomplete. Existing legal evidence also confirms that API access does not establish public redistribution or commercial-use permission.",
+        "requested_action": "Keep SearchWoot private. Continue only bounded read-only evidence work from retained artifacts and authorized metadata. Do not change credentials, configuration, permissions, dependencies, tracking, data collection, deployment, or public exposure. Reassess only after access boundaries, secret handling, isolation, release controls, TLS, dependency provenance, data exposure, monitoring, incident readiness, and disclosure readiness are evidenced and Legal resolves source-rights questions.",
+        "proposal_id": null
       }
     ]
   }
