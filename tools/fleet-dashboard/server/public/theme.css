@@ -1860,6 +1860,34 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 }
 :root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
 :root[data-theme="light"] .ex-workspace-tab.active small { color: var(--a1); }
+:root[data-theme="light"] .ex-kpi,
+:root[data-theme="light"] .ex-run-panel,
+:root[data-theme="light"] .ex-transcript-panel,
+:root[data-theme="light"] .ex-request-list-item,
+:root[data-theme="light"] .ex-case-list-item,
+:root[data-theme="light"] .ex-request-card,
+:root[data-theme="light"] .ex-attention .ex-approval-card {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .ex-kpi b { color: var(--text-hi); }
+:root[data-theme="light"] .ex-kpi.warn b { color: #9a6800; }
+:root[data-theme="light"] .ex-kpi.good b { color: #16845a; }
+:root[data-theme="light"] .ex-kpi.info b { color: var(--a1); }
+:root[data-theme="light"] .ex-request-list-item.selected,
+:root[data-theme="light"] .ex-case-list-item.selected {
+  background: linear-gradient(135deg, rgba(40,119,212,.13), rgba(122,87,196,.09));
+}
+:root[data-theme="light"] .sh-tile {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .sh-site.is-bad { border-color: rgba(190,67,86,.3); }
+:root[data-theme="light"] .sh-pill,
+:root[data-theme="light"] .sh-chan {
+  background: rgba(40,70,110,.045);
+  border-color: var(--border);
+}
 :root[data-theme="light"] .tab.active,
 :root[data-theme="light"] .nav-group-btn.active {
   color: var(--text-hi);

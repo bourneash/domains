@@ -1133,6 +1133,19 @@ test('the shell exposes the authenticated access level', () => {
   assert.match(theme, /\.access-badge\.is-viewer/);
 });
 
+test('light theme is wired into the shell and shared route surfaces', () => {
+  const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(index, /id="theme-toggle"/);
+  assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
+  assert.match(app, /function applyThemeUI\(\)/);
+  assert.match(app, /document\.documentElement\.dataset\.theme = theme/);
+  assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
+  assert.match(theme, /:root\[data-theme="light"\] \.sh-tile/);
+  assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active/);
+});
+
 test('agent pages expose enrollment actions that open the automation editor', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /class="btn sm ag-enroll"/);
