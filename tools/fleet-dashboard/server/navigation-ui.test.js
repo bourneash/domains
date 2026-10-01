@@ -138,10 +138,16 @@ test('executive workbench is a first-class operator route', () => {
 
 test('workbench thread expansion exposes an accessible loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /thread\.innerHTML\s*=\s*'<div class="async-loading" role="status" aria-live="polite">Loading thread…<\/div>'/
+  );
+});
+
+test('change and Workbench detail timelines stay bounded on narrow screens', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.ok(
-    app.includes(
-      'thread.innerHTML = \'<div class="async-loading" role="status" aria-live="polite">Loading thread…</div>\''
-    )
+    (app.match(/<h4>Timeline<\/h4><div class="table-wrap"><table class="tbl">/g) || []).length >= 2
   );
 });
 
