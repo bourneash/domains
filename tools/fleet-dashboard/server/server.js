@@ -2767,6 +2767,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       return deliverTaskRoutingAutomatically(item, request);
     if (request?.delivery_mode === 'report_only') {
       let workspace = await git.worktreeSnapshot(item.workspace_path);
+      if (workspace.dirty) {
+        workspace = await git.commitWorktree(item.workspace_path, `report: ${item.title}`);
+      }
       const diff = await git.worktreeDiff(item.workspace_path);
       const agentStatus = improvementAgent.status(root, item);
       if (!improvements.reportOnlyArtifactReady(diff.text, agentStatus.log_tail))
@@ -2776,9 +2779,6 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             httpStatus: 409,
           }
         );
-      if (workspace.dirty) {
-        workspace = await git.commitWorktree(item.workspace_path, `report: ${item.title}`);
-      }
       const artifact = writeReportArtifact(root, request, item, diff.text, agentStatus.log_tail);
       const reported = improvements.transition(events, item.run_id, {
         state: 'reported',
@@ -3211,10 +3211,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         maxTurns: request.max_turns,
         role: request.assigned_role || 'engineer',
         onFinished: result => {
-          if (result.code === 0 && !result.timedOut && request.auto_review !== 0) {
-            autoReviewRequest(request.request_id).catch(repairError =>
-              recordAutoReviewFailure(request.request_id, repairError)
-            );
+          if (result.code === 0 && !result.timedOut) {
+            if (request.delivery_mode === 'report_only') {
+              Promise.resolve()
+                .then(async () => {
+                  const finished = events.getImprovement(run.run_id);
+                  if (!finished) throw new Error('report-only repair run disappeared');
+                  await deliverAutomatically(finished);
+                })
+                .catch(repairError => recordAutoReviewFailure(request.request_id, repairError));
+            } else if (request.auto_review !== 0) {
+              autoReviewRequest(request.request_id).catch(repairError =>
+                recordAutoReviewFailure(request.request_id, repairError)
+              );
+            }
           }
         },
       });
