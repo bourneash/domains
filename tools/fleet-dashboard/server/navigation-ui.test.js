@@ -400,6 +400,15 @@ test('knowledge shelf is a first-class operator route', () => {
   assert.match(app, /\$\('#kn-refresh'\)\.onclick = \(\) => renderKnowledge\(\)/);
 });
 
+test('executive overview gives repeated operational actions row context', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /aria-label="Dismiss notification: \$\{esc\(notification\.title\)\}"/);
+  assert.match(app, /aria-label="View log for \$\{esc\(label\.toLowerCase\(\)\)\} run/);
+  assert.match(app, /aria-label="Clear failed \$\{esc\(label\.toLowerCase\(\)\)\} run/);
+  assert.match(app, /aria-label="Pick up calendar event: \$\{esc\(e\.title\)\}"/);
+  assert.match(app, /aria-label="Approve proposal: \$\{esc\(p\.title\)\}"/);
+});
+
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#git').view, 'git');
   assert.equal(routeFor('#git').gitTab, 'operations');

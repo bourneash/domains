@@ -15076,7 +15076,7 @@ async function renderExecutive() {
   const notificationRows = visibleNotifications
     .map(
       notification =>
-        `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><span class="ex-notification-icon" aria-hidden="true">!</span><div class="ex-notification-content"><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="ex-notification-read" type="button" aria-label="Dismiss notification" title="Dismiss notification">×</button></article>`
+        `<article class="ex-notification" data-notification-id="${esc(notification.notification_id)}"><span class="ex-notification-icon" aria-hidden="true">!</span><div class="ex-notification-content"><b>${esc(notification.title)}</b><div>${esc(notification.body)}</div><small class="muted">${esc(fmtDate(notification.created_at))}</small></div><button class="ex-notification-read" type="button" aria-label="Dismiss notification: ${esc(notification.title)}" title="Dismiss notification: ${esc(notification.title)}">×</button></article>`
     )
     .join('');
   const notificationGroup = notificationRows
@@ -15275,7 +15275,7 @@ async function renderExecutive() {
         croHandoff && pending
           ? 'Presented to CEO/CTO'
           : pending
-            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
+            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}" aria-label="Approve proposal: ${esc(p.title)}" title="Approve proposal: ${esc(p.title)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}" aria-label="Reply or request changes for proposal: ${esc(p.title)}" title="Reply or request changes for proposal: ${esc(p.title)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}" aria-label="Decline proposal: ${esc(p.title)}" title="Decline proposal: ${esc(p.title)}">Decline</button>`
             : esc(p.decision_note || '');
       return `<tr><td><b>${esc(p.title)}</b><div class="muted">${proposalScope(p)} ${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}${p.requested_action ? `<div class="muted ex-decision-request"><b>Decision:</b> ${esc(p.requested_action)}</div>` : ''}</td><td><span class="badge ${badge}">${esc(status)}</span></td><td>${decision} <button class="btn sm ex-open-thread" type="button">Work thread →</button></td></tr>`;
     })
@@ -15423,9 +15423,9 @@ async function renderExecutive() {
         (run.result?.counts ? 'Plan applied' : 'Recorded run');
       const clear =
         run.status === 'failed'
-          ? ` <button class="btn sm ex-run-clear" data-id="${esc(run.action_id)}" type="button">Clear</button>`
+          ? ` <button class="btn sm ex-run-clear" data-id="${esc(run.action_id)}" type="button" aria-label="Clear failed ${esc(label.toLowerCase())} run ${esc(run.action_id.slice(0, 8))}" title="Clear failed ${esc(label.toLowerCase())} run ${esc(run.action_id.slice(0, 8))}">Clear</button>`
           : '';
-      return `<tr class="${run.action_id === selectedRunId ? 'ex-run-selected' : ''}"><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}${clear}</td><td class="muted"><button class="btn sm ex-run-view" data-id="${esc(run.action_id)}" type="button">View log</button><div>${esc(run.action_id.slice(0, 8))}</div></td></tr>`;
+      return `<tr class="${run.action_id === selectedRunId ? 'ex-run-selected' : ''}"><td><span class="badge ${statusClass}">${isActive ? 'running' : esc(run.status)}</span></td><td><b>${esc(label)}</b><div class="muted">${esc(fmtDate(run.started_at))}</div></td><td>${esc(detail)}${clear}</td><td class="muted"><button class="btn sm ex-run-view" data-id="${esc(run.action_id)}" type="button" aria-label="View log for ${esc(label.toLowerCase())} run ${esc(run.action_id.slice(0, 8))}" title="View log for ${esc(label.toLowerCase())} run ${esc(run.action_id.slice(0, 8))}">View log</button><div>${esc(run.action_id.slice(0, 8))}</div></td></tr>`;
     })
     .join('');
   const runSortButton = (key, label) => {
@@ -15459,7 +15459,7 @@ async function renderExecutive() {
     .slice(0, 30)
     .map(
       e =>
-        `<tr><td><b>${esc(e.title)}</b><div class="muted">${esc(e.owner || 'ceo')}${e.site ? ` · ${esc(e.site)}` : ''}</div></td><td>${esc(fmtDate(e.at))}</td><td>${calendarBadge(e.state)}</td><td>${e.state === 'overdue' || e.state === 'scheduled' ? `<button class="btn sm ex-calendar-pick" data-id="${esc(e.id)}">Pick up</button>` : ''}${e.state === 'picked_up' ? `<button class="btn sm ex-calendar-complete" data-id="${esc(e.id)}">Complete</button>` : ''}</td></tr>`
+        `<tr><td><b>${esc(e.title)}</b><div class="muted">${esc(e.owner || 'ceo')}${e.site ? ` · ${esc(e.site)}` : ''}</div></td><td>${esc(fmtDate(e.at))}</td><td>${calendarBadge(e.state)}</td><td>${e.state === 'overdue' || e.state === 'scheduled' ? `<button class="btn sm ex-calendar-pick" data-id="${esc(e.id)}" aria-label="Pick up calendar event: ${esc(e.title)}" title="Pick up calendar event: ${esc(e.title)}">Pick up</button>` : ''}${e.state === 'picked_up' ? `<button class="btn sm ex-calendar-complete" data-id="${esc(e.id)}" aria-label="Complete calendar event: ${esc(e.title)}" title="Complete calendar event: ${esc(e.title)}">Complete</button>` : ''}</td></tr>`
     )
     .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
