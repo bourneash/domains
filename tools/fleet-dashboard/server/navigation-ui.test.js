@@ -1736,6 +1736,7 @@ test('Compliance keeps scan controls explicit and safe', () => {
   );
   assert.match(app, /type="button" id="compliance-refresh" class="btn"/);
   assert.match(app, /compliance-table"><div class="table-wrap"><table>/);
+  assert.match(app, /Compliance evidence by site/);
   assert.match(app, /id="compliance-scan" class="btn sm compliance-scan"/);
   assert.match(app, /type="button" class="badge .*compliance-status/);
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);

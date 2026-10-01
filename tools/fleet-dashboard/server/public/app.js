@@ -7721,6 +7721,7 @@ async function renderCompliance() {
     </div>
     <div class="compliance-note">A pass requires a detected cookie consent UI with both accept and reject choices, a Privacy Policy, and Terms. If GA4 is present, it must show default-denied consent mode or basic consent gating. “Unknown” means the deployed site could not be verified; it is never treated as a pass or failure.</div>
     <div class="card compliance-table"><div class="table-wrap"><table>
+      <caption class="sr-only">Compliance evidence by site</caption>
       <thead><tr>${sortHeader('Site', 'site')}${sortHeader('Status', 'status')}${sortHeader('Banner', 'banner')}${sortHeader('Accept', 'accept')}${sortHeader('Reject', 'reject')}${sortHeader('GA4', 'ga4')}${sortHeader('GA consent', 'gaConsentGated')}${sortHeader('Privacy', 'privacy')}${sortHeader('Terms', 'terms')}${sortHeader('Evidence / issue', 'evidence')}${sortHeader('Checked', 'checkedAt')}<th>Action</th></tr></thead>
       <tbody id="compliance-body"></tbody>
     </table></div></div>`;
