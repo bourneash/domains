@@ -161,6 +161,14 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
 });
 
+test('Retention exposes a primary loading state before reading policy data', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /async function renderRetention\(\)[\s\S]*?class="loading">Loading retention policy…<\/div>/
+  );
+});
+
 test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");

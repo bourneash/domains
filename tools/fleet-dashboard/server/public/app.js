@@ -4379,6 +4379,7 @@ function controlDraw() {
  */
 async function renderRetention() {
   const app = $('#app');
+  if (FRESH) app.innerHTML = '<div class="loading">Loading retention policy…</div>';
   let d;
   try {
     d = await api('GET', '/api/retention');
