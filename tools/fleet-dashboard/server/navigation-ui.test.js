@@ -1959,6 +1959,7 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
 test('fleet task view presents the filtered slice as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="tasks-summary"/);
   assert.match(app, /Visible tasks<\/span>/);
   assert.match(app, /Blocked<\/span>/);
@@ -1968,6 +1969,9 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   assert.match(app, /id="task-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search fleet tasks"/);
   assert.match(app, /TASK\.f\.query/);
+  assert.match(app, /Sites with active work open by default; backlog-only sites stay collapsed/);
+  assert.match(app, /const hasAttention = ip > 0 \|\| tasks\.some\(t => t\.blocked_on\)/);
+  assert.match(style, /\.tree-control-actions \{ display: flex;/);
 });
 
 test('Tasks route provides context before its mode controls', () => {

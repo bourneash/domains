@@ -5913,7 +5913,7 @@ function fleetTree(rows) {
   const bySite = {};
   for (const t of rows) (bySite[t.site] = bySite[t.site] || []).push(t);
   const groups = Object.entries(bySite).sort((a, b) => b[1].length - a[1].length);
-  const ctrls = `<div class="tree-controls"><button type="button" class="tree-all" data-open="1">expand all</button><button type="button" class="tree-all" data-open="0">collapse all</button></div>`;
+  const ctrls = `<div class="tree-controls"><span class="muted">Sites with active work open by default; backlog-only sites stay collapsed.</span><span class="tree-control-actions"><button type="button" class="tree-all" data-open="1">expand all</button><button type="button" class="tree-all" data-open="0">collapse all</button></span></div>`;
   const body = groups
     .map(([site, tasks]) => {
       const ip = tasks.filter(t => t.column === 'in-progress').length;
@@ -5938,7 +5938,8 @@ function fleetTree(rows) {
           );
         })
         .join('');
-      return `<details class="tree-site" open data-rk="tree:${esc(site)}"><summary class="tree-summary">
+      const hasAttention = ip > 0 || tasks.some(t => t.blocked_on);
+      return `<details class="tree-site"${hasAttention ? ' open' : ''} data-rk="tree:${esc(site)}"><summary class="tree-summary">
         <span class="tree-site-name">${esc(site)}</span>
         <span class="tree-meta">${ip ? `<span class="badge b-blue">${ip} in-progress</span>` : ''}${bl ? `<span class="badge b-gray">${bl} not started</span>` : ''}</span>
       </summary><div class="tree-tasks">${items}</div></details>`;

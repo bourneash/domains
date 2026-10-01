@@ -867,7 +867,8 @@ body[data-view="builds"] main { max-width: none; }
 .task-count { color: var(--muted); font-size: 13px; }
 
 /* tree view */
-.tree-controls { display: flex; gap: 6px; margin-bottom: 10px; }
+.tree-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.tree-control-actions { display: flex; flex-shrink: 0; gap: 6px; }
 .tree-controls button { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
 .tree-controls button:hover { color: var(--text); }
 .tree-list { display: flex; flex-direction: column; gap: 8px; }
