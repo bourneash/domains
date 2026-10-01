@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.098Z",
+  "generated_at": "2026-10-01T09:55:47.193Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend containment, attribution preservation, and execution of existing repair work only. Amazon reports 6,219 clicks, 28 ordered items, and $4.92 commission for 2026-09-21, but all commission is in aggregate tracking ID “other”; do not assign it to any site or infer ROI. Prioritize the existing allthingsmasonic.com CTA refinement after capacity clears, preserve the amputeenews.com affiliate-tag prerequisite, and reconcile existing affiliate/link/compliance evidence before adding work.",
+        "summary": "Affiliate integrity priorities after capacity clearance: repair stale or broken affiliate references on americastrikes.com; resolve the registered Amazon Associates tag prerequisite for amputeenews.com; validate live affiliate destinations against registered tracking IDs; and reconcile provider aggregate rows without reassigning unattributed income. Preserve existing disclosures and add no telemetry unless already supported by the current instrumentation.",
         "requested_action": null,
         "proposal_id": null
       }

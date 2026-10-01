@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.099Z",
+  "generated_at": "2026-10-01T09:55:47.195Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment and measurement only. Reject all new proposals, change requests, research, telemetry requests, and queue admissions this cycle because delivery is saturated at 10/10 slots, measurement debt remains, and failed-request follow-up is open. Preserve the existing canonical saveusfarms.com repair-or-close case and require root-cause or justified-closure evidence, deterministic validation, isolated build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence before releasing one slot. Keep public-exposure and security-sensitive release gates unchanged.",
+        "summary": "CTO review: reject the three new scaffold change requests from queue admission this cycle. Delivery is saturated at 10/10 active slots, measurement debt and failed requests remain open, and launch-readiness, operations, and security evidence are incomplete. Preserve complicated.work, deadlymaracas.com, and driveford.net as planning-only candidates. Do not create duplicate work, deploy, publish, add telemetry, add dependencies, or claim readiness, revenue, ROI, or lift. Complete or close the canonical saveusfarms.com repair-or-close case with root-cause or closure evidence, deterministic validation, isolated build evidence, rollback point, scope boundaries, and deduplication evidence before releasing one slot. Only after capacity and site-overlap clearance may the existing allthingsmasonic.com CTA refinement execute.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the already-queued allthingsmasonic.com CTA refinement as the next implementation only after a slot is released and site-overlap clearance is confirmed. Do not create a duplicate request or claim revenue, ROI, or causal lift. Acceptance remains limited to CTA/disclosure refinement, deterministic tests, build/link/disclosure checks, available affiliate-click measurement, and single-diff rollback.",
+        "summary": "Technical disposition: preserve private launch and security-sensitive release gates. Fleet-doctor and operations sweeps have no usable results, while authentication, secrets, isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, and incident readiness remain unevidenced. Ordinary reversible work is conditionally acceptable only within existing consent, disclosure, data-handling, dependency, credential, permission, and cross-site boundaries. No go-live, new public exposure, security clearance, or unsupported revenue attribution is approved.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep scaffold candidates planning-only. Do not admit preview builds or publication while launch-readiness, security, compliance, measurement, and capacity gates are incomplete. After a slot is released, complete exactly one verified readiness artifact for the selected candidate before any build admission.",
+        "summary": "After one delivery slot is released, admit at most the already-queued allthingsmasonic.com CTA refinement, subject to site-overlap clearance. Require deterministic tests, build/link/disclosure checks, keyboard and responsive validation, an isolated rollback diff, and measurement using the recorded affiliate-click and attributable order/shipment baseline. Preserve aggregate affiliate income as unattributed and make no causal-lift, revenue, ROI, or margin claim before supported measurement.",
         "requested_action": null,
         "proposal_id": null
       }

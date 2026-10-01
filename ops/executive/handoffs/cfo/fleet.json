@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.099Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:55:47.194Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: contain spend and monetization claims this cycle. Reject new implementation, marketing, infrastructure, and affiliate expansion while 10/10 delivery slots are occupied, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but all income is in aggregate tracking ID \"other\" and cannot support site revenue, contribution margin, ROI, payback, or forecast claims. AI usage on 2026-10-01 is $2.2785467 across 16 calls and only 4 instrumented sites; it cannot be compared with the 2026-09-21 revenue window or allocated across the 6 proven outcomes. Monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank, so budget exposure is not calculable. Retain only existing repair and measurement gates; after a slot is released, the existing allthingsmasonic.com CTA refinement is the lowest-risk learning test. Do not claim revenue or causal lift.",
+        "summary": "CFO recommendation: reject all three new scaffold change requests and admit no new implementation this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Revenue claims are not supported: Amazon's 2026-09-21 report shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but all commission is under aggregate tracking ID \"other\" and cannot be assigned to a site. Site-attributed commission is $0. Contribution margin, ROI, and budget exposure are not calculable because monthly fixed costs, infrastructure/domain costs, marketing spend, labor allocation, and site-level revenue mapping are absent. AI spend is $2.2785467 across 16 calls on 2026-10-01, instrumented for only 4 of 38 expected sites; average cost per call is $0.14240916875, but cost-to-learn is not calculable because calls are not linked to a defined learning unit or verified outcome. The only partial observed result is saveusfarms.com AI cost of $0.3480626 against $0 attributed revenue, excluding all other costs. Preserve the canonical repair-or-close case and the existing allthingsmasonic.com CTA refinement after capacity and overlap clearance; do not claim revenue, margin, ROI, causal lift, or forecast upside.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance measurement before any economic claim: reconcile provider orders, shipped items, commission, and tracking IDs to each site/content identifier for the same reporting period; maintain a site-level cost ledger covering AI, hosting/infrastructure, domains, tooling, and authorized marketing; and link each implementation's cost, exposure window, affiliate clicks, orders, shipped items, and commission. For cost-to-learn, additionally define the learning unit and link AI calls to that unit and a verified outcome. Until these fields exist, report revenue only as aggregate unattributed provider data and margin/ROI as unknown.",
         "requested_action": null,
         "proposal_id": null
       }

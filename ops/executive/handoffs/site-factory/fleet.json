@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.098Z",
+  "generated_at": "2026-10-01T09:55:47.194Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommend preserving a bounded site-factory pipeline without new implementation admission while delivery remains saturated at 10/10 slots. Strongest candidate is complicated.work (site-factory build score 84), but its launch-readiness evidence is incomplete and analytics are not configured. Maintain complicated.work, deadlymaracas.com, and driveford.net as planning candidates only. Exactly one next step: after CTO releases one delivery slot, complete and verify the complicated.work launch-readiness artifact covering owner, scope, template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and preview-only launch gates. Do not add domains, spend, deploy, publish, or claim telemetry.",
+        "summary": "Site-factory disposition: reject the three new scaffold build admissions this cycle because delivery is saturated at 10/10 slots, measurement debt remains open, and launch readiness is not yet verified. Preserve the small pipeline as planning-only: complicated.work, deadlymaracas.com, and driveford.net. Strongest candidate: complicated.work, score 84, existing scaffold. Exactly one next step: after CTO releases one delivery slot, complete the existing canonical launch-readiness artifact for complicated.work covering owner, bounded site brief, reusable template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, and preview-only launch gates. Do not add domains, spend, deploy, publish, or claim telemetry, revenue, ROI, or readiness until required owner, legal, security, measurement, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }

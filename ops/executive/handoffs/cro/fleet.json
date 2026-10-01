@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.098Z",
-  "summary": "cro checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:55:47.194Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposals or implementation admissions this cycle. Capacity is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the first revenue experiment after CTO releases capacity and site overlap clears. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Prototype: clarify affiliate-entry CTA hierarchy and disclosure placement only. Metric: affiliate clicks and attributable outcomes over 14 days or 100 relevant impressions/clicks. Roll back the single CTA diff if validation or link health regresses; do not claim revenue or causal lift.",
+        "summary": "CRO disposition: reject all three new scaffold change requests this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests failed, and only 6 outcomes are proven. Preserve the canonical saveusfarms.com repair-or-close case and existing launch/security gates. After CTO releases capacity and overlap clears, run the already-queued allthingsmasonic.com CTA refinement against its recorded baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks; rollback the isolated diff if validation fails. Do not claim revenue, ROI, causal lift, or security clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Deferred CRO opportunity after capacity release: rodhat.com SEO improvement for /tips/2026-09-02-scm-rights-fd-passing. Evidence: 79 impressions, position 7.1, 4 clicks, 0 sessions, 0 conversions. Smallest reversible prototype: one title/meta or internal-link refinement with existing measurement. Expected metric: impressions-to-click rate and sessions for the target URL. Time-to-learn: 14 days or 100 relevant impressions. Do not add tracking or infer revenue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Product discovery remains research-only. markitdown has MIT licensing and bounded lab checks passed 8/8, but dependency behavior, parser accuracy, maintenance trajectory, supply-chain posture, and fleet-specific SEO lift remain unverified; smallest prototype would convert a fixed internal content sample in a disposable workspace and compare metadata/content extraction quality before any adoption decision. shadcn-ui/ui also has MIT licensing and passed 3/3 bounded checks, but framework compatibility, bundle impact, accessibility regressions, maintenance burden, and conversion lift remain unverified; smallest prototype would render one isolated CTA component against an existing site fixture. Mermaid is MIT-licensed with supported use-case evidence but no safe native checks; prototype only as an offline content-rendering fixture. No dependencies should be installed or production changes made this cycle.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Site-factory opportunity remains planning-only: complicated.work is the strongest scaffold candidate, but analytics are not configured and launch-readiness, legal, security, measurement, and preview gates are incomplete. After one delivery slot is released, complete exactly one readiness artifact covering audience, scope, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and preview-only controls. This is a time-to-learn gate, not a launch recommendation; do not publish, spend, add domains, or claim telemetry.",
+        "summary": "Post-capacity CRO priorities: first validate the allthingsmasonic.com CTA experiment; then repair affiliate integrity on americastrikes.com, resolve the registered Amazon Associates tag prerequisite for amputeenews.com, and validate live affiliate destinations against registered tracking IDs. Preserve Amazon's 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission as aggregate unattributed data; do not assign it to any site or infer ROI. Treat complicated.work, deadlymaracas.com, and driveford.net as planning-only until launch-readiness, legal, security, measurement, rollback, and preview gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }
