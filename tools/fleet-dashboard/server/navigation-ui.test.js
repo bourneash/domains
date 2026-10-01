@@ -136,6 +136,15 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /wb-thread-toggle/);
 });
 
+test('workbench thread expansion exposes an accessible loading state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.ok(
+    app.includes(
+      'thread.innerHTML = \'<div class="async-loading" role="status" aria-live="polite">Loading thread…</div>\''
+    )
+  );
+});
+
 test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");

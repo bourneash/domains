@@ -15937,7 +15937,8 @@ async function renderWorkbench() {
           return;
         }
         thread.classList.remove('hidden');
-        thread.innerHTML = '<div class="muted">Loading thread…</div>';
+        thread.innerHTML =
+          '<div class="async-loading" role="status" aria-live="polite">Loading thread…</div>';
         try {
           const data = await api(
             'GET',
