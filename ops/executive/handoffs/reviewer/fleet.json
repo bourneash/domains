@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:59:43.361Z",
+  "generated_at": "2026-10-01T21:01:46.845Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Capacity ledgers remain unresolved, candidate telemetry is low-volume or descriptive, site-attributed revenue is unsupported, and security/operations evidence is incomplete. Retain only principal-engineer capacity reconciliation under d4abc482-75de-438f-9fcf-5223f339c860. By 2026-10-02T12:00Z, document the authoritative slot count and saveusfarms.com repair disposition; release one slot only if a candidate has a site-specific baseline, threshold, tests, attribution boundary, and rollback point, otherwise escalate to the owner. No unsupported financial, causal-lift, launch-readiness, production-readiness, credential, configuration, spending, schedule, tracking, or production claims are authorized.",
+        "summary": "Reject all new implementation admissions this cycle. No candidate satisfies the combined capacity, measurable-outcome, attribution, test, rollback, and release-evidence gates. Retain only principal-engineer capacity reconciliation under d4abc482-75de-438f-9fcf-5223f339c860. Unblock 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com only after principal-engineer documents site-specific baselines, thresholds, tests, attribution boundaries, rollback points, and the authoritative slot count by 2026-10-02T12:00Z; otherwise escalate to the owner. No unsupported financial, causal-lift, launch-readiness, production-readiness, credential, configuration, spending, schedule, tracking, or duplicate-telemetry work is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
