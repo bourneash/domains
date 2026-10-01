@@ -8206,7 +8206,9 @@ function lintStatusBadge(status) {
 
 async function renderLint() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading lint sweep…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading lint sweep…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/lint');
@@ -8858,7 +8860,9 @@ function domJobBadge(status) {
 
 async function renderDomains() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading domains…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading domains…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/domains');
@@ -13747,7 +13751,9 @@ async function moveWorkflowItem(source, id, column, data) {
 }
 
 async function renderDataQuality() {
-  if (FRESH) app.innerHTML = '<div class="loading">Checking data contracts…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Checking data contracts…</div></div>';
   let data;
   try {
     data = await api('GET', '/api/data-quality');

@@ -155,6 +155,10 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
     app,
+    /role="status" aria-live="polite"><div class="loading">Checking data contracts…<\/div>/
+  );
+  assert.match(
+    app,
     /page-title">Data Quality[\s\S]*<section class="card"><div class="table-wrap"><table class="tbl">/
   );
   assert.match(app, /id="dataquality-refresh"/);
@@ -774,6 +778,10 @@ test('table expanders use semantic buttons instead of placeholder links', () => 
 test('Domains route separates command queueing from operational inventory', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading domains…<\/div>/
+  );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
   assert.match(app, /class="dom-command-form" role="group" aria-label="Queue domain command"/);
   assert.match(app, /class="dom-help"><summary>Command safety and scope/);
@@ -1291,6 +1299,10 @@ test('Backlink Capture keeps coverage tables bounded and actions explicit', () =
 test('Lint separates sweep actions, findings, and remediation guidance', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading lint sweep…<\/div>/
+  );
   assert.match(app, /class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions"/);
   assert.match(app, /class="card lint-table"><div class="table-wrap"><table/);
   assert.match(app, /class="lint-help"><summary>How to remediate lint findings/);
