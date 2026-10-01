@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:21:04.775Z",
+  "generated_at": "2026-10-01T10:23:10.876Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the proposed reviewtattoo.com report-only work and all new implementation admissions this cycle. Delivery is saturated at 10/10; low-volume SEO evidence blocks production work and unsupported financial or causal claims; scaffold candidates lack verified launch-readiness artifacts. CTO must complete or justifiably close the existing saveusfarms.com repair case, release one slot by 2026-10-01T12:00:00Z, and escalate unresolved capacity to the owner at that deadline. After release and site-overlap clearance, admit only one existing bounded request with measurable acceptance criteria.",
+        "summary": "Reject unsupported revenue, ROI, attribution, causal-lift, unsafe, duplicate, and production claims. Amazon commission remains aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and unresolved failures. Route only three capacity-gated, reversible engineer specifications; do not execute until CTO releases a slot and site overlap clears. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T12:00:00Z, then escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
