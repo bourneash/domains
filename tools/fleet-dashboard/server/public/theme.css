@@ -3050,6 +3050,22 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   background: rgba(240,244,250,.8);
   border-color: var(--border);
 }
+:root[data-theme="light"] .seo-stat,
+:root[data-theme="light"] .seo-action {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+  box-shadow: var(--sh-1);
+}
+:root[data-theme="light"] .seo-evidence {
+  background: rgba(40,119,212,.06);
+  border-color: rgba(40,119,212,.16);
+}
+:root[data-theme="light"] .seo-plan {
+  border-left-color: rgba(61,86,120,.22);
+}
+:root[data-theme="light"] .seo-action-foot {
+  border-top-color: var(--border);
+}
 :root[data-theme="light"] .col-head {
   background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(240,244,250,.94));
   border-bottom-color: var(--border);
