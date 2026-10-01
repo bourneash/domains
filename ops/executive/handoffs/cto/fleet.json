@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.192Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:38:25.787Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technically feasible work remains bounded and reversible, but delivery is saturated at 10/10 slots with active measurement, overlap, and repair obligations. Do not admit new implementation, telemetry, dependency, schedule, or production changes this cycle. Preserve existing launch, security, attribution, compliance, and measurement gates. Complete or close the canonical saveusfarms.com repair case with root-cause or closure rationale, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence; then release one slot or escalate.",
+        "summary": "CTO disposition: preserve the capacity gate. All 10 implementation slots are occupied, measurement and repair obligations remain open, and site overlap is unresolved. Do not admit new production work or duplicate queue items. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate by 2026-10-01T12:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate implementation after one slot is released and site overlap clears. Do not create a duplicate or admit the affiliate-registry consistency check yet.",
+        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation only after capacity and allthingsmasonic.com overlap clear. Keep scope limited to CTA hierarchy, disclosure placement, accessibility, responsive layout, deterministic validation, affiliate-click measurement, and single-diff rollback. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the existing launch-readiness work for complicated.work. Complete one verified readiness artifact only after capacity clears; do not build, publish, configure analytics, add dependencies, spend, or change domains before owner, legal, security, measurement, and rollback gates are evidenced.",
+        "summary": "Retain Amazon attribution boundaries: 18 named tracking rows remain separately attributable; the aggregate row's 629 clicks and $4.92 commission remain unattributed. No site revenue, margin, ROI, payback, forecast, or causal-lift claim is supported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not admit scaffold builds or new SEO/growth implementations this cycle. Scaffold candidates remain preview/planning-only until one verified launch-readiness artifact exists and capacity is released. No deployment, domain action, spending, telemetry change, or publication is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The isolated microsoft/markitdown research lead is technically feasible only as a disposable, read-only prototype with no dependency installation, production access, fleet integration, or publication. Preserve it as research context; do not create a queue item while capacity and measurement obligations remain saturated.",
         "requested_action": null,
         "proposal_id": null
       }

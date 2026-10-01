@@ -2,37 +2,30 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.192Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:38:25.787Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: hold discretionary spend, ROI claims, and new monetization admissions until attribution and cost coverage are sufficient. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all attached to aggregate tracking_id other; site-attributed income is $0. Revenue claims, contribution margin, CAC, and ROI are therefore unsupported. AI spend was $10.8396 on 2026-10-01 across 11 of 38 expected sites; infrastructure spend, labor allocation, monthly budget, and spend limits are blank or unavailable. Preserve the existing capacity gate and run only report-only financial reconciliation using existing telemetry.",
+        "summary": "CFO recommendation: freeze new monetization claims, forecasts, and finance-impacting admissions. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 and 629 aggregate clicks are unattributed; therefore site revenue, contribution margin, ROI, payback, and forecast revenue are unsupported. Preserve the existing allthingsmasonic.com request only as a capacity-gated, reversible experiment after one delivery slot is released and site overlap clears; do not treat clicks, sessions, impressions, proposals, or conversions as revenue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the $4.92 Amazon commission unattributed. Do not assign aggregate ordered items, shipped items, or income to any site. Require registered site tracking IDs and a dated provider export before reporting site revenue or margin.",
+        "summary": "AI spend is measurable only for 2026-10-01: $10.8396 across 85 calls and 11 instrumented sites, versus 38 expected sites; coverage is 28.9%. The calculable proxy is approximately $0.1275 per AI call, not cost-to-learn. Cost-to-learn is not calculable because experiment outcomes, validated learning units, attributable revenue, and complete AI coverage are unavailable. Infrastructure, hosting, domains, labor, and other direct costs are absent, so contribution margin and budget exposure cannot be quantified. Minimum measurement needed: a dated fleet/site cost ledger covering AI, infrastructure, domains, labor, and other directly attributable costs, joined to site/content identifiers and the revenue window.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit work based on revenue, ROI, or payback forecasts. After capacity clears, the existing allthingsmasonic.com CTA test may proceed only as a measurement experiment: baseline 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21; no financial upside is assumed.",
+        "summary": "Retain the existing Amazon attribution boundary: report the 18 named tracking rows separately and preserve the 629 aggregate clicks and $4.92 aggregate commission as unattributed. Do not assign aggregate earnings to any site or publish revenue, margin, ROI, payback, or causal-lift claims. The current $0 site-attributed commission for allthingsmasonic.com in the 2026-09-21 window supports testing a conversion path, not a revenue claim.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "Retain only as a capacity-gated, report-only prototype. The 2–3 engineering day estimate is not a budget approval; measure reviewer acceptance time and usable-draft rate, and do not claim revenue, margin, or payback.",
-        "requested_action": "accepted_research",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

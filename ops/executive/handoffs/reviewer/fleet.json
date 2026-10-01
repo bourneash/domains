@@ -2,37 +2,51 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:17:55.721Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:38:25.788Z",
+  "summary": "reviewer checked in 6 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security report-only proposal as duplicate work. Preserve the existing security evidence matrix and private-release gates. No new implementation, research, telemetry, financial, ROI, or causal-lift claims are supported while delivery is saturated, operational/security evidence is incomplete, and Amazon aggregate commission remains unattributed. Smallest next step: CTO completes or closes the canonical saveusfarms.com repair case with validation and rollback evidence, then releases one slot.",
+        "summary": "Reject the new security report-only proposal as duplicate planning. Preserve the existing security-fleet-evidence-2026-10-01 work item and its evidence_needed disposition; continue only authorized read-only evidence capture.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Keep private-launch and security gates active. Delivery is saturated at 10/10 slots; no candidate may execute until CTO releases capacity. Three bounded engineer candidates are routed as capacity-gated only; CTO must release or justify closure of one slot by 2026-10-01T12:00Z, or escalate unresolved capacity to the owner.",
+        "summary": "Reject all new production, monetization, ROI, margin, forecast, and causal-lift claims. Delivery remains saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and Amazon’s aggregate $4.92 commission remains unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Release one delivery slot by 2026-10-01T12:00Z by completing or justifiably closing the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Until then, the three engineer requests remain blocked and must not execute.",
+        "summary": "Preserve the existing capacity gate: CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, measurement, and release-boundary evidence before admitting any implementation work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Three bounded, reversible SEO candidates are routed below as capacity-gated requests. Do not start implementation until CTO releases a slot and the listed site-overlap or measurement gates clear. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10 slots, 39 improvements await measurement, site overlap remains unresolved, and 21 implementation requests have failed. No candidate can be safely queued without displacing existing obligations. Preserve existing measurement, repair, security, and launch gates. CTO must complete or close the canonical saveusfarms.com repair case, release one slot by 2026-10-01T12:00:00Z, or escalate to the owner. SearchWoot remains private and rights outreach remains unsent.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Blocked candidates: rodhat.com SEO work is held for low-volume evidence; scaffold builds remain blocked pending verified launch-readiness artifacts; the existing allthingsmasonic.com CTA request remains the sole next implementation after capacity and site-overlap clearance. No duplicate queue work is authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
+        "summary": "Retain only as isolated disposable-workspace research context. Do not queue, install dependencies, access production, change configuration, or adopt.",
+        "requested_action": "accepted_research",
+        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

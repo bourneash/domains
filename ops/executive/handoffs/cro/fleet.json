@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:28:52.192Z",
-  "summary": "cro checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:38:25.787Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate experiment after capacity and site-overlap clearance. Test clearer primary CTA hierarchy, adjacent disclosure, accessible focus states, and responsive layout while preserving destinations. Baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate-click rate and attributable ordered items for 14 days or 100 relevant impressions/clicks. Do not claim revenue or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not admit new implementation work while delivery is 10/10 occupied, 39 improvements await measurement, and failed-request repairs remain open. Preserve existing measurement, attribution, security, compliance, and site-overlap gates. After one slot is released, review the CRO research leads below without duplicating active queue work.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the canonical allthingsmasonic.com revenue experiment and one bounded markitdown research lead. Reject duplicate planning briefs, new site-factory admissions, and the proposed americastrikes registry change until existing work and capacity are resolved. Amazon's $4.92 aggregate commission remains unattributed; no ROI or causal lift is supported.",
+        "summary": "CRO disposition: reject new admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests have failed, and existing site overlap remains unresolved. Preserve current measurement, repair, and launch-readiness gates; do not create duplicate queue work or assign aggregate affiliate earnings to any site.",
         "requested_action": null,
         "proposal_id": null
       }
