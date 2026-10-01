@@ -1191,9 +1191,9 @@
   rail.id = 'rail';
   rail.innerHTML = `
     <div class="rl-top">
-      <a class="rl-brand" title="Domain Control">
+      <a class="rl-brand" title="Domain Fleet Manager" aria-label="Domain Fleet Manager home">
         <span class="rl-mark"></span>
-        <span class="rl-word" title="Domain Fleet Manager">Domain Fleet Manager</span>
+        <span class="rl-word" title="Domain Fleet Manager">Fleet Manager</span>
       </a>
       <button class="rl-fold" type="button" title="Collapse sidebar" aria-label="Collapse sidebar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 7.5 10 12l4.5 4.5"/></svg>
@@ -1669,7 +1669,8 @@
   }
 
   function syncNavigationCurrent() {
-    const navigationView = document.body.dataset.view === 'site' ? 'control' : document.body.dataset.view;
+    const navigationView =
+      document.body.dataset.view === 'site' ? 'control' : document.body.dataset.view;
     $$('.tabs [data-view], .tabs .dd-item[data-role]').forEach(item =>
       item.removeAttribute('aria-current')
     );

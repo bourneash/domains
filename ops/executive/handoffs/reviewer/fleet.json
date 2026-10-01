@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T19:31:17.514Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T19:41:05.352Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production admission this cycle. Capacity is unresolved, telemetry is low-volume or descriptive, aggregate commission is unattributed, and security/operations evidence is incomplete. Retain only the existing principal-engineer capacity reconciliation; no financial, causal-lift, launch-readiness, or production-readiness claims are supported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No implementation requests are admitted. 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com remain explicitly blocked pending site-specific baselines, minimum thresholds, attribution boundaries, rollback criteria, and authoritative capacity reconciliation. Principal-engineer owns the unblock record by 2026-10-02T12:00Z; unresolved capacity or evidence must escalate to the owner.",
+        "summary": "Reject new implementation admission this cycle. Capacity ledgers conflict, telemetry is low-volume or descriptive, aggregate commission is unattributed, and security/operations evidence is incomplete. Retain only principal-engineer capacity reconciliation. The three considered reversible candidates—0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair—remain unqueued until site-specific baselines, thresholds, attribution boundaries, rollback criteria, and authoritative capacity are documented. Principal-engineer must complete the reconciliation by 2026-10-02T12:00Z or escalate to the owner. No unsupported financial, causal-lift, launch-readiness, production-readiness, credential, configuration, spending, schedule, tracking, or production claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

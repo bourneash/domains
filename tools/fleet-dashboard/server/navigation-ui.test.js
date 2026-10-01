@@ -32,6 +32,60 @@ test('agent navigation tolerates both bare-list and enveloped API responses', ()
   assert.match(app, /apiOptional\('GET', '\/api\/agents', \{ agents: \[\] \}\)/);
 });
 
+test('agent labels retain standard executive and product acronyms', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function agentLabel(role)');
+  const end = app.indexOf('// The agents endpoint', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {};
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.labels = ['ceo','cfo','cro','cto','seo-analyst','ai-optimizer'].map(agentLabel);`,
+    context
+  );
+  assert.deepEqual(Array.from(context.labels), [
+    'CEO',
+    'CFO',
+    'CRO',
+    'CTO',
+    'SEO Analyst',
+    'AI Optimizer',
+  ]);
+});
+
+test('agent navigation omits unavailable site counts instead of rendering undefined', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function buildAgentsMenu()');
+  const end = app.indexOf('function syncAgentsMenuActive()', start);
+  assert.ok(start >= 0 && end > start);
+  const menu = { innerHTML: '' };
+  const context = {
+    STATE: {
+      agents: [
+        { role: 'ceo', label: 'CEO' },
+        { role: 'engineer', label: 'Engineer', sites: 4 },
+        { role: 'delivery-lead', label: 'Delivery Lead', scope: 'fleet' },
+      ],
+    },
+    $: () => menu,
+    $$: () => [],
+    esc: value => String(value),
+    agentLabel: role => role,
+    syncAgentsMenuActive() {},
+    globalThis: {},
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nbuildAgentsMenu();`, context);
+  assert.doesNotMatch(menu.innerHTML, />undefined</);
+  assert.match(menu.innerHTML, /data-role="ceo"><span>CEO<\/span><\/a>/);
+  assert.match(
+    menu.innerHTML,
+    /data-role="engineer"><span>Engineer<\/span><span class="dd-count">4<\/span>/
+  );
+  assert.match(
+    menu.innerHTML,
+    /data-role="delivery-lead"><span>Delivery Lead<\/span><span class="dd-count">fleet queue<\/span>/
+  );
+});
+
 test('optional API reads do not hide authentication failures as empty data', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function apiOptional(');
@@ -126,10 +180,27 @@ test('dynamic form controls receive stable fallback names', () => {
   assert.match(shell, /control\.name = `fd-\$\{slug \|\| 'field'\}-\$\{fallbackIndex\+\+\}`/);
 });
 
+test('legacy scheduler restart accessible name includes its visible action', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /id="restart-crons" aria-label="Restart legacy schedulers"[^>]*>↻ Restart legacy schedulers/
+  );
+});
+
+test('compact buttons retain a minimum touch-target height', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /\.btn\.sm \{ min-height: 26px;/);
+});
+
 test('navigation branding stays readable when the rail is constrained', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  assert.match(shell, /class="rl-word" title="Domain Fleet Manager"/);
+  assert.match(
+    shell,
+    /class="rl-brand" title="Domain Fleet Manager" aria-label="Domain Fleet Manager home"/
+  );
+  assert.match(shell, /class="rl-word" title="Domain Fleet Manager">Fleet Manager<\/span>/);
   assert.match(theme, /\.rl-word \{[\s\S]*text-overflow: ellipsis/);
 });
 
@@ -142,7 +213,15 @@ test('shared dark theme primitives meet readable contrast targets', () => {
 
 test('light theme table headers keep the same contrast contract', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /:root\[data-theme="light"\][\s\S]*?--muted:\s+#5b6981;/);
   assert.match(theme, /:root\[data-theme="light"\] th \{ color: #53627c; \}/);
+  assert.match(theme, /:root\[data-theme="light"\] \.b-gray \{[^}]*color: #59677f/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.priority-pagination \.muted \{ color: #59677f; \}/
+  );
+  assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active \.ctl-n \{ color: #174f92/);
+  assert.match(theme, /:root\[data-theme="light"\] \.seg-btn \{ color: #59677f; \}/);
 });
 
 test('compact executive workspace tabs retain their full context', () => {
@@ -328,6 +407,10 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /duplicate set/);
   assert.match(app, /aria-label="Workbench case pages"/);
   assert.match(app, /Workbench cases per page/);
+  assert.match(
+    app,
+    /pageSize: window\.matchMedia\?\.\('\(max-width: 700px\)'\)\.matches \? 10 : 25/
+  );
   assert.match(app, /Showing \$\{pageStart \+ 1\}/);
   assert.match(app, /WORKBENCH_UI\.page = 1/);
   assert.match(app, /Add owner direction to this case/);
@@ -799,8 +882,13 @@ test('Social Hub overview filters expose state and contextual queue jumps', () =
   const end = app.indexOf('function shRenderOversight(data)', start);
   const overview = app.slice(start, end);
   assert.match(overview, /aria-pressed="\$\{filter === k\}"/);
+  assert.match(
+    overview,
+    /aria-label="\$\{esc\(label\)\} \$\{n\}\. Filter sites by \$\{esc\(label\)\}"/
+  );
+  assert.match(overview, />\$\{esc\(label\)\} <span class="ctl-n">\$\{n\}<\/span>/);
   assert.match(overview, /role="group" aria-label="Filter sites by social state"/);
-  assert.match(overview, /aria-label="Open queue filtered to \$\{esc\(label\)\} \(\$\{value\}\)"/);
+  assert.match(overview, /<span class="sr-only">Open queue filtered to \$\{esc\(label\)\}<\/span>/);
 });
 
 test('Social Hub channel register explains its wide mobile layout', () => {
@@ -988,6 +1076,33 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.doesNotMatch(scheduler, /\bconfirm\(/);
 });
 
+test('Scheduler prioritizes incidents and bounds both large registers', () => {
+  const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(scheduler, /attention: 0, running: 1, healthy: 2, disabled: 3/);
+  assert.match(
+    scheduler,
+    /const pageJobs = shown\.slice\(jobPageStart, jobPageStart \+ SCH\.pageSize\)/
+  );
+  assert.match(
+    scheduler,
+    /const pageRuns = runs\.slice\(runPageStart, runPageStart \+ SCH\.runPageSize\)/
+  );
+  assert.match(scheduler, /aria-label="Scheduled job pages"/);
+  assert.match(scheduler, /aria-label="Recent run pages"/);
+  assert.match(
+    scheduler,
+    /pageSize: window\.matchMedia\?\.\('\(max-width: 700px\)'\)\.matches \? 10 : 25/
+  );
+  assert.match(
+    scheduler,
+    /runPageSize: window\.matchMedia\?\.\('\(max-width: 700px\)'\)\.matches \? 10 : 25/
+  );
+  assert.match(scheduler, /aria-label="Scheduled jobs per page"/);
+  assert.match(scheduler, /aria-label="Scheduler runs per page"/);
+  assert.match(theme, /\.sch-pagination \{[^}]*display: flex/);
+});
+
 test('Cron log source switcher exposes complete tab semantics', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
@@ -1126,7 +1241,7 @@ test('focused interactive rows retain Enter and Space activation', () => {
   assert.match(shell, /normalizeKeyboardActions\(\$\('#app'\)\)/);
   assert.match(
     app,
-    /class="err-row"[^>]*role="button"[^>]*aria-label="Open retained logs for \$\{esc\(r\.name\)\}"[^>]*tabindex="0"/
+    /class="err-row"[^>]*role="button" tabindex="0" title="Click to view retained logs"/
   );
 });
 
@@ -1314,7 +1429,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   );
   assert.match(
     theme,
-    /@media \(max-width: 560px\) \{[\s\S]*#vitals \{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*overflow-x: visible;/
+    /@media \(max-width: 560px\) \{[\s\S]*#vitals \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[\s\S]*overflow-x: visible;/
   );
   assert.match(theme, /@media \(max-width: 560px\) \{[\s\S]*\.vt \{ min-width: 0; width: auto;/);
 });
@@ -1404,6 +1519,11 @@ test('Build Usage exposes a scoped refresh control', () => {
   assert.match(app, /Repository build usage/);
   assert.match(app, /Recent builds and commits/);
   assert.match(app, /Live Cloudflare build triggers/);
+  assert.match(app, /const CF_BUILDS = \{ days: 7, pageSize: 10, pages:/);
+  assert.match(app, /data-cfb-page="\$\{key\}"/);
+  assert.match(app, /fleetQuery \? rows\.filter/);
+  assert.match(app, /CF_BUILDS\.cache\?\.days === CF_BUILDS\.days/);
+  assert.match(app, /matching records across Build Usage registers/);
 });
 
 test('Retention presents policy posture before editable rows', () => {
@@ -1533,6 +1653,14 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(app, /id="wb-board-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search work board items"/);
+  assert.match(app, /const WORK_BOARD_PAGE_SIZE = 20/);
+  assert.match(app, /function renderWorkflowBoardLane\(key, label, items, total\)/);
+  assert.match(app, /aria-label="\$\{esc\(label\)\} work items pages"/);
+  assert.match(app, /data-wb-page="\$\{key\}"/);
+  assert.match(app, /\$\$\('\[data-wb-page\]'\)/);
+  assert.match(app, /WORK_BOARD_PAGES\[key\] = 1/);
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /\.wb-lane-pagination \{/);
   assert.match(app, /\.includes\(query\)/);
   assert.match(app, /aria-label="Open \$\{esc\(item\.title\)\} details"/);
   assert.match(app, /const diagnosticGroups = \[\]/);
@@ -1600,6 +1728,7 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(app, /Sites needing attention<\/span>/);
   assert.match(app, /Failing checks<\/span>/);
   assert.match(app, /class="health-card-head"/);
+  assert.match(app, /class="inline-help-link" href="http:\/\/127\.0\.0\.1:8580"/);
   assert.match(app, /Failing health checks/);
   assert.match(app, /class="health-help"><summary>How site health is measured/);
   assert.match(app, /type="button" class="btn" id="health-refresh"/);
@@ -1609,6 +1738,8 @@ test('Health presents fleet status as a responsive summary strip', () => {
   );
   assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
   assert.match(style, /\.health-card-head \{[^}]*justify-content/);
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /a\.inline-help-link \{[^}]*text-decoration: underline/);
 });
 
 test('Containers provides scoped search and operational filters', () => {
@@ -1788,10 +1919,29 @@ test('Task Budget presents audit risk and participates in fleet filtering', () =
   assert.match(app, /class="tb-summary"/);
   assert.match(app, /Budget drift<\/span>/);
   assert.match(app, /Dead-role tasks<\/span>/);
-  assert.match(app, /class="card tb-site-card" data-fleet-row/);
+  assert.match(app, /<details class="card tb-site-card" data-fleet-row/);
+  assert.match(
+    app,
+    /class="tb-site-summary"><strong>\$\{esc\(s\.site\)\}<\/strong><span class="muted">\$\{s\.roles\.length\} roles<\/span>/
+  );
+  assert.match(
+    app,
+    /<span class="badge \$\{siteDrift \? 'b-yellow' : 'b-gray'\}">\$\{siteDrift\} drift<\/span>/
+  );
+  assert.match(app, /risk\(b\) - risk\(a\) \|\| a\.site\.localeCompare\(b\.site\)/);
+  assert.match(app, /aria-label="Task budget site pages"/);
+  assert.match(
+    app,
+    /const matchingCards = budgetCards\.filter\(card => !card\.classList\.contains\('fleet-hidden'\)\)/
+  );
+  assert.match(app, /globalThis\.updateTaskBudgetPagination = updateBudgetPage/);
+  assert.match(app, /globalThis\.updateTaskBudgetPagination\?\.\(\)/);
   assert.match(app, /\$\{esc\(s\.site\)\} task budget roles/);
   assert.match(app, /applyFleetFilter\(\);/);
   assert.match(theme, /\.tb-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.tb-site-summary \{[^}]*display: flex/);
+  assert.match(theme, /\.tb-page-hidden \{ display: none !important; \}/);
+  assert.match(theme, /\.tb-pagination \{[^}]*display: flex/);
 });
 
 test('Dev Sandboxes presents runtime readiness and scoped filters', () => {
@@ -1850,12 +2000,21 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(app, /type="button" class="btn" id="ai-inventory-refresh"/);
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="aii-summary"/);
+  assert.match(
+    app,
+    /id="aii-search" aria-label="Search AI inventory by service, provider, model, dispatch, or function"/
+  );
+  assert.match(app, /id="aii-site" aria-label="Filter AI inventory by site"/);
+  assert.match(app, /className = 'aii-pagination'/);
+  assert.match(app, /const inventoryPageSize = 20/);
   assert.match(app, /AI-backed services<\/span>/);
   assert.match(app, /No-AI services · \$\{s\.conditional \|\| 0\} conditional/);
   assert.match(app, /class="card aii-table"><div class="table-wrap"><table/);
   assert.match(app, /AI service inventory/);
   assert.match(app, /class="aii-help"><summary>How to interpret AI inventory/);
   assert.match(theme, /\.aii-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.aii-controls \{[^}]*flex-wrap: wrap/);
+  assert.match(theme, /\.aii-paginated-row\[hidden\] \{ display: none !important; \}/);
   assert.match(theme, /\.aii-table \{[^}]*overflow: hidden/);
 });
 
@@ -1875,7 +2034,15 @@ test('Compliance keeps scan controls explicit and safe', () => {
   assert.match(app, /Compliance evidence by site/);
   assert.match(app, /id="compliance-scan" class="btn sm compliance-scan"/);
   assert.match(app, /type="button" class="badge .*compliance-status/);
+  assert.match(
+    app,
+    /compliance-status" data-site="\$\{esc\(r\.site\)\}" aria-label="Show \$\{esc\(r\.status\)\} compliance evidence for \$\{esc\(r\.site\)\}"/
+  );
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
+  assert.match(
+    style,
+    /\.compliance-filter-tag\[aria-pressed="false"\] \{ border-color: var\(--border-hi\); \}/
+  );
 });
 
 test('Social Accounts keeps matrix, inventory, and persona tables contextual', () => {
@@ -1901,6 +2068,11 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
   assert.match(app, /seo-vitals-panel[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /Web vitals by site/);
   assert.match(app, /SEO opportunity map by site/);
+  assert.match(
+    app,
+    /aria-label="Filter to \$\{esc\(SEO_TYPE_LABELS\[type\] \|\| type\)\} \$\{count\}"/
+  );
+  assert.match(app, /<th scope="col">CTR<\/th><th scope="col">Actions<\/th>/);
   assert.match(app, /seo-sites[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /type="button" class="btn sm web-vitals-run"/);
   assert.match(app, /type="button" class="btn sm [^"]*seo-file-task/);
@@ -1915,6 +2087,7 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
 test('Backlink Capture keeps coverage tables bounded and actions explicit', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(
     app,
     /role="status" aria-live="polite"><div class="loading">Loading backlink coverage…<\/div>/
@@ -1926,6 +2099,9 @@ test('Backlink Capture keeps coverage tables bounded and actions explicit', () =
   assert.match(app, /type="button" class="btn sm backlink-focus"/);
   assert.match(app, /type="button" class="btn sm backlink-accent backlink-file"/);
   assert.match(app, /caption class="sr-only">Backlink coverage by site<\/caption>/);
+  assert.match(app, /<th scope="col">sources<\/th><th scope="col">Actions<\/th>/);
+  assert.match(theme, /\.btn\.backlink-accent \{\s*background: #ad5d16/);
+  assert.match(theme, /\.btn\.backlink-accent:hover \{[\s\S]*background: #a45714/);
   assert.match(style, /body\[data-view="backlinks"\] \.seo-stats/);
   assert.match(style, /\.backlink-table \{[^}]*overflow: hidden/);
 });
@@ -1940,6 +2116,7 @@ test('Lint separates sweep actions, findings, and remediation guidance', () => {
   assert.match(app, /class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions"/);
   assert.match(app, /class="card lint-table"><div class="table-wrap"><table/);
   assert.match(app, /Lint findings by site/);
+  assert.match(app, /<th scope="col">Files<\/th><th scope="col">Actions<\/th>/);
   assert.match(app, /pre-commit hook is skipping these files/);
   assert.match(app, /class="lint-help"><summary>How to remediate lint findings/);
   assert.match(style, /\.lint-table \{[^}]*overflow: hidden/);
@@ -1975,6 +2152,10 @@ test('AI Usage gives dense tables context and mobile scroll guidance', () => {
   assert.match(app, /AI usage tracking coverage/);
   assert.match(app, /Swipe horizontally to inspect all columns/);
   assert.match(app, /Filter AI usage by site/);
+  assert.match(app, /const aiuPageSize = 20/);
+  assert.match(app, /className = 'aiu-pagination'/);
+  assert.match(app, /aria-live="polite"/);
+  assert.match(style, /\.aiu-paginated-row\[hidden\] \{ display: none !important; \}/);
   assert.match(style, /\.aiu-scroll-hint \{ display: none; \}/);
 });
 
@@ -2068,7 +2249,13 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(app, /Collected datasets/);
   assert.match(app, /RSS subscriptions by site/);
   assert.match(app, /Dataset subscriptions by site/);
+  assert.match(app, /const dhPageSize = 20/);
+  assert.match(app, /pager\.setAttribute\('aria-label', `\$\{label\} pages`\)/);
+  assert.match(app, /className = 'dh-pagination'/);
+  assert.match(app, /<th scope="col">Actions<\/th>/);
+  assert.match(app, /<th scope="col">Subscribed datasets<\/th>/);
   assert.match(app, /type="button" class="btn sm .*dh-src-toggle/);
+  assert.match(style, /\.dh-pagination \{[^}]*display: flex/);
   assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
   assert.match(style, /\.dh-help \{[^}]*border-top/);
 });
@@ -2086,13 +2273,30 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
     view,
     /\$\('#datahub-images-refresh'\)\.addEventListener\('click', \(\) => renderDataHubImages\(\)\)/
   );
-  assert.ok((view.match(/class="table-wrap"><table/g) || []).length >= 3);
+  assert.match(app, /<div class="table-wrap"><table class="\$\{tableClass\}"/);
+  assert.match(view, /dhiLedgerTableHtml\(/);
   assert.match(app, /class="sr-only">\$\{esc\(title\)\} counts/);
   assert.match(view, /Image source freshness and controls/);
+  assert.match(view, /<th scope="col">Actions<\/th>/);
   assert.match(view, /Image outbound connection ledger/);
   assert.match(view, /Image site data pulls/);
-  assert.match(view, /type="button" class="btn sm danger dhi-blacklist/);
+  assert.match(app, /type="button" class="btn sm danger dhi-blacklist/);
   assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);
+  assert.match(app, /const DHI_PAGE_SIZE = 20/);
+  assert.match(app, /function dhiCountBlockHtml\(key, title, entries\)/);
+  assert.match(
+    app,
+    /function dhiLedgerTableHtml\(key, title, headers, rows, tableClass, emptyText\)/
+  );
+  assert.match(app, /rows\.slice\(start, start \+ DHI_PAGE_SIZE\)/);
+  assert.match(app, /entries\s*\.slice\(start, start \+ DHI_PAGE_SIZE\)/);
+  assert.match(app, /images\.slice\(start, start \+ DHI_PAGE_SIZE\)\.map\(dhiImageCard\)/);
+  assert.match(view, /id="dhi-image-gallery"/);
+  assert.match(view, /dhiBindCountControls\(app\)/);
+  assert.match(view, /dhiBindLedgerControls\(app\)/);
+  assert.match(view, /dhiBindImageActions\(imageGallery\)/);
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /\.dhi-pagination \{/);
 });
 
 test('data-heavy routes use the shared production loading state', () => {
@@ -2147,8 +2351,14 @@ test('Active Delivery paginates the complete attention queue', () => {
     /attention\s*\.slice\(attentionStart, attentionStart \+ ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE\)/
   );
   assert.match(delivery, /aria-label="Delivery attention pages"/);
-  assert.match(delivery, /Showing \$\{attentionStart \+ 1\}–\$\{Math\.min\(attentionStart \+ ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE, attention\.length\)\} of \$\{attention\.length\} flagged items/);
-  assert.match(delivery, /ACTIVE_DELIVERY_ATTENTION_PAGE = Math\.max\(1, ACTIVE_DELIVERY_ATTENTION_PAGE - 1\)/);
+  assert.match(
+    delivery,
+    /Showing \$\{attentionStart \+ 1\}–\$\{Math\.min\(attentionStart \+ ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE, attention\.length\)\} of \$\{attention\.length\} flagged items/
+  );
+  assert.match(
+    delivery,
+    /ACTIVE_DELIVERY_ATTENTION_PAGE = Math\.max\(1, ACTIVE_DELIVERY_ATTENTION_PAGE - 1\)/
+  );
   assert.match(delivery, /ACTIVE_DELIVERY_ATTENTION_PAGE \+ 1/);
   assert.doesNotMatch(delivery, /data\.attention \|\| \[\]\)\s*\.slice\(0, 12\)/);
 });
@@ -2178,6 +2388,11 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.match(priorities, /class="priority-pagination" aria-label="Priority action pages"/);
   assert.match(priorities, /id="priority-prev"/);
   assert.match(priorities, /id="priority-next"/);
+  assert.match(
+    priorities,
+    /id="priority-state" class="cm-input" aria-label="Filter prioritized actions by state"/
+  );
+  assert.match(priorities, /<th scope="col">Action<\/th>/);
   assert.match(priorities, /caption class="sr-only">Prioritized recommended actions<\/caption>/);
   assert.match(priorities, /class="fd-stale-banner priority-notice" role="note"/);
   assert.match(priorities, /class="fd-stale-banner priority-truncated" role="alert"/);
@@ -2193,6 +2408,10 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
     /role="status" aria-live="polite"><div class="loading">Loading improvement runs…<\/div>/
   );
   assert.match(improvements, /type="button" id="improvements-refresh" class="btn"/);
+  assert.match(
+    improvements,
+    /id="improvement-state" class="cm-input" aria-label="Filter improvement runs by state"/
+  );
   assert.match(improvements, /class="improvement-pagination" aria-label="Improvement run pages"/);
   assert.match(improvements, /id="improvements-prev"/);
   assert.match(improvements, /id="improvements-next"/);
@@ -2222,6 +2441,29 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   assert.match(style, /\.tree-control-actions \{ display: flex;/);
 });
 
+test('repeated task titles are disclosed without collapsing distinct task files', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /const repeatedTitles = new Map\(\)/);
+  assert.match(app, /\[task\.site, task\.title\]\.join\('\\u001f'\)/);
+  assert.match(app, /function boardCard\(t, duplicateCount = 1\)/);
+  assert.match(app, /matching titles/);
+  assert.match(app, /each remains a separate task/);
+  assert.match(theme, /\.task-repeat-note \{/);
+});
+
+test('fleet task filters stay compact by default and disclose the active selection', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /<details class="filter-panel" data-rk="filters">/);
+  assert.match(app, /activeLabels\.slice\(0, 2\)/);
+  assert.match(app, /Clear all filters/);
+  assert.match(app, /id="clear-filters" type="button"/);
+  assert.match(style, /\.filter-actions \{/);
+  assert.match(theme, /\.task-stat-meta \{ grid-column: span 2; \}/);
+});
+
 test('Tasks route provides context before its mode controls', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
@@ -2244,7 +2486,7 @@ test('Tasks route provides context before its mode controls', () => {
 
 test('fleet task table stays bounded while preserving its wide scan columns', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  const start = app.indexOf('function fleetTable(rows)');
+  const start = app.indexOf('function fleetTable(rows, repeatedTitles');
   const end = app.indexOf('/* ---- shared editor / CRUD ---- */', start);
   assert.ok(start >= 0 && end > start);
   const view = app.slice(start, end);
@@ -2340,6 +2582,13 @@ test('form controls retain a visible keyboard focus ring', () => {
   assert.match(theme, /select:focus-visible, input:focus-visible, textarea:focus-visible/);
   assert.match(theme, /outline: 2px solid var\(--a1\)/);
   assert.match(theme, /outline-offset: 2px/);
+});
+
+test('active status pills meet contrast and touch-size baselines', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(style, /\.pill \{ min-height: 26px/);
+  assert.match(theme, /\.pill\.active \{ background: #286fb9/);
 });
 
 test('AI Optimizer failures use the shared non-blocking notification surface', () => {
@@ -2483,6 +2732,7 @@ test('fleet health pulse exposes an actionable explanation', () => {
 test('fleet vitals cards provide destinations and role-health context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(shell, /data-vt-action="control\?filter=attention"/);
   assert.match(shell, /data-vt-action="containers"/);
   assert.match(shell, /scheduled-role freshness/);
@@ -2490,6 +2740,14 @@ test('fleet vitals cards provide destinations and role-health context', () => {
   assert.match(app, /controlFilter/);
   assert.match(app, /CONTROL\.filter === 'fresh'/);
   assert.match(app, /Has fresh roles/);
+  assert.match(
+    theme,
+    /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);\s*grid-template-rows: auto repeat\(2, auto\)/
+  );
+  assert.match(
+    theme,
+    /@media \(max-width: 380px\) \{\s*#vitals \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/
+  );
 });
 
 test('category cards share the sidebar icon system', () => {

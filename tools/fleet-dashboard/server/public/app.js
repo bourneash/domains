@@ -122,9 +122,10 @@ function agentLabel(role) {
   if (String(role) === 'update') return 'Editorial updates';
   if (String(role) === 'product-manager-fleet') return 'PM · Fleet tooling';
   if (String(role) === 'product-manager-sites') return 'PM · Managed sites';
+  const acronyms = { ai: 'AI', ceo: 'CEO', cfo: 'CFO', cro: 'CRO', cto: 'CTO', seo: 'SEO' };
   return String(role)
     .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .map(w => acronyms[w.toLowerCase()] || w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 }
 
@@ -198,7 +199,27 @@ function applyFleetFilter() {
       'aria-label',
       q ? `${visible} of ${rows.length} matching rows` : 'All rows shown'
     );
+    if (STATE.view === 'builds' && CF_BUILDS.cache?.data && q) {
+      const datasets = [
+        CF_BUILDS.cache.data.byRepo || [],
+        CF_BUILDS.cache.data.builds || [],
+        CF_BUILDS.cache.data.triggers || [],
+      ];
+      const matching = datasets.reduce(
+        (total, rows) =>
+          total +
+          rows.filter(row =>
+            String(row.repo || '')
+              .toLowerCase()
+              .includes(q)
+          ).length,
+        0
+      );
+      count.textContent = `${matching} matching records`;
+      count.setAttribute('aria-label', `${matching} matching records across Build Usage registers`);
+    }
   }
+  globalThis.updateTaskBudgetPagination?.();
 }
 
 function clearFleetFilter() {
@@ -1485,6 +1506,8 @@ function gitPageTabs(active) {
 // matching ops/roles/*.md). Delegates to tools/task-budget/turn_budget.py
 // audit --json (server/taskbudget.js) — same "shell out to the Python CLI,
 // render here" pattern as the Engineers view.
+let TB_PAGE_SIZE = window.matchMedia?.('(max-width: 700px)').matches ? 10 : 20;
+
 async function renderTaskBudget() {
   const app = $('#app');
   if (FRESH)
@@ -1503,7 +1526,24 @@ async function renderTaskBudget() {
     deadRoleRows = 0;
   const siteBlocks = sites
     .filter(s => s.roles.length || s.dead_role_tasks.length)
+    .sort((a, b) => {
+      const risk = site =>
+        site.dead_role_tasks.length * 3 +
+        site.roles.filter(
+          role =>
+            role.static_max_turns != null &&
+            role.computed_max_turns != null &&
+            Math.abs(role.static_max_turns - role.computed_max_turns) >= 10
+        ).length;
+      return risk(b) - risk(a) || a.site.localeCompare(b.site);
+    })
     .map(s => {
+      const siteDrift = s.roles.filter(
+        role =>
+          role.static_max_turns != null &&
+          role.computed_max_turns != null &&
+          Math.abs(role.static_max_turns - role.computed_max_turns) >= 10
+      ).length;
       const rows = s.roles
         .map(r => {
           roleRows++;
@@ -1542,8 +1582,9 @@ async function renderTaskBudget() {
           return `<div class="muted">⚠ <span class="mono">${esc(d.file)}</span> → assigned_role: <span class="mono">${esc(d.assigned_role)}</span> (no such role installed — never picked up)</div>`;
         })
         .join('');
-      return `<div class="card tb-site-card" data-fleet-row data-site="${esc(s.site)}">
-      <div class="task-toolbar"><strong>${esc(s.site)}</strong></div>
+      return `<details class="card tb-site-card" data-fleet-row data-site="${esc(s.site)}">
+      <summary class="tb-site-summary"><strong>${esc(s.site)}</strong><span class="muted">${s.roles.length} roles</span><span class="badge ${siteDrift ? 'b-yellow' : 'b-gray'}">${siteDrift} drift</span><span class="badge ${s.dead_role_tasks.length ? 'b-red' : 'b-gray'}">${s.dead_role_tasks.length} unassigned</span></summary>
+      <div class="tb-site-content">
       ${
         rows
           ? `<div class="table-wrap"><table>
@@ -1553,8 +1594,9 @@ async function renderTaskBudget() {
       </table></div>`
           : ''
       }
-      ${deadTasks ? `<div style="padding:10px 14px">${deadTasks}</div>` : ''}
-    </div>`;
+      ${deadTasks ? `<div class="tb-dead-tasks">${deadTasks}</div>` : ''}
+      </div>
+    </details>`;
     })
     .join('');
 
@@ -1567,8 +1609,47 @@ async function renderTaskBudget() {
       <div class="tb-stat ${deadRoleRows ? 'tb-stat-bad' : 'tb-stat-good'}"><strong>${deadRoleRows}</strong><span>Dead-role tasks</span></div>
       <div class="tb-stat tb-stat-meta"><strong>±10 turns</strong><span>Drift threshold · fleet search filters sites</span></div>
     </section>
+    <nav class="tb-pagination" aria-label="Task budget site pages"><span id="tb-page-status" class="muted" role="status" aria-live="polite"></span><label class="muted">Sites per page <select id="tb-page-size" class="cm-input" aria-label="Task budget sites per page">${[10, 20, 40].map(size => `<option value="${size}" ${size === TB_PAGE_SIZE ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="tb-page-prev" aria-label="Previous task budget sites" disabled>← Previous</button><button type="button" class="btn sm" id="tb-page-next" aria-label="Next task budget sites">Next →</button></nav>
     ${siteBlocks || '<div class="empty">No sites with backlog-driven roles found.</div>'}`;
   $('#task-budget-refresh').addEventListener('click', () => renderTaskBudget());
+  const budgetCards = $$('.tb-site-card', app);
+  const budgetPageSize = $('#tb-page-size');
+  let budgetPage = 1;
+  let lastFleetQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+  const updateBudgetPage = () => {
+    if (!$('#tb-page-status')) return;
+    const query = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+    if (query !== lastFleetQuery) {
+      lastFleetQuery = query;
+      budgetPage = 1;
+    }
+    const matchingCards = budgetCards.filter(card => !card.classList.contains('fleet-hidden'));
+    const pageSize = Number(budgetPageSize.value) || TB_PAGE_SIZE;
+    const pageCount = Math.ceil(matchingCards.length / pageSize);
+    budgetPage = Math.min(budgetPage, Math.max(1, pageCount));
+    const start = (budgetPage - 1) * pageSize;
+    const visible = new Set(matchingCards.slice(start, start + pageSize));
+    budgetCards.forEach(card => card.classList.toggle('tb-page-hidden', !visible.has(card)));
+    $('#tb-page-status').textContent = matchingCards.length
+      ? `Showing sites ${start + 1}–${Math.min(start + pageSize, matchingCards.length)} of ${matchingCards.length}`
+      : 'No sites match the current filter';
+    $('#tb-page-prev').disabled = budgetPage <= 1 || !pageCount;
+    $('#tb-page-next').disabled = !pageCount || budgetPage >= pageCount;
+  };
+  globalThis.updateTaskBudgetPagination = updateBudgetPage;
+  budgetPageSize.addEventListener('change', () => {
+    TB_PAGE_SIZE = Number(budgetPageSize.value) || 10;
+    budgetPage = 1;
+    updateBudgetPage();
+  });
+  $('#tb-page-prev').addEventListener('click', () => {
+    budgetPage--;
+    updateBudgetPage();
+  });
+  $('#tb-page-next').addEventListener('click', () => {
+    budgetPage++;
+    updateBudgetPage();
+  });
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -1612,6 +1693,7 @@ async function renderAIInventory() {
   </tr>`
     )
     .join('');
+  const inventorySites = [...new Set((data.rows || []).map(row => row.domain))].sort();
 
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">AI Inventory</h2><span class="muted">dispatch-aware provider and model audit of scheduled fleet services</span></div><button type="button" class="btn" id="ai-inventory-refresh">↻ Refresh</button></div>
@@ -1623,6 +1705,11 @@ async function renderAIInventory() {
       <div class="aii-stat ${s.disabled ? 'aii-stat-warn' : 'aii-stat-good'}"><strong>${s.disabled || 0}</strong><span>Disabled</span></div>
       <div class="aii-stat aii-stat-meta"><strong>${noAi}</strong><span>No-AI services · ${s.conditional || 0} conditional</span></div>
     </section>
+    <div class="aii-controls" role="search" aria-label="Search AI services">
+      <label>Find a service <input type="search" id="aii-search" aria-label="Search AI inventory by service, provider, model, dispatch, or function" placeholder="Service, provider, model, dispatch…"></label>
+      <label>Site <select id="aii-site" aria-label="Filter AI inventory by site"><option value="">All sites</option>${inventorySites.map(site => `<option value="${esc(site)}">${esc(site)}</option>`).join('')}</select></label>
+      <span id="aii-result-count" class="muted" role="status" aria-live="polite"></span>
+    </div>
     <div class="card"><div class="table-wrap"><table>
       <caption class="sr-only">AI service inventory</caption>
       <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
@@ -1630,6 +1717,59 @@ async function renderAIInventory() {
     </table></div></div>
     <details class="aii-help"><summary>How to interpret AI inventory</summary><p>“Claude CLI default (unpinned)” and aliases such as <span class="mono">sonnet</span>/<span class="mono">haiku</span> can change without a repository change. Conditional services run deterministic gates before spending model tokens. Rows marked no-AI remain visible to make classifier decisions auditable.</p></details>`;
   $('#ai-inventory-refresh').addEventListener('click', () => renderAIInventory());
+  const inventoryTable = $('table', app);
+  const inventoryRows = [...inventoryTable.tBodies[0].rows];
+  inventoryRows.forEach(row => row.classList.add('aii-paginated-row'));
+  const inventoryPageSize = 20;
+  let inventoryPage = 0;
+  const inventoryPager = document.createElement('nav');
+  inventoryPager.className = 'aii-pagination';
+  inventoryPager.setAttribute('aria-label', 'AI service inventory pages');
+  inventoryPager.innerHTML =
+    '<button type="button" class="btn sm" data-aii-page="prev" aria-controls="aii-inventory-table">← Previous</button><span class="muted" id="aii-page-status" aria-live="polite"></span><button type="button" class="btn sm" data-aii-page="next" aria-controls="aii-inventory-table">Next →</button>';
+  inventoryTable.id = 'aii-inventory-table';
+  inventoryTable.closest('.table-wrap').after(inventoryPager);
+  const updateInventoryPage = () => {
+    const query = $('#aii-search').value.trim().toLocaleLowerCase();
+    const site = $('#aii-site').value;
+    const filteredRows = inventoryRows.filter(
+      row =>
+        (!site || row.dataset.site === site) &&
+        (!query || row.textContent.toLocaleLowerCase().includes(query))
+    );
+    const pageCount = Math.ceil(filteredRows.length / inventoryPageSize);
+    inventoryPage = Math.min(inventoryPage, Math.max(0, pageCount - 1));
+    const start = inventoryPage * inventoryPageSize;
+    const visibleRows = new Set(filteredRows.slice(start, start + inventoryPageSize));
+    inventoryRows.forEach(row => {
+      row.hidden = !visibleRows.has(row);
+    });
+    $('#aii-result-count').textContent = filteredRows.length
+      ? `Showing ${start + 1}–${Math.min(start + inventoryPageSize, filteredRows.length)} of ${filteredRows.length} services`
+      : 'No services match these filters';
+    $('#aii-page-status').textContent = pageCount
+      ? `Page ${inventoryPage + 1} of ${pageCount}`
+      : 'No pages';
+    $('[data-aii-page="prev"]').disabled = inventoryPage === 0;
+    $('[data-aii-page="next"]').disabled = !pageCount || inventoryPage >= pageCount - 1;
+  };
+  $('#aii-search').addEventListener('input', () => {
+    inventoryPage = 0;
+    updateInventoryPage();
+  });
+  $('#aii-site').addEventListener('change', () => {
+    inventoryPage = 0;
+    updateInventoryPage();
+  });
+  $('[data-aii-page="prev"]').addEventListener('click', () => {
+    inventoryPage--;
+    updateInventoryPage();
+  });
+  $('[data-aii-page="next"]').addEventListener('click', () => {
+    inventoryPage++;
+    updateInventoryPage();
+  });
+  updateInventoryPage();
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -2295,6 +2435,43 @@ async function renderAIUsage() {
       wrap.before(hint);
     }
   });
+  const aiuPageSize = 20;
+  $$('.aiu-panel table, .aiu-diagnostics table', app).forEach((table, index) => {
+    const rows = [...table.tBodies].flatMap(body => [...body.rows]);
+    if (rows.length <= aiuPageSize) return;
+    const label = table.caption?.textContent || 'AI usage table';
+    const tableId = `aiu-table-${index}`;
+    table.id = tableId;
+    rows.forEach(row => row.classList.add('aiu-paginated-row'));
+    const pager = document.createElement('nav');
+    pager.className = 'aiu-pagination';
+    pager.setAttribute('aria-label', `${label} pages`);
+    pager.innerHTML = `<span class="aiu-page-status" aria-live="polite"></span><div><button type="button" class="btn sm" data-aiu-page="prev" aria-controls="${tableId}">← Previous</button><button type="button" class="btn sm" data-aiu-page="next" aria-controls="${tableId}">Next →</button></div>`;
+    table.closest('.table-wrap').after(pager);
+    let page = 0;
+    const status = $('.aiu-page-status', pager);
+    const previous = $('[data-aiu-page="prev"]', pager);
+    const next = $('[data-aiu-page="next"]', pager);
+    const updatePage = () => {
+      const pageCount = Math.ceil(rows.length / aiuPageSize);
+      const start = page * aiuPageSize;
+      rows.forEach((row, rowIndex) => {
+        row.hidden = rowIndex < start || rowIndex >= start + aiuPageSize;
+      });
+      status.textContent = `${start + 1}–${Math.min(start + aiuPageSize, rows.length)} of ${rows.length}`;
+      previous.disabled = page === 0;
+      next.disabled = page >= pageCount - 1;
+    };
+    previous.addEventListener('click', () => {
+      page = Math.max(0, page - 1);
+      updatePage();
+    });
+    next.addEventListener('click', () => {
+      page = Math.min(Math.ceil(rows.length / aiuPageSize) - 1, page + 1);
+      updatePage();
+    });
+    updatePage();
+  });
   $('#aiu-quick-select').addEventListener('change', event => {
     const key = event.target.value;
     AI_USAGE.range = key;
@@ -2472,7 +2649,14 @@ function applyDeployFilter() {
 // Live Workers Builds configuration plus a persisted seven-day build/commit
 // history. The server refreshes Cloudflare hourly; this view only
 // reads the sanitized cache, so auto-refresh is cheap.
-const CF_BUILDS = { days: 7 };
+const CF_BUILDS = {
+  days: 7,
+  pageSize: 10,
+  pages: { repos: 1, builds: 1, triggers: 1 },
+  cache: null,
+  filter: '',
+  filterTimer: null,
+};
 
 function cfbMinutes(value) {
   const n = Number(value) || 0;
@@ -2539,14 +2723,18 @@ function cfbChart(rows) {
   </div>`;
 }
 
-async function renderCloudflareBuilds() {
+async function renderCloudflareBuilds({ force = false } = {}) {
   const app = $('#app');
   if (FRESH)
     app.innerHTML =
       '<div role="status" aria-live="polite"><div class="loading">Loading Cloudflare build telemetry…</div></div>';
   let data;
   try {
-    data = await api('GET', `/api/cloudflare-builds?days=${CF_BUILDS.days}&limit=300`);
+    if (!force && CF_BUILDS.cache?.days === CF_BUILDS.days) data = CF_BUILDS.cache.data;
+    else {
+      data = await api('GET', `/api/cloudflare-builds?days=${CF_BUILDS.days}&limit=300`);
+      CF_BUILDS.cache = { days: CF_BUILDS.days, data };
+    }
   } catch (e) {
     renderViewError(app, `Cloudflare Builds telemetry failed: ${e.message}`);
     return;
@@ -2556,13 +2744,39 @@ async function renderCloudflareBuilds() {
   const repos = data.byRepo || [];
   const builds = data.builds || [];
   const triggers = data.triggers || [];
+  const fleetQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+  const pageSize = window.matchMedia('(max-width: 680px)').matches
+    ? CF_BUILDS.pageSize
+    : Math.max(CF_BUILDS.pageSize, 25);
+  const cfbPage = (key, rows) => {
+    const filtered = fleetQuery
+      ? rows.filter(row =>
+          String(row.repo || '')
+            .toLowerCase()
+            .includes(fleetQuery)
+        )
+      : rows;
+    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+    CF_BUILDS.pages[key] = Math.min(CF_BUILDS.pages[key], pageCount);
+    const start = (CF_BUILDS.pages[key] - 1) * pageSize;
+    return {
+      rows: filtered.slice(start, start + pageSize),
+      nav:
+        pageCount > 1
+          ? `<nav class="cfb-pagination" aria-label="${key} pages"><span class="muted" role="status" aria-live="polite">Showing ${start + 1}–${Math.min(start + pageSize, filtered.length)} of ${filtered.length}</span><button type="button" class="btn sm" data-cfb-page="${key}" data-delta="-1" ${CF_BUILDS.pages[key] <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" data-cfb-page="${key}" data-delta="1" ${CF_BUILDS.pages[key] >= pageCount ? 'disabled' : ''}>Next →</button></nav>`
+          : '',
+    };
+  };
+  const repoPage = cfbPage('repos', repos);
+  const buildPage = cfbPage('builds', builds);
+  const triggerPage = cfbPage('triggers', triggers);
   const lastSweep = data.lastSweep
     ? `${fmtAge((Date.now() - data.lastSweep) / 1000)} ago`
     : 'waiting for first sweep';
   const policyHealthy = summary.triggers && summary.compliantTriggers === summary.triggers;
   const projectedOver = Number(summary.projectedOverageUsd) || 0;
 
-  const repoRows = repos
+  const repoRows = repoPage.rows
     .map(row => {
       const policy = row.policyOk
         ? '<span class="badge b-green">filtered</span>'
@@ -2584,7 +2798,7 @@ async function renderCloudflareBuilds() {
     })
     .join('');
 
-  const buildRows = builds
+  const buildRows = buildPage.rows
     .map(build => {
       const firstLine = String(build.commitMessage || '(no commit message)').split('\n')[0];
       return `<tr data-fleet-row data-site="${esc(build.repo)}">
@@ -2600,7 +2814,7 @@ async function renderCloudflareBuilds() {
     })
     .join('');
 
-  const triggerRows = triggers
+  const triggerRows = triggerPage.rows
     .map(trigger => {
       const ok =
         trigger.root === 'site' &&
@@ -2644,19 +2858,28 @@ async function renderCloudflareBuilds() {
       <div class="task-toolbar"><strong>Daily build minutes</strong><span class="muted">UTC · red caps indicate at least one failed build</span></div>
       ${cfbChart(data.byDay || [])}
     </section>
-    ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Repository build usage</caption><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Recent builds and commits</caption><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Live Cloudflare build triggers</caption><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Repository build usage</caption><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>${repoPage.nav}`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Recent builds and commits</caption><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>${buildPage.nav}`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Live Cloudflare build triggers</caption><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>${triggerPage.nav}`, 'card cfb-panel')}
     <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. Build history is retained locally for 7 days and refreshed hourly; live trigger policy remains current.</p>`;
 
-  $('#cfb-refresh').addEventListener('click', () => renderCloudflareBuilds());
+  $('#cfb-refresh').addEventListener('click', () => renderCloudflareBuilds({ force: true }));
   $$('.cfb-range').forEach(button =>
     button.addEventListener('click', () => {
       CF_BUILDS.days = Number(button.dataset.days) || 30;
+      CF_BUILDS.cache = null;
+      CF_BUILDS.pages = { repos: 1, builds: 1, triggers: 1 };
       renderCloudflareBuilds();
     })
   );
   wireCollapsiblePanels(app);
+  $$('[data-cfb-page]', app).forEach(button =>
+    button.addEventListener('click', () => {
+      const key = button.dataset.cfbPage;
+      CF_BUILDS.pages[key] = Math.max(1, CF_BUILDS.pages[key] + Number(button.dataset.delta));
+      renderCloudflareBuilds();
+    })
+  );
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
@@ -2727,7 +2950,7 @@ async function renderHealth() {
     : '';
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div><button type="button" class="btn" id="health-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a class="inline-help-link" href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div><button type="button" class="btn" id="health-refresh">↻ Refresh</button></div>
     <section class="health-summary" aria-label="Health summary">
       <div class="health-stat"><strong>${order.length}</strong><span>Sites monitored</span></div>
       <div class="health-stat health-stat-good"><strong>${healthy}</strong><span>Healthy sites</span></div>
@@ -2912,7 +3135,7 @@ async function renderErrors() {
     .map(r => {
       const level = r.count24h > 0 ? r.lastLevel : null;
       const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
-      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row role="button" aria-label="Open retained logs for ${esc(r.name)}" tabindex="0" title="Click to view retained logs">
+      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row role="button" tabindex="0" title="Click to view retained logs">
       <td class="mono">${esc(r.name)}${r.activeAlert ? ' <span class="badge b-red" title="errorscan considers this an open alert — a Slack post (threshold or all-clear) may still be pending or may have failed silently">🔔 active</span>' : ''}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>
@@ -5381,7 +5604,7 @@ async function renderContainers() {
       <label><span class="sr-only">Container status</span><select id="cn-status" class="cm-input"><option value="all">All statuses</option><option value="healthy">Healthy</option><option value="unhealthy">Unhealthy</option><option value="stopped">Stopped</option></select></label>
       <label><span class="sr-only">Container type</span><select id="cn-kind" class="cm-input"><option value="all">All types</option><option value="cron">Cron</option><option value="worker">Worker runs</option><option value="site">Site services</option><option value="tool">Fleet tools</option></select></label>
       <span id="cn-filter-count" class="muted" role="status" aria-live="polite"></span>
-      <button type="button" class="btn sm" id="restart-crons" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
+      <button type="button" class="btn sm" id="restart-crons" aria-label="Restart legacy schedulers" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
     <div class="card cn-table"><div class="table-wrap"><table><caption class="sr-only">Container runtime status and lifecycle controls</caption>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
@@ -5738,10 +5961,16 @@ async function loadBoard() {
     renderViewError(content, e.message);
     return;
   }
+  const titleCounts = new Map();
+  COLS.forEach(stage =>
+    (data[stage] || []).forEach(task =>
+      titleCounts.set(task.title, (titleCounts.get(task.title) || 0) + 1)
+    )
+  );
   content.innerHTML = `<div class="board">${COLS.map(col => {
     const items = data[col] || [];
     const cards = items.length
-      ? items.map(t => boardCard(t)).join('')
+      ? items.map(t => boardCard(t, titleCounts.get(t.title) || 1)).join('')
       : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
     return `<div class="col"><div class="col-head"><h3>${COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div></div>`;
   }).join('')}</div>`;
@@ -5777,12 +6006,16 @@ function openedLabel(t) {
   return `<div class="t-date" title="opened ${esc(full)}">🕓 ${esc(dateStr)}</div>`;
 }
 
-function boardCard(t) {
+function boardCard(t, duplicateCount = 1) {
   const role = t.assigned_role ? `<span class="badge b-blue">${esc(t.assigned_role)}</span>` : '';
   const type = t.type ? `<span class="badge b-gray">${esc(t.type)}</span>` : '';
   const blk = t.blocked_on ? '<span class="blocked-tag">blocked</span>' : '';
-  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} in ${esc(STAGE_LABEL[t.column] || t.column)}">
-    <div class="t-title">${esc(t.title)}${blk}</div>
+  const repeated =
+    duplicateCount > 1
+      ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
+      : '';
+  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} in ${esc(STAGE_LABEL[t.column] || t.column)}${duplicateCount > 1 ? `; title appears in ${duplicateCount} task files` : ''}">
+    <div class="t-title">${esc(t.title)}${blk}${repeated}</div>
     <div class="t-meta">${prioTag(t.priority)}${role}${type}</div>
     ${t.excerpt ? `<div class="t-excerpt">${esc(t.excerpt)}</div>` : ''}
     ${openedLabel(t)}
@@ -5859,6 +6092,11 @@ function renderFleet() {
   const roles = [...new Set(all.map(t => t.assigned_role).filter(Boolean))].sort();
   const sites = [...new Set(all.map(t => t.site))].sort();
   const rows = fleetFiltered();
+  const repeatedTitles = new Map();
+  TASK.all.forEach(task => {
+    const key = [task.site, task.title].join('\u001f');
+    repeatedTitles.set(key, (repeatedTitles.get(key) || 0) + 1);
+  });
   const counts = {
     total: rows.length,
     ip: rows.filter(t => t.column === 'in-progress').length,
@@ -5877,11 +6115,22 @@ function renderFleet() {
     fc.site.size +
     (fc.blocked ? 1 : 0) +
     (fc.query ? 1 : 0);
+  const activeLabels = [
+    ...[...fc.priority].map(value => `P${value}`),
+    ...[...fc.stage].map(value => STAGE_LABEL[value] || value),
+    ...fc.type,
+    ...fc.role,
+    ...fc.site,
+    ...(fc.blocked ? [fc.blocked === 'yes' ? 'blocked only' : 'not blocked'] : []),
+  ];
+  const activeSummary = activeLabels.length
+    ? ` · ${activeLabels.slice(0, 2).join(', ')}${activeLabels.length > 2 ? ` +${activeLabels.length - 2}` : ''}`
+    : '';
 
   const filterPanel = `
-    <details class="filter-panel" data-rk="filters" ${active ? 'open' : ''}>
-      <summary>Filters ${active ? `<span class="badge b-blue">${active} active</span>` : ''}
-        ${active ? '<a id="clear-filters" class="filter-clear">clear all</a>' : ''}</summary>
+    <details class="filter-panel" data-rk="filters">
+      <summary>Filters ${active ? `<span class="badge b-blue">${active} active${esc(activeSummary)}</span>` : ''}</summary>
+      ${active ? '<div class="filter-actions"><button id="clear-filters" type="button" class="filter-clear">Clear all filters</button></div>' : ''}
       <div class="filter-row"><span class="filter-label">priority</span><div class="pill-group">
         ${[
           ['1', 'P1', 'p1'],
@@ -5911,8 +6160,8 @@ function renderFleet() {
   const search = `<label class="task-search">Find a task<input id="task-search" class="cm-input" type="search" aria-label="Search fleet tasks" placeholder="Title, site, role, or blocker…" value="${esc(fc.query)}"></label>`;
   const list = rows.length
     ? TASK.view === 'tree'
-      ? fleetTree(rows)
-      : fleetTable(rows)
+      ? fleetTree(rows, repeatedTitles)
+      : fleetTable(rows, repeatedTitles)
     : '<p class="empty">No tasks match.</p>';
   content.innerHTML = search + counter + filterPanel + list;
 
@@ -5970,7 +6219,7 @@ function togglePill(group, val) {
   renderFleet();
 }
 
-function fleetTree(rows) {
+function fleetTree(rows, repeatedTitles = new Map()) {
   const bySite = {};
   for (const t of rows) (bySite[t.site] = bySite[t.site] || []).push(t);
   const groups = Object.entries(bySite).sort((a, b) => b[1].length - a[1].length);
@@ -5982,6 +6231,11 @@ function fleetTree(rows) {
       let lastStage = '';
       const items = tasks
         .map(t => {
+          const duplicateCount = repeatedTitles.get([t.site, t.title].join('\u001f')) || 1;
+          const repeated =
+            duplicateCount > 1
+              ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
+              : '';
           const label =
             t.column !== lastStage
               ? ((lastStage = t.column),
@@ -5989,10 +6243,10 @@ function fleetTree(rows) {
               : '';
           return (
             label +
-            `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)}">
+            `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)}${duplicateCount > 1 ? `; title appears in ${duplicateCount} task files` : ''}">
         <span class="prio ${prioClass(t.priority)} tree-pri">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span>
         <span class="tree-type">${esc(t.type || '')}</span>
-        <span class="tree-title">${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}</span>
+        <span class="tree-title">${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}${repeated}</span>
         <span class="tree-role">${esc(t.assigned_role || '')}</span>
         <span class="tree-est">${t.estimated_turns ? '~' + esc(t.estimated_turns) + 't' : ''}</span>
       </div>`
@@ -6009,7 +6263,7 @@ function fleetTree(rows) {
   return ctrls + `<div class="tree-list">${body}</div>`;
 }
 
-function fleetTable(rows) {
+function fleetTable(rows, repeatedTitles = new Map()) {
   let lastStage = '';
   const body = rows
     .map(t => {
@@ -6018,6 +6272,11 @@ function fleetTable(rows) {
           ? ((lastStage = t.column),
             `<tr class="stage-divider"><td colspan="7">${STAGE_LABEL[t.column]}</td></tr>`)
           : '';
+      const duplicateCount = repeatedTitles.get([t.site, t.title].join('\u001f')) || 1;
+      const repeated =
+        duplicateCount > 1
+          ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
+          : '';
       return (
         divider +
         `<tr class="ttr ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} for ${esc(t.site)}">
@@ -6025,7 +6284,7 @@ function fleetTable(rows) {
       <td class="mono">${esc(t.site)}</td>
       <td><span class="badge b-gray">${STAGE_LABEL[t.column]}</span></td>
       <td>${esc(t.type || '')}</td>
-      <td>${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}</td>
+      <td>${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}${repeated}</td>
       <td>${esc(t.assigned_role || '')}</td>
       <td class="mono">${esc(t.created || '')}</td>
     </tr>`
@@ -7360,7 +7619,7 @@ async function renderDataHub() {
     <div class="dh-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}</div>
     <div class="table-wrap"><table class="dh-sources">
       <caption class="sr-only">Data source freshness and controls</caption>
-      <thead><tr><th>source</th><th>type</th><th>status</th><th>last fetch</th><th></th></tr></thead>
+      <thead><tr><th scope="col">source</th><th scope="col">type</th><th scope="col">status</th><th scope="col">last fetch</th><th scope="col">Actions</th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="5" class="muted">no source state</td></tr>'}</tbody>
     </table></div>`;
 
@@ -7399,9 +7658,9 @@ async function renderDataHub() {
       .join('');
     matrixHtml = `
       <div class="dh-matrix-sub">RSS subscriptions (by tag)</div>
-      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">RSS subscriptions by site</caption><tbody>${rssRows}</tbody></table></div>
+      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">RSS subscriptions by site</caption><thead><tr><th scope="col">Site</th><th scope="col">Sources</th><th scope="col">Tags</th></tr></thead><tbody>${rssRows}</tbody></table></div>
       <div class="dh-matrix-sub">Dataset subscriptions</div>
-      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">Dataset subscriptions by site</caption><tbody>${dsRows2 || '<tr><td class="muted">none</td></tr>'}</tbody></table></div>`;
+      <div class="table-wrap"><table class="dh-matrix"><caption class="sr-only">Dataset subscriptions by site</caption><thead><tr><th scope="col">Site</th><th scope="col">Subscribed datasets</th></tr></thead><tbody>${dsRows2 || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table></div>`;
   }
 
   app.innerHTML = `
@@ -7425,6 +7684,42 @@ async function renderDataHub() {
     <details class="dh-help"><summary>How Data Hub protects and routes collection</summary><p>Private sources are fetched through the configured VPN exits, while the egress ledger records the target, path, exit IP, and outcome. Site pulls show who consumed collected data; home-IP leaks are surfaced as a hard warning. Source toggles apply on the next collection cycle.</p></details>`;
 
   $('#datahub-refresh').addEventListener('click', () => renderDataHub());
+  const dhPageSize = 20;
+  $$('.dh-panel table', app).forEach((table, index) => {
+    const rows = [...table.tBodies].flatMap(body => [...body.rows]);
+    if (rows.length <= dhPageSize) return;
+    const label = table.caption?.textContent || 'Data Hub table';
+    const tableId = `dh-table-${index}`;
+    table.id = tableId;
+    const pager = document.createElement('nav');
+    pager.className = 'dh-pagination';
+    pager.setAttribute('aria-label', `${label} pages`);
+    pager.innerHTML = `<span class="dh-page-status" aria-live="polite"></span><div><button type="button" class="btn sm" data-dh-page="prev" aria-controls="${tableId}">← Previous</button><button type="button" class="btn sm" data-dh-page="next" aria-controls="${tableId}">Next →</button></div>`;
+    table.closest('.table-wrap').after(pager);
+    let page = 0;
+    const status = $('.dh-page-status', pager);
+    const previous = $('[data-dh-page="prev"]', pager);
+    const next = $('[data-dh-page="next"]', pager);
+    const updatePage = () => {
+      const pageCount = Math.ceil(rows.length / dhPageSize);
+      const start = page * dhPageSize;
+      rows.forEach((row, rowIndex) => {
+        row.hidden = rowIndex < start || rowIndex >= start + dhPageSize;
+      });
+      status.textContent = `${start + 1}–${Math.min(start + dhPageSize, rows.length)} of ${rows.length}`;
+      previous.disabled = page === 0;
+      next.disabled = page >= pageCount - 1;
+    };
+    previous.addEventListener('click', () => {
+      page = Math.max(0, page - 1);
+      updatePage();
+    });
+    next.addEventListener('click', () => {
+      page = Math.min(Math.ceil(rows.length / dhPageSize) - 1, page + 1);
+      updatePage();
+    });
+    updatePage();
+  });
   // Wire the per-source enable/disable toggles (re-bound every render).
   $$('.dh-src-toggle').forEach(b =>
     b.addEventListener('click', () => dhToggleSource(b.dataset.id, b.dataset.enabled === '1', b))
@@ -7652,7 +7947,7 @@ async function renderCompliance() {
         : '';
     return `<tr data-fleet-row data-site="${esc(r.site)}">
       <td class="site">${siteLink(r.site)}</td>
-      <td><button type="button" class="badge ${statusCls} compliance-status" data-site="${esc(r.site)}" title="Show compliance evidence for ${esc(r.site)}">${esc(r.status)}</button> ${change}</td>
+      <td><button type="button" class="badge ${statusCls} compliance-status" data-site="${esc(r.site)}" aria-label="Show ${esc(r.status)} compliance evidence for ${esc(r.site)}" title="Show compliance evidence for ${esc(r.site)}">${esc(r.status)}</button> ${change}</td>
       <td>${complianceCheck(c.banner, 'present', 'missing')}</td>
       <td>${complianceCheck(c.accept, 'present', 'missing')}</td>
       <td>${complianceCheck(c.reject, 'present', 'missing')}</td>
@@ -8027,7 +8322,7 @@ async function renderSeoIntelligence() {
     types
       .map(
         ([type, count]) => `
-    <button class="seo-type-row" data-seo-type="${esc(type)}" title="Filter to ${esc(SEO_TYPE_LABELS[type] || type)}">
+    <button class="seo-type-row" data-seo-type="${esc(type)}" aria-label="Filter to ${esc(SEO_TYPE_LABELS[type] || type)} ${count}" title="Filter to ${esc(SEO_TYPE_LABELS[type] || type)}">
       <span>${esc(SEO_TYPE_LABELS[type] || type)}</span>
       <i><b style="width:${Math.max(4, Math.round((count / maxType) * 100))}%"></b></i>
       <strong>${count}</strong>
@@ -8078,7 +8373,7 @@ async function renderSeoIntelligence() {
       </section>
     </div>
     <section class="dh-panel dh-wide seo-sites"><h3>Site opportunity map</h3>
-      <div class="table-wrap"><table class="dh-sources"><caption class="sr-only">SEO opportunity map by site</caption><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>query-page pairs</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
+      <div class="table-wrap"><table class="dh-sources"><caption class="sr-only">SEO opportunity map by site</caption><thead><tr><th scope="col">site</th><th scope="col">actions</th><th scope="col">high</th><th scope="col">pages</th><th scope="col">query-page pairs</th><th scope="col">sessions</th><th scope="col">conversions</th><th scope="col">impressions</th><th scope="col">CTR</th><th scope="col">Actions</th></tr></thead>
       <tbody>${siteRows || '<tr><td colspan="10" class="muted">No site evidence available.</td></tr>'}</tbody></table>
       </div>
     </section>
@@ -8237,7 +8532,7 @@ async function renderBacklinks() {
         `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td><td>${backlinkBadge(row.status)}</td><td>${esc(row.latestDate || '—')}</td><td>${esc(row.latestAgeDays == null ? '—' : `${row.latestAgeDays}d`)}</td><td>${esc(row.sources?.join(', ') || '—')}</td><td><button type="button" class="btn sm backlink-focus" data-site="${esc(row.site)}">Details</button> <button type="button" class="btn sm backlink-accent backlink-file" data-site="${esc(row.site)}">＋ Task</button></td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div></div><div><button type="button" id="backlinks-refresh" class="btn">↻ Refresh</button> <button type="button" id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button type="button" id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide backlink-table"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><div class="table-wrap"><table class="dh-sources"><caption class="sr-only">Backlink coverage by site</caption><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></div></section>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div></div><div><button type="button" id="backlinks-refresh" class="btn">↻ Refresh</button> <button type="button" id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button type="button" id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide backlink-table"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><div class="table-wrap"><table class="dh-sources"><caption class="sr-only">Backlink coverage by site</caption><thead><tr><th scope="col">site</th><th scope="col">status</th><th scope="col">latest</th><th scope="col">age</th><th scope="col">sources</th><th scope="col">Actions</th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></div></section>`;
   $('#backlink-site')?.setAttribute('aria-label', 'Filter backlink coverage by site');
   $('#backlinks-refresh').addEventListener('click', () => renderBacklinks());
   $('#backlink-site').value = BACKLINK_SITE;
@@ -8572,7 +8867,7 @@ async function renderLint() {
     ${newErrors.length ? `<div class="card lint-alert" role="status"><div class="cn-log-head">New since the previous sweep (${newErrors.length})</div><ul>${newErrors.map(e => `<li class="mono">${esc(e.site)}/${esc(e.file)}</li>`).join('')}</ul></div>` : ''}
     <div class="card lint-table"><div class="table-wrap"><table>
       <caption class="sr-only">Lint findings by site</caption>
-      <thead><tr><th>Site</th><th>Status</th><th>Parse errors</th><th>Unformatted</th><th>Files</th><th></th></tr></thead>
+      <thead><tr><th scope="col">Site</th><th scope="col">Status</th><th scope="col">Parse errors</th><th scope="col">Unformatted</th><th scope="col">Files</th><th scope="col">Actions</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="6" class="muted">Every site is clean.</td></tr>'}</tbody>
     </table></div></div>
     <details class="lint-help"><summary>How to remediate lint findings</summary><p>A <strong>parse error</strong> is the real signal: <span class="mono">tools/git-hooks/pre-commit</span> pipes prettier through xargs and ignores its exit code, so an unparseable file is never formatted and nothing reports it. Fix the source (JSX-style <span class="mono">{/* … */}</span> comments inside template expressions, no raw <span class="mono">&lt;svg&gt;</span> in attributes, no script bodies inside template expressions) rather than adding a <span class="mono">.prettierignore</span>. Sites shown clean are omitted from the table.</p></details>`;
@@ -8626,6 +8921,14 @@ async function lintScan(btn, site) {
 
 /* ===== DATA HUB IMAGES ===== */
 
+const DHI_PAGE_SIZE = 20;
+const DHI_COUNT_PAGES = new Map();
+const DHI_COUNT_ITEMS = new Map();
+const DHI_TABLE_PAGES = new Map();
+const DHI_TABLE_ITEMS = new Map();
+let DHI_IMAGE_PAGE = 1;
+let DHI_IMAGE_ITEMS = [];
+
 function dhiBadge(status) {
   const s = String(status || '');
   let cls = 'dhi-b';
@@ -8642,15 +8945,147 @@ function dhiPathBadge(policy, exitNode) {
 }
 
 function dhiCountTable(title, counts) {
-  const rows = Object.entries(counts || {})
-    .sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => `<tr><td>${esc(k || '—')}</td><td><b>${esc(String(v))}</b></td></tr>`)
+  const key = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const entries = Object.entries(counts || {}).sort((a, b) => b[1] - a[1]);
+  DHI_COUNT_ITEMS.set(key, { title, entries });
+  return dhiCountBlockHtml(key, title, entries);
+}
+
+function dhiCountBlockHtml(key, title, entries) {
+  const pageCount = Math.max(1, Math.ceil(entries.length / DHI_PAGE_SIZE));
+  const page = DHI_COUNT_PAGES.get(key) || 1;
+  const currentPage = Math.min(page, pageCount);
+  DHI_COUNT_PAGES.set(key, currentPage);
+  const start = (currentPage - 1) * DHI_PAGE_SIZE;
+  const rows = entries
+    .slice(start, start + DHI_PAGE_SIZE)
+    .map(
+      ([name, value]) =>
+        `<tr><td>${esc(name || '—')}</td><td><b>${esc(String(value))}</b></td></tr>`
+    )
     .join('');
-  return `
-    <div class="dhi-countblock">
-      <div class="dhi-countblock-h">${esc(title)}</div>
-      <table class="dhi-counts"><caption class="sr-only">${esc(title)} counts</caption><tbody>${rows || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table>
-    </div>`;
+  const pagination =
+    pageCount > 1
+      ? `<nav class="dhi-pagination" aria-label="${esc(title)} category pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + DHI_PAGE_SIZE, entries.length)} of ${entries.length}</span><button type="button" class="btn sm" data-dhi-count-page="${key}" data-direction="-1" aria-label="Previous ${esc(title)} page" ${currentPage <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-dhi-count-page="${key}" data-direction="1" aria-label="Next ${esc(title)} page" ${currentPage >= pageCount ? 'disabled' : ''}>→</button></nav>`
+      : '';
+  return `<div class="dhi-countblock" data-count-key="${key}"><div class="dhi-countblock-h">${esc(title)} <span>${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}</span></div><table class="dhi-counts"><caption class="sr-only">${esc(title)} counts</caption><tbody>${rows || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table>${pagination}</div>`;
+}
+
+function dhiBindCountControls(root) {
+  root.querySelectorAll('[data-dhi-count-page]').forEach(button => {
+    button.addEventListener('click', () => {
+      const key = button.dataset.dhiCountPage;
+      const direction = Number(button.dataset.direction || 0);
+      const data = DHI_COUNT_ITEMS.get(key);
+      if (!data) return;
+      const current = DHI_COUNT_PAGES.get(key) || 1;
+      DHI_COUNT_PAGES.set(
+        key,
+        Math.max(1, Math.min(Math.ceil(data.entries.length / DHI_PAGE_SIZE), current + direction))
+      );
+      const block = button.closest('.dhi-countblock');
+      const replacement = document.createElement('div');
+      replacement.innerHTML = dhiCountBlockHtml(key, data.title, data.entries);
+      const next = replacement.firstElementChild;
+      block.replaceWith(next);
+      dhiBindCountControls(next);
+    });
+  });
+}
+
+function dhiLedgerTableHtml(key, title, headers, rows, tableClass, emptyText) {
+  DHI_TABLE_ITEMS.set(key, { title, headers, rows, tableClass, emptyText });
+  const pageCount = Math.max(1, Math.ceil(rows.length / DHI_PAGE_SIZE));
+  const page = Math.min(DHI_TABLE_PAGES.get(key) || 1, pageCount);
+  DHI_TABLE_PAGES.set(key, page);
+  const start = (page - 1) * DHI_PAGE_SIZE;
+  const body = rows.slice(start, start + DHI_PAGE_SIZE).join('');
+  const pagination =
+    pageCount > 1
+      ? `<nav class="dhi-pagination" aria-label="${esc(title)} pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + DHI_PAGE_SIZE, rows.length)} of ${rows.length} loaded entries</span><button type="button" class="btn sm" data-dhi-table-page="${key}" data-direction="-1" aria-label="Previous ${esc(title)} page" ${page <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-dhi-table-page="${key}" data-direction="1" aria-label="Next ${esc(title)} page" ${page >= pageCount ? 'disabled' : ''}>→</button></nav>`
+      : '';
+  return `<div class="dhi-ledger" data-ledger-key="${key}">${pagination}<div class="table-wrap"><table class="${tableClass}"><caption class="sr-only">${esc(title)}</caption><thead><tr>${headers.map(label => `<th scope="col">${esc(label)}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td colspan="${headers.length}" class="muted">${esc(emptyText)}</td></tr>`}</tbody></table></div></div>`;
+}
+
+function dhiBindLedgerControls(root) {
+  root.querySelectorAll('[data-dhi-table-page]').forEach(button => {
+    button.addEventListener('click', () => {
+      const key = button.dataset.dhiTablePage;
+      const direction = Number(button.dataset.direction || 0);
+      const data = DHI_TABLE_ITEMS.get(key);
+      if (!data) return;
+      const current = DHI_TABLE_PAGES.get(key) || 1;
+      DHI_TABLE_PAGES.set(
+        key,
+        Math.max(1, Math.min(Math.ceil(data.rows.length / DHI_PAGE_SIZE), current + direction))
+      );
+      const ledger = button.closest('.dhi-ledger');
+      const replacement = document.createElement('div');
+      replacement.innerHTML = dhiLedgerTableHtml(
+        key,
+        data.title,
+        data.headers,
+        data.rows,
+        data.tableClass,
+        data.emptyText
+      );
+      const next = replacement.firstElementChild;
+      ledger.replaceWith(next);
+      dhiBindLedgerControls(next);
+    });
+  });
+}
+
+function dhiImageCard(im) {
+  const credit = im.credit || {};
+  const creditLine =
+    credit.photographer || credit.source
+      ? `${esc(credit.photographer || '')}${credit.photographer && credit.source ? ' · ' : ''}${esc(credit.source || '')}`
+      : esc(im.source_id || '');
+  return `<div class="dhi-thumb" data-rk="dhi-img-${esc(im.id)}"><img src="/api/datahub-images/image/${encodeURIComponent(im.id)}" loading="lazy" alt="${creditLine}" /><div class="dhi-thumb-meta"><div class="dhi-thumb-credit">${creditLine}</div><div class="dhi-thumb-sub">${esc(im.license || '—')} · score ${esc(String(im.score ?? '—'))} · ${dhiBadge(im.status)}</div><div class="dhi-thumb-actions"><button type="button" class="btn sm danger dhi-blacklist" data-id="${esc(im.id)}">Blacklist</button><button type="button" class="btn sm danger dhi-reject" data-id="${esc(im.id)}">Reject</button></div></div></div>`;
+}
+
+function dhiImageGalleryHtml(images) {
+  const pageCount = Math.max(1, Math.ceil(images.length / DHI_PAGE_SIZE));
+  DHI_IMAGE_PAGE = Math.min(Math.max(1, DHI_IMAGE_PAGE), pageCount);
+  const start = (DHI_IMAGE_PAGE - 1) * DHI_PAGE_SIZE;
+  const pagination =
+    pageCount > 1
+      ? `<nav class="dhi-pagination" aria-label="Recent image pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + DHI_PAGE_SIZE, images.length)} of ${images.length} loaded images</span><button type="button" class="btn sm" data-dhi-image-page="-1" aria-label="Previous image page" ${DHI_IMAGE_PAGE <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-dhi-image-page="1" aria-label="Next image page" ${DHI_IMAGE_PAGE >= pageCount ? 'disabled' : ''}>→</button></nav>`
+      : `<div class="dhi-pagination"><span class="muted">${images.length} loaded image${images.length === 1 ? '' : 's'}</span></div>`;
+  const cards = images
+    .slice(start, start + DHI_PAGE_SIZE)
+    .map(dhiImageCard)
+    .join('');
+  return `${pagination}<div class="dhi-thumbs">${cards || '<div class="muted">no images in the pool</div>'}</div>`;
+}
+
+function dhiBindImageGallery(root) {
+  root.querySelectorAll('[data-dhi-image-page]').forEach(button => {
+    button.addEventListener('click', () => {
+      const pageCount = Math.max(1, Math.ceil(DHI_IMAGE_ITEMS.length / DHI_PAGE_SIZE));
+      DHI_IMAGE_PAGE = Math.max(
+        1,
+        Math.min(pageCount, DHI_IMAGE_PAGE + Number(button.dataset.dhiImagePage))
+      );
+      root.innerHTML = dhiImageGalleryHtml(DHI_IMAGE_ITEMS);
+      dhiBindImageGallery(root);
+      dhiBindImageActions(root);
+    });
+  });
+}
+
+function dhiBindImageActions(root) {
+  root
+    .querySelectorAll('.dhi-blacklist')
+    .forEach(button =>
+      button.addEventListener('click', () => dhiBlacklist(button.dataset.id, button))
+    );
+  root
+    .querySelectorAll('.dhi-reject')
+    .forEach(button =>
+      button.addEventListener('click', () => dhiReject(button.dataset.id, button))
+    );
 }
 
 async function renderDataHubImages() {
@@ -8700,28 +9135,8 @@ async function renderDataHubImages() {
 
   // ---- Panel 3: Recent Images (thumbnail grid + curation actions) ----
   const images = (imgs && imgs.images) || [];
-  const thumbs = images
-    .map(im => {
-      const credit = im.credit || {};
-      const creditLine =
-        credit.photographer || credit.source
-          ? `${esc(credit.photographer || '')}${credit.photographer && credit.source ? ' · ' : ''}${esc(credit.source || '')}`
-          : esc(im.source_id || '');
-      return `
-      <div class="dhi-thumb" data-rk="dhi-img-${esc(im.id)}">
-        <img src="/api/datahub-images/image/${encodeURIComponent(im.id)}" loading="lazy" alt="${creditLine}" />
-        <div class="dhi-thumb-meta">
-          <div class="dhi-thumb-credit">${creditLine}</div>
-          <div class="dhi-thumb-sub">${esc(im.license || '—')} · score ${esc(String(im.score ?? '—'))} · ${dhiBadge(im.status)}</div>
-          <div class="dhi-thumb-actions">
-            <button type="button" class="btn sm danger dhi-blacklist" data-id="${esc(im.id)}">Blacklist</button>
-            <button type="button" class="btn sm danger dhi-reject" data-id="${esc(im.id)}">Reject</button>
-          </div>
-        </div>
-      </div>`;
-    })
-    .join('');
-  const thumbsHtml = `<div class="dhi-thumbs">${thumbs || '<div class="muted">no images in the pool</div>'}</div>`;
+  DHI_IMAGE_ITEMS = images;
+  const thumbsHtml = `<div id="dhi-image-gallery">${dhiImageGalleryHtml(images)}</div>`;
 
   // ---- Panel 4: Source Freshness (+ enabled/disabled toggle) ----
   const srcs = (src && src.sources) || [];
@@ -8753,14 +9168,17 @@ async function renderDataHubImages() {
     <div class="dhi-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dhi-stale">${disabledCount} disabled</span>` : ''}</div>
     <div class="table-wrap"><table class="dhi-sources">
       <caption class="sr-only">Image source freshness and controls</caption>
-      <thead><tr><th>source</th><th>kind</th><th>path</th><th>status</th><th>last fetch</th><th></th></tr></thead>
+      <thead><tr><th scope="col">source</th><th scope="col">kind</th><th scope="col">path</th><th scope="col">status</th><th scope="col">last fetch</th><th scope="col">Actions</th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="6" class="muted">no source state</td></tr>'}</tbody>
     </table></div>`;
 
   // ---- Panel 5: Outbound Connection Ledger (egress) ----
   const events = (eg && eg.events) || [];
-  const egRows = events
-    .map(
+  const egressHtml = dhiLedgerTableHtml(
+    'egress',
+    'Image outbound connection ledger',
+    ['When', 'Source', 'Target', 'Path', 'Exit IP', 'Status', 'Note'],
+    events.map(
       e => `
     <tr>
       <td class="dhi-time">${esc((e.ts || '').replace('T', ' ').slice(0, 19))}</td>
@@ -8771,19 +9189,18 @@ async function renderDataHubImages() {
       <td>${dhiBadge(e.status)}</td>
       <td class="dhi-note">${esc(e.note || '')}</td>
     </tr>`
-    )
-    .join('');
-  const egressHtml = `
-    <div class="table-wrap"><table class="dhi-egress">
-      <caption class="sr-only">Image outbound connection ledger</caption>
-      <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
-      <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
-    </table></div>`;
+    ),
+    'dhi-egress',
+    'no egress events yet'
+  );
 
   // ---- Panel 6: Site Pulls (inbound — who consumed what) ----
   const pulls = (pl && pl.pulls) || [];
-  const plRows = pulls
-    .map(p => {
+  const pullsHtml = dhiLedgerTableHtml(
+    'pulls',
+    'Image site data pulls',
+    ['When', 'Consumer', 'Endpoint', 'Items', 'Client IP'],
+    pulls.map(p => {
       const who = p.site
         ? siteLink(p.site)
         : `<span class="dhi-host">${esc(p.endpoint || '')}</span>`;
@@ -8794,14 +9211,10 @@ async function renderDataHubImages() {
       <td><b>${esc(String(p.item_count ?? 0))}</b></td>
       <td class="dhi-ip">${esc(p.client_ip || '—')}</td>
     </tr>`;
-    })
-    .join('');
-  const pullsHtml = `
-    <div class="table-wrap"><table class="dhi-egress dhi-pulls">
-      <caption class="sr-only">Image site data pulls</caption>
-      <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
-      <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
-    </table></div>`;
+    }),
+    'dhi-egress dhi-pulls',
+    'no pulls yet'
+  );
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Data Hub Images</h2><span class="muted">privacy-routed image collection, source freshness, curation, and consumer evidence</span><button type="button" class="btn" id="datahub-images-refresh">↻ Refresh</button></div>
@@ -8816,14 +9229,15 @@ async function renderDataHubImages() {
     </div>`;
 
   $('#datahub-images-refresh').addEventListener('click', () => renderDataHubImages());
-  // Wire the per-source toggle + per-image curation buttons (re-bound every render).
+  dhiBindCountControls(app);
+  dhiBindLedgerControls(app);
+  const imageGallery = $('#dhi-image-gallery');
+  dhiBindImageGallery(imageGallery);
+  dhiBindImageActions(imageGallery);
+  // Wire per-source toggles (re-bound every render).
   $$('.dhi-src-toggle').forEach(b =>
     b.addEventListener('click', () => dhiToggleSource(b.dataset.id, b.dataset.enabled === '1', b))
   );
-  $$('.dhi-blacklist').forEach(b =>
-    b.addEventListener('click', () => dhiBlacklist(b.dataset.id, b))
-  );
-  $$('.dhi-reject').forEach(b => b.addEventListener('click', () => dhiReject(b.dataset.id, b)));
 
   if (!FRESH) applyUISnap();
 }
@@ -11173,12 +11587,12 @@ function shRenderOverview(data) {
     );
 
   const tile = (k, label, value, tone) =>
-    `<button type="button" class="sh-tile${tone ? ' ' + tone : ''}" data-sh-jump="${k}" aria-label="Open queue filtered to ${esc(label)} (${value})" title="Open the queue filtered to ${esc(label)}">
-       <span class="sh-tile-v">${value}</span><span class="sh-tile-k">${esc(label)}</span>
+    `<button type="button" class="sh-tile${tone ? ' ' + tone : ''}" data-sh-jump="${k}">
+       <span class="sh-tile-v">${value}</span><span class="sh-tile-k">${esc(label)}</span><span class="sr-only">Open queue filtered to ${esc(label)}</span>
      </button>`;
 
   const chip = (k, label, n) =>
-    `<button type="button" class="seg-btn${filter === k ? ' active' : ''}" data-sh-ov="${k}" aria-label="Show ${esc(label)}" aria-pressed="${filter === k}">${esc(label)}<span class="ctl-n">${n}</span></button>`;
+    `<button type="button" class="seg-btn${filter === k ? ' active' : ''}" data-sh-ov="${k}" aria-label="${esc(label)} ${n}. Filter sites by ${esc(label)}" aria-pressed="${filter === k}">${esc(label)} <span class="ctl-n">${n}</span></button>`;
 
   const siteCards = shown
     .map(r => {
@@ -12481,9 +12895,9 @@ async function renderPriorities() {
     ${omittedActions ? `<div class="fd-stale-banner priority-truncated" role="alert"><strong>Incomplete queue</strong><span>The API reports ${reportedTotal} recommendations but returned ${all.length}; ${omittedActions} actions are not available in this view yet.</span></div>` : ''}
     <section class="seo-stats">${tiles}</section>
     <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="table-wrap"><table class="tbl"><caption class="sr-only">Portfolio allocation scorecard by live site</caption><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
-    <div class="task-toolbar"><strong>${rows.length} items</strong><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)}</span><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
+    <div class="task-toolbar"><strong>${rows.length} items</strong><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)}</span><select id="priority-state" class="cm-input" aria-label="Filter prioritized actions by state"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
     ${pageCount > 1 ? `<nav class="priority-pagination" aria-label="Priority action pages"><button type="button" class="btn sm" id="priority-prev" ${PRIORITY_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="priority-page-status" role="status">Page ${PRIORITY_PAGE} of ${pageCount} · ${rows.length} total actions</span><button type="button" class="btn sm" id="priority-next" ${PRIORITY_PAGE === pageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
-    <section class="card"><div class="table-wrap"><table class="tbl"><caption class="sr-only">Prioritized recommended actions</caption><thead><tr><th>Score</th><th>Site</th><th>State</th><th>Kind</th><th>Recommended action</th><th>Confidence</th><th>Expected profit</th><th></th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
+    <section class="card"><div class="table-wrap"><table class="tbl"><caption class="sr-only">Prioritized recommended actions</caption><thead><tr><th scope="col">Score</th><th scope="col">Site</th><th scope="col">State</th><th scope="col">Kind</th><th scope="col">Recommended action</th><th scope="col">Confidence</th><th scope="col">Expected profit</th><th scope="col">Action</th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
   $('#priorities-refresh').addEventListener('click', () => renderPriorities());
   $('#priority-state').value = PRIORITY_STATE;
   $('#priority-state').addEventListener('change', e => {
@@ -12624,7 +13038,7 @@ async function renderImprovements() {
   const active = all.filter(run => !IMPROVEMENT_TERMINAL.has(run.state)).length;
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div><button type="button" id="improvements-refresh" class="btn">↻ Refresh</button></div>
     <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${active}</div><div class="seo-stat-label">Active</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.proven || 0}</div><div class="seo-stat-label">Proven</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.regressed || 0}</div><div class="seo-stat-label">Regressed</div></div><div class="seo-stat"><div class="seo-stat-value">${all.length}</div><div class="seo-stat-label">All runs</div></div></section>
-    <div class="task-toolbar"><select id="improvement-state" class="cm-input"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
+    <div class="task-toolbar"><select id="improvement-state" class="cm-input" aria-label="Filter improvement runs by state"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
     ${pageCount > 1 ? `<nav class="improvement-pagination" aria-label="Improvement run pages"><button type="button" class="btn sm" id="improvements-prev" ${IMPROVEMENT_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="improvements-page-status" role="status">Showing ${pageStart + 1}–${Math.min(pageStart + IMPROVEMENT_PAGE_SIZE, runs.length)} of ${runs.length} runs · Page ${IMPROVEMENT_PAGE} of ${pageCount}</span><button type="button" class="btn sm" id="improvements-next" ${IMPROVEMENT_PAGE === pageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
     ${cards || '<div class="empty">No improvement runs in this view. Start one from Priorities.</div>'}`;
   $('#improvements-refresh').addEventListener('click', () => renderImprovements());
@@ -13720,6 +14134,8 @@ const WORK_BOARD_FILTER_KEY = 'fd.work-board.filters';
 const WORK_BOARD_COLUMN_KEYS = new Set(WORK_BOARD_COLUMNS.map(([key]) => key));
 let WORK_BOARD_QUERY = '';
 let WORK_BOARD_SEARCH_TIMER;
+const WORK_BOARD_PAGE_SIZE = 20;
+const WORK_BOARD_PAGES = Object.create(null);
 function readWorkBoardFilters() {
   try {
     const saved = JSON.parse(localStorage.getItem(WORK_BOARD_FILTER_KEY) || '{}');
@@ -14022,7 +14438,8 @@ async function renderActiveDelivery() {
       Math.ceil(attention.length / ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE)
     );
     ACTIVE_DELIVERY_ATTENTION_PAGE = Math.min(ACTIVE_DELIVERY_ATTENTION_PAGE, attentionPages);
-    const attentionStart = (ACTIVE_DELIVERY_ATTENTION_PAGE - 1) * ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE;
+    const attentionStart =
+      (ACTIVE_DELIVERY_ATTENTION_PAGE - 1) * ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE;
     const attentionRows = attention
       .slice(attentionStart, attentionStart + ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE)
       .map(
@@ -14056,10 +14473,7 @@ async function renderActiveDelivery() {
       softRender();
     });
     $('#delivery-attention-next')?.addEventListener('click', () => {
-      ACTIVE_DELIVERY_ATTENTION_PAGE = Math.min(
-        attentionPages,
-        ACTIVE_DELIVERY_ATTENTION_PAGE + 1
-      );
+      ACTIVE_DELIVERY_ATTENTION_PAGE = Math.min(attentionPages, ACTIVE_DELIVERY_ATTENTION_PAGE + 1);
       softRender();
     });
     if (!FRESH) applyUISnap();
@@ -14067,6 +14481,21 @@ async function renderActiveDelivery() {
   } catch (e) {
     renderViewError(app, e.message);
   }
+}
+
+function renderWorkflowBoardLane(key, label, items, total) {
+  const pageCount = Math.max(1, Math.ceil(total / WORK_BOARD_PAGE_SIZE));
+  const page = (WORK_BOARD_PAGES[key] = Math.min(WORK_BOARD_PAGES[key] || 1, pageCount));
+  const start = (page - 1) * WORK_BOARD_PAGE_SIZE;
+  const cards = items
+    .slice(start, start + WORK_BOARD_PAGE_SIZE)
+    .map(workBoardCard)
+    .join('');
+  const pagination =
+    pageCount > 1
+      ? `<nav class="wb-lane-pagination" aria-label="${esc(label)} work items pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + WORK_BOARD_PAGE_SIZE, total)} of ${total}</span><button type="button" class="btn sm" data-wb-page="${key}" data-direction="-1" aria-label="Previous ${esc(label)} work items" ${page <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-wb-page="${key}" data-direction="1" aria-label="Next ${esc(label)} work items" ${page >= pageCount ? 'disabled' : ''}>→</button></nav>`
+      : '';
+  return `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${total} item${total === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${cards || '<div class="wb-empty">Drop work here</div>'}</div>${pagination}</div>`;
 }
 
 async function renderWorkflowBoard() {
@@ -14115,14 +14544,14 @@ async function renderWorkflowBoard() {
       ([key, label]) =>
         `<button type="button" class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}" aria-label="Hide ${esc(label)}" aria-pressed="${WORK_BOARD_EXCLUDE.has(key)}">${label}</button>`
     ).join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button type="button" class="btn" id="wb-board-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><label class="wb-board-search">Find work<input id="wb-board-search" class="cm-input" type="search" aria-label="Search work board items" placeholder="Title, site, owner, or next action…" value="${esc(WORK_BOARD_QUERY)}"></label><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button type="button" class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include" aria-label="Show all work board lanes" aria-pressed="${!WORK_BOARD_INCLUDE.size}">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button type="button" class="btn sm" data-wb-clear="exclude" aria-label="Clear hidden work board lanes">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Filters are remembered on this device; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button type="button" class="btn" id="wb-board-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>matching work items</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><label class="wb-board-search">Find work<input id="wb-board-search" class="cm-input" type="search" aria-label="Search work board items" placeholder="Title, site, owner, or next action…" value="${esc(WORK_BOARD_QUERY)}"></label><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button type="button" class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include" aria-label="Show all work board lanes" aria-pressed="${!WORK_BOARD_INCLUDE.size}">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button type="button" class="btn sm" data-wb-clear="exclude" aria-label="Clear hidden work board lanes">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Filters are remembered on this device; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
       ([key, label], index) =>
-        `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
-          items
-            .filter(item => workBoardColumn(item) === key)
-            .map(workBoardCard)
-            .join('') || '<div class="wb-empty">Drop work here</div>'
-        }</div></div>`
+        renderWorkflowBoardLane(
+          key,
+          label,
+          items.filter(item => workBoardColumn(item) === key),
+          counts[index]
+        )
     ).join(
       ''
     )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
@@ -14133,6 +14562,7 @@ async function renderWorkflowBoard() {
       const value = event.target.value.trim().toLowerCase();
       WORK_BOARD_SEARCH_TIMER = setTimeout(() => {
         WORK_BOARD_QUERY = value;
+        WORK_BOARD_COLUMNS.forEach(([key]) => (WORK_BOARD_PAGES[key] = 1));
         renderWorkflowBoard();
       }, 180);
     };
@@ -14156,6 +14586,15 @@ async function renderWorkflowBoard() {
       button =>
         (button.onclick = () => {
           clearWorkBoardFilter(button.dataset.wbClear);
+          renderWorkflowBoard();
+        })
+    );
+    $$('[data-wb-page]').forEach(
+      button =>
+        (button.onclick = () => {
+          const key = button.dataset.wbPage;
+          WORK_BOARD_PAGES[key] =
+            (WORK_BOARD_PAGES[key] || 1) + Number(button.dataset.direction || 0);
           renderWorkflowBoard();
         })
     );
@@ -16366,7 +16805,7 @@ const WORKBENCH_UI = {
   kind: '',
   query: '',
   page: 1,
-  pageSize: 25,
+  pageSize: window.matchMedia?.('(max-width: 700px)').matches ? 10 : 25,
 };
 let workbenchSearchTimer;
 
@@ -17466,10 +17905,22 @@ function buildAgentsMenu() {
   if (!menu) return;
   menu.innerHTML =
     [['executive', 'Executive Overview', ''], ...(STATE.agents || [])]
-      .map(
-        a =>
-          `<a class="dd-item" data-role="${esc(a[0] || a.role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(a[0] || a.role) : ''}<span>${esc((a[0] || a.role) === 'executive' ? 'Executive Overview' : a.label || agentLabel(a[0] || a.role))}</span>${(a[0] || a.role) === 'executive' ? '<span class="dd-count">CEO/CTO/CRO/CFO</span>' : `<span class="dd-count">${a.scope === 'fleet' ? 'fleet queue' : (a[2] ?? a.sites)}</span>`}</a>`
-      )
+      .map(a => {
+        const role = a?.[0] || a?.role || '';
+        const label = role === 'executive' ? 'Executive Overview' : a?.label || agentLabel(role);
+        const siteCount = Array.isArray(a) ? a[2] : (a?.sites ?? a?.site_count ?? a?.sites_count);
+        const count =
+          role === 'executive'
+            ? 'CEO/CTO/CRO/CFO'
+            : a?.scope === 'fleet'
+              ? 'fleet queue'
+              : siteCount != null &&
+                  String(siteCount).trim() !== '' &&
+                  String(siteCount) !== 'undefined'
+                ? String(siteCount)
+                : '';
+        return `<a class="dd-item" data-role="${esc(role)}">${typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(role) : ''}<span>${esc(label)}</span>${count ? `<span class="dd-count">${esc(count)}</span>` : ''}</a>`;
+      })
       .join('') || '<span class="dd-empty">no agents found</span>';
   $$('.dd-item', menu).forEach(it =>
     it.addEventListener('click', () => {
@@ -17770,7 +18221,15 @@ async function boot() {
       try {
         localStorage.setItem('fd.fleet-filter', ff.value);
       } catch {}
-      applyFleetFilter();
+      if (STATE.view === 'builds') {
+        const query = ff.value.trim().toLowerCase();
+        if (query !== CF_BUILDS.filter) {
+          CF_BUILDS.filter = query;
+          CF_BUILDS.pages = { repos: 1, builds: 1, triggers: 1 };
+        }
+        clearTimeout(CF_BUILDS.filterTimer);
+        CF_BUILDS.filterTimer = setTimeout(() => renderCloudflareBuilds(), 180);
+      } else applyFleetFilter();
     });
     ff.addEventListener('keydown', e => {
       if (e.key === 'Escape' && ff.value) {
