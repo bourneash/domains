@@ -2,65 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:18:43.270Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:27:44.386Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. Delivery is saturated at 10/10 slots, operations and fleet-doctor evidence are unavailable, 57 improvements are measuring, and 21 implementation requests have failed. Do not admit new production, site-factory, experiment, telemetry, spend, or duplicate queue work. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Escalate unresolved capacity at the deadline.",
+        "summary": "CTO review: preserve containment. Do not admit new proposals, site-factory work, telemetry, prototypes, spend, or duplicate queue items while delivery is saturated at 10/10 slots and measurement/repair work remains active. Keep the existing saveusfarms.com repair-or-close case as the sole capacity-release gate through 2026-10-01T09:00Z. After one slot is released, admit only the canonical allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent; technical, security, accuracy, measurement, and owner gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, admit only the already-queued allthingsmasonic.com CTA refinement. Scope is limited to CTA hierarchy, adjacent existing disclosure placement, keyboard focus, contrast, tap targets, and responsive layout. Preserve destinations, registered tracking IDs, dependencies, telemetry, consent behavior, and cross-site isolation. Require deterministic tests, build/link validation, smoke, accessibility checks, a single-diff rollback point, and measurement using existing registered affiliate-click telemetry. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record dated ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot only after the evidence is complete; then admit at most the existing canonical allthingsmasonic.com CTA refinement.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the driveford.net preview change request for this cycle. Its prerequisites are not verified, analytics is not configured, and delivery capacity is saturated. Retain only as a future preview-only candidate behind verified launch-readiness, legal, security, compliance, measurement, rollback, and capacity gates. No production change, domain change, affiliate activation, or new telemetry is authorized.",
+        "summary": "If capacity clears, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as one isolated reversible diff. Preserve destination URLs, registered affiliate ID, disclosure, unrelated routes, and existing consent behavior. Require deterministic tests, build, link validation, smoke, accessibility, and affiliate-destination regression checks. Measure only existing affiliate clicks, ordered items, and site-attributed commission against the recorded baseline; do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep all existing private-launch and security-sensitive release gates unchanged. Fleet-doctor, deployment, uptime, and error sweeps have no results; no security clearance, certification, or production authorization is supportable. Continue bounded read-only evidence work using existing authorized metadata and retained artifacts only. Do not retrieve credentials, alter permissions or configuration, add dependencies, deploy, or conduct external outreach.",
+        "summary": "Defer the proposed reusable work-control capability and all new site-factory, affiliate-activation, affiliate-repair, attribution-validation, and SEO admissions until capacity and existing failures are resolved. These are plausible future improvements but cannot safely enter the current queue without a released slot, canonical work identity, owner, rollback boundary, and available measurement. Preserve owner-gated affiliate prerequisites as existing queued work without inventing tags or revenue.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f",
-        "summary": "No new repository evaluation or adoption work while capacity is saturated and existing measurement and repair queues remain active.",
-        "requested_action": "declined",
-        "proposal_id": "20cb985d-46f9-4411-93ee-7bf5b97f0c5f"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "503b3f36-f292-45a3-85c1-de3fa8bd29a5",
-        "summary": "No UX repository prototype or adoption work while capacity is saturated; the lab result does not establish fleet compatibility or production safety.",
-        "requested_action": "declined",
-        "proposal_id": "503b3f36-f292-45a3-85c1-de3fa8bd29a5"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "bf0f5984-1060-4345-89b8-1cf14b367667",
-        "summary": "No new prototype, dependency, or platform change is admitted without released capacity, fleet-specific validation, security review, and owner-approved implementation.",
-        "requested_action": "declined",
-        "proposal_id": "bf0f5984-1060-4345-89b8-1cf14b367667"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "d23b9248-edb5-4525-81bb-d5ba8da7b89e",
-        "summary": "No implementation, public exposure, integration, data collection, monetization, or external spend is technically cleared; retain isolated preview-only gating pending required owner and specialist decisions.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "d23b9248-edb5-4525-81bb-d5ba8da7b89e"
       }
     ]
   }

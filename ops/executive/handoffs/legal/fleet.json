@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:18:43.270Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:27:44.387Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta or go-live; conditional for ordinary reversible growth that adds no new data collection, sharing, monetization, or cross-site behavior. Woot API documentation proves access but not redistribution rights, while current Woot terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Fleet compliance is not clearance: 36 sites pass, 19 fail, and 6 are unknown; operations and security sweeps have no results. Keep SearchWoot private, leave rights outreach unsent pending human counsel and owner authorization, and do not make revenue, ROI, margin, accuracy, or causal-lift claims from the aggregate $4.92 commission. The next evidence action is one dated read-only bundle covering rights, data flow/retention, consent/GA4 configuration, logs/vendors, and incident handling.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep_private. Woot documentation proves API access but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights, while public terms point against those uses. Security, accuracy/freshness, measurement, and owner gates also remain incomplete. Fleet compliance is a technical baseline only: 36 pass, 19 fail, 6 unknown; ordinary reversible growth may continue where existing consent, disclosures, provenance, claims, and data boundaries are preserved. Do not send rights outreach or change the private gate. Exact decision: retain keep_private until authoritative rights evidence, human counsel review, non-legal gates, and owner disposition are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditional legal clearance applies only to bounded reversible work that preserves existing consent, privacy/cookie disclosures, affiliate disclosures, destinations, tracking IDs, provenance, and claims boundaries. The queued allthingsmasonic.com CTA refinement may proceed only after capacity release and only if it changes no data collection, monetization terms, affiliate destination, or disclosure meaning. Do not admit the driveford.net preview as public or monetized; a non-public preview shell remains evidence-needed pending a launch-readiness artifact.",
+        "summary": "Legal launch gate: do not expose SearchWoot publicly or expand alerts. Continue only read-only evidence capture. The existing repository evidence is partial: backend/api/main.py, backend/services/fetcher.py, config.yml, privacy.html, cookie-policy.html, and draft terms.html are identified, but operator-confirmed retention, deletion, correction, access, notification behavior, GA4 property/data-sharing settings, vendor/DPA coverage, and incident/request procedures remain missing. Next evidence action: attach one dated bundle containing the data-flow/retention table, deployed consent behavior, GA4 settings, log-field/vendor inventory, and incident/request workflow; do not enable tracking or mutate production.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Legal confirms the SearchWoot private gate remains in force. Do not clear security or release gates from the current snapshot: fleet-doctor has no run/findings, operations deploy/uptime/error sweeps have no results, and the security matrix remains unevidenced. Continue the existing authorized read-only matrix and record dated evidence, unknowns, owners, severity, and release implications. No credentials, configuration changes, deployment, dependency additions, or external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue and measurement remain non-blocking for ordinary reversible growth but block SearchWoot launch clearance. Amazon evidence is 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, with all commission in aggregate tracking ID other and not assignable to a site. Do not claim site revenue, ROI, margin, forecast, or causal lift. Keep the measurement gate blocked until traffic, affiliate attribution, direct costs, and site/content identifiers reconcile.",
         "requested_action": null,
         "proposal_id": null
       }
