@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:16:03.646Z",
+  "generated_at": "2026-10-01T16:21:07.327Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the proposed magicescorts.com report-only implementation artifact and all new production admissions this cycle. Capacity is contradictory, and site-specific launch, legal, security, attribution, and measurement evidence is incomplete. CTO must reconcile capacity and release one slot by 2026-10-01T18:00Z; unresolved capacity escalates to the owner. Site-factory must complete the readiness gate before any preview implementation.",
+        "summary": "Reviewer disposition: reject unsupported financial, causal-lift, launch-readiness, and production claims. Route only three bounded medium-priority engineer revalidations as capacity-gated work. Execution remains blocked until CTO reconciles the conflicting capacity ledger and releases a slot by 2026-10-01T18:00Z; escalate unresolved capacity at that deadline. Preserve all credential, configuration, spend, telemetry, legal, security, disclosure, and attribution boundaries.",
         "requested_action": null,
         "proposal_id": null
       }
