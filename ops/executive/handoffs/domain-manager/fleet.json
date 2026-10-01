@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:07:10.644Z",
+  "generated_at": "2026-10-01T10:09:04.528Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Release capacity before admitting mynewgm.com implementation work",
-        "summary": "No site-specific implementation should be admitted while fleet delivery capacity is saturated at 10/10 active slots. Existing site telemetry is not configured, so no outcome baseline is available.",
-        "requested_action": "After CTO releases one delivery slot, inspect the existing mynewgm.com repository and queue exactly one bounded reversible homepage, usability, SEO, or monetization improvement with a recorded baseline before implementation.",
+        "title": "Complete mynewgm.info launch-readiness artifact before scaffold implementation",
+        "summary": "mynewgm.info requires a verified launch-readiness artifact before any public-surface implementation. Existing evidence does not establish analytics configuration, affiliate readiness, content scope, compliance status, security readiness, or measurement readiness.",
+        "requested_action": "Inspect the existing mynewgm.info scaffold read-only and produce one dated launch-readiness artifact. Do not deploy, modify production, add tracking, add dependencies, or claim audience, revenue, conversion, or traffic performance.",
         "proposal_id": null
       }
     ]
