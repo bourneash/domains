@@ -1266,6 +1266,9 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.ok((facts.match(/class="table-wrap"><table class="sf-detail-table"/g) || []).length >= 2);
   assert.ok((priorities.match(/class="table-wrap"><table class="tbl"/g) || []).length >= 2);
   assert.match(improvements, /<h4>Quality gates<\/h4><div class="table-wrap"><table class="tbl">/);
+  assert.match(improvements, /class="improvement-visual-compare"/);
+  assert.match(improvements, /class="improvement-live-review"/);
+  assert.doesNotMatch(improvements, /style="display:grid;grid-template-columns:1fr 1fr/);
 });
 
 test('fleet task view presents the filtered slice as a summary strip', () => {
