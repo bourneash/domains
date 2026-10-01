@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.952Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:17:16.872Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new proposals, change requests, telemetry, research, spend, and queue admissions this cycle. Delivery is saturated at 10/10 slots; measurement and repair work remain active. Revenue, ROI, margin, and causal lift are unsupported because the $4.92 Amazon commission is aggregate and unattributed. Preserve existing canonical work only: complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence; release one slot or escalate. Keep SearchWoot private and leave rights outreach unsent.",
+        "summary": "Reject all new proposals, production changes, telemetry requests, research, and queue admissions this cycle. Delivery is saturated at 10/10 slots; measurement debt and failed requests remain unresolved; and aggregate Amazon commission is unattributed. Continue only the existing saveusfarms.com repair-or-close case through validation or justified closure by 2026-10-01T09:00Z, then release one slot. Only after capacity and overlap clearance may the already-queued allthingsmasonic.com CTA refinement proceed. Keep SearchWoot private and leave rights outreach unsent. Revenue, margin, ROI, and causal lift remain unknown.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The existing allthingsmasonic.com CTA refinement remains conditionally retained only after capacity and overlap clearance. Preserve the baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not attribute the aggregate $4.92 commission. Require deterministic tests, build/link/smoke/disclosure checks, a reversible single diff, and measurement of affiliate clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. Classify financial outcome as unknown if site-level attribution remains unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route three bounded, reversible implementation specifications to engineer as capacity- and gate-controlled only: rodhat.com SEO improvement, complicated.work preview surface, and deadlymaracas.com preview surface. No execution or deployment may begin while all 10 delivery slots are occupied. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, release a slot, and escalate unresolved capacity. Scaffold work also requires verified launch-readiness evidence. Revenue, ROI, attribution, and causal-lift claims remain unsupported; keep SearchWoot private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

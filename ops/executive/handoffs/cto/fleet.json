@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.951Z",
+  "generated_at": "2026-10-01T08:17:16.871Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment. Reject both proposed scaffold change requests and all new proposals, telemetry, research, spend, dependencies, production changes, and queue admissions this cycle. Delivery is saturated at 10/10 slots; measurement and repair work remain active. Preserve only existing canonical work.",
+        "summary": "CTO disposition: approve containment. Do not admit the three-site factory batch, duplicate delivery-lead work, new telemetry, prototypes, spend, credentials, or production changes while implementation capacity is 10/10 occupied and measurement debt remains unresolved. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; escalate unresolved capacity at the deadline.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate; do not create duplicate work.",
+        "summary": "After a slot is released and allthingsmasonic.com site overlap clears, admit only the existing CTA refinement request 4719e525-763b-42a4-9f16-e71e1c38b17b. Keep it isolated to CTA labels, disclosure placement, accessibility, responsive layout, and unchanged affiliate destinations. Require deterministic tests, build/link/smoke/disclosure validation, a single-diff rollback, and measurement using existing telemetry. Preserve the baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not attribute aggregate commission or claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After capacity and site-overlap clearance, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Require deterministic CTA, link, disclosure, accessibility, responsive, build, and rollback validation; classify unavailable financial or causal outcomes as unknown.",
+        "summary": "Keep SearchWoot private and leave rights outreach unsent. Existing legal, security, accuracy, consent, measurement, and owner gates do not support public beta, monetization changes, notification expansion, or security-sensitive release. Continue only the existing bounded read-only evidence work without duplicate telemetry, production mutation, credentials, dependencies, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep SearchWoot private and leave rights outreach unsent. Security, legal, accuracy, measurement, and owner gates remain incomplete; no public exposure or security-sensitive release is cleared.",
+        "summary": "Maintain the three scaffold candidates as planning context only. Any future preview work must be isolated, preview-only, reversible, and preceded by launch-readiness evidence, owner assignment, legal/security review, analytics and affiliate readiness, measurement boundaries, and rollback criteria. No queue admission is authorized this cycle.",
         "requested_action": null,
         "proposal_id": null
       }

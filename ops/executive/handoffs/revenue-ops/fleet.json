@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.951Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:17:16.870Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Revenue-operations disposition: preserve containment and admit no new queue work this cycle. Existing evidence identifies monetization repairs without supporting ROI claims: Amazon data for 2026-09-21 contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID other; site-attributed commission is $0 and remains unknown by site. Retain existing canonical repairs only. Priority evidence-backed tasks: (1) allthingsmasonic.com CTA refinement: baseline 61 affiliate clicks, 0 ordered items, 0 shipped items, $0 site-attributed commission; expected metric is measurement readiness and post-change affiliate clicks, with orders, shipped items, commission, and direct change cost recorded for 14 days or 100 relevant new impressions/clicks; validate deterministic tests, build, link destinations, disclosure placement, keyboard/focus/mobile behavior, and registered tracking ID; rollback the bounded diff only. (2) amputeenews.com affiliate activation: site context records Amazon Associates pending a real tag; expected metric is verified registered tag and attributable click/order data, not revenue forecast; validate tag presence, link parameters, disclosure, and reporting appearance; rollback by restoring the pre-activation link configuration. (3) americastrikes.com existing affiliate repairs: retained tasks identify an out-of-stock water-filter link plus stale/broken affiliate references; expected metric is zero broken or stale affiliate destinations in the affected set and preserved click-path availability; validate HTTP/link checks, registered tracking ID consistency, disclosure presence, and no unrelated route changes; rollback only the affected link substitutions. Keep all unavailable revenue, attribution, conversion, and causal-lift outcomes unknown. Do not create duplicate tasks, request telemetry, or infer ROI.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Execute only existing canonical work after capacity clearance. First complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one delivery slot or escalate. Then, subject to site-overlap clearance, run only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve the recorded baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Acceptance requires CTA/link/disclosure validation and measurement readiness; financial or causal outcomes unavailable from telemetry remain unknown. Do not admit new affiliate, SEO, site-factory, telemetry, or research work.",
+        "summary": "Existing monetization readiness remains blocked for amputeenews.com because the authoritative site context records Amazon Associates as pending a real registered tag. Keep revenue unknown until the owner-controlled prerequisite is evidenced; do not treat absent revenue data as zero revenue.",
         "requested_action": null,
         "proposal_id": null
       }

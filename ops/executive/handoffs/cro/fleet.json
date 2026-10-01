@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.951Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:17:16.871Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: reject all new candidate admissions this cycle, including the two scaffold change requests, because delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests failed, and financial attribution is insufficient for revenue, ROI, or causal-lift claims. Retain only existing canonical work: complete or close the saveusfarms.com repair case by 2026-10-01T09:00Z, then consider the already-existing allthingsmasonic.com CTA refinement after capacity and site-overlap clearance. Keep SearchWoot private and leave rights outreach unsent. No new telemetry, research, dependencies, spend, domains, credentials, or production changes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO handoff: complete or justifiably close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z; release one slot or escalate. After clearance, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com, using the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Do not admit the new complicated.work or deadlymaracas.com requests.",
+        "summary": "CRO disposition: retain only the existing allthingsmasonic.com CTA refinement after the CTO releases one delivery slot and site overlap clears. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for the 2026-09-21 window; aggregate provider revenue remains unattributed. Acceptance: destination-specific CTA labels, adjacent affiliate disclosure, keyboard/focus accessibility, responsive layout, unchanged affiliate destinations, passing build/link/smoke/disclosure checks, and a reversible single diff. Measure affiliate clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. Classify revenue, ROI, margin, and causal lift as unknown if attribution remains unavailable. Do not admit new CRO prototypes, site-factory builds, telemetry requests, or duplicate queue work while capacity is saturated.",
         "requested_action": null,
         "proposal_id": null
       }

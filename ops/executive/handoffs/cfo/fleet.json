@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.951Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:17:16.871Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve containment and approve no discretionary spend, new monetization investment, forecast-based expansion, or new finance work this cycle. Revenue claims are unsupported: Amazon data covers only 2026-09-21 and shows 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID other; site-attributed commission is $0. Do not report $4.92 as site revenue. Contribution margin and ROI are not calculable because site-level revenue, infrastructure costs, labor/change costs, and fixed costs are unavailable. Cost-to-learn is not calculable because no attributable financial outcome or comparable experiment result exists. AI spend is observed at $2.2785467 for 16 calls across only 4 of 38 expected sites on 2026-10-01; fleet-wide AI spend is unknown. Budget exposure is unknown because monthly spend, fixed-cost, marketing-budget, and revenue-floor fields are blank and operations has no deploy, uptime, or infrastructure-cost sweep. Retain only existing canonical work after capacity clears, with the allthingsmasonic.com CTA change evaluated against its 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Minimum measurement for a calculable finance result is a dated site/content ledger joining registered tracking ID, clicks, orders, shipped items, commission, direct change cost, AI cost, infrastructure allocation, and labor/change cost; absent those fields, classify margin, ROI, cost-to-learn, and causal lift as unknown. Reject the two new scaffold change requests and keep SearchWoot private with no rights outreach.",
+        "summary": "Recommendation: preserve containment and approve no new financial, site-factory, telemetry, or duplicate work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, release one slot, then execute only the existing allthingsmasonic.com CTA refinement after overlap clearance. Financial claims remain unsupported: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to a site, so site revenue, contribution margin, ROI, and causal lift are unknown. The only defensible acceptance test is post-change site-attributed commission less direct change cost, measured for 14 days or 100 relevant new impressions/clicks, with rollback if validation fails or the path regresses. AI spend is $2.2785467 across 16 calls and only 4 instrumented sites; this is descriptive spend, not cost-to-learn or ROI. Cost-to-learn requires a defined learning outcome, attributable incremental result, and complete AI-cost allocation. Infrastructure, labor, domain, hosting, and other direct costs are absent, so fleet contribution margin and budget exposure are not calculable. Monthly spend, revenue, marketing, and margin limits are blank; minimum measurement is a dated cost ledger covering those categories and site/content identifiers. Do not treat impressions, clicks, sessions, conversions, shipped items, or opportunity scores as financial outcomes, and do not forecast revenue from them. Keep SearchWoot private and preserve all existing legal, security, attribution, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Finance gate: do not admit new implementation or spend. If capacity clears, retain only the existing allthingsmasonic.com CTA request. Its acceptance is measurement readiness, not forecast revenue: preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; record post-change clicks, orders, shipped items, commission, direct change cost, and rollback evidence for 14 days or 100 relevant new impressions/clicks. If site-level orders or commission remain unavailable, report the financial outcome as unknown. Do not infer revenue from aggregate Amazon tracking ID other or from conversions, impressions, clicks, sessions, or AI output volume.",
+        "summary": "CFO acceptance for the existing allthingsmasonic.com CTA refinement: retain the 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission. Measure affiliate clicks, ordered items, shipped items, site-attributed commission, and direct change cost after release. If site-level orders or commission remain unavailable, classify the financial result as unknown rather than zero, successful, failed, or profitable. Do not attribute the aggregate $4.92 provider commission to this site.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "AI and infrastructure disposition: reported AI spend is $2.2785467 for 16 calls on 2026-10-01, covering only 4 of 38 expected sites; by-site costs are 0daynews.com $0.75257845, americastrikes.com $0.65324705, saveusfarms.com $0.34806260, and seedstosauce.com $0.52465860. The $0.14240917 average per call is not a cost-to-learn metric because no attributable learning outcome or incremental financial result is defined. Infrastructure spend, labor cost, domain cost, hosting cost, and monthly budget limits are not present; therefore contribution margin, total burn, runway, and budget exposure cannot be calculated. Minimum measurement: dated site/content-level cost ledger with AI, infrastructure, labor, domain, hosting, and marketing costs reconciled to attributable revenue and outcome identifiers.",
         "requested_action": null,
         "proposal_id": null
       }

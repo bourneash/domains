@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.952Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:17:16.871Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases. Evidence: security covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are not evidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. No credential exposure, exploit, or vulnerability is established. Exact decision: do not clear go-live or security-sensitive releases; preserve existing private-launch gates. Permit only ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Reject new scaffold admissions and other new security-sensitive work this cycle; retain only existing canonical work after normal release review and capacity/site-overlap clearance. Continue the authorized read-only evidence matrix without requesting duplicate telemetry or mutating production.",
+        "summary": "Security disposition: evidence_needed for the managed fleet; blocked for SearchWoot public beta, go-live, new public exposure, notification expansion, monetization changes, and security-sensitive releases; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence timestamp: 2026-10-01T04:50:05.408Z. The security baseline covers 61 managed sites, but fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No credentials, exploit evidence, or confirmed vulnerability is present. TLS evidence only shows no certificates expiring within 30 days and does not establish complete TLS posture. Compliance is technical-only: 35 pass, 20 fail, and 6 unknown. Exact decision: preserve all existing private-launch and security-sensitive release gates; continue the existing read-only evidence matrix using authorized metadata and retained artifacts only; do not retrieve credentials, access private containers, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach. Reassess only when dated evidence supports the listed controls. This is risk triage, not penetration testing or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: retain the consolidated read-only control-evidence matrix. Record dated evidence or explicit unknowns, affected scope, owner, severity, and release implications for authentication and access boundaries, secrets, container isolation, release/deploy integrity, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, change permissions or configuration, deploy, add dependencies, or clear gates based on missing evidence.",
+        "summary": "Security recommendation: retain the candidate plan's containment decisions and reject the proposed three-site factory batch, duplicate delivery case, new telemetry, prototypes, and new admissions this cycle. The existing security evidence work is already canonical; do not create duplicate security requests. Keep SearchWoot private because access, data-flow, consent, vendor/logging, incident, release, and security evidence remain incomplete. The next security action is limited to completing the existing dated read-only control matrix and preserving unknowns rather than interpreting missing telemetry as a clean result.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
-        "summary": "Maintain an evidence_needed security disposition for the managed fleet and preserve private-launch and security-sensitive release gates until material controls are evidenced. This is read-only risk triage, not penetration testing or certification.",
-        "requested_action": "Continue the canonical read-only security evidence matrix using authorized metadata and retained artifacts only. Document authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring and incident signals, incident readiness, and security.txt/disclosure readiness. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, conduct external outreach, or claim a clean bill of health.",
         "proposal_id": null
       }
     ]
