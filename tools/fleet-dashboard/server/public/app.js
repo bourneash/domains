@@ -8344,6 +8344,7 @@ async function renderAnalytics() {
     .join('');
   const healthHtml = `
     <div class="table-wrap"><table class="dh-sources">
+      <caption class="sr-only">Analytics capture freshness by site</caption>
       <thead><tr><th>site</th><th>GA4</th><th>Search Console</th></tr></thead>
       <tbody>${healthRows || '<tr><td colspan="3" class="muted">no sites</td></tr>'}</tbody>
     </table></div>`;
@@ -8399,17 +8400,17 @@ async function renderAnalytics() {
       ${collapsiblePanel(
         'analytics.pages',
         'Top Pages (sessions)',
-        `<div class="table-wrap"><table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table></div>`
+        `<div class="table-wrap"><table class="dh-datasets"><caption class="sr-only">Top pages by sessions</caption><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table></div>`
       )}
       ${collapsiblePanel(
         'analytics.converting-pages',
         'Affiliate Funnel — click origin pages',
-        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><div class="table-wrap"><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table></div>`
+        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><div class="table-wrap"><table class="dh-datasets"><caption class="sr-only">Affiliate click origin pages</caption><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table></div>`
       )}
       ${collapsiblePanel(
         'analytics.queries',
         'Top Queries (clicks)',
-        `<div class="table-wrap"><table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table></div>`
+        `<div class="table-wrap"><table class="dh-datasets"><caption class="sr-only">Top search queries by clicks</caption><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table></div>`
       )}`;
   }
 

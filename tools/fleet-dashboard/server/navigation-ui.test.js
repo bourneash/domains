@@ -1249,6 +1249,10 @@ test('Analytics provides route context, local refresh, and accessible loading st
     route,
     /\$\('#analytics-refresh'\)\.addEventListener\('click', \(\) => renderAnalytics\(\)\)/
   );
+  assert.match(route, /Analytics capture freshness by site/);
+  assert.match(route, /Top pages by sessions/);
+  assert.match(route, /Affiliate click origin pages/);
+  assert.match(route, /Top search queries by clicks/);
 });
 
 test('shared table wrappers keep headers visible while scanning long views', () => {
