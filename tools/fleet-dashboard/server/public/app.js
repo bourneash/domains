@@ -37,6 +37,7 @@ const EXEC_INBOX = { browserNotified: false };
 const EXEC_INBOX_UI = { q: '', status: 'all', page: 1, pageSize: 10 };
 const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
 const CN_FILTER = { q: '', status: 'all', kind: 'all' };
+const DEPLOY_FILTER = { q: '', status: 'all' };
 // Route/bootstrap changes can trigger two renders close together (for example
 // when the live stream opens while the initial hash is settling). Reuse the
 // same short-lived read rather than starting a second identical fan-out.
@@ -2144,7 +2145,7 @@ async function renderDeployHealth() {
         }[status] || status;
       const badge = `<span class="badge ${badgeClass}">${badgeLabel}</span>`;
       const deployedAt = s.deployedAt ? new Date(s.deployedAt * 1000).toLocaleString() : '—';
-      return `<tr data-fleet-row data-site="${esc(s.slug)}">
+      return `<tr class="deploy-row" data-fleet-row data-site="${esc(s.slug)}" data-deploy-name="${esc(`${s.slug} ${s.worker || ''} ${s.reason || s.error || ''}`.toLowerCase())}" data-deploy-status="${esc(status)}">
       <td class="site">${siteLink(s.slug)}</td>
       <td class="mono muted">${esc(s.worker || '—')}</td>
       <td>${badge}</td>
@@ -2158,18 +2159,52 @@ async function renderDeployHealth() {
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Deploys</h2><span class="muted">Production status is based on the latest deployable site commit; ops-only commits do not count as deploy failures.</span></div>
-    <div class="task-toolbar">
-    <strong>${sites.length} sites</strong>
-      <span class="muted">${dotLegend('fresh', live + ' live')} · <span class="deploy-summary ops">${opsOnly} ops-only</span> · <span class="deploy-summary pending">${deploying + behind} pending</span> · <span class="deploy-summary failed">${failed} failed</span> · ${unknown} unknown · last swept ${esc(swept)}</span>
+    <section class="deploy-summary-grid" aria-label="Deployment summary">
+      <div class="deploy-stat deploy-stat-good"><strong>${live}</strong><span>Live</span></div>
+      <div class="deploy-stat"><strong>${opsOnly}</strong><span>Ops-only</span></div>
+      <div class="deploy-stat deploy-stat-warn"><strong>${deploying + behind}</strong><span>Pending / deploying</span></div>
+      <div class="deploy-stat ${failed ? 'deploy-stat-bad' : 'deploy-stat-good'}"><strong>${failed}</strong><span>Build failed</span></div>
+      <div class="deploy-stat ${unknown ? 'deploy-stat-warn' : ''}"><strong>${unknown}</strong><span>Unknown</span></div>
+      <div class="deploy-stat deploy-stat-meta"><strong>${esc(swept)}</strong><span>Last sweep · ${sites.length} sites</span></div>
+    </section>
+    <div class="deploy-controls" role="group" aria-label="Filter deployments">
+      <label class="deploy-search"><span class="sr-only">Search deployments</span><input id="deploy-search" class="cm-input" type="search" placeholder="Search site, worker, or status detail…" value="${esc(DEPLOY_FILTER.q)}" autocomplete="off" /></label>
+      <label><span class="sr-only">Deployment status</span><select id="deploy-status" class="cm-input"><option value="all">All statuses</option><option value="live">Live</option><option value="ops-only">Ops-only</option><option value="deploying">Deploying</option><option value="behind">Site changes pending</option><option value="failed">Build failed</option><option value="unknown">Unknown</option></select></label>
+      <span id="deploy-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
     </table></div>
     <p class="muted" style="margin-top:12px"><b>live</b> = the latest deployable <code>site/</code> commit is serving. <b>ops-only</b> = newer operational files do not affect production. <b>deploying</b>/<b>site changes pending</b> = production may need a build, but failure is not confirmed. <b>build failed</b> = Cloudflare reported a failed build. <b>unknown</b> = telemetry is unavailable. Refreshed every 5 minutes in the background.</p>`;
+  $('#deploy-status').value = DEPLOY_FILTER.status;
+  $('#deploy-search').addEventListener('input', e => {
+    DEPLOY_FILTER.q = e.target.value;
+    applyDeployFilter();
+  });
+  $('#deploy-status').addEventListener('change', e => {
+    DEPLOY_FILTER.status = e.target.value;
+    applyDeployFilter();
+  });
+  applyDeployFilter();
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
+}
+
+function applyDeployFilter() {
+  const q = DEPLOY_FILTER.q.trim().toLowerCase();
+  const rows = $$('.deploy-row');
+  const visible = rows.filter(row => {
+    const matchesQuery = !q || (row.dataset.deployName || '').includes(q);
+    const matchesStatus =
+      DEPLOY_FILTER.status === 'all' || row.dataset.deployStatus === DEPLOY_FILTER.status;
+    const show = matchesQuery && matchesStatus;
+    row.classList.toggle('deploy-filter-hidden', !show);
+    return show;
+  });
+  const count = $('#deploy-filter-count');
+  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
 }
 
 /* ===================== CLOUDFLARE BUILDS ===================== */

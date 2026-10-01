@@ -885,6 +885,18 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
 });
 
+test('Deploys provides status hierarchy and scoped filtering', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="deploy-summary-grid"/);
+  assert.match(app, /id="deploy-search"/);
+  assert.match(app, /id="deploy-status"/);
+  assert.match(app, /function applyDeployFilter\(\)/);
+  assert.match(app, /data-deploy-status/);
+  assert.match(theme, /\.deploy-summary-grid \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.deploy-filter-hidden \{ display: none; \}/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
