@@ -1072,7 +1072,10 @@ test('Product Feed presents queue health as a summary strip', () => {
   assert.match(app, /class="pf-summary"/);
   assert.match(app, /Queues below target<\/span>/);
   assert.match(app, /Verified products<\/span>/);
+  assert.match(app, /class="card pf-panel"/);
+  assert.match(app, /class="pf-help"><summary>How the product feed is maintained/);
   assert.match(theme, /\.pf-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.pf-panel \{[^}]*overflow: hidden/);
 });
 
 test('AI Inventory presents provider and policy coverage as a summary strip', () => {

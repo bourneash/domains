@@ -1625,20 +1625,21 @@ async function renderProductFeed() {
       <div class="pf-stat ${feedRejected ? 'pf-stat-bad' : 'pf-stat-good'}"><strong>${feedRejected}</strong><span>Rejected</span></div>
       <div class="pf-stat pf-stat-meta"><strong>${stats.products || 0}</strong><span>Verified products</span></div>
     </section>
-    <div class="card">
+    <div class="card pf-panel">
       <h3>Subscriptions</h3>
-      <table>
+      <div class="table-wrap"><table>
         <thead><tr><th>Site</th><th>Selection tags</th><th>Available / target</th><th>Reviewing</th><th>Selected queue / max</th><th>Published</th><th>Rejected</th></tr></thead>
         <tbody>${subRows || '<tr><td colspan="7" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
-      </table>
+      </table></div>
     </div>
-    <div class="card">
+    <div class="card pf-panel">
       <h3>Recently verified products</h3>
-      <table>
+      <div class="table-wrap"><table>
         <thead><tr><th>Verified</th><th>Exact Amazon product</th><th>ASIN</th><th>Price</th><th>Rating</th><th>Tags</th></tr></thead>
         <tbody>${productRows || '<tr><td colspan="6" class="muted">No verified products yet; collector will top up deficient subscriptions.</td></tr>'}</tbody>
-      </table>
-    </div>`;
+      </table></div>
+    </div>
+    <details class="pf-help"><summary>How the product feed is maintained</summary><p>Subscriptions define each site's selection tags and target inventory depth. The collector fills deficits, routes products through review, and only publishes verified records; rejected items remain visible in the queue totals for auditability.</p></details>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
