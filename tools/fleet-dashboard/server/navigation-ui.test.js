@@ -355,6 +355,7 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   assert.match(app, /id="dataquality-refresh"/);
   assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
   assert.match(app, /No data quality contracts have been recorded yet/);
+  assert.match(app, /caption class="sr-only">Data quality contract status<\/caption>/);
 });
 
 test('Retention exposes a primary loading state before reading policy data', () => {
@@ -1277,6 +1278,9 @@ test('Build Usage exposes a scoped refresh control', () => {
     app,
     /\$\('#cfb-refresh'\)\.addEventListener\('click', \(\) => renderCloudflareBuilds\(\)\)/
   );
+  assert.match(app, /Repository build usage/);
+  assert.match(app, /Recent builds and commits/);
+  assert.match(app, /Live Cloudflare build triggers/);
 });
 
 test('Retention presents policy posture before editable rows', () => {
@@ -1467,6 +1471,7 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(app, /Sites needing attention<\/span>/);
   assert.match(app, /Failing checks<\/span>/);
   assert.match(app, /class="health-card-head"/);
+  assert.match(app, /Failing health checks/);
   assert.match(app, /class="health-help"><summary>How site health is measured/);
   assert.match(app, /type="button" class="btn" id="health-refresh"/);
   assert.match(
@@ -1543,6 +1548,7 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
   assert.match(app, /function applyDeployFilter\(\)/);
   assert.match(app, /data-deploy-status/);
   assert.match(app, /class="card deploy-table"><div class="table-wrap"><table/);
+  assert.match(app, /Deployment health by site/);
   assert.match(app, /class="deploy-help"><summary>How deployment status is determined/);
   assert.match(theme, /\.deploy-summary-grid \{[^}]*grid-template-columns/);
   assert.match(theme, /\.deploy-table \{[^}]*overflow: hidden/);
@@ -1637,6 +1643,7 @@ test('Task Budget presents audit risk and participates in fleet filtering', () =
   assert.match(app, /Budget drift<\/span>/);
   assert.match(app, /Dead-role tasks<\/span>/);
   assert.match(app, /class="card tb-site-card" data-fleet-row/);
+  assert.match(app, /\$\{esc\(s\.site\)\} task budget roles/);
   assert.match(app, /applyFleetFilter\(\);/);
   assert.match(theme, /\.tb-summary \{[^}]*grid-template-columns/);
 });
@@ -1650,6 +1657,7 @@ test('Dev Sandboxes presents runtime readiness and scoped filters', () => {
   assert.match(app, /type="button" class="btn" id="ds-refresh"/);
   assert.match(app, /Docker control plane<\/span>/);
   assert.match(app, /function applyDevSandboxFilter\(\)/);
+  assert.match(app, /Development sandbox status/);
   assert.match(theme, /\.ds-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.ds-filter-hidden \{ display: none; \}/);
 });
@@ -1666,6 +1674,7 @@ test('Activity presents audit volume and outcome hierarchy', () => {
     /class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters"/
   );
   assert.match(app, /class="card activity-table"><div class="table-wrap"><table/);
+  assert.match(app, /Operator activity audit trail/);
   assert.match(app, /class="activity-help"><summary>What this audit trail records/);
   assert.match(theme, /\.activity-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.activity-table \{[^}]*overflow: hidden/);
@@ -1695,6 +1704,7 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(app, /AI-backed services<\/span>/);
   assert.match(app, /No-AI services · \$\{s\.conditional \|\| 0\} conditional/);
   assert.match(app, /class="card aii-table"><div class="table-wrap"><table/);
+  assert.match(app, /AI service inventory/);
   assert.match(app, /class="aii-help"><summary>How to interpret AI inventory/);
   assert.match(theme, /\.aii-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.aii-table \{[^}]*overflow: hidden/);

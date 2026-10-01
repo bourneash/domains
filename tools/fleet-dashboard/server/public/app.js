@@ -1525,6 +1525,7 @@ async function renderTaskBudget() {
       ${
         rows
           ? `<div class="table-wrap"><table>
+        <caption class="sr-only">${esc(s.site)} task budget roles</caption>
         <thead><tr><th>Role</th><th>Static</th><th>Computed</th><th>Dispatch</th><th>Next task</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`
@@ -1601,6 +1602,7 @@ async function renderAIInventory() {
       <div class="aii-stat aii-stat-meta"><strong>${noAi}</strong><span>No-AI services · ${s.conditional || 0} conditional</span></div>
     </section>
     <div class="card"><div class="table-wrap"><table>
+      <caption class="sr-only">AI service inventory</caption>
       <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>
@@ -2408,6 +2410,7 @@ async function renderDeployHealth() {
       <span id="deploy-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
     <div class="card deploy-table"><div class="table-wrap"><table>
+      <caption class="sr-only">Deployment health by site</caption>
       <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
     </table></div></div>
@@ -2619,9 +2622,9 @@ async function renderCloudflareBuilds() {
       <div class="task-toolbar"><strong>Daily build minutes</strong><span class="muted">UTC · red caps indicate at least one failed build</span></div>
       ${cfbChart(data.byDay || [])}
     </section>
-    ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
-    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.repos', `Repository usage <span class="badge b-gray">${repos.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Repository build usage</caption><thead><tr><th>Repository</th><th>Worker</th><th>Builds</th><th>Minutes</th><th>Average</th><th>Success</th><th>Watch paths</th><th>Cache</th><th>Latest build</th></tr></thead><tbody>${repoRows || '<tr><td colspan="9" class="muted">No repositories found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.commits', `Recent builds &amp; commits <span class="badge b-gray">${builds.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Recent builds and commits</caption><thead><tr><th>Started</th><th>Repository</th><th>Commit</th><th>Message</th><th>Branch</th><th>Outcome</th><th>Duration</th><th>Trigger</th></tr></thead><tbody>${buildRows || '<tr><td colspan="8" class="muted">No builds in this period.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
+    ${collapsiblePanel('cfbuilds.triggers', `Live trigger inventory <span class="badge b-gray">${triggers.length}</span>`, `<div class="cfb-table"><table><caption class="sr-only">Live Cloudflare build triggers</caption><thead><tr><th>Repository</th><th>Worker</th><th>Environment</th><th>Included paths</th><th>Excluded paths</th><th>Cache</th><th>Policy</th><th>Modified</th></tr></thead><tbody>${triggerRows || '<tr><td colspan="8" class="muted">No connected triggers found.</td></tr>'}</tbody></table></div>`, 'card cfb-panel')}
     <p class="muted cfb-foot">Build durations are calculated from Cloudflare's running/stopped timestamps. Cost is an estimate using ${pricing.includedMinutes || 0} included minutes and ${cfbUnitPrice(pricing.overagePerMinuteUsd)} per overage minute; Cloudflare Billing remains authoritative. Build history is retained locally for 7 days and refreshed hourly; live trigger policy remains current.</p>`;
 
   $('#cfb-refresh').addEventListener('click', () => renderCloudflareBuilds());
@@ -2689,7 +2692,7 @@ async function renderHealth() {
         </div>
         ${
           failingRows
-            ? `<div class="table-wrap"><table><thead><tr><th>Failing check</th><th>Status</th><th>Detail</th></tr></thead><tbody>${failingRows}</tbody></table></div>`
+            ? `<div class="table-wrap"><table><caption class="sr-only">Failing health checks</caption><thead><tr><th>Failing check</th><th>Status</th><th>Detail</th></tr></thead><tbody>${failingRows}</tbody></table></div>`
             : ''
         }
       </div>`;
@@ -3131,6 +3134,7 @@ async function renderActivity() {
       <strong class="activity-count">${filtered.length} matching</strong>
     </div>
     <div class="card activity-table"><div class="table-wrap"><table>
+      <caption class="sr-only">Operator activity audit trail</caption>
       <thead><tr>${activitySortButton('ts', 'Time')}${activitySortButton('actor', 'Actor')}${activitySortButton('method', 'Method')}${activitySortButton('path', 'Path')}${activitySortButton('site', 'Site')}${activitySortButton('status', 'Status')}${activitySortButton('ms', 'Duration')}${activitySortButton('ip', 'IP')}</tr></thead>
       <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No actions match the current filters.' : 'No actions recorded yet.'}</td></tr>`}</tbody>
     </table></div></div>
@@ -3280,6 +3284,7 @@ async function renderDevSandbox() {
     </div>
     ${warn}
     <div class="card"><div class="table-wrap"><table>
+      <caption class="sr-only">Development sandbox status</caption>
       <thead><tr><th>Site</th><th>Status</th><th>ttyd</th><th>CPU · Mem · PIDs</th><th>Actions</th></tr></thead>
       <tbody>${body || '<tr><td colspan="5" class="muted">No sites found.</td></tr>'}</tbody>
     </table></div></div>
@@ -14232,7 +14237,7 @@ async function renderDataQuality() {
         `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card"><div class="table-wrap"><table class="tbl"><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card"><div class="table-wrap"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
   $('#dataquality-refresh').onclick = () => renderDataQuality();
   if (!FRESH) applyUISnap();
   stamp();
