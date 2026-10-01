@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.449Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:57:12.422Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the canonical allthingsmasonic.com affiliate CTA experiment after one delivery slot is released. Evidence: 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; this is a baseline, not causal proof. Test only CTA hierarchy, destination clarity, adjacent disclosure, keyboard focus, and mobile layout. Metric: site Amazon clicks, with orders and commission observed only if available. Learn in 14 days or 100 relevant new impressions/clicks; rollback the single diff if validation fails. Defer all new CRO prototypes while capacity is 10/10 and 57 improvements remain in measurement.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Three repository signals are research leads, not adoption approvals. MarkItDown (MIT; lab 8/8 bounded checks) could support a disposable SEO/content pipeline that converts approved source documents into structured drafts, metadata candidates, and internal-link suggestions. Smallest prototype: process 10 non-production documents, compare outputs against a fixed human rubric, and measure valid suggestions per document and review minutes saved. Risks: parser coverage, malformed or adversarial inputs, dependency maintenance, and no demonstrated fleet ROI. shadcn/ui (MIT; 3/3 lab checks) could support an accessible CTA component prototype; measure keyboard/accessibility defects and implementation time, with supply-chain and framework-compatibility review. Mermaid (MIT; no native checks available) could support explanatory diagrams in high-intent guides; prototype one static diagram and measure comprehension or CTA progression only if existing telemetry supports it. Keep all prototypes disposable, dependency-free in the CRO lab, non-production, and capacity-gated.",
+        "summary": "CRO technical handoff: after one slot is released, execute only the existing allthingsmasonic.com CTA request. Preserve registered affiliate destinations, adjacent disclosure, keyboard/focus access, contrast, descriptive link names, responsive layout, deterministic tests, build/link validation, and single-diff rollback. Measure observed affiliate clicks over 14 days or 100 relevant new impressions/clicks, whichever comes first. Do not claim revenue, ROI, conversion lift, or causality. Keep GitHub candidates in disposable research only until license, dependency, security, maintenance, performance, provenance, and owner-approved implementation gates are satisfied.",
         "requested_action": null,
         "proposal_id": null
       }

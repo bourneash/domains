@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.450Z",
+  "generated_at": "2026-10-01T05:57:12.424Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed, high severity for fleet-wide security clearance. Fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance is a technical baseline only: 35 pass, 20 fail, and 6 unknown. Exact decision: do not clear security-sensitive releases or claim certification; keep SearchWoot private. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Security disposition: evidence_needed; high release risk. Fleet-wide clearance is unsupported because fleet-doctor has no run, findings, or checks, while operations has no deploy, uptime, or error-sweep results. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS enforcement, data exposure, monitoring/incident readiness, and security.txt/disclosure readiness remain unevidenced. Recommendation: keep security-sensitive releases and gated public exposure blocked; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim certification or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing consolidated read-only security evidence matrix and reject duplicate security proposals, telemetry requests, deployments, dependency additions, permission changes, credential access, private-container access, exploitation, and external outreach. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for access, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness.",
+        "summary": "Continue the existing canonical fleet security evidence matrix without creating duplicate work. Use authorized metadata and retained artifacts only to document dated evidence, affected scope, owners, severity, and release implications for access boundaries, secrets, isolation, release/deploy controls, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, add dependencies, or deploy.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve security-sensitive release gates and keep SearchWoot private while completing the canonical read-only evidence matrix.",
-        "requested_action": "Continue only the existing authorized evidence work using retained artifacts and metadata. Document authentication and access boundaries, secrets handling, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot remains private from a security perspective: security and related launch evidence are incomplete. No incident, breach, secret exposure, authentication failure, dependency compromise, or isolation failure is established; these remain unknown because telemetry is absent. The compliance baseline is technical only: 35 pass, 20 fail, and 6 unknown across 61 sites. No TLS certificates are reported as expiring within 30 days, but TLS configuration and enforcement are not evidenced.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

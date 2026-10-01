@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.449Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:57:12.423Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: do not add spend, new capability, or new implementation this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 108 approved proposals without execution. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in an aggregate provider row that cannot be assigned to a site. Site-attributed income is $0, so revenue, contribution margin, ROI, and causal lift are not supportable. Preserve the existing allthingsmasonic.com CTA work as a measurement-only candidate after capacity clears; its baseline is 61 clicks, 0 ordered items, and $0 site-attributed commission. Do not forecast upside or treat clicks, sessions, impressions, conversions, or opportunity scores as revenue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "AI usage on 2026-10-01 is $2.2785467 across 16 calls and four instrumented sites; the arithmetic cost per call is approximately $0.1424, but cost-to-learn is not calculable because no measured learning outcome, incremental revenue, or controlled experiment result is available. Infrastructure, hosting, domain, labor, and marketing costs are not present; monthly fixed costs, marketing budget, revenue target, and revenue floor are blank. Contribution margin therefore cannot be calculated. Minimum measurement: a dated cost ledger by site and work item covering AI, infrastructure, domain, labor, and marketing costs, joined to site-attributed shipped commission or other verified revenue, plus experiment exposure and outcome identifiers. Use existing read-only telemetry only; do not move money or request duplicate telemetry.",
+        "summary": "CFO recommendation: maintain financial containment. Approve no new spend, monetization expansion, revenue forecast, ROI claim, or budget commitment. The only revenue evidence is Amazon for 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is under aggregate tracking_id=other, so site revenue, contribution margin, CAC, ROI, and revenue forecasts are unsupported. Named site rows show $0 attributed income; allthingsmasonic.com shows 61 clicks, 0 ordered items, and $0 site-attributed commission. Current AI usage is 16 calls costing $2.2785467 on 2026-10-01 across only 4 instrumented sites; fleet AI cost-to-learn is not calculable because incremental outcomes and 34 sites' AI costs are missing. Infrastructure, fixed, and marketing budgets are blank, so total budget exposure and contribution margin cannot be calculated. Minimum measurement needed: dated site/content-level revenue and commission, direct AI/infrastructure cost allocation, and verified incremental outcome linked to each change. Keep the existing capacity gate: 10/10 delivery slots occupied, 57 improvements measuring, 21 failed requests, and 108 approved proposals without execution. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z before admitting the canonical allthingsmasonic.com CTA work; measure clicks only and do not claim financial lift.",
         "requested_action": null,
         "proposal_id": null
       }
