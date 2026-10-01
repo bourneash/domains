@@ -918,6 +918,14 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   assert.match(theme, /\.fleet-filter-wrap \{ order: 3; flex: 1 1 100%;/);
 });
 
+test('mobile task filters stack cleanly without horizontal page overflow', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /@media \(max-width: 560px\) \{[\s\S]*\.filter-row \{ flex-direction: column; gap: 6px; \}/);
+  assert.match(style, /\.filter-label \{ width: auto; padding-top: 0; \}/);
+  assert.match(style, /\.pill-group \{ width: 100%; \}/);
+  assert.match(style, /\.seg \{ max-width: 100%; overflow-x: auto; scrollbar-width: thin; \}/);
+});
+
 test('shared route headers keep context readable beside actions on narrow screens', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.page-head > div:first-child \{ flex: 1 1 320px; min-width: 0; \}/);

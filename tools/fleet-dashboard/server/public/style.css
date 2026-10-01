@@ -848,6 +848,12 @@ body[data-view="builds"] main { max-width: none; }
 .pill.active.p1 { background: var(--red); border-color: var(--red); color: #fff; }
 .pill.active.p2 { background: var(--yellow); border-color: var(--yellow); color: #1a1500; }
 .pill.active.p3 { background: var(--green); border-color: var(--green); color: #04210b; }
+@media (max-width: 560px) {
+  .filter-row { flex-direction: column; gap: 6px; }
+  .filter-label { width: auto; padding-top: 0; }
+  .pill-group { width: 100%; }
+  .seg { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+}
 
 /* counts */
 .tasks-top { display: flex; align-items: center; margin-bottom: 12px; }
