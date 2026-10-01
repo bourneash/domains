@@ -8480,10 +8480,16 @@ async function renderGuides() {
     .map(s => `<option value="${esc(s)}" ${s === GUIDE.site ? 'selected' : ''}>${esc(s)}</option>`)
     .join('');
   app.innerHTML = `
-    <div class="task-toolbar">
-      <label class="muted">Site</label> <select id="guide-site">${opts}</select>
-      <div id="guide-config" class="muted" style="margin-left:16px;font-size:12px"></div>
-      <button class="btn primary sm" id="new-idea" style="margin-left:auto">+ New Idea</button>
+    <div class="page-head guide-page-head">
+      <div>
+        <h2 class="page-title">Guides</h2>
+        <span class="muted">Move editorial ideas from brief to release with one site-aware production board.</span>
+      </div>
+    </div>
+    <div class="task-toolbar guide-toolbar" role="group" aria-label="Guide queue controls">
+      <label class="guide-site-control">Site<select id="guide-site" aria-label="Guide site">${opts}</select></label>
+      <div id="guide-config" class="guide-config" aria-live="polite"></div>
+      <button class="btn primary sm guide-new-btn" id="new-idea">+ New Idea</button>
     </div>
     <div id="guide-content"><div class="loading">Loading guide queue…</div></div>`;
   $('#guide-site').addEventListener('change', e => {
@@ -8514,8 +8520,8 @@ async function loadGuideBoard() {
   GUIDE.data = data;
   GUIDE.config = config;
 
-  cfgEl.innerHTML = `Cadence: <input id="cfg-cadence" type="number" min="1" value="${esc(config.guide_cadence_days)}" style="width:48px" /> days
-    &nbsp;·&nbsp; Ideas min: <input id="cfg-ideasmin" type="number" min="1" value="${esc(config.guide_ideas_min)}" style="width:44px" />`;
+  cfgEl.innerHTML = `<span class="guide-config-label">Cadence</span><label><input id="cfg-cadence" type="number" min="1" value="${esc(config.guide_cadence_days)}" aria-label="Guide cadence in days" /> days</label>
+    <span class="guide-config-separator">·</span><span class="guide-config-label">Ideas minimum</span><label><input id="cfg-ideasmin" type="number" min="1" value="${esc(config.guide_ideas_min)}" aria-label="Minimum guide ideas" /></label>`;
   $('#cfg-cadence').addEventListener('change', e =>
     setGuideConfig('guide_cadence_days', e.target.value)
   );
@@ -8523,7 +8529,13 @@ async function loadGuideBoard() {
     setGuideConfig('guide_ideas_min', e.target.value)
   );
 
-  content.innerHTML = `<div class="board">${GUIDE_COLS.map(col => {
+  const summary = `<section class="guide-summary" aria-label="Guide queue summary">${GUIDE_COLS.map(
+    col => {
+      const count = (data[col] || []).length;
+      return `<div class="guide-stat"><strong>${count}</strong><span>${GUIDE_COL_LABEL[col]}</span></div>`;
+    }
+  ).join('')}</section>`;
+  content.innerHTML = `${summary}<div class="board">${GUIDE_COLS.map(col => {
     const items = data[col] || [];
     const cards = items.length
       ? items.map(it => guideCard(it)).join('')
@@ -8533,6 +8545,13 @@ async function loadGuideBoard() {
   $$('.guide-card').forEach(el =>
     el.addEventListener('click', e => {
       if (e.target.closest('button')) return;
+      openGuideModal(el.dataset.status, el.dataset.file);
+    })
+  );
+  $$('.guide-card').forEach(el =>
+    el.addEventListener('keydown', e => {
+      if (e.target.closest('button') || !['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
       openGuideModal(el.dataset.status, el.dataset.file);
     })
   );
@@ -8569,7 +8588,7 @@ function guideCard(it) {
   } else if (it.status === 'ready') {
     actions = `<button class="btn sm danger" data-guide-action="reject" data-status="${esc(it.status)}" data-file="${esc(it.file)}">Reject</button>`;
   }
-  return `<div class="task guide-card" data-status="${esc(it.status)}" data-file="${esc(it.file)}">
+  return `<div class="task guide-card" role="button" tabindex="0" aria-label="Open guide ${esc(it.title)}" data-status="${esc(it.status)}" data-file="${esc(it.file)}">
     <div class="t-title">${esc(it.title)} ${imgTag}</div>
     <div class="t-meta">${cat}${src}</div>
     ${it.excerpt ? `<div class="t-excerpt">${esc(it.excerpt)}</div>` : ''}

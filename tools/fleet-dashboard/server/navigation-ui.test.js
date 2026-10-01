@@ -1036,6 +1036,18 @@ test('Tasks route provides context before its mode controls', () => {
   assert.match(theme, /\.task-route-toolbar > \.seg \{ display: flex; \}/);
 });
 
+test('Guides route provides queue context, summary, and keyboard access', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="page-head guide-page-head"/);
+  assert.match(app, /role="group" aria-label="Guide queue controls"/);
+  assert.match(app, /class="guide-summary" aria-label="Guide queue summary"/);
+  assert.match(app, /role="button" tabindex="0" aria-label="Open guide/);
+  assert.match(app, /\['Enter', ' '\]\.includes\(e\.key\)/);
+  assert.match(theme, /\.guide-summary \{[^}]*grid-template-columns: repeat\(5/);
+  assert.match(theme, /\.guide-card:focus-visible/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
