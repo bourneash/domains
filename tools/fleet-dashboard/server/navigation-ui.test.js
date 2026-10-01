@@ -2034,6 +2034,8 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.match(priorities, /id="priority-next"/);
   assert.match(priorities, /caption class="sr-only">Prioritized recommended actions<\/caption>/);
   assert.match(priorities, /class="fd-stale-banner priority-notice" role="note"/);
+  assert.match(priorities, /class="fd-stale-banner priority-truncated" role="alert"/);
+  assert.match(priorities, /The API reports \$\{reportedTotal\} recommendations but returned \$\{all\.length\}/);
   assert.doesNotMatch(priorities, /<div class="error-box">\$\{esc\(data\.notice/);
   assert.match(app, /const IMPROVEMENT_PAGE_SIZE = 20/);
   assert.match(improvements, /<h4>Quality gates<\/h4><div class="table-wrap"><table class="tbl">/);

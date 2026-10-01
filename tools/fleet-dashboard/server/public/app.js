@@ -12422,6 +12422,8 @@ async function renderPriorities() {
   }
   const coverage = data.coverage || {};
   const all = data.items || [];
+  const reportedTotal = Number(data.totals?.recommendations);
+  const omittedActions = Number.isFinite(reportedTotal) ? Math.max(0, reportedTotal - all.length) : 0;
   const rows = all.filter(item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE);
   const pageCount = Math.max(1, Math.ceil(rows.length / PRIORITY_PAGE_SIZE));
   PRIORITY_PAGE = Math.min(Math.max(1, PRIORITY_PAGE), pageCount);
@@ -12468,6 +12470,7 @@ async function renderPriorities() {
     .join('');
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Next Best Actions</h2><div class="crumbs">One decision queue across growth, coverage, and execution</div></div><button type="button" id="priorities-refresh" class="btn">↻ Refresh</button></div>
     ${data.notice ? `<div class="fd-stale-banner priority-notice" role="note"><strong>Data note</strong><span>${esc(data.notice)}</span></div>` : ''}
+    ${omittedActions ? `<div class="fd-stale-banner priority-truncated" role="alert"><strong>Incomplete queue</strong><span>The API reports ${reportedTotal} recommendations but returned ${all.length}; ${omittedActions} actions are not available in this view yet.</span></div>` : ''}
     <section class="seo-stats">${tiles}</section>
     <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="table-wrap"><table class="tbl"><caption class="sr-only">Portfolio allocation scorecard by live site</caption><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
     <div class="task-toolbar"><strong>${rows.length} items</strong><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)}</span><select id="priority-state" class="cm-input"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
