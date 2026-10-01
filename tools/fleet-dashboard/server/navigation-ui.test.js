@@ -435,6 +435,14 @@ test('Task cards and fleet rows are keyboard-operable editors', () => {
   assert.match(app, /\$\$\('\.tree-task, \.ttr'\)\.forEach\(el =>\n    el\.addEventListener\('keydown'/);
 });
 
+test('Domain Control role cells are keyboard-operable status disclosures', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="rdot r-\$\{c\.state\}"[\s\S]*role="button" tabindex="0" aria-label="Open/);
+  assert.match(app, /\$\$\('\.rdot\[data-site\]'\)\.forEach\(d => \{/);
+  assert.match(app, /aria-label="\$\{anyEnabled \? 'Pause' : 'Resume'\} \$\{esc\(r\)\} on all/);
+  assert.match(app, /<caption class="sr-only">Fleet role coverage matrix<\/caption>/);
+});
+
 test('sidebar category navigation and disclosure use separate controls', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

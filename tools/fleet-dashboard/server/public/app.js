@@ -4367,7 +4367,7 @@ function controlDraw() {
         const controllable = cells.filter(c => c.worker);
         const anyEnabled = controllable.some(c => c.enabled);
         const bulkBtn = controllable.length
-          ? `<button class="rcol-bulk" data-role="${esc(r)}" data-act="${anyEnabled ? 'pause' : 'resume'}" title="${anyEnabled ? 'Pause' : 'Resume'} ${esc(r)} on all ${controllable.length} site(s)">${anyEnabled ? '⏸' : '▶'}</button>`
+          ? `<button type="button" class="rcol-bulk" data-role="${esc(r)}" data-act="${anyEnabled ? 'pause' : 'resume'}" aria-label="${anyEnabled ? 'Pause' : 'Resume'} ${esc(r)} on all ${controllable.length} site(s)" title="${anyEnabled ? 'Pause' : 'Resume'} ${esc(r)} on all ${controllable.length} site(s)">${anyEnabled ? '⏸' : '▶'}</button>`
           : '';
         const label = agentSet.has(r)
           ? `<a class="rcol-link" data-role="${esc(r)}" title="Open the ${esc(agentLabel(r))} agent page">${esc(agentLabel(r))}</a>`
@@ -4423,15 +4423,21 @@ function controlDraw() {
     .join('');
 
   $('#ctl-matrix').innerHTML = rows.length
-    ? `<div class="card rmatrix-card"><table class="rmatrix">
+    ? `<div class="card rmatrix-card"><table class="rmatrix"><caption class="sr-only">Fleet role coverage matrix</caption>
         <thead><tr>${head}</tr></thead>
         <tbody>${body}</tbody>
       </table></div>`
     : '<div class="card"><div class="empty">No site matches this filter.</div></div>';
 
-  $$('.rdot[data-site]').forEach(d =>
-    d.addEventListener('click', () => openRole(d.dataset.site, d.dataset.role))
-  );
+  $$('.rdot[data-site]').forEach(d => {
+    const open = () => openRole(d.dataset.site, d.dataset.role);
+    d.addEventListener('click', open);
+    d.addEventListener('keydown', e => {
+      if (!['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
+      open();
+    });
+  });
   $$('.rcol-link').forEach(a => a.addEventListener('click', () => go('agent', a.dataset.role)));
   $$('.rcol-bulk').forEach(b =>
     b.addEventListener('click', e => {
@@ -4805,7 +4811,7 @@ function roleDot(site, role, c) {
   } else {
     tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
   }
-  return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" title="${esc(tip)}"></span>`;
+  return `<span class="rdot r-${c.state}" data-site="${esc(site)}" data-role="${esc(role)}" role="button" tabindex="0" aria-label="Open ${esc(role)} status for ${esc(site)}: ${esc(STATE_LABEL[c.state] || c.state)}" title="${esc(tip)}"></span>`;
 }
 
 function roleCell(site, role) {
