@@ -901,6 +901,17 @@ test('Domains route separates command queueing from operational inventory', () =
   assert.match(theme, /\.dom-stat-bad/);
 });
 
+test('dense filter selects expose route-specific accessible names', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /id="seo-priority" class="cm-input" aria-label="Filter SEO opportunities by priority"/);
+  assert.match(app, /id="seo-type" class="cm-input" aria-label="Filter SEO opportunities by type"/);
+  assert.match(app, /id="seo-site" class="cm-input" aria-label="Filter SEO opportunities by site"/);
+  assert.match(app, /id="gr-repo-select" aria-label="Repository to override"/);
+  assert.match(app, /id="gr-repo-list" aria-label="Guardrail list to edit"/);
+  assert.match(app, /data-soc-category="\$\{esc\(s\.site\)\}" aria-label="Social account category for/);
+  assert.match(app, /\$\('#backlink-site'\)\?\.setAttribute\('aria-label', 'Filter backlink coverage by site'\)/);
+});
+
 test('Social account registry exposes a local refresh control', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const route = app.slice(

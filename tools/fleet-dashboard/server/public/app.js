@@ -7853,9 +7853,9 @@ async function renderSeoIntelligence() {
     <section class="seo-work-head">
       <div><h3>Action queue</h3><span class="muted">${filtered.length} of ${allActions.length} evidence-backed items</span></div>
       <div class="task-toolbar seo-toolbar">
-        <select id="seo-priority" class="cm-input"><option value="all">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-        <select id="seo-type" class="cm-input"><option value="all">All opportunity types</option>${types.map(([type]) => `<option value="${esc(type)}">${esc(SEO_TYPE_LABELS[type] || type)}</option>`).join('')}</select>
-        <select id="seo-site" class="cm-input"><option value="all">All sites</option>${siteNames.map(site => `<option value="${esc(site)}">${esc(site)}</option>`).join('')}</select>
+        <select id="seo-priority" class="cm-input" aria-label="Filter SEO opportunities by priority"><option value="all">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <select id="seo-type" class="cm-input" aria-label="Filter SEO opportunities by type"><option value="all">All opportunity types</option>${types.map(([type]) => `<option value="${esc(type)}">${esc(SEO_TYPE_LABELS[type] || type)}</option>`).join('')}</select>
+        <select id="seo-site" class="cm-input" aria-label="Filter SEO opportunities by site"><option value="all">All sites</option>${siteNames.map(site => `<option value="${esc(site)}">${esc(site)}</option>`).join('')}</select>
       </div>
     </section>
     <section class="seo-actions">${actionRows}</section>`;
@@ -7992,6 +7992,7 @@ async function renderBacklinks() {
     )
     .join('');
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Backlink Capture</h2><div class="crumbs">Fleet-wide backlink-report coverage and evidence provenance · generated ${esc(data.generatedAt || 'live')}</div></div><div><button type="button" id="backlinks-refresh" class="btn">↻ Refresh</button> <button type="button" id="backlinks-baseline" class="btn backlink-accent">＋ Queue all baselines</button> <button type="button" id="backlinks-run" class="btn backlink-accent">↻ Run audit now</button></div></div><section class="seo-stats">${cards}</section>${alertHtml}<section class="dh-panel dh-wide"><h3>What this measures</h3><p class="muted">A report is not treated as a quantified backlink capture unless it records a real source such as Moz, Bing Webmaster, Ahrefs, or DataForSEO. Missing reports are high-priority acquisition-domain follow-up; this page does not invent counts from search snippets.</p></section>${detailHtml}<section class="dh-panel dh-wide backlink-table"><div class="seo-work-head"><h3>Site coverage</h3><select id="backlink-site" class="cm-input"><option value="all">All sites</option>${(data.sites || []).map(row => `<option value="${esc(row.site)}">${esc(row.site)}</option>`).join('')}</select></div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>status</th><th>latest</th><th>age</th><th>sources</th><th></th></tr></thead><tbody>${table || '<tr><td colspan="6" class="muted">No sites found.</td></tr>'}</tbody></table></div></section>`;
+  $('#backlink-site')?.setAttribute('aria-label', 'Filter backlink coverage by site');
   $('#backlinks-refresh').addEventListener('click', () => renderBacklinks());
   $('#backlink-site').value = BACKLINK_SITE;
   $('#backlink-site').addEventListener('change', event => {
@@ -9708,7 +9709,7 @@ function socMatrixHTML() {
       const caret = personas.length
         ? `<span class="soc-caret" data-soc-expand="${esc(s.site)}">${isOpen ? '▾' : '▸'}</span>`
         : '<span class="soc-caret soc-caret-off">·</span>';
-      const catSel = `<select class="soc-cat" data-soc-category="${esc(s.site)}">${cats
+      const catSel = `<select class="soc-cat" data-soc-category="${esc(s.site)}" aria-label="Social account category for ${esc(s.site)}">${cats
         .map(
           c =>
             `<option value="${esc(c.key)}" ${(s.category || 'active') === c.key ? 'selected' : ''}>${esc(c.label)}</option>`
@@ -17344,8 +17345,8 @@ async function renderGuardrails() {
         <tbody>${repoRows || '<tr><td colspan="3" class="muted">No per-repo overrides yet.</td></tr>'}</tbody></table>
       </div>
       <div class="task-toolbar gr-toolbar">
-        <select id="gr-repo-select"><option value="">site…</option>${siteOptions}</select>
-        <select id="gr-repo-list"><option value="blocked">blocked</option><option value="warn">warn</option></select>
+        <select id="gr-repo-select" aria-label="Repository to override"><option value="">site…</option>${siteOptions}</select>
+        <select id="gr-repo-list" aria-label="Guardrail list to edit"><option value="blocked">blocked</option><option value="warn">warn</option></select>
         <input id="gr-repo-term" class="gr-repo-input" aria-label="Add repository guardrail term" placeholder="term…">
         <button type="button" class="btn sm" id="gr-add-repo-btn">Add override</button>
       </div>
