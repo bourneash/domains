@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:16:58.345Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:29:25.435Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked, with counsel_required escalation. Evidence: Woot documentation confirms API access but not redistribution rights; current Woot terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Security, accuracy/freshness, measurement, owner, and launch gates remain incomplete. Compliance is technical-only with 36 pass, 19 fail, and 6 unknown. Analytics is configured for the measured fleet, but this does not establish consent or jurisdictional sufficiency. Revenue evidence is limited to 2026-09-21; $4.92 aggregate commission is unattributed and cannot support site claims. Exact decision: keep SearchWoot private, do not send rights outreach, do not enable affiliate/advertising use, and permit only bounded read-only evidence work plus ordinary reversible work that adds no new data collection or public exposure. Human counsel is required for Woot rights, privacy/jurisdiction, vendor terms, and any future affiliate or advertising use.",
+        "summary": "Overall legal/compliance disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible fleet growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Woot documentation proves API access but not redistribution rights; current public terms point against commercial/public data use. Keep SearchWoot private, do not send rights outreach, and require human counsel review before any public display, alerts, affiliate, or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Tracking remains active. Four launch-readiness tasks are open; none are closed because required evidence is absent. Existing evidence progress: Woot API documentation, public terms, support guidance, partial data-flow files, privacy/cookie pages, and draft terms are recorded. Missing evidence remains authoritative source permission, field-level rights, retention/deletion/correction workflows, deployed consent behavior, GA4 settings, vendor/DPA review, log inventory, and incident/request procedures. Next evidence action: attach one dated read-only bundle containing the repository/config data-flow table, vendor/log inventory, consent/configuration capture, and unresolved counsel questions to the existing checklist. Do not contact Woot or change the private gate.",
+        "summary": "Launch-readiness progress: the four SearchWoot legal tasks remain open. Existing evidence confirms public API documentation, endpoint/rate-limit details, draft privacy/cookie/terms pages, and partial data-flow artifacts. No task is closed because authoritative rights permission, field-level rights, retention/deletion/correction workflows, GA4 settings, vendor/DPA coverage, and incident/request procedures remain unevidenced. Next evidence action: attach one dated read-only bundle covering source-rights fields, alert data flow/retention, deployed consent and GA4 configuration, and logs/vendors/incident handling.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Concrete launch decision for gated/scaffold sites: keep complicated.work private and preview-only; no publication or production exposure. Evidence shows compliance failure for banner, consent, reject, and GA4 checks, analytics is not configured, and security/operations evidence is unavailable. Deadlymaracas.com is not launch-clear because the compliance check is unreachable. Reconsider only after a reachable preview, consent/disclosure evidence, analytics decision, security/operations evidence, owner disposition, and rollback plan exist.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet compliance disposition: the baseline is technical triage, not certification. Evidence reports 36 pass, 19 fail, and 6 unknown, with open banner, accept/reject consent, GA4, privacy, and terms findings. Analytics is configured and healthy for 39 sites, but missing analytics on scaffold sites is not by itself a blocker for ordinary growth. Revenue is usable only as partial attribution: $4.92 aggregate-unattributed commission for 2026-09-21; do not claim site revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

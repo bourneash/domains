@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:16:58.345Z",
+  "generated_at": "2026-10-01T02:29:25.436Z",
   "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Exact decision: keep new public exposure and security-sensitive releases gated because fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results; and authentication/access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness remain unevidenced. Risk is high for security-sensitive clearance and unknown for ordinary reversible growth. Permit the canonical allthingsmasonic.com CTA refinement only after capacity release, provided it adds no credentials, permissions, dependencies, data collection, or cross-site behavior and passes the stated validation and rollback gates. No clean bill of health or certification is claimed.",
+        "summary": "Security disposition: evidence_needed, severity high. Do not clear new public exposure or security-sensitive releases. Evidence: fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results; authentication and access boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance reports 36 pass, 19 fail, and 6 unknown, but is a technical baseline rather than certification. Exact decision: preserve private-launch and security-sensitive release gates; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Continue one consolidated read-only evidence matrix using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, exploit targets, alter permissions or configuration, deploy, add dependencies, request duplicate telemetry, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence, owners, affected scope, severity, and release implications for authentication/access boundaries, secrets, container isolation, release/deploy controls, dependency provenance, TLS, data exposure, monitoring, incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "summary": "Maintain the fleet security gate and complete the canonical read-only evidence matrix. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain risk, TLS, data exposure, monitoring and incident signals, and security.txt/disclosure readiness. No production mutation or duplicate telemetry request is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and bounded release gate",
-        "summary": "Keep new public exposure and security-sensitive releases gated while completing the existing read-only security evidence matrix. Permit ordinary reversible growth only when it preserves existing consent, disclosures, data handling, and claims boundaries and introduces no credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": "Document dated evidence and unknowns for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain risk, TLS, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Retain the canonical allthingsmasonic.com CTA refinement as conditionally executable after capacity release, subject to deterministic tests, accessibility, build, link, smoke, visual review, and isolated rollback. Do not clear fleet security gates, claim certification, retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve private-launch and security-sensitive release gates while permitting ordinary reversible growth that does not introduce credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": "Continue one consolidated read-only security evidence matrix from authorized metadata and retained artifacts only. Document authentication and access boundaries, secrets handling, container isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring and incident readiness, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

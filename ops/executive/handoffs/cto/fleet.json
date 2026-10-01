@@ -2,35 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:16:58.345Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:29:25.435Z",
+  "summary": "cto checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment. Do not create new implementation, telemetry, experiment, site-factory, CRO, or duplicate queue work while delivery is saturated at 10/10 slots. Complete or close the existing saveusfarms.com repair case with the required validation, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only afterward, then execute canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve destinations, tracking IDs, consent, disclosures, accessibility, responsive behavior, and cross-site isolation. Measure only registered affiliate clicks for 14 days or 100 new relevant impressions/clicks; do not claim revenue, ROI, margin, or causal lift.",
+        "summary": "CTO review: approve containment. Do not create proposals, research requests, prototypes, telemetry requests, new implementation requests, or duplicate queue work while delivery is saturated at 10/10 active slots and 57 improvements remain in measurement. Preserve existing launch, security, attribution, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create or queue a new launch-readiness request this cycle. Existing capacity and measurement gates take precedence; retain the candidate as deferred planning context only, with no deployment, preview publication, telemetry request, spend, dependency, or domain change.",
+        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Record root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution and measurement limits, and deduplication evidence. Release capacity only after this evidence is recorded; escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain repository candidates as research-only context. Do not commission prototypes, install dependencies, add dependencies, deploy, spend, or claim security, maintenance, conversion, or revenue impact until capacity and measurement gates clear.",
+        "summary": "After one delivery slot is released, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Do not create a new request. Preserve destinations and imagery; limit changes to CTA hierarchy, adjacent disclosure placement, accessibility, responsive layout, and touch targets. Validate tests, build, links, disclosure, accessibility, and functional behavior; revert only the scoped diff on failure.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not begin request 4719e525-763b-42a4-9f16-e71e1c38b17b until one delivery slot is released. Then implement only the bounded CTA, disclosure, accessibility, and responsive refinement with deterministic tests, accessibility audit, build, link validation, smoke test, visual review, and isolated rollback.",
+        "summary": "For the canonical allthingsmasonic.com change, measure only existing outbound affiliate clicks and available sessions for 14 days after deployment. Retain the recorded 61-click revenue-window reference as context, not as a causal baseline. Do not claim revenue, ROI, attribution, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep private-launch and security-sensitive release gates unchanged. Do not retrieve credentials, alter permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
         "requested_action": null,
         "proposal_id": null
       }

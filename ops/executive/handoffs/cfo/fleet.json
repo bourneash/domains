@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:16:58.345Z",
-  "summary": "cfo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:29:25.435Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new spend, forecasts, ROI claims, or additional implementation this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then retain only the canonical allthingsmasonic.com CTA refinement. Its 2026-09-21 baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission. The provider aggregate contains 629 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, but cannot be assigned to a site. Do not present clicks, sessions, conversions, or opportunity scores as financial returns.",
+        "summary": "CFO recommendation: maintain financial containment. Do not authorize new spend, paid acquisition, production expansion, or new monetization work this cycle. Delivery is saturated at 10/10 slots and 57 improvements remain in measurement. Revenue support is insufficient: Amazon reported 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21; all commission is in aggregate tracking ID \"other\", so site revenue, ROI, and causal lift are unsupported. The September 2026 AI bill is $1,002.46 across 5,531 calls, including 234 errors, but it cannot be compared to the one-day revenue window. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then execute only the canonical allthingsmasonic.com CTA refinement after capacity release.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Contribution margin and budget exposure are not calculable: monthly revenue targets, fixed costs, marketing budget, spend limit, infrastructure, hosting, domain, and marketing costs are blank. Cost-to-learn is not calculable because AI usage is not joined to individual tasks or changes and outcome windows are unmatched. AI usage cost was $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors and 5 transient errors. Minimum measurement is a dated ledger keyed by site, task/change, and period covering AI, infrastructure, hosting, domain, and marketing costs, reconciled to affiliate clicks, orders, shipped items, commission, and matched treatment/control outcomes.",
+        "summary": "Financial disposition: treat contribution margin, payback, cost-to-learn, site-level revenue forecasts, and causal-lift claims as unknown. The available evidence supports $0 site-attributed commission and $4.92 aggregate unattributed commission for 2026-09-21. Contribution margin is not calculable because infrastructure/hosting, domains, labor, paid marketing, and other operating costs are absent, and the revenue and AI-cost periods do not match. The minimum finance-grade measurement is a period-matched ledger by site and content identifier containing affiliate clicks, ordered and shipped items, commission, AI cost, infrastructure/hosting, domains, paid marketing, and allocated labor.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one slot is released, execute only the existing allthingsmasonic.com CTA refinement. Preserve destinations, tracking IDs, disclosures, consent, and existing behavior. Measure registered affiliate clicks for 14 days or 100 new relevant impressions/clicks, whichever comes first. Click movement is not evidence of revenue, contribution margin, ROI, payback, or causal lift. Roll back the isolated diff if validation or attribution boundaries regress.",
+        "summary": "After the existing capacity gate clears, preserve only the canonical allthingsmasonic.com CTA refinement. Measure outbound affiliate clicks and eligible sessions for 14 days against the existing 61-click 2026-09-21 baseline. Do not use clicks, sessions, conversions, or impressions as revenue or margin proxies; do not claim ROI or causal lift without site-attributed commission and period-matched cost evidence.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "AI and infrastructure exposure: September AI usage cost was $1,002.46, with $20.49 assigned to fleet overhead and materially concentrated spend including 0daynews.com at $155.90, americastrikes.com at $110.27, and blackmarketapparel.com at $67.71. These are AI costs only, not contribution margins. Infrastructure, hosting, domain, labor, and paid-marketing exposure are not present in the snapshot, so budget exposure and cost-to-learn cannot be calculated. Recommend report-only reconciliation before any incremental spend.",
         "requested_action": null,
         "proposal_id": null
       }
