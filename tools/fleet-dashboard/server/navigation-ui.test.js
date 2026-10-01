@@ -1112,6 +1112,15 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
   assert.match(style, /\.seo-vitals-panel, \.seo-sites \{[^}]*overflow: hidden/);
 });
 
+test('Backlink Capture keeps coverage tables bounded and actions explicit', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /backlink-table[\s\S]*class="table-wrap"><table class="dh-sources"/);
+  assert.match(app, /type="button" id="backlinks-baseline"/);
+  assert.match(app, /type="button" id="backlinks-run"/);
+  assert.match(style, /\.backlink-table \{[^}]*overflow: hidden/);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
