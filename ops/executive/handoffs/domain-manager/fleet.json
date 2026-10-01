@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:31:47.549Z",
+  "generated_at": "2026-10-01T10:33:26.477Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish unsupervisedmedia.com homepage baseline and select one reversible UX fix",
-        "summary": "Site-specific SEO, analytics, content, and active-work evidence for unsupervisedmedia.com is not present in the supplied snapshot. Create one bounded baseline artifact before changing production, then route exactly one homepage improvement without requesting duplicate telemetry.",
-        "requested_action": "Inspect the existing repository and authorized analytics/SEO snapshot for unsupervisedmedia.com. Record the homepage audience promise, primary CTA, metadata, accessibility issues, existing disclosures, and current measurable baseline. Select exactly one reversible change for the homepage and defer all other opportunities.",
+        "title": "Prepare an implementation-ready homepage CTA brief for weapontester.com",
+        "summary": "A bounded implementation is blocked by missing site-specific homepage file mapping and baseline evidence in the supplied snapshot. Existing analytics and SEO systems are configured for weapontester.com, but no page-level metrics or active work artifact is provided.",
+        "requested_action": "Inspect the existing weapontester.com repository and homepage route only. Identify the exact template, stylesheet, CTA destinations, affiliate disclosures, keyboard/focus behavior, and responsive layout. Record the pre-change baseline from existing GA4/GSC telemetry only; do not add tracking, change production, or claim lift. After one delivery slot is released, convert the brief into one isolated homepage CTA/accessibility implementation request.",
         "proposal_id": null
       }
     ]
