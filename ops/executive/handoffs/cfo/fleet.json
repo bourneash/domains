@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:37:59.311Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:48:15.396Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment. Do not approve new spend, monetization forecasts, ROI claims, or additional production work. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in an aggregate tracking row that cannot be assigned to a site; named site rows show $0 attributed commission. Therefore site revenue, contribution margin, ROI, and causal lift are unsupported. September AI usage cost is $1,002.46 across 5,531 calls and 39 instrumented sites, but comparing it with the one-day $4.92 revenue would be period-invalid. The 17 SEO conversions and click/impression totals are vanity metrics until mapped to attributable revenue. Preserve the existing capacity gate and execute no new financial or production work until attribution and variable-cost evidence are reconciled.",
+        "summary": "Recommendation: preserve financial containment. Reject the three new site-factory change requests and duplicate CTA work this cycle; retain only the canonical allthingsmasonic.com CTA refinement after capacity release. Do not approve new spend, forecasts, ROI, margin, or causal-lift claims. AI usage cost was $1,002.45979265 for 2026-09-01 through 2026-09-30 across 5,531 calls, including 234 errors and 5 transient errors. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is aggregate and unattributed; named site rows show $0 attributed commission. The periods and attribution scopes do not support a revenue, contribution-margin, ROI, or cost-to-learn claim.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the current affiliate attribution control: every new link must use its registered tracking ID, and aggregate provider rows must remain explicitly unassigned. Do not report site revenue, ROI, or margin from the current Amazon snapshot. Reconcile the existing site-level rows and identify any missing site/date mappings using existing telemetry only.",
+        "summary": "Financial measurement blocker: full contribution margin and budget exposure are not calculable because infrastructure, hosting, domain, marketing, fixed-cost, and budget-limit values are blank. Cost-to-learn is also not calculable because AI usage is not joined to individual tasks or changes and outcome windows are not matched. Minimum measurement: a dated ledger keyed by site, task/change, and period containing AI, infrastructure, hosting, domain, and marketing costs, reconciled to registered affiliate clicks, ordered items, shipped items, commission, and treatment-versus-control outcomes. Until that ledger exists, use impressions, clicks, sessions, conversions, social counts, and opportunity scores only as operating indicators, not financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the canonical allthingsmasonic.com CTA refinement only as a capacity-gated, reportable implementation. Its available baseline is 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure registered clicks for 14 days or 100 new relevant impressions/clicks, whichever comes first, while preserving destinations and tracking IDs. Click movement alone must not be presented as revenue, margin, ROI, or payback.",
         "requested_action": null,
         "proposal_id": null
       }

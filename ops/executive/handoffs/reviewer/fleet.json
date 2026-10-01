@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:37:59.312Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:48:15.397Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain containment at 10/10 active slots. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Do not admit new production, preview, SEO, or duplicate queue work before a slot is released.",
+        "summary": "Reject all three new site-factory change requests, duplicate CTA work, and the duplicate security proposal. Delivery is saturated at 10/10 slots; 57 improvements are measuring and 21 implementation requests have failed. Revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21, so site revenue, margin, ROI, and causal lift remain unsupported. Preserve existing gates and work. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then admit only the canonical queued allthingsmasonic.com CTA refinement. Keep private-launch and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the complicated.work preview change request and the duplicate security proposal this cycle. Delivery is saturated, launch and security evidence remain incomplete, and available revenue is only $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unsupported. Keep SearchWoot private with rights outreach unsent. After the existing repair case is completed or closed with evidence, consider only the already-queued allthingsmasonic.com CTA refinement.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA refinement without creating a duplicate request. It remains capacity-gated until CTO releases one slot. Preserve destinations, tracking IDs, disclosures, existing behavior, and the stated tests, rollback, and measurement boundaries; do not claim revenue or causal lift.",
+        "summary": "No new telemetry, spending, credentials, configuration, dependencies, production exposure, preview publication, domain changes, experiments, or queue admissions are authorized this cycle. Existing read-only security evidence work may continue without requesting duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

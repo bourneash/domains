@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:37:59.311Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:48:15.396Z",
+  "summary": "cro checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposal or queue admission this cycle. Delivery is saturated at 10/10 slots, 57 improvements remain in measurement, 21 implementation requests failed, and revenue evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21. Site revenue, ROI, margin, and causal lift remain unknown. Preserve the existing allthingsmasonic.com CTA refinement as the next reversible revenue experiment after CTO releases capacity; do not create a duplicate request. Its evidence-backed hypothesis is that clearer affiliate CTA hierarchy, adjacent disclosure, and accessible responsive treatment can improve affiliate-click rate without changing destinations, tracking IDs, dependencies, or data collection. Baseline: 61 site-attributed Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available window. Measure affiliate clicks, page engagement, and available site-attributed outcomes for 14 days or 100 relevant new impressions/clicks; report inconclusive if traffic is insufficient. Smallest reversible prototype is the already-queued single-surface CTA refinement with deterministic tests, build/link validation, disclosure/compliance checks, keyboard and accessibility checks, and single-diff rollback.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "CRO product opportunity: treat the canonical work-lifecycle and AI-cost controls as a future control-plane product, not a new implementation this cycle. Evidence includes 108 approved proposals without execution requests, 216 stranded work items, 43 deployed improvements awaiting measurement, 21 failed implementation requests, and $1,002.46 recorded AI usage cost for September across 39 instrumented sites. Smallest reversible prototype after capacity recovery: a read-only operator scorecard joining proposal-to-request conversion, active-slot utilization, stranded-work age, failed-request repair time, measurement completion, and AI cost per site using existing telemetry only. Expected metric: improved proposal-to-request execution rate and reduced stranded-work count without increasing duplicate work. Time-to-learn: one reporting cycle after implementation. Risks: incomplete operational sweeps, partial revenue attribution, and attribution or causality overclaiming; preserve unknowns and require CTO/reviewer validation before adoption.",
+        "summary": "CRO evidence: allthingsmasonic.com has 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. The provider’s $4.92 aggregate commission remains unattributed and cannot support site-level revenue claims. The smallest reversible experiment is the existing CTA refinement with unchanged destinations, tracking IDs, disclosures, consent, dependencies, and cross-site isolation; validate with deterministic tests, build/link, smoke, and accessibility checks, then measure for 14 days or 100 new relevant impressions/clicks.",
         "requested_action": null,
         "proposal_id": null
       }

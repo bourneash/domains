@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:37:59.311Z",
+  "generated_at": "2026-10-01T01:48:15.396Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the complicated.work preview change request this cycle. Delivery is saturated at 10/10 slots, and launch-readiness, compliance, security, analytics, and affiliate evidence remain incomplete. Retain it as capacity-gated; no preview publication or production exposure is authorized.",
+        "summary": "Reject the three new site-factory change requests and duplicate allthingsmasonic.com work item under EXEC_CONV_12. Delivery is saturated at 10/10 slots; preserve only the canonical queued CTA refinement. CTO: complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, then release one slot before execution.",
         "requested_action": null,
         "proposal_id": null
       }
