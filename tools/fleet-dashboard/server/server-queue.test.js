@@ -72,6 +72,15 @@ test('verified deployment advances delivery-pending requests without an invalid 
   assert.deepEqual(queueProjectionPath('delivery_pending', 'deployed'), ['deployed']);
   assert.deepEqual(queueProjectionPath('delivery_pending', 'verified'), ['deployed', 'verified']);
   assert.deepEqual(queueProjectionPath('delivery_pending', 'review'), []);
+  assert.deepEqual(queueProjectionPath('blocked_infrastructure', 'deployed'), []);
+  assert.deepEqual(
+    queueProjectionPath('blocked_infrastructure', 'deployed', { provenDelivery: true }),
+    ['delivery_pending', 'deployed']
+  );
+  assert.deepEqual(
+    queueProjectionPath('blocked_infrastructure', 'verified', { provenDelivery: true }),
+    ['delivery_pending', 'deployed', 'verified']
+  );
 });
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {

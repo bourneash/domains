@@ -318,7 +318,16 @@ function reportWasInvalidated(run) {
   return run?.state === 'reported' && run?.outcome?.report_invalidated === true;
 }
 
-function queueProjectionPath(currentStatus, targetStatus) {
+function queueProjectionPath(currentStatus, targetStatus, { provenDelivery = false } = {}) {
+  // A guarded manual deploy can finish after a review was parked for an
+  // infrastructure problem. Rejoin the normal delivery lifecycle only when
+  // the linked run now has an actual deployment, never on a bare queue edit.
+  if (
+    currentStatus === 'blocked_infrastructure' &&
+    provenDelivery &&
+    ['deployed', 'verified'].includes(targetStatus)
+  )
+    return ['delivery_pending', ...queueProjectionPath('delivery_pending', targetStatus)];
   // Automatic delivery waits in delivery_pending while the GitHub build and
   // production verification complete. That state is not part of the older
   // manual review -> committed chain, but a measuring run proves deployment.
@@ -2413,7 +2422,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
     }
     let current = request;
-    for (const next of queueProjectionPath(request.status, target)) {
+    const provenDelivery =
+      request.run_id === run.run_id &&
+      Boolean(run.deployment_id) &&
+      ['deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state);
+    for (const next of queueProjectionPath(request.status, target, { provenDelivery })) {
       try {
         current = changequeue.update(
           events,
