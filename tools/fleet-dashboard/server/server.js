@@ -3657,14 +3657,24 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   app.get('/api/change-requests', (req, res) => {
     try {
-      for (const request of events.listChangeRequests({ limit: 1000 })) {
+      for (const request of events.listChangeRequests({ limit: 'all' })) {
         if (request.run_id) syncChangeRequestFromRun(events.getImprovement(request.run_id));
       }
+      const allRequests = events.listChangeRequests({ limit: 'all' });
       const queueSnapshot = changequeueView.buildQueueSnapshot(
         root,
-        events.listChangeRequests(req.query),
+        allRequests,
         events.getChangeQueueSettings(),
         events.listImprovements({ limit: 1000 })
+      );
+      // Filters and pagination control the visible rows, not the fleet-wide
+      // queue and delivery metrics. Using the default 250-row page for those
+      // aggregates silently dropped newer deployments once the ledger grew.
+      const visibleIds = new Set(
+        events.listChangeRequests(req.query).map(request => request.request_id)
+      );
+      queueSnapshot.requests = queueSnapshot.requests.filter(request =>
+        visibleIds.has(request.request_id)
       );
       res.json({
         ...queueSnapshot,

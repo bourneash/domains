@@ -131,6 +131,11 @@ test('filters the change queue by implementation role', () => {
     assigned_role: 'principal-engineer',
   });
   assert.equal(store.listChangeRequests({ assigned_role: 'principal-engineer' }).length, 1);
+  assert.equal(store.listChangeRequests({ limit: 1 }).length, 1);
+  for (let index = 0; index < 249; index += 1)
+    store.createChangeRequest({ site: 'example.com', title: `Extra task ${index}` });
+  assert.equal(store.listChangeRequests().length, 250);
+  assert.equal(store.listChangeRequests({ limit: 'all' }).length, 251);
   assert.equal(
     store.listChangeRequests({ assigned_role: 'principal-engineer' })[0].title,
     'Urgent task'

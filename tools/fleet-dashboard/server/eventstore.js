@@ -1460,7 +1460,9 @@ function open(root, { file } = {}) {
       const term = `%${String(q)}%`;
       args.push(term, term, term, term);
     }
-    const n = Math.max(1, Math.min(Number(limit) || 250, 1000));
+    // Internal aggregate callers need the complete ledger. The ordinary API
+    // still keeps its bounded default and numeric maximum for list rendering.
+    const n = limit === 'all' ? -1 : Math.max(1, Math.min(Number(limit) || 250, 1000));
     return db
       .prepare(
         `SELECT * FROM change_requests${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''}
