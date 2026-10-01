@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.897Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:58:02.293Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Amazon data for 2026-09-21 contains 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in aggregate tracking_id other; it cannot be assigned to a site. Do not infer ROI or site revenue. Delivery is saturated at 10/10, so preserve existing queued repairs and execute only after capacity and site-overlap gates clear.",
+        "summary": "Prioritize bounded affiliate repairs and attribution hygiene only after delivery capacity clears. Preserve the existing allthingsmasonic.com CTA request as the sole next affiliate implementation; do not create duplicates. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission for 2026-09-21, but the aggregate row cannot be assigned to a site. Do not infer revenue, ROI, margin, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the unattributed-revenue boundary. Require every new affiliate link to use a registered tracking ID, preserve aggregate provider rows as unknown, and report site-level revenue only where directly attributed.",
         "requested_action": null,
         "proposal_id": null
       }

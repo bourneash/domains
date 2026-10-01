@@ -2,29 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.898Z",
+  "generated_at": "2026-10-01T11:58:02.295Z",
   "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for bounded public beta and full launch; counsel_required for source-rights, privacy, and future monetization decisions. Evidence: Woot documentation confirms API access mechanics, but current terms do not establish rights to store, derive, publicly display, cache, alert on, affiliate-monetize, or advertise returned data. All 4 legal launch tasks remain open. Security, accuracy/freshness, measurement, attribution, and owner gates are also incomplete. Exact decision: retain keep_private, do not send rights outreach, do not expand notifications or monetization, and permit only read-only evidence capture. This is risk triage, not legal advice or certification.",
+        "summary": "Risk disposition: blocked for public beta and full launch. Keep searchwoot.com private. Woot documentation proves API access mechanics only; current public terms do not evidence redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights. 0/4 legal tasks are evidenced closed. Next evidence action: attach one dated read-only bundle covering source rights, data flow and retention, consent and GA4 configuration, logs, vendors, incident handling, and request workflows. Owner confirmation and human-counsel review remain required before any rights outreach or gate change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Tracking remains active with 0 of 4 legal tasks evidenced closed. Do not close any task. The next evidence action is to produce one dated read-only bundle from authorized repository/configuration artifacts containing: source-rights record; alert/data-flow and retention table; deployed consent and GA4 configuration evidence; log-field, vendor, incident, deletion, correction, access, and request-workflow inventory. Preserve unresolved items as open and escalate rights, privacy, and monetization questions to human counsel.",
+        "summary": "Conditional ordinary growth remains permitted only when reversible and limited to existing consent, disclosures, data handling, claims, and platform boundaries. Do not treat incomplete telemetry as a standalone blocker, but do not approve new data collection, public exposure, monetization, notification expansion, or unsupported claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Compliance baseline is technical only: 35 pass, 20 fail, and 6 unknown, with open banner, consent accept/reject, GA4, privacy, and terms findings. Do not treat this as certification. Revenue evidence is partial: the 2026-09-21 Amazon report contains $4.92 in an aggregate row that cannot be assigned to a site. Ordinary reversible growth may continue where it adds no new credentials, permissions, dependencies, data collection, or cross-site behavior; new public exposure and monetization remain gated by evidence.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain private SearchWoot gate and complete evidence bundle",
+        "summary": "Keep searchwoot.com private while Woot rights, privacy, consent, data-flow, security, accuracy, attribution, measurement, and owner gates remain unresolved.",
+        "requested_action": "Continue the four existing launch-readiness legal tasks through one dated read-only evidence bundle. Do not send external rights outreach, enable new tracking, expand notifications, change production, monetize, or change the private gate without owner authorization and human-counsel review.",
         "proposal_id": null
       }
     ]

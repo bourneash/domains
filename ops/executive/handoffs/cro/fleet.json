@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.897Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:58:02.295Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing allthingsmasonic.com CTA/disclosure/accessibility refinement as the smallest reversible revenue experiment. Evidence: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission in the available 2026-09-21 window; aggregate commission remains unattributed. Primary metric is GA4 affiliate outbound clicks, with site-level provider outcomes recorded only when attributable. Measure for 14 days or 100 relevant impressions/clicks, then keep, revert, or mark inconclusive. Do not create duplicate work while delivery is saturated at 10/10 slots.",
+        "summary": "CRO handoff: retain no new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and site overlap remains unresolved. Preserve the existing allthingsmasonic.com CTA experiment as the sole next revenue test after CTO releases a slot and overlap clears. Hypothesis: clearer product-card CTA, destination labeling, disclosure placement, and accessible focus states increase outbound affiliate-click rate from the existing 61-click baseline; measure outbound clicks and existing analytics outcomes for 14 days or 100 relevant new impressions/clicks. Revenue, ROI, and causal lift remain unknown because the available site-attributed commission is $0 and aggregate provider earnings cannot be assigned to this site. Rollback is a single-diff revert with unchanged URLs and tracking IDs.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing amputeenews.com affiliate activation work only as an owner-input prerequisite. The site context records that Amazon Associates is pending a real registered tag; no revenue or ROI should be inferred from the current 10 sessions, 11 impressions, and 0 clicks. The smallest reversible implementation is to evidence the exact owner-controlled tag, update only the existing configuration, validate generated links, and roll back if validation fails. Do not request credentials or substitute a guessed tag.",
+        "summary": "CRO product opportunity for later capacity: retain the already-reviewed microsoft/markitdown concept as a report-only, disposable-workspace prototype rather than an adoption request. Fleet use case: convert approved source documents into structured Markdown drafts for SEO/content workflows on selected managed sites. Evidence: CRO repo lab completed 8/8 bounded checks, MIT license, 195 files, 22 relevant documentation hits, and supported fit; no dependency installation or production access occurred. Risks: license and transitive-dependency review remain incomplete, maintenance/release compatibility is unknown, parser fidelity may create factual or formatting errors, and source-rights/republishing permissions must be verified per input. Smallest reversible prototype: process 3 owner-approved local documents in isolation, emit Markdown plus a provenance/error report, and require human review before publication. Metric: reviewer acceptance time and usable-draft rate; learning window: 2–3 engineering days, with no revenue, margin, or payback claim. Do not queue until capacity clears and CTO/security review the prototype boundary.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "CRO disposition: preserve attribution hygiene as a product requirement for every future affiliate experiment. Require registered tracking IDs on every new affiliate link, keep aggregate provider rows explicitly unattributed, and report clicks or conversions separately from revenue. No additional telemetry request is needed; existing evidence is sufficient to define the experiment baseline and its measurement boundary.",
         "requested_action": null,
         "proposal_id": null
       }

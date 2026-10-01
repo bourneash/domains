@@ -2,36 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.898Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:58:02.295Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new discretionary spend, monetization forecast, or ROI claim this cycle. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all commission is in aggregate tracking_id other and cannot be assigned to a site. AI usage reports $10.8396 across 85 calls on 2026-10-01, including $4.0646 on 0daynews.com and $0.6419 on sinderella.org; this is a different period, so contribution margin and payback are not calculable. Cost-to-learn is also not calculable because experiment exposures, attributable conversions, and causal lift are absent. Maintain the capacity gate and existing reversible work only; do not forecast revenue from clicks, sessions, impressions, or conversions.",
+        "summary": "CFO recommendation: freeze new monetization claims, forecasts, and finance-impacting admissions. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 and 629 aggregate clicks are unattributed, so site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage on 2026-10-01 cost $10.8396 across 85 calls and 11 instrumented sites, or approximately $0.1275 per call; this is not comparable to the 2026-09-21 revenue window. Cost-to-learn is not calculable because no validated incremental financial outcome is linked to those calls. Infrastructure, registrar, hosting, labor, and other direct costs are absent; therefore fleet contribution margin and budget exposure are not calculable. Monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are also blank. Preserve the existing allthingsmasonic.com affiliate experiment only as a capacity-gated reversible test after one slot is released and overlap clears. Treat clicks, sessions, impressions, conversions, proposals, and shipped output as activity or funnel metrics, not revenue. Minimum finance measurement: a dated provider export mapping each affiliate event to a registered site tracking ID, plus owner-supplied billing exports for hosting, infrastructure, domains, and AI spend covering the same period; then calculate site contribution margin as attributed commission minus directly attributable costs.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Attribution is insufficient for site-level financial reporting: named Amazon tracking rows cover 18 sites, while the $4.92 aggregate row remains unassigned. The minimum measurement needed is a reconciled daily ledger joining site/content identifier, registered affiliate tracking ID, outbound click, ordered item, shipped item, commission, and reporting date. AI coverage is only 11 of 38 expected sites, so fleet AI spend is incomplete; infrastructure, domain, hosting, and fixed monthly costs are not supplied, so total budget exposure and contribution margin cannot be calculated. The minimum measurement needed is a complete dated cost ledger by site and shared service, including AI, hosting, domains, analytics, and labor or approved internal cost basis. Do not treat the 39 awaiting-measurement improvements, 21 failed requests, or 5000 audited actions as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing allthingsmasonic.com refinement only as a capacity-gated, reportable experiment after one delivery slot is released and site overlap clears. Its available 2026-09-21 baseline is 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Measure GA4 outbound affiliate clicks and attributable provider outcomes for 14 days or 100 relevant impressions/clicks, whichever comes first. Keep, revert, or mark inconclusive based on attributable incremental contribution after directly assigned AI and infrastructure cost; do not claim revenue, margin, ROI, or causal lift from the aggregate $4.92.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Create a report-only contribution-margin and cost-to-learn ledger",
-        "summary": "Produce a dated finance control report using existing telemetry and authorized cost records. Reconcile site-level affiliate attribution, AI spend coverage, shared infrastructure costs, and experiment outcomes without moving money or changing billing.",
-        "requested_action": "Build a report-only ledger covering site/content identifier, affiliate tracking ID, clicks, ordered items, shipped items, commission, AI calls and cost, infrastructure and domain costs, experiment exposure, attributable conversions, and incremental contribution. Report separately: attributable revenue, unattributed revenue, directly measured costs, missing costs, contribution margin, cost-to-learn, and budget exposure. Minimum acceptance: every unavailable field is explicitly marked unknown with its source and date; no aggregate commission is allocated to a site; no forecast or ROI claim is issued without attributable revenue and comparable cost windows.",
         "proposal_id": null
       }
     ]

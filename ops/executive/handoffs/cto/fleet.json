@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.898Z",
+  "generated_at": "2026-10-01T11:58:02.295Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the capacity gate. Do not create duplicate proposals, telemetry requests, or implementation work while all 10 delivery slots are occupied and measurement, overlap, and repair obligations remain active. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released and allthingsmasonic.com overlap clears, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Keep affiliate activation dependent on an evidenced owner-controlled tag; do not guess credentials or tags. Preserve preview-only scaffold gates and the private SearchWoot disposition. Do not claim revenue, ROI, causal lift, or production readiness.",
+        "summary": "CTO disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, overlap, failed-request repair, and incomplete operations/security evidence. Preserve the canonical saveusfarms.com repair-or-close case as the capacity unblocker. After one slot is released and site overlap clears, admit only the existing allthingsmasonic.com affiliate CTA request; do not create duplicates. Keep scaffold work preview/readiness-only and preserve all legal, security, attribution, measurement, and rollback gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The allthingsmasonic.com refinement is technically feasible as an isolated reversible UI/content change: no new dependencies, credentials, tracking, cross-site behavior, or unrelated routes. Require deterministic tests, build/link validation, disclosure and accessibility checks, smoke validation, and a single-diff rollback point. Measure only existing GA4 affiliate outbound clicks and attributable provider outcomes already available; retain unknowns where data is absent. Use the existing 14-day or 100-relevant-impression/click measurement window, then keep, revert, or mark inconclusive without causal or financial claims.",
+        "summary": "The proposed finance boundary reconciliation is technically feasible as report-only work outside implementation capacity, but it must use existing telemetry plus owner-provided dated billing exports only. It may report attribution coverage, AI cost, and cost-per-call, while leaving infrastructure cost, contribution margin, ROI, payback, and cost-to-learn unknown where identifiers or periods do not reconcile. No banking, billing, spending, duplicate telemetry, or forecasts are authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit a new finance report proposal this cycle. The proposed ledger is not safely implementable from the supplied evidence because infrastructure, domain, hosting, and labor cost sources are not provided, while existing attribution remains partially aggregate. Preserve the current CFO evidence boundaries and record unavailable fields as unknown; do not invent telemetry or allocate aggregate commission.",
+        "summary": "Retain the reviewed disposable-workspace document prototype as capacity-gated research only. Isolation must remain local and read-only with owner-approved inputs, no dependency installation, no production access, no external publishing, and a provenance/error report plus human review before any adoption decision.",
         "requested_action": null,
         "proposal_id": null
       }
