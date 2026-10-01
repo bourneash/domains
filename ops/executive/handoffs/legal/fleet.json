@@ -2,36 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:39:30.448Z",
+  "generated_at": "2026-10-01T02:48:06.005Z",
   "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: blocked. Keep SearchWoot private and do not send rights outreach or change monetization. Woot documentation confirms API access but not public redistribution, storage, historical derivatives, alerts, affiliate use, or advertising rights; current public terms restrict commercial/public data use. Security, accuracy/freshness, measurement, and owner gates are also blocked. Human counsel is required before any public beta or affiliate/advertising use.",
+        "summary": "Disposition: blocked, with counsel_required escalation for upstream data rights and any public, affiliate, advertising, or alert use. Evidence: Woot API documentation confirms access mechanics but not redistribution rights; current public terms restrict commercial/public use of listings, descriptions, prices, and derivatives. Compliance is technical-only (36 pass, 19 fail, 6 unknown), operations and security sweeps are unavailable, and accuracy, measurement, attribution, and owner gates remain incomplete. Exact decision: keep SearchWoot private, do not send rights outreach, do not enable affiliate or advertising use, and permit only bounded read-only evidence work or reversible changes that add no data collection or public exposure. Human counsel must review any proposed Woot data use, privacy/jurisdiction treatment, and future monetization.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the four open launch-readiness tasks without closing any. Produce one dated read-only bundle containing repository/config data-flow and retention evidence, deployed consent behavior, GA4 property/data-sharing settings, log-field and vendor inventory, and incident/request procedures. Do not change tracking, production, credentials, or configuration.",
+        "summary": "The candidate plan is conditionally acceptable only for containment and evidence work. Reject new launch, monetization, telemetry, prototype, and duplicate implementation admissions while delivery is saturated at 10/10 slots. The existing canonical CTA work may proceed only after the CTO releases capacity and its stated disclosure, accessibility, validation, rollback, and measurement gates pass. No revenue, ROI, margin, or causal-lift claim is supported by the available aggregate revenue evidence.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security and operations evidence remains incomplete: fleet-doctor has no run and deploy, uptime, and error sweeps have no results. Keep public exposure blocked for SearchWoot and provide dated control evidence or explicit unknowns for access, secrets, isolation, TLS, dependencies, monitoring, incidents, and disclosure readiness.",
+        "summary": "Launch-readiness remains active, not closed. Four tasks remain open; none has sufficient evidence for closure. Progress is limited to recorded Woot documentation, partial repository data-flow files, privacy/cookie pages, and draft terms. Next evidence action: attach one dated read-only bundle containing the repository/configuration data-flow and retention table, vendor/log inventory, deployed consent and GA4 configuration capture, and unresolved counsel questions to the existing checklist. Do not request duplicate telemetry, contact Woot, or change the private gate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Use only supported values: 2026-09-21 Amazon data shows $4.92 aggregate unattributed commission and $0 site-attributed income. Do not assign aggregate revenue, ROI, margin, or causal lift to SearchWoot or other sites without valid identifiers and cost evidence.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain private launch gate and complete legal evidence bundle",
+        "summary": "Maintain the private launch disposition while completing the existing launch-readiness evidence tasks. No public beta, full launch, alert expansion, affiliate use, advertising, or upstream rights outreach is authorized.",
+        "requested_action": "Attach one dated read-only evidence bundle to the existing checklist covering Woot source rights and field-level permissions, data flow and retention, deployed consent and GA4 settings, logs and vendors, incident and request procedures, and counsel-required questions. Preserve unknowns and do not change production, collect new data, send outreach, or clear any launch gate.",
         "proposal_id": null
       }
     ]

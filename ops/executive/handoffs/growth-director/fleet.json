@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:18:43.269Z",
-  "summary": "growth-director checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:48:06.004Z",
+  "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new SEO or growth work while all 10 delivery slots are occupied and 57 improvements remain in measurement. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, attribution, measurement, and deduplication evidence. After one slot is released, execute only the existing allthingsmasonic.com CTA refinement; do not create duplicate requests, add telemetry, spend, or claim causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Release one delivery slot only after the existing saveusfarms.com repair case is completed or justifiably closed with dated root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Then admit the already-queued allthingsmasonic.com CTA refinement without changing destinations, tracking IDs, dependencies, telemetry, or cross-site behavior.",
+        "summary": "Approve no new SEO or growth admission this cycle. Existing evidence shows 10/10 delivery slots occupied, 57 improvements measuring, and overlapping site work. Preserve the already-queued allthingsmasonic.com CTA refinement as the sole next growth implementation after CTO releases one slot. Its bounded scope is CTA hierarchy, adjacent affiliate disclosure, accessible names/focus, responsive spacing, existing-link validation, and no new tracking or dependencies. Baseline: 61 Amazon clicks for 2026-09-21; revenue and causal lift remain unknown. Measure existing affiliate clicks and GA4 outcomes for 14 days or 100 relevant impressions/clicks, then keep or revert via the single-diff rollback.",
         "requested_action": null,
         "proposal_id": null
       }

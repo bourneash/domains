@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:39:30.448Z",
+  "generated_at": "2026-10-01T02:48:06.006Z",
   "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new site-factory brief, CRO/control-plane proposals, duplicate queue work, financial claims, and new production admissions. Delivery is saturated at 10/10 slots, existing repair and measurement work is active, and affiliate evidence supports only $4.92 aggregate unattributed commission for 2026-09-21 with $0 site-attributed income. Keep revenue, ROI, margin, forecasts, and causal lift unknown. Keep the private launch gate and unsent rights outreach unchanged.",
+        "summary": "Reject new production, queue, prototype, telemetry, spend, and duplicate control-plane work this cycle. Delivery is saturated at 10/10 slots, measurement is still open, and revenue, ROI, margin, and causal lift remain unsupported by the one-day aggregate attribution window. Keep the private launch gate unchanged and leave rights outreach unsent. CTO should complete or close the existing repair case by 2026-10-01T09:00Z with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence; only then may the existing canonical CTA request proceed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after completion; admit no new implementation before then.",
+        "summary": "Retain only the existing capacity-gated repair and canonical CTA sequence. Reject the new legal report-only proposal because it duplicates the existing launch-readiness evidence bundle. No new implementation admission is defensible while delivery is saturated and measurement remains open.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation candidates this cycle. Delivery is saturated at 10/10 slots, active measurement is ongoing, and the existing saveusfarms.com repair-or-close case must be completed or justified closed before capacity changes. CTO must record ownership, root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z; unresolved capacity escalates to the owner then. After one slot is released, admit only the existing canonical allthingsmasonic.com CTA refinement. Site revenue, ROI, margin, and causal lift remain unknown.",
+        "summary": "Reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots, active measurement and repair work remain open, and revenue attribution is insufficient for financial or causal claims. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, tests, isolated validation, build evidence, rollback, release boundary, attribution limits, measurement limits, and deduplication evidence. After a slot is released, execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Keep SearchWoot private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
