@@ -1099,6 +1099,18 @@ body[data-view="builds"] main { max-width: none; }
   border-radius: 7px;
   background: #fff;
 }
+.improvement-review-placeholder {
+  grid-column: 1 / -1;
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 7px;
+  background: var(--panel-2);
+  text-align: center;
+}
 @media (max-width: 720px) {
   .improvement-visual-compare,
   .improvement-live-review { grid-template-columns: 1fr; }

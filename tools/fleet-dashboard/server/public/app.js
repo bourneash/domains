@@ -12532,7 +12532,7 @@ async function renderImprovements() {
         <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
         <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
         <h4>Quality gates</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table></div>
-        ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div class="improvement-visual-compare"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div class="improvement-live-review"><div><b>Production</b><iframe title="Production before improvement" src="https://${esc(run.site)}/"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" src="${esc(run.preview_url)}"></iframe></div></div>` : ''}
+        ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div class="improvement-visual-compare"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div class="improvement-live-review" data-review-site="${esc(run.site)}" data-review-preview="${esc(run.preview_url)}"><p class="improvement-review-placeholder muted">Open this evidence panel to load the production and preview frames.</p></div>` : ''}
         <p><b>Outcome:</b> ${outcome.classification ? `<span class="badge ${outcome.classification === 'proven' ? 'b-green' : outcome.classification === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(outcome.classification)}</span> · confidence ${esc(outcome.confidence || '—')}` : '<span class="muted">not measured</span>'}</p>
         <div class="improvement-live muted">Open to load worktree diff, agent log, and event timeline.</div>
       </details>
@@ -12736,6 +12736,16 @@ async function renderImprovements() {
   $$('.improvement-detail').forEach(details =>
     details.addEventListener('toggle', async () => {
       if (!details.open || details.dataset.loaded === '1') return;
+      const review = $('.improvement-live-review[data-review-preview]', details);
+      if (review && review.dataset.loaded !== '1') {
+        const productionUrl = safeHref(`https://${review.dataset.reviewSite}/`);
+        const previewUrl = safeHref(review.dataset.reviewPreview);
+        review.innerHTML =
+          productionUrl && previewUrl
+            ? `<div><b>Production</b><iframe title="Production before improvement" loading="lazy" src="${esc(productionUrl)}"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" loading="lazy" src="${esc(previewUrl)}"></iframe></div>`
+            : '<p class="improvement-review-placeholder muted">Visual review URLs are unavailable for this run.</p>';
+        review.dataset.loaded = '1';
+      }
       const box = $('.improvement-live', details);
       box.textContent = 'Loading delivery evidence…';
       try {

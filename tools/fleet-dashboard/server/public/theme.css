@@ -2104,6 +2104,22 @@ body[data-view="socialhub"] main.view-enter > * { animation: none; }
   body:not(.mobile-rail-open) .mobile-rail-backdrop { display: none; }
   body.mobile-rail-open { overflow: hidden; }
 }
+/* At phone widths the fleet overview is a summary, not a carousel. Keep all
+   six destinations visible so the operator can scan health without discovering
+   a second horizontal scroll surface above the page content. */
+@media (max-width: 560px) {
+  #vitals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto repeat(3, auto);
+    overflow-x: visible;
+    overscroll-behavior-inline: auto;
+    padding-bottom: 0;
+    gap: 7px;
+  }
+  .vt-scope { grid-column: 1 / -1; width: auto; }
+  .vt { min-width: 0; width: auto; padding: 11px 12px 12px; }
+  .vt-v { font-size: 21px; }
+}
 
 /* Focus mode keeps navigation and the current page intact while removing the
    fleet-wide overview strip from dense work surfaces. It is intentionally a

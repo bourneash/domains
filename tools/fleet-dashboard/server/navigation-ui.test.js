@@ -1198,6 +1198,8 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   assert.match(theme, /\.mobile-rail-toggle \{ display: grid; order: 0; \}/);
   assert.match(theme, /\.mobile-rail-backdrop \{ display: block; \}/);
   assert.match(theme, /\.actions \{ order: 2; flex: 1 1 260px; min-width: 0; gap: 6px; max-width: 100%; overflow: visible; flex-wrap: wrap;/);
+  assert.match(theme, /@media \(max-width: 560px\) \{[\s\S]*#vitals \{\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*overflow-x: visible;/);
+  assert.match(theme, /@media \(max-width: 560px\) \{[\s\S]*\.vt \{ min-width: 0; width: auto;/);
 });
 
 test('mobile task filters stack cleanly without horizontal page overflow', () => {
@@ -1970,6 +1972,9 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.match(improvements, /type="button" id="improvements-refresh" class="btn"/);
   assert.match(improvements, /class="improvement-visual-compare"/);
   assert.match(improvements, /class="improvement-live-review"/);
+  assert.match(improvements, /data-review-preview=/);
+  assert.match(improvements, /loading="lazy" src="\$\{esc\(productionUrl\)\}"/);
+  assert.match(improvements, /const productionUrl = safeHref/);
   assert.doesNotMatch(improvements, /style="display:grid;grid-template-columns:1fr 1fr/);
 });
 
