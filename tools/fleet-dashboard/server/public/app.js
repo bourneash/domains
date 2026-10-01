@@ -23,6 +23,13 @@ let STATE = {
 };
 let AGENT_HEALTH = null;
 let ACCESS_LEVEL = 'operator';
+function routeIs(view, agent = undefined, agentPage = undefined) {
+  return (
+    STATE.view === view &&
+    (agent === undefined || STATE.agent === agent) &&
+    (agentPage === undefined || (STATE.agentPage || null) === agentPage)
+  );
+}
 const EXEC_RUN = { poller: null };
 const EXEC_RUN_UI = {
   q: '',
@@ -617,9 +624,11 @@ async function renderEngineers() {
       api('GET', '/api/agents/engineer/health').catch(() => null),
     ]);
   } catch (e) {
+    if (!routeIs('agent', 'engineer', null)) return;
     renderViewError(app, `Audit failed: ${e.message}`);
     return;
   }
+  if (!routeIs('agent', 'engineer', null)) return;
   const histBy = Object.fromEntries(hist.map(h => [h.site, h]));
   const healthBy = Object.fromEntries(
     (healthData?.rows || []).map(h => [`${h.site}:${h.role || 'engineer'}`, h])
@@ -4929,6 +4938,7 @@ async function renderProductManager(role) {
 // run, schedule, pause/resume) + a per-site zoomed log (live-following).
 async function renderGenericAgent(role) {
   const app = $('#app');
+  const requestedRole = role;
   if (FRESH)
     app.innerHTML = `<div role="status" aria-live="polite"><div class="loading">Loading ${esc(agentLabel(role))} agent…</div></div>`;
   let data, healthData;
@@ -4938,9 +4948,11 @@ async function renderGenericAgent(role) {
       api('GET', `/api/agents/${encodeURIComponent(role)}/health`).catch(() => null),
     ]);
   } catch (e) {
+    if (!routeIs('agent', requestedRole, null)) return;
     renderViewError(app, e.message);
     return;
   }
+  if (!routeIs('agent', requestedRole, null)) return;
   ROLEMATRIX = data;
   AGENT_HEALTH = healthData;
   const agentDef = (STATE.agents || []).find(a => a.role === role);
@@ -14810,6 +14822,7 @@ async function renderExecutive() {
   if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
   const app = $('#app');
+  const requestedPage = STATE.agentPage || null;
   if (FRESH)
     app.innerHTML =
       '<div role="status" aria-live="polite"><div class="loading">Loading executive control plane…</div></div>';
@@ -14966,11 +14979,13 @@ async function renderExecutive() {
       runStatus,
       cases,
       calendar,
-    ] = await EXECUTIVE_LOAD_CACHE.promise;
+  ] = await EXECUTIVE_LOAD_CACHE.promise;
   } catch (e) {
+    if (!routeIs('agent', 'executive', requestedPage)) return;
     renderViewError(app, `Executive control plane failed: ${e.message}`);
     return;
   }
+  if (!routeIs('agent', 'executive', requestedPage)) return;
   // The inbox endpoint is the canonical source for owner requests. Older
   // responses can still contain the same work item in both the inbox payload
   // and the work-items fallback, so keep the UI keyed to one row per thread.

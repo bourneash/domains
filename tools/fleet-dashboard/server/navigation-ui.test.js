@@ -79,6 +79,14 @@ test('site command deep links retain Domain Control navigation state', () => {
   assert.match(shell, /item\.dataset\.view === navigationView/);
 });
 
+test('async agent pages abandon stale route responses', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function routeIs\(view, agent = undefined, agentPage = undefined\)/);
+  assert.match(app, /if \(!routeIs\('agent', 'engineer', null\)\) return;/);
+  assert.match(app, /if \(!routeIs\('agent', requestedRole, null\)\) return;/);
+  assert.match(app, /if \(!routeIs\('agent', 'executive', requestedPage\)\) return;/);
+});
+
 test('Executive deep links retain their operating workspace context', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /rootView === 'executive'/);
