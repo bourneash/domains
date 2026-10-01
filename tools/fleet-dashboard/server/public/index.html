@@ -9,6 +9,16 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="theme.css" />
   <meta name="theme-color" content="#070910" />
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem('fd.theme');
+        const theme = saved === 'light' || saved === 'dark' ? saved : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {}
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#app">Skip to dashboard content</a>
@@ -71,6 +81,7 @@
       </div>
       <button id="refresh" class="btn">↻ Refresh</button>
       <button id="density-toggle" class="btn density-toggle" type="button" title="Change dashboard information density">Density: Comfortable</button>
+      <button id="theme-toggle" class="btn theme-toggle" type="button" title="Switch color theme" aria-label="Switch color theme">☼ Light</button>
     </div>
   </header>
 

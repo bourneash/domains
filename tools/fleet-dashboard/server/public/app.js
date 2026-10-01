@@ -386,6 +386,37 @@ function toggleDensity() {
   applyDensityUI();
 }
 
+/* Shared color-theme preference. Keep this at the application shell level so
+ * every route, modal, and background refresh inherits the same presentation. */
+function themeCfg() {
+  try {
+    const saved = localStorage.getItem('fd.theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch {}
+  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+function applyThemeUI() {
+  const theme = themeCfg();
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', theme === 'light' ? '#f4f7fb' : '#070910');
+  const button = $('#theme-toggle');
+  if (!button) return;
+  const next = theme === 'light' ? 'dark' : 'light';
+  button.textContent = theme === 'light' ? '☾ Dark' : '☼ Light';
+  button.title = `Switch to ${next} theme`;
+  button.setAttribute('aria-label', `Switch to ${next} theme`);
+}
+function toggleTheme() {
+  const next = themeCfg() === 'light' ? 'dark' : 'light';
+  try {
+    localStorage.setItem('fd.theme', next);
+  } catch {}
+  applyThemeUI();
+}
+
 /* ---- persisted collapsible panels ---- */
 // Shared by any view that wants operator-controlled density. The render helper
 // owns the markup and the wire helper owns localStorage, so future panels only
@@ -16524,6 +16555,8 @@ async function boot() {
   });
   $('#refresh').addEventListener('click', softRender);
   $('#density-toggle').addEventListener('click', toggleDensity);
+  $('#theme-toggle')?.addEventListener('click', toggleTheme);
+  applyThemeUI();
   const ff = $('#fleet-filter');
   if (ff) {
     try {
