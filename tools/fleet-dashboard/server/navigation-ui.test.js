@@ -1401,6 +1401,19 @@ test('Change Queue renders one authoritative queue pulse without suppressed focu
   assert.match(app, /aria-label="View work for \$\{esc\(r\.title\)\}"/);
 });
 
+test('Change Queue register controls expose explicit accessible context', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const cqAccessibleLabels = \{/);
+  assert.match(app, /'cq-search': 'Search change requests'/);
+  assert.match(app, /'cq-status': 'Filter change requests by state'/);
+  assert.match(app, /'cq-sort': 'Sort change requests'/);
+  assert.match(app, /'cq-page-size': 'Change queue rows per page'/);
+  assert.match(app, /Pause automatic dispatch/);
+  assert.match(app, /Sort change requests \$\{CHANGE_QUEUE_SORT_DIR/);
+  assert.match(app, /caption\.className = 'sr-only'/);
+  assert.match(app, /caption\.textContent = 'Change request work register'/);
+});
+
 test('AI Usage chart zoom supports touch and pointer cancellation', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
