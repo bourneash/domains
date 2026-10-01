@@ -814,6 +814,9 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.doesNotMatch(app, /renderWorkflowBoardLegacy/);
   assert.doesNotMatch(app, /function showWorkflowBacklogFormLegacy/);
   assert.doesNotMatch(app, /function openWorkflowItemLegacy/);
+  assert.match(app, /<span>approval gates<\/span>/);
+  assert.match(app, /<span>blocked<\/span>/);
+  assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
 
 test('Work Board filters persist and cannot contradict each other', () => {

@@ -1366,7 +1366,7 @@ body[data-view="social"] main { max-width: none; }
 @media (max-width: 700px) { .wb-summary { grid-template-columns: repeat(2, 1fr); }.wb-head { align-items: flex-start; flex-direction: column; } }
 .wb-head { align-items: flex-end; margin-bottom: 14px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px; background: radial-gradient(circle at 82% 0%, rgba(77,163,255,.14), transparent 34%), linear-gradient(135deg, rgba(28,34,48,.96), rgba(22,27,34,.96)); }
 .wb-head-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.wb-summary { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.wb-summary { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-bottom: 14px; }
 .wb-summary > div { padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
 .wb-summary strong { display: block; color: #fff; font-size: 25px; }
 .wb-summary span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
