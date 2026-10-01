@@ -2962,6 +2962,7 @@ async function renderActivity() {
 // standalone domain-developer tool so it stops being a separate URL an
 // operator has to remember exists. Backed by server/devsandbox.js.
 const DS = { sites: [], dockerAvailable: true, open: new Map() }; // open: site -> 'term'|'dev'|'logs'
+const DS_FILTER = { q: '', status: 'all' };
 
 function dsStatusBadge(status) {
   if (status === 'running') return '<span class="badge b-green">running</span>';
@@ -3015,7 +3016,7 @@ async function renderDevSandbox() {
           );
       }
       const openTab = DS.open.get(s.name);
-      return `<tr class="cn-row" data-fleet-row data-site="${esc(s.name)}">
+      return `<tr class="cn-row ds-row" data-ds-name="${esc(s.name.toLowerCase())}" data-ds-status="${esc(s.status)}" data-fleet-row data-site="${esc(s.name)}">
       <td class="site">${siteLink(s.name)}</td>
       <td>${dsStatusBadge(s.status)}</td>
       <td class="mono muted">${s.ttydPort ? ':' + s.ttydPort : '—'}</td>
@@ -3030,14 +3031,24 @@ async function renderDevSandbox() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Dev Sandboxes</h2><span class="muted">per-site sandboxed Claude + ttyd dev containers — folded in from domain-developer</span></div>
+    <section class="ds-summary" aria-label="Dev sandbox summary">
+      <div class="ds-stat"><strong>${DS.sites.length}</strong><span>Sites provisioned</span></div>
+      <div class="ds-stat ds-stat-good"><strong>${running}</strong><span>Running</span></div>
+      <div class="ds-stat ${exists - running ? 'ds-stat-warn' : 'ds-stat-good'}"><strong>${exists - running}</strong><span>Stopped</span></div>
+      <div class="ds-stat"><strong>${DS.sites.length - exists}</strong><span>Not provisioned</span></div>
+      <div class="ds-stat ${DS.dockerAvailable ? 'ds-stat-good' : 'ds-stat-bad'}"><strong>${DS.dockerAvailable ? 'Ready' : 'Offline'}</strong><span>Docker control plane</span></div>
+    </section>
     <div class="task-toolbar">
-      <strong>${DS.sites.length} sites</strong>
-      <span class="muted">${dotLegend('fresh', running + ' running')} · ${dotLegend('paused', exists - running + ' stopped')}</span>
       <span class="cm-spacer"></span>
       <button class="btn sm" id="ds-stats">📊 Stats</button>
       <button class="btn sm" id="ds-stop-all">⏹ Stop all</button>
       <button class="btn sm" id="ds-remove-stopped">🧹 Remove stopped</button>
       <button class="btn sm" id="ds-clean-orphans">🗑 Clean orphans</button>
+    </div>
+    <div class="ds-controls" role="group" aria-label="Filter dev sandboxes">
+      <label class="ds-search"><span class="sr-only">Search sandbox sites</span><input id="ds-search" class="cm-input" type="search" placeholder="Search sandbox sites…" value="${esc(DS_FILTER.q)}" autocomplete="off" /></label>
+      <label><span class="sr-only">Sandbox status</span><select id="ds-status" class="cm-input"><option value="all">All statuses</option><option value="running">Running</option><option value="stopped">Stopped</option><option value="absent">Not provisioned</option></select></label>
+      <span id="ds-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
     ${warn}
     <div class="card"><table>
@@ -3047,10 +3058,40 @@ async function renderDevSandbox() {
     <p class="muted" style="margin-top:12px">Each sandbox bind-mounts ONLY that site's directory — the rest of the fleet stays protected. Memory/CPU/PIDs are capped per container. Unauthenticated worker containers still run with <code>--dangerously-skip-permissions</code> inside their own sandbox; this tab itself is behind the same token gate as the rest of the dashboard.</p>`;
 
   wireDevSandboxRows();
+  $('#ds-status').value = DS_FILTER.status;
+  $('#ds-search').addEventListener('input', e => {
+    DS_FILTER.q = e.target.value;
+    applyDevSandboxFilter();
+  });
+  $('#ds-status').addEventListener('change', e => {
+    DS_FILTER.status = e.target.value;
+    applyDevSandboxFilter();
+  });
+  applyDevSandboxFilter();
   for (const [site, tab] of DS.open) dsRenderPanel(site, tab);
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
+}
+
+function applyDevSandboxFilter() {
+  const q = DS_FILTER.q.trim().toLowerCase();
+  const rows = $$('.ds-row');
+  const visible = rows.filter(row => {
+    const show =
+      (!q || (row.dataset.dsName || '').includes(q)) &&
+      (DS_FILTER.status === 'all' ||
+        row.dataset.dsStatus === DS_FILTER.status ||
+        (DS_FILTER.status === 'stopped' &&
+          row.dataset.dsStatus !== 'running' &&
+          row.dataset.dsStatus !== 'absent'));
+    row.classList.toggle('ds-filter-hidden', !show);
+    const detail = row.nextElementSibling;
+    if (detail && !show) detail.classList.add('hidden');
+    return show;
+  });
+  const count = $('#ds-filter-count');
+  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
 }
 
 function reloadDevSandbox() {
