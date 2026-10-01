@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:43:17.868Z",
+  "generated_at": "2026-10-01T09:45:09.025Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, launch, and security-clearance claims. Keep private-launch and security gates unchanged. Six reversible SEO candidates are routed to engineer as capacity-gated specifications only; none may execute until CTO releases capacity and site overlap clears. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner.",
+        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. The mandate is blocked by saturated capacity (10/10 slots), 39 improvements awaiting measurement, 21 failed requests, absent operations/fleet-doctor evidence, and unattributed aggregate affiliate revenue. Preserve only canonical existing work: CTO must complete or justifiably close the saveusfarms.com repair case with validation, tests, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. Keep SearchWoot private and rights outreach unsent. After capacity and site-overlap clearance, execute only the existing allthingsmasonic.com CTA request; no new production, queue, spend, telemetry, or duplicate research work is approved.",
         "requested_action": null,
         "proposal_id": null
       }
