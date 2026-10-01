@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T19:21:12.219Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T19:31:17.514Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admission this cycle. No candidate satisfies the combined capacity, measurable-outcome, and evidence gates: the authoritative slot ledger is unresolved, existing site work overlaps the strongest candidates, telemetry is low-volume or descriptive, and site-attributed revenue is unsupported. Retain only capacity reconciliation under d4abc482-75de-438f-9fcf-5223f339c860. Principal-engineer must document the authoritative slot count and saveusfarms.com repair disposition by 2026-10-02T12:00Z, then release one slot or escalate to the owner. The three previously considered reversible candidates remain unqueued pending that evidence. No credentials, configuration, spending, schedules, tracking, duplicate telemetry, or production changes are authorized.",
+        "summary": "Reject new production admission this cycle. Capacity is unresolved, telemetry is low-volume or descriptive, aggregate commission is unattributed, and security/operations evidence is incomplete. Retain only the existing principal-engineer capacity reconciliation; no financial, causal-lift, launch-readiness, or production-readiness claims are supported.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No implementation requests are admitted. 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com remain explicitly blocked pending site-specific baselines, minimum thresholds, attribution boundaries, rollback criteria, and authoritative capacity reconciliation. Principal-engineer owns the unblock record by 2026-10-02T12:00Z; unresolved capacity or evidence must escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
