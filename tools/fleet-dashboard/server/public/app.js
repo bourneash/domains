@@ -7972,10 +7972,10 @@ async function renderAnalytics() {
     })
     .join('');
   const healthHtml = `
-    <table class="dh-sources">
+    <div class="table-wrap"><table class="dh-sources">
       <thead><tr><th>site</th><th>GA4</th><th>Search Console</th></tr></thead>
       <tbody>${healthRows || '<tr><td colspan="3" class="muted">no sites</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
   const amazonHtml =
     amazonRevenue && amazonRevenue.has_data
       ? `<div>Amazon clicks <b>${esc(String(amazonRevenue.clicks))}</b> · ordered <b>${esc(String(amazonRevenue.ordered_items))}</b> · shipped <b>${esc(String(amazonRevenue.shipped_items))}</b> · commission <b>$${esc(Number(amazonRevenue.commission_income).toFixed(2))}</b></div><div class="dh-sub-h">account-wide · ${esc(amazonRevenue.from || '—')} through ${esc(amazonRevenue.through || '—')}</div>`
@@ -8028,17 +8028,17 @@ async function renderAnalytics() {
       ${collapsiblePanel(
         'analytics.pages',
         'Top Pages (sessions)',
-        `<table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table>`
+        `<div class="table-wrap"><table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table></div>`
       )}
       ${collapsiblePanel(
         'analytics.converting-pages',
         'Affiliate Funnel — click origin pages',
-        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table>`
+        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><div class="table-wrap"><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table></div>`
       )}
       ${collapsiblePanel(
         'analytics.queries',
         'Top Queries (clicks)',
-        `<table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table>`
+        `<div class="table-wrap"><table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table></div>`
       )}`;
   }
 

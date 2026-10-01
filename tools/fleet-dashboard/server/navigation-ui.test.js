@@ -1130,6 +1130,18 @@ test('Lint separates sweep actions, findings, and remediation guidance', () => {
   assert.match(style, /\.lint-table \{[^}]*overflow: hidden/);
 });
 
+test('Analytics keeps health and site detail tables bounded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /function renderAnalytics\(\)[\s\S]*class="table-wrap"><table class="dh-sources"/
+  );
+  assert.match(
+    app,
+    /function renderAnalytics\(\)[\s\S]*class="table-wrap"><table class="dh-datasets"/
+  );
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
