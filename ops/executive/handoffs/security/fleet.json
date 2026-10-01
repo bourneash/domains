@@ -2,22 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:08:49.655Z",
+  "generated_at": "2026-10-01T09:37:53.099Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; no clean bill of health is supported. Evidence timestamp: 2026-10-01T04:50:05.408Z. Scope: 61 managed sites. Fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no certificates expiring within 30 days, but that does not establish correct TLS configuration. Compliance is technical-only: 35 pass, 20 fail, 6 unknown; it is not certification. No credential exposure, exploit, or vulnerability is established. Exact decision: do not clear go-live, public-exposure expansion, or security-sensitive releases. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior and remains within existing consent, disclosure, and data-handling boundaries.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; no clean bill of health is supported. Evidence timestamp: 2026-10-01T04:50:05.408Z. The baseline covers 61 managed sites, but fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unknown. Compliance is technical-only: 35 pass, 20 fail, and 6 unknown. No credential exposure, exploit, or vulnerability is established. Exact decision: preserve public-exposure and security-sensitive release gates, keep gated products private, and allow only ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, cross-site behavior, or unsupported claims. Continue the existing read-only evidence matrix using retained artifacts and authorized metadata only; do not request duplicate telemetry, access credentials or private containers, exploit targets, change permissions/configuration, deploy, or add dependencies.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Security review of the candidate plan: retain the planning-only scaffold pipeline and the existing allthingsmasonic.com CTA refinement only after capacity and overlap clearance. These are not security clearances. Any preview, deployment, new public exposure, credential or permission change, dependency addition, data-collection change, or cross-site behavior requires renewed evidence and security review.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and release gates",
+        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations results are absent and material controls remain unevidenced. Preserve existing public-exposure and security-sensitive release gates while permitting only constrained reversible growth.",
+        "requested_action": "Continue the existing canonical read-only security evidence matrix using retained artifacts and authorized metadata. Record dated evidence or explicit unknowns, affected scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident readiness, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, request duplicate telemetry, or claim certification.",
         "proposal_id": null
       }
     ]

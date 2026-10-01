@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:57:05.366Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:37:53.098Z",
+  "summary": "cro checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain no new proposals or queue admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve existing allthingsmasonic.com request 4719e525-763b-42a4-9f16-e71e1c38b17b as the next revenue experiment after capacity and site-overlap clearance. Evidence baseline for 2026-09-21: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission; Amazon’s $4.92 aggregate commission cannot be assigned to a site. Experiment: clarify product CTAs and disclosure placement without changing destinations, tracking, or claims. Metric: affiliate clicks and attributable ordered/shipped items over 14 days or 100 relevant impressions/clicks; causal lift and ROI remain unknown. Rollback: revert the isolated CTA diff if validation or accessibility checks fail.",
+        "summary": "CRO disposition: retain no new proposals or implementation admissions this cycle. Capacity is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the first revenue experiment after CTO releases capacity and site overlap clears. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Prototype: clarify affiliate-entry CTA hierarchy and disclosure placement only. Metric: affiliate clicks and attributable outcomes over 14 days or 100 relevant impressions/clicks. Roll back the single CTA diff if validation or link health regresses; do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO deferred opportunity register for CEO/CTO review after capacity clears: (1) SEO/content prototype using microsoft/markitdown. Evidence: MIT license, bounded lab review completed with 8/8 checks passed, no dependency installation or production access. Fleet use case: convert approved source documents into structured Markdown for internal content briefs and metadata QA. Smallest reversible prototype: disposable-workspace conversion of a fixed sample, with no publication. Metric: brief-preparation time and QA defect count; time-to-learn: one engineer cycle. Risks: parser coverage, upstream maintenance, dependency/supply-chain review, and source-rights constraints. (2) Accessible component prototype using shadcn-ui/ui. Evidence: MIT license and 3/3 bounded lab checks passed; no production adoption evidence. Fleet use case: reusable CTA, disclosure, focus-state, and responsive patterns. Smallest prototype: isolated static component fixture against one existing site surface. Metric: accessibility defects and implementation cycle time; time-to-learn: one engineer cycle. Risks: framework/runtime compatibility, copied-component maintenance, dependency review, and visual regression. Both remain research leads only; no deployment, spend, credentials, domains, telemetry, or adoption is authorized.",
+        "summary": "Deferred CRO opportunity after capacity release: rodhat.com SEO improvement for /tips/2026-09-02-scm-rights-fd-passing. Evidence: 79 impressions, position 7.1, 4 clicks, 0 sessions, 0 conversions. Smallest reversible prototype: one title/meta or internal-link refinement with existing measurement. Expected metric: impressions-to-click rate and sessions for the target URL. Time-to-learn: 14 days or 100 relevant impressions. Do not add tracking or infer revenue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Product discovery remains research-only. markitdown has MIT licensing and bounded lab checks passed 8/8, but dependency behavior, parser accuracy, maintenance trajectory, supply-chain posture, and fleet-specific SEO lift remain unverified; smallest prototype would convert a fixed internal content sample in a disposable workspace and compare metadata/content extraction quality before any adoption decision. shadcn-ui/ui also has MIT licensing and passed 3/3 bounded checks, but framework compatibility, bundle impact, accessibility regressions, maintenance burden, and conversion lift remain unverified; smallest prototype would render one isolated CTA component against an existing site fixture. Mermaid is MIT-licensed with supported use-case evidence but no safe native checks; prototype only as an offline content-rendering fixture. No dependencies should be installed or production changes made this cycle.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Site-factory opportunity remains planning-only: complicated.work is the strongest scaffold candidate, but analytics are not configured and launch-readiness, legal, security, measurement, and preview gates are incomplete. After one delivery slot is released, complete exactly one readiness artifact covering audience, scope, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and preview-only controls. This is a time-to-learn gate, not a launch recommendation; do not publish, spend, add domains, or claim telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

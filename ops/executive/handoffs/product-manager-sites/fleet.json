@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-sites",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.022Z",
+  "generated_at": "2026-10-01T09:26:14.296Z",
   "summary": "product-manager-sites checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject new site proposals, research, telemetry requests, and queue admissions this cycle. Delivery is saturated at 10/10 slots, 39 deployed improvements await measurement, and 21 implementation requests have failed. Preserve only the existing allthingsmasonic.com CTA refinement, gated on CTO completion or justified closure of the saveusfarms.com repair case, release of one slot, and site-overlap clearance. Retain existing baselines and unknowns; do not claim revenue, ROI, or causal lift. Continue read-only security and launch-gate evidence work without production changes.",
+        "summary": "Site product review: add no new proposals or queue work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests have failed, and only 6 outcomes are proven. Preserve the existing saveusfarms.com repair-or-close case. After a slot is released and site overlap clears, execute the already-queued allthingsmasonic.com CTA refinement using the recorded baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks, with rollback to the isolated diff; do not claim revenue or causal lift before attribution supports it.",
         "requested_action": null,
         "proposal_id": null
       }

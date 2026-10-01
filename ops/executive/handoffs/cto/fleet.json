@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:08:49.654Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:37:53.099Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve no new admissions this cycle. Delivery remains saturated at 10/10 slots, measurement debt and failed requests remain active, and operational/security evidence is incomplete. Preserve the existing saveusfarms.com repair-or-close case; do not create duplicate work or new telemetry requests. After one slot is released and site overlap clears, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com.",
+        "summary": "Approve containment and measurement only. Reject all new proposals, change requests, research, telemetry requests, and queue admissions this cycle because delivery is saturated at 10/10 slots, measurement debt remains, and failed-request follow-up is open. Preserve the existing canonical saveusfarms.com repair-or-close case and require root-cause or justified-closure evidence, deterministic validation, isolated build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence before releasing one slot. Keep public-exposure and security-sensitive release gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The allthingsmasonic.com CTA refinement is technically feasible, isolated, reversible, and measurable using existing telemetry. Scope must remain limited to CTA hierarchy, disclosure placement, keyboard focus, tap targets, and responsive spacing on the existing affiliate surface. Preserve destinations, consent behavior, tracking, and claims. Require deterministic CTA/link/disclosure/accessibility/responsive/build/link/smoke validation and single-diff rollback. Measure site-attributed affiliate clicks first; orders, shipped items, commission, revenue, ROI, and causal lift remain unknown unless directly available.",
+        "summary": "Preserve the already-queued allthingsmasonic.com CTA refinement as the next implementation only after a slot is released and site-overlap clearance is confirmed. Do not create a duplicate request or claim revenue, ROI, or causal lift. Acceptance remains limited to CTA/disclosure refinement, deterministic tests, build/link/disclosure checks, available affiliate-click measurement, and single-diff rollback.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed rodhat.com SEO admission and all scaffold launch-readiness or build admissions this cycle. They are not safe to enter the existing queue while capacity is saturated and launch, security, measurement, or overlap gates remain unresolved. Keep scaffold work planning-only; no deployment, public exposure, domain change, spending, affiliate activation, or telemetry change is authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the existing private launch and security-sensitive release gates. Fleet-doctor and operations evidence remain unavailable, so isolation, release integrity, secrets handling, monitoring, and runtime controls are not evidenced. Continue only the existing authorized read-only evidence work; do not clear gates, add dependencies, change credentials or configuration, deploy, or conduct external outreach.",
+        "summary": "Keep scaffold candidates planning-only. Do not admit preview builds or publication while launch-readiness, security, compliance, measurement, and capacity gates are incomplete. After a slot is released, complete exactly one verified readiness artifact for the selected candidate before any build admission.",
         "requested_action": null,
         "proposal_id": null
       }
