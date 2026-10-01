@@ -139,9 +139,20 @@ function queueBlockers(
         'Another build or review is already running for this domain; read-only reporting can still proceed',
     });
   }
-  const measurementDue = measurementWindows?.get?.(request.site) || null;
+  const conflictingRuns = measuringRuns.filter(
+    run => run.site === request.site && measurementConflict(request, run)
+  );
+  const measurementDue = conflictingRuns.length
+    ? conflictingRuns
+        .map(run => run.measurement_due)
+        .filter(Boolean)
+        .sort()
+        .at(-1) || null
+    : measuringRuns.length
+      ? null
+      : measurementWindows?.get?.(request.site) || null;
   const conflictsWithMeasurement = measuringRuns.length
-    ? measuringRuns.some(run => run.site === request.site && measurementConflict(request, run))
+    ? conflictingRuns.length > 0
     : measuringSites?.has(request.site) && !isMeasurementSafe(request);
   if (conflictsWithMeasurement && !request.measurement_override) {
     blockers.push({
@@ -251,29 +262,35 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
     improvements.filter(r => r.state === 'measuring').map(r => r.site)
   );
   const measuringRuns = improvements.filter(r => r.state === 'measuring');
-  const measurementWindows = new Map();
-  for (const run of improvements.filter(r => r.state === 'measuring')) {
-    if (!run.measurement_due) continue;
-    const current = measurementWindows.get(run.site);
-    if (!current || String(run.measurement_due) < current)
-      measurementWindows.set(run.site, String(run.measurement_due));
-  }
   const improvementsById = new Map(improvements.filter(r => r?.run_id).map(r => [r.run_id, r]));
   const descriptions = readSiteDescriptions(root);
   return requests.map(request => {
+    const conflictingRuns = measuringRuns.filter(
+      run => run.site === request.site && measurementConflict(request, run)
+    );
+    const measurementDue =
+      conflictingRuns
+        .map(run => run.measurement_due)
+        .filter(Boolean)
+        .sort()
+        .at(-1) || null;
     const blockers = queueBlockers(request, {
       activeCount: active,
       capacity,
       busySites,
       measuringSites,
       measuringRuns,
-      measurementWindows,
       now,
     });
     const blockedSince = request.queue_blocked_at || request.created_at;
     const blockedAgeMs = Math.max(0, now - (Date.parse(blockedSince) || now));
     const escalated = blockers.length > 0 && blockedAgeMs >= FAIRNESS_ESCALATION_MS;
     const nextRetry = request.next_attempt_at && Date.parse(request.next_attempt_at);
+    const measurementCheck = measurementDue ? Date.parse(measurementDue) : NaN;
+    const nextCheck = Math.max(
+      Number.isFinite(nextRetry) && nextRetry > now ? nextRetry : 0,
+      Number.isFinite(measurementCheck) && measurementCheck > now ? measurementCheck : 0
+    );
     const run = request.run_id ? improvementsById.get(request.run_id) || null : null;
     const isWorking = ['claimed', 'running', 'reviewing', 'delivery_pending'].includes(
       request.status
@@ -282,10 +299,10 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
     const heartbeatAt = request.heartbeat_at || run?.updated_at || null;
     return {
       ...request,
-      measurement_window: measurementWindows.has(request.site)
+      measurement_window: conflictingRuns.length
         ? {
             active: true,
-            due_at: measurementWindows.get(request.site),
+            due_at: measurementDue,
             override: Boolean(request.measurement_override),
           }
         : null,
@@ -308,10 +325,7 @@ function enrichChangeRequests(root, requests, settings, improvements, now = Date
             blocked_since: blockedSince,
             blocked_age_ms: blockedAgeMs,
             escalated,
-            next_check_at:
-              Number.isFinite(nextRetry) && nextRetry > now
-                ? new Date(nextRetry).toISOString()
-                : null,
+            next_check_at: nextCheck ? new Date(nextCheck).toISOString() : null,
           }
         : request.status === 'queued'
           ? {

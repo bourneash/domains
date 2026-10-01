@@ -208,6 +208,7 @@ test('exposes measurement deadline and honors a per-request override', () => {
   );
   assert.equal(rows[0].measurement_window.due_at, '2026-10-10');
   assert.equal(rows[0].queue_block.primary.code, 'measurement_window');
+  assert.equal(rows[0].queue_block.next_check_at, '2026-10-10T00:00:00.000Z');
   const overridden = view.enrichChangeRequests(
     root,
     [{ ...rows[0], measurement_override: 1 }],
@@ -216,6 +217,52 @@ test('exposes measurement deadline and honors a per-request override', () => {
   );
   assert.equal(overridden[0].queue_block.blocked, false);
   assert.equal(overridden[0].measurement_window.override, true);
+});
+
+test('measurement checkpoint comes from conflicting lanes, not the earliest site experiment', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'changequeue-lanes-'));
+  const [held, independent] = view.enrichChangeRequests(
+    root,
+    [
+      {
+        request_id: 'held',
+        status: 'queued',
+        site: 'example.com',
+        category: 'engineering',
+        delivery_mode: 'direct',
+        created_at: '2026-10-01T00:00:00.000Z',
+      },
+      {
+        request_id: 'independent',
+        status: 'queued',
+        site: 'example.com',
+        category: 'marketing',
+        delivery_mode: 'direct',
+        created_at: '2026-10-01T00:00:00.000Z',
+      },
+    ],
+    { max_concurrent: 4 },
+    [
+      {
+        site: 'example.com',
+        state: 'measuring',
+        measurement_due: '2026-10-05',
+        baseline: { request_category: 'seo' },
+      },
+      {
+        site: 'example.com',
+        state: 'measuring',
+        measurement_due: '2026-10-12',
+        baseline: { request_category: 'engineering' },
+      },
+    ],
+    Date.parse('2026-10-01T12:00:00.000Z')
+  );
+  assert.equal(held.measurement_window.due_at, '2026-10-12');
+  assert.equal(held.queue_block.primary.detail, 'Held until 2026-10-12');
+  assert.equal(held.queue_block.next_check_at, '2026-10-12T00:00:00.000Z');
+  assert.equal(independent.measurement_window, null);
+  assert.equal(independent.queue_block.blocked, false);
 });
 
 test('enriches requests with registry context and retry state', () => {
