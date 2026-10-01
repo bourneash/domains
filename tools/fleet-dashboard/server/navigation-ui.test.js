@@ -1671,6 +1671,8 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.ui-collapsible\.is-collapsed/);
   assert.match(theme, /:root\[data-theme="light"\] \.soc-sub/);
   assert.match(theme, /:root\[data-theme="light"\] \.col-head/);
+  assert.match(theme, /:root\[data-theme="light"\] \.rmatrix \.rsite-h[\s\S]*box-shadow/);
+  assert.match(theme, /:root\[data-theme="light"\] \.fleet-filter-wrap/);
 });
 
 test('agent pages expose enrollment actions that open the automation editor', () => {

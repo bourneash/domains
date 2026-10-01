@@ -2786,7 +2786,11 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .fd-runtime-alert summary { color: #8b4050; }
 :root[data-theme="light"] .fd-runtime-alert code { color: #6e2637; background: rgba(190,67,86,.08); }
 :root[data-theme="light"] .rmatrix .rsite,
-:root[data-theme="light"] .rmatrix .rsite-h { background: rgba(255,255,255,.96); }
+:root[data-theme="light"] .rmatrix .rsite-h {
+  background: rgba(255,255,255,.96);
+  box-shadow: 8px 0 16px -18px rgba(31,52,82,.72);
+}
+:root[data-theme="light"] .fleet-filter-wrap { border-top-color: rgba(61,86,120,.14); }
 :root[data-theme="light"] .site-kpi,
 :root[data-theme="light"] .wb-kpis > div,
 :root[data-theme="light"] .wb-item,
