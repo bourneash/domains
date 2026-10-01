@@ -1196,6 +1196,19 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(style, /\.dh-help \{[^}]*border-top/);
 });
 
+test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderDataHubImages()');
+  const end = app.indexOf('// Toggle a data-hub-images source', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.match(view, /class="loading">Loading Data Hub Images/);
+  assert.match(view, /class="page-head"><h2 class="page-title">Data Hub Images/);
+  assert.ok((view.match(/class="table-wrap"><table/g) || []).length >= 3);
+  assert.match(view, /type="button" class="btn sm danger dhi-blacklist/);
+  assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);
+});
+
 test('fleet task view presents the filtered slice as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

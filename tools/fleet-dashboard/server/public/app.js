@@ -8278,7 +8278,7 @@ function dhiCountTable(title, counts) {
 
 async function renderDataHubImages() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="muted">loading data hub images…</div>';
+  if (FRESH) app.innerHTML = '<div class="loading">Loading Data Hub Images…</div>';
   const [health, stats, imgs, src, eg, pl] = await Promise.all([
     api('GET', '/api/datahub-images/health'),
     api('GET', '/api/datahub-images/stats'),
@@ -8335,8 +8335,8 @@ async function renderDataHubImages() {
           <div class="dhi-thumb-credit">${creditLine}</div>
           <div class="dhi-thumb-sub">${esc(im.license || '—')} · score ${esc(String(im.score ?? '—'))} · ${dhiBadge(im.status)}</div>
           <div class="dhi-thumb-actions">
-            <button class="btn sm danger dhi-blacklist" data-id="${esc(im.id)}">Blacklist</button>
-            <button class="btn sm danger dhi-reject" data-id="${esc(im.id)}">Reject</button>
+            <button type="button" class="btn sm danger dhi-blacklist" data-id="${esc(im.id)}">Blacklist</button>
+            <button type="button" class="btn sm danger dhi-reject" data-id="${esc(im.id)}">Reject</button>
           </div>
         </div>
       </div>`;
@@ -8359,7 +8359,7 @@ async function renderDataHubImages() {
       const statusCell = off
         ? '<span class="dhi-b dhi-skip">disabled</span>'
         : `${dhiBadge(st.status)}${stale}`;
-      const toggle = `<button class="btn sm ${off ? 'primary' : 'danger'} dhi-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
+      const toggle = `<button type="button" class="btn sm ${off ? 'primary' : 'danger'} dhi-src-toggle" data-id="${esc(s.id)}" data-enabled="${off ? 0 : 1}">${off ? '▶ Enable' : '⏸ Disable'}</button>`;
       return `<tr class="${off ? 'dhi-row-off' : ''}">
       <td>${esc(s.id)}${ovr}</td>
       <td>${esc(s.kind)}</td>
@@ -8372,10 +8372,10 @@ async function renderDataHubImages() {
     .join('');
   const srcHtml = `
     <div class="dhi-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dhi-stale">${disabledCount} disabled</span>` : ''}</div>
-    <table class="dhi-sources">
+    <div class="table-wrap"><table class="dhi-sources">
       <thead><tr><th>source</th><th>kind</th><th>path</th><th>status</th><th>last fetch</th><th></th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="6" class="muted">no source state</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 5: Outbound Connection Ledger (egress) ----
   const events = (eg && eg.events) || [];
@@ -8394,10 +8394,10 @@ async function renderDataHubImages() {
     )
     .join('');
   const egressHtml = `
-    <table class="dhi-egress">
+    <div class="table-wrap"><table class="dhi-egress">
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   // ---- Panel 6: Site Pulls (inbound — who consumed what) ----
   const pulls = (pl && pl.pulls) || [];
@@ -8416,12 +8416,13 @@ async function renderDataHubImages() {
     })
     .join('');
   const pullsHtml = `
-    <table class="dhi-egress dhi-pulls">
+    <div class="table-wrap"><table class="dhi-egress dhi-pulls">
       <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
       <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
 
   app.innerHTML = `
+    <div class="page-head"><h2 class="page-title">Data Hub Images</h2><span class="muted">privacy-routed image collection, source freshness, curation, and consumer evidence</span></div>
     ${hubDown ? `<div class="dhi-banner">⚠ Data hub images API unreachable</div>` : ''}
     <div class="dhi-grid">
       <section class="dhi-panel" data-rk="dhi-health"><h3>VPN Health</h3>${healthHtml}</section>
