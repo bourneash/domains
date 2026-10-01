@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:37:53.099Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:41:11.022Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new proposals, production work, queue admissions, telemetry requests, spending, and duplicate evidence work this cycle. Preserve only the canonical saveusfarms.com repair-or-close case and existing private-launch/security evidence gates. Revenue, ROI, margin, attribution, and causal lift remain unsupported because the available commission is aggregate and unattributed. CTO must record repair validation or justified closure, rollback and release boundaries, attribution and measurement limits, then release one slot or escalate. Keep the private launch disposition unchanged and leave rights outreach unsent.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Capacity is saturated at 10/10 slots, measurement debt remains material, and existing repair work is unresolved. Preserve the canonical saveusfarms.com case and private/security gates. CTO must complete or justify closure with validation, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T12:00:00Z, release one slot, or escalate to the owner. No unsupported revenue, ROI, margin, payback, or causal-lift claims are approved.",
+        "summary": "Reject the seedstosauce.com report-only proposal and all production execution this cycle. Revenue, ROI, and causal lift are unsupported; Amazon commission is aggregate and unattributed. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and security/operations evidence is incomplete. Three reversible SEO candidates are routed to engineer as capacity-gated specifications only; CTO must release a slot and clear site overlap before execution, or escalate by 2026-10-02T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
