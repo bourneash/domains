@@ -1121,6 +1121,15 @@ test('Backlink Capture keeps coverage tables bounded and actions explicit', () =
   assert.match(style, /\.backlink-table \{[^}]*overflow: hidden/);
 });
 
+test('Lint separates sweep actions, findings, and remediation guidance', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions"/);
+  assert.match(app, /class="card lint-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="lint-help"><summary>How to remediate lint findings/);
+  assert.match(style, /\.lint-table \{[^}]*overflow: hidden/);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

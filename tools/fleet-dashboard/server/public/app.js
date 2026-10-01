@@ -8139,8 +8139,8 @@ async function renderLint() {
   if (!d.report) {
     app.innerHTML = `
       <div class="page-head"><h2 class="page-title">Lint</h2><span class="muted">fleet-wide prettier parse + format sweep</span></div>
-      <div class="task-toolbar">
-        <button class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Run sweep'}</button>
+      <div class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions">
+        <button type="button" class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Run sweep'}</button>
         <span class="muted">No sweep has run on this host yet.</span>
       </div>`;
     wireLintButtons();
@@ -8177,7 +8177,7 @@ async function renderLint() {
       <td class="mono">${(row.parse_errors || []).length}</td>
       <td class="mono muted">${(row.unformatted || []).length}</td>
       <td class="mono muted">${row.files_checked}</td>
-      <td><button class="btn sm lint-rescan" data-site="${esc(row.site)}" ${running ? 'disabled' : ''}>Rescan</button></td>
+      <td><button type="button" class="btn sm lint-rescan" data-site="${esc(row.site)}" ${running ? 'disabled' : ''}>Rescan</button></td>
     </tr>
     <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="lint:${esc(row.site)}" data-rk="lint:${esc(row.site)}"><td colspan="6">
       ${errs ? `<div class="cn-log-head">Prettier cannot parse — the pre-commit hook is skipping these</div><ul>${errs}</ul>` : ''}
@@ -8188,17 +8188,17 @@ async function renderLint() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Lint</h2><span class="muted">fleet-wide prettier parse + format sweep — the detector for files the pre-commit hook silently skips</span></div>
-    <div class="task-toolbar">
+    <div class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions">
       <strong>${s.parse_errors || 0} unparseable file(s) across ${s.broken || 0} site(s)</strong>
       <span class="muted">${s.unformatted || 0} merely unformatted · ${s.clean || 0} clean · ${s.files_checked || 0} files checked · swept ${esc(swept)}</span>
-      <button class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Rescan fleet'}</button>
+      <button type="button" class="btn" id="lint-scan" ${running ? 'disabled' : ''}>${running ? 'Sweeping…' : 'Rescan fleet'}</button>
     </div>
-    ${newErrors.length ? `<div class="card" style="margin-bottom:10px"><div class="cn-log-head">New since the previous sweep (${newErrors.length})</div><ul>${newErrors.map(e => `<li class="mono">${esc(e.site)}/${esc(e.file)}</li>`).join('')}</ul></div>` : ''}
-    <div class="card"><table>
+    ${newErrors.length ? `<div class="card lint-alert" role="status"><div class="cn-log-head">New since the previous sweep (${newErrors.length})</div><ul>${newErrors.map(e => `<li class="mono">${esc(e.site)}/${esc(e.file)}</li>`).join('')}</ul></div>` : ''}
+    <div class="card lint-table"><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Status</th><th>Parse errors</th><th>Unformatted</th><th>Files</th><th></th></tr></thead>
       <tbody>${rows || '<tr><td colspan="6" class="muted">Every site is clean.</td></tr>'}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">A <strong>parse error</strong> is the real signal: <span class="mono">tools/git-hooks/pre-commit</span> pipes prettier through xargs and ignores its exit code, so an unparseable file is never formatted and nothing reports it. Fix the source (JSX-style <span class="mono">{/* … */}</span> comments inside template expressions, no raw <span class="mono">&lt;svg&gt;</span> in attributes, no script bodies inside template expressions) rather than adding a <span class="mono">.prettierignore</span>. Sites shown clean are omitted from the table.</p>`;
+    </table></div></div>
+    <details class="lint-help"><summary>How to remediate lint findings</summary><p>A <strong>parse error</strong> is the real signal: <span class="mono">tools/git-hooks/pre-commit</span> pipes prettier through xargs and ignores its exit code, so an unparseable file is never formatted and nothing reports it. Fix the source (JSX-style <span class="mono">{/* … */}</span> comments inside template expressions, no raw <span class="mono">&lt;svg&gt;</span> in attributes, no script bodies inside template expressions) rather than adding a <span class="mono">.prettierignore</span>. Sites shown clean are omitted from the table.</p></details>`;
 
   $$('.lint-open').forEach(a =>
     a.addEventListener('click', e => {
