@@ -14193,7 +14193,7 @@ function mountExecutiveWorkspaceNav(active) {
   nav.innerHTML = items
     .map(
       ([key, label, description]) =>
-        `<button type="button" class="ex-workspace-tab ${active === key ? 'active' : ''}" data-ex-workspace="${key}"><span>${esc(label)}</span><small>${esc(description)}</small></button>`
+        `<button type="button" class="ex-workspace-tab ${active === key ? 'active' : ''}" data-ex-workspace="${key}" title="${esc(`${label}: ${description}`)}" aria-label="${esc(`${label}: ${description}`)}"><span>${esc(label)}</span><small>${esc(description)}</small></button>`
     )
     .join('');
   shell.insertBefore(nav, shell.firstElementChild?.nextElementSibling || shell.firstChild);
