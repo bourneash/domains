@@ -290,10 +290,7 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 .cq-command-stat em { color: var(--muted); font-size: 12px; font-style: normal; }
 .cq-overview-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr); gap: 14px; align-items: start; margin-bottom: 14px; }
 .cq-overview-grid--single { grid-template-columns: 1fr; }
-.cq-overview-grid .cq-focus-panel { display: none; }
-.cq-focus-panel, .cq-status-panel, .cq-register { padding: 18px; }
-.cq-focus-panel { min-height: 250px; }
-.cq-focus-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 9px; }
+.cq-status-panel, .cq-register { padding: 18px; }
 .cq-focus-card { display: grid; gap: 5px; min-width: 0; padding: 12px 13px; border: 1px solid var(--border); border-left: 3px solid var(--a1); border-radius: 10px; background: rgba(255,255,255,.025); }
 .cq-focus-card.is-error { border-left-color: var(--red); background: rgba(255,107,107,.055); }
 .cq-focus-card strong { overflow: hidden; color: var(--text-hi); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }

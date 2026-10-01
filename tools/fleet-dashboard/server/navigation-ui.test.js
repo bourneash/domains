@@ -827,6 +827,14 @@ test('Work Board filters persist and cannot contradict each other', () => {
   assert.match(app, /Filters are remembered on this device/);
 });
 
+test('Change Queue renders one authoritative queue pulse without suppressed focus markup', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /cq-overview-grid cq-overview-grid--single/);
+  assert.doesNotMatch(app, /cq-focus-panel/);
+  assert.doesNotMatch(app, /priorityLane/);
+  assert.doesNotMatch(app, /\.cq-focus-panel\'\)\?\.remove/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
