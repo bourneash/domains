@@ -1102,6 +1102,16 @@ test('Compliance keeps scan controls explicit and safe', () => {
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
 });
 
+test('SEO Intelligence keeps evidence tables bounded and live actions explicit', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /seo-vitals-panel[\s\S]*class="table-wrap"><table class="dh-sources"/);
+  assert.match(app, /seo-sites[\s\S]*class="table-wrap"><table class="dh-sources"/);
+  assert.match(app, /type="button" class="btn sm web-vitals-run"/);
+  assert.match(app, /type="button" class="btn sm [^"]*seo-file-task/);
+  assert.match(style, /\.seo-vitals-panel, \.seo-sites \{[^}]*overflow: hidden/);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

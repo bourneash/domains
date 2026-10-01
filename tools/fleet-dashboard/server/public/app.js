@@ -7614,7 +7614,7 @@ async function renderSeoIntelligence() {
       const meta = vitalFactors[factor];
       const totals = meta?.totals || {};
       const status = vitalStatus(factor);
-      return `<article class="seo-vitals-card ${status}"><div class="seo-vitals-card-top"><b>${esc(factor)}</b><span class="badge ${status === 'healthy' ? 'b-green' : status === 'missing' ? 'b-gray' : 'b-red'}">${esc(status)}</span></div><strong>${meta ? `${totals.regressed || 0} regressed · ${totals.over_budget || 0} over budget` : 'No report'}</strong><span class="muted">${esc(vitalAge(factor))} · ${totals.sites || 0} sites</span><button class="btn sm web-vitals-run" data-factor="${factor}">↻ Run now</button></article>`;
+      return `<article class="seo-vitals-card ${status}"><div class="seo-vitals-card-top"><b>${esc(factor)}</b><span class="badge ${status === 'healthy' ? 'b-green' : status === 'missing' ? 'b-gray' : 'b-red'}">${esc(status)}</span></div><strong>${meta ? `${totals.regressed || 0} regressed · ${totals.over_budget || 0} over budget` : 'No report'}</strong><span class="muted">${esc(vitalAge(factor))} · ${totals.sites || 0} sites</span><button type="button" class="btn sm web-vitals-run" data-factor="${factor}">↻ Run now</button></article>`;
     })
     .join('');
   const vitalRows = vitalSites
@@ -7694,7 +7694,7 @@ async function renderSeoIntelligence() {
       <td>${row.high ? `<span class="badge b-red">${row.high}</span>` : '—'}</td>
       <td>${seoNum(row.pages)}</td><td>${seoNum(row.queryPagePairs)}</td><td>${seoNum(row.sessions)}</td><td>${seoNum(row.conversions)}</td>
       <td>${seoNum(row.impressions)}</td><td>${ctr}</td>
-      <td><button class="btn sm seo-focus" data-site="${esc(row.site)}">Focus</button></td>
+      <td><button type="button" class="btn sm seo-focus" data-site="${esc(row.site)}">Focus</button></td>
     </tr>`;
     })
     .join('');
@@ -7711,14 +7711,14 @@ async function renderSeoIntelligence() {
       <p class="seo-evidence">${esc(action.evidence)}</p>
       <p>${esc(action.recommendation)}</p>
       <ol class="seo-plan">${(action.plan || []).map(step => `<li>${esc(step)}</li>`).join('')}</ol>
-      <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
+      <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button type="button" class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
     </article>`
       )
       .join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div>
-    <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><table class="dh-sources"><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></section>
+    <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></div></section>
     <section class="seo-stats">${statCards}</section>
     <div class="seo-overview-grid">
       <section class="dh-panel"><h3>Opportunity mix</h3><div class="seo-type-bars">${typeBars}</div></section>
@@ -7728,8 +7728,9 @@ async function renderSeoIntelligence() {
       </section>
     </div>
     <section class="dh-panel dh-wide seo-sites"><h3>Site opportunity map</h3>
-      <table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>query-page pairs</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
+      <div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>query-page pairs</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
       <tbody>${siteRows || '<tr><td colspan="10" class="muted">No site evidence available.</td></tr>'}</tbody></table>
+      </div>
     </section>
     <section class="seo-work-head">
       <div><h3>Action queue</h3><span class="muted">${filtered.length} of ${allActions.length} evidence-backed items</span></div>

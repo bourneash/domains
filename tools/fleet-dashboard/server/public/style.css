@@ -1054,6 +1054,7 @@ body[data-view="builds"] main { max-width: none; }
 .seo-vitals-card-top { display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; }
 .seo-vitals-card strong { font-size: 14px; }
 .seo-vitals-card .btn { justify-self: start; }
+.seo-vitals-panel, .seo-sites { overflow: hidden; }
 .web-vitals-bad { color: #f87171; font-weight: 700; }
 @media (max-width: 1100px) { .seo-stats { grid-template-columns: repeat(3, 1fr); } .seo-actions { grid-template-columns: repeat(2, minmax(260px, 1fr)); } }
 @media (max-width: 720px) { .seo-stats, .seo-overview-grid, .seo-actions, .seo-vitals-cards { grid-template-columns: 1fr; } .seo-work-head { align-items: stretch; flex-direction: column; } .seo-coverage { grid-template-columns: repeat(2, 1fr); } }
