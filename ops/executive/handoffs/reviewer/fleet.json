@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:46:57.617Z",
+  "generated_at": "2026-10-01T10:48:05.404Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. All 10 delivery slots are occupied; 39 improvements await measurement, 21 requests failed, and revenue remains unattributed. Preserve existing work only. CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, and measurement evidence by 2026-10-01T12:00:00Z, release one slot, or escalate to the owner. Do not claim revenue, ROI, causal lift, or production readiness.",
+        "summary": "Reviewer disposition: reject the proposed shoptopless.com report-only plan and admit no new implementation work this cycle. All 10 implementation slots are occupied, 39 improvements await measurement, and site-specific CTA evidence is incomplete. CTO must complete or close the canonical saveusfarms.com repair case with validation, build, rollback, attribution, measurement, and deduplication evidence, release one slot by 2026-10-01T12:00:00Z, or escalate to the owner. Preserve existing gates and do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }
