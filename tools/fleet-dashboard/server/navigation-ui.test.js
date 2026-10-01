@@ -130,6 +130,21 @@ test('product managers are first-class Agents pages with durable queues', () => 
   assert.match(app, /\$\('#pm-refresh'\)\.onclick = \(\) => renderProductManager\(role\)/);
 });
 
+test('Exec Overwatch exposes a self-contained refresh action', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const route = app.slice(
+    app.indexOf('async function renderExecOverwatch'),
+    app.indexOf(
+      '/* ===================== PRODUCT MANAGER PAGE',
+      app.indexOf('async function renderExecOverwatch')
+    )
+  );
+  assert.match(route, /type="button" class="btn" id="overwatch-refresh"/);
+  assert.match(route, /\$\('#overwatch-refresh'\)\.onclick = \(\) => renderExecOverwatch\(\)/);
+  assert.match(route, /type="button" class="btn primary" id="overwatch-run"/);
+  assert.match(route, /type="button" class="btn [^\"]+" id="overwatch-toggle"/);
+});
+
 test('executive workbench is a first-class operator route', () => {
   assert.equal(routeFor('#workbench').view, 'workbench');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
