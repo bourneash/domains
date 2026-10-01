@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:45:24.593Z",
+  "generated_at": "2026-10-01T16:01:15.320Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the allthingsmasonic.com proposal because the site has overlapping active work and the capacity ledger conflicts. Retained only three bounded medium-priority revalidations on distinct sites, capacity-gated until CTO reconciles the ledger and releases one slot by 2026-10-01T18:00Z. No revenue, ROI, causal-lift, credential, configuration, spend, duplicate-telemetry, or production claims are supported.",
+        "summary": "Reject new implementation admission this cycle. All available candidates are blocked by contradictory capacity evidence, insufficient or absent outcome telemetry, existing site overlap, or launch/security gates. Preserve no unsupported revenue, ROI, causal-lift, or production-readiness claims. CTO must reconcile capacity and release one slot by 2026-10-01T18:00Z; unresolved capacity escalates to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
