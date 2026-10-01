@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:15:12.554Z",
+  "generated_at": "2026-10-01T15:24:07.584Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the three proposed production revalidations this cycle. Their telemetry is absent or too low-volume to support a measurable outcome, and capacity remains disputed and constrained. Preserve existing changes without execution; no financial, revenue, ROI, causal-lift, or production-readiness claims are supported. Continue only the existing bounded read-only security evidence work and keep launch and security-sensitive release gates unchanged.",
+        "summary": "Reject the howtofry.com preview build and all production, monetization, tracking, social-automation, credential, dependency, spending, and queue-admission actions this cycle. Capacity is unresolved, analytics and affiliate attribution are absent, and launch/security/readiness evidence is incomplete. Preserve only bounded public research to close specific rights, disclosure, and observable-surface gaps; make no financial, ROI, causal-lift, or production-readiness claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three proposed production revalidations this cycle. Capacity is disputed, and existing telemetry is absent or too low-volume to support measurable outcomes. Do not claim revenue, ROI, margin, causal lift, or production readiness. Preserve existing changes and gates. CTO must reconcile the capacity ledger and release one slot by 2026-10-01T18:00Z; unresolved capacity escalates to the owner. Site-factory must complete one verified readiness artifact for complicated.work by 2026-10-02T12:00Z before any scaffold implementation is admitted.",
+        "summary": "Reject howtofry.com preview execution, production, monetization, tracking, social automation, spending, and financial claims this cycle. Analytics, affiliate attribution, launch evidence, and capacity remain unresolved. Route only the three existing reversible revalidation repairs below as medium-priority engineer work; execution remains gated until CTO reconciles capacity and releases a slot by 2026-10-01T18:00:00Z. Escalate unresolved capacity to the owner then.",
         "requested_action": null,
         "proposal_id": null
       }

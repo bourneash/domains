@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T13:09:19.919Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:24:07.583Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: reject the proposed fleet admission-control-plane build this cycle. It duplicates existing control-plane work while capacity, measurement debt, failed repairs, and site overlap remain unresolved. Freeze new monetization claims, forecasts, and finance-impacting admissions. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; the $4.92 and 629 aggregate clicks are unattributed, so site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage covers 2026-10-01: 85 calls, 11 instrumented sites, and $10.8396 cost, or about $0.1275 per call, but it is not comparable to the revenue window. Cost-to-learn is not calculable because no validated incremental outcome is linked to those calls. Infrastructure, hosting, registrar, labor, marketing, and other direct costs are absent; monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor limits are blank. Retain only report-only reconciliation work for dated owner-provided cost exports and period alignment; do not move money, access banking, change billing, spend, forecast, or claim ROI.",
+        "summary": "Recommendation: conditionally approve the howtofry.com preview-only build, strictly at zero incremental spend and without publication, affiliate activation, social automation, or monetization. Do not approve a revenue, ROI, contribution-margin, or payback forecast. The 2026-09-21 Amazon window reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission, but the commission is on tracking_id \"other\" and cannot be assigned to any site; site-attributed income is $0. AI usage on 2026-10-01 cost $10.84 across 11 sites, but howtofry.com has no recorded AI cost and AI coverage is only 11 of 38 expected sites. Infrastructure, domain, labor, and recurring budget costs are not supplied, so contribution margin and cost-to-learn are not calculable. Minimum measurement before launch: registered site tracking ID, site-level clicks/orders/shipped items/commission, itemized AI and infrastructure cost allocation, and a dated baseline for qualified sessions and affiliate clicks. Keep the work capacity-gated because the ledgers conflict: active delivery reports 1/10 slots while performance reports saturation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Finance disposition: retain the owner-requested preview as a non-revenue prototype only. The authoritative brief has no monthly revenue target, fixed-cost total, marketing budget, revenue floor, or attribution materiality threshold. Therefore no break-even, CAC, ROAS, contribution-margin, or payback claim is supportable. Vanity metrics such as visual quality, recipe count, guide count, social-account setup, impressions, or affiliate clicks must not be treated as financial outcomes without attributable shipped commission and allocated costs.",
         "requested_action": null,
         "proposal_id": null
       }

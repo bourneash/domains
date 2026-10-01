@@ -2,30 +2,23 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:15:12.554Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:24:07.584Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; conditional for ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: security fleet-doctor is not OK with no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: preserve private-launch and security-sensitive release gates, allow only constrained reversible growth, and continue authorized read-only evidence capture. This is not a penetration test or certification.",
+        "summary": "Disposition: evidence_needed. Risk severity is high for public launch, monetization, new data collection, and security-sensitive releases; conditional for an isolated, zero-spend, unpublished preview. Evidence: fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error sweeps; authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: retain howtofry.com only as preview planning context, do not admit or execute until capacity is reconciled, and block publication, affiliate activation, social automation, tracking, credentials, dependencies, data collection, and production changes until the readiness evidence is complete. This is read-only risk triage, not penetration testing or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
-        "summary": "Maintain an evidence-needed security disposition because fleet-doctor and operations results are unavailable and material controls remain unevidenced. Preserve private-launch and security-sensitive release gates while allowing constrained ordinary reversible growth.",
-        "requested_action": "Continue the existing read-only evidence matrix using authorized metadata and retained artifacts only. Record timestamps, scope, owners, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, spend, conduct outreach, or request duplicate telemetry.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "legal-searchwoot-private-gate-2026-10-01",
-        "summary": "Security supports keeping the private gate. Public beta and go-live remain unsupported because fleet security and operations evidence is absent; owner disposition must wait for the consolidated evidence bundle and completion of the material security checklist.",
-        "requested_action": "escalate_owner",
-        "proposal_id": "legal-searchwoot-private-gate-2026-10-01"
+        "title": "Retain howtofry.com as an evidence-gated unpublished preview",
+        "summary": "Allow only an isolated, zero-spend, unpublished preview artifact for howtofry.com. Block public launch, monetization, tracking, social automation, credentials, new dependencies, data collection, and production changes until security and launch evidence is complete.",
+        "requested_action": "Do not admit or execute until the conflicting capacity ledger is reconciled and a slot is released. Then produce one dated site-specific readiness artifact covering authentication and access boundaries, secrets handling, isolation, release/deploy controls, dependency provenance, TLS, data exposure, monitoring and incident response, security.txt/disclosure readiness, rights, disclosures, consent, registered affiliate tracking, rollback, and preview-only status. Keep publication and monetization blocked pending owner, legal, security, measurement, and compliance decisions.",
+        "proposal_id": "07a3becb-03d3-4e73-a0ee-0dc87eee5c07"
       }
     ]
   }

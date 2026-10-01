@@ -2,23 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:15:12.555Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T15:24:07.582Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: approve a bounded preview-only build for howtofry.com, with production launch and monetization gated until the site-factory checklist is complete. Evidence: howtofry.com is queue-ready in the current fleet snapshot, but analytics is not configured and affiliate, social, legal, security, content scope, and measurement readiness are unknown. The portfolio is also capacity-conflicted: active delivery reports 1/10 slots while performance reports saturation. No revenue or ROI estimate is calculable yet. Smallest next step: authorize the preview scope—cooking-product guides, recipes, visual system, and draft affiliate/social placements—without publishing or spending. Owner decision: approve this preview-only build gate for EXEC_CONV_12.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "Defer MarkItDown adoption research while capacity is unresolved; CFO and CTO found no measurable revenue or margin case, and implementation capacity is reported saturated.",
-        "requested_action": "declined",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }
