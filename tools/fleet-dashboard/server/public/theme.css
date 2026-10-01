@@ -1860,3 +1860,30 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 }
 :root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
 :root[data-theme="light"] .ex-workspace-tab.active small { color: var(--a1); }
+:root[data-theme="light"] .tab.active,
+:root[data-theme="light"] .nav-group-btn.active {
+  color: var(--text-hi);
+  background: var(--control-bg-active);
+}
+:root[data-theme="light"] .nav-group-btn.active { box-shadow: inset 0 0 0 1px rgba(122,87,196,.28), 0 3px 10px -8px rgba(122,87,196,.35); }
+:root[data-theme="light"] .seg {
+  background: var(--panel-2);
+  border-color: var(--border);
+}
+:root[data-theme="light"] .seg-btn.active {
+  color: var(--text-hi);
+  background: var(--control-bg-active);
+  box-shadow: inset 0 0 0 1px rgba(40,119,212,.3);
+}
+:root[data-theme="light"] .seg-btn.active .ctl-n { color: var(--a1); background: rgba(40,119,212,.12); }
+:root[data-theme="light"] .ex-workspace-tab.active {
+  background: linear-gradient(135deg, rgba(40,119,212,.13), rgba(122,87,196,.1));
+  border-color: rgba(40,119,212,.38);
+}
+:root[data-theme="light"] .mobile-rail-toggle {
+  background: rgba(40,119,212,.06);
+  border-color: rgba(61,86,120,.18);
+}
+@media (max-width: 720px) {
+  :root[data-theme="light"] .actions .theme-toggle::before { content: '☾'; }
+}
