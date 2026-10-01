@@ -2483,6 +2483,16 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   border-bottom-color: rgba(61,86,120,.14);
   box-shadow: 0 1px 0 rgba(31,52,82,.04), 0 10px 30px -18px rgba(31,52,82,.2);
 }
+:root[data-theme="light"] .dd-menu,
+:root[data-theme="light"] .nav-group-btn.active {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text-hi);
+}
+:root[data-theme="light"] .dd-item.active {
+  background: var(--control-bg-active);
+  color: var(--text-hi);
+}
 :root[data-theme="light"] #rail {
   background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,249,253,.96));
   border-right-color: rgba(61,86,120,.14);
@@ -2656,6 +2666,20 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .cq-exception-card strong { color: var(--text-hi); }
 :root[data-theme="light"] .cq-status-note { background: rgba(61,160,112,.07); }
 :root[data-theme="light"] .cq-status-note.warn { background: rgba(190,140,25,.09); }
+:root[data-theme="light"] .sh-calendar-intro {
+  background: linear-gradient(120deg, rgba(40,119,212,.09), #f6f9fd 48%);
+  border-color: var(--border);
+}
+:root[data-theme="light"] .cm-seg button.active {
+  background: var(--panel);
+  color: var(--text-hi);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+:root[data-theme="light"] .cq-controls { background: var(--panel-2); }
+:root[data-theme="light"] .cq-request-cell b,
+:root[data-theme="light"] .cq-no-work strong,
+:root[data-theme="light"] .cq-age { color: var(--text-hi); }
+:root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
 :root[data-theme="light"] .dh-panel,
 :root[data-theme="light"] .dhi-panel {
   background: var(--grad-panel), #fff;
