@@ -2,16 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.295Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T12:30:26.803Z",
+  "summary": "cfo checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: freeze new monetization claims, forecasts, and finance-impacting admissions. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 and 629 aggregate clicks are unattributed, so site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage on 2026-10-01 cost $10.8396 across 85 calls and 11 instrumented sites, or approximately $0.1275 per call; this is not comparable to the 2026-09-21 revenue window. Cost-to-learn is not calculable because no validated incremental financial outcome is linked to those calls. Infrastructure, registrar, hosting, labor, and other direct costs are absent; therefore fleet contribution margin and budget exposure are not calculable. Monthly spend, fixed-cost, marketing-budget, and revenue-floor limits are also blank. Preserve the existing allthingsmasonic.com affiliate experiment only as a capacity-gated reversible test after one slot is released and overlap clears. Treat clicks, sessions, impressions, conversions, proposals, and shipped output as activity or funnel metrics, not revenue. Minimum finance measurement: a dated provider export mapping each affiliate event to a registered site tracking ID, plus owner-supplied billing exports for hosting, infrastructure, domains, and AI spend covering the same period; then calculate site contribution margin as attributed commission minus directly attributable costs.",
+        "summary": "Recommendation: approve no new discretionary spend, monetization forecast, ROI claim, contribution-margin claim, or causal-lift claim this cycle. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but the full $4.92 is aggregate and unattributed. AI usage reports $10.8396 across 85 calls on 2026-10-01, while coverage is only 11 of 38 expected sites. These periods and scopes do not reconcile, so contribution margin, payback, and cost-to-learn are not calculable. Preserve existing attribution and capacity gates; do not add duplicate telemetry or financial forecasts.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the existing allthingsmasonic.com refinement only as a conditional, reversible experiment after capacity and site-overlap clearance. Baseline: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Use GA4 affiliate outbound clicks as the primary metric and record provider outcomes only when site-attributable. Do not claim revenue, ROI, margin, or causal lift.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance measurement remains: a dated ledger joining site/content identifier, registered affiliate tracking ID, outbound click, ordered item, shipped item, commission, reporting date, and direct cost; plus complete AI, hosting, domain, analytics, and approved internal-cost records by site and shared service. Without these, total budget exposure and contribution margin remain unknown. Do not treat impressions, sessions, clicks, conversions, shipped work, or audited actions as financial returns.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
+        "summary": "Decline adoption work this cycle. It is discovery evidence without measurable financial upside, and current AI-cost coverage, revenue attribution, and contribution-margin data are insufficient for an investment case.",
+        "requested_action": "declined",
+        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

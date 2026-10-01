@@ -2,29 +2,36 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.295Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T12:30:26.803Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public beta and full launch. Keep searchwoot.com private. Woot documentation proves API access mechanics only; current public terms do not evidence redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights. 0/4 legal tasks are evidenced closed. Next evidence action: attach one dated read-only bundle covering source rights, data flow and retention, consent and GA4 configuration, logs, vendors, incident handling, and request workflows. Owner confirmation and human-counsel review remain required before any rights outreach or gate change.",
+        "summary": "Legal/compliance disposition: conditional for ordinary reversible growth; blocked for SearchWoot public beta, monetization expansion, and go-live. Evidence: compliance baseline is 35 pass, 20 fail, 6 unknown; security and operations evidence are unavailable; Amazon reports $4.92 aggregate commission that cannot be assigned to a site; and SearchWoot has 0/4 legal tasks evidenced closed. Keep SearchWoot private, leave rights outreach unsent, reject the four new control-plane proposals this cycle as capacity-incompatible, and permit only bounded reversible work that adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Human counsel is required for Woot redistribution/commercial-use rights, privacy/jurisdiction treatment, notification data, vendor/DPA obligations, and any future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Conditional ordinary growth remains permitted only when reversible and limited to existing consent, disclosures, data handling, claims, and platform boundaries. Do not treat incomplete telemetry as a standalone blocker, but do not approve new data collection, public exposure, monetization, notification expansion, or unsupported claims.",
+        "summary": "Continue the active SearchWoot launch-readiness workstream. Progress is 0/4 legal tasks evidenced closed. Do not close any task on current evidence. Next evidence action: produce one dated read-only bundle from the existing repository/config artifacts covering source rights, data flow and retention, consent/GA4 configuration, logs/vendors, incident handling, deletion/correction, and notification workflows; preserve missing items as open and escalate rights, privacy, and vendor questions to human counsel.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal",
-        "title": "Maintain private SearchWoot gate and complete evidence bundle",
-        "summary": "Keep searchwoot.com private while Woot rights, privacy, consent, data-flow, security, accuracy, attribution, measurement, and owner gates remain unresolved.",
-        "requested_action": "Continue the four existing launch-readiness legal tasks through one dated read-only evidence bundle. Do not send external rights outreach, enable new tracking, expand notifications, change production, monetize, or change the private gate without owner authorization and human-counsel review.",
+        "kind": "message",
+        "title": null,
+        "summary": "Keep SearchWoot private. Before any public beta or production exposure, provide dated evidence for source refresh and stale-data handling, correction/takedown, rollback, security controls, and release validation. Existing public API documentation proves access mechanics only and does not prove redistribution or commercial-use rights.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the attribution boundary. Do not assign Amazon's $4.92 aggregate commission to any site or claim revenue, ROI, margin, or causal lift. Future affiliate links must use registered site tracking IDs and retain disclosure evidence.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

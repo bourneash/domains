@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.294Z",
+  "generated_at": "2026-10-01T12:30:26.803Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small site-factory pipeline of complicated.work, deadlymaracas.com, and driveford.net as planning-only scaffold candidates. Do not build, publish, add domains, configure analytics, spend, or launch while capacity is saturated and owner, legal, security, measurement, and rollback gates remain incomplete. The strongest candidate is complicated.work based on the validated build score of 84 and existing scaffold; its next step is exactly one bounded readiness artifact before any implementation admission.",
+        "summary": "Preserve complicated.work as planning-only. After a delivery slot is released, complete exactly one verified launch-readiness artifact covering owner approval, scope, content seed, SEO baseline, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Do not build, publish, add tracking, spend, change domains, or create duplicate requests.",
         "requested_action": null,
         "proposal_id": null
       }

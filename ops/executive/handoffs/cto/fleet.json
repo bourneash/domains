@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.295Z",
+  "generated_at": "2026-10-01T12:30:26.802Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, with active measurement, overlap, failed-request repair, and incomplete operations/security evidence. Preserve the canonical saveusfarms.com repair-or-close case as the capacity unblocker. After one slot is released and site overlap clears, admit only the existing allthingsmasonic.com affiliate CTA request; do not create duplicates. Keep scaffold work preview/readiness-only and preserve all legal, security, attribution, measurement, and rollback gates.",
+        "summary": "Preserve the capacity gate. Current evidence remains 10/10 implementation capacity, 39 improvements awaiting measurement, 21 failed requests, and unresolved site overlap. Complete or close the canonical saveusfarms.com repair with validation, rollback, and release-boundary evidence before admitting any new work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The proposed finance boundary reconciliation is technically feasible as report-only work outside implementation capacity, but it must use existing telemetry plus owner-provided dated billing exports only. It may report attribution coverage, AI cost, and cost-per-call, while leaving infrastructure cost, contribution margin, ROI, payback, and cost-to-learn unknown where identifiers or periods do not reconcile. No banking, billing, spending, duplicate telemetry, or forecasts are authorized.",
+        "summary": "Reject all four new control-plane proposals this cycle. They are technically feasible and reversible, but cannot safely enter the queue while implementation capacity is saturated at 10/10, measurement and repair obligations remain active, and site overlap is unresolved. Preserve existing gates and records; do not create duplicate requests or telemetry. Reconsider the highest-value control-plane item only after one delivery slot is released and its scope is isolated from active site work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the reviewed disposable-workspace document prototype as capacity-gated research only. Isolation must remain local and read-only with owner-approved inputs, no dependency installation, no production access, no external publishing, and a provenance/error report plus human review before any adoption decision.",
+        "summary": "Maintain the capacity gate. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate to the owner. No new implementation admission is authorized before that evidence exists.",
         "requested_action": null,
         "proposal_id": null
       }

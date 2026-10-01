@@ -2,37 +2,58 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:00:58.685Z",
-  "summary": "reviewer checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T12:30:26.804Z",
+  "summary": "reviewer checked in 7 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, revenue, ROI, causal-lift, high-priority, and duplicate queue work this cycle. Delivery is saturated at 10/10 slots; measurement debt, failed requests, and site overlap remain unresolved. Amazon’s $4.92 aggregate commission is unattributed, so site revenue and ROI claims are unsupported. Preserve existing gates. CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, measurement, and release-boundary evidence, then release one slot or escalate.",
+        "summary": "Reject the new security proposal as duplicate planning: the consolidated security evidence workstream already exists. Preserve the current evidence-needed and capacity gates. No new implementation, financial claim, forecast, ROI, margin, causal-lift claim, telemetry request, or discretionary spend is authorized this cycle.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Capacity is saturated at 10/10 slots, with measurement debt, failed requests, and site overlap unresolved. Amazon’s $4.92 aggregate commission remains unattributed; revenue, ROI, margin, and causal lift claims are unsupported. Preserve existing gates. CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, measurement, and release-boundary evidence, release one slot by 2026-10-01T12:00Z, or escalate to the owner.",
+        "summary": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve unknowns and existing release gates; do not create duplicate work or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Implementation candidates remain unqueued because all ten delivery slots are occupied. Complete or close the canonical saveusfarms.com repair case with root cause or closure rationale, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T12:00Z. After one slot is released and site overlap clears, admit only the existing allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b. Escalate unresolved capacity to the owner at the deadline.",
+        "summary": "Maintain the 10/10 capacity gate. Complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence before admitting any implementation work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not queue scaffold implementation. complicated.work, deadlymaracas.com, and driveford.net lack verified launch-readiness artifacts and configured analytics evidence. After CTO releases a slot, complete one verified readiness artifact for complicated.work covering owner approval, scope, content seed, SEO baseline, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status by 2026-10-02T12:00Z; escalate unresolved gates to the owner.",
+        "summary": "Reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10, measurement and repair obligations remain active, site overlap is unresolved, and 39 improvements await measurement. Preserve existing gates and work. Confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Release one delivery slot before admitting any new implementation work. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence. Deadline: 2026-10-01T12:00:00Z; escalate to the owner if unresolved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net planning-only. After CTO releases a slot, complete exactly one verified launch-readiness artifact for complicated.work covering owner approval, scope, content seed, SEO baseline, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Deadline: 2026-10-02T12:00:00Z; escalate unresolved gates to the owner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal-review",
+        "title": "pending-security-evidence-proposal",
+        "summary": "Duplicate of the existing consolidated security evidence workstream. Preserve the existing matrix and gates without creating duplicate planning or telemetry work.",
+        "requested_action": "declined",
+        "proposal_id": "pending-security-evidence-proposal"
       }
     ]
   }
