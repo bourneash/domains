@@ -16440,6 +16440,16 @@ function render() {
   else if (STATE.view === 'retention') return renderRetention();
 }
 
+// Route renderers are async, but navigation itself is intentionally fire-and-
+// forget. Centralize their rejection handling so a slow response from the
+// previous route cannot become an unhandled promise (or leave a stale global
+// runtime alert) after the operator has already moved on.
+function renderRoute() {
+  const pending = render();
+  Promise.resolve(pending).catch(error => renderViewError($('#app'), error));
+  return pending;
+}
+
 const NAV_ITEM_DESCRIPTIONS = {
   cron: 'Review schedules and manage fleet cron jobs.',
   containers: 'Inspect runtime health, resource use, and container state.',
@@ -16872,7 +16882,7 @@ function go(view, agent, agentPage) {
   ROUTE_EPOCH += 1;
   if (location.hash !== `#${hash}`) location.hash = hash; // shareable + back-button
   FRESH = true;
-  render();
+  renderRoute();
   return true;
 }
 
@@ -17273,11 +17283,11 @@ async function boot() {
       STATE.controlFilter = n.controlFilter || null;
       STATE.controlSort = n.controlSort || null;
       FRESH = true;
-      render();
+      renderRoute();
     }
   });
   FRESH = true;
-  render();
+  renderRoute();
   scheduleAuto();
 }
 

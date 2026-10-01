@@ -98,6 +98,12 @@ test('shared API reads abandon stale route responses before renderers continue',
   assert.match(app, /message\.includes\('route changed while data was loading'\)/);
 });
 
+test('async route renders surface failures without unhandled promise rejections', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function renderRoute\(\)[\s\S]*Promise\.resolve\(pending\)\.catch\(error => renderViewError\(\$\('#app'\), error\)\)/);
+  assert.doesNotMatch(app, /window\.addEventListener\('hashchange',[\s\S]*?\n\s*render\(\);/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
