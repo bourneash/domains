@@ -4261,13 +4261,6 @@ function controlDraw() {
   const core = data.roles.filter(r => count[r] >= 2);
   const coreSet = new Set(core);
 
-  const tally = { fresh: 0, stale: 0, overdue: 0, paused: 0, never: 0 };
-  sites.forEach(s =>
-    Object.values(s.cells).forEach(c => {
-      tally[c.state]++;
-    })
-  );
-
   const rolled = sites.map(s => ({ s, r: siteRollup(s) }));
   const nFreshSites = rolled.filter(x => x.r.problems === 0 && x.r.live > 0).length;
   const nAttention = rolled.filter(x => x.r.problems > 0).length;
@@ -4298,7 +4291,6 @@ function controlDraw() {
       <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites needing attention</span></div>
       <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
       <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common role columns</span></div>
-      <div class="ctl-stat ctl-stat-good"><strong>${tally.fresh}</strong><span>Fresh role cells</span></div>
     </section>
     <div class="ctl-bar">
       <div class="seg sm">

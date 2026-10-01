@@ -1330,7 +1330,7 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.match(app, /Sites needing attention<\/span>/);
   assert.match(app, /Sites with paused roles<\/span>/);
   assert.match(app, /Common role columns<\/span>/);
-  assert.match(app, /Fresh role cells<\/span>/);
+  assert.doesNotMatch(app, /Fresh role cells<\/span>/);
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.rmatrix thead th \{[\s\S]*position: sticky/);
   assert.match(theme, /\.rmatrix thead th\.rsite-h \{ left: 0; z-index: 5; \}/);

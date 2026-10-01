@@ -2439,7 +2439,7 @@ body.has-rail .actions { margin-left: 0; }
    ========================================================================== */
 .ctl-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(210px, 1.45fr);
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 10px;
   margin: 0 0 14px;
 }
