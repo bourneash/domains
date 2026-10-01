@@ -123,15 +123,15 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       new_executable_work_items: executableWorkItems.length,
       completed_work_items: verifiedDeliveries.length,
       new_change_requests: requests.length,
-      new_direct_change_requests: requests.filter(
-        row => row.delivery_mode !== 'report_only'
-      ).length,
+      new_direct_change_requests: requests.filter(row => row.delivery_mode !== 'report_only')
+        .length,
       verified_artifacts: verifiedArtifacts.length,
       verified_deliveries: verifiedDeliveries.length,
       blocked_work_items: workItems.filter(row => row.status === 'blocked').length,
       actionable:
         requests.some(row => row.delivery_mode !== 'report_only') ||
-        verifiedDeliveries.length > 0 || verifiedArtifacts.length > 0,
+        verifiedDeliveries.length > 0 ||
+        verifiedArtifacts.length > 0,
     },
     manager_queue: {
       queued: managerDispatches.filter(row => row.status === 'queued').length,
@@ -340,9 +340,8 @@ async function main() {
     finalEvidence.real_work.verified_deliveries > 0 ||
     finalEvidence.real_work.verified_artifacts > 0;
   const queued =
-    finalEvidence.real_work.new_direct_change_requests > 0 || repairs.some(row =>
-      ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action)
-    );
+    finalEvidence.real_work.new_direct_change_requests > 0 ||
+    repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
   const deliveryStatus = verified || queued ? 'delivered_to_downstream' : 'failed_to_deliver';
   const report = {
     generated_at: new Date().toISOString(),

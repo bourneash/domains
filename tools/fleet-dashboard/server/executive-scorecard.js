@@ -30,9 +30,7 @@ function median(values) {
   const ordered = values.filter(Number.isFinite).sort((a, b) => a - b);
   if (!ordered.length) return null;
   const middle = Math.floor(ordered.length / 2);
-  return ordered.length % 2
-    ? ordered[middle]
-    : (ordered[middle - 1] + ordered[middle]) / 2;
+  return ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2;
 }
 
 function metricDeltas(improvements) {
@@ -234,9 +232,10 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       : NaN;
   });
   const currentRequestsById = new Map(allRequests.map(row => [String(row.request_id), row]));
-  const blockedReviews = allImprovements.filter(row =>
-    row.state === 'review' &&
-    currentRequestsById.get(String(row.source_id))?.status === 'blocked_infrastructure'
+  const blockedReviews = allImprovements.filter(
+    row =>
+      row.state === 'review' &&
+      currentRequestsById.get(String(row.source_id))?.status === 'blocked_infrastructure'
   );
   const ownerRequests =
     typeof store.listExecutiveWorkItems === 'function'

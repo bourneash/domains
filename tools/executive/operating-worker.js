@@ -48,7 +48,8 @@ function isOwnedBlocker(item) {
     Boolean(String(item.waiting_on || item.owner || '').trim()) &&
     Boolean(String(item.next_action || '').trim()) &&
     Number.isFinite(Date.parse(item.due_at || '')) &&
-    Array.isArray(item.evidence) && item.evidence.length > 0
+    Array.isArray(item.evidence) &&
+    item.evidence.length > 0
   );
 }
 
@@ -302,9 +303,7 @@ async function processOperatingManager(
           .listExecutiveWorkItems({ limit: 2000 })
           .filter(item => !beforeWorkItems.has(item.work_id) && item.work_id !== task.work_id);
         const executableWorkItems = workItems.filter(isExecutableWork);
-        const directRequests = changeRequests.filter(
-          item => item.delivery_mode !== 'report_only'
-        );
+        const directRequests = changeRequests.filter(item => item.delivery_mode !== 'report_only');
         const ownedBlockers = workItems.filter(isOwnedBlocker);
         const delivered = sandbox.code === 0 && directRequests.length > 0;
         const actionable = delivered || (sandbox.code === 0 && ownedBlockers.length > 0);

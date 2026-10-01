@@ -79,9 +79,10 @@ function compactRequest(request, run = null) {
   // The request is the authority for a parked review. Its preserved run may
   // still say "review", but no worker can advance it until the infrastructure
   // block is repaired and the request is explicitly revalidated.
-  const state = request?.status === 'blocked_infrastructure'
-    ? 'blocked_infrastructure'
-    : run?.state || request?.status || 'unknown';
+  const state =
+    request?.status === 'blocked_infrastructure'
+      ? 'blocked_infrastructure'
+      : run?.state || request?.status || 'unknown';
   return {
     id: request?.request_id || run?.run_id,
     request_id: request?.request_id || run?.source_id || null,
@@ -106,11 +107,11 @@ function compactRequest(request, run = null) {
         ? 'Complete the review gate and deliver or return with evidence.'
         : state === 'blocked_infrastructure'
           ? 'Repair the recorded infrastructure failure, then revalidate this preserved change.'
-        : state === 'measuring'
-          ? 'Collect the measurement window; do not start overlapping work in this lane.'
-          : state === 'deployed'
-            ? 'Start measurement and record the before/after result.'
-            : 'Keep the implementation moving toward preview, validation, and review.',
+          : state === 'measuring'
+            ? 'Collect the measurement window; do not start overlapping work in this lane.'
+            : state === 'deployed'
+              ? 'Start measurement and record the before/after result.'
+              : 'Keep the implementation moving toward preview, validation, and review.',
   };
 }
 
@@ -207,19 +208,22 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
     .sort((a, b) => a - b)[0];
   const flow = {
     queued_implementation_requests: queued.length,
-    oldest_queued_minutes: oldestQueuedAt == null
-      ? null
-      : Math.max(0, Math.floor((now.getTime() - oldestQueuedAt) / 60000)),
+    oldest_queued_minutes:
+      oldestQueuedAt == null
+        ? null
+        : Math.max(0, Math.floor((now.getTime() - oldestQueuedAt) / 60000)),
     blocked_reviews: blocked.length,
-    validated_today: allRuns.filter(row =>
-      row.validation?.passed === true && localDateKey(row.validation.recorded_at) === todayKey
+    validated_today: allRuns.filter(
+      row =>
+        row.validation?.passed === true && localDateKey(row.validation.recorded_at) === todayKey
     ).length,
-    deployed_today: allRuns.filter(row =>
-      localDateKey(row.outcome?.deployment_verified_at) === todayKey
+    deployed_today: allRuns.filter(
+      row => localDateKey(row.outcome?.deployment_verified_at) === todayKey
     ).length,
-    measured_today: allRuns.filter(row =>
-      ['proven', 'regressed', 'inconclusive'].includes(row.state) &&
-      localDateKey(row.outcome?.measured_at) === todayKey
+    measured_today: allRuns.filter(
+      row =>
+        ['proven', 'regressed', 'inconclusive'].includes(row.state) &&
+        localDateKey(row.outcome?.measured_at) === todayKey
     ).length,
   };
 

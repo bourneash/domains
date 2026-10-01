@@ -221,8 +221,10 @@ function isInfrastructureEvidence(value) {
 }
 
 function reviewerProcessInfrastructureFailure(run) {
-  return Number(run?.agent?.exit_code) === 137 ||
-    /agent exited with code 137|out of memory|oom killed/i.test(String(run?.outcome?.error || ''));
+  return (
+    Number(run?.agent?.exit_code) === 137 ||
+    /agent exited with code 137|out of memory|oom killed/i.test(String(run?.outcome?.error || ''))
+  );
 }
 
 function isSubstantiveReviewerRejection(error, validation, run = null) {
