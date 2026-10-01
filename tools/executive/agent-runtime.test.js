@@ -87,8 +87,16 @@ test('two failed manager deliveries pause the lane and block new dispatches', ()
   assert.equal(recovered.workspace.accountability.execution_generation, 1);
   assert.equal(recovered.workspace.accountability.reprovision_required, false);
   assert.equal(runtime.accountabilityScore(recovered), 0);
-  assert.doesNotThrow(() =>
-    runtime.beginRun(store, { agent_id: agent.agent_id, idempotency_key: 'recovered-next' })
-  );
+  const deferred = runtime.beginRun(store, {
+    agent_id: agent.agent_id,
+    idempotency_key: 'recovered-next',
+  });
+  runtime.finish(store, deferred.run.run_id, {
+    result: { delivery_status: 'deferred', delivery_error: 'sandbox busy' },
+  });
+  const afterDeferred = store.getAgent(agent.agent_id);
+  assert.equal(afterDeferred.workspace.accountability.total_deliveries, 0);
+  assert.equal(afterDeferred.workspace.accountability.total_failures, 2);
+  assert.equal(afterDeferred.workspace.accountability.consecutive_failures, 0);
   store.close();
 });

@@ -339,7 +339,8 @@ function finish(
   });
   const hasDeliverySignal =
     status !== 'succeeded' || Object.prototype.hasOwnProperty.call(result || {}, 'delivery_status');
-  if (hasDeliverySignal) {
+  const isDeferred = result?.delivery_status === 'deferred';
+  if (hasDeliverySignal && !isDeferred) {
     recordAccountabilityOutcome(store, current, {
       delivered: status === 'succeeded' && result?.delivery_status !== 'failed_to_deliver',
       reason: error || result?.delivery_error || (status === 'failed' ? `Run ${status}.` : null),
