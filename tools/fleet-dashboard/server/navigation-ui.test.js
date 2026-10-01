@@ -159,6 +159,7 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   );
   assert.match(app, /id="dataquality-refresh"/);
   assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
+  assert.match(app, /No data quality contracts have been recorded yet/);
 });
 
 test('Retention exposes a primary loading state before reading policy data', () => {
