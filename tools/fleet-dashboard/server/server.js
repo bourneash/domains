@@ -9,6 +9,7 @@ const os = require('node:os');
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
 const git = require('./git');
+const roleScope = require('./role-scope');
 const githygiene = require('./githygiene');
 const tasks = require('./tasks');
 const guideQueue = require('./guideQueue');
@@ -3334,6 +3335,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    if (error?.roleScopeViolation) {
+      const failedRun = markImprovementFailed(run, error);
+      const updated = changequeue.update(
+        events,
+        id,
+        {
+          status: failedRun?.state === 'failed' ? 'failed' : 'needs_repair',
+          error: message,
+          next_attempt_at: null,
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        },
+        site => isKnownTarget(root, site)
+      );
+      events.record({
+        event_type: 'change-request.role_scope_blocked',
+        source: 'fleet-dashboard',
+        site_id: `site:${request.site}`,
+        entity_type: 'change-request',
+        entity_id: id,
+        correlation_id: `change-request:${id}`,
+        payload: { run_id: run?.run_id, error: message },
+      });
+      emitChangeNotification('review blocked', updated, failedRun, message);
+      return;
+    }
     if (isSubstantiveReviewerRejection(error, error?.validation || run?.validation, run))
       error.noAutomaticRepair = false;
     // A reviewer can report a real code concern and an unavailable local
@@ -3612,6 +3640,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const latest = events.getImprovement(run.run_id);
       if (!latest) throw new Error('reviewed improvement run disappeared');
       const request = events.getChangeRequest(id);
+      const scopeError = roleScope.violation(
+        root,
+        request,
+        await git.worktreeDiff(latest.workspace_path)
+      );
+      if (scopeError)
+        throw Object.assign(new Error(scopeError), { roleScopeViolation: true, httpStatus: 409 });
       if (shouldRecoverReviewerDeliveryClaim(request, latest, queueWorkerId)) {
         const recoveredAt = new Date().toISOString();
         events.updateImprovement(latest.run_id, {
