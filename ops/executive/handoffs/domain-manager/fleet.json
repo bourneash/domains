@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:13:25.606Z",
+  "generated_at": "2026-10-01T10:15:18.704Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Create nsfwpixles.com implementation-readiness brief",
-        "summary": "The authoritative snapshot does not provide verified audience, page structure, repository files, worker details, analytics configuration, or current monetization paths for nsfwpixles.com. Create one bounded read-only brief before implementation selection.",
-        "requested_action": "Inspect only authorized repository, registry, and observable site evidence for nsfwpixles.com. Record exact homepage and highest-intent page files, current audience positioning, navigation and CTA paths, analytics status, monetization/disclosure state, accessibility or health blockers, and select exactly one smallest reversible implementation for the next queue slot. Do not deploy, modify production, add telemetry, spend, or claim performance.",
+        "title": "Establish oventoheaven.com baseline and select one reversible improvement",
+        "summary": "Site-specific page, repository, queue, SEO, monetization, and usability evidence for oventoheaven.com is not present in the supplied snapshot. Global implementation capacity is saturated at 10/10 slots, so no new production change can be admitted this cycle.",
+        "requested_action": "Review the existing oventoheaven.com repository and live entry surface using authorized read-only evidence. Record the exact homepage/template files, current CTA and disclosure surfaces, available analytics/affiliate configuration, existing queue overlap, and one smallest reversible implementation candidate. Do not request duplicate telemetry, modify production, deploy, add tracking, or claim lift.",
         "proposal_id": null
       }
     ]
