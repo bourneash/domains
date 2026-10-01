@@ -4428,8 +4428,7 @@ function controlDraw() {
     <section class="ctl-summary" aria-label="Fleet role coverage summary">
       <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully green sites</span></div>
       <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites with role issues</span></div>
-      <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
-      <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common role columns</span></div>
+      <div class="ctl-stat ${nPaused ? 'ctl-stat-paused' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
     </section>
     <div class="ctl-bar">
       <div class="seg sm">

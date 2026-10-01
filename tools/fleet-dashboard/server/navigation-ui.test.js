@@ -1623,7 +1623,7 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.match(app, /Fully green sites<\/span>/);
   assert.match(app, /Sites with role issues<\/span>/);
   assert.match(app, /Sites with paused roles<\/span>/);
-  assert.match(app, /Common role columns<\/span>/);
+  assert.doesNotMatch(app, /Common role columns<\/span>/);
   assert.match(app, /Has fresh roles/);
   assert.match(app, /matrix-scroll-hint/);
   assert.match(app, /Parked domain inventory and renewal exposure/);

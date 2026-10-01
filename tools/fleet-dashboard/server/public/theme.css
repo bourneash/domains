@@ -2513,7 +2513,7 @@ body.has-rail .actions { margin-left: 0; }
    ========================================================================== */
 .ctl-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
   gap: 10px;
   margin: 0 0 14px;
 }
@@ -2544,15 +2544,14 @@ body.has-rail .actions { margin-left: 0; }
 .ctl-stat-good strong { color: var(--green); }
 .ctl-stat-warn { border-top-color: var(--yellow); }
 .ctl-stat-warn strong { color: var(--yellow); }
-.ctl-stat-meta { display: flex; flex-direction: column; justify-content: center; }
-.ctl-stat-meta strong { color: var(--muted); font-size: 15px; }
+.ctl-stat-paused { border-top-color: var(--purple); }
+.ctl-stat-paused strong { color: var(--purple); }
 @media (max-width: 900px) {
   .ctl-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .ctl-stat-meta { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
   .ctl-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .ctl-stat-meta { grid-column: auto; }
+  .ctl-summary > :last-child { grid-column: 1 / -1; }
 }
 .ctl-bar {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
