@@ -13436,6 +13436,8 @@ const WORK_BOARD_COLUMNS = [
 ];
 const WORK_BOARD_FILTER_KEY = 'fd.work-board.filters';
 const WORK_BOARD_COLUMN_KEYS = new Set(WORK_BOARD_COLUMNS.map(([key]) => key));
+let WORK_BOARD_QUERY = '';
+let WORK_BOARD_SEARCH_TIMER;
 function readWorkBoardFilters() {
   try {
     const saved = JSON.parse(localStorage.getItem(WORK_BOARD_FILTER_KEY) || '{}');
@@ -13621,7 +13623,26 @@ async function openWorkflowItem(source, id, data) {
 function workBoardVisible(item) {
   const column = workBoardColumn(item);
   if (WORK_BOARD_EXCLUDE.has(column)) return false;
-  return !WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(column);
+  if (WORK_BOARD_INCLUDE.size && !WORK_BOARD_INCLUDE.has(column)) return false;
+  const query = WORK_BOARD_QUERY.trim().toLowerCase();
+  if (!query) return true;
+  return [
+    item.title,
+    item.site,
+    item.owner,
+    item.assigned_role,
+    item.created_by,
+    item.source_label,
+    item.status,
+    item.summary,
+    item.body,
+    item.rationale,
+    item.next_action,
+    item.waiting_on,
+  ]
+    .map(value => String(value || '').toLowerCase())
+    .join(' ')
+    .includes(query);
 }
 
 function workBoardColumn(item) {
@@ -13655,7 +13676,7 @@ function workBoardCard(item) {
       : item.source === 'proposal'
         ? `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`
         : item.next_action || 'PM triage pending';
-  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(gate)}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}">Open</button></div></article>`;
+  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(gate)}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button type="button" class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}" aria-label="Open ${esc(item.title)} details" title="Open ${esc(item.title)} details">Open</button></div></article>`;
 }
 
 function workBoardItems(data) {
@@ -13777,7 +13798,7 @@ async function renderWorkflowBoard() {
       ([key, label]) =>
         `<button type="button" class="btn sm ${WORK_BOARD_EXCLUDE.has(key) ? 'danger' : ''}" data-wb-exclude="${key}" aria-label="Hide ${esc(label)}" aria-pressed="${WORK_BOARD_EXCLUDE.has(key)}">${label}</button>`
     ).join('');
-    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button type="button" class="btn" id="wb-board-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button type="button" class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include" aria-label="Show all work board lanes" aria-pressed="${!WORK_BOARD_INCLUDE.size}">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button type="button" class="btn sm" data-wb-clear="exclude" aria-label="Clear hidden work board lanes">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Filters are remembered on this device; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
+    app.innerHTML = `<div class="page-head wb-head"><div><div class="cq-eyebrow">FLEET DELIVERY SYSTEM</div><h2 class="page-title">Work Board</h2><div class="crumbs">Backlog, agents, schedules, approval gates, and delivery evidence in one operating view.</div></div><div class="wb-head-actions"><span class="muted">PM tick: every 15 min</span><button type="button" class="btn" id="wb-board-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new">＋ Add backlog work</button></div></div><section class="wb-summary"><div><strong>${items.length}</strong><span>visible work items</span></div><div><strong>${counts[3]}</strong><span>approval gates</span></div><div><strong>${counts[4]}</strong><span>blocked</span></div><div><strong>${data.settings?.change_queue?.max_concurrent || 1}</strong><span>worker capacity</span></div></section><div class="wb-toolbar"><label class="wb-board-search">Find work<input id="wb-board-search" class="cm-input" type="search" aria-label="Search work board items" placeholder="Title, site, owner, or next action…" value="${esc(WORK_BOARD_QUERY)}"></label><div class="wb-filter-controls"><div class="wb-filter-line"><span class="wb-filter-label">Show only</span><button type="button" class="btn sm ${!WORK_BOARD_INCLUDE.size ? 'primary' : ''}" data-wb-clear="include" aria-label="Show all work board lanes" aria-pressed="${!WORK_BOARD_INCLUDE.size}">All</button>${filterButtons}</div><div class="wb-filter-line"><span class="wb-filter-label">Hide</span>${excludeButtons}<button type="button" class="btn sm" data-wb-clear="exclude" aria-label="Clear hidden work board lanes">Clear hidden</button></div></div><span class="muted">Select multiple lanes to combine them. Filters are remembered on this device; drag/drop still updates durable state.</span></div><div class="wb-layout"><section class="wb-board">${WORK_BOARD_COLUMNS.map(
       ([key, label], index) =>
         `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${counts[index]} item${counts[index] === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${
           items
@@ -13790,6 +13811,14 @@ async function renderWorkflowBoard() {
     )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
     $('#wb-board-refresh').onclick = () => renderWorkflowBoard();
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
+    $('#wb-board-search').oninput = event => {
+      clearTimeout(WORK_BOARD_SEARCH_TIMER);
+      const value = event.target.value.trim().toLowerCase();
+      WORK_BOARD_SEARCH_TIMER = setTimeout(() => {
+        WORK_BOARD_QUERY = value;
+        renderWorkflowBoard();
+      }, 180);
+    };
     $$('[data-wb-include]').forEach(
       button =>
         (button.onclick = () => {

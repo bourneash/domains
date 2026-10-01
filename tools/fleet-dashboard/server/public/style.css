@@ -1458,6 +1458,8 @@ body[data-view="social"] main { max-width: none; }
 .wb-summary span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
 .wb-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 0 14px; }
 .wb-filter-controls { display: grid; gap: 6px; }
+.wb-board-search { display: flex; flex: 1 1 260px; flex-direction: column; gap: 5px; min-width: min(280px, 100%); color: var(--muted); font-size: 11px; font-weight: 600; }
+.wb-board-search input { width: 100%; }
 .wb-filter-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .wb-filter-label { width: 68px; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .6px; text-transform: uppercase; }
 .wb-layout { display: grid; grid-template-columns: minmax(0, 1fr) 285px; gap: 14px; align-items: start; }
@@ -1493,7 +1495,7 @@ body[data-view="social"] main { max-width: none; }
 .wb-detail pre { white-space: pre-wrap; padding: 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--muted); font: 12px/1.45 var(--mono); }
 .wb-detail-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 @media (max-width: 1250px) { .wb-board { grid-template-columns: repeat(3, minmax(205px, 1fr)); } .wb-layout { grid-template-columns: 1fr; } .wb-activity-panel { position: static; } }
-@media (max-width: 700px) { .wb-summary { grid-template-columns: repeat(2, 1fr); } .wb-board { grid-template-columns: repeat(2, minmax(190px, 1fr)); } .wb-head { align-items: flex-start; flex-direction: column; } .wb-head > div:first-child { flex: 0 1 auto; width: 100%; } }
+@media (max-width: 700px) { .wb-summary { grid-template-columns: repeat(2, 1fr); } .wb-board { grid-template-columns: repeat(2, minmax(190px, 1fr)); } .wb-head { align-items: flex-start; flex-direction: column; } .wb-head > div:first-child { flex: 0 1 auto; width: 100%; } .wb-board-search { flex-basis: 100%; min-width: 0; } }
 .cq-page-head { align-items: flex-end; margin-bottom: 18px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px; background: radial-gradient(circle at 82% 0%, rgba(77,163,255,.14), transparent 34%), linear-gradient(135deg, rgba(28,34,48,.96), rgba(22,27,34,.96)); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
 .cq-page-head .page-title { margin-top: 2px; font-size: 25px; letter-spacing: -.35px; }
 .cq-page-head .crumbs { margin: 5px 0 0; }
