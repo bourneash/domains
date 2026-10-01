@@ -2798,6 +2798,13 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .error-box {
   color: #8b2935;
   background: linear-gradient(145deg, rgba(220,64,83,.08), rgba(40,70,110,.015));
+  border-color: rgba(190,67,86,.34);
+  border-left-color: #be4356;
+}
+:root[data-theme="light"] .empty {
+  color: var(--muted);
+  background: linear-gradient(145deg, rgba(255,255,255,.82), rgba(240,244,250,.68));
+  border-color: var(--border-hi);
 }
 :root[data-theme="light"] .fd-stale-banner {
   color: #6f5011;
