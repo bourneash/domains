@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:37:52.942Z",
+  "generated_at": "2026-10-01T08:57:05.366Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: keep SearchWoot private and leave rights outreach unsent under EXEC_CONV_12. Evidence: Woot redistribution rights remain blocked; 0/4 legal tasks are closed; security and operations evidence remains unavailable; compliance is 35 pass, 20 fail, 6 unknown. Delivery is saturated at 10/10 slots, with 39 improvements awaiting measurement and 21 failed requests. Unknown: public-launch upside and ROI are not calculable. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case by 2026-10-01T09:00Z and releases one slot. Owner decision: confirm keep-private disposition.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Keep SearchWoot private and leave rights outreach unsent. Evidence: delivery is saturated at 10/10 slots; 39 improvements await measurement; 21 requests failed; only 6 outcomes are proven; Amazon reports $4.92 aggregate unattributed commission for 2026-09-21. Revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO completes or closes the existing saveusfarms.com repair case with validation evidence by 2026-10-01T09:00Z and releases one slot. Owner decision: confirm keep-private disposition.",
         "requested_action": null,
         "proposal_id": null
       }

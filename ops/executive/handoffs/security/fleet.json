@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:37:52.943Z",
+  "generated_at": "2026-10-01T09:08:49.655Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; no clean bill of health is supported. Evidence timestamp: 2026-10-01T04:50:05.408Z. Scope: 61 managed sites. Fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. No credential exposure, exploit, or vulnerability is established. Compliance is technical-only: 35 pass, 20 fail, 6 unknown; it is not certification. Exact decision: do not clear go-live, public exposure expansion, or security-sensitive releases. Preserve existing private-launch gates and continue the canonical read-only evidence matrix. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; no clean bill of health is supported. Evidence timestamp: 2026-10-01T04:50:05.408Z. Scope: 61 managed sites. Fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results. Authentication and access boundaries, secrets handling, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. TLS has no certificates expiring within 30 days, but that does not establish correct TLS configuration. Compliance is technical-only: 35 pass, 20 fail, 6 unknown; it is not certification. No credential exposure, exploit, or vulnerability is established. Exact decision: do not clear go-live, public-exposure expansion, or security-sensitive releases. Permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior and remains within existing consent, disclosure, and data-handling boundaries.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the existing consolidated security evidence matrix; do not create duplicate work. Record dated evidence or explicit unknowns, affected scope, owner, severity, and release implications for authentication/access boundaries, secrets, runtime isolation, release integrity, dependency provenance, TLS, data exposure, monitoring and incident signals, incident response, and security.txt/disclosure readiness. Reassess only when concrete authorized evidence exists. Keep security-sensitive implementation and public-launch gates blocked.",
+        "summary": "Security review of the candidate plan: retain the planning-only scaffold pipeline and the existing allthingsmasonic.com CTA refinement only after capacity and overlap clearance. These are not security clearances. Any preview, deployment, new public exposure, credential or permission change, dependency addition, data-collection change, or cross-site behavior requires renewed evidence and security review.",
         "requested_action": null,
         "proposal_id": null
       }

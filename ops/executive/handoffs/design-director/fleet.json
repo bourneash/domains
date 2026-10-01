@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:05:08.950Z",
+  "generated_at": "2026-10-01T08:47:32.808Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Design disposition: reject the two new scaffold build admissions this cycle. Delivery is saturated at 10/10 slots, measurement and repair work remain active, and no new site-factory work can execute safely. Preserve only the existing allthingsmasonic.com CTA refinement after CTO releases a slot and site-overlap clearance is confirmed. Scope: clarify affiliate CTA hierarchy, preserve disclosure placement, verify keyboard/focus/mobile behavior, run deterministic tests/build/link checks, and measure clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. Retain the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Do not claim conversion lift or revenue impact; classify unavailable outcomes as unknown. Roll back only the bounded change if validation or release gates fail.",
+        "summary": "Do not admit new work this cycle. After the existing saveusfarms.com repair-or-close case releases one delivery slot and site overlap clears, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b. Ship one reversible CTA hierarchy and disclosure-placement refinement on the existing affiliate entry surface. Preserve destinations, copy claims, consent behavior, and tracking. Measure affiliate clicks first; orders, shipped items, commission, and direct change cost remain secondary and may be unknown.",
         "requested_action": null,
         "proposal_id": null
       }

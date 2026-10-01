@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:37:52.941Z",
-  "summary": "revenue-ops checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:47:32.808Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b. Execute only after a delivery slot and site-overlap clearance are available. Preserve the 2026-09-21 baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Keep delivery at 10/10 until the existing saveusfarms.com repair-or-close case is completed or justified closure is documented. Preserve the Amazon aggregate row as unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21 cannot be assigned to a site. After capacity and overlap clearance, execute only the existing allthingsmasonic.com CTA refinement, then address gated affiliate-readiness repairs in priority order.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep amputeenews.com monetization readiness blocked pending evidence of the owner-controlled Amazon Associates tag. Do not treat missing affiliate revenue as zero revenue. Validate the registered tag before enabling or relying on site-level affiliate attribution.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing americastrikes.com affiliate-repair work as one deduplicated repair path. Audit stale or broken affiliate references and validate ASIN-to-registered-tracking-ID consistency before implementation. Exact broken URLs and conversion impact remain unknown until inspection.",
+        "summary": "Validate affiliate destinations, registered tracking IDs, disclosure placement, consent behavior, and link health using existing artifacts only. Do not infer missing disclosures from unavailable scans, assign aggregate revenue to sites, add tracking, or claim ROI. Any production change remains reversible and capacity-gated.",
         "requested_action": null,
         "proposal_id": null
       }

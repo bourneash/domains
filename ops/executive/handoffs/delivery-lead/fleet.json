@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.101Z",
+  "generated_at": "2026-10-01T08:47:32.808Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new change requests are admitted this cycle. Delivery is saturated at 10/10 active slots with zero open slots, while pilot sites remain in measurement windows and queue-ready fleet sites cannot execute. CTO SLA: 2026-10-01T09:00Z. Complete or justifiably close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate to the owner. After capacity clears, retain only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com, subject to site-overlap clearance and normal gates. Do not create duplicate work, new telemetry, proposals, or site-factory admissions.",
+        "summary": "Delivery is saturated at 10/10 active slots with 39 improvements awaiting measurement and 21 failed requests. Complete or close the existing saveusfarms.com repair case with validation and rollback evidence, release one slot by 2026-10-01T09:00:00Z, and escalate if unresolved. The queued batch below must not execute until capacity and required launch gates clear.",
         "requested_action": null,
         "proposal_id": null
       }
