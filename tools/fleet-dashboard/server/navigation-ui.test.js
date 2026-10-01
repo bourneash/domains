@@ -296,6 +296,17 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /searchable\.includes\(query\)/);
 });
 
+test('executive overview gives dense controls explicit context', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /aria-label="Filter executive runs"/);
+  assert.match(app, /aria-label="Filter executive runs by status"/);
+  assert.match(app, /caption class="sr-only">Executive run history<\/caption>/);
+  assert.match(app, /caption class="sr-only">Executive calendar events<\/caption>/);
+  assert.match(app, /aria-label="Search executive cases"/);
+  assert.match(app, /aria-label="Filter executive requests"/);
+  assert.match(app, /aria-label="Sort run history by \$\{label\}"/);
+});
+
 test('workbench thread expansion exposes an accessible loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
