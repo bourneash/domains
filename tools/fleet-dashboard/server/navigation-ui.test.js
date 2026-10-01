@@ -928,6 +928,18 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
 });
 
+test('Git Hygiene presents safety state and searchable review queue', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="gh-summary"/);
+  assert.match(app, /id="gh-search"/);
+  assert.match(app, /Repositories swept<\/span>/);
+  assert.match(app, /Blocked paths<\/span>/);
+  assert.match(app, /function applyGitHygieneFilter\(\)/);
+  assert.match(theme, /\.gh-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.gh-filter-hidden \{ display: none; \}/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);

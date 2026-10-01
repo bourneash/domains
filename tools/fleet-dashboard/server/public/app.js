@@ -39,6 +39,7 @@ const EXEC_CASE_UI = { q: '', state: 'all', selected: null };
 const CN_FILTER = { q: '', status: 'all', kind: 'all' };
 const DEPLOY_FILTER = { q: '', status: 'all' };
 const GIT_FILTER = { q: '', status: 'all' };
+const GH_FILTER = { q: '' };
 // Route/bootstrap changes can trigger two renders close together (for example
 // when the live stream opens while the initial hash is settling). Reuse the
 // same short-lived read rather than starting a second identical fan-out.
@@ -1026,15 +1027,25 @@ async function renderGitHygiene() {
   const last = b.lastSweep;
   const summary = (last && last.summary) || [];
   const notClean = summary.filter(r => !r.clean);
+  const clean = summary.filter(r => r.clean).length;
   const blocked = (last && last.blocked) || [];
   const skipped = (last && last.skipped) || [];
+  const q = b.queue || [];
 
   const when = last ? `${esc(last.at)}` : 'never';
   const head = `
     ${gitPageTabs('hygiene')}
+    <section class="gh-summary" aria-label="Git hygiene summary">
+      <div class="gh-stat"><strong>${summary.length}</strong><span>Repositories swept</span></div>
+      <div class="gh-stat gh-stat-good"><strong>${clean}</strong><span>Clean</span></div>
+      <div class="gh-stat ${notClean.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${notClean.length}</strong><span>Need review</span></div>
+      <div class="gh-stat ${blocked.length ? 'gh-stat-bad' : 'gh-stat-good'}"><strong>${blocked.length}</strong><span>Blocked paths</span></div>
+      <div class="gh-stat ${skipped.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${skipped.length}</strong><span>Skipped repos</span></div>
+      <div class="gh-stat gh-stat-meta"><strong>${b.policy.rules.length}</strong><span>Policy rules · ${b.policy.ignoreBlock.length} managed ignore lines</span></div>
+    </section>
     <div class="task-toolbar">
       <strong>Git Hygiene</strong>
-      <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${notClean.length} not clean · ${b.queue.length} to review` : ''}</span>
+      <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${q.length} to review` : ''}</span>
       <button class="btn sm" id="gh-audit" style="margin-left:auto"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
       <button class="btn sm" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
     </div>`;
@@ -1057,11 +1068,13 @@ async function renderGitHygiene() {
           .join('')}</tbody></table></div>`
     : '';
 
-  const q = b.queue;
   const queueRows = q.length
     ? q
         .map(
-          (i, n) => `<tr data-gh-i="${n}" data-fleet-row data-site="${esc(i.slug)}">
+          (
+            i,
+            n
+          ) => `<tr class="gh-queue-row" data-gh-i="${n}" data-gh-search="${esc(`${i.slug} ${i.path} ${i.reason || ''}`.toLowerCase())}" data-fleet-row data-site="${esc(i.slug)}">
       <td class="site">${esc(i.slug)}</td>
       <td class="mono">${esc(i.path)}</td>
       <td><span class="muted">${esc(i.reason)}</span></td>
@@ -1093,6 +1106,7 @@ async function renderGitHygiene() {
     : '<tr><td colspan="6" class="muted">No sweep has been recorded yet. Run one above.</td></tr>';
 
   app.innerHTML = `${head}${blockedCard}
+    <div class="gh-controls" role="group" aria-label="Search hygiene queue"><label class="gh-search"><span class="sr-only">Search review queue</span><input id="gh-search" class="cm-input" type="search" placeholder="Search site, path, or reason…" value="${esc(GH_FILTER.q)}" autocomplete="off" /></label><span id="gh-filter-count" class="muted" role="status" aria-live="polite"></span></div>
     <div class="card"><h3>Review queue (${q.length})</h3><table>
       <thead><tr><th>Site</th><th>Path</th><th>Why it needs you</th><th>Since</th><th>Decision</th></tr></thead>
       <tbody>${queueRows}</tbody></table>
@@ -1137,6 +1151,11 @@ async function renderGitHygiene() {
     )
       sweepBtn(true);
   });
+  $('#gh-search').addEventListener('input', e => {
+    GH_FILTER.q = e.target.value;
+    applyGitHygieneFilter();
+  });
+  applyGitHygieneFilter();
 
   $$('.gh-act').forEach(btn =>
     btn.addEventListener('click', async () => {
@@ -1212,6 +1231,18 @@ async function renderGitHygiene() {
 
   applyFleetFilter();
   stamp();
+}
+
+function applyGitHygieneFilter() {
+  const q = GH_FILTER.q.trim().toLowerCase();
+  const rows = $$('.gh-queue-row');
+  const visible = rows.filter(row => {
+    const show = !q || (row.dataset.ghSearch || '').includes(q);
+    row.classList.toggle('gh-filter-hidden', !show);
+    return show;
+  });
+  const count = $('#gh-filter-count');
+  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
 }
 
 async function renderGit() {
