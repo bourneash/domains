@@ -20,6 +20,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
+# Runtime pulse: this wrapper runs on every cron tick, including when no
+# deployment is queued. The dashboard uses it to distinguish a healthy idle
+# deployer from a cron schedule that stopped firing.
+mkdir -p ops/.locks
+touch ops/.locks/deployer-status.json
+
 LOG=ops/logs/deployer-retry-cap.log
 mkdir -p ops/logs
 

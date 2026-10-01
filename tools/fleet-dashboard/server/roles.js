@@ -24,6 +24,7 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
+const DEPLOYER_HEARTBEAT_STALE_MS = 15 * 60 * 1000;
 const FLEET_EXECUTIVE_ROLES = [
   {
     role: 'product-manager-fleet',
@@ -312,7 +313,12 @@ function editorialTelemetry(cwd, role) {
     alerts,
     publication,
     deploy: deploy
-      ? { ...deploy, pending: deployNeeded, failedMarker: deployFailed, auditBlocked: deployAuditBlocked }
+      ? {
+          ...deploy,
+          pending: deployNeeded,
+          failedMarker: deployFailed,
+          auditBlocked: deployAuditBlocked,
+        }
       : { pending: deployNeeded, failedMarker: deployFailed, auditBlocked: deployAuditBlocked },
   };
 }
@@ -362,6 +368,31 @@ async function matrix(root, slugs) {
           const onMain = g.branch === 'main' || g.branch === 'master';
           const pushed = onMain && (g.ahead || 0) === 0;
           age = last ? (now - last) / 1000 : null;
+          const runner = path.join(cwd, 'ops', 'scripts', 'run-deployer.sh');
+          let heartbeat = null;
+          try {
+            // Only enforce the pulse contract for runners that implement it;
+            // older fleet deployers retain their existing production-health view.
+            if (fs.readFileSync(runner, 'utf8').includes('deployer-status.json')) {
+              let at = null;
+              try {
+                at = fs.statSync(path.join(cwd, 'ops', '.locks', 'deployer-status.json')).mtimeMs;
+              } catch {
+                /* a missing pulse is a failed heartbeat */
+              }
+              const heartbeatAge = at == null ? null : now - at;
+              heartbeat = {
+                at,
+                age: heartbeatAge == null ? null : heartbeatAge / 1000,
+                state:
+                  heartbeatAge != null && heartbeatAge <= DEPLOYER_HEARTBEAT_STALE_MS
+                    ? 'fresh'
+                    : 'overdue',
+              };
+            }
+          } catch {
+            /* runner missing or unreadable: preserve existing view */
+          }
           // Push state is cheap and immediate; the CF verdict supplies the
           // production meaning. Only a confirmed build failure is red.
           const bh = deployhealth.get(slug);
@@ -376,6 +407,7 @@ async function matrix(root, slugs) {
           } else if (bh && ['deploying', 'behind'].includes(bh.status)) {
             state = 'stale'; // pending/behind is attention, not confirmed failure
           } else state = 'fresh'; // in sync + (CF confirms live, or no CF data)
+          if (heartbeat?.state === 'overdue') state = 'overdue';
           if (bh)
             build = {
               ok: bh.ok,
@@ -396,6 +428,7 @@ async function matrix(root, slugs) {
             branch: g.branch || null,
             pushed,
             build,
+            heartbeat,
           };
         }
         cells[role] = {

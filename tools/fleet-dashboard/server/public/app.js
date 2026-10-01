@@ -266,16 +266,19 @@ function apiOptional(method, url, fallback, timeoutMs = 2500) {
   return Promise.race([
     api(method, url),
     new Promise(resolve => setTimeout(() => resolve(fallback), timeoutMs)),
-  ]).then(value => {
-    if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
-    return value;
-  }).catch(error => {
-    // A stale/rotated browser session must not look like a healthy empty
-    // dataset. `api()` has already opened the login overlay for 401s; let the
-    // error propagate so the caller cannot render misleading zero counts.
-    if (error?.message === 'authentication required' || error?.name === 'StaleRouteError') throw error;
-    return fallback;
-  });
+  ])
+    .then(value => {
+      if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
+      return value;
+    })
+    .catch(error => {
+      // A stale/rotated browser session must not look like a healthy empty
+      // dataset. `api()` has already opened the login overlay for 401s; let the
+      // error propagate so the caller cannot render misleading zero counts.
+      if (error?.message === 'authentication required' || error?.name === 'StaleRouteError')
+        throw error;
+      return fallback;
+    });
 }
 
 /* ---- auth gate (F1) ---- */
@@ -4248,7 +4251,7 @@ async function renderControl() {
 
   app.innerHTML = `
     <div class="page-head">
-      <div><h2 class="page-title">Domain Control</h2><span class="muted">every role on every site · a column header opens that agent, a cell opens its log</span></div>
+      <div><h2 class="page-title">Fleet role coverage</h2><span class="muted">one row per site · open a role header for its agent, or a cell for its latest log</span></div>
       <button type="button" class="btn" id="control-refresh">↻ Refresh</button>
     </div>
     <div id="ctl-bar"></div>
@@ -4321,7 +4324,7 @@ function controlDraw() {
     `<button type="button" class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}" aria-pressed="${CONTROL.filter === k}">${label}<span class="ctl-n">${n}</span></button>`;
 
   $('#ctl-bar').innerHTML = `
-    <section class="ctl-summary" aria-label="Domain control summary">
+    <section class="ctl-summary" aria-label="Fleet role coverage summary">
       <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully green sites</span></div>
       <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites needing attention</span></div>
       <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
@@ -4330,7 +4333,7 @@ function controlDraw() {
     <div class="ctl-bar">
       <div class="seg sm">
         ${seg('all', 'All sites', sites.length)}
-        ${seg('fresh', 'Fresh roles', rolled.filter(x => x.r.fresh > 0).length)}
+        ${seg('fresh', 'Has fresh roles', rolled.filter(x => x.r.fresh > 0).length)}
         ${seg('attention', 'Needs attention', nAttention)}
         ${seg('paused', 'Has paused', nPaused)}
       </div>
@@ -4779,6 +4782,15 @@ function roleDot(site, role, c) {
     const extras = [];
     if (d.dirty) extras.push(`${d.dirty} uncommitted`);
     if (c.age != null) extras.push(`last deploy ${fmtAge(c.age)} ago`);
+    if (d.heartbeat) {
+      extras.push(
+        d.heartbeat.age == null
+          ? 'cron heartbeat missing'
+          : d.heartbeat.state === 'overdue'
+            ? `cron heartbeat overdue (${fmtAge(d.heartbeat.age)} ago)`
+            : `cron tick ${fmtAge(d.heartbeat.age)} ago`
+      );
+    }
     tip = `deployer — ${health}${extras.length ? ' · ' + extras.join(' · ') : ''}`;
   } else {
     tip = `${role} — ${STATE_LABEL[c.state] || c.state}${c.age != null ? ` · last ${fmtAge(c.age)} ago` : ''} · sched ${c.schedule}`;
@@ -12728,7 +12740,8 @@ async function renderChangeQueue({ background = false } = {}) {
   if (CHANGE_QUEUE_RENDERING) return;
   CHANGE_QUEUE_RENDERING = true;
   if (FRESH && !background)
-    app.innerHTML = '<div class="loading" role="status" aria-live="polite">Loading change queue…</div>';
+    app.innerHTML =
+      '<div class="loading" role="status" aria-live="polite">Loading change queue…</div>';
   let data;
   try {
     data = await api('GET', '/api/change-requests');
@@ -13666,6 +13679,7 @@ async function renderActiveDelivery() {
       )
       .join('');
     const today = data.today || {};
+    const flow = data.flow || {};
     const lanes = Object.entries(data.lane_counts || {})
       .map(
         ([lane, count]) =>
@@ -13673,6 +13687,17 @@ async function renderActiveDelivery() {
       )
       .join(' ');
     app.innerHTML = `<div class="page-head"><div><div class="cq-eyebrow">PORTFOLIO DELIVERY CONTROL</div><h2 class="page-title">Active Delivery</h2><div class="crumbs">Ten meaningful initiatives stay in motion; reporting does not consume delivery capacity.</div></div><button class="btn" id="delivery-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${policy.active_slots || 0}/${policy.max_active_slots || 10}</div><div class="seo-stat-label">Active slots</div></div><div class="seo-stat"><div class="seo-stat-value">${policy.open_slots || 0}</div><div class="seo-stat-label">Open slots</div></div><div class="seo-stat"><div class="seo-stat-value">${(data.attention || []).length}</div><div class="seo-stat-label">Needs attention</div></div><div class="seo-stat"><div class="seo-stat-value">${today.implementation_requests_completed || 0}</div><div class="seo-stat-label">Implementation completions today</div></div><div class="seo-stat"><div class="seo-stat-value">${today.report_only_requests_created || 0}</div><div class="seo-stat-label">Reports created today</div></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">ACTIVE PORTFOLIO</div><h3>What engineers are actually working on</h3><p class="muted">Only direct implementation work occupies these slots. Completed reports remain available in the Work Board and executive history.</p></div><div>${lanes}</div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>#</th><th>Initiative</th><th>Lane</th><th>State</th><th>Owner</th><th>Next action</th></tr></thead><tbody>${slotRows || '<tr><td colspan="6" class="muted">No active implementation work. Fill the delivery slots.</td></tr>'}</tbody></table></div>${(data.overflow || []).length ? `<div class="muted" style="margin-top:12px">${data.overflow.length} additional implementation item(s) are beyond the ten-slot limit and should be triaged before new work is created.</div>` : ''}</section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY ATTENTION</div><h3>Resolve before generating more reports</h3></div><span class="badge ${(data.attention || []).length ? 'b-yellow' : 'b-green'}">${(data.attention || []).length ? `${data.attention.length} flagged` : 'all clear'}</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Reason</th><th>Initiative</th><th>State</th><th>Next action</th></tr></thead><tbody>${attentionRows || '<tr><td colspan="4" class="muted">No delivery blockers or pending gates.</td></tr>'}</tbody></table></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">TODAY’S FLOW</div><h3>Execution over activity</h3></div></div><div class="muted">${today.implementation_requests_created || 0} implementation requests created · ${today.implementation_requests_completed || 0} completed · ${today.implementation_requests_failed_or_cancelled || 0} failed/cancelled · ${today.report_only_requests_created || 0} report-only requests created${today.reporting_to_delivery_ratio == null ? '' : ` · reporting/completion ratio ${today.reporting_to_delivery_ratio}:1`}.</div></section></div>`;
+    const completionKpi = app.querySelectorAll('.seo-stat')[3];
+    if (completionKpi) {
+      completionKpi.querySelector('.seo-stat-value').textContent = flow.deployed_today ?? 0;
+      completionKpi.querySelector('.seo-stat-label').textContent = 'Verified deployments today';
+    }
+    app
+      .querySelector('.seo-stats')
+      ?.insertAdjacentHTML(
+        'afterend',
+        `<section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY FLOW</div><h3>Work crossing the delivery boundary</h3></div></div><p class="muted">${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${Number(flow.oldest_queued_minutes)} min`} · ${Number(flow.blocked_reviews || 0)} infrastructure-blocked reviews · ${Number(flow.validated_today || 0)} validated today · ${Number(flow.deployed_today || 0)} deployment-verified today · ${Number(flow.measured_today || 0)} measured today.</p></section>`
+      );
     $('#delivery-refresh').onclick = () => renderActiveDelivery();
     if (!FRESH) applyUISnap();
     stamp();
@@ -15005,7 +15030,7 @@ async function renderExecutive() {
       runStatus,
       cases,
       calendar,
-  ] = await EXECUTIVE_LOAD_CACHE.promise;
+    ] = await EXECUTIVE_LOAD_CACHE.promise;
   } catch (e) {
     if (!routeIs('agent', 'executive', requestedPage)) return;
     renderViewError(app, `Executive control plane failed: ${e.message}`);
