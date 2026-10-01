@@ -73,6 +73,13 @@ test('site command deep links retain domain context in the shell title', () => {
   assert.match(shell, /document\.title = `\$\{siteLabel\} · Domain Fleet Manager`/);
 });
 
+test('Executive deep links retain their operating workspace context', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /rootView === 'executive' \? \{ group: 'Agents', label: 'Executive' \}/);
+  assert.match(shell, /specialContext\.group/);
+  assert.match(shell, /specialContext\.label/);
+});
+
 test('executive leadership is a first-class Agents page', () => {
   assert.equal(routeFor('#agents/executive').view, 'agent');
   assert.equal(routeFor('#agents/executive').agent, 'executive');

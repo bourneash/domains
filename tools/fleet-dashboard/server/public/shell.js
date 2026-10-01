@@ -1464,9 +1464,14 @@
           siteLabel = rawSite;
         }
       }
+      const specialContext =
+        rootView === 'executive' ? { group: 'Agents', label: 'Executive' } : null;
       if (siteLabel) {
         ctx.innerHTML = `<span class="ctx-g">Domain Control</span><span class="ctx-s">/</span><span class="ctx-v">${esc(siteLabel)}</span>`;
         document.title = `${siteLabel} · Domain Fleet Manager`;
+      } else if (specialContext) {
+        ctx.innerHTML = `<span class="ctx-g">${specialContext.group}</span><span class="ctx-s">/</span><span class="ctx-v">${specialContext.label}</span>`;
+        document.title = `${specialContext.label} · Domain Fleet Manager`;
       } else {
         ctx.innerHTML = grp
           ? `<span class="ctx-g">${esc(grp)}</span><span class="ctx-s">/</span><span class="ctx-v">${esc(activeLabel)}</span>`
