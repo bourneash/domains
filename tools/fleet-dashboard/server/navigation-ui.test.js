@@ -1092,6 +1092,12 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="deploy-summary-grid"/);
+  assert.match(app, /type="button" class="btn" id="deploy-refresh"/);
+  assert.match(app, /Loading deploy health…/);
+  assert.match(
+    app,
+    /\$\('#deploy-refresh'\)\.addEventListener\('click', \(\) => renderDeployHealth\(\)\)/
+  );
   assert.match(app, /id="deploy-search"/);
   assert.match(app, /id="deploy-status"/);
   assert.match(app, /function applyDeployFilter\(\)/);

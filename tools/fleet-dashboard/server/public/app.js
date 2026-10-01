@@ -2211,7 +2211,9 @@ async function renderAIUsage() {
 // CF-side deploy failure is visible without hovering a dot or opening devtools.
 async function renderDeployHealth() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading deploy health…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Deploys</h2><span class="muted">Production deployment telemetry and build state across the fleet</span></div></div><div role="status" aria-live="polite"><div class="loading">Loading deploy health…</div></div>';
   let d;
   try {
     d = await api('GET', '/api/deploy-health');
@@ -2271,7 +2273,7 @@ async function renderDeployHealth() {
 
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Deploys</h2><span class="muted">Production status is based on the latest deployable site commit; ops-only commits do not count as deploy failures.</span></div>
+    <div class="page-head"><div><h2 class="page-title">Deploys</h2><span class="muted">Production status is based on the latest deployable site commit; ops-only commits do not count as deploy failures.</span></div><button type="button" class="btn" id="deploy-refresh">↻ Refresh</button></div>
     <section class="deploy-summary-grid" aria-label="Deployment summary">
       <div class="deploy-stat deploy-stat-good"><strong>${live}</strong><span>Live</span></div>
       <div class="deploy-stat"><strong>${opsOnly}</strong><span>Ops-only</span></div>
@@ -2290,6 +2292,7 @@ async function renderDeployHealth() {
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
     </table></div></div>
     <details class="deploy-help"><summary>How deployment status is determined</summary><p><b>live</b> = the latest deployable <code>site/</code> commit is serving. <b>ops-only</b> = newer operational files do not affect production. <b>deploying</b>/<b>site changes pending</b> = production may need a build, but failure is not confirmed. <b>build failed</b> = Cloudflare reported a failed build. <b>unknown</b> = telemetry is unavailable. Refreshed every 5 minutes in the background.</p></details>`;
+  $('#deploy-refresh').addEventListener('click', () => renderDeployHealth());
   $('#deploy-status').value = DEPLOY_FILTER.status;
   $('#deploy-search').addEventListener('input', e => {
     DEPLOY_FILTER.q = e.target.value;
