@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.674Z",
+  "generated_at": "2026-10-01T10:37:23.669Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new scaffold admissions and duplicate readiness work under EXEC_CONV_12. Evidence: delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve complicated.work, deadlymaracas.com, and driveford.net as planning-only. Keep SearchWoot private and rights outreach unsent; the remaining owner decision is confirmation of that disposition.",
+        "summary": "Recommendation: preserve the existing allthingsmasonic.com CTA refinement, but do not admit or duplicate work until CTO releases a slot and clears site overlap. Evidence: delivery is 10/10 occupied, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Baseline is 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21; $4.92 aggregate Amazon commission remains unattributed. Revenue, ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or closes the canonical saveusfarms.com repair case with validation and rollback evidence. Owner decision under EXEC_CONV_12: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

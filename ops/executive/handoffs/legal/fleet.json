@@ -2,14 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:27:27.800Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:37:23.670Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta or full launch; counsel_required for upstream data rights and jurisdiction-specific privacy decisions. Exact decision: keep the private-preview gate, do not send rights outreach, do not add affiliate or advertising use, and permit only bounded read-only evidence work. Evidence: Woot documentation confirms API access, endpoints, rate limits, and quota, but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; public terms restrict collection and commercial/public reuse without express written consent. Compliance is technical-only fleet evidence: 35 pass, 20 fail, 6 unknown; this is not certification. Security and operations controls remain unevidenced; accuracy/freshness and measurement gates are blocked. Ordinary reversible growth may continue only when it adds no credentials, permissions, dependencies, data collection, cross-site behavior, or unsupported claims.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta or go-live; conditional for ordinary reversible growth that adds no new data collection, sharing, monetization, credentials, permissions, dependencies, or cross-site behavior. Keep searchwoot.com private and leave Woot outreach unsent. Evidence: Woot documentation confirms API access mechanics only; current public terms do not establish public redistribution, storage, derivatives, display, alerts, affiliate, or advertising rights. Security, accuracy/freshness, measurement, and owner gates also remain incomplete. The compliance baseline is technical only: 35 pass, 20 fail, 6 unknown; it is not certification. Exact decision: no public exposure or monetization change until rights evidence, human-counsel review, all applicable checklist dispositions, and non-legal gates are complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Launch-readiness tracking progress: 0 of 4 legal tasks are evidenced closed. Source-rights evidence is documented but supports access only; data-flow and consent/analytics evidence are partial; logs, vendors, incident handling, and request workflows remain open. No task is closed. Next evidence action: attach one dated read-only bundle covering repository/config data flow and retention, deployed consent and withdrawal behavior, GA4 property/data-sharing and retention settings, log fields and access, vendor terms/DPA status, and incident/deletion/correction/request procedures.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Legal gate: do not admit scaffold builds or public launches from missing analytics, affiliate, compliance, or security evidence. For ordinary reversible work, telemetry gaps alone are not a blocker if the change preserves existing consent, disclosures, provenance, claims, and data boundaries. For private or gated sites, retain the private decision and preview-only gate until the checklist is evidenced.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue disposition: preserve the attribution boundary. Amazon evidence for 2026-09-21 reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID \"other\". Do not assign that commission to a site or claim revenue, ROI, margin, or causal lift. Affiliate monetization remains conditional on registered tracking identifiers, destination validation, disclosure placement, and applicable platform terms.",
         "requested_action": null,
         "proposal_id": null
       }

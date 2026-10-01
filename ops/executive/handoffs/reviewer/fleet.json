@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:35:25.545Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:37:23.670Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, readiness, and high-priority queue claims. Route only three low-risk, reversible, capacity-gated engineer candidates. Implementation capacity is 10/10; existing measurement, overlap, and repair obligations remain unresolved. CTO must release a slot by 2026-10-02T09:00:00Z; escalate unresolved capacity to the owner. No new production work may execute before that gate clears.",
+        "summary": "Reviewer disposition: reject the new security report-only proposal as duplicate of the existing security-fleet-evidence-2026-10-01 work item. Preserve that canonical read-only evidence work, keep security-sensitive releases and public-exposure gates unchanged, and admit no new implementation while capacity is 10/10. Revenue, ROI, margin, and causal-lift claims remain unsupported; Amazon’s $4.92 commission is aggregate and unattributed.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue only the existing canonical security evidence matrix. Record dated evidence or explicit unknowns from authorized metadata and retained artifacts; do not request duplicate telemetry, clear gates, change credentials or configuration, deploy, add dependencies, or claim certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, security-clearance, and production-readiness claims. Delivery is saturated at 10/10 slots, so three bounded SEO changes are routed to engineer as capacity-gated specifications only; no execution occurs until CTO releases capacity and site overlap clears. CTO must complete or close the canonical saveusfarms.com repair case with validation and rollback evidence by 2026-10-02T09:00:00Z or escalate to the owner. Keep SearchWoot private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
