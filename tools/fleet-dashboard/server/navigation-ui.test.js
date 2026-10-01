@@ -1731,6 +1731,11 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
   assert.match(app, /seo-sites[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /type="button" class="btn sm web-vitals-run"/);
   assert.match(app, /type="button" class="btn sm [^"]*seo-file-task/);
+  assert.match(app, /const SEO_PAGE_SIZE = 24/);
+  assert.match(app, /class="seo-pagination" aria-label="SEO action pages"/);
+  assert.match(app, /id="seo-prev"/);
+  assert.match(app, /id="seo-next"/);
+  assert.match(style, /body\[data-view="seointelligence"\] \.seo-stats/);
   assert.match(style, /\.seo-vitals-panel, \.seo-sites \{[^}]*overflow: hidden/);
 });
 

@@ -7865,6 +7865,8 @@ let ANALYTICS_SCROLL_TO_DETAIL = false;
 let SEO_PRIORITY = 'all';
 let SEO_TYPE = 'all';
 let SEO_SITE = 'all';
+let SEO_PAGE = 1;
+const SEO_PAGE_SIZE = 24;
 let BACKLINK_SITE = 'all';
 
 const SEO_TYPE_LABELS = {
@@ -7914,6 +7916,9 @@ async function renderSeoIntelligence() {
       (SEO_TYPE === 'all' || action.type === SEO_TYPE) &&
       (SEO_SITE === 'all' || action.site === SEO_SITE)
   );
+  const seoPageCount = Math.max(1, Math.ceil(filtered.length / SEO_PAGE_SIZE));
+  SEO_PAGE = Math.min(Math.max(1, SEO_PAGE), seoPageCount);
+  const seoPageStart = (SEO_PAGE - 1) * SEO_PAGE_SIZE;
 
   const source = data.sources || {};
   const upstream = data.upstream || {};
@@ -8022,7 +8027,7 @@ async function renderSeoIntelligence() {
 
   const actionRows =
     filtered
-      .slice(0, 100)
+      .slice(seoPageStart, seoPageStart + SEO_PAGE_SIZE)
       .map(
         action => `
     <article class="seo-action priority-${esc(action.priority)}" data-fleet-row data-site="${esc(action.site)}">
@@ -8061,6 +8066,7 @@ async function renderSeoIntelligence() {
         <select id="seo-site" class="cm-input" aria-label="Filter SEO opportunities by site"><option value="all">All sites</option>${siteNames.map(site => `<option value="${esc(site)}">${esc(site)}</option>`).join('')}</select>
       </div>
     </section>
+    ${seoPageCount > 1 ? `<nav class="seo-pagination" aria-label="SEO action pages"><button type="button" class="btn sm" id="seo-prev" ${SEO_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="seo-page-status" role="status">Showing ${seoPageStart + 1}–${Math.min(seoPageStart + SEO_PAGE_SIZE, filtered.length)} of ${filtered.length} actions · Page ${SEO_PAGE} of ${seoPageCount}</span><button type="button" class="btn sm" id="seo-next" ${SEO_PAGE === seoPageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
     <section class="seo-actions">${actionRows}</section>`;
 
   $('#seo-refresh').addEventListener('click', () => renderSeoIntelligence());
@@ -8069,28 +8075,41 @@ async function renderSeoIntelligence() {
   $('#seo-site').value = SEO_SITE;
   $('#seo-priority').addEventListener('change', e => {
     SEO_PRIORITY = e.target.value;
+    SEO_PAGE = 1;
     softRender();
   });
   $('#seo-type').addEventListener('change', e => {
     SEO_TYPE = e.target.value;
+    SEO_PAGE = 1;
     softRender();
   });
   $('#seo-site').addEventListener('change', e => {
     SEO_SITE = e.target.value;
+    SEO_PAGE = 1;
     softRender();
   });
   $$('.seo-type-row').forEach(button =>
     button.addEventListener('click', () => {
       SEO_TYPE = button.dataset.seoType;
+      SEO_PAGE = 1;
       softRender();
     })
   );
   $$('.seo-focus').forEach(button =>
     button.addEventListener('click', () => {
       SEO_SITE = button.dataset.site;
+      SEO_PAGE = 1;
       softRender();
     })
   );
+  $('#seo-prev')?.addEventListener('click', () => {
+    SEO_PAGE = Math.max(1, SEO_PAGE - 1);
+    softRender();
+  });
+  $('#seo-next')?.addEventListener('click', () => {
+    SEO_PAGE = Math.min(seoPageCount, SEO_PAGE + 1);
+    softRender();
+  });
   $$('.seo-file-task:not([disabled])').forEach(button =>
     button.addEventListener('click', async () => {
       const original = button.textContent;

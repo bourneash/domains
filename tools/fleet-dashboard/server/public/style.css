@@ -1138,7 +1138,8 @@ body[data-view="builds"] main { max-width: none; }
   text-align: center;
 }
 @media (max-width: 720px) {
-  body[data-view="priorities"] .seo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body[data-view="priorities"] .seo-stats,
+  body[data-view="seointelligence"] .seo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .priority-pagination { align-items: stretch; flex-wrap: wrap; }
   .priority-pagination > span { order: -1; flex-basis: 100%; }
   .priority-pagination .btn { flex: 1; }
@@ -1155,6 +1156,19 @@ body[data-view="builds"] main { max-width: none; }
 .seo-work-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 18px 0 10px; }
 .seo-work-head h3 { margin: 0 0 3px; font-size: 16px; }
 .seo-toolbar { margin: 0; }
+.seo-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+.seo-pagination > span { flex: 1; text-align: center; font-size: 11px; }
+.seo-pagination .btn:disabled { cursor: not-allowed; opacity: .45; }
 .seo-actions { display: grid; grid-template-columns: repeat(3, minmax(260px, 1fr)); gap: 12px; }
 .seo-action { position: relative; display: flex; flex-direction: column; min-height: 300px; padding: 15px 16px; border-radius: 10px; overflow: hidden; }
 .seo-action::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; }
@@ -1181,6 +1195,7 @@ body[data-view="builds"] main { max-width: none; }
 .web-vitals-bad { color: #f87171; font-weight: 700; }
 @media (max-width: 1100px) { .seo-stats { grid-template-columns: repeat(3, 1fr); } .seo-actions { grid-template-columns: repeat(2, minmax(260px, 1fr)); } }
 @media (max-width: 720px) { .seo-stats, .seo-overview-grid, .seo-actions, .seo-vitals-cards { grid-template-columns: 1fr; } .seo-work-head { align-items: stretch; flex-direction: column; } .seo-coverage { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px) { .seo-pagination { align-items: stretch; flex-wrap: wrap; } .seo-pagination > span { order: -1; flex-basis: 100%; } .seo-pagination .btn { flex: 1; } }
 .dh-srccount { color: var(--muted,#8a93a6); font-size: 11px; margin-bottom: 6px; }
 .dh-srcctl { text-align: right; white-space: nowrap; }
 .dh-help { margin-top: 12px; border-top: 1px solid var(--border, #2a2f3a); }
