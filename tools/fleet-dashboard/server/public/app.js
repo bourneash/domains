@@ -2385,6 +2385,8 @@ async function renderHealth() {
   const sites = d.sites || {};
   const healthy = order.filter(g => sites[g].failing === 0).length;
   const unhealthy = order.length - healthy;
+  const totalChecks = order.reduce((sum, site) => sum + (sites[site].total || 0), 0);
+  const failingChecks = order.reduce((sum, site) => sum + (sites[site].failing || 0), 0);
 
   const cards = order
     .map(g => {
@@ -2424,10 +2426,13 @@ async function renderHealth() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Health</h2><span class="muted">Live uptime checks via <a href="http://127.0.0.1:8580" target="_blank" rel="noopener noreferrer">Gatus</a> (tools/fleet-gatus) — 5-min interval, alerts on state change only.</span></div>
-    <div class="task-toolbar">
-      <strong>${order.length} sites monitored</strong>
-      <span class="muted">${dotLegend('fresh', healthy + ' healthy')} · ${dotLegend('overdue', unhealthy + ' unhealthy')} · last swept ${esc(swept)}${d.stale ? ' <span class="flag">stale</span>' : ''}</span>
-    </div>
+    <section class="health-summary" aria-label="Health summary">
+      <div class="health-stat"><strong>${order.length}</strong><span>Sites monitored</span></div>
+      <div class="health-stat health-stat-good"><strong>${healthy}</strong><span>Healthy sites</span></div>
+      <div class="health-stat ${unhealthy ? 'health-stat-bad' : ''}"><strong>${unhealthy}</strong><span>Sites needing attention</span></div>
+      <div class="health-stat ${failingChecks ? 'health-stat-bad' : 'health-stat-good'}"><strong>${failingChecks}<small>/${totalChecks}</small></strong><span>Failing checks</span></div>
+      <div class="health-stat health-stat-meta"><strong>${esc(swept)}</strong><span>Last sweep${d.stale ? ' · stale' : ''}</span></div>
+    </section>
     ${errNote}
     ${cards || '<div class="empty">No sites monitored — check that tools/fleet-gatus is running and its config has been generated.</div>'}
     <p class="muted" style="margin-top:12px">Every site with an <code>ops/smoke.yaml</code> is auto-discovered here. One check type isn't representable yet (0xroulette.com's module-graph check) and currently has no automated coverage — see tools/fleet-gatus/README.md.</p>`;

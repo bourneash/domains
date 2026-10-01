@@ -489,6 +489,18 @@ td .sub { color: var(--muted); font-size: 11.5px; }
 .spark i { width: 3px; background: var(--green); border-radius: 1px; display: inline-block; }
 .spark i.bad { background: var(--red); }
 /* health timeline */
+.health-summary { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.health-stat { min-width: 0; padding: 13px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.health-stat strong { display: block; color: var(--text-hi); font: 700 22px/1.15 var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.health-stat strong small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.health-stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .45px; text-transform: uppercase; }
+.health-stat-good { border-top: 2px solid var(--green); }
+.health-stat-good strong { color: var(--green); }
+.health-stat-bad { border-top: 2px solid var(--red); }
+.health-stat-bad strong { color: var(--red); }
+.health-stat-meta strong { color: var(--muted); font-size: 15px; }
+@media (max-width: 900px) { .health-summary { grid-template-columns: repeat(3, minmax(130px, 1fr)); } }
+@media (max-width: 560px) { .health-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .health-stat { padding: 11px 12px; } .health-stat strong { font-size: 19px; } }
 .hcell { display: inline-flex; align-items: center; gap: 7px; }
 .hbar { display: inline-flex; gap: 1px; align-items: center; }
 .hbar i { width: 3px; height: 13px; border-radius: 1px; display: inline-block; background: #3a4150; }

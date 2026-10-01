@@ -854,6 +854,15 @@ test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
   assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
 });
 
+test('Health presents fleet status as a responsive summary strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(app, /class="health-summary"/);
+  assert.match(app, /Sites needing attention<\/span>/);
+  assert.match(app, /Failing checks<\/span>/);
+  assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
