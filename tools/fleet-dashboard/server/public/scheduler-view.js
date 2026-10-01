@@ -3,7 +3,7 @@
 /* Scheduler view — Ops ▸ Scheduler. Talks to /api/scheduler/* (proxy to tools/fleet-scheduler).
    Loaded BEFORE app.js; only references app.js globals (api, $, $$, esc, toast, stamp, FRESH) at call time. */
 
-const SCH = { site: '', text: '', openRun: null, inst: 'scheduler' };
+const SCH = { site: '', text: '', jobState: 'all', openRun: null, inst: 'scheduler' };
 const schBase = () => `/api/${SCH.inst}`;
 
 function schFmtTime(ts) {
@@ -48,6 +48,13 @@ function schBadge(status) {
   return `<span class="badge ${cls}">${esc(status || '—')}</span>`;
 }
 
+function schJobState(job) {
+  if (!job.enabled) return 'disabled';
+  if (job.last_run && ['failed', 'timeout', 'lost'].includes(job.last_run.status)) return 'attention';
+  if (job.last_run && ['running', 'queued'].includes(job.last_run.status)) return 'running';
+  return 'healthy';
+}
+
 async function renderScheduler() {
   const app = $('#app');
   if (FRESH)
@@ -73,9 +80,12 @@ async function renderScheduler() {
     return;
   }
   const q = SCH.text.trim().toLowerCase();
+  const stateJobs = SCH.jobState === 'all'
+    ? jobs
+    : jobs.filter(j => schJobState(j) === SCH.jobState);
   const shown = q
-    ? jobs.filter(j => `${j.site} ${j.name} ${j.schedule}`.toLowerCase().includes(q))
-    : jobs;
+    ? stateJobs.filter(j => `${j.site} ${j.name} ${j.schedule}`.toLowerCase().includes(q))
+    : stateJobs;
   const sites = st.sites || [];
   const adoptedN = sites.filter(s => s.adopted).length;
   const failing = jobs.filter(
@@ -86,9 +96,12 @@ async function renderScheduler() {
   app.innerHTML = `
     <div id="sch-root">
     <div class="page-head"><h1 class="sr-only">Scheduler</h1>
-      <button type="button" class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" data-inst="scheduler">Sites</button>
-      <button type="button" class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" data-inst="scheduler-fleet">Fleet tools</button>
+      <div role="tablist" aria-label="Scheduler scope">
+        <button type="button" role="tab" class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" id="sch-tab-sites" aria-selected="${SCH.inst === 'scheduler'}" aria-controls="sch-panel" data-inst="scheduler">Sites</button>
+        <button type="button" role="tab" class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" id="sch-tab-fleet" aria-selected="${SCH.inst === 'scheduler-fleet'}" aria-controls="sch-panel" data-inst="scheduler-fleet">Fleet tools</button>
+      </div>
       <span class="muted">${SCH.inst === 'scheduler' ? `one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers` : 'fleet-level jobs (tools/fleet-cron): reapers, auth watchdog, social hub tick, AI optimizer…'}</span></div>
+    <div id="sch-panel" role="tabpanel" aria-labelledby="${SCH.inst === 'scheduler' ? 'sch-tab-sites' : 'sch-tab-fleet'}">
     <div class="task-toolbar">
       <span class="badge ${st.paused ? 'b-red' : 'b-green'}">${st.paused ? 'PAUSED' : 'active'}</span>
       <strong>${st.running} running · ${st.queued} queued</strong>
@@ -135,6 +148,16 @@ async function renderScheduler() {
 
     <h3 style="margin:18px 0 6px">Jobs ${SCH.site ? `— ${esc(SCH.site)} <a href="#" id="sch-clear">(all sites)</a>` : ''}
       <label class="sr-only" for="sch-text">Filter jobs</label><input id="sch-text" type="search" aria-label="Filter scheduler jobs" placeholder="filter…" value="${esc(SCH.text)}" style="margin-left:12px;width:180px"></h3>
+    <div class="task-toolbar" role="group" aria-label="Scheduler job views" style="margin-top:0">
+      <span class="muted">Show</span>
+      ${[
+        ['all', `All jobs (${jobs.length})`],
+        ['attention', `Needs attention (${jobs.filter(j => schJobState(j) === 'attention').length})`],
+        ['running', `Running (${jobs.filter(j => schJobState(j) === 'running').length})`],
+        ['disabled', `Disabled (${jobs.filter(j => schJobState(j) === 'disabled').length})`],
+      ].map(([key, label]) => `<button type="button" class="btn sm ${SCH.jobState === key ? 'primary' : ''}" data-job-state="${key}" aria-pressed="${SCH.jobState === key}">${label}</button>`).join('')}
+      <span class="muted">${shown.length} shown</span>
+    </div>
     <div class="table-wrap"><table class="tbl"><caption class="sr-only">Scheduled jobs and controls</caption><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th>Actions</th></tr></thead><tbody>
       ${shown
         .map(
@@ -164,6 +187,7 @@ async function renderScheduler() {
         .join('')}
     </tbody></table></div>
     <p class="muted" style="margin-top:12px"><b>Adopt</b> stops the site's legacy cron container, then fires its jobs from this scheduler (no doubled ticks); <b>Release</b> reverses it. Schedules edited here are stored in the scheduler DB, not in <span class="mono">crontab.docker</span>.</p>
+    </div>
     </div>`;
 
   wireScheduler();
@@ -213,11 +237,16 @@ function wireScheduler() {
     clearTimeout(wireScheduler._t);
     wireScheduler._t = setTimeout(renderScheduler, 250);
   });
+  $$('[data-job-state]', root).forEach(button => button.addEventListener('click', () => {
+    SCH.jobState = button.dataset.jobState;
+    renderScheduler();
+  }));
   const clr = $('#sch-clear');
   if (clr)
     clr.addEventListener('click', e => {
       e.preventDefault();
       SCH.site = '';
+      SCH.jobState = 'all';
       renderScheduler();
     });
   root.addEventListener('click', async e => {

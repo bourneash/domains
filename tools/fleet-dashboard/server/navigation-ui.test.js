@@ -901,6 +901,13 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /aria-label="Edit schedule for \$\{esc\(j\.name\)\} on \$\{esc\(j\.site\)\}"/);
   assert.match(scheduler, /aria-label="Open run details for \$\{esc\(r\.name\)\} on \$\{esc\(r\.site\)\}"/);
   assert.match(scheduler, /<label class="sr-only" for="sch-text">Filter jobs<\/label>/);
+  assert.match(scheduler, /role="tablist" aria-label="Scheduler scope"/);
+  assert.match(scheduler, /role="tab" class="btn sm/);
+  assert.match(scheduler, /role="tabpanel" aria-labelledby=/);
+  assert.match(scheduler, /role="group" aria-label="Scheduler job views"/);
+  assert.match(scheduler, /\['attention', `Needs attention/);
+  assert.match(scheduler, /aria-pressed="\$\{SCH\.jobState === key\}"/);
+  assert.match(scheduler, /function schJobState\(job\)/);
   assert.match(scheduler, /<caption class="sr-only">Scheduled jobs and controls<\/caption>/);
   assert.doesNotMatch(scheduler, /\bprompt\(/);
   assert.doesNotMatch(scheduler, /\bconfirm\(/);
