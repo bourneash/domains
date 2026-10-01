@@ -369,7 +369,7 @@ function stamp() {
     updated.title = 'Latest successful dashboard refresh';
   }
   $('#app')?.setAttribute('aria-busy', 'false');
-  $$('.fd-stale-banner').forEach(banner => banner.remove());
+  $$('[data-fd-stale-transient]').forEach(banner => banner.remove());
 }
 
 // Keep the last usable page visible during background refresh failures. A
@@ -396,9 +396,10 @@ function renderViewError(target, message) {
       : 'Showing the last successful dashboard refresh';
   }
   if (!FRESH && target.firstElementChild) {
-    target.querySelector('.fd-stale-banner')?.remove();
+    target.querySelector('[data-fd-stale-transient]')?.remove();
     const banner = document.createElement('div');
     banner.className = 'fd-stale-banner';
+    banner.dataset.fdStaleTransient = 'true';
     banner.setAttribute('role', 'alert');
     banner.innerHTML = `<strong>Showing the last successful data</strong><span>${esc(text)}</span><button class="btn sm" type="button" data-fd-stale-retry>Try again</button>`;
     banner.querySelector('[data-fd-stale-retry]').addEventListener('click', () => {
@@ -1132,14 +1133,20 @@ async function renderGitHygiene() {
   const query = GH_FILTER.q.trim().toLowerCase();
   const filteredQueue = q
     .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !query || `${item.slug} ${item.path} ${item.reason || ''}`.toLowerCase().includes(query));
+    .filter(
+      ({ item }) =>
+        !query || `${item.slug} ${item.path} ${item.reason || ''}`.toLowerCase().includes(query)
+    );
   const pageCount = Math.max(1, Math.ceil(filteredQueue.length / GH_PAGE_SIZE));
   GH_PAGE = Math.min(Math.max(1, GH_PAGE), pageCount);
   const pageItems = filteredQueue.slice((GH_PAGE - 1) * GH_PAGE_SIZE, GH_PAGE * GH_PAGE_SIZE);
   const queueRows = pageItems.length
     ? pageItems
         .map(
-          ({ item: i, index: n }) => `<tr class="gh-queue-row" data-gh-i="${n}" data-gh-search="${esc(`${i.slug} ${i.path} ${i.reason || ''}`.toLowerCase())}" data-fleet-row data-site="${esc(i.slug)}">
+          ({
+            item: i,
+            index: n,
+          }) => `<tr class="gh-queue-row" data-gh-i="${n}" data-gh-search="${esc(`${i.slug} ${i.path} ${i.reason || ''}`.toLowerCase())}" data-fleet-row data-site="${esc(i.slug)}">
       <td class="site">${esc(i.slug)}</td>
       <td class="mono">${esc(i.path)}</td>
       <td><span class="muted">${esc(i.reason)}</span></td>
@@ -5457,7 +5464,10 @@ function containerStatus(r) {
 function wireContainerRows() {
   $$('.cn-logs').forEach(b => {
     const detail = $(`tr[data-detail="${CSS.escape(b.dataset.id)}"]`);
-    b.setAttribute('aria-expanded', String(Boolean(detail && !detail.classList.contains('hidden'))));
+    b.setAttribute(
+      'aria-expanded',
+      String(Boolean(detail && !detail.classList.contains('hidden')))
+    );
     b.addEventListener('click', () => toggleContainerLogs(b.dataset.id));
   });
   $$('.cn-act').forEach(b =>
@@ -5814,15 +5824,7 @@ function fleetFiltered() {
       const query = TASK.f.query.trim().toLowerCase();
       if (
         query &&
-        ![
-          t.title,
-          t.site,
-          t.type,
-          t.assigned_role,
-          t.column,
-          t.excerpt,
-          t.blocked_on,
-        ]
+        ![t.title, t.site, t.type, t.assigned_role, t.column, t.excerpt, t.blocked_on]
           .map(value => String(value || '').toLowerCase())
           .join(' ')
           .includes(query)
@@ -6436,9 +6438,7 @@ async function renderCron() {
   // An explicit Expand all / Collapse all choice is persisted and always wins
   // over this default, so returning operators keep their preferred density.
   if (!cmHasCollapsePreference()) {
-    systems
-      .filter(s => !s.failed && !s.needsRebuild)
-      .forEach(s => CM.collapsed.add(s.slug));
+    systems.filter(s => !s.failed && !s.needsRebuild).forEach(s => CM.collapsed.add(s.slug));
     cmSaveCollapsed();
   }
 
@@ -9399,13 +9399,19 @@ function domToggleJob(id) {
     DOM.openJob = null;
     row.classList.add('hidden');
     trigger?.setAttribute('aria-expanded', 'false');
-    trigger?.setAttribute('aria-label', trigger.getAttribute('aria-label')?.replace(/^Close /, 'Open ') || 'Open job details');
+    trigger?.setAttribute(
+      'aria-label',
+      trigger.getAttribute('aria-label')?.replace(/^Close /, 'Open ') || 'Open job details'
+    );
     return;
   }
   DOM.openJob = id;
   row.classList.remove('hidden');
   trigger?.setAttribute('aria-expanded', 'true');
-  trigger?.setAttribute('aria-label', trigger.getAttribute('aria-label')?.replace(/^Open /, 'Close ') || 'Close job details');
+  trigger?.setAttribute(
+    'aria-label',
+    trigger.getAttribute('aria-label')?.replace(/^Open /, 'Close ') || 'Close job details'
+  );
   domLoadLog(id);
 }
 
@@ -12423,7 +12429,9 @@ async function renderPriorities() {
   const coverage = data.coverage || {};
   const all = data.items || [];
   const reportedTotal = Number(data.totals?.recommendations);
-  const omittedActions = Number.isFinite(reportedTotal) ? Math.max(0, reportedTotal - all.length) : 0;
+  const omittedActions = Number.isFinite(reportedTotal)
+    ? Math.max(0, reportedTotal - all.length)
+    : 0;
   const rows = all.filter(item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE);
   const pageCount = Math.max(1, Math.ceil(rows.length / PRIORITY_PAGE_SIZE));
   PRIORITY_PAGE = Math.min(Math.max(1, PRIORITY_PAGE), pageCount);
@@ -12583,7 +12591,7 @@ async function renderImprovements() {
       IMPROVEMENT_STATE === 'all' ||
       (IMPROVEMENT_STATE === 'active'
         ? !IMPROVEMENT_TERMINAL.has(run.state)
-      : run.state === IMPROVEMENT_STATE)
+        : run.state === IMPROVEMENT_STATE)
   );
   const pageCount = Math.max(1, Math.ceil(runs.length / IMPROVEMENT_PAGE_SIZE));
   IMPROVEMENT_PAGE = Math.min(Math.max(1, IMPROVEMENT_PAGE), pageCount);
@@ -13986,6 +13994,9 @@ function workBoardItems(data) {
   return items;
 }
 
+let ACTIVE_DELIVERY_ATTENTION_PAGE = 1;
+const ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE = 12;
+
 async function renderActiveDelivery() {
   if (FRESH)
     app.innerHTML =
@@ -14005,8 +14016,15 @@ async function renderActiveDelivery() {
           `<tr><td><strong>${index + 1}</strong></td><td><strong>${esc(item.title)}</strong><small class="muted">${esc(item.site)}</small></td><td>${esc(laneLabels[item.lane] || item.lane)}</td><td><span class="badge ${item.state === 'review' ? 'b-yellow' : item.state === 'measuring' ? 'b-blue' : item.state === 'deployed' ? 'b-green' : 'b-purple'}">${esc(item.state)}</span></td><td>${esc(item.owner || 'engineer')}</td><td class="muted">${esc(item.next_action)}</td></tr>`
       )
       .join('');
-    const attentionRows = (data.attention || [])
-      .slice(0, 12)
+    const attention = data.attention || [];
+    const attentionPages = Math.max(
+      1,
+      Math.ceil(attention.length / ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE)
+    );
+    ACTIVE_DELIVERY_ATTENTION_PAGE = Math.min(ACTIVE_DELIVERY_ATTENTION_PAGE, attentionPages);
+    const attentionStart = (ACTIVE_DELIVERY_ATTENTION_PAGE - 1) * ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE;
+    const attentionRows = attention
+      .slice(attentionStart, attentionStart + ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE)
       .map(
         item =>
           `<tr><td><span class="badge b-yellow">${esc(item.attention)}</span></td><td><strong>${esc(item.title)}</strong><small class="muted">${esc(item.site)}</small></td><td>${esc(item.state)}</td><td>${esc(item.next_action)}</td></tr>`
@@ -14020,7 +14038,7 @@ async function renderActiveDelivery() {
           `<span class="badge b-gray">${esc(laneLabels[lane] || lane)}: ${count}</span>`
       )
       .join(' ');
-    app.innerHTML = `<div class="page-head"><div><div class="cq-eyebrow">PORTFOLIO DELIVERY CONTROL</div><h2 class="page-title">Active Delivery</h2><div class="crumbs">Ten meaningful initiatives stay in motion; reporting does not consume delivery capacity.</div></div><button class="btn" id="delivery-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${policy.active_slots || 0}/${policy.max_active_slots || 10}</div><div class="seo-stat-label">Active slots</div></div><div class="seo-stat"><div class="seo-stat-value">${policy.open_slots || 0}</div><div class="seo-stat-label">Open slots</div></div><div class="seo-stat"><div class="seo-stat-value">${(data.attention || []).length}</div><div class="seo-stat-label">Needs attention</div></div><div class="seo-stat"><div class="seo-stat-value">${today.implementation_requests_completed || 0}</div><div class="seo-stat-label">Implementation completions today</div></div><div class="seo-stat"><div class="seo-stat-value">${today.report_only_requests_created || 0}</div><div class="seo-stat-label">Reports created today</div></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">ACTIVE PORTFOLIO</div><h3>What engineers are actually working on</h3><p class="muted">Only direct implementation work occupies these slots. Completed reports remain available in the Work Board and executive history.</p></div><div>${lanes}</div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>#</th><th>Initiative</th><th>Lane</th><th>State</th><th>Owner</th><th>Next action</th></tr></thead><tbody>${slotRows || '<tr><td colspan="6" class="muted">No active implementation work. Fill the delivery slots.</td></tr>'}</tbody></table></div>${(data.overflow || []).length ? `<div class="muted" style="margin-top:12px">${data.overflow.length} additional implementation item(s) are beyond the ten-slot limit and should be triaged before new work is created.</div>` : ''}</section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY ATTENTION</div><h3>Resolve before generating more reports</h3></div><span class="badge ${(data.attention || []).length ? 'b-yellow' : 'b-green'}">${(data.attention || []).length ? `${data.attention.length} flagged` : 'all clear'}</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Reason</th><th>Initiative</th><th>State</th><th>Next action</th></tr></thead><tbody>${attentionRows || '<tr><td colspan="4" class="muted">No delivery blockers or pending gates.</td></tr>'}</tbody></table></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">TODAY’S FLOW</div><h3>Execution over activity</h3></div></div><div class="muted">${today.implementation_requests_created || 0} implementation requests created · ${today.implementation_requests_completed || 0} completed · ${today.implementation_requests_failed_or_cancelled || 0} failed/cancelled · ${today.report_only_requests_created || 0} report-only requests created${today.reporting_to_delivery_ratio == null ? '' : ` · reporting/completion ratio ${today.reporting_to_delivery_ratio}:1`}.</div></section></div>`;
+    app.innerHTML = `<div class="page-head"><div><div class="cq-eyebrow">PORTFOLIO DELIVERY CONTROL</div><h2 class="page-title">Active Delivery</h2><div class="crumbs">Ten meaningful initiatives stay in motion; reporting does not consume delivery capacity.</div></div><button class="btn" id="delivery-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${policy.active_slots || 0}/${policy.max_active_slots || 10}</div><div class="seo-stat-label">Active slots</div></div><div class="seo-stat"><div class="seo-stat-value">${policy.open_slots || 0}</div><div class="seo-stat-label">Open slots</div></div><div class="seo-stat"><div class="seo-stat-value">${attention.length}</div><div class="seo-stat-label">Needs attention</div></div><div class="seo-stat"><div class="seo-stat-value">${today.implementation_requests_completed || 0}</div><div class="seo-stat-label">Implementation completions today</div></div><div class="seo-stat"><div class="seo-stat-value">${today.report_only_requests_created || 0}</div><div class="seo-stat-label">Reports created today</div></div></section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">ACTIVE PORTFOLIO</div><h3>What engineers are actually working on</h3><p class="muted">Only direct implementation work occupies these slots. Completed reports remain available in the Work Board and executive history.</p></div><div>${lanes}</div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>#</th><th>Initiative</th><th>Lane</th><th>State</th><th>Owner</th><th>Next action</th></tr></thead><tbody>${slotRows || '<tr><td colspan="6" class="muted">No active implementation work. Fill the delivery slots.</td></tr>'}</tbody></table></div>${(data.overflow || []).length ? `<div class="muted" style="margin-top:12px">${data.overflow.length} additional implementation item(s) are beyond the ten-slot limit and should be triaged before new work is created.</div>` : ''}</section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY ATTENTION</div><h3>Resolve before generating more reports</h3></div><span class="badge ${attention.length ? 'b-yellow' : 'b-green'}">${attention.length ? `${attention.length} flagged` : 'all clear'}</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Reason</th><th>Initiative</th><th>State</th><th>Next action</th></tr></thead><tbody>${attentionRows || '<tr><td colspan="4" class="muted">No delivery blockers or pending gates.</td></tr>'}</tbody></table></div>${attention.length > ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE ? `<nav class="priority-pagination" aria-label="Delivery attention pages"><button type="button" class="btn sm" id="delivery-attention-prev" aria-label="Previous delivery attention page" ${ACTIVE_DELIVERY_ATTENTION_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><span id="delivery-attention-page-status" class="muted" role="status" aria-live="polite">Showing ${attentionStart + 1}–${Math.min(attentionStart + ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE, attention.length)} of ${attention.length} flagged items</span><button type="button" class="btn sm" id="delivery-attention-next" aria-label="Next delivery attention page" ${ACTIVE_DELIVERY_ATTENTION_PAGE >= attentionPages ? 'disabled' : ''}>Next →</button></nav>` : ''}</section><section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">TODAY’S FLOW</div><h3>Execution over activity</h3></div></div><div class="muted">${today.implementation_requests_created || 0} implementation requests created · ${today.implementation_requests_completed || 0} completed · ${today.implementation_requests_failed_or_cancelled || 0} failed/cancelled · ${today.report_only_requests_created || 0} report-only requests created${today.reporting_to_delivery_ratio == null ? '' : ` · reporting/completion ratio ${today.reporting_to_delivery_ratio}:1`}.</div></section></div>`;
     const completionKpi = app.querySelectorAll('.seo-stat')[3];
     if (completionKpi) {
       completionKpi.querySelector('.seo-stat-value').textContent = flow.deployed_today ?? 0;
@@ -14033,6 +14051,17 @@ async function renderActiveDelivery() {
         `<section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY FLOW</div><h3>Work crossing the delivery boundary</h3></div></div><p class="muted">${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${Number(flow.oldest_queued_minutes)} min`} · ${Number(flow.blocked_reviews || 0)} infrastructure-blocked reviews · ${Number(flow.validated_today || 0)} validated today · ${Number(flow.deployed_today || 0)} deployment-verified today · ${Number(flow.measured_today || 0)} measured today.</p></section>`
       );
     $('#delivery-refresh').onclick = () => renderActiveDelivery();
+    $('#delivery-attention-prev')?.addEventListener('click', () => {
+      ACTIVE_DELIVERY_ATTENTION_PAGE = Math.max(1, ACTIVE_DELIVERY_ATTENTION_PAGE - 1);
+      softRender();
+    });
+    $('#delivery-attention-next')?.addEventListener('click', () => {
+      ACTIVE_DELIVERY_ATTENTION_PAGE = Math.min(
+        attentionPages,
+        ACTIVE_DELIVERY_ATTENTION_PAGE + 1
+      );
+      softRender();
+    });
     if (!FRESH) applyUISnap();
     stamp();
   } catch (e) {
@@ -15296,12 +15325,12 @@ async function renderExecutive() {
                 }),
           dashboardOnly
             ? Promise.resolve({ requests: [], notifications: [] })
-              : optional(
-                  'GET',
-                  `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`,
-                  { requests: [], notifications: [], degraded: true },
-                  5000
-                ),
+            : optional(
+                'GET',
+                `/api/executive/inbox?limit=50${conversationOnly ? '&history_limit=30' : ''}`,
+                { requests: [], notifications: [], degraded: true },
+                5000
+              ),
           conversationOnly
             ? optional('GET', '/api/executive/draft', { draft: null })
             : Promise.resolve({ draft: null }),
@@ -15355,7 +15384,12 @@ async function renderExecutive() {
               : optional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
           conversationOnly
             ? Promise.resolve({ active: null, latest: null, runs: [] })
-            : optional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [], degraded: true }, 5000),
+            : optional(
+                'GET',
+                '/api/executive/run-status',
+                { active: null, latest: null, runs: [], degraded: true },
+                5000
+              ),
           conversationOnly
             ? Promise.resolve({ cases: [] })
             : dashboardOnly
@@ -16326,7 +16360,14 @@ async function renderExecutive() {
   stamp();
 }
 
-const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '', query: '', page: 1, pageSize: 25 };
+const WORKBENCH_UI = {
+  status: 'open,in_progress,blocked,waiting',
+  owner: '',
+  kind: '',
+  query: '',
+  page: 1,
+  pageSize: 25,
+};
 let workbenchSearchTimer;
 
 function workItemBadge(value, type = 'status') {
@@ -16417,7 +16458,15 @@ async function renderWorkbench() {
   const visible = all.filter(item => {
     const statuses = WORKBENCH_UI.status.split(',').filter(Boolean);
     const query = WORKBENCH_UI.query.trim().toLowerCase();
-    const searchable = [item.title, item.site, item.owner, item.kind, item.summary, item.next_action, item.waiting_on]
+    const searchable = [
+      item.title,
+      item.site,
+      item.owner,
+      item.kind,
+      item.summary,
+      item.next_action,
+      item.waiting_on,
+    ]
       .map(value => String(value || '').toLowerCase())
       .join(' ');
     return (
@@ -16635,7 +16684,19 @@ function renderKnowledge() {
         item =>
           (!KNOWLEDGE_UI.status || item.status === KNOWLEDGE_UI.status) &&
           (!KNOWLEDGE_UI.audience || item.audience === KNOWLEDGE_UI.audience) &&
-          (!KNOWLEDGE_UI.query || [item.title, item.publisher, item.summary, item.takeaway, item.applied_to, ...(item.tags || [])].some(value => String(value || '').toLowerCase().includes(KNOWLEDGE_UI.query)))
+          (!KNOWLEDGE_UI.query ||
+            [
+              item.title,
+              item.publisher,
+              item.summary,
+              item.takeaway,
+              item.applied_to,
+              ...(item.tags || []),
+            ].some(value =>
+              String(value || '')
+                .toLowerCase()
+                .includes(KNOWLEDGE_UI.query)
+            ))
       );
       const options = (values, selected, label) =>
         `<option value="">${label}</option>${values.map(value => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(value.replace('_', ' '))}</option>`).join('')}`;
@@ -16721,7 +16782,10 @@ function renderKnowledge() {
             const expanded = editor.classList.toggle('hidden') === false;
             button.setAttribute('aria-expanded', String(expanded));
             const verb = expanded ? 'Edit' : 'Add';
-            button.setAttribute('aria-label', `${verb} learning note for ${button.title.replace(/^(Add|Edit) learning note for /, '')}`);
+            button.setAttribute(
+              'aria-label',
+              `${verb} learning note for ${button.title.replace(/^(Add|Edit) learning note for /, '')}`
+            );
             button.setAttribute('title', button.getAttribute('aria-label'));
           })
       );
