@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:50:19.365Z",
+  "generated_at": "2026-10-01T09:51:39.237Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the drivegm.net report-only proposal and admit no new implementation this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and scaffold readiness is unverified. Preserve existing canonical work. CTO must complete or close the saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. After release, site-factory must complete verified launch-readiness evidence before any scaffold build; no revenue, ROI, or causal-lift claims are supported.",
+        "summary": "Independent review: reject all new proposals, queue admissions, production work, research, and telemetry requests this cycle. Delivery is saturated at 10/10 slots; 39 improvements await measurement, 21 requests failed, operations and fleet-doctor evidence are unavailable, and affiliate commission is aggregate and unattributed. Preserve existing canonical repair, measurement, security, and private-launch gates. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. No revenue, ROI, margin, or causal-lift claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }
