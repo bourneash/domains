@@ -147,6 +147,7 @@
 :root[data-theme="light"] .btn.primary:hover {
   background: #185497;
 }
+:root[data-theme="light"] th { color: #53627c; }
 :root[data-theme="light"] .cn-logs-box { background: #f7f9fc; color: #33425c; }
 :root[data-theme="light"] .modal { background: rgba(32,49,76,.32); }
 :root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #bdc9d9; background-clip: padding-box; }

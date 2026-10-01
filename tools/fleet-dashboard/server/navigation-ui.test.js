@@ -133,6 +133,11 @@ test('shared dark theme primitives meet readable contrast targets', () => {
   assert.match(theme, /\.vt-scope \{[\s\S]*color: var\(--muted\)/);
 });
 
+test('light theme table headers keep the same contrast contract', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /:root\[data-theme="light"\] th \{ color: #53627c; \}/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
