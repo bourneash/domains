@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T17:01:29.719Z",
+  "generated_at": "2026-10-01T17:11:14.126Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Route only three medium-priority, reversible engineer revalidations on distinct sites. Execution remains blocked until CTO reconciles the conflicting capacity ledgers and releases one slot by 2026-10-01T18:00Z. Do not claim revenue, ROI, causal lift, or production readiness. All other candidates remain blocked by existing work, launch/security gates, insufficient attribution, or missing outcome evidence.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, and production claims. Retain only three low-risk reversible engineer revalidations as capacity- and measurement-gated: 0xroulette.com CTA clarity, broadwayshowgirls.com snippet CTR, and deeppenetrations.com LCP repair. CTO must reconcile the conflicting capacity ledgers and release one slot by 2026-10-01T18:00Z; otherwise escalate to the owner. No credential, configuration, spend, schedule, telemetry, disclosure, or production-scope changes are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
