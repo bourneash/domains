@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T16:16:03.647Z",
+  "generated_at": "2026-10-01T20:50:11.004Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete magicescorts.com preview-readiness artifact before implementation",
-        "summary": "Magicescorts.com is queue-ready, but analytics, affiliate, social, content-rights, compliance, security, and launch evidence are not established. Capacity records also conflict, so production implementation cannot be admitted this cycle.",
-        "requested_action": "Create a dated, read-only readiness artifact in the magicescorts.com repository, preserving the site as unpublished or otherwise unchanged. Record the approved concept scope, content and image provenance, disclosure and consent requirements, security and release boundaries, affiliate readiness, measurement availability, rollback point, and exactly one next implementation step. Do not infer adult status, publish, monetize, add tracking, spend, contact external parties, or change production.",
+        "title": "Hold CTA implementation until the active review gate clears",
+        "summary": "0xroulette.com is blocked by an active review item. Avoid overlapping work; preserve the existing homepage CTA review and document the smallest admissible implementation once that review and capacity reconciliation complete.",
+        "requested_action": "Update the existing review artifact for the homepage entry page (/) with the exact CTA source files, current destination URLs, accessibility findings, baseline, acceptance threshold, and rollback point. Do not create a duplicate implementation request or change production.",
         "proposal_id": null
       }
     ]
