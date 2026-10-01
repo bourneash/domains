@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:53:03.963Z",
+  "generated_at": "2026-10-01T09:55:25.356Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete elevatorfriends.com launch-readiness artifact before implementation",
-        "summary": "elevatorfriends.com is a scaffold with no verified launch-readiness artifact and analytics are not configured. Complete the smallest evidence artifact before admitting public-surface implementation.",
-        "requested_action": "Create a timestamped launch-readiness artifact covering audience, first public page scope, content seed, SEO baseline, analytics and affiliate readiness, compliance, security, measurement, rollback, preview-only gate, and exactly one next owner action. Do not deploy, publish, add tracking, change domains, spend, or claim traffic or revenue.",
+        "title": "Complete failbunny.com launch-readiness evidence before implementation",
+        "summary": "failbunny.com is queue-ready but lacks evidenced audience, content scope, analytics, monetization, compliance, security, and measurement readiness. Create one bounded readiness artifact before admitting implementation work.",
+        "requested_action": "In the existing failbunny.com scaffold, create docs/launch-readiness.md covering audience, homepage scope, initial content, metadata/SEO, analytics and affiliate readiness, compliance/security gates, measurement plan, preview-only launch boundary, rollback, and exactly one next implementation step. Use existing registry and retained intelligence only; do not request telemetry, deploy, spend, change credentials, or publish.",
         "proposal_id": null
       }
     ]

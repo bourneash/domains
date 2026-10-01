@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:53:03.962Z",
+  "generated_at": "2026-10-01T09:55:25.356Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only launch-readiness proposal and all production admissions this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and no unsupported revenue or causal-lift claims are authorized. Route only the bounded rodhat.com SEO specification as capacity-gated work; it must not execute until CTO releases a slot and confirms no overlap. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, attribution, and measurement evidence by 2026-10-01T09:00Z, or escalate to the owner. Scaffold builds remain blocked pending verified launch-readiness artifacts.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, and causal-lift claims. Route only three low-risk, reversible SEO candidates as capacity-gated engineer work; none may execute while delivery is 10/10, measurement debt remains active, or site overlap is unresolved. CTO must complete or close the existing saveusfarms.com repair case and release one slot by 2026-10-01T09:00Z; escalate the overdue capacity blocker to the owner immediately. Preserve private launch and security gates.",
         "requested_action": null,
         "proposal_id": null
       }
