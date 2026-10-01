@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:41:09.115Z",
+  "generated_at": "2026-10-01T15:45:24.593Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain three bounded engineer revalidations as capacity-gated only: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Do not execute until CTO reconciles the conflicting capacity ledger and releases one slot by 2026-10-01T18:00Z; escalate unresolved capacity to the owner. No revenue, ROI, causal-lift, or production-readiness claims are supported.",
+        "summary": "Rejected the allthingsmasonic.com proposal because the site has overlapping active work and the capacity ledger conflicts. Retained only three bounded medium-priority revalidations on distinct sites, capacity-gated until CTO reconciles the ledger and releases one slot by 2026-10-01T18:00Z. No revenue, ROI, causal-lift, credential, configuration, spend, duplicate-telemetry, or production claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
