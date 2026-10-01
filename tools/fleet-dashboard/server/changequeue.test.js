@@ -112,6 +112,20 @@ test('direct work cannot enter an automatic queue while its own instructions def
       ),
     /unresolved execution prerequisite/
   );
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Duplicate revalidation',
+          body: 'Revalidate the existing change only. Gate: wait for its measurement and owner confirmation by tomorrow. Do not execute a duplicate change.',
+          delivery_mode: 'direct',
+        },
+        known
+      ),
+    /unresolved execution prerequisite/
+  );
   assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 0);
   store.close();
 });

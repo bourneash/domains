@@ -113,6 +113,8 @@ function directRequestDeferralReason(input = {}) {
     return 'request says to remain unclaimed but this queue dispatches automatically';
   if (/\b(?:do not|must not)\s+(?:execute|start|dispatch|pick up)\s+until\b/i.test(instruction))
     return 'request has an unresolved execution prerequisite';
+  if (/\b(?:execution\s+)?gate\s*:\s*wait for\b/i.test(instruction))
+    return 'request has an unresolved execution prerequisite';
   return null;
 }
 
