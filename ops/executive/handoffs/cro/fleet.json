@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T06:47:56.654Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:27:33.472Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "GitHub trend and CRO-lab candidates remain research-only. MarkItDown, shadcn/ui, and Mermaid have plausible purpose fit and bounded lab evidence, but license scope, dependency provenance, security, maintenance, performance, and owner-approved fleet prototypes remain incomplete. Do not create research requests or implementation work this cycle.",
+        "summary": "Reject the proposed fleet control-plane admission, scaffold builds, and new CRO prototypes this cycle. Delivery is saturated at 10/10 slots, 57 improvements await measurement, and 21 requests have failed. Preserve the existing allthingsmasonic.com CTA refinement only after CTO releases a slot and site overlap clears. Amazon evidence for 2026-09-21 is 61 clicks, 0 ordered items, and $0 site-attributed commission; revenue, ROI, and causal lift remain unknown.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve financial and launch containment. Amazon evidence is limited to the 2026-09-21 aggregate result; site revenue, margin, ROI, and causal lift remain unsupported. Keep existing private-launch, security, compliance, attribution, and measurement gates unchanged.",
+        "summary": "Do not admit new CRO, site-factory, GitHub-prototype, telemetry, or duplicate control-plane work while delivery remains saturated. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released, execute only the existing allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "MarkItDown, shadcn/ui, and Mermaid have plausible fleet use cases and bounded lab evidence, but dependency provenance, maintenance, security, performance, and fleet-specific outcomes are unvalidated. Do not create research requests or implementation work until capacity and measurement gates clear. Amazon’s $4.92 commission is aggregate and unattributed; no site revenue or ROI claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }

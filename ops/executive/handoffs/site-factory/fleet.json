@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.449Z",
+  "generated_at": "2026-10-01T07:27:33.471Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the small site-factory pipeline: complicated.work (strongest; scaffold, parked 129 days, existing site/ops capabilities), followed by deadlymaracas.com and driveford.net (both scaffold candidates). No build, deployment, domain action, spend, or launch is authorized while delivery is saturated at 10/10 slots and owner, legal, security, measurement, and rollback gates remain incomplete. The strongest candidate requires a launch-readiness artifact covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, and launch gate. Exactly one next step: CTO completes or justifies closure of the existing capacity-blocking repair case and releases one delivery slot by 2026-10-01T09:00Z.",
+        "summary": "Maintain a small site-factory pipeline: complicated.work is the first readiness candidate; deadlymaracas.com and driveford.net remain deferred alternatives. No new build, deployment, domain change, spend, credentials, or telemetry is authorized while delivery is saturated at 10/10 slots and launch/security evidence remains incomplete. The single next step is to prepare the bounded launch-readiness artifact for complicated.work after CTO releases capacity, with unknowns preserved and preview-only status.",
         "requested_action": null,
         "proposal_id": null
       }

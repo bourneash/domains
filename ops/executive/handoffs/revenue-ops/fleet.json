@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:48:07.448Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:27:33.470Z",
+  "summary": "revenue-ops checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission in an aggregate row labeled other. Site-level revenue and ROI remain unknown. Delivery is saturated at 10/10 slots, so all new implementation remains capacity-gated. Preserve the existing allthingsmasonic.com CTA request as the next implementation after capacity clears; route affiliate-link, tag, disclosure, and attribution repairs only through bounded reversible tasks with explicit validation and rollback.",
+        "summary": "Amazon evidence covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate tracking_id=other and cannot be assigned to a site; do not infer ROI, revenue, or causal lift. Delivery remains saturated at 10/10 slots. Preserve only the existing allthingsmasonic.com CTA request after one slot is released and overlap is cleared.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not admit duplicate work. Existing evidence supports three repair paths: allthingsmasonic.com CTA/disclosure validation using the 2026-09-21 baseline of 61 clicks, 0 ordered items, and $0 site-attributed commission; amputeenews.com owner-controlled Amazon tag prerequisite; and americastrikes.com stale/broken affiliate-reference repair already present in the task-routing inventory. Keep the latter two waiting until capacity and ownership prerequisites are resolved.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Named affiliate tracking rows are mapped, but provider aggregate tracking_id=other contains all reported commission and cannot be assigned to any site. Require every new affiliate link to use a registered site tracking ID. If site-level orders or commission remain unavailable after the canonical CTA change, classify the result as unknown rather than zero, successful, failed, or ROI-positive.",
         "requested_action": null,
         "proposal_id": null
       }

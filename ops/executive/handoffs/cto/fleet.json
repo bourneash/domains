@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:07:33.579Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:27:33.472Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment with one exception: preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com without duplication. Do not admit new site-factory, CRO, research, telemetry, affiliate, spend, or SEO work this cycle. Execute only after the existing saveusfarms.com repair case is completed or justifiably closed, one delivery slot is released, and site overlap is cleared.",
+        "summary": "Approve containment. Do not admit new site-factory builds, affiliate-tag work, prototypes, finance work, telemetry requests, or duplicate queue items while delivery remains saturated at 10/10 slots and measurement obligations are unresolved. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence by 2026-10-01T09:00Z. After one slot is released and site overlap is cleared, execute only the existing allthingsmasonic.com CTA refinement request 4719e525-763b-42a4-9f16-e71e1c38b17b.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The preserved implementation is technically feasible and isolated: limit changes to CTA hierarchy, disclosure placement, keyboard/focus accessibility, responsive layout, and product-link clarity. Do not change affiliate destinations, credentials, domains, dependencies, telemetry, or cross-site behavior. Require deterministic tests, build and link validation, consent/disclosure preservation, deployment verification, a single-diff rollback point, and measurement through existing analytics and affiliate attribution only.",
+        "summary": "The proposed finance baseline is technically safe and reversible, but its evidence is already present in the authoritative snapshot and existing handoffs. Do not create duplicate report-only work this cycle. Retain its acceptance criteria for the existing canonical CTA measurement: preserve the 2026-09-21 affiliate baseline, keep aggregate commission unattributed, and classify site revenue, ROI, margin, and cost-to-learn as unknown or not calculable where required fields are absent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Use the recorded baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks, ordered items, shipped items, site-attributed commission, and direct change cost for 14 days or 100 relevant new impressions or clicks. Keep unavailable outcomes unknown; do not assign aggregate provider earnings to this site or claim ROI or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work and all other deferred candidates as planning context only. Do not create queue work or a launch-readiness artifact until implementation capacity is released and the canonical request has completed or closed. Public exposure, deployment, new telemetry, dependencies, spend, and domain changes remain unauthorized.",
+        "summary": "Do not queue or execute the complicated.work or deadlymaracas.com preview builds this cycle. Their isolation and reversibility are adequate, but active capacity is saturated and launch, security, analytics, affiliate, and measurement gates remain incomplete. Preserve the existing readiness candidates without creating implementation work.",
         "requested_action": null,
         "proposal_id": null
       }
