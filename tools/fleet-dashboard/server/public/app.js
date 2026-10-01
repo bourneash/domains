@@ -332,7 +332,12 @@ function applyAccessLevel(level) {
 }
 
 function stamp() {
-  $('#updated').textContent = 'updated ' + new Date().toLocaleTimeString();
+  const updated = $('#updated');
+  if (updated) {
+    updated.textContent = 'Updated ' + new Date().toLocaleTimeString();
+    updated.dataset.state = 'fresh';
+    updated.title = 'Latest successful dashboard refresh';
+  }
   $('#app')?.setAttribute('aria-busy', 'false');
   $$('.fd-stale-banner').forEach(banner => banner.remove());
 }
@@ -344,6 +349,13 @@ function renderViewError(target, message) {
   if (!target) return;
   $('#app')?.setAttribute('aria-busy', 'false');
   const text = String(message || 'The view could not be refreshed.');
+  const updated = $('#updated');
+  if (updated) {
+    updated.dataset.state = FRESH ? 'error' : 'stale';
+    updated.title = FRESH
+      ? 'The latest dashboard refresh failed'
+      : 'Showing the last successful dashboard refresh';
+  }
   if (!FRESH && target.firstElementChild) {
     target.querySelector('.fd-stale-banner')?.remove();
     const banner = document.createElement('div');
@@ -16489,6 +16501,7 @@ function softRender() {
   }
   SOFT_RENDER_BUSY = true;
   document.body.classList.add('fd-refreshing');
+  $('#updated')?.setAttribute('data-state', 'refreshing');
   $('#refresh')?.setAttribute('aria-busy', 'true');
   document.documentElement.classList.add('fd-soft-refresh');
   UISNAP = captureUI();

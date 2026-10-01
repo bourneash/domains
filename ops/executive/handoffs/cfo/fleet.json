@@ -2,21 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:57:21.041Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:08:19.475Z",
+  "summary": "cfo checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve containment, admit no new work, and do not make revenue, ROI, contribution-margin, or forecast claims this cycle. September AI usage was 5,531 calls costing $1,002.46, including 234 errors; average AI cost was approximately $0.181 per call. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. The $4.92 is aggregate under tracking_id=other and cannot be assigned to a site; the date also does not align to the September AI-cost window. Therefore site revenue, contribution margin, payback, and ROI are unsupported. Fleet-level revenue-to-AI-cost comparison is only a non-comparable reference: $4.92 versus $1,002.46, not a valid return calculation. Cost-to-learn is not calculable because experiment-level AI, infrastructure, labor, and implementation costs are not linked to hypotheses or measured outcomes. Minimum measurement needed is a dated experiment ledger linking site/content/change ID to incremental AI cost, infrastructure cost, implementation effort, attributable commission, orders, shipped items, and measurement window. Do not treat 14,734 impressions, 150 clicks, 1,021 sessions, 17 conversions, proposal counts, or output volume as financial returns. Preserve the existing allthingsmasonic.com CTA work only after capacity clears, using outbound affiliate clicks as the primary metric and revenue as secondary. Keep launch and monetization gates unchanged until attribution and direct-cost evidence exist.",
+        "summary": "Financial recommendation: preserve containment and admit no new spend or production work. Revenue support is insufficient for ROI, contribution margin, or forecast claims: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under an unattributed provider row. AI usage is $2.2785467 for 16 calls across 4 instrumented sites on 2026-10-01, but coverage is only 4 of 38 expected sites. Delivery is saturated at 10/10 slots. Keep the canonical allthingsmasonic.com CTA work capacity-gated and measure only clicks, orders, commission, and directly attributable costs after release. Do not claim margin, ROI, payback, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO handoff: retain the existing capacity gate. No finance implementation or duplicate telemetry request is justified because current read-only financial and AI telemetry is available; the blocker is missing linkage and cost allocation. If capacity later permits, the minimum report-only finance artifact should be an experiment-level unit-economics ledger, not a new dashboard or production change.",
+        "summary": "Attribution disposition: site-level revenue is not supportable for the current Amazon window. Named tracking rows are mapped, but all $4.92 commission is in an aggregate row that cannot be assigned to a site without inventing attribution. Minimum measurement for a supported site claim: provider tracking ID mapped to the site/content identifier, provider-reported clicks, ordered items, shipped items, commission, reporting period, and reconciliation timestamp.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Contribution-margin disposition: contribution margin is not calculable. The brief provides aggregate commission and partial AI cost, but no complete site-period cost ledger for hosting, infrastructure, domains, AI, labor, marketing, or other directly attributable costs. Minimum measurement: dated site-level revenue plus directly attributable cash costs by site and period, including infrastructure allocation basis and AI usage costs; then calculate contribution margin as attributable revenue less those directly attributable costs.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Cost-to-learn disposition: a defensible cost per learned revenue or conversion outcome is not calculable because no site-attributed commission is reported, experiments have no completed measured outcomes, and causal lift is unknown. The current AI usage cost can only be described as $2.2785467 for 16 calls, or approximately $0.1424 per call, not as ROI or cost-to-learn. Minimum measurement: approved hypothesis, exposure count, outcome definition, attributable revenue or conversion result, and all directly attributable learning costs over a fixed window.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Budget exposure disposition: no monthly revenue target, fixed-cost budget, marketing budget, revenue floor, or attribution materiality threshold is populated. Infrastructure spend is absent from the snapshot, and AI-cost coverage is partial at 4 of 38 expected sites. Treat budget exposure as unknown and authorize no incremental spend, billing change, banking access, contract, or credential action. Minimum measurement: owner-approved budget ceilings, current committed recurring costs, variable usage costs, renewal dates, and site-level allocation rules.",
         "requested_action": null,
         "proposal_id": null
       }

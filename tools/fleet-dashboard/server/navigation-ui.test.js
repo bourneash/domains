@@ -315,6 +315,18 @@ test('soft refresh failures preserve the last successful page', () => {
   assert.match(theme, /\.fd-stale-banner/);
 });
 
+test('shell refresh status distinguishes fresh, refreshing, stale, and unavailable data', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /updated\.dataset\.state = 'fresh'/);
+  assert.match(app, /updated\.dataset\.state = FRESH \? 'error' : 'stale'/);
+  assert.match(app, /\$\('#updated'\)\?\.setAttribute\('data-state', 'refreshing'\)/);
+  assert.match(theme, /#updated\[data-state="fresh"\]/);
+  assert.match(theme, /#updated\[data-state="refreshing"\]/);
+  assert.match(theme, /#updated\[data-state="stale"\]/);
+  assert.match(theme, /#updated\[data-state="error"\]/);
+});
+
 test('Engineer health actions keep their role binding explicit', () => {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = source.indexOf('async function renderEngineers()');

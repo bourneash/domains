@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:57:21.040Z",
+  "generated_at": "2026-10-01T05:08:19.474Z",
   "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO deferred product opportunity: disposable MarkItDown-assisted content-discovery prototype for sites with existing SEO opportunity data. Fleet use case: convert approved local source documents into structured Markdown for editorial review, metadata extraction, and internal content-gap triage; never publish automatically. Evidence: microsoft/markitdown is MIT-licensed, lab fit is supported, and bounded checks passed 8/8; no dependency installation or production access occurred. Risks: parser coverage and output accuracy require fixture testing; transitive dependencies and upstream maintenance remain unverified; license metadata does not prove production security or content rights. Expected metric: reviewer-approved extraction accuracy and editorial minutes saved per document. Time-to-learn: one isolated fixture batch. Smallest reversible prototype: disposable workspace, 10 synthetic or already-authorized documents, deterministic snapshot tests, no network during processing, and a report-only comparison against the current manual workflow. Keep deferred until a delivery slot opens and CTO validates dependency and security boundaries.",
+        "summary": "CRO disposition: reject the proposed fleet work-graph admission this cycle. Capacity is saturated at 10/10 slots, 57 improvements are measuring, and existing delivery-attention work must be resolved before adding control-plane scope. Preserve only the two deferred research opportunities below; neither requests deployment, spend, credentials, telemetry, or production change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO deferred product opportunity: evaluate shadcn/ui as a copied, minimal component pattern for accessible affiliate CTA surfaces, not as a fleet-wide dependency. Fleet use case: improve CTA hierarchy, disclosure adjacency, keyboard focus, contrast, and responsive behavior on the canonical allthingsmasonic.com experiment and later reusable site surfaces. Evidence: MIT license, supported platform-UX fit, and 3/3 bounded lab checks; no dependency installation or production access occurred. Risks: copied components create maintenance and styling drift; upstream license metadata does not establish supply-chain security; avoid adding a package until dependency review is complete. Expected metric: outbound affiliate-click rate plus accessibility and destination-integrity pass rate. Time-to-learn: one isolated component fixture and local visual/accessibility review. Smallest reversible prototype: copy one button/card pattern into a disposable branch or fixture, run deterministic accessibility/link tests, and compare against the existing surface without deployment. Do not create a new queue item while capacity is full.",
+        "summary": "CRO handoff: after one delivery slot is released, validate at most one deferred prototype in an isolated disposable workspace. Require CTO/security review, explicit metric instrumentation using existing telemetry only, maintenance assessment, rollback, and owner-approved implementation before adoption.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:57:21.041Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:08:19.475Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Do not clear go-live, new public exposure, or security-sensitive release gates. High risk for those decisions because fleet-doctor is not OK and has no run, checks, or findings; operations has no deploy, uptime, or error sweep results. Authentication, access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only: 36 pass, 19 fail, 6 unknown. No credential exposure, exploit, or vulnerability is established. Recommendation: preserve current gates; permit only ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "summary": "Security disposition: evidence_needed, severity high. Fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results. Authentication and access boundaries, secrets exposure, container isolation, release controls, dependency provenance, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unverified. TLS evidence only shows no certificates expiring within 30 days. Compliance reports 35 pass, 20 fail, and 6 unknown and is not certification. Exact decision: preserve private-launch and security-sensitive release gates; keep SearchWoot private; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim clearance or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing consolidated read-only security evidence matrix using retained artifacts and authorized metadata only. Record dated evidence, affected scope, owners, severity, and release implications for authentication/access, secrets, isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, alter permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
+        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record dated evidence, unknowns, affected scope, owners, severity, and release implications for access, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, alter permissions or configuration, add dependencies, deploy, conduct outreach, or request duplicate telemetry.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and private launch gates",
+        "summary": "Maintain the fleet security disposition as evidence_needed because fleet-doctor and operations security evidence are unavailable and material controls remain unverified. Preserve private-launch and security-sensitive release gates while allowing only bounded reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
+        "requested_action": "Continue the existing canonical read-only security evidence matrix using retained artifacts and authorized metadata only. Document authentication and access boundaries, secrets handling, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt or disclosure readiness. Keep public exposure and security-sensitive releases gated until dated control evidence and owner disposition exist.",
         "proposal_id": null
       }
     ]

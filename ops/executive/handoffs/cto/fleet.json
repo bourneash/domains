@@ -2,35 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:57:21.041Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:08:19.475Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve containment and admit no new implementation while delivery is saturated at 10/10 active slots. The candidate control-plane improvement is technically feasible in principle, but it is not safe to queue now: current evidence shows no available capacity, repeated duplicate/stranded work, failed requests, and incomplete execution linkage. Do not infer that a new deduplication system will reduce triage time or improve reliability without an isolated prototype and measured outcome.",
+        "summary": "CTO disposition: reject all new queue admissions, site-factory tasks, CRO prototypes, telemetry requests, and report-only work this cycle. Delivery is saturated at 10/10 slots and existing measurement and repair work must be resolved first. Preserve only the canonical allthingsmasonic.com CTA refinement as the next implementation after the existing capacity-blocking repair case is completed or justifiably closed. Scope remains CTA hierarchy, disclosure placement, accessibility, responsive layout, deterministic link checks, single-diff rollback, and measurement against the recorded 61-click baseline without revenue or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one slot is released, admit only the existing canonical allthingsmasonic.com CTA refinement. Keep scope to one isolated site change, deterministic tests, destination and tracking-ID validation, disclosure/accessibility checks, and single-diff rollback. Measure outbound affiliate clicks against the recorded 61-click baseline; retain ordered items and commission as secondary fields without revenue, ROI, or causal claims.",
+        "summary": "Maintain private-launch and security-sensitive release gates. Existing security and operations evidence is incomplete; do not clear gates, deploy, add dependencies, change credentials or configuration, request duplicate telemetry, or conduct external rights outreach. Continue only the canonical read-only evidence work using retained artifacts and authorized metadata.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject or defer the proposed fleet-wide admission/deduplication implementation, AI-cost guardrails, work-graph expansion, site-factory builds, CRO prototypes, and new telemetry requests this cycle. A control-plane change would require an isolated worktree or disposable control-plane fixture, explicit idempotency and capability tests, queue/measurement/rollback linkage tests, failure recovery validation, owner-approved implementation, and a measurable baseline. Existing operational and fleet-doctor evidence is incomplete, so no reliability or isolation claim is currently supportable.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep private-launch and security-sensitive release gates unchanged. Do not add dependencies, credentials, permissions, cross-site behavior, production configuration, external outreach, or public exposure. The strongest site-factory candidate remains preview-only and cannot enter the implementation queue until launch-readiness, compliance, security, measurement, owner, and rollback evidence exists.",
+        "summary": "The proposed three preview-only launch-readiness tasks and CFO report-only baseline are not admitted this cycle. They do not release capacity or improve delivery evidence sufficiently to justify additional queue load. Reconsider only after one active slot is released and existing attention items are reduced.",
         "requested_action": null,
         "proposal_id": null
       }

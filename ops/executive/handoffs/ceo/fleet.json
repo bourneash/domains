@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:57:21.040Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T05:08:19.474Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Keep SearchWoot private and leave rights outreach unsent because rights, security, accuracy, measurement, compliance, and owner gates remain incomplete. Delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 108 approved proposals lacking execution. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift are unknown. Smallest next step: CTO completes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z and releases one slot. Owner decision: confirm the keep-private disposition and unsent rights outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Handoff: do not admit new implementation, CRO, site-factory, telemetry, or duplicate control-plane work while delivery remains saturated. Complete or close the existing saveusfarms.com repair case with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release-boundary, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Reject the candidate plan’s new site-factory tasks and CRO prototypes this cycle; delivery is saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 108 approved proposals lacking execution. Keep the canonical allthingsmasonic.com CTA request queued for after capacity clears. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unknown. Smallest next step: CTO completes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }
