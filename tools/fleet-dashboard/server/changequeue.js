@@ -107,6 +107,15 @@ function normalizeInput(input = {}) {
   return delivery_mode === 'direct' ? input : { ...input, delivery_mode };
 }
 
+function directRequestDeferralReason(input = {}) {
+  const instruction = `${input.title || ''}\n${input.body || ''}`;
+  if (/\bretain as unclaimed\b/i.test(instruction))
+    return 'request says to remain unclaimed but this queue dispatches automatically';
+  if (/\b(?:do not|must not)\s+(?:execute|start|dispatch|pick up)\s+until\b/i.test(instruction))
+    return 'request has an unresolved execution prerequisite';
+  return null;
+}
+
 function routedAssignedRole(input, availableRolesForSite) {
   if (typeof availableRolesForSite === 'function' && input.site !== 'fleet') {
     const routed = assignedRoleForSite(
@@ -139,6 +148,10 @@ function validate(input, knownSite) {
     throw httpErr(400, 'invalid provider');
   if (!DELIVERY_MODES.includes(String(input.delivery_mode || 'direct')))
     throw httpErr(400, 'invalid delivery mode');
+  if (String(input.delivery_mode || 'direct') === 'direct') {
+    const deferralReason = directRequestDeferralReason(input);
+    if (deferralReason) throw httpErr(400, deferralReason);
+  }
   if (
     String(input.delivery_mode || 'direct') === 'report_only' &&
     (input.auto_review === false || input.auto_review === 0)
@@ -391,5 +404,6 @@ module.exports = {
   pick,
   inferredDeliveryMode,
   normalizeInput,
+  directRequestDeferralReason,
   transcribe,
 };

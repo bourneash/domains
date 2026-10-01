@@ -101,15 +101,6 @@ function blockedOwnerSubject(value) {
   );
 }
 
-function directRequestDeferralReason(item = {}) {
-  const instruction = `${item.title || ''}\n${item.body || ''}`;
-  if (/\bretain as unclaimed\b/i.test(instruction))
-    return 'request says to remain unclaimed but this queue dispatches automatically';
-  if (/\b(?:do not|must not)\s+(?:execute|start|dispatch|pick up)\s+until\b/i.test(instruction))
-    return 'request has an unresolved execution prerequisite';
-  return null;
-}
-
 function candidateQueueCategory(candidate = {}) {
   const type = String(candidate.type || '')
     .trim()
@@ -4300,7 +4291,9 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
   if (allowQueue) {
     const ownerBlockedSubjects = new Map();
     for (const blocked of store.listChangeRequests({ status: 'blocked_owner', limit: 'all' })) {
-      const site = String(blocked.site || '').trim().toLowerCase();
+      const site = String(blocked.site || '')
+        .trim()
+        .toLowerCase();
       const subject = blockedOwnerSubject(blocked.title);
       if (site && subject) ownerBlockedSubjects.set(`${site}:${subject}`, blocked.request_id);
     }
@@ -4343,7 +4336,9 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
         throw new Error('change request requires site, title and body');
       const site = String(item.site).trim().toLowerCase();
       const directImplementation = String(item.delivery_mode || 'direct') !== 'report_only';
-      const deferralReason = directImplementation ? directRequestDeferralReason(item) : null;
+      const deferralReason = directImplementation
+        ? changequeue.directRequestDeferralReason(item)
+        : null;
       if (deferralReason) {
         created.skipped_change_requests.push({ site, title: item.title, reason: deferralReason });
         continue;

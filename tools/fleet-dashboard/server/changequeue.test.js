@@ -83,6 +83,39 @@ test('a durable report reconciles a delivery-pending request to verified', () =>
   store.close();
 });
 
+test('direct work cannot enter an automatic queue while its own instructions defer execution', () => {
+  const { store } = fixture();
+  const known = site => site === 'example.com';
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Capacity-gated change',
+          body: 'Retain as unclaimed work only. Do not execute until a slot opens.',
+        },
+        known
+      ),
+    /dispatches automatically/
+  );
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Wait for approval',
+          body: 'Do not start until the owner approves this work.',
+        },
+        known
+      ),
+    /unresolved execution prerequisite/
+  );
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 0);
+  store.close();
+});
+
 test('routes SEO requests to the SEO analyst even when engineer is requested', () => {
   const { store } = fixture();
   const known = () => true;
