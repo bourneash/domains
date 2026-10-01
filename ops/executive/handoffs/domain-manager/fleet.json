@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:23:59.036Z",
+  "generated_at": "2026-10-01T21:43:18.058Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Clarify offshorehookup.com homepage affiliate path",
-        "summary": "Ship one reversible homepage CTA and disclosure refinement for offshorehookup.com. Existing evidence shows 320 site-linked Amazon clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window; page-level attribution is unavailable.",
-        "requested_action": "Assign engineer to update only the homepage (/), its rendered homepage template, and the existing affiliate-link registry or data source consumed by that page. Improve primary CTA label hierarchy, product relevance copy, destination clarity, and existing affiliate disclosure placement without adding tracking, changing credentials, modifying configuration, adding dependencies, or expanding scope.",
+        "title": "Improve vibratorporn.com homepage hierarchy and primary CTA clarity",
+        "summary": "Ship one bounded, reversible homepage usability pass for vibratorporn.com without inferring audience attributes or changing monetization, tracking, credentials, dependencies, or site-wide behavior.",
+        "requested_action": "Implement in the existing vibratorporn.com repository only: update the current route/template that renders `/` and its directly imported homepage stylesheet. Improve heading hierarchy, above-the-fold explanation, primary CTA prominence, keyboard focus visibility, responsive spacing, and existing-link labeling. Preserve all destinations, disclosures, analytics behavior, and asset sources.",
         "proposal_id": null
       }
     ]
