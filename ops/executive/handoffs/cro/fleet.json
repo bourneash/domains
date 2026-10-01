@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.295Z",
+  "generated_at": "2026-10-01T13:09:19.919Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: retain no new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and site overlap remains unresolved. Preserve the existing allthingsmasonic.com CTA experiment as the sole next revenue test after CTO releases a slot and overlap clears. Hypothesis: clearer product-card CTA, destination labeling, disclosure placement, and accessible focus states increase outbound affiliate-click rate from the existing 61-click baseline; measure outbound clicks and existing analytics outcomes for 14 days or 100 relevant new impressions/clicks. Revenue, ROI, and causal lift remain unknown because the available site-attributed commission is $0 and aggregate provider earnings cannot be assigned to this site. Rollback is a single-diff revert with unchanged URLs and tracking IDs.",
+        "summary": "CRO disposition: reject the proposed fleet work-admission control-plane build this cycle. It duplicates existing control-plane coverage, while delivery is saturated at 10/10 slots, measurement debt and failed-request repairs remain open, and site overlap persists. Preserve current legal, security, attribution, measurement, and release gates. After CTO releases capacity and overlap clears, the existing allthingsmasonic.com affiliate CTA request remains the next growth implementation candidate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO product opportunity for later capacity: retain the already-reviewed microsoft/markitdown concept as a report-only, disposable-workspace prototype rather than an adoption request. Fleet use case: convert approved source documents into structured Markdown drafts for SEO/content workflows on selected managed sites. Evidence: CRO repo lab completed 8/8 bounded checks, MIT license, 195 files, 22 relevant documentation hits, and supported fit; no dependency installation or production access occurred. Risks: license and transitive-dependency review remain incomplete, maintenance/release compatibility is unknown, parser fidelity may create factual or formatting errors, and source-rights/republishing permissions must be verified per input. Smallest reversible prototype: process 3 owner-approved local documents in isolation, emit Markdown plus a provenance/error report, and require human review before publication. Metric: reviewer acceptance time and usable-draft rate; learning window: 2–3 engineering days, with no revenue, margin, or payback claim. Do not queue until capacity clears and CTO/security review the prototype boundary.",
+        "summary": "CRO handoff: preserve attribution hygiene for all affiliate experiments. Require registered tracking IDs on new affiliate links, keep the $4.92 aggregate commission and 629 aggregate clicks explicitly unattributed, and report clicks, orders, and commission separately. Do not claim site revenue, ROI, margin, payback, or causal lift from the current aggregate row.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: preserve attribution hygiene as a product requirement for every future affiliate experiment. Require registered tracking IDs on every new affiliate link, keep aggregate provider rows explicitly unattributed, and report clicks or conversions separately from revenue. No additional telemetry request is needed; existing evidence is sufficient to define the experiment baseline and its measurement boundary.",
+        "summary": "CRO handoff: retain the reviewed microsoft/markitdown opportunity as capacity-gated research only. Fleet use case is converting three owner-approved local source documents into structured Markdown drafts with provenance and parser-error reporting for SEO/content workflows. Evidence is limited to the bounded lab result: MIT license, 195 files, 22 relevant documentation hits, 8/8 checks passed, no dependency installation, and no production access. Remaining risks are parser fidelity, transitive dependencies, maintenance compatibility, and source-use rights. Do not adopt, publish, add dependencies, or change production until CTO and owner-approved prototype review is complete.",
         "requested_action": null,
         "proposal_id": null
       }

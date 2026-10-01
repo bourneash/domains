@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.802Z",
+  "generated_at": "2026-10-01T13:09:19.919Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the capacity gate. Current evidence remains 10/10 implementation capacity, 39 improvements awaiting measurement, 21 failed requests, and unresolved site overlap. Complete or close the canonical saveusfarms.com repair with validation, rollback, and release-boundary evidence before admitting any new work.",
+        "summary": "CTO disposition: reject the proposed fleet admission-control-plane build this cycle. It duplicates existing control-plane coverage, while implementation capacity, measurement debt, failed-request repairs, and site overlap remain unresolved. Preserve existing legal, security, attribution, measurement, and release gates. Admit no new implementation until the canonical saveusfarms.com repair-or-close case releases a slot; then admit only the existing allthingsmasonic.com affiliate CTA request after overlap review. Reconcile conflicting capacity summaries before admission.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all four new control-plane proposals this cycle. They are technically feasible and reversible, but cannot safely enter the queue while implementation capacity is saturated at 10/10, measurement and repair obligations remain active, and site overlap is unresolved. Preserve existing gates and records; do not create duplicate requests or telemetry. Reconsider the highest-value control-plane item only after one delivery slot is released and its scope is isolated from active site work.",
+        "summary": "CTO handoff: retain the reviewed document-conversion opportunity as capacity-gated research only. Any prototype must use three owner-approved local documents in an isolated disposable workspace, with no dependency installation, production access, external publishing, or telemetry changes. Require provenance and parser-error output plus human review before adoption.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the capacity gate. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate to the owner. No new implementation admission is authorized before that evidence exists.",
+        "summary": "Preserve attribution boundaries. Keep aggregate affiliate clicks and commission explicitly unattributed, require registered tracking IDs for new links, and report clicks, orders, and commission separately. Do not claim site revenue, ROI, margin, payback, or causal lift from aggregate rows.",
         "requested_action": null,
         "proposal_id": null
       }

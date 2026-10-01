@@ -2,36 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.803Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T13:09:19.919Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal/compliance disposition: conditional for ordinary reversible growth; blocked for SearchWoot public beta, monetization expansion, and go-live. Evidence: compliance baseline is 35 pass, 20 fail, 6 unknown; security and operations evidence are unavailable; Amazon reports $4.92 aggregate commission that cannot be assigned to a site; and SearchWoot has 0/4 legal tasks evidenced closed. Keep SearchWoot private, leave rights outreach unsent, reject the four new control-plane proposals this cycle as capacity-incompatible, and permit only bounded reversible work that adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Human counsel is required for Woot redistribution/commercial-use rights, privacy/jurisdiction treatment, notification data, vendor/DPA obligations, and any future affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for SearchWoot public beta and full launch; conditional for ordinary reversible growth that adds no new data collection, permissions, credentials, dependencies, cross-site behavior, or monetization. Exact decision: keep searchwoot.com private. Evidence: Woot documentation proves API access mechanics only; public terms do not evidence redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; 0 of 4 legal tasks are evidenced closed; accuracy/freshness, measurement/attribution, security/release, and owner gates remain blocked. Compliance is technical-only at 35 pass, 20 fail, 6 unknown, with 20 banner/accept/reject/GA4 findings and 4 privacy/terms findings. Revenue evidence is limited to an unattributed aggregate $4.92 commission and 629 aggregate clicks. Next evidence action: attach one dated read-only bundle covering source rights, data flow and retention, deployed consent and GA4 settings, logs, vendors, incident handling, and request workflows. Human counsel and owner approval are required before rights outreach or any gate change.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the active SearchWoot launch-readiness workstream. Progress is 0/4 legal tasks evidenced closed. Do not close any task on current evidence. Next evidence action: produce one dated read-only bundle from the existing repository/config artifacts covering source rights, data flow and retention, consent/GA4 configuration, logs/vendors, incident handling, deletion/correction, and notification workflows; preserve missing items as open and escalate rights, privacy, and vendor questions to human counsel.",
+        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 legal tasks can close; no task is closed because source-rights evidence confirms access only, data-flow evidence is partial, consent/analytics evidence is partial, and logs/vendor/incident evidence remains open. Data-use dispositions: Woot API deal and price-history data—blocked; missing written redistribution/commercial permission, field-level rights, freshness, correction, and takedown terms; smallest action is obtain and attach an authoritative permission record. User alert rules and sync results—counsel_required; missing data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest action is produce the read-only data-flow and retention table for counsel review. GA4 analytics—counsel_required; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdiction review; smallest action is capture existing configuration without enabling tracking. Operational logs and Cloudflare data—counsel_required; missing log-field inventory, retention/access controls, vendor/DPA review, and incident/request procedures; smallest action is attach the operator/vendor inventory. Keep all unresolved items open and keep outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private. Before any public beta or production exposure, provide dated evidence for source refresh and stale-data handling, correction/takedown, rollback, security controls, and release validation. Existing public API documentation proves access mechanics only and does not prove redistribution or commercial-use rights.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the attribution boundary. Do not assign Amazon's $4.92 aggregate commission to any site or claim revenue, ROI, margin, or causal lift. Future affiliate links must use registered site tracking IDs and retain disclosure evidence.",
-        "requested_action": null,
+        "kind": "proposal",
+        "title": "Maintain SearchWoot private launch gate and complete evidenced legal review",
+        "summary": "Keep searchwoot.com private while rights, privacy, consent, data-flow, security, accuracy, attribution, measurement, and owner gates remain incomplete. Continue the existing launch-readiness workstream without duplicate telemetry or external outreach.",
+        "requested_action": "Attach one dated read-only evidence bundle to the existing launch-readiness workstream covering source rights, data flow and retention, consent and GA4 configuration, logs, vendors, incident handling, and request workflows. Preserve all four legal tasks as open unless closure evidence is attached. Do not publish, expand notifications, enable new tracking, add affiliate or advertising use, send rights outreach, or change the private gate.",
         "proposal_id": null
       }
     ]

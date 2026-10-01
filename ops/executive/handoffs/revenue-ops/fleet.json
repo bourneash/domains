@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.803Z",
-  "summary": "revenue-ops checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T13:09:19.918Z",
+  "summary": "revenue-ops checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve attribution boundaries. The aggregate Amazon commission remains unattributed and must not support site-level revenue, ROI, margin, or causal-lift claims. Retain the existing affiliate refinement only as a future bounded experiment after capacity and overlap clearance.",
+        "summary": "Reject the proposed fleet work-admission control-plane build this cycle. It duplicates existing control-plane coverage, while delivery capacity is saturated at 10/10 slots. Preserve current legal, security, attribution, measurement, and release gates. Keep the existing allthingsmasonic.com affiliate request as the next implementation candidate after capacity and site overlap clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the $4.92 Amazon commission and 629 aggregate clicks explicitly unattributed under tracking_id other. Do not infer site revenue, ROI, margin, payback, or causal lift. Require registered tracking IDs for every future affiliate link.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,58 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.804Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-10-01T13:09:19.920Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the new security proposal as duplicate planning: the consolidated security evidence workstream already exists. Preserve the current evidence-needed and capacity gates. No new implementation, financial claim, forecast, ROI, margin, causal-lift claim, telemetry request, or discretionary spend is authorized this cycle.",
+        "summary": "Reject the proposed fleet admission-control-plane build and all new implementation, production, scaffold, high-priority queue, duplicate telemetry, and unsupported monetization work this cycle. Capacity is saturated, measurement and failed-request debt remain open, and site overlap is unresolved. Preserve existing gates and admit the queued affiliate change only after the canonical repair case releases capacity and overlap clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Preserve unknowns and existing release gates; do not create duplicate work or request duplicate telemetry.",
+        "summary": "Keep aggregate affiliate results explicitly unattributed. The available $4.92 commission and 629 aggregate clicks cannot support site revenue, ROI, margin, payback, or causal-lift claims. Require registered tracking IDs for future affiliate links.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the 10/10 capacity gate. Complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence before admitting any implementation work.",
+        "summary": "Owner action: resolve or close the canonical repair case and release one delivery slot before admitting further implementation. Continue only the existing evidence workstreams; do not create duplicate control-plane, telemetry, security, or readiness work.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. Delivery capacity is saturated at 10/10, measurement and repair obligations remain active, site overlap is unresolved, and 39 improvements await measurement. Preserve existing gates and work. Confirm SearchWoot remains private and rights outreach unsent.",
+        "summary": "Rejected unsupported revenue, ROI, margin, causal-lift, high-priority, duplicate, and production admissions. Amazon's $4.92 aggregate commission remains unattributed. Three bounded SEO changes are queued to engineer but execution is gated by existing site overlap, measurement windows, infrastructure repair, and capacity. No new telemetry, credentials, spend, configuration, or production exposure is authorized.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Release one delivery slot before admitting any new implementation work. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence. Deadline: 2026-10-01T12:00:00Z; escalate to the owner if unresolved.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net planning-only. After CTO releases a slot, complete exactly one verified launch-readiness artifact for complicated.work covering owner approval, scope, content seed, SEO baseline, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Deadline: 2026-10-02T12:00:00Z; escalate unresolved gates to the owner.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "pending-security-evidence-proposal",
-        "summary": "Duplicate of the existing consolidated security evidence workstream. Preserve the existing matrix and gates without creating duplicate planning or telemetry work.",
-        "requested_action": "declined",
-        "proposal_id": "pending-security-evidence-proposal"
       }
     ]
   }

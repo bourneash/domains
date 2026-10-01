@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.803Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T13:09:19.920Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Risk is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Fleet-doctor has no run, checks, findings, or site results; operations has no deploy, uptime, or error sweeps. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced. Compliance is technical-only: 35 pass, 20 fail, 6 unknown. Recommendation: preserve existing private and security-sensitive release gates; continue only bounded read-only evidence work and constrained reversible growth.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may proceed conditionally. Evidence: the security baseline covers 61 managed sites, but fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and authentication/access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown. Exact decision: preserve private-launch and security-sensitive release gates. Permit only reversible work that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim certification or a clean bill of health.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete the existing consolidated security control-evidence matrix using authorized metadata and retained artifacts only. Record dated evidence or explicit unknowns for authentication/access, secrets, isolation, release/deploy controls, dependencies and supply chain, TLS, data exposure, monitoring, incident readiness, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, add dependencies, deploy, or request duplicate telemetry.",
+        "summary": "Retain the existing consolidated security evidence matrix; do not create duplicate proposals or telemetry requests. Complete it with dated evidence or explicit unknowns, affected scope, owner, severity, and release implications using authorized metadata and retained artifacts only. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, deploy, add dependencies, or conduct external outreach.",
         "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations results are absent and material controls remain unevidenced. Keep go-live, new public exposure, and security-sensitive releases gated while permitting constrained ordinary reversible growth that introduces no credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": "Continue one consolidated read-only security evidence matrix from authorized metadata and retained artifacts. Preserve unknowns and document affected scope, evidence timestamps, owners, severity, and release implications. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, conduct outreach, or claim certification.",
         "proposal_id": null
       }
     ]

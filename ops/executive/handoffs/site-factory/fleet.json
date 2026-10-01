@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.803Z",
+  "generated_at": "2026-10-01T13:09:19.918Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve complicated.work as planning-only. After a delivery slot is released, complete exactly one verified launch-readiness artifact covering owner approval, scope, content seed, SEO baseline, analytics and affiliate readiness, legal/compliance, security, measurement, rollback, and preview-only status. Do not build, publish, add tracking, spend, change domains, or create duplicate requests.",
+        "summary": "Site-factory disposition: maintain a three-candidate scaffold pipeline—complicated.work, deadlymaracas.com, and driveford.net—with no domain, spend, deployment, publication, or telemetry changes. The strongest candidate is complicated.work because it is first in the validated site-factory queue and has an existing scaffold, but launch readiness is not verified; analytics is unconfigured, compliance is unknown, and security evidence is incomplete. Exactly one next step: after CTO releases a delivery slot, complete one verified complicated.work readiness artifact covering owner approval, bounded site brief, reusable template, content seed, SEO baseline, analytics and registered-affiliate readiness, legal/compliance checklist, security evidence, measurement plan, rollback point, and preview-only launch gate. Keep all candidates preview-only until owner, legal, security, measurement, and rollback gates pass.",
         "requested_action": null,
         "proposal_id": null
       }

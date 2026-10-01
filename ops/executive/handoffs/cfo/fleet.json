@@ -2,37 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T12:30:26.803Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T13:09:19.919Z",
+  "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve no new discretionary spend, monetization forecast, ROI claim, contribution-margin claim, or causal-lift claim this cycle. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but the full $4.92 is aggregate and unattributed. AI usage reports $10.8396 across 85 calls on 2026-10-01, while coverage is only 11 of 38 expected sites. These periods and scopes do not reconcile, so contribution margin, payback, and cost-to-learn are not calculable. Preserve existing attribution and capacity gates; do not add duplicate telemetry or financial forecasts.",
+        "summary": "CFO recommendation: reject the proposed fleet admission-control-plane build this cycle. It duplicates existing control-plane work while capacity, measurement debt, failed repairs, and site overlap remain unresolved. Freeze new monetization claims, forecasts, and finance-impacting admissions. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; the $4.92 and 629 aggregate clicks are unattributed, so site revenue, contribution margin, ROI, payback, and causal lift are unsupported. AI usage covers 2026-10-01: 85 calls, 11 instrumented sites, and $10.8396 cost, or about $0.1275 per call, but it is not comparable to the revenue window. Cost-to-learn is not calculable because no validated incremental outcome is linked to those calls. Infrastructure, hosting, registrar, labor, marketing, and other direct costs are absent; monthly spend, fixed-cost, marketing-budget, revenue-target, and revenue-floor limits are blank. Retain only report-only reconciliation work for dated owner-provided cost exports and period alignment; do not move money, access banking, change billing, spend, forecast, or claim ROI.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing allthingsmasonic.com refinement only as a conditional, reversible experiment after capacity and site-overlap clearance. Baseline: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Use GA4 affiliate outbound clicks as the primary metric and record provider outcomes only when site-attributable. Do not claim revenue, ROI, margin, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Minimum finance measurement remains: a dated ledger joining site/content identifier, registered affiliate tracking ID, outbound click, ordered item, shipped item, commission, reporting date, and direct cost; plus complete AI, hosting, domain, analytics, and approved internal-cost records by site and shared service. Without these, total budget exposure and contribution margin remain unknown. Do not treat impressions, sessions, clicks, conversions, shipped work, or audited actions as financial returns.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "b2d6b1db-e853-4c5f-979f-bb432caaf24e",
-        "summary": "Decline adoption work this cycle. It is discovery evidence without measurable financial upside, and current AI-cost coverage, revenue attribution, and contribution-margin data are insufficient for an investment case.",
-        "requested_action": "declined",
-        "proposal_id": "b2d6b1db-e853-4c5f-979f-bb432caaf24e"
       }
     ]
   }

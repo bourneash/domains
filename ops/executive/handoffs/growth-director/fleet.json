@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:47:59.896Z",
+  "generated_at": "2026-10-01T13:09:19.918Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create duplicate work while delivery is saturated at 10/10 slots. After CTO releases one slot and site overlap clears, execute existing request 4719e525-763b-42a4-9f16-e71e1c38b17b on allthingsmasonic.com. Target the homepage and highest-intent merchandising surface. Improve primary affiliate CTA clarity, product-card hierarchy, disclosure placement, accessibility, responsive layout, and image alt text without adding tracking, dependencies, or unrelated route changes. Baseline: 61 Amazon clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21; the $4.92 aggregate commission remains unattributed. Measure GA4 affiliate outbound clicks and available site-level Amazon outcomes for 14 days or 100 relevant impressions/clicks, whichever comes first. Do not claim causal lift, revenue, ROI, or attribution beyond the recorded evidence.",
+        "summary": "Reject the proposed fleet work-admission control-plane build this cycle. It duplicates existing control-plane coverage, while delivery capacity is saturated at 10/10 slots, 13 requests remain queued, 41 improvements await measurement, 22 requests have failed, and site-overlap alerts remain open. Preserve existing legal, security, attribution, measurement, and release gates. After CTO releases a slot and overlap clears, the existing allthingsmasonic.com affiliate CTA request remains the next growth implementation candidate.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:58:02.295Z",
+  "generated_at": "2026-10-01T13:09:19.919Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject all new admissions and duplicate site-factory work this cycle. Delivery remains saturated at 10/10 slots, with 39 improvements awaiting measurement, 21 failed requests, and unresolved site overlap. Preserve the existing allthingsmasonic.com affiliate request as the sole next implementation after CTO releases a slot; preserve complicated.work as readiness-only. Under EXEC_CONV_12, retain the approved report-only prototype and keep SearchWoot private pending owner confirmation.",
+        "summary": "Recommendation: decline the proposed fleet admission-control-plane build this cycle. It duplicates existing control-plane coverage while delivery is saturated at 10/10 in the performance view, 13 requests remain queued, 41 improvements await measurement, and 22 requests have failed. Preserve current gates and route no new implementation until CTO releases capacity. Next action: delivery-lead coordinates the existing saveusfarms.com repair-or-close case and admits only the queued allthingsmasonic.com request after overlap clears.",
         "requested_action": null,
         "proposal_id": null
       }
