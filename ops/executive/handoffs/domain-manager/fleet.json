@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:11:07.015Z",
+  "generated_at": "2026-10-01T10:13:25.606Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare nsfwpixels.com launch-readiness and evidence-boundary brief",
-        "summary": "Site-specific implementation telemetry and lifecycle details are not present in the authoritative snapshot. Analytics is not configured for nsfwpixels.com, so no audience, conversion, revenue, or performance claims are supportable. Produce one bounded readiness artifact before selecting implementation work.",
-        "requested_action": "Review only the authorized nsfwpixels.com repository and public entry surface. Record lifecycle, exact routes/files, current audience positioning, content seed, metadata, consent/disclosure pages, analytics and affiliate readiness, security/compliance unknowns, current queue/overlap status, and the smallest reversible implementation candidate. Do not deploy, publish, add telemetry, add dependencies, change credentials, spend, or claim readiness, revenue, traffic, or lift.",
+        "title": "Create nsfwpixles.com implementation-readiness brief",
+        "summary": "The authoritative snapshot does not provide verified audience, page structure, repository files, worker details, analytics configuration, or current monetization paths for nsfwpixles.com. Create one bounded read-only brief before implementation selection.",
+        "requested_action": "Inspect only authorized repository, registry, and observable site evidence for nsfwpixles.com. Record exact homepage and highest-intent page files, current audience positioning, navigation and CTA paths, analytics status, monetization/disclosure state, accessibility or health blockers, and select exactly one smallest reversible implementation for the next queue slot. Do not deploy, modify production, add telemetry, spend, or claim performance.",
         "proposal_id": null
       }
     ]

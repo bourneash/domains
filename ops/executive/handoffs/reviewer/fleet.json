@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:11:07.014Z",
+  "generated_at": "2026-10-01T10:13:25.606Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer rejects the nsfwpixels.com report-only proposal: it does not satisfy the execution mandate, while launch readiness, security, attribution, and telemetry remain unevidenced. Route only one bounded SEO implementation for rodhat.com; all other visible candidates are blocked by saturated capacity, active measurement/queue work, or missing launch evidence. CTO must release a slot by 2026-10-02T10:10:00Z or escalate.",
+        "summary": "Rejected the nsfwpixles.com report-only brief: it does not satisfy the delivery mandate, and production evidence is insufficient for implementation selection. Routed three bounded, low-risk SEO changes to engineer as capacity-gated work across rodhat.com, marineactivity.com, and greatamericanlakes.com. CTO must release one of the 10 occupied implementation slots by 2026-10-02T09:00Z; escalate unresolved capacity to the owner then. No revenue, ROI, causal lift, or readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
