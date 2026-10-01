@@ -12445,6 +12445,8 @@ async function renderPriorities() {
 }
 
 let IMPROVEMENT_STATE = 'active';
+let IMPROVEMENT_PAGE = 1;
+const IMPROVEMENT_PAGE_SIZE = 20;
 const IMPROVEMENT_TERMINAL = new Set(['proven', 'inconclusive', 'cancelled', 'rolled-back']);
 
 function improvementActions(run, transitions) {
@@ -12513,9 +12515,13 @@ async function renderImprovements() {
       IMPROVEMENT_STATE === 'all' ||
       (IMPROVEMENT_STATE === 'active'
         ? !IMPROVEMENT_TERMINAL.has(run.state)
-        : run.state === IMPROVEMENT_STATE)
+      : run.state === IMPROVEMENT_STATE)
   );
-  const cards = runs
+  const pageCount = Math.max(1, Math.ceil(runs.length / IMPROVEMENT_PAGE_SIZE));
+  IMPROVEMENT_PAGE = Math.min(Math.max(1, IMPROVEMENT_PAGE), pageCount);
+  const pageStart = (IMPROVEMENT_PAGE - 1) * IMPROVEMENT_PAGE_SIZE;
+  const pageRuns = runs.slice(pageStart, pageStart + IMPROVEMENT_PAGE_SIZE);
+  const cards = pageRuns
     .map(run => {
       const baseline = run.baseline?.analytics || {};
       const validation = run.validation || {};
@@ -12543,11 +12549,21 @@ async function renderImprovements() {
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Site Improvements</h2><div class="crumbs">Recommendation → task → build → review → deploy → measured outcome</div></div><button type="button" id="improvements-refresh" class="btn">↻ Refresh</button></div>
     <section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${active}</div><div class="seo-stat-label">Active</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.proven || 0}</div><div class="seo-stat-label">Proven</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals?.regressed || 0}</div><div class="seo-stat-label">Regressed</div></div><div class="seo-stat"><div class="seo-stat-value">${all.length}</div><div class="seo-stat-label">All runs</div></div></section>
     <div class="task-toolbar"><select id="improvement-state" class="cm-input"><option value="active">Active</option><option value="all">All runs</option>${(data.states || []).map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select><span class="muted">State changes are explicit and recorded in the causal event graph.</span></div>
+    ${pageCount > 1 ? `<nav class="improvement-pagination" aria-label="Improvement run pages"><button type="button" class="btn sm" id="improvements-prev" ${IMPROVEMENT_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="improvements-page-status" role="status">Showing ${pageStart + 1}–${Math.min(pageStart + IMPROVEMENT_PAGE_SIZE, runs.length)} of ${runs.length} runs · Page ${IMPROVEMENT_PAGE} of ${pageCount}</span><button type="button" class="btn sm" id="improvements-next" ${IMPROVEMENT_PAGE === pageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
     ${cards || '<div class="empty">No improvement runs in this view. Start one from Priorities.</div>'}`;
   $('#improvements-refresh').addEventListener('click', () => renderImprovements());
   $('#improvement-state').value = IMPROVEMENT_STATE;
   $('#improvement-state').addEventListener('change', e => {
     IMPROVEMENT_STATE = e.target.value;
+    IMPROVEMENT_PAGE = 1;
+    softRender();
+  });
+  $('#improvements-prev')?.addEventListener('click', () => {
+    IMPROVEMENT_PAGE = Math.max(1, IMPROVEMENT_PAGE - 1);
+    softRender();
+  });
+  $('#improvements-next')?.addEventListener('click', () => {
+    IMPROVEMENT_PAGE = Math.min(pageCount, IMPROVEMENT_PAGE + 1);
     softRender();
   });
   $$('.improvement-transition').forEach(button =>

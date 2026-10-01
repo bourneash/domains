@@ -1073,6 +1073,19 @@ body[data-view="builds"] main { max-width: none; }
 .seo-coverage b { display: block; font-size: 21px; }
 .seo-coverage span { display: block; font-size: 10px; margin-top: 2px; }
 .improvement-card { margin-bottom: 12px; }
+.improvement-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+.improvement-pagination > span { flex: 1; text-align: center; font-size: 11px; }
+.improvement-pagination .btn:disabled { cursor: not-allowed; opacity: .45; }
 .seo-stat-value.is-compact { font-size: 14px; }
 .improvement-visual-compare,
 .improvement-live-review {
@@ -1112,6 +1125,9 @@ body[data-view="builds"] main { max-width: none; }
   text-align: center;
 }
 @media (max-width: 720px) {
+  .improvement-pagination { align-items: stretch; flex-wrap: wrap; }
+  .improvement-pagination > span { order: -1; flex-basis: 100%; }
+  .improvement-pagination .btn { flex: 1; }
   .improvement-visual-compare,
   .improvement-live-review { grid-template-columns: 1fr; }
   .improvement-live-review { min-height: 0; }
