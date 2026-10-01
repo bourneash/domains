@@ -1084,7 +1084,10 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(app, /class="aii-summary"/);
   assert.match(app, /AI-backed services<\/span>/);
   assert.match(app, /No-AI services · \$\{s\.conditional \|\| 0\} conditional/);
+  assert.match(app, /class="card aii-table"><div class="table-wrap"><table/);
+  assert.match(app, /class="aii-help"><summary>How to interpret AI inventory/);
   assert.match(theme, /\.aii-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.aii-table \{[^}]*overflow: hidden/);
 });
 
 test('Data Hub presents privacy and freshness state as a summary strip', () => {

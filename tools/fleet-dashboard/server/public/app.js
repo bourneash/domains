@@ -1326,7 +1326,7 @@ async function renderGit() {
       <label><span class="sr-only">Repository status</span><select id="git-status" class="cm-input"><option value="all">All states</option><option value="dirty">Dirty tree</option><option value="synced">Synced</option><option value="ahead">Need push</option><option value="behind">Need pull</option><option value="diverged-behind">Diverged</option><option value="no-upstream">No upstream</option></select></label>
       <span id="git-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card"><table>
+    <div class="card aii-table"><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
       <tbody>${body}</tbody>
     </table></div>`;
@@ -1528,8 +1528,8 @@ async function renderAIInventory() {
     <div class="card"><table>
       <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">“Claude CLI default (unpinned)” and aliases such as <span class="mono">sonnet</span>/<span class="mono">haiku</span> can change without a repository change. Conditional services run deterministic gates before spending model tokens. Rows marked no-AI remain visible to make classifier decisions auditable.</p>`;
+    </table></div></div>
+    <details class="aii-help"><summary>How to interpret AI inventory</summary><p>“Claude CLI default (unpinned)” and aliases such as <span class="mono">sonnet</span>/<span class="mono">haiku</span> can change without a repository change. Conditional services run deterministic gates before spending model tokens. Rows marked no-AI remain visible to make classifier decisions auditable.</p></details>`;
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
