@@ -10956,12 +10956,12 @@ function shRenderOverview(data) {
     );
 
   const tile = (k, label, value, tone) =>
-    `<button class="sh-tile${tone ? ' ' + tone : ''}" data-sh-jump="${k}" title="Open the queue filtered to ${esc(label)}">
+    `<button type="button" class="sh-tile${tone ? ' ' + tone : ''}" data-sh-jump="${k}" aria-label="Open queue filtered to ${esc(label)} (${value})" title="Open the queue filtered to ${esc(label)}">
        <span class="sh-tile-v">${value}</span><span class="sh-tile-k">${esc(label)}</span>
      </button>`;
 
   const chip = (k, label, n) =>
-    `<button class="seg-btn${filter === k ? ' active' : ''}" data-sh-ov="${k}">${esc(label)}<span class="ctl-n">${n}</span></button>`;
+    `<button type="button" class="seg-btn${filter === k ? ' active' : ''}" data-sh-ov="${k}" aria-label="Show ${esc(label)}" aria-pressed="${filter === k}">${esc(label)}<span class="ctl-n">${n}</span></button>`;
 
   const siteCards = shown
     .map(r => {
@@ -11025,7 +11025,7 @@ function shRenderOverview(data) {
       ${tile('failed', 'failed', totals.failed, totals.failed ? 'bad' : '')}
     </div>
     <div class="ctl-bar sh-ov-bar">
-      <div class="seg sm">
+      <div class="seg sm" role="group" aria-label="Filter sites by social state">
         ${chip('all', 'All sites', rolled.length)}
         ${chip('review', 'Needs review', rolled.filter(r => r.draft).length)}
         ${chip('failing', 'Failing', rolled.filter(r => r.failed).length)}

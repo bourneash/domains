@@ -680,6 +680,16 @@ test('Social Hub overview bounds platform engagement tables', () => {
   assert.match(overview, /class="card sh-table-wrap"><table class="tbl"/);
 });
 
+test('Social Hub overview filters expose state and contextual queue jumps', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function shRenderOverview(data)');
+  const end = app.indexOf('function shRenderOversight(data)', start);
+  const overview = app.slice(start, end);
+  assert.match(overview, /aria-pressed="\$\{filter === k\}"/);
+  assert.match(overview, /role="group" aria-label="Filter sites by social state"/);
+  assert.match(overview, /aria-label="Open queue filtered to \$\{esc\(label\)\} \(\$\{value\}\)"/);
+});
+
 test('Social Hub exposes local refresh and accessible initial loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const route = app.slice(
