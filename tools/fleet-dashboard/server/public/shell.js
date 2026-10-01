@@ -917,7 +917,7 @@
       }
       hint.type = 'button';
       hint.title = 'Command palette (⌘K, ?, or /)';
-      hint.setAttribute('aria-label', 'Open command palette');
+      hint.setAttribute('aria-label', '⌘ K — Open command palette');
       hint.innerHTML = `<span>⌘</span><kbd>K</kbd>`;
       hint.onclick = open;
       const focus = $('.focus-mode-toggle', actions) || document.createElement('button');

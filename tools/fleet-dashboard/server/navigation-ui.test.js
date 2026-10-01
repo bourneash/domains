@@ -170,6 +170,7 @@ test('initial topbar renders shell controls before hydration', () => {
   for (const marker of ['cmdk-hint', 'focus-mode-toggle', 'view-saves', 'fd-network-status', 'access-badge']) {
     assert.match(html, new RegExp(`class="[^"]*${marker}`));
   }
+  assert.match(html, /aria-label="⌘ K — Open command palette"/);
 });
 
 test('private dashboard publishes valid non-indexing metadata', () => {
