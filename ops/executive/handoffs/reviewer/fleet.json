@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T15:40:21.254Z",
+  "generated_at": "2026-10-01T15:41:09.115Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: retain only three bounded engineer revalidations on distinct sites. Do not execute or deploy until CTO reconciles the conflicting capacity ledgers and releases one slot by 2026-10-01T18:00Z. Require site-specific baseline and minimum measurement threshold before delivery; preserve no-spend, no-credential, no-configuration, no-duplicate-telemetry, legal, security, and production gates. Aggregate affiliate income remains unattributed, so revenue, ROI, margin, and causal-lift claims are unsupported.",
+        "summary": "Retain three bounded engineer revalidations as capacity-gated only: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Do not execute until CTO reconciles the conflicting capacity ledger and releases one slot by 2026-10-01T18:00Z; escalate unresolved capacity to the owner. No revenue, ROI, causal-lift, or production-readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
