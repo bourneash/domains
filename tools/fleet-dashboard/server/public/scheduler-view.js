@@ -114,7 +114,7 @@ async function renderScheduler() {
 
     <h3 style="margin:14px 0 6px">Sites</h3>
     <div class="table-wrap" style="max-height:260px">
-    <table class="tbl"><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th></th></tr></thead><tbody>
+    <table class="tbl"><caption class="sr-only">Scheduler sites and adoption status</caption><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th>Actions</th></tr></thead><tbody>
       ${sites
         .map(
           s => `<tr>
@@ -125,8 +125,8 @@ async function renderScheduler() {
           SCH.inst === 'scheduler-fleet'
             ? ''
             : s.adopted
-              ? `<button type="button" class="btn sm" data-act="release" data-site="${esc(s.site)}">Release → legacy</button>`
-              : `<button type="button" class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}">Adopt</button>`
+              ? `<button type="button" class="btn sm" data-act="release" data-site="${esc(s.site)}" aria-label="Release ${esc(s.site)} to legacy cron" title="Release ${esc(s.site)} to its legacy cron container">Release → legacy</button>`
+              : `<button type="button" class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}" aria-label="Adopt ${esc(s.site)} into scheduler" title="Adopt ${esc(s.site)} into the database-backed scheduler">Adopt</button>`
         }</td></tr>`
         )
         .join('')}
@@ -134,8 +134,8 @@ async function renderScheduler() {
     </div>
 
     <h3 style="margin:18px 0 6px">Jobs ${SCH.site ? `— ${esc(SCH.site)} <a href="#" id="sch-clear">(all sites)</a>` : ''}
-      <input id="sch-text" placeholder="filter…" value="${esc(SCH.text)}" style="margin-left:12px;width:180px"></h3>
-    <div class="table-wrap"><table class="tbl"><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th></th></tr></thead><tbody>
+      <label class="sr-only" for="sch-text">Filter jobs</label><input id="sch-text" type="search" aria-label="Filter scheduler jobs" placeholder="filter…" value="${esc(SCH.text)}" style="margin-left:12px;width:180px"></h3>
+    <div class="table-wrap"><table class="tbl"><caption class="sr-only">Scheduled jobs and controls</caption><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th>Actions</th></tr></thead><tbody>
       ${shown
         .map(
           j => `<tr>
@@ -145,18 +145,18 @@ async function renderScheduler() {
         <td>${j.active ? schFmtNext(j.next_fire) : '—'}</td>
         <td>${j.last_run ? `${schBadge(j.last_run.status)} <span class="muted">${schFmtTime(j.last_run.finished_at || j.last_run.started_at)}</span>` : '<span class="muted">never</span>'}</td>
         <td style="white-space:nowrap">
-          <button type="button" class="btn sm" data-act="run" data-id="${j.id}">Run</button>
-          <button type="button" class="btn sm" data-act="toggle" data-id="${j.id}" data-en="${j.enabled ? 1 : 0}">${j.enabled ? 'Disable' : 'Enable'}</button>
-          <button type="button" class="btn sm" data-act="sched" data-id="${j.id}" data-cur="${esc(j.schedule)}">Edit</button></td></tr>`
+          <button type="button" class="btn sm" data-act="run" data-id="${j.id}" aria-label="Run ${esc(j.name)} for ${esc(j.site)}" title="Run ${esc(j.name)} for ${esc(j.site)}">Run</button>
+          <button type="button" class="btn sm" data-act="toggle" data-id="${j.id}" data-en="${j.enabled ? 1 : 0}" aria-label="${j.enabled ? 'Disable' : 'Enable'} ${esc(j.name)} for ${esc(j.site)}" title="${j.enabled ? 'Disable' : 'Enable'} ${esc(j.name)} for ${esc(j.site)}">${j.enabled ? 'Disable' : 'Enable'}</button>
+          <button type="button" class="btn sm" data-act="sched" data-id="${j.id}" data-cur="${esc(j.schedule)}" aria-label="Edit schedule for ${esc(j.name)} on ${esc(j.site)}" title="Edit schedule for ${esc(j.name)} on ${esc(j.site)}">Edit</button></td></tr>`
         )
         .join('')}
     </tbody></table></div>
 
     <h3 style="margin:18px 0 6px">Recent runs</h3>
-    <div class="table-wrap"><table class="tbl"><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
+    <div class="table-wrap"><table class="tbl"><caption class="sr-only">Recent scheduler runs</caption><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
       ${runs
         .map(
-          r => `<tr class="sch-run" data-id="${r.id}" role="button" tabindex="0" aria-expanded="${SCH.openRun === r.id}" aria-controls="sch-out-${r.id}" style="cursor:pointer">
+          r => `<tr class="sch-run" data-id="${r.id}" role="button" tabindex="0" aria-label="Open run details for ${esc(r.name)} on ${esc(r.site)}" aria-expanded="${SCH.openRun === r.id}" aria-controls="sch-out-${r.id}" style="cursor:pointer">
         <td>${schFmtTime(r.queued_at)}</td><td>${esc(r.site)}</td><td>${esc(r.name)}${r.trigger === 'manual' ? ' <span class="badge b-blue">manual</span>' : ''}</td>
         <td>${schBadge(r.status)}</td><td>${r.exit_code ?? ''}</td><td>${schDur(r)}</td><td class="muted">${esc(r.note || '')}</td></tr>
         <tr class="sch-out ${SCH.openRun === r.id ? '' : 'hidden'}" id="sch-out-${r.id}" data-for="${r.id}"><td colspan="7"><pre class="mono" style="white-space:pre-wrap;max-height:280px;overflow:auto;margin:0">${SCH.openRun === r.id ? 'loading…' : ''}</pre></td></tr>`
