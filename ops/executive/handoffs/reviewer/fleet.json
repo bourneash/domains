@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:45:09.025Z",
+  "generated_at": "2026-10-01T09:46:47.196Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new implementation admissions this cycle. The mandate is blocked by saturated capacity (10/10 slots), 39 improvements awaiting measurement, 21 failed requests, absent operations/fleet-doctor evidence, and unattributed aggregate affiliate revenue. Preserve only canonical existing work: CTO must complete or justifiably close the saveusfarms.com repair case with validation, tests, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. Keep SearchWoot private and rights outreach unsent. After capacity and site-overlap clearance, execute only the existing allthingsmasonic.com CTA request; no new production, queue, spend, telemetry, or duplicate research work is approved.",
+        "summary": "Reject the duplicate deadlymaracas.com readiness proposal. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and the canonical site-factory gate already covers this work. No new implementation or production work is authorized. Preserve the existing gate; site-factory may complete the readiness artifact only after CTO releases capacity. Escalate unresolved capacity to the owner by 2026-10-02T09:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
