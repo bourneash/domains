@@ -132,7 +132,7 @@
 :root[data-theme="light"] .modal-card { background: #fff; border-color: var(--border); box-shadow: var(--sh-3); }
 :root[data-theme="light"] .cmdk-row.sel { color: var(--text-hi); }
 :root[data-theme="light"] .tbl thead th,
-:root[data-theme="light"] .table-wrap .tbl thead th { background: var(--panel-2); }
+:root[data-theme="light"] .table-wrap thead th { background: var(--panel-2); }
 :root[data-theme="light"] .card,
 :root[data-theme="light"] .vt,
 :root[data-theme="light"] .ex-kpi { background: var(--grad-panel), #fff; border-color: var(--border); box-shadow: var(--sh-2); }
@@ -247,14 +247,14 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
   border-radius: var(--radius-sm);
   scrollbar-gutter: stable both-edges;
 }
-.table-wrap .tbl thead th {
+.table-wrap thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   background: var(--panel-2);
   box-shadow: 0 1px 0 var(--border-hi);
 }
-.table-wrap .tbl tbody tr:hover { background: rgba(94,169,255,.055); }
+.table-wrap tbody tr:hover { background: rgba(94,169,255,.055); }
 
 * { scrollbar-width: thin; scrollbar-color: #2c3547 transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }

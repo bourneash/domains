@@ -1067,8 +1067,8 @@ test('Analytics provides route context, local refresh, and accessible loading st
 test('shared table wrappers keep headers visible while scanning long views', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /\.table-wrap \{[\s\S]*overflow: auto/);
-  assert.match(theme, /\.table-wrap \.tbl thead th \{[\s\S]*position: sticky/);
-  assert.match(theme, /\.table-wrap \.tbl tbody tr:hover/);
+  assert.match(theme, /\.table-wrap thead th \{[\s\S]*position: sticky/);
+  assert.match(theme, /\.table-wrap tbody tr:hover/);
 });
 
 test('shared shell provides an accessible back-to-top control for long views', () => {
