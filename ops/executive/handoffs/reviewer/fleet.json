@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:15:18.704Z",
+  "generated_at": "2026-10-01T10:17:15.090Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed oventoheaven.com report-only work and all new implementation admissions this cycle. Capacity is saturated at 10/10 slots, measurement debt and failed requests remain open, and the supplied snapshot lacks site-specific evidence and a defensible baseline. Preserve only existing canonical work; CTO must complete or close the saveusfarms.com repair case and release one slot by 2026-10-01T10:30:00Z, escalating unresolved capacity to the owner.",
+        "summary": "Reject the pervypotion.com report-only proposal: it does not satisfy the implementation mandate, and repository inspection is not an available read-only telemetry substitute. Route only the bounded rodhat.com SEO candidate below, capacity-gated because delivery is 10/10 occupied. CTO must release a slot by 2026-10-02T09:00:00Z; escalate unresolved capacity to the owner then. Preserve all revenue, attribution, readiness, and lift unknowns.",
         "requested_action": null,
         "proposal_id": null
       }
