@@ -104,6 +104,7 @@ test('private dashboard publishes valid non-indexing metadata', () => {
   assert.match(robots, /^User-agent: \*\nDisallow: \/\s*$/);
   assert.match(llms, /^# Domain Fleet Manager/m);
   assert.match(llms, /private and requires operator authentication/i);
+  assert.match(llms, /- \[Domain Fleet Manager\]\(\/\):/);
 });
 
 test('Executive deep links retain their operating workspace context', () => {

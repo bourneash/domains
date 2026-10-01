@@ -6,3 +6,7 @@
 
 - This dashboard is private and requires operator authentication.
 - Do not index, quote, or expose dashboard data outside an authenticated operator session.
+
+## Operator surface
+
+- [Domain Fleet Manager](/): Private authenticated operator dashboard for fleet health, scheduled roles, delivery, work queues, and audit evidence.
