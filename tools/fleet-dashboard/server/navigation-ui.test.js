@@ -151,6 +151,8 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /Executive Workbench/);
   assert.match(app, /api\/executive\/work-items/);
   assert.match(app, /wb-thread-toggle/);
+  assert.match(app, /type="button" class="btn" id="wb-refresh"/);
+  assert.match(app, /\$\('#wb-refresh'\)\.onclick = \(\) => renderWorkbench\(\)/);
 });
 
 test('workbench thread expansion exposes an accessible loading state', () => {
@@ -237,6 +239,8 @@ test('knowledge shelf is a first-class operator route', () => {
   assert.match(app, /Knowledge shelf/);
   assert.match(app, /api\/executive\/knowledge/);
   assert.match(app, /kn-learning-save/);
+  assert.match(app, /type="button" class="btn" id="kn-refresh"/);
+  assert.match(app, /\$\('#kn-refresh'\)\.onclick = \(\) => renderKnowledge\(\)/);
 });
 
 test('Git operations and Git Hygiene share one page with distinct tabs', () => {
