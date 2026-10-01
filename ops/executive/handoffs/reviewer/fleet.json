@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:28:13.980Z",
+  "generated_at": "2026-10-01T08:35:13.035Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, spend, credential, configuration, and production claims. Amazon commission is $4.92 aggregate and unattributed for 2026-09-21. Keep security and private-launch gates unchanged. Three reversible SEO changes are routed to engineer as capacity-gated specifications only; no execution is authorized until CTO releases capacity. CTO must complete or close the existing saveusfarms.com repair case with validation, rollback, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner.",
+        "summary": "Reject the report-only saltwaternews.com proposal and all new execution admissions this cycle. Delivery is saturated at 10/10 slots, active measurement and repair work remain unresolved, and site-level revenue, ROI, margin, and causal lift are unsupported because the available $4.92 commission is aggregate and unattributed. Preserve only the existing saveusfarms.com repair-or-close case; CTO must complete or justify closure with validation and rollback evidence by 2026-10-01T09:00Z, release one slot, or escalate to the owner. The following engineer requests are capacity-gated specifications only and must not execute before their unblock conditions pass.",
         "requested_action": null,
         "proposal_id": null
       }

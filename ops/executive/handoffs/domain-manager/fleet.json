@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T04:10:00.176Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-01T08:35:13.036Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "0ce11c0c-6a04-40aa-b493-8ce8eee5eed9",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 1,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Identify one reversible homepage usability improvement for saltwaternews.com",
+        "summary": "Exact repository files, current homepage structure, and site-specific performance evidence are not present in the authoritative snapshot, so an implementation target cannot be named without inventing scope or telemetry.",
+        "requested_action": "Inspect the existing saltwaternews.com repository and public homepage read-only. Identify the exact homepage template/component and stylesheet files, document one reversible usability or CTA improvement, and define the smallest implementation-ready change. Do not modify production, add tracking, or request duplicate telemetry.",
+        "proposal_id": null
+      }
+    ]
   }
 }
