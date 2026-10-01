@@ -180,6 +180,11 @@ test('Work Board mobile hero does not inherit a desktop flex height', () => {
   assert.match(style, /@media \(max-width: 700px\) \{[\s\S]*?\.wb-head > div:first-child \{ flex: 0 1 auto; width: 100%; \}/);
 });
 
+test('Site Command Center mobile hero does not inherit a desktop flex height', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /@media \(max-width: 820px\) \{[\s\S]*?\.site-command-head > div:first-child \{ flex: 0 1 auto; width: 100%; \}/);
+});
+
 test('Data Quality keeps its source table bounded on narrow screens', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
