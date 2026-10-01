@@ -1300,6 +1300,8 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /<span>approval gates<\/span>/);
   assert.match(app, /<span>blocked<\/span>/);
   assert.match(app, /type="button" class="btn" id="wb-board-refresh"/);
+  assert.match(app, /data-wb-include="\$\{key\}" aria-label="Show only \$\{esc\(label\)\}" aria-pressed="\$\{WORK_BOARD_INCLUDE\.has\(key\)\}"/);
+  assert.match(app, /data-wb-exclude="\$\{key\}" aria-label="Hide \$\{esc\(label\)\}" aria-pressed="\$\{WORK_BOARD_EXCLUDE\.has\(key\)\}"/);
   assert.match(app, /\$\('#wb-board-refresh'\)\.onclick = \(\) => renderWorkflowBoard\(\)/);
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
