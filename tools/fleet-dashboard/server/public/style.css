@@ -1584,7 +1584,7 @@ body[data-view="social"] main { max-width: none; }
 .cq-legend span { display: inline-flex; align-items: center; gap: 5px; }
 
 @media (max-width: 1050px) { .cq-kpis { grid-template-columns: repeat(3, 1fr); } .cq-grid { grid-template-columns: 1fr; } }
-@media (max-width: 650px) { .cq-page-head { align-items: flex-start; flex-direction: column; } .cq-head-actions { justify-content: flex-start; } .cq-kpis { grid-template-columns: repeat(2, 1fr); } .cq-controls .task-toolbar { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 650px) { .cq-page-head { align-items: flex-start; flex-direction: column; } .cq-page-head > div:first-child { flex: 0 1 auto; width: 100%; } .cq-head-actions { justify-content: flex-start; } .cq-kpis { grid-template-columns: repeat(2, 1fr); } .cq-controls .task-toolbar { align-items: flex-start; flex-direction: column; } }
 @media (max-width: 650px) { #cq-detail-panel { top: 64px; right: 10px; width: calc(100vw - 20px); max-height: calc(100vh - 76px); } }
 
 @media (max-width: 720px) {

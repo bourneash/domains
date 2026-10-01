@@ -170,6 +170,11 @@ test('change and Workbench detail timelines stay bounded on narrow screens', () 
   );
 });
 
+test('Change Queue mobile hero does not inherit a desktop flex height', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /@media \(max-width: 650px\) \{[\s\S]*?\.cq-page-head > div:first-child \{ flex: 0 1 auto; width: 100%; \}/);
+});
+
 test('Data Quality keeps its source table bounded on narrow screens', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
