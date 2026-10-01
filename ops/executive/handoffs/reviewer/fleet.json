@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T22:31:04.604Z",
+  "generated_at": "2026-10-01T22:40:56.783Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. No candidate has complete site-specific baseline, measurable threshold, tests, attribution boundary, rollback evidence, and cleared release gates. Existing review/measurement work, unavailable operations evidence, and unattributed aggregate commission block production and financial claims. Retain only the existing capacity reconciliation; principal-engineer must document authoritative admission state and the Save Us Farms repair disposition by 2026-10-02T12:00Z, release at most one candidate if every gate passes, or escalate.",
+        "summary": "Reject all new implementation admissions this cycle. No candidate has reconciled capacity, site-specific baseline, measurable threshold, tests, attribution boundary, rollback point, and release evidence. Retain only d4abc482-75de-438f-9fcf-522fcdf330fa. Principal-engineer must document canonical admission state and the Save Us Farms repair disposition by 2026-10-02T12:00Z; release at most one candidate only if every gate passes, otherwise escalate to the owner. Revenue, ROI, causal-lift, launch-readiness, and production-readiness claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       }
