@@ -1619,6 +1619,8 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     if (!item.body && (item.summary || item.description || item.recommendation))
       item.body = item.summary || item.description || item.recommendation;
     if (!item.category && (item.type || item.kind)) item.category = item.type || item.kind;
+    if (item.delivery_mode !== undefined)
+      item.delivery_mode = normalizeDeliveryMode(item.delivery_mode, item.site);
   }
   for (const item of plan.proposals) {
     // Domain-manager passes are already scoped to one managed site. Preserve
@@ -2155,7 +2157,9 @@ function validatePlan(plan) {
       invalid.push(`owner=${owner}`);
     if (
       item?.evidence !== undefined &&
-      (!Array.isArray(item.evidence) || item.evidence.length > 20)
+      (!Array.isArray(item.evidence) ||
+        item.evidence.length > 20 ||
+        item.evidence.some(entry => !entry || typeof entry !== 'object' || Array.isArray(entry)))
     )
       invalid.push('evidence invalid');
     if (invalid.length)
@@ -2208,6 +2212,8 @@ function validatePlan(plan) {
       throw new Error(
         `invalid change request in provider plan at index ${index} (missing=${missing.join(',')})`
       );
+    if (!changequeue.DELIVERY_MODES.includes(String(item.delivery_mode || 'direct')))
+      throw new Error('invalid delivery mode in provider plan');
     const normalizedPriority =
       {
         normal: 'medium',
@@ -2259,6 +2265,17 @@ function validatePlan(plan) {
 
 function planFingerprint(plan) {
   return crypto.createHash('sha256').update(JSON.stringify(plan)).digest('hex');
+}
+
+function normalizeDeliveryMode(value, site = '') {
+  const mode = String(value || '')
+    .trim()
+    .toLowerCase();
+  if (mode === 'report-only') return 'report_only';
+  if (mode === 'pull-request') return 'pull_request';
+  if (mode === 'fleet_report for the fleet operation' && String(site).toLowerCase() === 'fleet')
+    return 'fleet_report';
+  return mode;
 }
 
 function normalizeDirectChangeRequest(input = {}) {
@@ -2637,6 +2654,8 @@ function normalizeApprovedImplementation(proposal, root = ROOT) {
   if (!['engineer', 'principal-engineer'].includes(assignedRole))
     normalized.assigned_role = reportOnlyRole(normalized.category, normalized.site, root);
   if (normalized.priority === 'normal') normalized.priority = 'medium';
+  if (normalized.delivery_mode !== undefined)
+    normalized.delivery_mode = normalizeDeliveryMode(normalized.delivery_mode, normalized.site);
   if (!normalized.provider) normalized.provider = 'chatgpt';
   if (normalized.provider === 'chatgpt' && !normalized.model) normalized.model = 'gpt-5.6-luna';
   return normalized;

@@ -42,6 +42,7 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/changequeue.js" \
     "$ROOT/tools/fleet-dashboard/server/task-routing.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-scorecard.js" \
+    "$ROOT/tools/fleet-dashboard/server/executive-performance.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-snapshot.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-data.js" \
     "$ROOT/tools/fleet-dashboard/server/productivity-program.js" \

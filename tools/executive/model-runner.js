@@ -154,8 +154,11 @@ async function main() {
   const usage = createUsageLedger();
   const transcript = [];
   let finalized = false;
-  const mergeProviderPlan = nextPlan =>
-    runner.sanitizeExcludedPlanItems(mergePassPlans(plan, nextPlan));
+  const mergeProviderPlan = nextPlan => {
+    const merged = runner.sanitizeExcludedPlanItems(mergePassPlans(plan, nextPlan));
+    runner.sanitizePlan(merged);
+    return merged;
+  };
   // Preserve partial cost/pass evidence when a provider response fails
   // validation. The sandbox may not produce a plan, but it must still export
   // the calls already made so failures cannot disappear from the audit ledger.
@@ -357,6 +360,7 @@ async function main() {
   // The host owns action keys. Restore a trusted task-routing key when a
   // provider restates the exact candidate without carrying that metadata.
   runner.attachKnownActionKeys(plan, brief);
+  runner.sanitizePlan(plan);
   // Later review passes are allowed to revise an earlier conclusion, but a
   // pass that simply omits a CRO handoff must not reopen it for the owner.
   plan.proposal_reviews = [...proposalReviews.values()];

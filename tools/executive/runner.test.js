@@ -1074,6 +1074,60 @@ test('sanitizes malformed and excluded provider items while preserving safe work
   assert.equal(parsed.work_items.length, 1);
 });
 
+test('normalizes documented delivery-mode aliases without admitting unknown modes', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Safe direct task',
+          body: 'Ship a small change',
+          delivery_mode: 'direct',
+        },
+        {
+          site: 'example.com',
+          title: 'Report',
+          body: 'Provide evidence',
+          delivery_mode: 'report-only',
+        },
+        {
+          site: 'example.com',
+          title: 'Unknown',
+          body: 'Do something',
+          delivery_mode: 'implementation',
+        },
+      ],
+    }),
+    { sanitize: true }
+  );
+  assert.deepEqual(
+    plan.change_requests.map(item => item.delivery_mode),
+    ['direct', 'report_only']
+  );
+});
+
+test('malformed evidence drops only its work item and merged overflows are bounded', () => {
+  const plan = runner.emptyPlan();
+  plan.work_items = [
+    { title: 'Malformed evidence', owner: 'ceo', evidence: ['unsupported source string'] },
+    {
+      title: 'Valid evidence',
+      owner: 'ceo',
+      evidence: [{ type: 'source', note: 'Observed fact' }],
+    },
+  ];
+  plan.messages = Array.from({ length: 23 }, (_, index) => ({
+    actor: 'ceo',
+    body: `Message ${index}`,
+  }));
+  const dropped = runner.sanitizePlan(plan);
+  assert.equal(plan.work_items.length, 1);
+  assert.equal(plan.work_items[0].title, 'Valid evidence');
+  assert.equal(plan.messages.length, 20);
+  assert.equal(dropped.length, 4);
+  assert.doesNotThrow(() => runner.validatePlan(plan));
+});
+
 test('owner-request acknowledgements reserve message capacity after a full provider plan', async () => {
   const { root, store } = db();
   const tracked = executive.ownerRequest(store, {

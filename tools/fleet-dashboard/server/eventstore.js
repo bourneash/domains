@@ -71,8 +71,8 @@ function open(root, { file } = {}) {
   fs.mkdirSync(path.dirname(dbFile), { recursive: true });
   const db = new DatabaseSync(dbFile);
   db.exec(`
+    PRAGMA busy_timeout = 30000;
     PRAGMA journal_mode = WAL;
-    PRAGMA busy_timeout = 5000;
     CREATE TABLE IF NOT EXISTS events (
       event_id TEXT PRIMARY KEY,
       event_type TEXT NOT NULL,

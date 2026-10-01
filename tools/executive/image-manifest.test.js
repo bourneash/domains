@@ -9,6 +9,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const dockerfile = fs.readFileSync(path.join(ROOT, 'tools/executive/Dockerfile'), 'utf8');
 const dockerignore = fs.readFileSync(path.join(ROOT, '.dockerignore'), 'utf8');
 const sandbox = fs.readFileSync(path.join(ROOT, 'tools/executive/run-sandbox.sh'), 'utf8');
+const scheduled = fs.readFileSync(path.join(ROOT, 'tools/executive/run-scheduled.sh'), 'utf8');
 
 function copiedSources() {
   return [...dockerfile.matchAll(/^COPY\s+(?:--[^ ]+\s+)*([^\s]+)\s+/gm)].map(match => match[1]);
@@ -51,4 +52,9 @@ test('executive image declares a local base whose immutable ID is tracked by the
   assert.match(sandbox, /base-image-id=%s/);
   assert.match(sandbox, /sha256sum "\$ROOT\/\.dockerignore"/);
   assert.match(sandbox, /com\.bourneash\.executive\.base-image-id=\$BASE_IMAGE_ID/);
+});
+
+test('scheduled executive ticks use the bounded adaptive pass set by default', () => {
+  assert.match(scheduled, /export EXECUTIVE_PASSES="\$\{EXECUTIVE_PASSES:-adaptive\}"/);
+  assert.match(scheduled, /EXECUTIVE_CONTAINER_TIMEOUT="\$\{EXECUTIVE_CONTAINER_TIMEOUT:-9m\}"/);
 });
