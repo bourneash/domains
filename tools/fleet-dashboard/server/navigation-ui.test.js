@@ -783,6 +783,17 @@ test('Retention presents policy posture before editable rows', () => {
   assert.match(theme, /\.retention-stat-warn/);
 });
 
+test('Doctor presents sweep posture before failure details', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="doctor-summary" aria-label="Fleet doctor summary"/);
+  assert.match(app, /class="doctor-toolbar" role="group" aria-label="Fleet doctor actions"/);
+  assert.match(app, /class="doctor-result doctor-result-invalid"/);
+  assert.match(app, /class="doctor-help"><summary>What this sweep checks/);
+  assert.match(theme, /\.doctor-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.doctor-stat-bad/);
+});
+
 test('operational API failures use the shared recovery surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');

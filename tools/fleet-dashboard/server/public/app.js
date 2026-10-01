@@ -4455,18 +4455,21 @@ async function renderDoctor() {
       <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants</span></div>
       <div class="card"><p class="r-overdue">No result yet${d.error ? `: ${esc(d.error)}` : ''}.</p>
       <p class="muted">${d.running ? 'A sweep is running now \u2014 it takes about a minute.' : 'Press Re-run to start a sweep.'}</p>
-      <button class="btn" id="doctor-run">Re-run</button></div>`;
+      <button class="btn" type="button" id="doctor-run">Re-run</button></div>`;
     $('#doctor-run')?.addEventListener('click', doctorRun);
     return;
   }
 
   const t = d.totals || {};
+  const sitesChecked = t.sites_checked || 0;
+  const sitesExpected = t.sites_expected || 0;
+  const lastRun = d.last_run ? esc(String(d.last_run).replace('T', ' ').slice(0, 16)) : 'Never';
   const failing = (d.sites || []).filter(s => s.fail > 0);
   const banner = d.truncated
-    ? `<p class="r-overdue"><b>INVALID SWEEP</b> \u2014 only ${t.sites_checked} of ${t.sites_expected} sites were checked. Treat this run as meaningless, not as a pass.</p>`
+    ? `<div class="doctor-result doctor-result-invalid" role="alert"><b>INVALID SWEEP</b><span>Only ${sitesChecked} of ${sitesExpected} sites were checked. Treat this run as meaningless, not as a pass.</span></div>`
     : failing.length
-      ? `<p class="r-overdue"><b>${failing.length} site(s) failing</b></p>`
-      : `<p class="r-fresh">All ${t.sites_checked} sites pass all ${t.pass} checks.</p>`;
+      ? `<div class="doctor-result doctor-result-bad" role="status"><b>${failing.length} site(s) failing</b><span>Review the failing sites below and re-run after remediation.</span></div>`
+      : `<div class="doctor-result doctor-result-good" role="status"><b>Fleet sweep passed</b><span>All ${sitesChecked} sites pass all ${t.pass || 0} checks.</span></div>`;
 
   const rows = failing
     .map(
@@ -4481,20 +4484,26 @@ async function renderDoctor() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Doctor</h2><span class="muted">container &amp; image invariants \u00b7 fleet-wide</span></div>
-    <div class="task-toolbar">
-      <strong>${t.pass || 0} passed \u00b7 ${t.fail || 0} failed \u00b7 ${t.pending || 0} pending</strong>
-      <span class="muted">${t.sites_checked || 0}/${t.sites_expected || 0} sites \u00b7 last run ${d.last_run ? esc(String(d.last_run).replace('T', ' ').slice(0, 16)) : 'never'}</span>
-      <button class="btn" id="doctor-run" ${d.running ? 'disabled' : ''}>${d.running ? 'Running\u2026' : 'Re-run'}</button>
+    <section class="doctor-summary" aria-label="Fleet doctor summary">
+      <div class="doctor-stat doctor-stat-good"><strong>${t.pass || 0}</strong><span>Checks passed</span></div>
+      <div class="doctor-stat ${t.fail ? 'doctor-stat-bad' : 'doctor-stat-good'}"><strong>${t.fail || 0}</strong><span>Checks failed</span></div>
+      <div class="doctor-stat ${t.pending ? 'doctor-stat-warn' : 'doctor-stat-good'}"><strong>${t.pending || 0}</strong><span>Checks pending</span></div>
+      <div class="doctor-stat ${d.truncated ? 'doctor-stat-bad' : 'doctor-stat-good'}"><strong>${sitesChecked}<small>/${sitesExpected}</small></strong><span>Sites checked</span></div>
+      <div class="doctor-stat doctor-stat-meta"><strong>${lastRun}</strong><span>Last sweep</span></div>
+    </section>
+    <div class="doctor-toolbar" role="group" aria-label="Fleet doctor actions">
+      <div><strong>Fleet posture</strong><span class="muted">${sitesChecked}/${sitesExpected} sites checked · ${d.running ? 'sweep in progress' : 'background sweep every 15 minutes'}</span></div>
+      <button class="btn" type="button" id="doctor-run" ${d.running ? 'disabled' : ''}>${d.running ? 'Running\u2026' : 'Re-run sweep'}</button>
     </div>
     ${banner}
     ${
       rows
-        ? `<div class="card"><table class="rmatrix">
+        ? `<div class="card doctor-table"><div class="table-wrap"><table class="rmatrix">
       <thead><tr><th>Site</th><th>Failed</th><th>Pending</th><th>What failed</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`
+      <tbody>${rows}</tbody></table></div></div>`
         : ''
     }
-    <p class="muted" style="margin-top:12px">Source: <code>tools/fleet-images/bin/fleet-doctor --json</code>, re-swept every 15 minutes in the background. Checks each cron-capable site for the shared image, a bind-mounted (never baked) crontab, a running container on the current image ID, uid 1000, dropped capabilities, and a failable healthcheck.</p>`;
+    <details class="doctor-help"><summary>What this sweep checks</summary><p>Source: <code>tools/fleet-images/bin/fleet-doctor --json</code>. Each cron-capable site is checked for the shared image, a bind-mounted (never baked) crontab, a running container on the current image ID, uid 1000, dropped capabilities, and a failable healthcheck.</p></details>`;
 
   $('#doctor-run')?.addEventListener('click', doctorRun);
   stamp();
