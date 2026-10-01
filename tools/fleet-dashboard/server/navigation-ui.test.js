@@ -351,7 +351,7 @@ test('Cron inline editors protect schedule drafts on cancel', () => {
 test('shared shell keeps loading state and document title in sync with the active view', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
-  assert.match(index, /id="app" aria-busy="false"/);
+  assert.match(index, /id="app" aria-busy="true"/);
   assert.match(
     shell,
     /setAttribute\('aria-busy', String\(Boolean\(main\.querySelector\('\.loading'\)\)\)\)/
@@ -1138,9 +1138,12 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(index, /id="theme-toggle"/);
+  assert.match(index, /<main id="app" aria-busy="true">/);
   assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
   assert.match(app, /function applyThemeUI\(\)/);
   assert.match(app, /document\.documentElement\.dataset\.theme = theme/);
+  assert.match(app, /function watchSystemTheme\(\)/);
+  assert.match(app, /prefers-color-scheme: light/);
   assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
   assert.match(theme, /:root\[data-theme="light"\] \.sh-tile/);
   assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active/);

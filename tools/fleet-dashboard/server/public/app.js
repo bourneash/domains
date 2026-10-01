@@ -419,6 +419,16 @@ function toggleTheme() {
   applyThemeUI();
 }
 
+function watchSystemTheme() {
+  const media = matchMedia('(prefers-color-scheme: light)');
+  media.addEventListener?.('change', () => {
+    try {
+      if (localStorage.getItem('fd.theme')) return;
+    } catch {}
+    applyThemeUI();
+  });
+}
+
 /* ---- persisted collapsible panels ---- */
 // Shared by any view that wants operator-controlled density. The render helper
 // owns the markup and the wire helper owns localStorage, so future panels only
@@ -16566,6 +16576,7 @@ async function boot() {
   $('#density-toggle').addEventListener('click', toggleDensity);
   $('#theme-toggle')?.addEventListener('click', toggleTheme);
   applyThemeUI();
+  watchSystemTheme();
   const ff = $('#fleet-filter');
   if (ff) {
     try {
