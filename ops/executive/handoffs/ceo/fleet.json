@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T18:21:13.785Z",
-  "summary": "ceo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T18:31:25.839Z",
+  "summary": "ceo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve reassignment of capacity reconciliation to principal-engineer under d4abc482-75de-438f-9fcf-522fcdf330fa. Evidence: active_delivery reports 1/10 slots while performance reports 56 active improvements and 11 blocked reviews; the ledger remains unresolved after the 18:00Z deadline. Unknown: which ledger is authoritative. Smallest next step: document the canonical saveusfarms.com repair disposition and release one slot by 2026-10-02T12:00Z. Owner decision: approve this reassignment.",
+        "summary": "Recommendation: keep the three reversible implementation candidates capacity-gated under d4abc482-75de-438f-9fcf-522fcdf330fa. Evidence: active_delivery reports 0 occupied slots/10 open, while performance reports 56 active improvements, 12 blocked reviews, and 23 failed requests; the authoritative ledger is unresolved. Revenue and ROI remain unsupported because the $4.92 Amazon commission is aggregate and unattributed. Smallest next step: principal-engineer document the canonical saveusfarms.com repair disposition, reconcile the slot ledger, and release one slot by 2026-10-02T12:00Z. Owner decision: approve this reassignment and deadline, or specify an earlier escalation.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: keep three bounded, reversible implementation candidates queued for engineer but execution-gated. Principal-engineer must reconcile the authoritative capacity ledger and canonical saveusfarms.com repair by 2026-10-02T12:00Z, then release capacity. No revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }
