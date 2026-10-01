@@ -1898,6 +1898,10 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.rl-sec > \.rl-h/);
   assert.match(theme, /:root\[data-theme="light"\] \.rl-it\.on/);
   assert.match(theme, /:root\[data-theme="light"\] \.rl-health-details/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.page-title \{[\s\S]*background: linear-gradient/
+  );
 });
 
 test('agent pages expose enrollment actions that open the automation editor', () => {
