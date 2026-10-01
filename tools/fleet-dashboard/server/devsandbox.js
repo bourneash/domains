@@ -84,6 +84,51 @@ function isBrowserInfrastructureFailure(stderr = '') {
   );
 }
 
+function classifyLighthouseResult(lh, report) {
+  const thresholds = { performance: 50, accessibility: 90, 'best-practices': 85, seo: 90 };
+  const scores = {};
+  const reportAvailable =
+    lh.code === 0 &&
+    Object.keys(thresholds).every(key => {
+      const score = report?.categories?.[key]?.score;
+      return typeof score === 'number' && Number.isFinite(score) && score >= 0 && score <= 1;
+    });
+  if (reportAvailable) {
+    for (const key of Object.keys(thresholds))
+      scores[key] = Math.round(report.categories[key].score * 100);
+  }
+  // A missing or incomplete report is not a measured zero. It means the
+  // isolated browser did not provide usable scores, regardless of stderr.
+  const infrastructureWarning = !reportAvailable;
+  const checks = Object.fromEntries(
+    Object.entries(thresholds).map(([key, minimum]) => [
+      key,
+      reportAvailable
+        ? {
+            status: scores[key] >= minimum ? 'pass' : 'fail',
+            evidence: `${scores[key]}/100; minimum ${minimum}`,
+          }
+        : { status: 'warn', evidence: 'Lighthouse report unavailable; no score measured' },
+    ])
+  );
+  return {
+    infrastructureWarning,
+    lighthouse: {
+      status: reportAvailable
+        ? lh.code === 0
+          ? 'complete'
+          : 'complete-with-warning'
+        : 'unavailable',
+      scores,
+      checks,
+      error: lh.code === 0 ? null : lh.stderr.trim().slice(-1000),
+      warning: infrastructureWarning
+        ? 'Lighthouse browser runtime did not provide usable page scores; build and preview gates remain authoritative.'
+        : null,
+    },
+  };
+}
+
 const containerName = site => `dd-${site}`;
 
 function sandboxNetworkName(instance) {
@@ -776,6 +821,8 @@ async function browserAudit(root, instance, site) {
     };
   }
   const lighthouseFile = path.join(persistDir, 'lighthouse.json');
+  // Never attribute a previous audit's report to this invocation.
+  fs.rmSync(lighthouseFile, { force: true });
   const lh = await docker(
     sandboxExecCommand(instance, [
       'timeout',
@@ -791,50 +838,23 @@ async function browserAudit(root, instance, site) {
     ]),
     { timeout: 3 * 60 * 1000, maxBuffer: 2 * 1024 * 1024 }
   );
-  let scores = {};
-  let reportAvailable = false;
+  let report = null;
   try {
-    const report = JSON.parse(fs.readFileSync(lighthouseFile, 'utf8'));
-    reportAvailable = true;
-    for (const key of ['performance', 'accessibility', 'best-practices', 'seo'])
-      scores[key] = Math.round(Number(report.categories?.[key]?.score || 0) * 100);
+    report = JSON.parse(fs.readFileSync(lighthouseFile, 'utf8'));
   } catch {
     /* reported below */
   }
-  const thresholds = { performance: 50, accessibility: 90, 'best-practices': 85, seo: 90 };
-  const lighthouseChecks = Object.fromEntries(
-    Object.entries(thresholds).map(([key, minimum]) => [
-      key,
-      {
-        status: scores[key] >= minimum ? 'pass' : 'fail',
-        evidence: `${scores[key] ?? 0}/100; minimum ${minimum}`,
-      },
-    ])
-  );
-  const lighthouseInfrastructureWarning =
-    lh.code !== 0 &&
-    (isBrowserInfrastructureFailure(lh.stderr) ||
-      /browser tab has unexpectedly crashed|page crashed|renderer process|interstitial|server is not responding|failed to connect|connection refused|ECONNREFUSED/i.test(
-        lh.stderr
-      ));
+  const classified = classifyLighthouseResult(lh, report);
   const passed =
     Object.values(screenshotResults).every(x => ['pass', 'warn'].includes(x.status)) &&
-    (Object.values(lighthouseChecks).every(x => x.status === 'pass') ||
-      lighthouseInfrastructureWarning);
+    (Object.values(classified.lighthouse.checks).every(x => x.status === 'pass') ||
+      Object.values(classified.lighthouse.checks).every(x => x.status === 'warn'));
   return {
     passed,
-    infrastructure_warning: lighthouseInfrastructureWarning,
+    infrastructure_warning: classified.infrastructureWarning,
     recorded_at: new Date().toISOString(),
     screenshots: screenshotResults,
-    lighthouse: {
-      status: lh.code === 0 ? 'complete' : reportAvailable ? 'complete-with-warning' : 'failed',
-      scores,
-      checks: lighthouseChecks,
-      error: lh.code === 0 ? null : lh.stderr.trim().slice(-1000),
-      warning: lighthouseInfrastructureWarning
-        ? 'Lighthouse browser runtime failed before page scores were available; build and preview gates remain authoritative.'
-        : null,
-    },
+    lighthouse: classified.lighthouse,
   };
 }
 
@@ -960,6 +980,7 @@ module.exports = {
   preview,
   browserAudit,
   isBrowserInfrastructureFailure,
+  classifyLighthouseResult,
   improvementArtifactPath,
   startImprovement,
   improvementInstance,

@@ -59,6 +59,55 @@ test('browser audit distinguishes sandbox runtime crashes from page failures', (
   );
 });
 
+test('Lighthouse without a report warns instead of inventing zero scores', () => {
+  const result = devsandbox.classifyLighthouseResult(
+    { code: 1, stderr: 'at Connection.send (puppeteer/cdp/Connection.js:112:21)' },
+    null
+  );
+  assert.equal(result.infrastructureWarning, true);
+  assert.equal(result.lighthouse.status, 'unavailable');
+  assert.deepEqual(result.lighthouse.scores, {});
+  assert.ok(Object.values(result.lighthouse.checks).every(check => check.status === 'warn'));
+  assert.match(result.lighthouse.checks.performance.evidence, /no score measured/);
+});
+
+test('Lighthouse with measured low scores still fails quality thresholds', () => {
+  const report = {
+    categories: Object.fromEntries(
+      ['performance', 'accessibility', 'best-practices', 'seo'].map(key => [key, { score: 0 }])
+    ),
+  };
+  const result = devsandbox.classifyLighthouseResult({ code: 0, stderr: '' }, report);
+  assert.equal(result.infrastructureWarning, false);
+  assert.equal(result.lighthouse.status, 'complete');
+  assert.equal(result.lighthouse.scores.performance, 0);
+  assert.equal(result.lighthouse.checks.performance.status, 'fail');
+});
+
+test('Lighthouse with incomplete categories is not considered a valid report', () => {
+  const result = devsandbox.classifyLighthouseResult(
+    { code: 0, stderr: '' },
+    { categories: { performance: { score: 0.9 } } }
+  );
+  assert.equal(result.infrastructureWarning, true);
+  assert.deepEqual(result.lighthouse.scores, {});
+});
+
+test('Lighthouse crash cannot turn a partial report into measured passing scores', () => {
+  const report = {
+    categories: Object.fromEntries(
+      ['performance', 'accessibility', 'best-practices', 'seo'].map(key => [key, { score: 0.9 }])
+    ),
+  };
+  const result = devsandbox.classifyLighthouseResult(
+    { code: 1, stderr: 'Browser tab has unexpectedly crashed' },
+    report
+  );
+  assert.equal(result.infrastructureWarning, true);
+  assert.deepEqual(result.lighthouse.scores, {});
+  assert.ok(Object.values(result.lighthouse.checks).every(check => check.status === 'warn'));
+});
+
 test('commands in existing developer sandboxes inherit the IPv4-first runtime', () => {
   assert.deepEqual(devsandbox.sandboxExecCommand('imp-12345678', ['dd-dev', 'status']), [
     'exec',
