@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:09:04.527Z",
+  "generated_at": "2026-10-01T10:11:07.014Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the mynewgm.info report-only proposal and all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and no new production work can be safely queued. CTO must release a slot by 2026-10-02T09:00:00Z with validation or justified closure evidence, or escalate to the owner. Keep launch, security, attribution, and measurement gates unchanged.",
+        "summary": "Reviewer rejects the nsfwpixels.com report-only proposal: it does not satisfy the execution mandate, while launch readiness, security, attribution, and telemetry remain unevidenced. Route only one bounded SEO implementation for rodhat.com; all other visible candidates are blocked by saturated capacity, active measurement/queue work, or missing launch evidence. CTO must release a slot by 2026-10-02T10:10:00Z or escalate.",
         "requested_action": null,
         "proposal_id": null
       }

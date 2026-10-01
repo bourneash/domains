@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:10:00.175Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-01T10:11:07.015Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "2319e3de-b283-4b40-9fd5-66f7a2707925",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 1,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Prepare nsfwpixels.com launch-readiness and evidence-boundary brief",
+        "summary": "Site-specific implementation telemetry and lifecycle details are not present in the authoritative snapshot. Analytics is not configured for nsfwpixels.com, so no audience, conversion, revenue, or performance claims are supportable. Produce one bounded readiness artifact before selecting implementation work.",
+        "requested_action": "Review only the authorized nsfwpixels.com repository and public entry surface. Record lifecycle, exact routes/files, current audience positioning, content seed, metadata, consent/disclosure pages, analytics and affiliate readiness, security/compliance unknowns, current queue/overlap status, and the smallest reversible implementation candidate. Do not deploy, publish, add telemetry, add dependencies, change credentials, spend, or claim readiness, revenue, traffic, or lift.",
+        "proposal_id": null
+      }
+    ]
   }
 }
