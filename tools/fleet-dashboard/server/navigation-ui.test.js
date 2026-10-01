@@ -938,6 +938,8 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.match(app, /Fully fresh<\/span>/);
   assert.match(app, /Need attention<\/span>/);
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.rmatrix thead th \{[\s\S]*position: sticky/);
+  assert.match(theme, /\.rmatrix thead th\.rsite-h \{ left: 0; z-index: 5; \}/);
 });
 
 test('Git Hygiene presents safety state and searchable review queue', () => {

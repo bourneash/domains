@@ -2322,6 +2322,14 @@ td.rhealth .rh-bar { display: inline-flex; }
 
 /* ---- column headers ---- */
 .rmatrix th.rcol { text-align: left; padding: 8px 9px; vertical-align: bottom; min-width: 104px; }
+.rmatrix thead th {
+  position: sticky;
+  top: 58px;
+  z-index: 3;
+  background: var(--panel-2);
+  box-shadow: 0 1px 0 var(--border), 0 6px 14px -12px rgba(0,0,0,.65);
+}
+.rmatrix thead th.rsite-h { left: 0; z-index: 5; }
 .rcol-t { display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
 .rmatrix th.rcol .rcol-link, .rmatrix th.rcol .rcol-t > span {
   font-size: 11px; font-weight: 650; letter-spacing: -.005em; text-transform: none;
@@ -2472,6 +2480,7 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   .fleet-filter-wrap { order: 3; flex: 1 1 100%; width: 100%; margin: 0; padding: 7px 0 0; border-top: 1px solid rgba(255,255,255,.06); }
   .fleet-filter { width: 100%; }
   .fleet-filter-count { margin-left: 2px; }
+  .rmatrix thead th { top: 52px; }
 }
 
 /* Final light-theme cascade. A number of legacy route components are defined
