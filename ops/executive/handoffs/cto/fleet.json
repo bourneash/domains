@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:08:38.666Z",
+  "generated_at": "2026-10-01T10:17:44.674Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve containment and existing-work follow-through only. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests failed. Do not admit the proposed rodhat.com change, new control-plane work, finance report proposal, research, telemetry, or scaffold builds this cycle. Preserve the existing saveusfarms.com repair-or-close case and release a slot only with root-cause or justified-closure evidence, deterministic validation, isolated build evidence, rollback, security/release boundaries, attribution limits, measurement limits, and deduplication evidence.",
+        "summary": "CTO disposition: admit no new implementation this cycle. Capacity is saturated at 10/10 slots, measurement debt and failed requests remain open, and site overlap is unresolved. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after one slot is released and overlap clears. Its bounded scope is CTA hierarchy, affiliate disclosure placement, keyboard/focus accessibility, and responsive layout; preserve destinations, tracking, consent, and claims. Require deterministic tests, isolated preview validation, build/link/disclosure checks, a single-diff rollback point, and measurement using existing affiliate clicks plus attributable orders and shipped items for 14 days or 100 relevant impressions/clicks. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the next implementation only after capacity and site-overlap clearance. Do not create a duplicate request. Limit scope to affiliate CTA hierarchy, adjacent disclosure placement, accessibility, responsive layout, link/build validation, available affiliate-click measurement, and single-diff rollback. Do not claim revenue, ROI, or causal lift; retain aggregate affiliate revenue as unattributed.",
+        "summary": "Complete or justifiably close the existing saveusfarms.com repair-or-close case before admitting work. Record root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution and measurement limits, and deduplication evidence. Release one implementation slot or escalate the unresolved capacity blocker to the owner. Do not create duplicate queue work, add telemetry, dependencies, credentials, permissions, cross-site behavior, or production changes outside the existing case.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep complicated.work, deadlymaracas.com, and driveford.net planning-only. After a delivery slot is released, complete exactly one verified launch-readiness artifact for the selected candidate before any build admission. Do not publish, deploy, add domains, spend, or claim telemetry.",
+        "summary": "Preserve private launch and security-sensitive release gates. Fleet-doctor and operations sweeps have no usable results, and material controls remain unevidenced. Ordinary reversible work is conditionally acceptable only within existing consent, disclosure, data-handling, credential, dependency, permission, and cross-site boundaries. Keep the site-factory candidates planning-only until launch-readiness, legal, security, measurement, rollback, and preview gates are evidenced. Preserve the current aggregate revenue boundary: provider commission remains unattributed and cannot support site revenue, ROI, margin, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       }

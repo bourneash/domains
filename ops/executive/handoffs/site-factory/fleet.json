@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:08:38.665Z",
-  "summary": "site-factory checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:17:44.674Z",
+  "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a three-site planning pipeline: complicated.work, deadlymaracas.com, and driveford.net. All remain planning-only because delivery capacity is 10/10 and verified launch-readiness artifacts are incomplete. Strongest candidate is complicated.work: scaffold lifecycle, site capability only, analytics not configured, and build admission requires a verified readiness artifact. Do not add domains, spend, deploy, publish, or claim telemetry.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Exactly one next step: after CTO releases one delivery slot, complete and verify the complicated.work launch-readiness artifact. Cover owner and approval, audience and bounded scope, reusable template, content seed, SEO baseline, analytics and affiliate readiness without inventing coverage, legal/compliance checklist, security evidence, measurement plan, rollback point, and preview-only launch gate. Do not begin a build or public exposure until every required gate has an owner and disposition.",
+        "summary": "Maintain the site-factory pipeline as planning-only: complicated.work, deadlymaracas.com, and driveford.net. Strongest candidate is complicated.work (score 84, existing scaffold). Do not build, publish, add domains, spend, or deploy while delivery is saturated at 10/10 slots and launch-readiness is unverified. Preserve owner, legal, security, measurement, compliance, analytics, affiliate, rollback, and preview-only gates.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:08:38.666Z",
-  "summary": "cfo checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:17:44.674Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain spend and monetization containment. Do not admit new implementation, marketing, infrastructure, or affiliate expansion while delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Amazon data covers 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission; all commission is in aggregate tracking ID \"other\", so site revenue is $0 attributed and revenue, contribution margin, ROI, payback, and forecasts are unsupported. AI usage on 2026-10-01 is $2.2785467 across 16 calls, or approximately $0.142409 per call, across only 4 instrumented sites; cost-to-learn is not calculable because spend is not linked to incremental or proven outcomes and the cost and revenue windows do not align. Budget exposure is not calculable because monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank. Preserve the existing allthingsmasonic.com CTA refinement only after capacity and overlap clearance, with no lift or revenue claim.",
+        "summary": "CFO recommendation: retain the current containment plan, admit no new implementation this cycle, and reject unsupported revenue, margin, ROI, budget, forecast, and causal-lift claims. Capacity is saturated at 10/10 slots; 39 improvements await measurement, 21 implementation requests failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the sole next revenue experiment after CTO releases capacity and site overlap clears. Amazon data for 2026-09-21 supports only aggregate provider results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All commission is under aggregate tracking ID \"other\"; site-attributed commission is $0, so no site revenue or ROI claim is supported. Contribution margin and budget exposure are unknown because fixed costs, infrastructure/domain/tooling costs, marketing spend, labor allocation, and site-level revenue mapping are absent. AI spend is $2.2785467 across 16 calls on 2026-10-01, averaging $0.14240916875 per call, but cost-to-learn is not calculable because only 4 of 38 expected sites are instrumented and calls are not linked to defined learning units or verified outcomes. Do not move money, authorize spend, change billing, access banking, sign contracts, or make legal/tax claims.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Minimum finance measurement before any economic claim: reconcile provider orders, shipped items, commission, and tracking IDs to each site and content identifier for the same reporting period; maintain a site-level cost ledger for AI, hosting/infrastructure, domains, tooling, authorized marketing, and allocated labor; and link each implementation's cost, exposure window, affiliate clicks, orders, shipped items, and commission. For cost-to-learn, define the learning unit and link AI calls and spend to that unit and a verified outcome. Until then, report $4.92 only as aggregate unattributed provider commission, site-attributed commission as $0, and contribution margin, ROI, budget exposure, and cost-to-learn as unknown.",
         "requested_action": null,
         "proposal_id": null
       }
