@@ -824,6 +824,12 @@ td.site, .site-link { font-weight: 620; letter-spacing: -.01em; }
   animation: shimmer 1.35s linear infinite;
   min-height: 72px; padding: 18px 20px;
 }
+/* Keep the route shell's first viewport stable while its first API batch is
+   arriving. Without a reserved block, the short loading row is replaced by a
+   full page header/summary and every element below it jumps at once. */
+#app:has(.loading) {
+  min-height: min(640px, calc(100vh - 170px));
+}
 .loading::before {
   content: ''; width: 16px; height: 16px; flex: none;
   border: 2px solid rgba(255,255,255,.16); border-top-color: var(--a1);

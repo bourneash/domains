@@ -151,6 +151,11 @@ test('fleet vitals ignore stale route-scoped container responses', () => {
   assert.match(shell, /const socialScoped = document\.body\.dataset\.view === 'socialhub'/);
 });
 
+test('initial route loading reserves the first viewport to prevent layout shift', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /#app:has\(\.loading\) \{[\s\S]*min-height: min\(640px, calc\(100vh - 170px\)\)/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
