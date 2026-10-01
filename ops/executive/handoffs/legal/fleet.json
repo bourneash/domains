@@ -2,29 +2,43 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:17:55.720Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:28:52.193Z",
+  "summary": "legal checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep_private. Woot evidence confirms API access mechanics only, while current terms do not establish rights to store, derive, publicly display, cache, alert on, affiliate-monetize, or advertise returned data. All 4 legal launch tasks remain open, and security, accuracy/freshness, measurement, attribution, and owner gates are incomplete. Do not send outreach or change the private gate. Next evidence action: attach one dated read-only bundle covering source rights, data flow/retention, consent and GA4 configuration, logs/vendors, incident handling, and request workflows.",
+        "summary": "Disposition: blocked for public beta or full launch. Woot evidence confirms API access mechanics only; current public terms do not evidence redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights. Keep the private gate and leave outreach unsent pending owner authorization and human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the SearchWoot public gate blocked. Continue only read-only evidence capture from authorized repository/configuration artifacts. Do not enable tracking, expand notifications, alter credentials, deploy, or change production. Next evidence action: produce the data-flow and retention table covering alert rules, identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior.",
+        "summary": "0 of 4 legal launch-readiness tasks are evidenced closed. Next evidence action: attach one dated read-only bundle covering the existing data flow, retention, consent/configuration, logs, vendors, incident handling, and request workflows. Do not enable tracking, change production, or expand notifications.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the security gate as evidence_needed. No security task is evidenced closed: fleet-doctor and operations sweeps have no results, and access, secrets, isolation, release, dependency, TLS, monitoring, incident, and disclosure controls remain unknown. Continue the existing read-only matrix without duplicate requests or production changes.",
+        "summary": "Security and operational controls remain evidence_needed for go-live. Continue the existing read-only control matrix. Identify vendor terms/DPA coverage, log fields, access controls, incident handling, and any counsel-required privacy or contractual gaps without treating missing evidence as clearance.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No public launch or scaffold publication is cleared by Legal. Keep SearchWoot private and scaffold candidates preview-only until site-specific legal, compliance, security, measurement, owner, and rollback evidence is complete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain SearchWoot private gate and complete launch-readiness evidence",
+        "summary": "Keep SearchWoot private. Source rights are blocked, all four legal launch-readiness tasks remain open, and security, accuracy, measurement, attribution, and owner gates are incomplete. This is risk triage, not legal advice or certification.",
+        "requested_action": "Continue the existing four launch-readiness tasks and attach one dated read-only evidence bundle. Preserve all unknowns. Do not send rights outreach, enable new tracking, expand alerts, change production, or authorize affiliate or advertising use. Reassess only after authoritative rights evidence, human-counsel review where required, technical/security gates, and owner disposition exist.",
         "proposal_id": null
       }
     ]

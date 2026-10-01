@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:08:50.883Z",
-  "summary": "cro checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:28:52.192Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO handoff: preserve existing allthingsmasonic.com CTA refinement as the next revenue experiment after capacity and site-overlap clearance. Test current merchandising CTA treatment against a clearer primary CTA with adjacent affiliate disclosure, unchanged destinations, and accessible focus states. Evidence: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21; Amazon's $4.92 aggregate commission remains unattributed. Metric: affiliate-click rate and attributable ordered items over 14 days or 100 relevant impressions/clicks. Do not claim revenue or causal lift before measurement.",
+        "summary": "Keep existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate experiment after capacity and site-overlap clearance. Test clearer primary CTA hierarchy, adjacent disclosure, accessible focus states, and responsive layout while preserving destinations. Baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate-click rate and attributable ordered items for 14 days or 100 relevant impressions/clicks. Do not claim revenue or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO product opportunity: commission a disposable, rights-safe content-discovery prototype using microsoft/markitdown for sites with existing SEO demand. The repository is MIT-licensed, the CRO lab recorded 22 relevant keyword hits and 8/8 bounded checks passed, but no dependencies were installed and no adoption conclusion is supported. Prototype only: convert up to five owner-approved local documents into Markdown, generate a diff and metadata-quality report, and measure reviewer acceptance time and usable-draft rate; do not publish, add tracking, or process third-party content. Risks include parser omissions, unsafe or stale dependencies, source-rights ambiguity, maintenance burden, and low editorial usefulness. Estimated time-to-learn: 2–3 engineering days after capacity clears. Keep as a CTO-reviewed research lead, not a production admission.",
+        "summary": "Do not admit new implementation work while delivery is 10/10 occupied, 39 improvements await measurement, and failed-request repairs remain open. Preserve existing measurement, attribution, security, compliance, and site-overlap gates. After one slot is released, review the CRO research leads below without duplicating active queue work.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the canonical allthingsmasonic.com revenue experiment and one bounded markitdown research lead. Reject duplicate planning briefs, new site-factory admissions, and the proposed americastrikes registry change until existing work and capacity are resolved. Amazon's $4.92 aggregate commission remains unattributed; no ROI or causal lift is supported.",
         "requested_action": null,
         "proposal_id": null
       }

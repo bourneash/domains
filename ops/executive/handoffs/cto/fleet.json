@@ -2,63 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:17:55.720Z",
-  "summary": "cto checked in 8 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:28:52.192Z",
+  "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: admit no new implementation, proposal, telemetry, or research work this cycle. Delivery is saturated at 10/10 slots, measurement debt and site overlap remain active, and scaffold launch-readiness evidence is incomplete. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate by 2026-10-01T12:00:00Z.",
+        "summary": "Technically feasible work remains bounded and reversible, but delivery is saturated at 10/10 slots with active measurement, overlap, and repair obligations. Do not admit new implementation, telemetry, dependency, schedule, or production changes this cycle. Preserve existing launch, security, attribution, compliance, and measurement gates. Complete or close the canonical saveusfarms.com repair case with root-cause or closure rationale, deterministic validation, build evidence, rollback point, release boundaries, attribution limits, measurement limits, and deduplication evidence; then release one slot or escalate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate implementation. Execute only after one slot is released and allthingsmasonic.com overlap is cleared. Require exact URL capture, deterministic tests, build, link/disclosure checks, keyboard/focus and responsive validation, exact diff, measurement setup, and single-diff rollback evidence. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate implementation after one slot is released and site overlap clears. Do not create a duplicate or admit the affiliate-registry consistency check yet.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve existing work item d80920d0-382a-4d27-9dc9-112f340cb408. After capacity clears, produce one verified launch-readiness artifact for complicated.work only. Keep all scaffold candidates preview-only and do not build, publish, add tracking, activate affiliates, add domains, spend, or deploy before owner, legal, security, measurement, and rollback gates pass.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing amputeenews.com affiliate prerequisite as blocked pending owner-controlled evidence of a registered tag. Engineering may validate supplied evidence and run link, tracking, disclosure, and build checks, but may not create or infer the affiliate credential or site-level revenue.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Preserve the existing americastrikes.com affiliate-reference repair tasks. Execute only the affected references after exact URLs and registered tracking IDs are recorded; validate destination reachability and tracking continuity, and retain a single-diff rollback point. Do not create duplicate work or claim revenue lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the attribution boundary: preserve named tracking rows as site-mapped and keep the aggregate provider row unattributed. Require every new affiliate link to use its registered site tracking ID. Do not authorize ROI, margin, forecast, or causal-lift claims from the available data.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Do not create a duplicate finance baseline proposal. Continue the existing cfo-finance-evidence-baseline-2026-10-01 work item; preserve unavailable direct costs, incomplete AI-cost coverage, stale revenue timing, and aggregate attribution as unknown. No discretionary spend or unsupported financial claims are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix without duplicate work. Preserve private-launch and security-sensitive release gates; ordinary reversible changes may proceed only when they add no credentials, permissions, dependencies, data collection, or cross-site behavior and pass normal validation and rollback checks.",
+        "summary": "Maintain the existing launch-readiness work for complicated.work. Complete one verified readiness artifact only after capacity clears; do not build, publish, configure analytics, add dependencies, spend, or change domains before owner, legal, security, measurement, and rollback gates are evidenced.",
         "requested_action": null,
         "proposal_id": null
       }
