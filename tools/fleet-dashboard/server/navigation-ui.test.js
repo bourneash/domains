@@ -734,6 +734,18 @@ test('Social Hub overview filters expose state and contextual queue jumps', () =
   assert.match(overview, /aria-label="Open queue filtered to \$\{esc\(label\)\} \(\$\{value\}\)"/);
 });
 
+test('Social Hub channel register explains its wide mobile layout', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const start = app.indexOf('async function shRenderChannels()');
+  const end = app.indexOf('async function shRenderEvents()', start);
+  const channels = app.slice(start, end);
+  assert.match(channels, /Filter social channels by site/);
+  assert.match(channels, /Social channel readiness register/);
+  assert.match(channels, /Swipe horizontally to inspect readiness, credentials, and actions/);
+  assert.match(style, /\.sh-scroll-hint \{ display: none; \}/);
+});
+
 test('Social Hub exposes local refresh and accessible initial loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const route = app.slice(

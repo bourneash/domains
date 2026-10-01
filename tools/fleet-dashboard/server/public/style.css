@@ -1375,6 +1375,11 @@ body[data-view="social"] main { max-width: none; }
 .sh-table-wrap { overflow: auto; padding: 0; }
 .sh-table { min-width: 900px; }
 .sh-table th, .sh-table td { white-space: nowrap; vertical-align: top; padding-top: 8px; padding-bottom: 8px; }
+.sh-scroll-hint { display: none; }
+@media (max-width: 720px) {
+  .sh-scroll-hint { display: flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid var(--border); border-bottom: 0; border-radius: var(--radius-sm) var(--radius-sm) 0 0; color: var(--muted); background: var(--panel-2); font-size: 11px; line-height: 1.35; }
+  .sh-scroll-hint::before { content: '↔'; color: var(--a1); font-size: 14px; font-weight: 800; }
+}
 .sh-sort { appearance: none; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; }
 .sh-sort:hover, .sh-sort.active { color: var(--text); }
 .sh-sort span { color: var(--accent); }

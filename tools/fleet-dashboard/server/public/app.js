@@ -11832,6 +11832,22 @@ async function shRenderChannels() {
          <th>Status</th><th>Readiness</th><th>Enabled</th><th>Credentials</th><th>Last checked</th><th>Last posted</th><th>Last polled</th><th>Note</th><th>Error</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
     : '<div class="empty">No channels for this filter.</div>';
 
+  const channelSelect = $('#sh-f-csite');
+  if (channelSelect) channelSelect.setAttribute('aria-label', 'Filter social channels by site');
+  const channelTable = $('#sh-channels-list table');
+  const channelWrap = $('#sh-channels-list .sh-table-wrap');
+  if (channelTable && channelWrap) {
+    const caption = document.createElement('caption');
+    caption.className = 'sr-only';
+    caption.textContent = 'Social channel readiness register';
+    channelTable.prepend(caption);
+    const hint = document.createElement('div');
+    hint.className = 'sh-scroll-hint';
+    hint.setAttribute('role', 'note');
+    hint.textContent = 'Swipe horizontally to inspect readiness, credentials, and actions';
+    channelWrap.before(hint);
+  }
+
   $$('.sh-chan-toggle').forEach(btn =>
     btn.addEventListener('click', async () => {
       btn.disabled = true;
