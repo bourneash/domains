@@ -2587,10 +2587,13 @@ async function renderErrors() {
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div>
-    <div class="task-toolbar">
-      <strong>${filtered.length} matching · ${rows.length} containers scanned</strong>
-      <span class="muted">${dotLegend('overdue', noisy1h + ' erroring now')} · ${dotLegend('paused', noisy24h + ' in last 24h')}${crit24h ? ' · ' + dotLegend('overdue', crit24h + ' crit') : ''} · last swept ${esc(swept)}</span>
-    </div>
+    <section class="error-summary" aria-label="Error scan summary">
+      <div class="error-stat"><strong>${rows.length}</strong><span>Containers scanned</span></div>
+      <div class="error-stat ${noisy1h ? 'error-stat-bad' : 'error-stat-good'}"><strong>${noisy1h}</strong><span>Reporting errors · 1h</span></div>
+      <div class="error-stat ${noisy24h ? 'error-stat-warn' : 'error-stat-good'}"><strong>${noisy24h}</strong><span>With events · 24h</span></div>
+      <div class="error-stat ${crit24h ? 'error-stat-bad' : 'error-stat-good'}"><strong>${crit24h}</strong><span>Critical lines · 24h</span></div>
+      <div class="error-stat error-stat-meta"><strong>${esc(swept)}</strong><span>Last sweep · ${filtered.length} matching</span></div>
+    </section>
     ${
       activeAlerts.length
         ? `<div class="card error-card" style="margin-bottom:10px"><div class="cn-log-head">🔔 ${activeAlerts.length} open alert(s) — errorscan hasn't seen a clean sweep since these last crossed threshold</div><p class="muted" style="margin:4px 0 0">${activeAlerts.map(esc).join(', ')}</p></div>`

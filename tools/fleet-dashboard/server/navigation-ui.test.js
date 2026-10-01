@@ -876,6 +876,15 @@ test('Containers provides scoped search and operational filters', () => {
   assert.match(theme, /\.cn-filter-hidden \{ display: none; \}/);
 });
 
+test('Errors presents scan severity as a readable KPI strip', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(app, /class="error-summary"/);
+  assert.match(app, /Reporting errors · 1h<\/span>/);
+  assert.match(app, /Critical lines · 24h<\/span>/);
+  assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
