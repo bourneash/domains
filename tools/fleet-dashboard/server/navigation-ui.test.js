@@ -727,6 +727,7 @@ test('Social Hub overview bounds platform engagement tables', () => {
   assert.ok(start >= 0 && end > start);
   const overview = app.slice(start, end);
   assert.match(overview, /class="card sh-table-wrap"><table class="tbl"/);
+  assert.match(overview, /Social platform engagement over the selected period/);
 });
 
 test('Social Hub overview filters expose state and contextual queue jumps', () => {

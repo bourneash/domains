@@ -11249,7 +11249,7 @@ function shRenderOverview(data) {
     <h3 class="sh-h">Engagement — last ${data.metrics.days || 30} days</h3>
     ${
       platformRows
-        ? `<div class="card sh-table-wrap"><table class="tbl"><thead><tr><th>Platform</th><th>Posts</th><th>Likes</th>
+        ? `<div class="card sh-table-wrap"><table class="tbl"><caption class="sr-only">Social platform engagement over the selected period</caption><thead><tr><th>Platform</th><th>Posts</th><th>Likes</th>
              <th>Reposts</th><th>Replies</th><th>Visits</th><th>Conversions</th><th>CTR</th><th>Avg engagement</th></tr></thead>
            <tbody>${platformRows}</tbody></table></div>`
         : '<div class="empty">Nothing published in this window yet.</div>'
