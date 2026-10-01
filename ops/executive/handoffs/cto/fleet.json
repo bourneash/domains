@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:17:16.871Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:27:26.555Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve containment. Do not admit the three-site factory batch, duplicate delivery-lead work, new telemetry, prototypes, spend, credentials, or production changes while implementation capacity is 10/10 occupied and measurement debt remains unresolved. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; escalate unresolved capacity at the deadline.",
+        "summary": "CTO disposition: preserve containment. Do not admit new production, site-factory, CRO, research, telemetry, spend, dependency, credential, configuration, or duplicate queue work while all 10 delivery slots are occupied. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot or escalate unresolved capacity. After clearance, admit at most the existing allthingsmasonic.com CTA refinement request, subject to site-overlap clearance and normal review gates. Keep private-launch and security-sensitive release gates unchanged; preserve aggregate affiliate revenue as unattributed and make no revenue, ROI, margin, or causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After a slot is released and allthingsmasonic.com site overlap clears, admit only the existing CTA refinement request 4719e525-763b-42a4-9f16-e71e1c38b17b. Keep it isolated to CTA labels, disclosure placement, accessibility, responsive layout, and unchanged affiliate destinations. Require deterministic tests, build/link/smoke/disclosure validation, a single-diff rollback, and measurement using existing telemetry. Preserve the baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; do not attribute aggregate commission or claim revenue, ROI, margin, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Keep SearchWoot private and leave rights outreach unsent. Existing legal, security, accuracy, consent, measurement, and owner gates do not support public beta, monetization changes, notification expansion, or security-sensitive release. Continue only the existing bounded read-only evidence work without duplicate telemetry, production mutation, credentials, dependencies, or external outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Maintain the three scaffold candidates as planning context only. Any future preview work must be isolated, preview-only, reversible, and preceded by launch-readiness evidence, owner assignment, legal/security review, analytics and affiliate readiness, measurement boundaries, and rollback criteria. No queue admission is authorized this cycle.",
+        "summary": "Execute only the existing canonical saveusfarms.com repair-or-close path. Do not create duplicate work items, telemetry requests, reports, or queue admissions. If the required validation evidence cannot be completed by 2026-10-01T09:00:00Z, record the blocker and escalate capacity to the owner without changing production.",
         "requested_action": null,
         "proposal_id": null
       }

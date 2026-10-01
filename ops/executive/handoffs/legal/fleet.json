@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:17:16.871Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T08:27:26.555Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta, go-live, notification expansion, affiliate or advertising change, and rights outreach. Conditional only for ordinary reversible growth that adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Evidence: Woot documentation confirms API access but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; current public terms conflict with the proposed commercial/public data use. Fleet compliance is technical-only: 35 pass, 20 fail, 6 unknown. Security, accuracy, measurement, attribution, privacy, and owner gates remain incomplete. Exact decision: keep SearchWoot private, do not send rights outreach, and preserve existing launch and security gates. Human counsel is required for upstream rights, privacy/jurisdiction, affiliate or advertising use, and any regulated or age-sensitive expansion.",
+        "summary": "Legal disposition: BLOCKED for SearchWoot public beta, full launch, public data display, affiliate, advertising, or notification expansion. Woot evidence confirms API access but not redistribution rights; current public terms restrict commercial/public use. Keep the service private and leave rights outreach unsent. Human counsel is required before any upstream permission request, public display, affiliate, advertising, or notification expansion. Ordinary reversible work may continue only if it adds no data collection, permissions, credentials, dependencies, or cross-site behavior.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: 0 of 4 legal tasks closed. Source-rights evidence is documented but proves access only; data-flow and consent evidence are partial; logs, vendor, incident, deletion, correction, access, retention, and notification evidence remain open. No task is closed. Next evidence action: attach one dated read-only bundle containing the repository/config data-flow and retention table, deployed consent and withdrawal capture, GA4 property/data-sharing and retention settings, log-field/access inventory, Cloudflare/vendor terms or DPA status, and incident/data-subject request procedures. Do not change production, enable tracking, send outreach, or mark completion without evidence.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks closed. Source-rights evidence is documented but blocked; data-flow and consent evidence are partial; logs, vendor, and incident evidence remain open. Next evidence action: attach one dated read-only bundle covering repository/config data flow and retention, deployed consent behavior, GA4 property/data-sharing and retention settings, log fields and access controls, vendor terms/DPA status, and incident/request procedures. Do not change production or enable tracking.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Checklist disposition: ordinary growth work may continue conditionally where existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries are preserved. Do not block ordinary growth solely because telemetry is incomplete. New-site or private/gated-site work requires a concrete preview-only or keep-private decision, documented owner choice, legal/security/measurement gates, and rollback evidence before publication.",
+        "summary": "Retain the security gate as evidence_needed. No fleet-doctor, operations, authentication, secrets, isolation, release, dependency, TLS, monitoring, incident, or disclosure clearance is evidenced. Continue the existing read-only control matrix without duplicate telemetry, credential access, configuration changes, deployment, or external outreach.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Measurement and monetization remain conditional or blocked. Amazon evidence is $4.92 aggregate commission for 2026-09-21 and cannot be assigned to a site. Do not claim site revenue, ROI, margin, payback, or causal lift. Preserve aggregate rows separately and require registered tracking IDs for future affiliate links.",
         "requested_action": null,
         "proposal_id": null
       }

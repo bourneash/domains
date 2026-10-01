@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:17:16.871Z",
+  "generated_at": "2026-10-01T08:27:26.555Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve containment and approve no new financial, site-factory, telemetry, or duplicate work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, release one slot, then execute only the existing allthingsmasonic.com CTA refinement after overlap clearance. Financial claims remain unsupported: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission; the $4.92 cannot be assigned to a site, so site revenue, contribution margin, ROI, and causal lift are unknown. The only defensible acceptance test is post-change site-attributed commission less direct change cost, measured for 14 days or 100 relevant new impressions/clicks, with rollback if validation fails or the path regresses. AI spend is $2.2785467 across 16 calls and only 4 instrumented sites; this is descriptive spend, not cost-to-learn or ROI. Cost-to-learn requires a defined learning outcome, attributable incremental result, and complete AI-cost allocation. Infrastructure, labor, domain, hosting, and other direct costs are absent, so fleet contribution margin and budget exposure are not calculable. Monthly spend, revenue, marketing, and margin limits are blank; minimum measurement is a dated cost ledger covering those categories and site/content identifiers. Do not treat impressions, clicks, sessions, conversions, shipped items, or opportunity scores as financial outcomes, and do not forecast revenue from them. Keep SearchWoot private and preserve all existing legal, security, attribution, and measurement gates.",
+        "summary": "CFO recommendation: preserve financial containment and authorize no new spend, billing changes, launches, or monetization claims this cycle. Revenue is not supported at site level: Amazon data covers only 2026-09-21 and reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in an aggregate row; site-attributed income is $0. Do not assign the $4.92 to any property or claim ROI, margin, payback, or causal lift. The 39 improvements awaiting measurement, 429 delivered requests, SEO impressions/clicks, and proposal counts are activity or traffic metrics, not financial outcomes. AI spend is $2.2785467 on 2026-10-01 across 16 calls, but coverage is only 4 of 38 expected sites; treat fleet AI spend as incomplete. Monthly spend limit, fixed costs, marketing budget, revenue target, and revenue floor are blank, so budget exposure cannot be bounded. Maintain the existing capacity gate and permit only the already-queued affiliate CTA work after the CTO repair-or-close case releases a slot and overlap clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO acceptance for the existing allthingsmasonic.com CTA refinement: retain the 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission. Measure affiliate clicks, ordered items, shipped items, site-attributed commission, and direct change cost after release. If site-level orders or commission remain unavailable, classify the financial result as unknown rather than zero, successful, failed, or profitable. Do not attribute the aggregate $4.92 provider commission to this site.",
+        "summary": "Retain the 2026-09-21 Amazon result as aggregate and unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, $4.92 commission, $0 site-attributed income, and $4.92 aggregate-unattributed income. Require registered tracking IDs for future affiliate links and report provider aggregate rows separately from site revenue. Do not publish revenue, ROI, margin, payback, or causal-lift claims until site/content identifiers, orders, shipped items, commission, and reporting-period reconciliation are available.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "AI and infrastructure disposition: reported AI spend is $2.2785467 for 16 calls on 2026-10-01, covering only 4 of 38 expected sites; by-site costs are 0daynews.com $0.75257845, americastrikes.com $0.65324705, saveusfarms.com $0.34806260, and seedstosauce.com $0.52465860. The $0.14240917 average per call is not a cost-to-learn metric because no attributable learning outcome or incremental financial result is defined. Infrastructure spend, labor cost, domain cost, hosting cost, and monthly budget limits are not present; therefore contribution margin, total burn, runway, and budget exposure cannot be calculated. Minimum measurement: dated site/content-level cost ledger with AI, infrastructure, labor, domain, hosting, and marketing costs reconciled to attributable revenue and outcome identifiers.",
+        "summary": "Keep the current financial gate unchanged. Contribution margin and cost-to-learn are not calculable because direct infrastructure/domain costs, labor or execution cost, complete AI usage, experiment exposure/outcome data, and attributable revenue are not available on a common period. Minimum measurement for a finance-ready report: period-matched site-level revenue and commission, direct change cost, infrastructure/domain allocation, complete AI cost by site/work item, and experiment/control outcomes. Do not create duplicate telemetry or spend.",
         "requested_action": null,
         "proposal_id": null
       }
