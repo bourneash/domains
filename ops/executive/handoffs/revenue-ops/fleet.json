@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:47:32.808Z",
-  "summary": "revenue-ops checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:37:53.098Z",
+  "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep delivery at 10/10 until the existing saveusfarms.com repair-or-close case is completed or justified closure is documented. Preserve the Amazon aggregate row as unattributed: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21 cannot be assigned to a site. After capacity and overlap clearance, execute only the existing allthingsmasonic.com CTA refinement, then address gated affiliate-readiness repairs in priority order.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Validate affiliate destinations, registered tracking IDs, disclosure placement, consent behavior, and link health using existing artifacts only. Do not infer missing disclosures from unavailable scans, assign aggregate revenue to sites, add tracking, or claim ROI. Any production change remains reversible and capacity-gated.",
+        "summary": "Recommend containment, attribution preservation, and execution of existing repair work only. Amazon reports 6,219 clicks, 28 ordered items, and $4.92 commission for 2026-09-21, but all commission is in aggregate tracking ID “other”; do not assign it to any site or infer ROI. Prioritize the existing allthingsmasonic.com CTA refinement after capacity clears, preserve the amputeenews.com affiliate-tag prerequisite, and reconcile existing affiliate/link/compliance evidence before adding work.",
         "requested_action": null,
         "proposal_id": null
       }

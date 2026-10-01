@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T09:08:49.655Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:43:17.868Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed plan’s new proposal and duplicate work items. Preserve existing canonical repair, measurement, security, and launch-gate work only. Do not admit production, queue, spend, telemetry, or research work this cycle: delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and aggregate affiliate revenue is unattributed. Keep private-launch and security gates unchanged. Owner decision: confirm the existing containment disposition and require CTO capacity release before any next admission.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, and causal-lift claims. Preserve the canonical saveusfarms.com repair-or-close case. Route only three capacity-gated, reversible SEO implementations with explicit metrics; none may execute until CTO releases capacity and confirms site-overlap clearance. Keep private launch and security gates unchanged.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: 39 improvements await measurement, 21 implementation requests failed, operations and fleet-doctor evidence are unavailable, and Amazon commission is aggregate and unattributed. No revenue or ROI claim is supportable. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00:00Z, release one slot, or escalate to the owner.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, margin, causal-lift, launch, and security-clearance claims. Keep private-launch and security gates unchanged. Six reversible SEO candidates are routed to engineer as capacity-gated specifications only; none may execute until CTO releases capacity and site overlap clears. CTO must complete or close the existing saveusfarms.com repair case with validation and rollback evidence by 2026-10-01T09:00Z, then escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

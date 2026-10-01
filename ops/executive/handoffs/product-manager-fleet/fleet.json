@@ -2,22 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "product-manager-fleet",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.024Z",
-  "summary": "product-manager-fleet checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T09:26:14.296Z",
+  "summary": "product-manager-fleet checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal",
-        "title": "Build a canonical fleet work-admission and deduplication control plane",
-        "summary": "Create a single fleet-level view and admission contract for proposals, change requests, work items, active slots, site overlap, measurement windows, failures, and terminal dispositions. Reject or consolidate duplicates before queue admission and show the exact blocker or next owner action.",
-        "requested_action": "Approve a product specification for the existing engineer queue. Include canonical identity rules, one-active-change-per-site safeguards, capacity-aware admission, failure-to-repair linkage, owner and deadline fields, audit history, and rollback-safe behavior. Do not change schedules, permissions, telemetry, or production state.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Create a measurement-debt and outcome-readiness cockpit",
-        "summary": "Expose deployed improvements awaiting measurement, due dates, available baseline fields, attribution limitations, failed or cancelled request links, and proven/inconclusive/regressed outcomes in one operator workflow.",
-        "requested_action": "Approve a read-only product specification using existing intelligence and outcome records. The cockpit must preserve unknowns, distinguish measurement readiness from success, avoid creating telemetry, and route only approved follow-up work through the existing queue.",
+        "kind": "message",
+        "title": null,
+        "summary": "Fleet product review: do not add new proposals or queue work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, approved-proposal execution is 64%, and only 6 outcomes are proven. Preserve the existing saveusfarms.com repair-or-close case, then run the already-queued allthingsmasonic.com CTA experiment after capacity and overlap clearance.\n\nHighest-leverage capabilities, to prioritize after capacity clears: (1) canonical queue reconciliation and deduplication across scheduler, task board, and executive control plane; target fewer duplicate handoffs and higher approved-work execution. (2) A measurement-debt workflow that automatically advances, closes, or escalates deployed improvements and failed requests using existing telemetry only; target reducing the 39 pending measurements and 21 failed requests. (3) Restore the existing read-only operations evidence path for deploy, uptime, errors, and fleet-doctor results; preserve unknowns until evidence exists. (4) Standardize owner/role fallback routing where human-triage or content roles are unavailable, with explicit handoff and rollback records. (5) Expand AI-usage coverage only through an approved implementation path; current evidence covers 4 sites and must not be generalized.\n\nPrioritization: control-plane reconciliation first for operator time saved and reversibility; measurement debt second for reliability and measurable outcomes; operations evidence third for safety; routing fourth for adoption; AI-cost coverage fifth for cost accountability. No new telemetry, schedule changes, access grants, deployments, or production mutations are recommended. Keep private launch and security-sensitive gates unchanged.",
+        "requested_action": null,
         "proposal_id": null
       }
     ]

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "delivery-lead",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:47:32.808Z",
+  "generated_at": "2026-10-01T09:37:53.097Z",
   "summary": "delivery-lead checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Delivery is saturated at 10/10 active slots with 39 improvements awaiting measurement and 21 failed requests. Complete or close the existing saveusfarms.com repair case with validation and rollback evidence, release one slot by 2026-10-01T09:00:00Z, and escalate if unresolved. The queued batch below must not execute until capacity and required launch gates clear.",
+        "summary": "Implementation capacity is saturated at 10/10 slots, so queued work cannot begin until one slot is released. Blocked sites include shoppinkflamingo.com, totaljerks.com, wetpages.com, newmomshop.com, trainingsharks.com, greatamericanlakes.com, allthingsmasonic.com, marineactivity.com, broadwayshowgirls.com, blackmarketapparel.com, aliencouncil.com, art­to­gogh.com, 0daynews.com, 0xroulette.com, americastrikes.com, amputeenews.com, and deeppenetrations.com due to active requests or measurement/review windows. Owner: CTO. SLA: 2026-10-01T12:00:00Z. Next action: complete or justifiably close the canonical saveusfarms.com repair case with validation and rollback evidence, release one slot, then admit only the queued rodhat.com SEO change.",
         "requested_action": null,
         "proposal_id": null
       }

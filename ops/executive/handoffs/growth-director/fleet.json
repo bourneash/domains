@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T08:47:32.808Z",
+  "generated_at": "2026-10-01T09:37:53.098Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the two new scaffold change requests this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 implementation requests have failed. Preserve the existing saveusfarms.com repair-or-close case; after one slot is released and site overlap clears, execute only the already-queued allthingsmasonic.com CTA refinement. Do not create new telemetry, experiments, research, or SEO admissions. Revenue, ROI, and causal lift remain unknown.",
+        "summary": "Containment and measurement this cycle. Evidence: 10/10 implementation slots are occupied, 39 improvements await measurement, 21 requests have failed, and only 6 outcomes are proven. Do not admit new SEO work or request duplicate telemetry. Preserve the existing queued allthingsmasonic.com CTA refinement for execution only after CTO releases a slot and site overlap clears. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 window. Metric: affiliate clicks and available attributable outcomes over 14 days or 100 relevant impressions/clicks. Acceptance: deterministic tests, build/link/disclosure checks, measurable CTA interaction, and documented attribution limits. Rollback: revert only the CTA refinement if validation fails or relevant link health regresses. No revenue or causal lift is claimed before measurement.",
         "requested_action": null,
         "proposal_id": null
       }
