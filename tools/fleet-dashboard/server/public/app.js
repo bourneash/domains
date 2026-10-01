@@ -8984,7 +8984,7 @@ async function renderDomains() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div>
+    <div class="page-head"><div><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div><button type="button" class="btn" id="domains-refresh">↻ Refresh</button></div>
     <section class="dom-summary" aria-label="Domain operations summary">
       <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Onboarded sites</span></div>
       <div class="dom-stat"><strong>${jobs.length}</strong><span>Recorded jobs</span></div>
@@ -9020,6 +9020,7 @@ async function renderDomains() {
       </table></div>
     </section>`;
 
+  $('#domains-refresh').addEventListener('click', () => renderDomains());
   wireDomains();
   if (DOM.openJob) domLoadLog(DOM.openJob);
   // A running job's log grows; keep the view (and any open log) current.
@@ -9416,12 +9417,12 @@ async function renderSocial() {
 
   app.innerHTML = `
     <div class="page-head">
-      <h2 class="page-title">Social Accounts</h2>
-      <span class="muted">${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites</span>
+      <div><h2 class="page-title">Social Accounts</h2><span class="muted">${s.accounts} accounts · ${s.personas} personas · ${s.eligibleSites} eligible sites</span></div>
       <span class="soc-stats">
         ${socToneBadge('green', `${s.live} live`)}
         ${s.needsAttention ? socToneBadge('red', `${s.needsAttention} need attention`) : socToneBadge('gray', 'none broken')}
       </span>
+      <button type="button" class="btn" id="social-refresh">↻ Refresh</button>
     </div>
     <div class="task-toolbar soc-toolbar">
       <div class="soc-modes">
@@ -9456,6 +9457,7 @@ async function renderSocial() {
     </div>
     <div id="soc-body"></div>`;
 
+  $('#social-refresh').addEventListener('click', () => renderSocial());
   $$('[data-soc-mode]').forEach(b =>
     b.addEventListener('click', () => {
       SOC.mode = b.dataset.socMode;

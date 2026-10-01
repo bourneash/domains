@@ -784,12 +784,30 @@ test('Domains route separates command queueing from operational inventory', () =
     /role="status" aria-live="polite"><div class="loading">Loading domains…<\/div>/
   );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
+  assert.match(app, /type="button" class="btn" id="domains-refresh"/);
+  assert.match(
+    app,
+    /\$\('#domains-refresh'\)\.addEventListener\('click', \(\) => renderDomains\(\)\)/
+  );
   assert.match(app, /class="dom-command-form" role="group" aria-label="Queue domain command"/);
   assert.match(app, /class="dom-help"><summary>Command safety and scope/);
   assert.match(app, /class="dom-panel-head"><div><h3>Job history<\/h3>/);
   assert.match(app, /class="dom-panel-head"><div><h3>Onboarded sites<\/h3>/);
   assert.match(theme, /\.dom-command-form \{[^}]*grid-template-columns/);
   assert.match(theme, /\.dom-stat-bad/);
+});
+
+test('Social account registry exposes a local refresh control', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const route = app.slice(
+    app.indexOf('async function renderSocial()'),
+    app.indexOf('function socRenderBody')
+  );
+  assert.match(route, /type="button" class="btn" id="social-refresh"/);
+  assert.match(
+    route,
+    /\$\('#social-refresh'\)\.addEventListener\('click', \(\) => renderSocial\(\)\)/
+  );
 });
 
 test('fleet filtering reports live match counts', () => {
