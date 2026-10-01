@@ -15,6 +15,7 @@ const ACTIVE_REQUEST_STATUSES = new Set([
   'committed',
 ]);
 const ACTIVE_RUN_STATES = new Set(['proposed', 'building', 'review', 'deployed', 'measuring']);
+const TERMINAL_REQUEST_STATUSES = new Set(['failed', 'cancelled', 'verified', 'completed', 'done']);
 const TERMINAL_RUN_STATES = new Set(['proven', 'inconclusive', 'failed', 'cancelled']);
 const IMPLEMENTATION_STATES = new Set([
   'proposed',
@@ -136,6 +137,11 @@ function buildDeliveryItems(store, { limit = 1000 } = {}) {
       continue;
     const request = run.source_id ? requestById.get(String(run.source_id)) : null;
     if (request && !isImplementationRequest(request)) continue;
+    // A preserved worktree can remain in review after its request has failed
+    // or been closed. The request is the authority for whether work can still
+    // consume an implementation slot; the stale run is not a new assignment.
+    if (request && TERMINAL_REQUEST_STATUSES.has(String(request.status || '').toLowerCase()))
+      continue;
     const item = compactRequest(request, run);
     const key = request ? `request:${request.request_id}` : `run:${run.run_id}`;
     items.set(key, item);

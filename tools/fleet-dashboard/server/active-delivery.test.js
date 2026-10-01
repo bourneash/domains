@@ -170,3 +170,33 @@ test('a preserved review linked to an infrastructure block is attention, not cap
   assert.equal(result.blocked[0].state, 'blocked_infrastructure');
   assert.equal(result.attention[0].attention, 'infrastructure repair required');
 });
+
+test('a failed request does not keep a slot through its preserved review worktree', () => {
+  const result = delivery.snapshot(
+    store(
+      [
+        {
+          request_id: 'failed',
+          run_id: 'preserved',
+          site: 'example.com',
+          title: 'Rejected change',
+          status: 'failed',
+          delivery_mode: 'direct',
+        },
+      ],
+      [
+        {
+          run_id: 'preserved',
+          source_id: 'failed',
+          site: 'example.com',
+          title: 'Rejected change',
+          state: 'review',
+        },
+      ]
+    )
+  );
+  assert.equal(result.policy.active_slots, 0);
+  assert.equal(result.policy.open_slots, 10);
+  assert.equal(result.slots.length, 0);
+  assert.equal(result.attention.length, 0);
+});
