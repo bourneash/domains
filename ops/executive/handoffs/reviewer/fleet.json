@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T22:01:39.421Z",
+  "generated_at": "2026-10-01T22:11:15.981Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue admission this cycle. No candidate has complete site-specific baseline, measurable threshold, tests, attribution boundary, rollback evidence, and cleared release gates. Retain only capacity reconciliation, delivery-lead escalation, and bounded public research. Aggregate commission remains unattributed; no revenue, ROI, causal-lift, or production-readiness claims are supported.",
+        "summary": "Reject all new implementation admission this cycle. 0xroulette.com is in active review, broadwayshowgirls.com is already measuring deployed work, and deeppenetrations.com is in active review with an infrastructure-blocked repair. The candidates therefore lack cleared deduplication, sufficient site-specific outcome evidence, or both. Aggregate affiliate commission remains unattributed, and fleet operations evidence is unavailable; no revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are supported. Retain only principal-engineer reconciliation. By 2026-10-02T12:00Z, document the canonical Save Us Farms repair disposition and authoritative admission state, then record each candidate’s baseline, threshold, tests, attribution boundary, rollback point, and release status. Release at most one candidate only if every gate passes; otherwise escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
