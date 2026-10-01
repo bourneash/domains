@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:05:00.181Z",
-  "summary": "daily domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-01T14:46:13.952Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "e61f6a85-d487-4afa-808e-f58f6201fa0c",
-    "cadence": "daily",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 1,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Revalidate the preserved Alien Council AI-usage cancellation-control change",
+        "summary": "Revalidate the existing infrastructure-blocked change for aliencouncil.com without creating overlapping site work or changing production behavior outside its preserved diff.",
+        "requested_action": "Engineer inspects the retained failure artifact and preserved diff, repairs only the reviewer/infrastructure failure, runs isolated validation, and records a requeue-or-close disposition. Do not add dependencies, credentials, telemetry, routes, or unrelated files.",
+        "proposal_id": null
+      }
+    ]
   }
 }
