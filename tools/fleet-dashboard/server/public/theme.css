@@ -2611,6 +2611,12 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   box-shadow: var(--sh-1);
 }
 :root[data-theme="light"] .wb-card strong { color: var(--text-hi); }
+:root[data-theme="light"] .wb-summary > div {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .wb-summary strong { color: var(--text-hi); }
+:root[data-theme="light"] .wb-column-head i { background: var(--a1); }
 :root[data-theme="light"] .cq-page-head {
   background: radial-gradient(circle at 82% 0%, rgba(40,119,212,.1), transparent 34%), linear-gradient(135deg, #f8fbff, #eef3fa);
   border-color: var(--border);
@@ -2634,6 +2640,36 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .cq-exception-card strong { color: var(--text-hi); }
 :root[data-theme="light"] .cq-status-note { background: rgba(61,160,112,.07); }
 :root[data-theme="light"] .cq-status-note.warn { background: rgba(190,140,25,.09); }
+:root[data-theme="light"] .dh-panel,
+:root[data-theme="light"] .dhi-panel {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+  box-shadow: var(--sh-1);
+}
+:root[data-theme="light"] .dh-egress td,
+:root[data-theme="light"] .dh-sources td,
+:root[data-theme="light"] .dh-datasets td,
+:root[data-theme="light"] .dh-matrix td,
+:root[data-theme="light"] .dhi-counts td,
+:root[data-theme="light"] .dhi-egress td,
+:root[data-theme="light"] .dhi-sources td {
+  border-bottom-color: var(--border);
+}
+:root[data-theme="light"] .dh-tag,
+:root[data-theme="light"] .dh-tags .dh-tag { background: rgba(40,70,110,.07); }
+:root[data-theme="light"] .dh-ok,
+:root[data-theme="light"] .dhi-ok { color: #147044; }
+:root[data-theme="light"] .dh-skip,
+:root[data-theme="light"] .dhi-skip { color: #876000; }
+:root[data-theme="light"] .dh-err,
+:root[data-theme="light"] .dhi-err { color: #a52f3c; }
+:root[data-theme="light"] .dh-vpn,
+:root[data-theme="light"] .dhi-vpn { color: #245fa7; }
+:root[data-theme="light"] .dh-direct,
+:root[data-theme="light"] .dhi-direct,
+:root[data-theme="light"] .dh-ovr { color: #6842a2; }
+:root[data-theme="light"] .dh-egress tbody tr:hover,
+:root[data-theme="light"] .dh-sources tbody tr:hover { background: rgba(40,119,212,.045); }
 :root[data-theme="light"] .ui-collapsible.is-collapsed {
   background: rgba(240,244,250,.9);
   border-color: var(--border);
