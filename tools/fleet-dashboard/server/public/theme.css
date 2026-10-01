@@ -729,6 +729,21 @@ td.site, .site-link { font-weight: 620; letter-spacing: -.01em; }
 .rcount:hover { transform: translateY(-1px) scale(1.06); }
 .rmatrix .rsite, .rmatrix .rsite-h { background: rgba(14,18,26,.97); backdrop-filter: blur(8px); }
 .rmatrix-card { border-radius: var(--radius); }
+.matrix-scroll-hint { display: none; }
+@media (max-width: 720px) {
+  .matrix-scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--panel-2);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .matrix-scroll-hint::before { content: '↔'; color: var(--a1); font-size: 14px; font-weight: 800; }
+}
 
 .live-tag { letter-spacing: .04em; text-transform: uppercase; font-size: 9.5px; }
 .spark i { border-radius: 2px; box-shadow: 0 0 6px -2px currentColor; }

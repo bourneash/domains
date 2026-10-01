@@ -4423,7 +4423,7 @@ function controlDraw() {
     .join('');
 
   $('#ctl-matrix').innerHTML = rows.length
-    ? `<div class="card rmatrix-card"><table class="rmatrix"><caption class="sr-only">Fleet role coverage matrix</caption>
+    ? `<div class="card rmatrix-card"><div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect all role columns · Site stays pinned</div><table class="rmatrix"><caption class="sr-only">Fleet role coverage matrix</caption>
         <thead><tr>${head}</tr></thead>
         <tbody>${body}</tbody>
       </table></div>`
@@ -4718,7 +4718,7 @@ async function renderParked() {
     <div class="parked-toolbar" role="group" aria-label="Parked inventory context">
       <div><strong>Renewal exposure</strong><span class="muted">${s.total_registry_entries} registry entries · ${s.unknown_renewal || 0} missing renewal date${s.unknown_renewal === 1 ? '' : 's'}</span></div>
     </div>
-    <div class="card parked-table"><div class="table-wrap"><table class="rmatrix">
+    <div class="card parked-table"><div class="table-wrap"><table class="rmatrix"><caption class="sr-only">Parked domain inventory and renewal exposure</caption>
       <thead><tr><th>Domain</th><th>Parked</th><th>Scaffolded</th><th>Renewal</th><th>Also provisioned</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>
