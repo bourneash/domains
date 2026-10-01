@@ -10554,7 +10554,9 @@ async function shPostAction(btn) {
 
 async function renderSocialHub() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Reading the social hub…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div class="page-head"><div><h2 class="page-title">Social Hub</h2><span class="muted">Publishing, oversight, scheduling, and community inbox</span></div></div><div class="loading" role="status" aria-live="polite">Reading the social hub…</div>';
 
   let overview;
   try {
@@ -10624,11 +10626,11 @@ async function renderSocialHub() {
 
   app.innerHTML = `
     <div class="page-head">
-      <h2 class="page-title">Social Hub</h2>
-      <span class="muted">${sites.length} managed site${sites.length === 1 ? '' : 's'}</span>
+      <div><h2 class="page-title">Social Hub</h2><span class="muted">${sites.length} managed site${sites.length === 1 ? '' : 's'}</span></div>
       <span class="soc-stats">
-        <button id="sh-compose" class="btn sm primary">＋ New post</button>
-        <button id="sh-tick" class="btn sm">Run tick</button>
+        <button type="button" id="sh-refresh" class="btn sm">↻ Refresh</button>
+        <button type="button" id="sh-compose" class="btn sm primary">＋ New post</button>
+        <button type="button" id="sh-tick" class="btn sm">Run tick</button>
       </span>
     </div>
     <div class="seg" style="margin-bottom:14px">
@@ -10643,6 +10645,7 @@ async function renderSocialHub() {
 
   shSyncTabs();
 
+  $('#sh-refresh').addEventListener('click', () => renderSocialHub());
   $('#sh-tick').addEventListener('click', async () => {
     const btn = $('#sh-tick');
     btn.disabled = true;

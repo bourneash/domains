@@ -482,6 +482,22 @@ test('Social Hub overview bounds platform engagement tables', () => {
   assert.match(overview, /class="card sh-table-wrap"><table class="tbl"/);
 });
 
+test('Social Hub exposes local refresh and accessible initial loading state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const route = app.slice(
+    app.indexOf('async function renderSocialHub'),
+    app.indexOf('function shComposerModal')
+  );
+  assert.match(route, /id="sh-refresh"/);
+  assert.match(route, /type="button" id="sh-refresh"/);
+  assert.match(route, /Reading the social hub…/);
+  assert.match(route, /role="status" aria-live="polite"/);
+  assert.match(
+    route,
+    /\$\('#sh-refresh'\)\.addEventListener\('click', \(\) => renderSocialHub\(\)\)/
+  );
+});
+
 test('Dev Sandbox destructive actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const sandbox = [
