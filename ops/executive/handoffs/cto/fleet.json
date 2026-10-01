@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:57:12.423Z",
-  "summary": "cto checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T06:09:30.550Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: approve the containment plan. Delivery is saturated at 10/10 slots, so reject new site-factory, CRO, telemetry, scheduling, access, and duplicate control-plane admissions this cycle. Complete or justify closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence. After one slot is released, admit only the existing canonical allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b. Do not claim revenue, ROI, conversion lift, or causal impact.",
+        "summary": "CTO disposition: preserve containment. Do not admit new production, site-factory, CRO, prototype, telemetry, spend, or duplicate queue work while all 10 delivery slots are occupied. The existing saveusfarms.com repair case remains the sole capacity-unblocker; complete or justifiably close it with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution and measurement limits, and deduplication evidence by 2026-10-01T09:00Z. Release one slot only after that evidence is recorded. Then execute the existing allthingsmasonic.com CTA refinement request 4719e525-763b-42a4-9f16-e71e1c38b17b, subject to site-overlap clearance and normal review gates. Keep SearchWoot private and leave rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain the capacity gate. Do not admit new implementation, preview, site-factory, CRO, telemetry, or duplicate work while all 10 delivery slots are occupied. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z; release one slot only after validation or justified-closure evidence is recorded. Then admit at most the canonical allthingsmasonic.com CTA request.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "After capacity release, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Preserve registered affiliate destinations, adjacent disclosure, keyboard and focus access, contrast, descriptive link names, responsive behavior, existing functionality, deterministic tests, build/link validation, and single-diff rollback. Measure observed affiliate clicks only for 14 days or 100 new relevant impressions/clicks, whichever comes first. Do not infer revenue, ROI, conversion lift, or causality.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Defer the site-factory pipeline candidates. Existing scaffolds may remain documented as queue-ready, but no preview, build, publish, domain, analytics, affiliate, spend, or telemetry work may be admitted until capacity and launch-readiness gates are cleared. Do not create duplicate requests.",
+        "summary": "The proposed MarkItDown prototype, new-site readiness package, and finance baseline are technically bounded but are deferred this cycle: they create additional queue or evidence work without available delivery capacity and are not required to unblock the canonical implementation. Preserve them as planning context only; do not create research requests, dependencies, production changes, or new telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

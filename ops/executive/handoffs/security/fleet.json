@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:57:12.424Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T06:09:30.551Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed; high release risk. Fleet-wide clearance is unsupported because fleet-doctor has no run, findings, or checks, while operations has no deploy, uptime, or error-sweep results. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS enforcement, data exposure, monitoring/incident readiness, and security.txt/disclosure readiness remain unevidenced. Recommendation: keep security-sensitive releases and gated public exposure blocked; permit ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Do not claim certification or a clean bill of health.",
+        "summary": "Security disposition: evidence_needed. Risk severity is high for fleet-wide go-live, new public exposure, and security-sensitive releases; ordinary reversible growth may continue conditionally when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: the security baseline covers 61 managed sites, but fleet-doctor is not OK and has no run, checks, findings, or site results; operations has no deploy, uptime, or error-sweep results; and no control evidence is available for authentication/access boundaries, secrets handling, container isolation, release/deploy controls, dependency provenance, TLS configuration, data exposure, monitoring, incident readiness, or security.txt/disclosure readiness. Compliance is technical-only with 35 pass, 20 fail, and 6 unknown; this is not certification. No credential exposure, exploit, or vulnerability is established. Exact decision: preserve all existing launch and security-sensitive release gates; keep gated products private; permit only bounded reversible work within the stated constraints; continue the existing read-only evidence matrix using retained artifacts and authorized metadata only. Do not retrieve credentials, access private containers, alter permissions or configuration, deploy, add dependencies, request duplicate telemetry, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue the existing canonical fleet security evidence matrix without creating duplicate work. Use authorized metadata and retained artifacts only to document dated evidence, affected scope, owners, severity, and release implications for access boundaries, secrets, isolation, release/deploy controls, dependencies, TLS, data exposure, monitoring, incident response, and disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, add dependencies, or deploy.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot remains private from a security perspective: security and related launch evidence are incomplete. No incident, breach, secret exposure, authentication failure, dependency compromise, or isolation failure is established; these remain unknown because telemetry is absent. The compliance baseline is technical only: 35 pass, 20 fail, and 6 unknown across 61 sites. No TLS certificates are reported as expiring within 30 days, but TLS configuration and enforcement are not evidenced.",
+        "summary": "Security handoff: complete the existing consolidated control-evidence matrix without creating duplicate work. Record dated evidence, affected scope, owner, severity, and release implications for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Missing evidence must remain unknown, not be treated as a clean result.",
         "requested_action": null,
         "proposal_id": null
       }

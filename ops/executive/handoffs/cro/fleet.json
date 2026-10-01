@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T05:57:12.422Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T06:09:30.549Z",
+  "summary": "cro checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO technical handoff: after one slot is released, execute only the existing allthingsmasonic.com CTA request. Preserve registered affiliate destinations, adjacent disclosure, keyboard/focus access, contrast, descriptive link names, responsive layout, deterministic tests, build/link validation, and single-diff rollback. Measure observed affiliate clicks over 14 days or 100 relevant new impressions/clicks, whichever comes first. Do not claim revenue, ROI, conversion lift, or causality. Keep GitHub candidates in disposable research only until license, dependency, security, maintenance, performance, provenance, and owner-approved implementation gates are satisfied.",
+        "summary": "Recommendation: preserve the current 10/10 capacity gate and create no new CRO, prototype, telemetry, spend, or duplicate queue work this cycle. Evidence supports three deferred opportunities for CEO/CTO review after capacity clears: (1) execute the existing allthingsmasonic.com CTA refinement, targeting affiliate-click rate with a 14-day or 100-relevant-impression/click learning window; (2) prototype a disposable MarkItDown-based document-to-content workflow using only approved source files, measuring editor time and publishable-output quality; MIT metadata and 8/8 bounded lab checks support research fit, but dependency, supply-chain, security, and maintenance review remain required; (3) prepare a preview-only complicated.work launch-readiness artifact before any build admission, measuring checklist completion rather than traffic or revenue. No telemetry, revenue attribution, causal lift, license sufficiency, or production readiness is being inferred. Smallest reversible prototypes are respectively a single CTA change set, an offline fixture-based conversion script, and a non-public readiness brief. CEO/CTO handoff: retain these as deferred opportunities; admit only after the existing repair case releases capacity and all applicable legal, security, measurement, and rollback gates pass.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue disposition: do not assign the 2026-09-21 aggregate Amazon result of 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission to any site or experiment. Preserve site-level evidence boundaries and treat affiliate outcomes as unknown unless tied to a registered tracking ID.",
         "requested_action": null,
         "proposal_id": null
       }
