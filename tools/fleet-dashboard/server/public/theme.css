@@ -483,6 +483,13 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
               background var(--dur) var(--ease);
 }
 .btn:hover { color: var(--text-hi); border-color: rgba(94,169,255,.72); background: var(--control-bg-hover); box-shadow: var(--sh-2), 0 0 14px -10px var(--a1); transform: translateY(-1px); }
+.fd-refreshing #refresh { color: var(--a1); border-color: rgba(94,169,255,.55); }
+.fd-refreshing #refresh::after {
+  content: ''; display: inline-block; width: 10px; height: 10px; margin-left: 7px;
+  vertical-align: -1px; border: 1.5px solid rgba(94,169,255,.28); border-top-color: var(--a1);
+  border-radius: 50%; animation: loading-spin .75s linear infinite;
+}
+:root[data-theme="light"] .fd-refreshing #refresh { background: #e6f0fd; }
 .btn:active { transform: translateY(0) scale(.985); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn.primary {

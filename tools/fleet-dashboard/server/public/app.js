@@ -16206,6 +16206,8 @@ function softRender() {
     return;
   }
   SOFT_RENDER_BUSY = true;
+  document.body.classList.add('fd-refreshing');
+  $('#refresh')?.setAttribute('aria-busy', 'true');
   document.documentElement.classList.add('fd-soft-refresh');
   UISNAP = captureUI();
   FRESH = false;
@@ -16221,6 +16223,8 @@ function softRender() {
           requestAnimationFrame(() => {
             if (!FRESH) applyUISnap();
             document.documentElement.classList.remove('fd-soft-refresh');
+            document.body.classList.remove('fd-refreshing');
+            $('#refresh')?.setAttribute('aria-busy', 'false');
             SOFT_RENDER_BUSY = false;
             if (SOFT_RENDER_QUEUED) {
               SOFT_RENDER_QUEUED = false;
@@ -16230,6 +16234,8 @@ function softRender() {
         });
       } else {
         document.documentElement.classList.remove('fd-soft-refresh');
+        document.body.classList.remove('fd-refreshing');
+        $('#refresh')?.setAttribute('aria-busy', 'false');
         SOFT_RENDER_BUSY = false;
         SOFT_RENDER_QUEUED = false;
       }
