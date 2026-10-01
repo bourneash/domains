@@ -1742,6 +1742,14 @@ test('Compliance keeps scan controls explicit and safe', () => {
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
 });
 
+test('Social Accounts keeps matrix, inventory, and persona tables contextual', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /Social account matrix by site and platform/);
+  assert.match(app, /Social account inventory/);
+  assert.match(app, /Social personas and account coverage/);
+  assert.match(app, /class="muted" for="soc-group">Group<\/label>/);
+});
+
 test('SEO Intelligence keeps evidence tables bounded and live actions explicit', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');

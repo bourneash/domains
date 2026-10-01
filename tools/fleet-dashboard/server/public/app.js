@@ -9719,7 +9719,7 @@ async function renderSocial() {
       )}</select>
       <select id="soc-f-category" aria-label="Filter by site bucket">${opt(data.siteCategories, SOC.f.category, 'All site buckets')}</select>
       <label class="soc-check"><input type="checkbox" id="soc-f-attention" ${SOC.f.attention ? 'checked' : ''} /> needs attention</label>
-      ${SOC.mode === 'list' ? `<label class="muted">Group</label><select id="soc-group">${['site', 'platform', 'status', 'scope', 'none'].map(g => `<option value="${g}" ${SOC.group === g ? 'selected' : ''}>${g}</option>`).join('')}</select>` : ''}
+      ${SOC.mode === 'list' ? `<label class="muted" for="soc-group">Group</label><select id="soc-group">${['site', 'platform', 'status', 'scope', 'none'].map(g => `<option value="${g}" ${SOC.group === g ? 'selected' : ''}>${g}</option>`).join('')}</select>` : ''}
       <span id="soc-visible-count" class="muted soc-visible-count"></span>
       <button class="btn sm soc-clear" id="soc-clear" type="button">Clear filters</button>
       <button class="btn sm primary" id="soc-add" style="margin-left:auto">+ Account</button>
@@ -10021,6 +10021,7 @@ function socMatrixHTML() {
   const empty = `<tr><td colspan="${platforms.length + 3}" class="muted soc-empty-row">No domains match the current filters.</td></tr>`;
   return `<div data-soc-results data-visible="${sites.length}" data-total="${SOC.data.sites.length}" data-unit="domains">
     <div class="card soc-table-card"><table class="soc-matrix">
+    <caption class="sr-only">Social account matrix by site and platform</caption>
     <thead><tr>
       ${socSortHeader('matrix', 'site', 'Site')}
       ${socSortHeader('matrix', 'category', 'Bucket')}
@@ -10167,7 +10168,7 @@ function socListHTML() {
   const empty = `<tr><td colspan="${SOC_COLS.length}" class="muted soc-empty-row">No accounts match the current filters.</td></tr>`;
   const sortedLabel = SOC_COLS.find(c => c.key === sort.key)?.label || sort.key;
   return `<div data-soc-results data-visible="${rows.length}" data-total="${SOC.data.accounts.length}" data-unit="accounts">
-    <div class="card soc-table-card"><table class="soc-list">${head}<tbody>${body || empty}</tbody></table></div>
+    <div class="card soc-table-card"><table class="soc-list"><caption class="sr-only">Social account inventory</caption>${head}<tbody>${body || empty}</tbody></table></div>
     <div class="muted soc-legend"><span>Grouped by ${esc(SOC.group)}.</span><span>Sorted by ${esc(sortedLabel)} ${sort.dir > 0 ? 'ascending' : 'descending'}.</span><span>Click a row to edit.</span></div></div>`;
 }
 
@@ -10209,6 +10210,7 @@ function socPersonasHTML() {
   const empty = `<tr><td colspan="6" class="muted soc-empty-row">${SOC.data.personas.length ? 'No personas match the current filters.' : 'No personas yet. Use + Persona to add a byline.'}</td></tr>`;
   return `<div data-soc-results data-visible="${personas.length}" data-total="${SOC.data.personas.length}" data-unit="personas">
     <div class="card soc-table-card"><table>
+    <caption class="sr-only">Social personas and account coverage</caption>
     <thead><tr><th>Site</th><th>Persona</th><th>Email</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
     <tbody>${rows || empty}</tbody></table></div>
     <div class="muted soc-legend"><span>Click a name to edit; click a platform chip to edit that account.</span></div></div>`;
