@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:27:04.542Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:27:27.800Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject new implementation admissions this cycle. Delivery is saturated at 10/10 slots; 39 improvements await measurement, 21 requests failed, and revenue remains unattributed. CTO must complete or justifiably close the existing saveusfarms.com repair case with validation and rollback evidence, release one slot by 2026-10-01T12:00Z, and escalate unresolved capacity then. Preserve existing measurement, security, private-launch, and overlap gates; do not claim revenue, ROI, or causal lift.",
+        "summary": "Reject all new production, high-priority queue, telemetry, research, and revenue claims this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Amazon’s $4.92 commission is aggregate and unattributed; revenue, ROI, margin, and causal lift remain unsupported. Preserve existing measurement, security, compliance, attribution, and private-launch gates. CTO must complete or justifiably close the canonical saveusfarms.com repair case with validation, rollback, attribution, measurement, and deduplication evidence before releasing one slot. Do not admit new work until capacity and site-overlap gates clear.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject unsupported revenue, ROI, attribution, causal-lift, high-priority, and production claims. Amazon’s $4.92 commission is aggregate and unattributed; delivery is saturated at 10/10 slots with measurement debt and failed requests. Route only the three bounded low-priority engineer specifications below as capacity-gated work. No candidate may execute until CTO releases capacity and site-overlap/readiness gates clear. CTO must complete or close the canonical saveusfarms.com repair case by 2026-10-01T12:00:00Z or escalate to the owner. Preserve private-launch, security, legal, and measurement gates.",
         "requested_action": null,
         "proposal_id": null
       }

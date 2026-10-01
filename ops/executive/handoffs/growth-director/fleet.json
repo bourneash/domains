@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "growth-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.673Z",
+  "generated_at": "2026-10-01T10:27:27.799Z",
   "summary": "growth-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: admit no new SEO implementation this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and site overlap remains unresolved. Preserve the existing allthingsmasonic.com CTA refinement as the sole next growth implementation after CTO releases one slot and overlap clears. Scope: CTA hierarchy, affiliate disclosure placement, accessibility, responsive layout, and unchanged destinations. Baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks. Roll back the isolated diff if validation fails. Do not claim revenue, ROI, or causal lift.",
+        "summary": "Approve no new SEO or growth admission this cycle. Preserve existing measurement and capacity gates: 10/10 implementation slots are occupied, with 39 improvements awaiting measurement and 21 failed requests. After CTO releases a slot and site-overlap clears, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Target: homepage and highest-intent commercial entry surfaces. Scope: clarify affiliate CTA hierarchy, place existing disclosure beside applicable links, preserve destinations, and improve keyboard/mobile presentation. Baseline: 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 report; page-level causal lift is unknown. Metric/window: affiliate clicks plus attributable orders and commission over 14 days or 100 relevant impressions/clicks. Acceptance: deterministic tests, build, link, disclosure, accessibility, responsive-layout, and unchanged-content checks pass. Rollback: revert only the single bounded diff if validation, link health, disclosure visibility, or layout regresses. Do not claim revenue, ROI, or causal lift. Keep rodhat.com SEO deferred until capacity is released.",
         "requested_action": null,
         "proposal_id": null
       }

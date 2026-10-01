@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.674Z",
+  "generated_at": "2026-10-01T10:27:27.799Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: admit no new implementation this cycle. Capacity is saturated at 10/10 slots, measurement debt and failed requests remain open, and site overlap is unresolved. Preserve the existing allthingsmasonic.com CTA refinement as the sole next implementation after one slot is released and overlap clears. Its bounded scope is CTA hierarchy, affiliate disclosure placement, keyboard/focus accessibility, and responsive layout; preserve destinations, tracking, consent, and claims. Require deterministic tests, isolated preview validation, build/link/disclosure checks, a single-diff rollback point, and measurement using existing affiliate clicks plus attributable orders and shipped items for 14 days or 100 relevant impressions/clicks. Do not claim revenue, ROI, or causal lift.",
+        "summary": "CTO review: approve no new admissions, deployments, telemetry, spend, or duplicate work this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain open, and operations/security evidence is incomplete. Preserve existing gates. Complete or justifiably close the canonical saveusfarms.com repair case with root-cause or closure evidence, deterministic validation, isolated build evidence, rollback and release boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate to the owner. After capacity and site-overlap clearance, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Keep scaffold candidates planning-only until individual launch-readiness artifacts are verified. Do not claim revenue, ROI, margin, or causal lift; preserve the aggregate commission as unattributed.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or justifiably close the existing saveusfarms.com repair-or-close case before admitting work. Record root cause or closure rationale, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution and measurement limits, and deduplication evidence. Release one implementation slot or escalate the unresolved capacity blocker to the owner. Do not create duplicate queue work, add telemetry, dependencies, credentials, permissions, cross-site behavior, or production changes outside the existing case.",
+        "summary": "Existing allthingsmasonic.com CTA refinement is technically feasible and reversible, but it must remain queued until a delivery slot and site-overlap clearance exist. Limit scope to CTA hierarchy, disclosure adjacency, accessibility, responsive presentation, and unchanged destination URLs. Require deterministic tests, build validation, link checks, disclosure checks, and preview evidence before deployment. Roll back only the bounded diff on regression. Measure only available affiliate clicks and attributable orders or commission within the existing measurement window; do not infer page-level causality or allocate aggregate revenue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve private launch and security-sensitive release gates. Fleet-doctor and operations sweeps have no usable results, and material controls remain unevidenced. Ordinary reversible work is conditionally acceptable only within existing consent, disclosure, data-handling, credential, dependency, permission, and cross-site boundaries. Keep the site-factory candidates planning-only until launch-readiness, legal, security, measurement, rollback, and preview gates are evidenced. Preserve the current aggregate revenue boundary: provider commission remains unattributed and cannot support site revenue, ROI, margin, or causal-lift claims.",
+        "summary": "Maintain private and security-sensitive release gates. Fleet-doctor and operations sweeps have no results, while authentication, secrets, isolation, release controls, dependency provenance, TLS, data exposure, monitoring, incident readiness, and disclosure evidence remain unknown. Continue only authorized read-only evidence work using retained artifacts and metadata; do not clear gates, change credentials or configuration, add dependencies, deploy, or request duplicate telemetry.",
         "requested_action": null,
         "proposal_id": null
       }

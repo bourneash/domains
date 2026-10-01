@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.674Z",
-  "summary": "cro checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:27:27.799Z",
+  "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CRO disposition: retain no new proposals, change requests, research requests, or site-factory work this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 implementation requests have failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the next revenue experiment after CTO releases capacity and site overlap clears. Smallest reversible prototype: adjust CTA hierarchy, disclosure placement, keyboard/focus accessibility, and responsive layout without changing destinations, tracking, or claims. Baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Metric: affiliate clicks plus attributable orders and shipped items over 14 days or 100 relevant impressions/clicks. Roll back the isolated diff if validation fails; do not claim revenue, ROI, or causal lift. Post-capacity priorities are affiliate-integrity repair on americastrikes.com, the registered affiliate-tag prerequisite for amputeenews.com, and destination/disclosure validation. Amazon aggregate revenue remains unattributed. GitHub candidates remain research-only pending a fleet-specific prototype, security review, license review, maintenance review, and owner-approved implementation.",
+        "summary": "CRO disposition: retain no new proposal, change request, research request, or implementation admission this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests have failed, and only 6 outcomes are proven. Amazon reports 6,219 clicks, 28 ordered items, and $4.92 aggregate commission under an unattributed row; site revenue, ROI, and causal lift remain unknown. Preserve existing measurement, security, compliance, attribution, and launch gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Revenue experiment priority: preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as the next eligible experiment after capacity and site-overlap clearance. Baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the available 2026-09-21 report. Test only CTA hierarchy, disclosure adjacency, accessibility, and responsive presentation; measure affiliate clicks plus attributable orders and commission for 14 days or 100 relevant impressions/clicks. Roll back the single diff if link, disclosure, layout, or validation checks regress. Do not claim lift or assign aggregate revenue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Product opportunity: keep complicated.work as the first scaffold candidate, but limit work to the existing launch-readiness artifact. The smallest reversible prototype is a preview-only evidence package covering audience, bounded template, content seed, SEO baseline, analytics and affiliate readiness, compliance, security unknowns, measurement, owner decision, and rollback. Analytics is not configured, so no traffic, conversion, revenue, or monetization claim is supported. Do not build, publish, add telemetry, add affiliate links, or spend until capacity and gates clear.",
         "requested_action": null,
         "proposal_id": null
       }

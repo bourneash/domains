@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.673Z",
+  "generated_at": "2026-10-01T10:27:27.798Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not create duplicate site work this cycle. Preserve the existing queued allthingsmasonic.com CTA refinement as the next design implementation after one delivery slot and site-overlap clearance. Scope: improve CTA hierarchy, affiliate disclosure placement, keyboard/focus accessibility, and responsive layout without changing destinations, tracking, or claims. Baseline: 61 affiliate clicks, 0 ordered items, 0 shipped items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks and attributable orders/shipments for 14 days or 100 relevant impressions/clicks; do not claim lift. Roll back the isolated diff if validation fails.",
+        "summary": "Approve and preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com; create no duplicate admission while capacity is saturated. Scope: homepage and highest-intent commercial entry surfaces only. Preview must clarify affiliate CTA hierarchy, place the existing disclosure adjacent to relevant product links, preserve destination URLs and content outside the bounded diff, and improve keyboard focus, responsive mobile layout, and visible CTA states. Acceptance: deterministic tests pass; all affiliate links resolve to their existing destinations; disclosure remains visible beside applicable links; keyboard navigation and focus states work; mobile and desktop previews show no overflow or clipped content; build and link checks pass. Metric: compare affiliate clicks and attributable orders/commission using existing site tracking for 14 days or 100 relevant impressions/clicks, whichever comes first; current available baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for the reported window. Do not claim lift or assign aggregate revenue. Rollback: revert only the single CTA/disclosure/layout diff if tests, link health, disclosure visibility, or responsive/accessibility validation regresses. Execute only after CTO releases capacity and site-overlap clearance.",
         "requested_action": null,
         "proposal_id": null
       }

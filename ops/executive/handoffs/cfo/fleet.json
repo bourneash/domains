@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.674Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T10:27:27.799Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: retain the current containment plan, admit no new implementation this cycle, and reject unsupported revenue, margin, ROI, budget, forecast, and causal-lift claims. Capacity is saturated at 10/10 slots; 39 improvements await measurement, 21 implementation requests failed, and only 6 outcomes are proven. Preserve the existing allthingsmasonic.com CTA refinement as the sole next revenue experiment after CTO releases capacity and site overlap clears. Amazon data for 2026-09-21 supports only aggregate provider results: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All commission is under aggregate tracking ID \"other\"; site-attributed commission is $0, so no site revenue or ROI claim is supported. Contribution margin and budget exposure are unknown because fixed costs, infrastructure/domain/tooling costs, marketing spend, labor allocation, and site-level revenue mapping are absent. AI spend is $2.2785467 across 16 calls on 2026-10-01, averaging $0.14240916875 per call, but cost-to-learn is not calculable because only 4 of 38 expected sites are instrumented and calls are not linked to defined learning units or verified outcomes. Do not move money, authorize spend, change billing, access banking, sign contracts, or make legal/tax claims.",
+        "summary": "Recommendation: approve no new spend, monetization claims, or implementation admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Amazon data covers 2026-09-21 only: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all under aggregate tracking ID \"other\". Site-attributed revenue is $0; the $4.92 must remain unattributed. Revenue, contribution margin, ROI, and causal lift are not supportable.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Minimum finance measurement before any economic claim: reconcile provider orders, shipped items, commission, and tracking IDs to each site and content identifier for the same reporting period; maintain a site-level cost ledger for AI, hosting/infrastructure, domains, tooling, authorized marketing, and allocated labor; and link each implementation's cost, exposure window, affiliate clicks, orders, shipped items, and commission. For cost-to-learn, define the learning unit and link AI calls and spend to that unit and a verified outcome. Until then, report $4.92 only as aggregate unattributed provider commission, site-attributed commission as $0, and contribution margin, ROI, budget exposure, and cost-to-learn as unknown.",
+        "summary": "AI spend is known only for 4 instrumented sites on 2026-10-01: 16 calls and $2.2785467 total, with 68,333 output tokens and 1,765,735 cache-read input tokens. This is not fleet-wide AI spend. Infrastructure, hosting, domain, labor, and other direct costs are absent, so contribution margin and cost-to-learn cannot be calculated. Minimum measurement: a dated cost ledger keyed to site, experiment/change request, and reporting window, including AI, infrastructure, domains, and attributable revenue.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Push back on vanity metrics: impressions, clicks, sessions, ordered items, proposal counts, shipped outputs, and opportunity scores do not establish revenue or profitability without attributable commission, direct cost, and causal measurement. Preserve the existing allthingsmasonic.com CTA refinement only as the next eligible test after capacity and overlap clearance; its baseline is 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Do not assign the aggregate $4.92 or forecast upside.",
         "requested_action": null,
         "proposal_id": null
       }

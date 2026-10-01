@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "revenue-ops",
   "site": "fleet",
-  "generated_at": "2026-10-01T10:17:44.673Z",
+  "generated_at": "2026-10-01T10:27:27.799Z",
   "summary": "revenue-ops checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the current aggregate revenue boundary: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, all under aggregate tracking ID \"other\". Do not assign this income to any site or infer ROI. After capacity clearance, prioritize the existing allthingsmasonic.com CTA refinement, then repair the americastrikes.com stale affiliate reference and resolve the amputeenews.com registered Amazon Associates tag prerequisite. Validate affiliate destinations and disclosure placement from retained evidence only.",
+        "summary": "Approve no new implementation admissions this cycle. Preserve existing affiliate repair and measurement work, keep the aggregate Amazon commission unassigned, and do not infer site revenue, ROI, or causal lift. After capacity is released, execute only the existing allthingsmasonic.com CTA/disclosure refinement; preserve the amputeenews.com tag prerequisite and validate existing americastrikes.com affiliate repairs.",
         "requested_action": null,
         "proposal_id": null
       }
