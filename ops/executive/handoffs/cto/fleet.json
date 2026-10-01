@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:57:21.606Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:08:32.654Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Technically feasible work is limited to existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Keep it capacity-gated until the existing saveusfarms.com repair case is completed or justifiably closed with validation, rollback, release-boundary, attribution, measurement, and deduplication evidence. Reject the three new site-factory admissions and all duplicate proposals. Preserve private-launch and security-sensitive release gates; do not request telemetry, add dependencies, change credentials, spend, or deploy new control-plane functionality.",
+        "summary": "Approved in principle: admit no new implementation, prototype, telemetry, spend, or duplicate queue work while delivery is saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA request unchanged, but do not execute it until the existing saveusfarms.com repair-or-close case is completed or justified closure is documented and one slot is released by 2026-10-01T09:00Z. Keep launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one slot is released, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b. Limit scope to CTA hierarchy, adjacent existing disclosure, preserved destinations and registered tracking, accessibility states, 44px tap targets, responsive behavior, deterministic tests, build/link/disclosure validation, and isolated rollback. Measure only registered affiliate clicks and available site conversions using existing telemetry; do not claim revenue or causal lift.",
+        "summary": "The saveusfarms.com case may release capacity only with recorded ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. If unresolved at the deadline, escalate to the owner; do not admit replacement work automatically.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep private-launch and security-sensitive release gates unchanged. Continue the canonical read-only evidence matrix using authorized metadata and retained artifacts only. No credentials, private-container access, permission or configuration changes, dependencies, deployment, duplicate telemetry requests, or external outreach are authorized.",
+        "summary": "Fleet-doctor and operations sweeps have no results, and compliance evidence is mixed. Keep security-sensitive releases and gated public exposure blocked. Continue only authorized read-only evidence work using retained artifacts and existing metadata; do not retrieve credentials, alter permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the 2026-09-21 Amazon record as aggregate unattributed commission under tracking ID other. Named site rows show $0 site-attributed commission. Do not infer site revenue, ROI, margin, forecasts, or causal lift. Existing telemetry is sufficient; no duplicate data request is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

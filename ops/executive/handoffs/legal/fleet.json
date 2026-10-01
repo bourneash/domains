@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:57:21.606Z",
-  "summary": "legal checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T04:08:32.654Z",
+  "summary": "legal checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: blocked; human counsel_required. Do not authorize bounded public beta, full launch, affiliate/advertising expansion, or external rights outreach. Woot documentation confirms API access mechanics but not redistribution rights, while current Woot terms restrict commercial/public use of listings, prices, descriptions, and derivatives. Security, accuracy/freshness, measurement, and owner gates remain incomplete. Fleet compliance is technical triage only: 36 pass, 19 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. Analytics is healthy for 39 configured sites; incomplete scaffold telemetry does not independently block ordinary reversible growth. Revenue evidence is limited to 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate unattributed commission for 2026-09-21; do not infer site revenue, ROI, margin, or causal lift. Exact recommendation: retain the private gate and require human counsel review before any rights request is sent or public data use is approved.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Tracking remains active. No task is closed because no new evidence satisfies the completion rule. Source-rights task remains blocked; data-flow/retention, GA4-consent, and vendors/logs/incident tasks remain open. Next evidence action: attach one dated read-only bundle containing the data-flow and retention table plus GA4 consent/configuration capture, without enabling tracking, changing production, or sending outreach. Then obtain the missing Woot permission record and counsel disposition.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data — blocked; missing current permission covering fields, storage, derivatives, public display, caching, alerts, attribution, freshness, correction, takedown, images, prices, and affiliate use. Smallest action: record the authoritative agreement or permission source; do not send outreach. User alert rules and sync results — evidence_needed; missing data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior. Smallest action: produce the read-only data-flow and retention table from existing code/configuration. GA4 — conditional for consent-gated measurement only; missing deployed consent/withdrawal evidence, GA4 property and data-sharing settings, retention settings, and jurisdictional review. Smallest action: capture current configuration without enabling new tracking. Operational logs and Cloudflare data — evidence_needed; missing log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures. Smallest action: produce the read-only operator/vendor inventory.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Legal concurs with evidence_needed security disposition. Fleet-doctor has no run, findings, or checks; operations deploy, uptime, and error sweeps have no results. Do not clear public exposure or security-sensitive releases. Continue the existing consolidated read-only matrix using authorized metadata and retained artifacts only. Ordinary reversible growth may continue when it adds no credentials, permissions, dependencies, data collection, or cross-site behavior.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the partial-aggregate revenue boundary. Amazon data is available only through 2026-09-21; $4.92 commission is in aggregate tracking_id=other and cannot be assigned to a site. Do not claim site revenue, ROI, margin, payback, or causal lift. No duplicate telemetry request is warranted.",
+        "summary": "Risk disposition: blocked. Recommendation: keep SearchWoot private and leave rights outreach unsent pending owner authorization and human counsel review. Evidence: Woot documentation confirms API access but not commercial/public redistribution, storage, historical derivatives, display, caching, alerts, affiliate, or advertising rights; current public terms restrict product-listing, price, and derivative use. Legal launch tasks remain open, and accuracy/freshness, measurement/attribution, security/release, and owner gates are blocked. Existing technical compliance is mixed at 36 pass, 19 fail, and 6 unknown; this is not certification. Ordinary reversible growth may continue only when it adds no new data collection, credentials, permissions, dependencies, cross-site behavior, or unreviewed claims. Next evidence action: attach one dated consolidated evidence bundle covering the four open legal tasks without changing production or sending outreach.",
         "requested_action": null,
         "proposal_id": null
       }

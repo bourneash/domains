@@ -1924,6 +1924,29 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   box-shadow: var(--sh-1);
 }
 :root[data-theme="light"] .wb-card strong { color: var(--text-hi); }
+:root[data-theme="light"] .cq-page-head {
+  background: radial-gradient(circle at 82% 0%, rgba(40,119,212,.1), transparent 34%), linear-gradient(135deg, #f8fbff, #eef3fa);
+  border-color: var(--border);
+  box-shadow: var(--sh-2);
+}
+:root[data-theme="light"] .cq-command-strip {
+  background: linear-gradient(105deg, #eef6ff, #f8fbff 58%);
+  border-color: rgba(40,119,212,.25);
+}
+:root[data-theme="light"] .cq-command-stat { border-left-color: var(--border); }
+:root[data-theme="light"] .cq-kpi,
+:root[data-theme="light"] .cq-controls,
+:root[data-theme="light"] .cq-throughput-stat,
+:root[data-theme="light"] .cq-working-card,
+:root[data-theme="light"] .cq-exception-card {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .cq-kpi strong,
+:root[data-theme="light"] .cq-working-card strong,
+:root[data-theme="light"] .cq-exception-card strong { color: var(--text-hi); }
+:root[data-theme="light"] .cq-status-note { background: rgba(61,160,112,.07); }
+:root[data-theme="light"] .cq-status-note.warn { background: rgba(190,140,25,.09); }
 :root[data-theme="light"] .mobile-rail-toggle {
   background: rgba(40,119,212,.06);
   border-color: rgba(61,86,120,.18);
