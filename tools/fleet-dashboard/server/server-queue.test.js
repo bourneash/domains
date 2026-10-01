@@ -402,6 +402,76 @@ test('a pending delivery resumes only after a foreign claim is stale and review 
   );
 });
 
+test('a restarted dashboard recovers a claim from the same container and PID slot immediately', () => {
+  const now = Date.parse('2026-10-01T17:00:00.000Z');
+  const startedAt = Date.parse('2026-10-01T16:59:30.000Z');
+  const run = {
+    state: 'building',
+    outcome: {
+      delivery_claimed: true,
+      delivery_claimed_at: '2026-10-01T16:59:00.000Z',
+      delivery_claimed_by: 'container-a:1:old-generation',
+    },
+    agent: { phase: 'reviewer', status: 'completed', exit_code: 0 },
+  };
+  const pending = { status: 'delivery_pending' };
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      run,
+      'container-a:1:new-generation',
+      now,
+      900000,
+      startedAt
+    ),
+    true
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      run,
+      'container-b:1:new-generation',
+      now,
+      900000,
+      startedAt
+    ),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      run,
+      'container-a:2:new-generation',
+      now,
+      900000,
+      startedAt
+    ),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      run,
+      'container-a:1:new-generation',
+      now,
+      900000,
+      Date.parse('2026-10-01T16:58:00.000Z')
+    ),
+    false
+  );
+  assert.equal(
+    shouldResumePendingDelivery(
+      pending,
+      { ...run, outcome: { ...run.outcome, delivery_claimed_by: '1:legacy-generation' } },
+      'container-a:1:new-generation',
+      now,
+      900000,
+      startedAt
+    ),
+    false
+  );
+});
+
 test('a completed reviewer can replace a prior worker claim during recovery', () => {
   const run = {
     state: 'building',

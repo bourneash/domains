@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const os = require('node:os');
 
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
@@ -422,7 +423,8 @@ function shouldResumePendingDelivery(
   run,
   currentWorkerId,
   now = Date.now(),
-  maxAgeMs = AUTOMATIC_DELIVERY_CLAIM_MAX_MS
+  maxAgeMs = AUTOMATIC_DELIVERY_CLAIM_MAX_MS,
+  workerStartedAt = null
 ) {
   const claimedAt = Date.parse(run?.outcome?.delivery_claimed_at || '');
   return Boolean(
@@ -436,7 +438,29 @@ function shouldResumePendingDelivery(
     run.outcome.delivery_claimed_by !== currentWorkerId &&
     run.outcome?.delivery_blocked !== true &&
     Number.isFinite(claimedAt) &&
-    now - claimedAt >= Number(maxAgeMs)
+    (now - claimedAt >= Number(maxAgeMs) ||
+      deliveryClaimOwnerReplaced(run, currentWorkerId, workerStartedAt))
+  );
+}
+
+// A restarted singleton dashboard reuses PID 1 inside the same Docker
+// container. A different generation in that exact container/PID slot cannot
+// still be delivering, so its claim can be recovered without the stale-claim
+// delay. Claims from a different container or legacy worker ID keep the full
+// safety window: two live dashboard instances must never deploy the same run.
+function deliveryClaimOwnerReplaced(run, currentWorkerId, workerStartedAt) {
+  const oldOwner = String(run?.outcome?.delivery_claimed_by || '').match(/^([^:]+):(\d+):([^:]+)$/);
+  const newOwner = String(currentWorkerId || '').match(/^([^:]+):(\d+):([^:]+)$/);
+  const claimedAt = Date.parse(run?.outcome?.delivery_claimed_at || '');
+  return Boolean(
+    oldOwner &&
+    newOwner &&
+    oldOwner[1] === newOwner[1] &&
+    oldOwner[2] === newOwner[2] &&
+    oldOwner[3] !== newOwner[3] &&
+    Number.isFinite(claimedAt) &&
+    Number.isFinite(workerStartedAt) &&
+    claimedAt < workerStartedAt
   );
 }
 
@@ -601,7 +625,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Repair historical acknowledgements at boot. This closes the old gap where
   // a handoff could exist without any executable run behind it.
   operatingLayer.reconcileOwnerRequests(events);
-  const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
+  const queueWorkerStartedAt = Date.now();
+  const queueWorkerId = `${os.hostname()}:${process.pid}:${crypto.randomUUID()}`;
   app.disable('x-powered-by');
 
   // Repair legacy executive requests whose body clearly declared report-only
@@ -2955,7 +2980,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   function claimAutomaticDelivery(item) {
     const now = new Date().toISOString();
     const claimed = events.claimImprovementDelivery(item.run_id, {
-      maxAgeMs: AUTOMATIC_DELIVERY_CLAIM_MAX_MS,
+      maxAgeMs: deliveryClaimOwnerReplaced(item, queueWorkerId, queueWorkerStartedAt)
+        ? 0
+        : AUTOMATIC_DELIVERY_CLAIM_MAX_MS,
       claimedAt: now,
       claimedBy: queueWorkerId,
     });
@@ -3425,7 +3452,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
       if (request.status === 'delivery_pending') {
         if (
-          shouldResumePendingDelivery(request, run, queueWorkerId) &&
+          shouldResumePendingDelivery(
+            request,
+            run,
+            queueWorkerId,
+            Date.now(),
+            AUTOMATIC_DELIVERY_CLAIM_MAX_MS,
+            queueWorkerStartedAt
+          ) &&
           !activeAutomaticReviews.has(request.request_id)
         ) {
           const reviewer = improvementAgent.reviewResult(
