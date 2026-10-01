@@ -191,6 +191,35 @@ test('keeps deterministic preview defects on the automatic repair path', () => {
   );
 });
 
+test('site test failures are not infrastructure blocks because a screenshot timed out', () => {
+  assert.equal(
+    validationInfrastructureBlock({
+      passed: false,
+      checks: { tests: { status: 'fail', excerpt: 'AssertionError: expected valid content' } },
+      browser: {
+        passed: true,
+        screenshots: { preview: { status: 'warn', evidence: 'screenshot timed out' } },
+      },
+    }),
+    false
+  );
+});
+
+test('measured Lighthouse quality failures are not infrastructure blocks', () => {
+  assert.equal(
+    validationInfrastructureBlock({
+      passed: false,
+      browser: {
+        passed: false,
+        infrastructure_warning: false,
+        screenshots: { preview: { status: 'warn', evidence: 'screenshot timed out' } },
+        lighthouse: { checks: { seo: { status: 'fail', evidence: '54/100; minimum 90' } } },
+      },
+    }),
+    false
+  );
+});
+
 test('versioned validation fixes reopen each preserved infrastructure review at most once', () => {
   const request = { status: 'review' };
   const run = {

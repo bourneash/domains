@@ -237,8 +237,39 @@ function isSubstantiveReviewerRejection(error, validation, run = null) {
   );
 }
 
+function hasDeterministicQualityFailure(validation) {
+  if (!validation || validation.passed === true) return false;
+  const commandFailures = Object.values(validation.checks || {}).filter(
+    check => check?.status === 'fail'
+  );
+  if (
+    commandFailures.some(
+      check => !isInfrastructureEvidence(check.excerpt || check.evidence || check.error || '')
+    )
+  )
+    return true;
+  const previewFailures = Object.values(validation.preview?.checks || {}).filter(
+    check => check?.status === 'fail'
+  );
+  if (
+    validation.preview?.passed === false &&
+    previewFailures.some(check => !isInfrastructureEvidence(check.evidence || check.error || ''))
+  )
+    return true;
+  // A completed Lighthouse measurement below threshold is a page-quality
+  // failure even if a separate screenshot timed out in the same audit.
+  return (
+    validation.browser?.passed === false &&
+    validation.browser?.infrastructure_warning !== true &&
+    Object.values(validation.browser?.lighthouse?.checks || {}).some(
+      check => check?.status === 'fail'
+    )
+  );
+}
+
 function validationInfrastructureBlock(validation) {
   if (!validation) return false;
+  if (hasDeterministicQualityFailure(validation)) return false;
   // A preview can contain tolerated browser-harness warnings alongside a
   // real deterministic site defect. Do not classify that mixed result as an
   // infrastructure outage: broken links, metadata, or accessibility checks
@@ -2914,6 +2945,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const currentValidation = error?.validation || run?.validation;
     if (reviewerProcessInfrastructureFailure(run)) return true;
     if (isSubstantiveReviewerRejection(error, currentValidation, run)) return false;
+    if (hasDeterministicQualityFailure(currentValidation)) return false;
     const evidence = automaticReviewFeedback(rootPath, run, error);
     const validation = error?.validation || run?.validation;
     // Do not let tolerated browser warnings in the serialized validation or
@@ -3086,6 +3118,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           state: 'building',
           recover_reviewer: true,
         });
+      } else if (run.state === 'review') {
+        // Preserved validation blocks remain in review. The repair worker
+        // requires building, and review -> building is the guarded in-place
+        // transition for correcting that same isolated implementation.
+        repairRun = improvements.transition(events, run.run_id, { state: 'building' });
       }
       // A dashboard restart or worker-image rebuild can remove the disposable
       // container while preserving the dirty worktree. Recreate it before the
@@ -3096,7 +3133,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // projection when validation fails. Re-enter through `review` first;
       // the queue state machine intentionally does not allow reviewing →
       // running, while review → running is the bounded repair transition.
-      const recoveryStatus = ['failed', 'reviewing', 'needs_repair', 'delivery_pending'].includes(
+      const recoveryStatus = ['failed', 'reviewing', 'needs_repair', 'delivery_pending', 'blocked_infrastructure'].includes(
         request.status
       )
         ? 'review'
