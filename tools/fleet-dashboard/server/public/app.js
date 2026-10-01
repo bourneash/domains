@@ -3978,6 +3978,12 @@ async function renderGitStashes(slug) {
       .join('') || '<div class="empty">No stashes for this repo.</div>';
 
   app.innerHTML = `
+    <div class="page-head task-page-head">
+      <div>
+        <h2 class="page-title">Tasks</h2>
+        <span class="muted">Track work across the fleet or open one site’s board for hands-on triage.</span>
+      </div>
+    </div>
     <div class="task-toolbar">
       <a href="#git">← back to Git</a>
       <strong style="margin-left:12px">${esc(slug)} — ${list.length} stash(es)</strong>

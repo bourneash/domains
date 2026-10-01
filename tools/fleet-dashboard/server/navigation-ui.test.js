@@ -1025,6 +1025,13 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   assert.match(theme, /\.task-stat-warn/);
 });
 
+test('Tasks route provides context before its mode controls', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="page-head task-page-head"/);
+  assert.match(app, /<h2 class="page-title">Tasks<\/h2>/);
+  assert.match(app, /Track work across the fleet/);
+});
+
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
