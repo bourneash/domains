@@ -28,30 +28,30 @@
       <h1>Domain Fleet Manager</h1>
     </div>
     <nav class="tabs">
-      <button class="tab" data-view="control">Domain Control</button>
-      <button class="tab" data-view="priorities">Priorities</button>
-      <button class="tab" data-view="improvements">Improvements</button>
-      <button class="tab" data-view="delivery">Delivery</button>
-      <button class="tab" data-view="workbench">Workbench</button>
-      <button class="tab" data-view="knowledge">Knowledge</button>
+      <button type="button" class="tab" data-view="control">Domain Control</button>
+      <button type="button" class="tab" data-view="priorities">Priorities</button>
+      <button type="button" class="tab" data-view="improvements">Improvements</button>
+      <button type="button" class="tab" data-view="delivery">Delivery</button>
+      <button type="button" class="tab" data-view="workbench">Workbench</button>
+      <button type="button" class="tab" data-view="knowledge">Knowledge</button>
       <div class="tab-dd" id="agents-dd">
-        <button class="tab tab-dd-btn" id="agents-btn">Agents ▾</button>
+        <button type="button" class="tab tab-dd-btn" id="agents-btn">Agents ▾</button>
         <div class="dd-menu hidden" id="agents-menu"></div>
       </div>
       <div class="tab-dd nav-group" data-group="ops">
-        <button class="tab tab-dd-btn nav-group-btn" data-group-btn="ops">Ops ▾</button>
+        <button type="button" class="tab tab-dd-btn nav-group-btn" data-group-btn="ops">Ops ▾</button>
         <div class="dd-menu hidden" data-group-menu="ops"></div>
       </div>
       <div class="tab-dd nav-group" data-group="content">
-        <button class="tab tab-dd-btn nav-group-btn" data-group-btn="content">Content ▾</button>
+        <button type="button" class="tab tab-dd-btn nav-group-btn" data-group-btn="content">Content ▾</button>
         <div class="dd-menu hidden" data-group-menu="content"></div>
       </div>
       <div class="tab-dd nav-group" data-group="growth">
-        <button class="tab tab-dd-btn nav-group-btn" data-group-btn="growth">Growth ▾</button>
+        <button type="button" class="tab tab-dd-btn nav-group-btn" data-group-btn="growth">Growth ▾</button>
         <div class="dd-menu hidden" data-group-menu="growth"></div>
       </div>
       <div class="tab-dd nav-group" data-group="quality">
-        <button class="tab tab-dd-btn nav-group-btn" data-group-btn="quality">Quality ▾</button>
+        <button type="button" class="tab tab-dd-btn nav-group-btn" data-group-btn="quality">Quality ▾</button>
         <div class="dd-menu hidden" data-group-menu="quality"></div>
       </div>
     </nav>
@@ -62,7 +62,7 @@
     </div>
     <div class="actions">
       <span id="updated" class="muted" role="status" aria-live="polite"></span>
-      <button id="update-pill" class="btn sm hidden" title="A new dashboard version is available">↻ Update ready</button>
+      <button id="update-pill" type="button" class="btn sm hidden" title="A new dashboard version is available">↻ Update ready</button>
       <div class="auto" title="Automatic refresh — updates in place; preserves scroll, open rows and filters. Paused while a task editor is open or the tab is hidden.">
         <label class="auto-toggle">
           <input type="checkbox" id="auto-on" />
@@ -116,7 +116,7 @@
           <h2 id="cm-log-title">Logs</h2>
           <div id="cm-log-sources" class="cm-seg" role="tablist" aria-label="Log source"></div>
         </div>
-        <button id="cm-log-close" class="icon-btn" aria-label="Close">✕</button>
+        <button id="cm-log-close" type="button" class="icon-btn" aria-label="Close">✕</button>
       </div>
       <div class="cm-log-toolbar">
         <input id="cm-log-filter" class="cm-input" type="text" placeholder="Filter lines…" spellcheck="false" />
@@ -128,9 +128,9 @@
         </select>
         <span class="cm-spacer"></span>
         <label class="cm-chk"><input type="checkbox" id="cm-log-wrap" /> Wrap</label>
-        <button id="cm-log-reload" class="btn sm">Reload</button>
-        <button id="cm-log-copy" class="btn sm">Copy</button>
-        <button id="cm-log-download" class="btn sm">Download</button>
+        <button id="cm-log-reload" type="button" class="btn sm">Reload</button>
+        <button id="cm-log-copy" type="button" class="btn sm">Copy</button>
+        <button id="cm-log-download" type="button" class="btn sm">Download</button>
       </div>
       <pre id="cm-log-out" class="cn-logs-box" tabindex="0"></pre>
       <div class="cm-log-foot"><span id="cm-log-count"></span><span id="cm-log-meta" class="muted"></span></div>
@@ -148,14 +148,14 @@
             <span class="cm-dl-del">−&nbsp;running (built-in)</span>
           </div>
         </div>
-        <button id="cm-diff-close" class="icon-btn" aria-label="Close">✕</button>
+        <button id="cm-diff-close" type="button" class="icon-btn" aria-label="Close">✕</button>
       </div>
       <pre id="cm-diff-out" class="cn-logs-box" tabindex="0"></pre>
       <div class="cm-log-foot">
         <span id="cm-diff-meta" class="muted"></span>
         <div class="cm-diff-actions">
-          <button id="cm-diff-revert" class="btn sm danger">Revert to running</button>
-          <button id="cm-diff-close2" class="btn sm">Close</button>
+          <button id="cm-diff-revert" type="button" class="btn sm danger">Revert to running</button>
+          <button id="cm-diff-close2" type="button" class="btn sm">Close</button>
         </div>
       </div>
     </div>
