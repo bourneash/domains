@@ -1915,6 +1915,10 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
     /\$\('#datahub-images-refresh'\)\.addEventListener\('click', \(\) => renderDataHubImages\(\)\)/
   );
   assert.ok((view.match(/class="table-wrap"><table/g) || []).length >= 3);
+  assert.match(app, /class="sr-only">\$\{esc\(title\)\} counts/);
+  assert.match(view, /Image source freshness and controls/);
+  assert.match(view, /Image outbound connection ledger/);
+  assert.match(view, /Image site data pulls/);
   assert.match(view, /type="button" class="btn sm danger dhi-blacklist/);
   assert.match(view, /type="button" class="btn sm .*dhi-src-toggle/);
 });

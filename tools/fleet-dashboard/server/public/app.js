@@ -8627,7 +8627,7 @@ function dhiCountTable(title, counts) {
   return `
     <div class="dhi-countblock">
       <div class="dhi-countblock-h">${esc(title)}</div>
-      <table class="dhi-counts"><tbody>${rows || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table>
+      <table class="dhi-counts"><caption class="sr-only">${esc(title)} counts</caption><tbody>${rows || '<tr><td colspan="2" class="muted">none</td></tr>'}</tbody></table>
     </div>`;
 }
 
@@ -8730,6 +8730,7 @@ async function renderDataHubImages() {
   const srcHtml = `
     <div class="dhi-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dhi-stale">${disabledCount} disabled</span>` : ''}</div>
     <div class="table-wrap"><table class="dhi-sources">
+      <caption class="sr-only">Image source freshness and controls</caption>
       <thead><tr><th>source</th><th>kind</th><th>path</th><th>status</th><th>last fetch</th><th></th></tr></thead>
       <tbody>${srcRows || '<tr><td colspan="6" class="muted">no source state</td></tr>'}</tbody>
     </table></div>`;
@@ -8752,6 +8753,7 @@ async function renderDataHubImages() {
     .join('');
   const egressHtml = `
     <div class="table-wrap"><table class="dhi-egress">
+      <caption class="sr-only">Image outbound connection ledger</caption>
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
       <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
     </table></div>`;
@@ -8774,6 +8776,7 @@ async function renderDataHubImages() {
     .join('');
   const pullsHtml = `
     <div class="table-wrap"><table class="dhi-egress dhi-pulls">
+      <caption class="sr-only">Image site data pulls</caption>
       <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
       <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
     </table></div>`;
