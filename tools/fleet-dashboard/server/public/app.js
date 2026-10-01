@@ -7298,7 +7298,9 @@ function openComplianceDetail(row) {
 async function renderCompliance() {
   clearTimeout(COMPLIANCE_PROGRESS_TIMER);
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading live compliance evidence…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading live compliance evidence…</div></div>';
   let rows, trend;
   try {
     [rows, trend] = await Promise.all([
@@ -7398,7 +7400,7 @@ async function renderCompliance() {
   };
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div>
+    <div class="page-head"><div><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div><button type="button" id="compliance-refresh" class="btn">↻ Refresh</button></div>
     <div class="task-toolbar compliance-toolbar" role="group" aria-label="Compliance filters and actions">
       <strong>${rows.length} domains</strong>
       <button type="button" class="badge b-green compliance-filter-tag" data-status="pass" aria-pressed="${COMPLIANCE_UI.statuses.has('pass')}">${counts.pass} pass</button>
@@ -7445,10 +7447,11 @@ async function renderCompliance() {
       <div class="compliance-trend-wrap"><strong>Pass-rate trend</strong>${trendHtml}</div>
     </div>
     <div class="compliance-note">A pass requires a detected cookie consent UI with both accept and reject choices, a Privacy Policy, and Terms. If GA4 is present, it must show default-denied consent mode or basic consent gating. “Unknown” means the deployed site could not be verified; it is never treated as a pass or failure.</div>
-    <div class="card compliance-table"><table>
+    <div class="card compliance-table"><div class="table-wrap"><table>
       <thead><tr>${sortHeader('Site', 'site')}${sortHeader('Status', 'status')}${sortHeader('Banner', 'banner')}${sortHeader('Accept', 'accept')}${sortHeader('Reject', 'reject')}${sortHeader('GA4', 'ga4')}${sortHeader('GA consent', 'gaConsentGated')}${sortHeader('Privacy', 'privacy')}${sortHeader('Terms', 'terms')}${sortHeader('Evidence / issue', 'evidence')}${sortHeader('Checked', 'checkedAt')}<th>Action</th></tr></thead>
       <tbody id="compliance-body"></tbody>
-    </table></div>`;
+    </table></div></div>`;
+  $('#compliance-refresh').addEventListener('click', () => renderCompliance());
   $('#compliance-check-filter').value = COMPLIANCE_UI.check;
 
   const bySite = new Map(rows.map(row => [row.site, row]));

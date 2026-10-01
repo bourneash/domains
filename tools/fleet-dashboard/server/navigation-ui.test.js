@@ -1242,6 +1242,12 @@ test('Compliance keeps scan controls explicit and safe', () => {
     app,
     /class="task-toolbar compliance-toolbar" role="group" aria-label="Compliance filters and actions"/
   );
+  assert.match(
+    app,
+    /role="status" aria-live="polite"><div class="loading">Loading live compliance evidence…<\/div>/
+  );
+  assert.match(app, /type="button" id="compliance-refresh" class="btn"/);
+  assert.match(app, /compliance-table"><div class="table-wrap"><table>/);
   assert.match(app, /id="compliance-scan" class="btn sm compliance-scan"/);
   assert.match(app, /type="button" class="badge .*compliance-status/);
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
