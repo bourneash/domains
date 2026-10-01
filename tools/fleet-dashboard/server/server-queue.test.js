@@ -6,6 +6,8 @@ const {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   isInfrastructureEvidence,
+  reviewerProcessInfrastructureFailure,
+  isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,
@@ -17,6 +19,33 @@ const {
   requiresInstalledSiteOwner,
   applyQualityPolicy,
 } = require('./server');
+
+test('a validated reviewer rejection does not inherit stale infrastructure evidence', () => {
+  assert.equal(
+    isSubstantiveReviewerRejection(
+      new Error('automatic reviewer rejected the change'),
+      { passed: true, preview: { passed: true } }
+    ),
+    true
+  );
+  assert.equal(
+    isSubstantiveReviewerRejection(
+      new Error('OCI runtime exec failed during reviewer handoff'),
+      { passed: true }
+    ),
+    false
+  );
+  const killedRun = { agent: { phase: 'reviewer', exit_code: 137 } };
+  assert.equal(reviewerProcessInfrastructureFailure(killedRun), true);
+  assert.equal(
+    isSubstantiveReviewerRejection(
+      new Error('automatic reviewer rejected the change'),
+      { passed: true },
+      killedRun
+    ),
+    false
+  );
+});
 
 test('report-only requests do not require a site cron role', () => {
   assert.equal(requiresInstalledSiteOwner({ delivery_mode: 'report_only' }), false);

@@ -86,6 +86,7 @@ test('evidence uses an exact baseline instead of subtracting rolling counts', ()
   assert.equal(evidence.real_work.new_work_items, 1);
   assert.equal(evidence.real_work.new_executable_work_items, 1);
   assert.equal(evidence.real_work.new_change_requests, 0);
+  assert.equal(evidence.real_work.actionable, false);
   store.close();
 });
 

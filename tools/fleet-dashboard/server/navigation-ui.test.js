@@ -671,6 +671,7 @@ test('Social Hub exposes local refresh and accessible initial loading state', ()
   );
   assert.match(route, /id="sh-refresh"/);
   assert.match(route, /type="button" id="sh-refresh"/);
+  assert.match(route, /<h2 class="page-title">Social publishing<\/h2>/);
   assert.match(route, /Reading the social hub…/);
   assert.match(route, /role="status" aria-live="polite"/);
   assert.match(

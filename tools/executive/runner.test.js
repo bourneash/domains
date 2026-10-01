@@ -862,6 +862,33 @@ test('roles create durable cases but route routine updates to the tracking strea
   store.close();
 });
 
+test('capacity unblock plans reconcile into one durable CTO case', async () => {
+  const { root, store } = db();
+  const item = title => ({
+    title,
+    kind: 'implementation',
+    status: 'in_progress',
+    priority: 'high',
+    owner: 'cto',
+    site: 'fleet',
+    summary: 'The delivery queue is blocked by infrastructure reviews.',
+    next_action: 'Repair the preserved reviews and clear one slot by tomorrow.',
+  });
+  const first = await runner.applyPlan(store, runner.parseOutput(JSON.stringify({
+    work_items: [item('Release one delivery slot before new work')],
+  })), { root });
+  const second = await runner.applyPlan(store, runner.parseOutput(JSON.stringify({
+    work_items: [item('Release one implementation slot before admitting candidates')],
+  })), { root });
+  assert.equal(first.work_items[0].work_id, 'delivery-capacity-unblock');
+  assert.equal(second.work_items.length, 0);
+  assert.equal(second.tracking_updates.length, 1);
+  assert.equal(store.listExecutiveWorkItems().filter(row =>
+    row.work_id === 'delivery-capacity-unblock'
+  ).length, 1);
+  store.close();
+});
+
 test('explicit tracking updates never mutate the workbench or count as delivery', async () => {
   const { root, store } = db();
   const item = store.createExecutiveWorkItem({

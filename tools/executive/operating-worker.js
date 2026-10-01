@@ -42,6 +42,16 @@ function isExecutableWork(item) {
   );
 }
 
+function isOwnedBlocker(item) {
+  return (
+    ['blocked', 'waiting'].includes(String(item.status)) &&
+    Boolean(String(item.waiting_on || item.owner || '').trim()) &&
+    Boolean(String(item.next_action || '').trim()) &&
+    Number.isFinite(Date.parse(item.due_at || '')) &&
+    Array.isArray(item.evidence) && item.evidence.length > 0
+  );
+}
+
 function extractDomain(summary = '') {
   for (const match of String(summary).matchAll(DOMAIN_RE)) {
     const domain = match[1].toLowerCase();
@@ -292,22 +302,32 @@ async function processOperatingManager(
           .listExecutiveWorkItems({ limit: 2000 })
           .filter(item => !beforeWorkItems.has(item.work_id) && item.work_id !== task.work_id);
         const executableWorkItems = workItems.filter(isExecutableWork);
-        const actionable =
-          sandbox.code === 0 && (changeRequests.length > 0 || executableWorkItems.length > 0);
+        const directRequests = changeRequests.filter(
+          item => item.delivery_mode !== 'report_only'
+        );
+        const ownedBlockers = workItems.filter(isOwnedBlocker);
+        const delivered = sandbox.code === 0 && directRequests.length > 0;
+        const actionable = delivered || (sandbox.code === 0 && ownedBlockers.length > 0);
         const result = {
           lane: role.owner,
           task_id: task.work_id,
           sandbox_status: sandbox.code,
           change_requests: changeRequests.length,
+          direct_change_requests: directRequests.length,
           work_items: workItems.length,
           executable_work_items: executableWorkItems.length,
+          owned_blockers: ownedBlockers.length,
           created_work_item_ids: workItems.map(item => item.work_id),
           change_request_ids: changeRequests.map(item => item.request_id),
           actionable,
-          delivery_status: actionable ? 'delivered_to_downstream' : 'failed_to_deliver',
+          delivery_status: delivered
+            ? 'delivered_to_downstream'
+            : actionable
+              ? 'blocked_with_owner'
+              : 'failed_to_deliver',
           delivery_error: actionable
             ? null
-            : `${role.owner} completed a sandbox run without an executable change request or work item`,
+            : `${role.owner} completed a sandbox run without a direct change request or bounded blocker`,
         };
         const reportPath = path.join(
           root,
@@ -337,9 +357,11 @@ async function processOperatingManager(
         });
         currentStore.updateExecutiveWorkItem(task.work_id, {
           status: actionable ? 'in_progress' : 'blocked',
-          waiting_on: actionable ? 'downstream-queue' : role.owner,
+          waiting_on: delivered ? 'downstream-queue' : role.owner,
           next_action: actionable
-            ? `Downstream queue must execute and evidence the ${role.owner} work products before this task closes.`
+            ? delivered
+              ? `Downstream queue must execute and evidence the ${role.owner} work products before this task closes.`
+              : `Resolve the dated ${role.owner} blocker and attach the promised evidence before this task closes.`
             : `${role.owner} must repair this no-op plan; the manager produced no executable work product.`,
           last_error: actionable ? null : 'manager plan produced no executable work product',
           evidence: [
@@ -348,9 +370,11 @@ async function processOperatingManager(
               type: 'artifact',
               label: `${role.owner} execution report`,
               uri: reportPath,
-              note: actionable
-                ? 'Bounded downstream work was created.'
-                : 'No executable downstream work was created.',
+              note: delivered
+                ? 'Direct downstream work was created.'
+                : actionable
+                  ? 'A dated, evidenced blocker was recorded.'
+                  : 'No executable downstream work was created.',
             },
           ],
         });

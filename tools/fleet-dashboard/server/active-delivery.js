@@ -76,7 +76,12 @@ function localDateKey(value, timeZone = 'America/New_York') {
 
 function compactRequest(request, run = null) {
   const site = siteOf(request || run);
-  const state = run?.state || request?.status || 'unknown';
+  // The request is the authority for a parked review. Its preserved run may
+  // still say "review", but no worker can advance it until the infrastructure
+  // block is repaired and the request is explicitly revalidated.
+  const state = request?.status === 'blocked_infrastructure'
+    ? 'blocked_infrastructure'
+    : run?.state || request?.status || 'unknown';
   return {
     id: request?.request_id || run?.run_id,
     request_id: request?.request_id || run?.source_id || null,
@@ -99,6 +104,8 @@ function compactRequest(request, run = null) {
     next_action:
       state === 'review'
         ? 'Complete the review gate and deliver or return with evidence.'
+        : state === 'blocked_infrastructure'
+          ? 'Repair the recorded infrastructure failure, then revalidate this preserved change.'
         : state === 'measuring'
           ? 'Collect the measurement window; do not start overlapping work in this lane.'
           : state === 'deployed'
@@ -143,7 +150,10 @@ function buildDeliveryItems(store, { limit = 1000 } = {}) {
 function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}) {
   const active = buildDeliveryItems(store);
   const capacityActive = active.filter(occupiesImplementationSlot);
-  const measuring = active.filter(item => !occupiesImplementationSlot(item));
+  const blocked = active.filter(item => item.state === 'blocked_infrastructure');
+  const measuring = active.filter(
+    item => !occupiesImplementationSlot(item) && item.state !== 'blocked_infrastructure'
+  );
   const slots = capacityActive.slice(0, max_slots);
   const overflow = capacityActive.slice(max_slots);
   const laneCounts = { 'finish-sites': 0, 'growth-revenue': 0, 'site-factory': 0, fleet: 0 };
@@ -154,6 +164,8 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
   for (const item of active) {
     siteCounts.set(item.site, (siteCounts.get(item.site) || 0) + 1);
     if (item.state === 'review') attention.push({ ...item, attention: 'review required' });
+    if (item.state === 'blocked_infrastructure')
+      attention.push({ ...item, attention: 'infrastructure repair required' });
     if (item.state === 'deployed')
       attention.push({ ...item, attention: 'measurement not started' });
     if (
@@ -177,6 +189,7 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
   }
 
   const requests = store.listChangeRequests({ limit: 1000 });
+  const allRuns = store.listImprovements({ limit: 1000 });
   const todayKey = localDateKey(now);
   const todayRequests = requests.filter(row => localDateKey(row.created_at) === todayKey);
   const directToday = todayRequests.filter(isImplementationRequest);
@@ -187,6 +200,28 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
   const directFailed = directToday.filter(row =>
     ['failed', 'cancelled'].includes(String(row.status || '').toLowerCase())
   );
+  const queued = requests.filter(row => row.status === 'queued' && isImplementationRequest(row));
+  const oldestQueuedAt = queued
+    .map(row => Date.parse(row.created_at || ''))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b)[0];
+  const flow = {
+    queued_implementation_requests: queued.length,
+    oldest_queued_minutes: oldestQueuedAt == null
+      ? null
+      : Math.max(0, Math.floor((now.getTime() - oldestQueuedAt) / 60000)),
+    blocked_reviews: blocked.length,
+    validated_today: allRuns.filter(row =>
+      row.validation?.passed === true && localDateKey(row.validation.recorded_at) === todayKey
+    ).length,
+    deployed_today: allRuns.filter(row =>
+      localDateKey(row.outcome?.deployment_verified_at) === todayKey
+    ).length,
+    measured_today: allRuns.filter(row =>
+      ['proven', 'regressed', 'inconclusive'].includes(row.state) &&
+      localDateKey(row.outcome?.measured_at) === todayKey
+    ).length,
+  };
 
   return {
     generated_at: new Date(now).toISOString(),
@@ -196,14 +231,17 @@ function snapshot(store, { now = new Date(), max_slots = MAX_ACTIVE_SLOTS } = {}
       open_slots: Math.max(0, max_slots - slots.length),
       overflow_count: overflow.length,
       measurement_count: measuring.length,
+      blocked_review_count: blocked.length,
       excluded_sites: [...EXCLUDED_SITES],
       rule: 'Reports inform delivery; they do not occupy an active delivery slot.',
     },
     slots,
     overflow,
     measuring,
+    blocked,
     attention,
     lane_counts: laneCounts,
+    flow,
     today: {
       change_requests_created: todayRequests.length,
       implementation_requests_created: directToday.length,

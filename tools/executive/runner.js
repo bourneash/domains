@@ -2296,6 +2296,15 @@ function isBoundedAccountabilityWorkItem(item = {}) {
   );
 }
 
+function canonicalCapacityWorkId(item = {}) {
+  if (String(item.site || 'fleet').toLowerCase() !== 'fleet') return null;
+  if (String(item.owner || '').toLowerCase() !== 'cto') return null;
+  const title = String(item.title || '').toLowerCase();
+  return /(?:release|free|clear) one (?:delivery|implementation) slot/.test(title)
+    ? 'delivery-capacity-unblock'
+    : null;
+}
+
 function accountabilityWorkItemChanged(item, brief = {}) {
   if (!isBoundedAccountabilityWorkItem(item)) return false;
   const existing = (brief.work_items || []).find(row => row.work_id === item.work_id);
@@ -3930,7 +3939,8 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     created.created_refs.tracking_updates.push(item.work_id || null);
   }
   for (const item of plan.work_items) {
-    const existing = item.work_id ? store.getExecutiveWorkItem(item.work_id) : null;
+    const workId = canonicalCapacityWorkId(item) || item.work_id;
+    const existing = workId ? store.getExecutiveWorkItem(workId) : null;
     // Existing ordinary work-item refreshes are audit information, not new
     // work. Keep them in the dedicated tracking stream so the workbench only
     // contains durable cases and explicit blocker escalations.
@@ -3942,9 +3952,24 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     }
     const payload = {
       ...item,
+      ...(workId ? { work_id: workId } : {}),
       created_by: item.created_by || 'system',
       source_type: item.source_type || 'executive-tick',
     };
+    if (existing && !isBoundedAccountabilityWorkItem(payload)) {
+      trackingUpdate(store, payload, existing);
+      created.tracking_updates.push(payload);
+      created.created_refs.tracking_updates.push(existing.work_id);
+      continue;
+    }
+    if (existing && canonicalCapacityWorkId(item)) {
+      // Rewording the same capacity complaint is a tracking event, not a new
+      // instruction for the CTO or a fresh delivery accomplishment.
+      trackingUpdate(store, payload, existing);
+      created.tracking_updates.push(payload);
+      created.created_refs.tracking_updates.push(existing.work_id);
+      continue;
+    }
     const workItem = existing
       ? store.updateExecutiveWorkItem(existing.work_id, payload)
       : store.createExecutiveWorkItem(payload);

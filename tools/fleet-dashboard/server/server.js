@@ -220,6 +220,21 @@ function isInfrastructureEvidence(value) {
   );
 }
 
+function reviewerProcessInfrastructureFailure(run) {
+  return Number(run?.agent?.exit_code) === 137 ||
+    /agent exited with code 137|out of memory|oom killed/i.test(String(run?.outcome?.error || ''));
+}
+
+function isSubstantiveReviewerRejection(error, validation, run = null) {
+  const message = String(error?.message || error || '');
+  return (
+    /automatic reviewer rejected the change|reviewer rejected/i.test(message) &&
+    validation?.passed === true &&
+    !isInfrastructureEvidence(message) &&
+    !reviewerProcessInfrastructureFailure(run)
+  );
+}
+
 function validationInfrastructureBlock(validation) {
   if (!validation) return false;
   // A preview can contain tolerated browser-harness warnings alongside a
@@ -2853,6 +2868,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   }
 
   function reviewInfrastructureBlock(rootPath, run, error) {
+    const currentValidation = error?.validation || run?.validation;
+    if (reviewerProcessInfrastructureFailure(run)) return true;
+    if (isSubstantiveReviewerRejection(error, currentValidation, run)) return false;
     const evidence = automaticReviewFeedback(rootPath, run, error);
     const validation = error?.validation || run?.validation;
     // Do not let tolerated browser warnings in the serialized validation or
@@ -2900,8 +2918,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // code failure. The original failure remains in the event log and outcome.
   function preserveInfrastructureBlockedReview(request, run, error) {
     const validation = error?.validation || run?.validation;
+    if (isSubstantiveReviewerRejection(error, validation, run)) return false;
     const infrastructureBlocked =
-      run?.outcome?.infrastructure_blocked === true || validationInfrastructureBlock(validation);
+      run?.outcome?.infrastructure_blocked === true ||
+      reviewerProcessInfrastructureFailure(run) ||
+      validationInfrastructureBlock(validation);
     if (!request || !run || !validation || !infrastructureBlocked) return false;
     const message = String(
       error?.message ||
@@ -3146,6 +3167,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    if (isSubstantiveReviewerRejection(error, error?.validation || run?.validation, run))
+      error.noAutomaticRepair = false;
     // A reviewer can report a real code concern and an unavailable local
     // tool in the same log. Preserve that failure, but do not spend bounded
     // repair attempts repeating a model call that cannot fix the environment.
@@ -3524,6 +3547,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       if (run.state === 'review') {
         await syncImprovementTask(root, run, 'in-progress');
+        run = events.updateImprovement(run.run_id, {
+          outcome: {
+            ...(run.outcome || {}),
+            infrastructure_blocked: false,
+            preserved_for_revalidation: false,
+            infrastructure_retry_started_at: new Date().toISOString(),
+          },
+        });
         run = improvements.transition(events, run.run_id, { state: 'building' });
       }
       if (run.state !== 'building')
@@ -8812,6 +8843,8 @@ module.exports = {
   workerCompletionPath,
   interruptedWorkerRecoveryPath,
   isInfrastructureEvidence,
+  reviewerProcessInfrastructureFailure,
+  isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
   shouldAutoRevalidateInfrastructureReview,

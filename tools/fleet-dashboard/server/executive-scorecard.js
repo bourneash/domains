@@ -26,6 +26,15 @@ function finiteNumber(value) {
   return Number.isFinite(Number(value)) ? Number(value) : null;
 }
 
+function median(values) {
+  const ordered = values.filter(Number.isFinite).sort((a, b) => a - b);
+  if (!ordered.length) return null;
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2
+    ? ordered[middle]
+    : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
 function metricDeltas(improvements) {
   const totals = {};
   for (const improvement of improvements) {
@@ -181,14 +190,14 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   const proposals = store
     .listExecutiveProposals({ limit: 1000 })
     .filter(row => inWindow(row.created_at, cutoff));
-  const requests = store
-    .listChangeRequests({ limit: 1000 })
-    .filter(row => inWindow(row.created_at, cutoff));
+  const allRequests = store.listChangeRequests({ limit: 1000 });
+  const requests = allRequests.filter(row => inWindow(row.created_at, cutoff));
   const requestsById = new Map(requests.map(row => [String(row.request_id), row]));
   const proposalExecution = proposalExecutionSummary(proposals, requests);
-  const improvements = store
-    .listImprovements({ limit: 1000 })
-    .filter(row => inWindow(row.created_at, cutoff) || row.state === 'measuring');
+  const allImprovements = store.listImprovements({ limit: 1000 });
+  const improvements = allImprovements.filter(
+    row => inWindow(row.created_at, cutoff) || row.state === 'measuring'
+  );
   // Tick actions are the durable source of truth. Older installations did not
   // emit an executive.tick event consistently, so do not undercount cadence by
   // depending on that secondary event stream.
@@ -217,6 +226,18 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
   );
   const pendingApprovals = proposals.filter(row => ['proposed', 'feedback'].includes(row.status));
   const failedRequests = requests.filter(row => row.status === 'failed');
+  const deliveryLatencies = requests.map(row => {
+    const created = Date.parse(row.created_at || '');
+    const claimed = Date.parse(row.claimed_at || '');
+    return Number.isFinite(created) && Number.isFinite(claimed) && claimed >= created
+      ? (claimed - created) / 60000
+      : NaN;
+  });
+  const currentRequestsById = new Map(allRequests.map(row => [String(row.request_id), row]));
+  const blockedReviews = allImprovements.filter(row =>
+    row.state === 'review' &&
+    currentRequestsById.get(String(row.source_id))?.status === 'blocked_infrastructure'
+  );
   const ownerRequests =
     typeof store.listExecutiveWorkItems === 'function'
       ? store.listExecutiveWorkItems({ source_type: 'owner-request', limit: 1000 })
@@ -327,6 +348,13 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       by_action: countBy(actions, 'action_type'),
       requests_created: requests.length,
       requests_by_status: countBy(requests, 'status'),
+      queued_requests: allRequests.filter(row => row.status === 'queued').length,
+      blocked_reviews: blockedReviews.length,
+      median_queue_to_claim_minutes: median(deliveryLatencies),
+      validated_improvements: improvements.filter(row => row.validation?.passed === true).length,
+      deployed_improvements: improvements.filter(row =>
+        Boolean(row.outcome?.deployment_verified_at)
+      ).length,
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
       owner_requests_pending: ownerRequests.filter(

@@ -140,3 +140,23 @@ test('delivery handoffs and blocked reviews do not consume implementation slots'
   assert.equal(result.policy.active_slots, 0);
   assert.equal(result.policy.open_slots, 10);
 });
+
+test('a preserved review linked to an infrastructure block is attention, not capacity', () => {
+  const result = delivery.snapshot(
+    store(
+      [{
+        request_id: 'blocked', site: 'blocked.example.com', title: 'Preserved change',
+        status: 'blocked_infrastructure', delivery_mode: 'direct',
+      }],
+      [{
+        run_id: 'preserved', source_id: 'blocked', site: 'blocked.example.com',
+        title: 'Preserved change', state: 'review',
+      }]
+    )
+  );
+  assert.equal(result.policy.active_slots, 0);
+  assert.equal(result.policy.blocked_review_count, 1);
+  assert.equal(result.policy.measurement_count, 0);
+  assert.equal(result.blocked[0].state, 'blocked_infrastructure');
+  assert.equal(result.attention[0].attention, 'infrastructure repair required');
+});

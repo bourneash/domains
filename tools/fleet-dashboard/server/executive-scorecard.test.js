@@ -47,6 +47,8 @@ test('scorecard reports delivery and measurable outcomes instead of activity alo
   assert.equal(result.outcomes.proven, 1);
   assert.equal(result.outcomes.metric_deltas.conversions, 4);
   assert.equal(result.execution.delivered_requests, 1);
+  assert.equal(result.execution.queued_requests, 1);
+  assert.equal(result.execution.blocked_reviews, 0);
   assert.equal(result.execution.approved_work_drain_runs, 1);
   assert.equal(result.execution.approved_work_drained, 2);
   assert.equal(result.decisions.pending_owner_approval, 1);
