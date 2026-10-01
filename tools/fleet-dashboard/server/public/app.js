@@ -12680,7 +12680,7 @@ function cqBlocker(r) {
       : '';
   const override =
     r.queue_block.primary.code === 'measurement_window' && !r.measurement_override
-      ? `<button class="btn sm cq-override-measurement" data-id="${esc(r.request_id)}" title="Start this request before the measurement window ends">Override window</button>`
+      ? `<button type="button" class="btn sm cq-override-measurement" data-id="${esc(r.request_id)}" aria-label="Override measurement window for ${esc(r.title)}" title="Start this request before the measurement window ends">Override window</button>`
       : r.measurement_override
         ? '<span class="badge b-blue">override enabled</span>'
         : '';
@@ -12689,26 +12689,27 @@ function cqBlocker(r) {
 
 function cqActionButtons(r) {
   const id = esc(r.request_id);
-  const manage = `<button class="btn sm cq-detail" data-id="${id}" title="Open inline actions, request details, and timeline">Actions</button>`;
+  const title = esc(r.title);
+  const manage = `<button type="button" class="btn sm cq-detail" data-id="${id}" aria-label="Open actions for ${title}" title="Open inline actions, request details, and timeline">Actions</button>`;
   if (r.status === 'queued')
-    return `${manage} <button class="btn sm primary cq-pick" data-id="${id}">Dispatch</button> <button class="btn sm cq-reevaluate" data-id="${id}" title="Re-check capacity and site locks without bypassing safety rules">Re-evaluate</button>`;
+    return `${manage} <button type="button" class="btn sm primary cq-pick" data-id="${id}" aria-label="Dispatch ${title}" title="Dispatch ${title}">Dispatch</button> <button type="button" class="btn sm cq-reevaluate" data-id="${id}" aria-label="Re-evaluate ${title}" title="Re-check capacity and site locks without bypassing safety rules">Re-evaluate</button>`;
   if (['review', 'needs_repair'].includes(r.status))
-    return `${manage} <button class="btn sm primary cq-auto-review" data-id="${id}">Review & deliver</button>`;
+    return `${manage} <button type="button" class="btn sm primary cq-auto-review" data-id="${id}" aria-label="Review and deliver ${title}" title="Review and deliver ${title}">Review & deliver</button>`;
   if (r.status === 'failed')
-    return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
+    return `${manage} <button type="button" class="btn sm primary cq-retry" data-id="${id}" aria-label="Retry ${title}" title="Retry ${title}">Retry</button>`;
   if (['blocked_owner', 'blocked_infrastructure', 'needs_human_review'].includes(r.status))
-    return `${manage} <button class="btn sm primary cq-retry" data-id="${id}">Retry</button>`;
+    return `${manage} <button type="button" class="btn sm primary cq-retry" data-id="${id}" aria-label="Retry ${title}" title="Retry ${title}">Retry</button>`;
   if (
     ['queued', 'claimed', 'running', 'reviewing', 'delivery_pending', 'review'].includes(r.status)
   )
-    return `${manage} <button class="btn sm danger cq-cancel" data-id="${id}">Cancel</button>`;
+    return `${manage} <button type="button" class="btn sm danger cq-cancel" data-id="${id}" aria-label="Cancel ${title}" title="Cancel ${title}">Cancel</button>`;
   return manage;
 }
 
 function cqRequestRow(r, settings, compact = false) {
   const ageBase = r.created_at || r.updated_at;
   const activeWork = r.work?.active;
-  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b>${cqSiteContext(r)}<div class="muted">${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div><div class="cq-age-line"><time datetime="${esc(r.created_at || '')}">Added ${esc(fmtDate(r.created_at))}</time><span class="cq-age ${cqAgeTone(ageBase, r.status)}" data-cq-age="${esc(ageBase || '')}">${esc(cqAge(ageBase))} old</span></div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span>${activeWork ? `<div class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</div>` : ''}${cqBlocker(r)}<div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')}</div>${activeWork ? `<div class="cq-worker-meta">worker ${esc(r.work.worker || 'dashboard')} · heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</div>` : ''}</td><td>${compact ? `<button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
+  return `<tr data-fleet-row data-site="${esc(r.site)}"><td><span class="badge ${r.priority === 'high' ? 'b-red' : r.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(r.priority || 'normal')}</span></td><td class="cq-request-cell"><b>${esc(r.title)}</b>${cqSiteContext(r)}<div class="muted">${esc(r.category || 'general')} · ${esc(r.assigned_role || 'engineer')}</div><div class="cq-age-line"><time datetime="${esc(r.created_at || '')}">Added ${esc(fmtDate(r.created_at))}</time><span class="cq-age ${cqAgeTone(ageBase, r.status)}" data-cq-age="${esc(ageBase || '')}">${esc(cqAge(ageBase))} old</span></div>${r.error ? `<div class="error-text">${esc(r.error)}</div>` : ''}</td><td><span class="badge ${cqStatusClass(r.status)}">${esc(r.status)}</span>${activeWork ? `<div class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</div>` : ''}${cqBlocker(r)}<div class="muted">${esc(cqNextAction(r, settings))}</div></td><td>${esc(r.assigned_role || 'engineer')}<div class="muted">${esc(r.provider || '—')}</div>${activeWork ? `<div class="cq-worker-meta">worker ${esc(r.work.worker || 'dashboard')} · heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</div>` : ''}</td><td>${compact ? `<button type="button" class="btn sm cq-detail" data-id="${esc(r.request_id)}" aria-label="Open actions for ${esc(r.title)}" title="Open actions for ${esc(r.title)}">Manage</button>` : cqActionButtons(r)}</td></tr>`;
 }
 
 function cqExceptionProfile(r) {
@@ -12733,7 +12734,7 @@ function cqExceptionProfile(r) {
 
 function cqExceptionCard(r) {
   const profile = cqExceptionProfile(r);
-  return `<article class="cq-exception-card"><div class="cq-exception-head"><span class="badge b-red">failed</span><span class="muted">${esc(cqAge(r.updated_at || r.created_at))} old</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · ${esc(r.provider || '—')}</div><p><b>${esc(profile.label)}</b><br>${esc(r.error || 'The request failed before delivery evidence was recorded.')}</p><div class="muted">Next: ${esc(profile.next)}</div><div class="cq-exception-actions"><button class="btn sm primary cq-retry" data-id="${esc(r.request_id)}">Retry</button><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">Actions</button></div></article>`;
+  return `<article class="cq-exception-card"><div class="cq-exception-head"><span class="badge b-red">failed</span><span class="muted">${esc(cqAge(r.updated_at || r.created_at))} old</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · ${esc(r.provider || '—')}</div><p><b>${esc(profile.label)}</b><br>${esc(r.error || 'The request failed before delivery evidence was recorded.')}</p><div class="muted">Next: ${esc(profile.next)}</div><div class="cq-exception-actions"><button type="button" class="btn sm primary cq-retry" data-id="${esc(r.request_id)}" aria-label="Retry ${esc(r.title)}" title="Retry ${esc(r.title)}">Retry</button><button type="button" class="btn sm cq-detail" data-id="${esc(r.request_id)}" aria-label="Open actions for ${esc(r.title)}" title="Open actions for ${esc(r.title)}">Actions</button></div></article>`;
 }
 
 async function renderChangeQueue({ background = false } = {}) {
@@ -12892,7 +12893,7 @@ async function renderChangeQueue({ background = false } = {}) {
   const workingCards = working
     .map(
       r =>
-        `<article class="cq-working-card"><div class="cq-working-card-head"><span class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</span><span class="cq-age working" data-cq-age="${esc(r.work.since || r.created_at || '')}">${esc(cqAge(r.work.since || r.created_at))}</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · worker ${esc(r.work.worker || 'dashboard')}</div><div class="cq-working-card-foot"><span>Started ${esc(fmtDate(r.work.since || r.created_at))}</span><span>Heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</span><button class="btn sm cq-detail" data-id="${esc(r.request_id)}">View work</button></div></article>`
+        `<article class="cq-working-card"><div class="cq-working-card-head"><span class="cq-working-badge"><i></i>${esc(cqWorkLabel(r))}</span><span class="cq-age working" data-cq-age="${esc(r.work.since || r.created_at || '')}">${esc(cqAge(r.work.since || r.created_at))}</span></div><strong>${esc(r.title)}</strong><div class="muted">${esc(r.site)} · ${esc(r.assigned_role || 'engineer')} · worker ${esc(r.work.worker || 'dashboard')}</div><div class="cq-working-card-foot"><span>Started ${esc(fmtDate(r.work.since || r.created_at))}</span><span>Heartbeat ${esc(cqAge(r.work.heartbeat_at))} ago</span><button type="button" class="btn sm cq-detail" data-id="${esc(r.request_id)}" aria-label="View work for ${esc(r.title)}" title="View work for ${esc(r.title)}">View work</button></div></article>`
     )
     .join('');
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button class="btn primary" id="cq-new">New change request</button></div></div>

@@ -1329,6 +1329,8 @@ test('Change Queue renders one authoritative queue pulse without suppressed focu
   assert.doesNotMatch(app, /cq-focus-panel/);
   assert.doesNotMatch(app, /priorityLane/);
   assert.doesNotMatch(app, /\.cq-focus-panel\'\)\?\.remove/);
+  assert.match(app, /aria-label="Open actions for \$\{title\}"/);
+  assert.match(app, /aria-label="View work for \$\{esc\(r\.title\)\}"/);
 });
 
 test('AI Usage chart zoom supports touch and pointer cancellation', () => {
