@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:27:44.386Z",
+  "generated_at": "2026-10-01T01:37:59.311Z",
   "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: preserve containment. Do not admit new proposals, site-factory work, telemetry, prototypes, spend, or duplicate queue items while delivery is saturated at 10/10 slots and measurement/repair work remains active. Keep the existing saveusfarms.com repair-or-close case as the sole capacity-release gate through 2026-10-01T09:00Z. After one slot is released, admit only the canonical allthingsmasonic.com CTA refinement. Keep SearchWoot private and rights outreach unsent; technical, security, accuracy, measurement, and owner gates remain incomplete.",
+        "summary": "Approve containment. Delivery is saturated at 10/10 slots, measurement backlog and stranded work remain unresolved, and operational/security sweeps are unavailable. Do not admit new production work, prototypes, telemetry requests, spend, or duplicate queue items this cycle. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release boundary, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then consider only the existing canonical allthingsmasonic.com CTA refinement. Keep preview site-factory candidates capacity-gated and unpublished. Preserve unknown revenue, ROI, margin, and causal-lift claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record dated ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundary, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot only after the evidence is complete; then admit at most the existing canonical allthingsmasonic.com CTA refinement.",
+        "summary": "Retain the existing allthingsmasonic.com CTA refinement as capacity-gated. Do not create a duplicate request or execute until one delivery slot is released. Scope remains limited to CTA hierarchy and labels, existing destinations and tracking IDs, adjacent disclosure placement, accessibility, responsive behavior, deterministic tests, build, link and compliance validation, and reversible rollback. Measure only existing affiliate-click and available site-attributed outcome fields; do not claim causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "If capacity clears, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com as one isolated reversible diff. Preserve destination URLs, registered affiliate ID, disclosure, unrelated routes, and existing consent behavior. Require deterministic tests, build, link validation, smoke, accessibility, and affiliate-destination regression checks. Measure only existing affiliate clicks, ordered items, and site-attributed commission against the recorded baseline; do not claim revenue, ROI, or causal lift.",
+        "summary": "Keep complicated.work preview work and other site-factory candidates capacity-gated. No production exposure, analytics or affiliate enablement, domain changes, spend, external outreach, or duplicate requests. Reconsider only after verified launch-readiness evidence exists and one active delivery slot is released.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer the proposed reusable work-control capability and all new site-factory, affiliate-activation, affiliate-repair, attribution-validation, and SEO admissions until capacity and existing failures are resolved. These are plausible future improvements but cannot safely enter the current queue without a released slot, canonical work identity, owner, rollback boundary, and available measurement. Preserve owner-gated affiliate prerequisites as existing queued work without inventing tags or revenue.",
+        "summary": "Do not create a new finance report request this cycle. Existing revenue and AI-usage telemetry may be reconciled in the current executive evidence path when capacity permits. Preserve the 2026-09-21 Amazon aggregate commission and the September AI-cost period as separate, non-comparable evidence; keep site revenue, ROI, margin, and causal lift unknown.",
         "requested_action": null,
         "proposal_id": null
       }

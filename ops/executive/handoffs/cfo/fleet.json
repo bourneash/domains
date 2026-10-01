@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:27:44.386Z",
-  "summary": "cfo checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:37:59.311Z",
+  "summary": "cfo checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: preserve financial containment. Do not approve new spend, forecasts, ROI claims, or additional monetization work this cycle. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All $4.92 is in aggregate tracking ID \"other\"; 18 named site rows show $0 attributed income. Therefore site revenue, contribution margin, ROI, and causal lift are unsupported. The $4.92 cannot be compared directly with September AI spend because the periods differ and attribution is incomplete.",
+        "summary": "Recommendation: maintain financial containment. Do not approve new spend, monetization forecasts, ROI claims, or additional production work. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in an aggregate tracking row that cannot be assigned to a site; named site rows show $0 attributed commission. Therefore site revenue, contribution margin, ROI, and causal lift are unsupported. September AI usage cost is $1,002.46 across 5,531 calls and 39 instrumented sites, but comparing it with the one-day $4.92 revenue would be period-invalid. The 17 SEO conversions and click/impression totals are vanity metrics until mapped to attributable revenue. Preserve the existing capacity gate and execute no new financial or production work until attribution and variable-cost evidence are reconciled.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial exposure is material but incomplete: AI usage from 2026-09-01 through 2026-09-30 totals $1,002.45979265 across 5,531 calls, including 234 errors and 5 transient errors. Monthly spend limits, fixed costs, infrastructure costs, domain costs, marketing budget, revenue target, and revenue floor are blank, so budget exposure and full contribution margin are not calculable. The only safe current margin statement is that known AI cost is $1,002.45979265 against $0 site-attributed commission in the available revenue extract; this is not fleet contribution margin because aggregate commission is unassigned and other costs are missing.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Push back on vanity metrics: 14,734 impressions, 150 clicks, 1,021 sessions, 17 conversions, 5000 audited actions, 356 proposals, and 288 approved proposals do not establish financial value. Cost-to-learn is not calculable as a causal unit metric because AI costs are not joined to individual experiments or measured outcomes; $1,002.45979265 divided by 20 measured improvements would be only an unvalidated allocation, not cost per learning. Minimum measurement is an experiment-level ledger linking incremental cost, exposure, outcome, attributable commission, and a matched baseline/control period.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the existing capacity gate and do not admit additional finance or monetization work while delivery is 10/10 active slots, 57 improvements are measuring, and 21 implementation requests have failed. After the existing saveusfarms.com repair case is completed or closed by 2026-10-01T09:00Z, the only financially supportable next implementation remains the already queued allthingsmasonic.com CTA refinement against 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21. Measure affiliate clicks, ordered items, and site-attributed commission for 14 days or 100 relevant impressions/clicks; do not claim revenue or lift.",
+        "summary": "Retain the current affiliate attribution control: every new link must use its registered tracking ID, and aggregate provider rows must remain explicitly unassigned. Do not report site revenue, ROI, or margin from the current Amazon snapshot. Reconcile the existing site-level rows and identify any missing site/date mappings using existing telemetry only.",
         "requested_action": null,
         "proposal_id": null
       }

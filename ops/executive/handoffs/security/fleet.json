@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:27:44.387Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:37:59.311Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; blocked for go-live or security-sensitive release. Evidence: security fleet-doctor has no successful run, no findings, and no checks; operations deploy, uptime, and error sweeps have no results; security site facts are unknown across 61 sites; compliance reports 36 pass, 19 fail, and 6 unknown and is explicitly not certification. Authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, TLS validation, data exposure, monitoring/incident readiness, and disclosure readiness therefore remain unverified. Risk severity: high for public launch, gated-product exposure, or security-sensitive deployment; medium for ordinary reversible growth that adds no credentials, permissions, dependencies, data collection, or cross-site behavior. Exact decision: retain the existing private-launch and security-sensitive release gates, continue the existing consolidated security evidence matrix, and do not claim clearance, certification, or a clean bill of health. SearchWoot remains private. Ordinary bounded reversible growth may continue only within existing compliance, disclosure, consent, data-handling, and claims boundaries.",
+        "summary": "Security disposition: evidence_needed. Exact decision: keep new public exposure and security-sensitive releases gated; permit ordinary reversible growth only when it introduces no new credentials, permissions, dependencies, data collection, or cross-site behavior. Evidence: the 2026-09-30 security baseline reports fleet-doctor unavailable with no run, findings, or site checks across 61 sites; operations deploy, uptime, and error sweeps have no results. Authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness are unevidenced. No TLS certificates are reported expiring within 30 days, but complete TLS posture is unknown. Compliance reports 36 pass, 19 fail, and 6 unknown. Risk is high for security-sensitive release clearance because missing evidence prevents distinguishing control gaps from telemetry gaps; no confirmed exploit or incident is reported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Security handoff: preserve the existing release gate. Do not deploy or admit security-sensitive work until dated evidence covers authentication and access boundaries, secrets exposure, runtime/container isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, incident response readiness, and security.txt/disclosure readiness. Use only authorized metadata and retained artifacts; do not retrieve credentials, access private containers, exploit targets, modify permissions/configuration, add dependencies, or request duplicate telemetry.",
+        "summary": "Complete the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Record evidence timestamps, affected scope, owners, severity, and release implications for authentication/access boundaries, secrets, container isolation, release/deploy controls, dependency provenance, TLS, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Maintain evidence-needed fleet security disposition and release gates",
+        "summary": "Fleet security clearance is unsupported because fleet-doctor and operations sweeps have no results and material controls remain unevidenced. Preserve private-launch and security-sensitive release gates while permitting ordinary reversible growth within existing consent, disclosure, data-handling, dependency, permission, and rollback boundaries.",
+        "requested_action": "Continue one consolidated read-only security evidence matrix using authorized metadata and retained artifacts only. Document authentication and access boundaries, secrets exposure, runtime isolation, release and deployment controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident readiness, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, alter permissions or configuration, add dependencies, deploy, conduct external outreach, or claim certification. Reconsider only after dated evidence supports an owner-approved disposition.",
         "proposal_id": null
       }
     ]

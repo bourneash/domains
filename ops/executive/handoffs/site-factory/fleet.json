@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T01:18:43.269Z",
-  "summary": "site-factory checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-01T01:37:59.310Z",
+  "summary": "site-factory checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Maintain a small site-factory pipeline of complicated.work, deadlymaracas.com, and driveford.net. Do not add domains, spend, deploy, publish, enable affiliate monetization, or collect telemetry. Delivery is saturated at 10/10 slots, and launch, legal, security, measurement, compliance, and rollback evidence remain incomplete. Strongest candidate is complicated.work based on the validated build opportunity score of 84 and existing scaffold. Exactly one next step: after CTO releases one delivery slot, produce and verify its launch-readiness artifact covering owner, template, content seed, SEO baseline, analytics/affiliate readiness, compliance, security, measurement, rollback, and preview-only launch gates.",
+        "summary": "Maintain a small site-factory pipeline of complicated.work, deadlymaracas.com, and driveford.net as preview-only candidates. Do not add domains, spend, deploy, publish, enable analytics, or enable affiliate collection. The strongest candidate is complicated.work because it is an existing scaffold with a queued readiness repair; its audience, content direction, analytics, affiliate readiness, compliance, security, ownership, and launch evidence remain incomplete. Preserve the existing request and avoid duplicates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "After one delivery slot is released, execute only the existing complicated.work preview-readiness request. Keep public exposure disabled and use the existing scaffold. Do not proceed until owner, Legal, Security, measurement, and rollback gates are recorded.",
         "requested_action": null,
         "proposal_id": null
       }
