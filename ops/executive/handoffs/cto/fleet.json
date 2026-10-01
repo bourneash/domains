@@ -2,42 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:29:25.435Z",
-  "summary": "cto checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-01T02:39:30.448Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO review: approve containment. Do not create proposals, research requests, prototypes, telemetry requests, new implementation requests, or duplicate queue work while delivery is saturated at 10/10 active slots and 57 improvements remain in measurement. Preserve existing launch, security, attribution, and measurement gates.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one delivery slot only after evidence is complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Record root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution and measurement limits, and deduplication evidence. Release capacity only after this evidence is recorded; escalate unresolved capacity to the owner.",
+        "summary": "After one delivery slot is released, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b. Limit scope to CTA hierarchy, adjacent affiliate disclosure, preserved destinations and registered tracking, keyboard focus, accessible names, 44px tap targets, and responsive mobile/desktop layout. Run deterministic tests, build, link, disclosure, keyboard, and responsive checks. Roll back the isolated change set if validation fails or behavior regresses.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, execute only existing request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Do not create a new request. Preserve destinations and imagery; limit changes to CTA hierarchy, adjacent disclosure placement, accessibility, responsive layout, and touch targets. Validate tests, build, links, disclosure, accessibility, and functional behavior; revert only the scoped diff on failure.",
+        "summary": "Use the recorded 2026-09-21 baseline of 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission. Measure registered affiliate clicks and available site conversions for 14 days or 100 relevant impressions/clicks, whichever comes first. Report observed deltas and attribution limits only; do not claim revenue, ROI, conversion lift, or causal impact.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "For the canonical allthingsmasonic.com change, measure only existing outbound affiliate clicks and available sessions for 14 days after deployment. Retain the recorded 61-click revenue-window reference as context, not as a causal baseline. Do not claim revenue, ROI, attribution, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Continue the existing read-only security evidence matrix using authorized metadata and retained artifacts only. Keep private-launch and security-sensitive release gates unchanged. Do not retrieve credentials, alter permissions or configuration, add dependencies, deploy, request duplicate telemetry, or claim certification.",
+        "summary": "Reject all new implementation admissions while delivery remains saturated at 10/10 slots. Preserve only the canonical allthingsmasonic.com CTA refinement after capacity release. Keep all affiliate-link guard expansion, new telemetry, duplicate queue work, and site-factory admissions out of scope.",
         "requested_action": null,
         "proposal_id": null
       }

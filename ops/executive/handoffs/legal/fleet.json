@@ -2,35 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:29:25.435Z",
+  "generated_at": "2026-10-01T02:39:30.448Z",
   "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Overall legal/compliance disposition: BLOCKED for SearchWoot public beta or full launch; CONDITIONAL for ordinary reversible fleet growth that preserves existing consent, disclosures, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Woot documentation proves API access but not redistribution rights; current public terms point against commercial/public data use. Keep SearchWoot private, do not send rights outreach, and require human counsel review before any public display, alerts, affiliate, or advertising use.",
+        "summary": "Recommendation: blocked. Keep SearchWoot private and do not send rights outreach or change monetization. Woot documentation confirms API access but not public redistribution, storage, historical derivatives, alerts, affiliate use, or advertising rights; current public terms restrict commercial/public data use. Security, accuracy/freshness, measurement, and owner gates are also blocked. Human counsel is required before any public beta or affiliate/advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: the four SearchWoot legal tasks remain open. Existing evidence confirms public API documentation, endpoint/rate-limit details, draft privacy/cookie/terms pages, and partial data-flow artifacts. No task is closed because authoritative rights permission, field-level rights, retention/deletion/correction workflows, GA4 settings, vendor/DPA coverage, and incident/request procedures remain unevidenced. Next evidence action: attach one dated read-only bundle covering source-rights fields, alert data flow/retention, deployed consent and GA4 configuration, and logs/vendors/incident handling.",
+        "summary": "Continue the four open launch-readiness tasks without closing any. Produce one dated read-only bundle containing repository/config data-flow and retention evidence, deployed consent behavior, GA4 property/data-sharing settings, log-field and vendor inventory, and incident/request procedures. Do not change tracking, production, credentials, or configuration.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Concrete launch decision for gated/scaffold sites: keep complicated.work private and preview-only; no publication or production exposure. Evidence shows compliance failure for banner, consent, reject, and GA4 checks, analytics is not configured, and security/operations evidence is unavailable. Deadlymaracas.com is not launch-clear because the compliance check is unreachable. Reconsider only after a reachable preview, consent/disclosure evidence, analytics decision, security/operations evidence, owner disposition, and rollback plan exist.",
+        "summary": "Security and operations evidence remains incomplete: fleet-doctor has no run and deploy, uptime, and error sweeps have no results. Keep public exposure blocked for SearchWoot and provide dated control evidence or explicit unknowns for access, secrets, isolation, TLS, dependencies, monitoring, incidents, and disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance disposition: the baseline is technical triage, not certification. Evidence reports 36 pass, 19 fail, and 6 unknown, with open banner, accept/reject consent, GA4, privacy, and terms findings. Analytics is configured and healthy for 39 sites, but missing analytics on scaffold sites is not by itself a blocker for ordinary growth. Revenue is usable only as partial attribution: $4.92 aggregate-unattributed commission for 2026-09-21; do not claim site revenue, ROI, margin, or causal lift.",
+        "summary": "Use only supported values: 2026-09-21 Amazon data shows $4.92 aggregate unattributed commission and $0 site-attributed income. Do not assign aggregate revenue, ROI, margin, or causal lift to SearchWoot or other sites without valid identifiers and cost evidence.",
         "requested_action": null,
         "proposal_id": null
       }

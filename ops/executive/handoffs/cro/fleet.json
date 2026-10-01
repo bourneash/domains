@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cro",
   "site": "fleet",
-  "generated_at": "2026-10-01T02:16:58.344Z",
+  "generated_at": "2026-10-01T02:39:30.447Z",
   "summary": "cro checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain no new CRO, GitHub, site-factory, SEO, affiliate, or audience implementation this cycle. Delivery is saturated at 10/10 slots, with 57 improvements measuring and 21 failed requests. After the existing saveusfarms.com repair case releases capacity, execute only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com. Evidence: 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21; aggregate provider revenue remains unattributed. GitHub candidates remain research-only: MIT repositories and bounded lab checks support prototyping, not adoption, security clearance, maintenance confidence, or revenue impact. Do not claim causal lift, ROI, or revenue.",
+        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z with ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after evidence is complete; then execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b for allthingsmasonic.com.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "When one delivery slot is released, execute only request 4719e525-763b-42a4-9f16-e71e1c38b17b. Smallest reversible prototype: refine CTA hierarchy, adjacent disclosure placement, keyboard focus, contrast, tap targets, and responsive layout on existing affiliate/product surfaces while preserving destinations, tracking IDs, consent, dependencies, and cross-site isolation. Acceptance: deterministic tests, accessibility audit, build, link validation, smoke test, and visual review. Measure registered affiliate clicks for 14 days or 100 new relevant impressions/clicks, whichever comes first. Roll back the isolated diff on validation, destination, disclosure, consent, or responsive regressions.",
+        "summary": "After capacity release, implement only the existing commercial-surface refinement: clarify CTA hierarchy, keep affiliate disclosure adjacent to relevant links, preserve destinations and registered tracking, add visible keyboard focus states and descriptive accessible names, ensure tap targets are at least 44px, and validate mobile and desktop layouts. Do not add tracking, dependencies, imagery, claims, or unrelated routes. Run deterministic tests, build, link, disclosure, keyboard, and responsive checks; roll back the isolated change if validation fails.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Defer new prototypes until capacity and measurement gates clear. The strongest reusable opportunities are a consent-preserving CTA component pattern and a disposable SEO-content extraction prototype using MarkItDown or Mermaid, but current lab evidence only establishes plausible fit: MarkItDown and Mermaid are MIT-licensed, while maintenance, dependency, security, and fleet-specific performance remain unvalidated because dependencies were not installed. Time-to-learn should be measured in an isolated prototype before any adoption decision; no deployment, spend, credential change, dependency addition, or domain change is authorized.",
+        "summary": "Use the recorded 2026-09-21 baseline of 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission. Measure registered affiliate clicks and available site conversions for 14 days or 100 relevant impressions/clicks, whichever comes first. Report observed deltas and attribution limits only; do not claim revenue, ROI, conversion lift, or causal impact.",
         "requested_action": null,
         "proposal_id": null
       }
