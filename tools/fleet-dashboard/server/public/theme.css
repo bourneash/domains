@@ -2741,6 +2741,8 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .kn-new { margin-bottom: 16px; }
 .kn-toolbar { display: flex; gap: 12px; align-items: end; margin: 14px 0; flex-wrap: wrap; }
 .kn-toolbar label { min-width: 150px; }
+.kn-toolbar .kn-search { min-width: min(320px, 100%); flex: 1 1 260px; }
+.kn-search input { width: 100%; }
 .kn-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
 .kn-card { background: var(--panel, #111827); border: 1px solid var(--line, #273244); border-radius: 12px; padding: 16px; min-height: 175px; }
 .kn-card h3 { margin: 0 0 4px; font-size: 1rem; }

@@ -392,6 +392,10 @@ test('knowledge shelf is a first-class operator route', () => {
   assert.match(app, /Knowledge shelf/);
   assert.match(app, /api\/executive\/knowledge/);
   assert.match(app, /kn-learning-save/);
+  assert.match(app, /id="kn-search" class="cm-input" type="search"/);
+  assert.match(app, /Search knowledge sources/);
+  assert.match(app, /aria-label="Add learning note for \${esc\(item\.title\)}"/);
+  assert.match(app, /button\.setAttribute\('aria-expanded', String\(expanded\)\)/);
   assert.match(app, /type="button" class="btn" id="kn-refresh"/);
   assert.match(app, /\$\('#kn-refresh'\)\.onclick = \(\) => renderKnowledge\(\)/);
 });

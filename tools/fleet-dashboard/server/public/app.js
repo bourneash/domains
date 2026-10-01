@@ -16179,7 +16179,8 @@ async function renderWorkbench() {
   stamp();
 }
 
-const KNOWLEDGE_UI = { status: '', audience: '' };
+const KNOWLEDGE_UI = { status: '', audience: '', query: '' };
+let knowledgeSearchTimer;
 
 function renderKnowledge() {
   const app = $('#app');
@@ -16192,7 +16193,8 @@ function renderKnowledge() {
       const visible = all.filter(
         item =>
           (!KNOWLEDGE_UI.status || item.status === KNOWLEDGE_UI.status) &&
-          (!KNOWLEDGE_UI.audience || item.audience === KNOWLEDGE_UI.audience)
+          (!KNOWLEDGE_UI.audience || item.audience === KNOWLEDGE_UI.audience) &&
+          (!KNOWLEDGE_UI.query || [item.title, item.publisher, item.summary, item.takeaway, item.applied_to, ...(item.tags || [])].some(value => String(value || '').toLowerCase().includes(KNOWLEDGE_UI.query)))
       );
       const options = (values, selected, label) =>
         `<option value="">${label}</option>${values.map(value => `<option value="${esc(value)}" ${selected === value ? 'selected' : ''}>${esc(value.replace('_', ' '))}</option>`).join('')}`;
@@ -16202,14 +16204,14 @@ function renderKnowledge() {
       <div class="kn-card-head"><div><h3>${item.url ? `<a href="${safeHref(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.title)} ↗</a>` : esc(item.title)}</h3><div class="muted">${esc(item.publisher || 'Publisher not recorded')}${item.jurisdiction ? ` · ${esc(item.jurisdiction)}` : ''}</div></div><div>${workItemBadge(item.status)} ${workItemBadge(item.resource_type)}</div></div>
       <p>${esc(item.summary || 'No relevance note recorded.')}</p>${item.takeaway || item.applied_to ? `<div class="kn-learning"><b>Applied learning</b><div>${esc(item.takeaway || 'No takeaway recorded.')}</div>${item.applied_to ? `<small>Used in: ${esc(item.applied_to)}</small>` : ''}</div>` : ''}
       <div class="kn-meta"><span>${esc(item.audience)}${item.license ? ` · ${esc(item.license)}` : ''}</span>${item.published_at ? `<span>published ${esc(item.published_at)}</span>` : ''}</div>
-      <div class="kn-foot"><span class="muted">${(item.tags || []).map(esc).join(' · ') || 'No tags'}</span><div class="kn-actions"><button class="btn sm kn-learning-toggle" data-id="${esc(item.knowledge_id)}">Learning note</button><select class="cm-input kn-status" data-id="${esc(item.knowledge_id)}" aria-label="Status for ${esc(item.title)}">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], item.status, 'Change status')}</select></div></div><div class="kn-learning-edit hidden" data-learning="${esc(item.knowledge_id)}"><textarea class="cm-input kn-takeaway" rows="2" placeholder="What did the role learn?">${esc(item.takeaway || '')}</textarea><input class="cm-input kn-applied" placeholder="Where was it applied?" value="${esc(item.applied_to || '')}"><button class="btn sm primary kn-learning-save" data-id="${esc(item.knowledge_id)}">Save learning</button></div>
+      <div class="kn-foot"><span class="muted">${(item.tags || []).map(esc).join(' · ') || 'No tags'}</span><div class="kn-actions"><button class="btn sm kn-learning-toggle" data-id="${esc(item.knowledge_id)}" aria-label="Add learning note for ${esc(item.title)}" aria-controls="kn-learning-${esc(item.knowledge_id)}" aria-expanded="false" title="Add learning note for ${esc(item.title)}">Learning note</button><select class="cm-input kn-status" data-id="${esc(item.knowledge_id)}" aria-label="Status for ${esc(item.title)}">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], item.status, 'Change status')}</select></div></div><div class="kn-learning-edit hidden" id="kn-learning-${esc(item.knowledge_id)}" data-learning="${esc(item.knowledge_id)}"><textarea class="cm-input kn-takeaway" rows="2" placeholder="What did the role learn?">${esc(item.takeaway || '')}</textarea><input class="cm-input kn-applied" placeholder="Where was it applied?" value="${esc(item.applied_to || '')}"><button class="btn sm primary kn-learning-save" data-id="${esc(item.knowledge_id)}">Save learning</button></div>
     </article>`
         )
         .join('');
       app.innerHTML = `<div class="kn-shell"><div class="page-head"><div><div class="wb-eyebrow">CURATED LEARNING SYSTEM</div><h2 class="page-title">Knowledge shelf</h2><div class="muted">Short, attributable resources for the roles. Every source carries provenance and a reason to learn it; no random textbook pile and no substitute for counsel.</div></div><div class="kn-head-actions"><button type="button" class="btn" id="kn-refresh">↻ Refresh</button><button type="button" class="btn primary" id="kn-new-toggle">＋ Add source</button></div></div>
       <section class="kn-kpis"><div><b>${all.filter(i => ['queued', 'in_progress'].includes(i.status)).length}</b><span>learning queue</span></div><div><b>${all.filter(i => i.status === 'complete').length}</b><span>completed</span></div><div><b>${all.filter(i => i.audience === 'legal').length}</b><span>legal resources</span></div><div><b>${all.length}</b><span>catalogued</span></div></section>
       <section class="card kn-new hidden" id="kn-new"><div class="page-head"><div><h3>Add a source</h3><p class="muted">Record enough provenance that a role can judge whether it is worth its time.</p></div><button class="icon-btn" id="kn-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="kn-title" class="cm-input" placeholder="e.g. FTC Endorsement Guides"></label><label>Type<select id="kn-type" class="cm-input">${options(['official', 'book', 'course', 'checklist', 'paper', 'reference'], 'official', 'Choose type')}</select></label><label>Audience<select id="kn-audience-new" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], 'all', 'Choose audience')}</select></label><label>URL<input id="kn-url" class="cm-input" type="url" placeholder="https://…"></label><label>Publisher<input id="kn-publisher" class="cm-input" placeholder="Publisher or institution"></label><label>Jurisdiction<input id="kn-jurisdiction" class="cm-input" placeholder="US / EU / general"></label><label>License<input id="kn-license" class="cm-input" placeholder="Public / CC BY / paid / verify"></label></div><label>Why it matters<textarea id="kn-summary" class="cm-input" rows="2" placeholder="What decision or capability does this support?"></textarea><div class="task-toolbar"><span class="muted">Sources can be queued for a role without interrupting the human owner.</span><button class="btn primary" id="kn-create">Add source</button></div></section>
-      <section class="kn-toolbar"><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><span class="muted">${visible.length} of ${all.length} sources shown</span></section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
+      <section class="kn-toolbar"><label class="kn-search">Search sources<input id="kn-search" class="cm-input" type="search" placeholder="Title, publisher, tag…" aria-label="Search knowledge sources" value="${esc(KNOWLEDGE_UI.query)}"></label><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><span class="muted">${visible.length} of ${all.length} sources shown</span></section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
       $('#kn-refresh').onclick = () => renderKnowledge();
       $('#kn-new-toggle').onclick = async () => {
         const panel = $('#kn-new');
@@ -16224,6 +16226,14 @@ function renderKnowledge() {
       $('#kn-filter-audience').onchange = e => {
         KNOWLEDGE_UI.audience = e.target.value;
         softRender();
+      };
+      $('#kn-search').oninput = e => {
+        clearTimeout(knowledgeSearchTimer);
+        const value = e.target.value.trim().toLowerCase();
+        knowledgeSearchTimer = setTimeout(() => {
+          KNOWLEDGE_UI.query = value;
+          softRender();
+        }, 180);
       };
       $('#kn-create').onclick = async () => {
         const title = $('#kn-title').value.trim();
@@ -16265,7 +16275,13 @@ function renderKnowledge() {
       $$('.kn-learning-toggle').forEach(
         button =>
           (button.onclick = () => {
-            $(`[data-learning="${CSS.escape(button.dataset.id)}"]`)?.classList.toggle('hidden');
+            const editor = $(`[data-learning="${CSS.escape(button.dataset.id)}"]`);
+            if (!editor) return;
+            const expanded = editor.classList.toggle('hidden') === false;
+            button.setAttribute('aria-expanded', String(expanded));
+            const verb = expanded ? 'Edit' : 'Add';
+            button.setAttribute('aria-label', `${verb} learning note for ${button.title.replace(/^(Add|Edit) learning note for /, '')}`);
+            button.setAttribute('title', button.getAttribute('aria-label'));
           })
       );
       $$('.kn-learning-save').forEach(
