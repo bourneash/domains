@@ -8068,7 +8068,7 @@ async function renderSeoIntelligence() {
 
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div><button type="button" class="btn" id="seo-refresh">↻ Refresh</button></div>
-    <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></div></section>
+    <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${esc(vitals?.generated_at || 'unavailable')}</span></div><div class="seo-vitals-cards">${vitalCards}</div><div class="table-wrap"><table class="dh-sources"><caption class="sr-only">Web vitals by site</caption><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></div></section>
     <section class="seo-stats">${statCards}</section>
     <div class="seo-overview-grid">
       <section class="dh-panel"><h3>Opportunity mix</h3><div class="seo-type-bars">${typeBars}</div></section>
@@ -8078,7 +8078,7 @@ async function renderSeoIntelligence() {
       </section>
     </div>
     <section class="dh-panel dh-wide seo-sites"><h3>Site opportunity map</h3>
-      <div class="table-wrap"><table class="dh-sources"><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>query-page pairs</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
+      <div class="table-wrap"><table class="dh-sources"><caption class="sr-only">SEO opportunity map by site</caption><thead><tr><th>site</th><th>actions</th><th>high</th><th>pages</th><th>query-page pairs</th><th>sessions</th><th>conversions</th><th>impressions</th><th>CTR</th><th></th></tr></thead>
       <tbody>${siteRows || '<tr><td colspan="10" class="muted">No site evidence available.</td></tr>'}</tbody></table>
       </div>
     </section>

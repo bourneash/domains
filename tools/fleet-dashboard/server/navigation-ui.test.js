@@ -1754,6 +1754,8 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
     /\$\('#seo-refresh'\)\.addEventListener\('click', \(\) => renderSeoIntelligence\(\)\)/
   );
   assert.match(app, /seo-vitals-panel[\s\S]*class="table-wrap"><table class="dh-sources"/);
+  assert.match(app, /Web vitals by site/);
+  assert.match(app, /SEO opportunity map by site/);
   assert.match(app, /seo-sites[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /type="button" class="btn sm web-vitals-run"/);
   assert.match(app, /type="button" class="btn sm [^"]*seo-file-task/);
