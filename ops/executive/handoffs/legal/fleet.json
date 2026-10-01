@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:08:50.884Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:17:55.720Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep private. Woot documentation proves API access mechanics only, while current public terms do not support commercial/public redistribution, historical derivatives, caching, alerts, affiliate, or advertising use. Security, accuracy/freshness, measurement, owner, and 0/4 legal task gates remain open. Ordinary reversible growth may continue only if it adds no new data use, disclosure change, credential, permission, dependency, or public exposure. Next evidence action: attach one dated read-only bundle covering the four open legal tasks; leave Woot outreach unsent pending owner authorization and human counsel.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta or full launch; keep_private. Woot evidence confirms API access mechanics only, while current terms do not establish rights to store, derive, publicly display, cache, alert on, affiliate-monetize, or advertise returned data. All 4 legal launch tasks remain open, and security, accuracy/freshness, measurement, attribution, and owner gates are incomplete. Do not send outreach or change the private gate. Next evidence action: attach one dated read-only bundle covering source rights, data flow/retention, consent and GA4 configuration, logs/vendors, incident handling, and request workflows.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Fleet compliance disposition: conditional for ordinary growth, not a go-live clearance. The technical compliance baseline reports 35 pass, 20 fail, and 6 unknown, with open banner, accept, reject, GA4, privacy, and terms findings. Analytics and SEO telemetry are available for configured sites; missing or incomplete telemetry is not itself a launch blocker. Do not claim certification, revenue, ROI, attribution, or causal lift. For any private or gated site, retain an explicit keep-private or bounded-beta decision and checklist.",
+        "summary": "Keep the SearchWoot public gate blocked. Continue only read-only evidence capture from authorized repository/configuration artifacts. Do not enable tracking, expand notifications, alter credentials, deploy, or change production. Next evidence action: produce the data-flow and retention table covering alert rules, identifiers, sync results, Slack/email delivery, retention, deletion, correction, access, and unsubscribe behavior.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Retain the security gate as evidence_needed. No security task is evidenced closed: fleet-doctor and operations sweeps have no results, and access, secrets, isolation, release, dependency, TLS, monitoring, incident, and disclosure controls remain unknown. Continue the existing read-only matrix without duplicate requests or production changes.",
         "requested_action": null,
         "proposal_id": null
       }

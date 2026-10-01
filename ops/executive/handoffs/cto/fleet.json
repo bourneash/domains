@@ -2,51 +2,65 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:08:50.884Z",
-  "summary": "cto checked in 6 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:17:55.720Z",
+  "summary": "cto checked in 8 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: admit no new implementation work this cycle. Delivery is saturated at 10/10 slots, measurement debt and failed requests remain active, and allthingsmasonic.com has site overlap. Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next implementation only after one slot is released and overlap clears. Do not create duplicate work or claim revenue, ROI, or causal lift.",
+        "summary": "CTO disposition: admit no new implementation, proposal, telemetry, or research work this cycle. Delivery is saturated at 10/10 slots, measurement debt and site overlap remain active, and scaffold launch-readiness evidence is incomplete. Complete or justifiably close the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot or escalate by 2026-10-01T12:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO capacity gate: complete or justifiably close the canonical saveusfarms.com repair case with root-cause or closure rationale, deterministic validation, build evidence, isolated validation, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot by 2026-10-01T12:00:00Z or escalate to the owner. No new candidate may execute before that unblocker is resolved.",
+        "summary": "Preserve existing request 4719e525-763b-42a4-9f16-e71e1c38b17b as the sole next affiliate implementation. Execute only after one slot is released and allthingsmasonic.com overlap is cleared. Require exact URL capture, deterministic tests, build, link/disclosure checks, keyboard/focus and responsive validation, exact diff, measurement setup, and single-diff rollback evidence. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO technical approval: retain the allthingsmasonic.com CTA refinement as a capacity-gated reversible change. Limit scope to CTA hierarchy, adjacent affiliate disclosure, accessibility, responsive layout, and unchanged destinations. Require build, deterministic route/link, responsive, and accessibility validation before deployment; measure affiliate clicks and attributable orders using existing telemetry boundaries for 14 days or 100 relevant impressions/clicks. Roll back only this change if validation fails or material regression is observed.",
+        "summary": "Preserve existing work item d80920d0-382a-4d27-9dc9-112f340cb408. After capacity clears, produce one verified launch-readiness artifact for complicated.work only. Keep all scaffold candidates preview-only and do not build, publish, add tracking, activate affiliates, add domains, spend, or deploy before owner, legal, security, measurement, and rollback gates pass.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: retain the markitdown concept as private disposable-workspace research only after capacity clears. The lab evidence supports feasibility research, not adoption, production dependency, security clearance, or revenue upside. Do not install dependencies, process third-party content, publish output, add tracking, or deploy. Any future prototype must use owner-approved local documents, remain isolated, produce provenance and parser-error artifacts, and receive separate security and owner review.",
+        "summary": "Preserve the existing amputeenews.com affiliate prerequisite as blocked pending owner-controlled evidence of a registered tag. Engineering may validate supplied evidence and run link, tracking, disclosure, and build checks, but may not create or infer the affiliate credential or site-level revenue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: maintain complicated.work as the sole next site-factory readiness candidate after capacity clears. Produce one preview-only readiness artifact before any build or publication. Preserve unknown analytics, affiliate, security, legal, compliance, measurement, and owner gates; do not add tracking, affiliate links, dependencies, domains, spend, or production behavior.",
+        "summary": "Preserve the existing americastrikes.com affiliate-reference repair tasks. Execute only the affected references after exact URLs and registered tracking IDs are recorded; validate destination reachability and tracking continuity, and retain a single-diff rollback point. Do not create duplicate work or claim revenue lift.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "cro-2026-10-01-markitdown-disposable-content-prototype",
-        "summary": "Retain as isolated research only after capacity clears. No production adoption is supported by repository popularity, keyword hits, or bounded checks. Require dependency and license review, fixture-based parser validation, provenance/error reporting, resource limits, cleanup, and owner-approved local inputs before any prototype execution.",
-        "requested_action": "accepted_research",
-        "proposal_id": "cro-2026-10-01-markitdown-disposable-content-prototype"
+        "kind": "message",
+        "title": null,
+        "summary": "Maintain the attribution boundary: preserve named tracking rows as site-mapped and keep the aggregate provider row unattributed. Require every new affiliate link to use its registered site tracking ID. Do not authorize ROI, margin, forecast, or causal-lift claims from the available data.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not create a duplicate finance baseline proposal. Continue the existing cfo-finance-evidence-baseline-2026-10-01 work item; preserve unavailable direct costs, incomplete AI-cost coverage, stale revenue timing, and aggregate attribution as unknown. No discretionary spend or unsupported financial claims are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Continue the existing read-only security evidence matrix without duplicate work. Preserve private-launch and security-sensitive release gates; ordinary reversible changes may proceed only when they add no credentials, permissions, dependencies, data collection, or cross-site behavior and pass normal validation and rollback checks.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

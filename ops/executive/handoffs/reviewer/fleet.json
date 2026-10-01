@@ -2,58 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T11:08:50.884Z",
-  "summary": "reviewer checked in 7 executive handoff item(s)",
+  "generated_at": "2026-10-01T11:17:55.721Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production, revenue, ROI, causal-lift, and security-clearance claims. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Amazon's $4.92 commission is aggregate and unattributed, so site revenue, margin, ROI, and lift remain unknown. Keep SearchWoot private with rights outreach unsent. CTO must complete or close the canonical saveusfarms.com repair case with validation and rollback evidence, release one slot by 2026-10-01T12:00Z, or escalate.",
+        "summary": "Reject the new security report-only proposal as duplicate work. Preserve the existing security evidence matrix and private-release gates. No new implementation, research, telemetry, financial, ROI, or causal-lift claims are supported while delivery is saturated, operational/security evidence is incomplete, and Amazon aggregate commission remains unattributed. Smallest next step: CTO completes or closes the canonical saveusfarms.com repair case with validation and rollback evidence, then releases one slot.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Preserve the existing capacity gate. Complete or justifiably close the canonical saveusfarms.com repair case with root cause or closure rationale, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence; release one slot by 2026-10-01T12:00Z or escalate.",
+        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Keep private-launch and security gates active. Delivery is saturated at 10/10 slots; no candidate may execute until CTO releases capacity. Three bounded engineer candidates are routed as capacity-gated only; CTO must release or justify closure of one slot by 2026-10-01T12:00Z, or escalate unresolved capacity to the owner.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Continue only the existing canonical read-only security evidence matrix. Record dated evidence or explicit unknowns from authorized metadata and retained artifacts; preserve private-launch and security-sensitive release gates. Do not request duplicate telemetry or mutate production.",
+        "summary": "Release one delivery slot by 2026-10-01T12:00Z by completing or justifiably closing the canonical saveusfarms.com repair case with root cause, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Until then, the three engineer requests remain blocked and must not execute.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, security-clearance, and production-readiness claims. Amazon's $4.92 commission remains aggregate and unattributed; no site revenue or ROI is claimed. Delivery is saturated at 10/10 slots, so the specifications below are capacity-gated and must not execute until the CTO releases capacity and site overlap clears. Preserve existing measurement and launch gates.",
+        "summary": "Three bounded, reversible SEO candidates are routed below as capacity-gated requests. Do not start implementation until CTO releases a slot and the listed site-overlap or measurement gates clear. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Capacity unblocker: complete or justifiably close the canonical saveusfarms.com repair case with root cause or closure rationale, deterministic validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot by 2026-10-01T12:00:00Z or escalate to the owner. No new implementation may execute before this gate clears.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: delivery is saturated, 39 improvements await measurement, 21 requests failed, security and operations evidence is incomplete, and aggregate affiliate earnings are unattributed. Confirm that the private launch gate remains unchanged and authorize no external rights outreach.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal-review",
-        "title": "security-2026-10-01-fleet-evidence-needed",
-        "summary": "Continue the existing read-only security evidence matrix only. Preserve all gates, unknowns, and release restrictions; do not request duplicate telemetry or mutate production.",
-        "requested_action": "accepted_research",
-        "proposal_id": "security-2026-10-01-fleet-evidence-needed"
       }
     ]
   }
