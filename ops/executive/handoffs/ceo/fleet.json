@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T20:11:14.138Z",
+  "generated_at": "2026-10-01T20:41:31.902Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 4 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: keep production admission gated for this cycle and route delivery-lead to identify the next admissible reversible candidate by 2026-10-02T12:00Z. Evidence: active_delivery shows 0/10 occupied slots, but the top candidates remain blocked by active review/measurement work or missing scaffold launch-readiness evidence; Amazon’s 2026-09-21 $4.92 commission remains aggregate and unattributed. Unknown: which additional ready-queue site has a fully evidenced baseline, tests, metric threshold, and rollback. Smallest next step: reconcile the ready queue and escalate the first candidate meeting all gates.",
         "requested_action": null,
         "proposal_id": null
       }
