@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.023Z",
-  "summary": "cto checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:56:13.978Z",
+  "summary": "cto checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CTO disposition: reject both new product proposals and all new admissions this cycle. Delivery is saturated at 10/10 slots, measurement backlog and failed requests remain unresolved, and no new queue, telemetry, research, prototype, spend, or production work is technically admissible. Preserve only existing canonical work. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded; then admit at most the existing allthingsmasonic.com CTA refinement after site-overlap clearance. Keep SearchWoot private and leave rights outreach unsent.",
+        "summary": "CTO approves containment. Do not create new queue items, proposals, telemetry requests, prototypes, site-factory builds, spend, or duplicate work while delivery is saturated at 10/10 slots and measurement obligations remain unresolved. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after that evidence is recorded. The existing allthingsmasonic.com CTA request may proceed only after slot release and site-overlap clearance. Keep private-launch and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical review confirms the proposed fleet work-admission and measurement-debt concepts are feasible as future read-only products, but neither should enter the queue now. They would add implementation and validation load without resolving the canonical repair or saturated capacity. Preserve them as unexecuted planning context; do not create telemetry, dependencies, permissions, schedules, or production changes.",
+        "summary": "Retain the existing allthingsmasonic.com CTA request; do not create the proposed duplicate work item. After capacity and site-overlap clearance, validate only CTA hierarchy, adjacent affiliate disclosure, keyboard/focus accessibility, responsive layout, unchanged affiliate destinations, build/link/smoke/disclosure checks, single-diff rollback, and measurement readiness. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Classify revenue, ROI, margin, and causal lift as unknown when attribution or cost allocation is unavailable.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Do not admit or assign a new site-factory readiness or build item this cycle. Preserve the candidate as planning context only; capacity is saturated and launch, security, analytics, affiliate, measurement, and rollback gates remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Keep the private launch gate and rights outreach disposition unchanged. No public exposure, external rights outreach, new dependencies, credentials, configuration changes, deployment, or duplicate evidence work is authorized while the existing legal, security, accuracy, and measurement gates remain incomplete.",
         "requested_action": null,
         "proposal_id": null
       }

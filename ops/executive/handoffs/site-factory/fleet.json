@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "site-factory",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.022Z",
+  "generated_at": "2026-10-01T07:56:13.978Z",
   "summary": "site-factory checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new site-factory admissions this cycle: delivery is saturated at 10/10 slots, measurement backlog is unresolved, and reviewer/CTO gates prohibit new launch work. Maintain a small planning pipeline: complicated.work is the strongest candidate (score 84), followed by deadlymaracas.com and driveford.net; all require a verified launch-readiness artifact before any build. The bounded factory package remains: site brief and owner, reusable template, content seed, SEO metadata/sitemap baseline, analytics and affiliate readiness using registered identifiers only, legal/compliance checklist, security evidence, measurement baseline, rollback point, and preview-only launch gate. Current analytics, security, compliance, ownership, affiliate, and rollback evidence for these scaffold sites remain unknown or incomplete; do not invent telemetry, add domains, spend, deploy, or launch. Exactly one next step: CTO completes or justifiably closes the existing saveusfarms.com repair case with validation, rollback, release/security, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then releases one delivery slot. After that, admit only the complicated.work readiness brief, subject to owner, legal, security, measurement, and rollback gates.",
+        "summary": "Maintain a capacity-gated site-factory pipeline limited to complicated.work, deadlymaracas.com, and driveford.net. The strongest candidate is complicated.work based on the available site-factory build score of 84 and existing scaffold. No build, publication, domain change, spend, or launch is authorized while delivery is saturated and owner, legal, security, measurement, analytics, affiliate, and rollback gates remain incomplete. Exactly one next step: after CTO releases one delivery slot, assign an owner to complete the complicated.work launch-readiness brief covering site brief, reusable template, content seed, SEO baseline, analytics/affiliate readiness, compliance checklist, security review, measurement plan, and preview-only rollback gate.",
         "requested_action": null,
         "proposal_id": null
       }

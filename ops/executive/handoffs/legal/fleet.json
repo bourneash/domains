@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.023Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:56:13.979Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for SearchWoot public beta, go-live, notification expansion, monetization change, or rights outreach; conditional for ordinary reversible growth that adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Evidence: Woot documentation confirms API access but not redistribution, storage, historical derivatives, public display, alerts, affiliate, or advertising rights; current public terms point against the proposed commercial/public data use. The four legal launch tasks remain open, with 0/4 closed. Fleet compliance is technical-only: 35 pass, 20 fail, 6 unknown. Analytics is available for measured sites but does not establish consent or legal clearance. Amazon data covers 2026-09-21 only; $4.92 is aggregate and unattributed, so site revenue, ROI, margin, and causal lift remain unknown. Exact decision: keep SearchWoot private, leave outreach unsent, preserve existing gates, and do not approve any go-live proposal.",
+        "summary": "Legal disposition: blocked for SearchWoot public beta or monetization expansion; counsel_required for any upstream rights, public-display, affiliate, advertising, or notification expansion. Woot evidence confirms API access but not redistribution rights, while current public terms restrict commercial/public use. Compliance is only a technical baseline: 35 pass, 20 fail, 6 unknown, including 20 banner/consent findings and 4 privacy/terms findings. Keep SearchWoot private, leave rights outreach unsent, and permit only ordinary reversible work that adds no new data collection, permissions, credentials, dependencies, or cross-site behavior. Exact next action: attach one dated read-only evidence bundle covering rights, data flow/retention, consent and GA4, logs/vendors, and incident/request procedures. No launch clearance is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Candidate-plan decision: reject both new product proposals this cycle. They add queue and validation work while delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Preserve existing canonical work only. No new telemetry request is warranted; available analytics and revenue evidence must be used with their stated attribution limits.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Next evidence action for the active SearchWoot workstream: attach one dated read-only bundle to the existing checklist containing the repository/config data-flow and retention table, deployed consent/withdrawal capture, GA4 property/data-sharing and retention settings, log-field and access inventory, Cloudflare/vendor terms or DPA status, and incident/data-subject request procedures. Do not change production, enable tracking, send outreach, or close tasks without evidence.",
+        "summary": "Legal review of the retained allthingsmasonic.com CTA refinement is conditional only after the existing repair case releases capacity and site overlap clears. Preserve existing affiliate destinations, keep the adjacent affiliate disclosure, and run build, link, smoke, disclosure, accessibility, and rollback checks. Do not add tracking, data collection, credentials, dependencies, or cross-site behavior. Do not claim revenue, ROI, margin, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

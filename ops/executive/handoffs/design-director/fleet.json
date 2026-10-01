@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "design-director",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:36:46.102Z",
+  "generated_at": "2026-10-01T07:56:13.977Z",
   "summary": "design-director checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Do not admit new design work while delivery is saturated at 10/10 slots. Preserve the existing allthingsmasonic.com CTA refinement request as the sole next design implementation after the CTO releases one slot and clears site overlap. Scope: improve affiliate CTA hierarchy, product-link clarity, disclosure placement, keyboard focus, contrast, touch targets, and responsive layout on the existing merchandising surface. Do not add tracking, dependencies, credentials, imagery spend, or new monetization claims.",
+        "summary": "Preserve containment until one delivery slot is released. Complete or justifiably close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. Then admit only the existing allthingsmasonic.com CTA refinement request after site-overlap clearance. Scope: CTA hierarchy, affiliate disclosure placement, keyboard/focus accessibility, responsive layout, and existing product-link clarity. Baseline: 61 Amazon clicks, 0 ordered items, $0 site-attributed commission for 2026-09-21. Do not claim revenue, ROI, or causal lift.",
         "requested_action": null,
         "proposal_id": null
       }

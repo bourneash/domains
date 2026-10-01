@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.024Z",
+  "generated_at": "2026-10-01T07:56:13.979Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject both new product proposals and all new admissions this cycle. Capacity is saturated at 10/10 slots, measurement debt and failed requests remain unresolved, and revenue attribution is insufficient for financial or causal-lift claims. Preserve only existing canonical work: CTO must complete or justifiably close the existing saveusfarms.com repair case with validation, rollback, release/security, attribution, measurement, and deduplication evidence by 2026-10-01T09:00Z, then release one slot. Only afterward may the existing allthingsmasonic.com CTA refinement proceed, subject to overlap clearance and normal gates. Keep SearchWoot private and leave rights outreach unsent.",
+        "summary": "Reviewer disposition: reject all new proposals, production work, telemetry requests, research, high-priority queue admissions, and duplicate evidence work. Delivery is saturated at 10/10 slots; measurement obligations, failed requests, site overlap, and repair work remain unresolved. Preserve only existing canonical work: CTO must complete or justifiably close the saveusfarms.com repair case by 2026-10-01T09:00Z with validation, rollback, release/security, attribution, measurement, and deduplication evidence, then release one slot. Only afterward may the existing allthingsmasonic.com CTA refinement proceed, subject to site-overlap clearance and normal gates. Amazon commission remains aggregate and unattributed; do not claim revenue, ROI, margin, payback, or causal lift. Keep private launch and security gates unchanged and leave rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route three low-risk, reversible implementation specifications to engineer as capacity-gated only: rodhat.com SEO improvement, complicated.work preview surface, and deadlymaracas.com preview surface. No execution or deployment is authorized while delivery remains 10/10 occupied. CTO must complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z, release a slot, and escalate unresolved capacity. Scaffold builds additionally require site-factory launch-readiness evidence before implementation. Financial, ROI, attribution, and causal-lift claims remain unsupported; keep SearchWoot private and rights outreach unsent.",
+        "summary": "Reject all new implementation admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, and 21 requests have failed. Preserve only the existing allthingsmasonic.com CTA refinement after CTO completes or justifiably closes the saveusfarms.com repair case by 2026-10-01T09:00Z, releases one slot, and site-overlap clears. Do not claim revenue, ROI, margin, or causal lift; Amazon commission remains aggregate and unattributed. Keep launch, compliance, and security gates unchanged.",
         "requested_action": null,
         "proposal_id": null
       }

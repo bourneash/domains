@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T07:47:21.023Z",
-  "summary": "cfo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T07:56:13.978Z",
+  "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO recommendation: reject both new product proposals and freeze new discretionary spend or admissions this cycle. Delivery is saturated at 10/10 slots, 39 improvements await measurement, 21 requests failed, and only 6 outcomes are proven. Revenue claims are unsupported: Amazon data covers 2026-09-21 only, with 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking_id=other; site-attributed income is $0 and cannot support site revenue, ROI, payback, or causal-lift claims. Contribution margin is not calculable because direct infrastructure, labor, and other costs are absent, and the $4.92 cannot be assigned to sites. AI spend is $2.2785467 on 2026-10-01 across only 4 of 38 expected sites; infrastructure spend and monthly budget limits are blank, so total budget exposure is unknown. Cost-to-learn is also not calculable because experiment-level spend is not linked to incremental outcomes. Preserve only existing canonical work after capacity clears, with financial acceptance based on measured site-attributed commission less direct change cost—not forecast revenue. Minimum measurement: dated site/content identifiers, provider tracking IDs, ordered and shipped items, commission, direct change cost, AI cost, infrastructure cost, and pre/post or treatment-control outcome linkage. Classify unavailable fields as unknown.",
+        "summary": "CFO recommendation: preserve containment and approve no new spend, budget commitment, monetization expansion, revenue forecast, ROI claim, or contribution-margin claim. Amazon data covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission. All commission is aggregate tracking_id=other; named site rows show $0 attributed commission. Site revenue, margin, CAC, payback, and causal lift are unsupported. Retain only the existing allthingsmasonic.com CTA refinement after one delivery slot is released and site overlap clears.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "CFO handoff: retain the existing allthingsmasonic.com CTA request only after the saveusfarms.com repair case is completed or justifiably closed, one slot is released, and site-overlap clearance is recorded. Preserve the 2026-09-21 baseline of 61 affiliate clicks, 0 ordered items, and $0 site-attributed commission. Measure post-change clicks, orders, shipped items, commission, and direct change cost for 14 days or 100 relevant new impressions/clicks. If site-level orders or commission remain unavailable, report the financial result as unknown.",
+        "summary": "AI spend is measurable but cost-to-learn is not calculable. On 2026-10-01, 16 AI calls cost $2.2785467 across 4 of 38 expected sites; 34 sites lack AI-cost coverage and no incremental validated outcome is available. Infrastructure, fixed, marketing, labor, and monthly spend limits are blank, so total budget exposure, contribution margin, and payback cannot be calculated. Minimum measurement: site-level AI/infrastructure/direct-change cost plus a verified incremental revenue or conversion outcome for the same measurement window.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Preserve the existing allthingsmasonic.com CTA request only after the current repair case releases one slot and site overlap clears. Use the 2026-09-21 baseline of 61 Amazon clicks, 0 ordered items, and $0 site-attributed commission. For 14 days or 100 relevant new impressions/clicks, record affiliate clicks, orders, shipped items, commission, direct change cost, allocated AI cost, and allocated infrastructure cost. Contribution margin equals attributable commission less directly attributable costs; if site-level commission or cost allocation is unavailable, classify margin and ROI as unknown. Do not treat impressions, clicks, audited actions, or improvements started as financial performance.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -5450,6 +5450,12 @@ async function renderTasks() {
       ? $('#task-content').innerHTML
       : '<div class="loading">Loading tasks…</div>';
   app.innerHTML = `
+    <div class="page-head task-page-head">
+      <div>
+        <h2 class="page-title">Tasks</h2>
+        <span class="muted">Track work across the fleet or open one site’s board for hands-on triage.</span>
+      </div>
+    </div>
     <div class="task-toolbar task-route-toolbar">
       <div class="seg" role="group" aria-label="Task view mode">
         <button class="seg-btn ${TASK.mode === 'fleet' ? 'active' : ''}" data-mode="fleet" aria-pressed="${TASK.mode === 'fleet'}">Fleet</button>
