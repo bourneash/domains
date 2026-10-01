@@ -1891,6 +1891,14 @@ body[data-view="socialhub"] #vitals { max-width: none; }
   .sh-refresh-cover::after { animation: none; left: 0; width: 100%; opacity: .65; }
 }
 #vitals.hidden { display: none; }
+/* Keep the initial rail in layout while its first fleet snapshot loads. The
+   cards already contain stable placeholders, so visibility avoids the large
+   downward shift that would otherwise happen when the rail is revealed. */
+#vitals.vitals-pending {
+  display: flex;
+  visibility: hidden;
+  pointer-events: none;
+}
 .vt-scope {
   flex: 1 1 100%; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
   color: var(--muted); font-weight: 700; margin: 0 0 2px 2px;

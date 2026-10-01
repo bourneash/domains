@@ -103,7 +103,7 @@
 
   const rail = document.createElement('section');
   rail.id = 'vitals';
-  rail.className = 'hidden';
+  rail.className = 'vitals-pending';
   rail.setAttribute('aria-label', 'Fleet vitals');
   // This strip is injected once above <main> and stays fixed across every
   // view (Domain Control, Social Hub, Containers, ...) — it is NEVER scoped
@@ -220,6 +220,7 @@
         fetch('/api/containers', { credentials: 'same-origin' }),
       ]);
       if (!rRes.ok || !cRes.ok) {
+        rail.classList.remove('vitals-pending');
         rail.classList.add('hidden');
         return;
       }
@@ -333,7 +334,7 @@
       );
       setMeter('health', healthPct);
 
-      rail.classList.remove('hidden');
+      rail.classList.remove('hidden', 'vitals-pending');
 
       // compact mirror in the nav rail's foot, so health is on screen even
       // when you've scrolled the vitals off the top — always fleet-wide.
@@ -348,6 +349,7 @@
         unhealthyAll,
       });
     } catch {
+      rail.classList.remove('vitals-pending');
       rail.classList.add('hidden');
     }
   }

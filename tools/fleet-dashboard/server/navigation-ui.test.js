@@ -156,6 +156,14 @@ test('initial route loading reserves the first viewport to prevent layout shift'
   assert.match(theme, /#app:has\(\.loading\) \{[\s\S]*min-height: min\(640px, calc\(100vh - 170px\)\)/);
 });
 
+test('initial vitals loading reserves the rail geometry to prevent layout shift', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(shell, /rail\.className = 'vitals-pending'/);
+  assert.match(shell, /rail\.classList\.remove\('hidden', 'vitals-pending'\)/);
+  assert.match(theme, /#vitals\.vitals-pending \{[\s\S]*visibility: hidden;[\s\S]*pointer-events: none;/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
