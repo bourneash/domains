@@ -1153,6 +1153,34 @@ test('AI usage keeps dense cost and diagnostics tables bounded', () => {
   assert.ok((diagnostics.match(/class="table-wrap"><table/g) || []).length >= 4);
 });
 
+test('operational inventory tables stay bounded on narrow viewports', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const taskBudget = app.slice(
+    app.indexOf('async function renderTaskBudget()'),
+    app.indexOf(
+      '/* ===================== AI INVENTORY',
+      app.indexOf('async function renderTaskBudget()')
+    )
+  );
+  const inventory = app.slice(
+    app.indexOf('async function renderAIInventory()'),
+    app.indexOf(
+      '/* ===================== PRODUCT FEED',
+      app.indexOf('async function renderAIInventory()')
+    )
+  );
+  const sandboxes = app.slice(
+    app.indexOf('async function renderDevSandbox()'),
+    app.indexOf(
+      'function applyDevSandboxFilter()',
+      app.indexOf('async function renderDevSandbox()')
+    )
+  );
+  assert.match(taskBudget, /class="table-wrap"><table>/);
+  assert.match(inventory, /class="table-wrap"><table>/);
+  assert.match(sandboxes, /class="table-wrap"><table>/);
+});
+
 test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

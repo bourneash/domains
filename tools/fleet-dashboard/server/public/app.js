@@ -1452,10 +1452,10 @@ async function renderTaskBudget() {
       <div class="task-toolbar"><strong>${esc(s.site)}</strong></div>
       ${
         rows
-          ? `<table>
+          ? `<div class="table-wrap"><table>
         <thead><tr><th>Role</th><th>Static</th><th>Computed</th><th>Dispatch</th><th>Next task</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>`
+      </table></div>`
           : ''
       }
       ${deadTasks ? `<div style="padding:10px 14px">${deadTasks}</div>` : ''}
@@ -1525,7 +1525,7 @@ async function renderAIInventory() {
       <div class="aii-stat ${s.disabled ? 'aii-stat-warn' : 'aii-stat-good'}"><strong>${s.disabled || 0}</strong><span>Disabled</span></div>
       <div class="aii-stat aii-stat-meta"><strong>${noAi}</strong><span>No-AI services · ${s.conditional || 0} conditional</span></div>
     </section>
-    <div class="card"><table>
+    <div class="card"><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Service</th><th>Provider</th><th>Model</th><th>Status</th><th>Dispatch</th><th>Function</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>
@@ -3105,10 +3105,10 @@ async function renderDevSandbox() {
       <span id="ds-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
     ${warn}
-    <div class="card"><table>
+    <div class="card"><div class="table-wrap"><table>
       <thead><tr><th>Site</th><th>Status</th><th>ttyd</th><th>CPU · Mem · PIDs</th><th>Actions</th></tr></thead>
       <tbody>${body || '<tr><td colspan="5" class="muted">No sites found.</td></tr>'}</tbody>
-    </table></div>
+    </table></div></div>
     <p class="muted" style="margin-top:12px">Each sandbox bind-mounts ONLY that site's directory — the rest of the fleet stays protected. Memory/CPU/PIDs are capped per container. Unauthenticated worker containers still run with <code>--dangerously-skip-permissions</code> inside their own sandbox; this tab itself is behind the same token gate as the rest of the dashboard.</p>`;
 
   wireDevSandboxRows();
