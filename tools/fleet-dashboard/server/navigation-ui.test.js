@@ -126,6 +126,8 @@ test('product managers are first-class Agents pages with durable queues', () => 
   assert.match(app, /api\/executive\/task-queue\?role=/);
   assert.match(app, /Executive presentations/);
   assert.match(app, /Open work queue/);
+  assert.match(app, /type="button" class="btn" id="pm-refresh"/);
+  assert.match(app, /\$\('#pm-refresh'\)\.onclick = \(\) => renderProductManager\(role\)/);
 });
 
 test('executive workbench is a first-class operator route', () => {
