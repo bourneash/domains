@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T18:51:42.926Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T19:01:42.549Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three medium-priority, reversible engineer queue items across distinct sites: 0xroulette.com CTA clarity, broadwayshowgirls.com search-snippet CTR, and deeppenetrations.com LCP repair. Queue execution behind principal-engineer capacity reconciliation and site-specific measurement gates due 2026-10-02T12:00Z. Reject revenue, ROI, causal-lift, launch-readiness, and production-readiness claims. No credentials, configuration, spend, schedules, tracking, duplicate telemetry, or cross-site changes are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns remain: capacity ledgers conflict, revenue is aggregate and unattributed, telemetry is descriptive and low-volume, and security/operations evidence is incomplete. Principal-engineer must document the canonical repair disposition and authoritative slot count by 2026-10-02T12:00Z or escalate to the owner.",
+        "summary": "Reject new implementation admission this cycle. The authoritative capacity ledger is unresolved, telemetry is low-volume or descriptive for available candidates, site-attributed revenue is absent, and fleet-doctor/operations evidence is unavailable. Retain only the existing principal-engineer capacity reconciliation. Principal-engineer must document the saveusfarms.com repair disposition and authoritative slot count by 2026-10-02T12:00Z; release one slot only after measurable site-specific baselines, thresholds, attribution boundaries, and rollback criteria are evidenced, otherwise escalate to the owner. No unsupported revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
