@@ -10,6 +10,8 @@ const {
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
+  shouldPropagateCancelledRun,
+  queueProjectionPath,
   shouldAutoRevalidateInfrastructureReview,
   shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,
@@ -49,6 +51,22 @@ test('a validated reviewer rejection does not inherit stale infrastructure evide
 test('report-only requests do not require a site cron role', () => {
   assert.equal(requiresInstalledSiteOwner({ delivery_mode: 'report_only' }), false);
   assert.equal(requiresInstalledSiteOwner({ delivery_mode: 'direct' }), true);
+});
+
+test('a cancelled old run cannot tombstone a requeued or scheduled-retry request', () => {
+  assert.equal(shouldPropagateCancelledRun({ status: 'queued' }), false);
+  assert.equal(
+    shouldPropagateCancelledRun({ status: 'failed', next_attempt_at: '2026-10-01T17:00:00Z' }),
+    false
+  );
+  assert.equal(shouldPropagateCancelledRun({ status: 'running' }), true);
+  assert.equal(shouldPropagateCancelledRun({ status: 'failed', next_attempt_at: null }), false);
+});
+
+test('verified deployment advances delivery-pending requests without an invalid committed step', () => {
+  assert.deepEqual(queueProjectionPath('delivery_pending', 'deployed'), ['deployed']);
+  assert.deepEqual(queueProjectionPath('delivery_pending', 'verified'), ['deployed', 'verified']);
+  assert.deepEqual(queueProjectionPath('delivery_pending', 'review'), []);
 });
 
 test('successful report-only workers finalize evidence without a second model reviewer', () => {

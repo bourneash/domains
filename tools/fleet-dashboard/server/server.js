@@ -278,6 +278,37 @@ function shouldRetryQueueFailure(text, validation = null) {
   );
 }
 
+function shouldPropagateCancelledRun(request) {
+  if (!request || ['cancelled', 'queued', 'failed'].includes(request.status)) return false;
+  return true;
+}
+
+function queueProjectionPath(currentStatus, targetStatus) {
+  // Automatic delivery waits in delivery_pending while the GitHub build and
+  // production verification complete. That state is not part of the older
+  // manual review -> committed chain, but a measuring run proves deployment.
+  if (currentStatus === 'delivery_pending') {
+    if (targetStatus === 'deployed') return ['deployed'];
+    if (targetStatus === 'verified') return ['deployed', 'verified'];
+    return [];
+  }
+  const order = [
+    'queued',
+    'claimed',
+    'running',
+    'reviewing',
+    'review',
+    'committed',
+    'deployed',
+    'verified',
+  ];
+  const currentIndex = order.indexOf(currentStatus);
+  const targetIndex = order.indexOf(targetStatus);
+  return currentIndex < 0 || targetIndex < 0 || targetIndex < currentIndex
+    ? []
+    : order.slice(currentIndex + 1, targetIndex + 1);
+}
+
 function shouldAutoRevalidateInfrastructureReview(
   request,
   run,
@@ -1403,7 +1434,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       // A startup failure cleans up its unused run as cancelled, but the
       // request remains failed with a scheduled retry. Do not let this
       // reconciliation erase that retry and silently lose the work.
-      if (run.state === 'cancelled' && !['cancelled', 'failed'].includes(request.status)) {
+      if (run.state === 'cancelled' && shouldPropagateCancelledRun(request)) {
         syncChangeRequestFromRun(run, 'cancelled');
         continue;
       }
@@ -2247,7 +2278,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       }
     }
     if (target === 'cancelled') {
-      if (request.status === 'failed' && request.next_attempt_at) return request;
+      // A cancelled *old run* is not a cancellation of a request already
+      // requeued for a new attempt. Likewise, preserve a startup failure's
+      // scheduled retry rather than tombstoning it during reconciliation.
+      if (!shouldPropagateCancelledRun(request)) return request;
       try {
         const cancelled = changequeue.update(
           events,
@@ -2298,21 +2332,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         return request;
       }
     }
-    const order = [
-      'queued',
-      'claimed',
-      'running',
-      'reviewing',
-      'review',
-      'committed',
-      'deployed',
-      'verified',
-    ];
-    const currentIndex = order.indexOf(request.status);
-    const targetIndex = order.indexOf(target);
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex < currentIndex) return request;
     let current = request;
-    for (const next of order.slice(currentIndex + 1, targetIndex + 1)) {
+    for (const next of queueProjectionPath(request.status, target)) {
       try {
         current = changequeue.update(
           events,
@@ -8846,6 +8867,8 @@ module.exports = {
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRetryQueueFailure,
+  shouldPropagateCancelledRun,
+  queueProjectionPath,
   shouldAutoRevalidateInfrastructureReview,
   shouldPreserveCompletedReviewerHandoff,
   infrastructureReviewProjectionPatch,

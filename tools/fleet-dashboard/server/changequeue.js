@@ -44,7 +44,7 @@ const STATUSES = [
   'cancelled',
 ];
 const TRANSITIONS = {
-  queued: ['claimed', 'cancelled'],
+  queued: ['claimed', 'blocked_owner', 'cancelled'],
   claimed: ['running', 'failed', 'blocked_owner', 'cancelled'],
   running: ['reviewing', 'review', 'failed', 'blocked_infrastructure', 'cancelled'],
   reviewing: [

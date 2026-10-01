@@ -40,6 +40,26 @@ test('creates a validated, durable request and picks high priority first', () =>
   store.close();
 });
 
+test('an owner-controlled prerequisite can leave the runnable queue without being cancelled', () => {
+  const { store } = fixture();
+  const known = site => site === 'example.com';
+  const request = queue.create(
+    store,
+    { site: 'example.com', title: 'Activate affiliate tag' },
+    known
+  );
+  const blocked = queue.update(
+    store,
+    request.request_id,
+    { status: 'blocked_owner', error: 'registered affiliate tag must be supplied by the owner' },
+    known
+  );
+  assert.equal(blocked.status, 'blocked_owner');
+  assert.match(blocked.error, /affiliate tag/);
+  assert.equal(queue.pick(store).length, 0);
+  store.close();
+});
+
 test('routes SEO requests to the SEO analyst even when engineer is requested', () => {
   const { store } = fixture();
   const known = () => true;
