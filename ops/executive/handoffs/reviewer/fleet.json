@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T14:41:08.628Z",
+  "generated_at": "2026-10-01T14:44:11.168Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, margin, causal-lift, and production-readiness claims. Aggregate affiliate income remains unattributed. Preserve legal, security, credential, configuration, spending, schedule, telemetry, and production gates. CTO must reconcile conflicting capacity ledgers and release a slot by 2026-10-01T18:00Z; escalate unresolved capacity then. Three reversible medium-priority revalidation repairs are capacity-gated for engineer admission only after release: 0xroulette.com, broadwayshowgirls.com, and deeppenetrations.com.",
+        "summary": "Reviewer disposition: queue only three medium-priority, reversible infrastructure revalidation repairs on distinct sites. Do not execute until the conflicting capacity ledgers are reconciled and one slot is released by 2026-10-01T18:00Z. Preserve attribution, legal, security, credential, configuration, spending, schedule, telemetry, and production gates. Escalate unresolved capacity to the owner at the deadline.",
         "requested_action": null,
         "proposal_id": null
       }
