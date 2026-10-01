@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-01T21:16:00.492Z",
+  "generated_at": "2026-10-01T21:21:30.318Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed howfishthink.com implementation this cycle. The homepage baseline values are not supplied, telemetry is insufficient to support the proposed CTR outcome, and the authoritative delivery capacity and measurement gates remain unresolved. Retain only principal-engineer capacity reconciliation; unblock this candidate only after the owner receives a dated baseline, threshold, tests, rollback point, and authoritative slot disposition by 2026-10-02T12:00Z. Escalate unresolved evidence or capacity to the owner at that deadline. No financial, causal-lift, or production-readiness claims are supported.",
+        "summary": "Approve only three medium-priority, reversible engineer candidates as execution-gated queue work: 0xroulette.com CTA clarity, broadwayshowgirls.com search CTR, and deeppenetrations.com LCP repair. Do not execute until principal-engineer reconciles capacity and each candidate has a site-specific baseline, measurable threshold, tests, attribution boundary, and rollback point by 2026-10-02T12:00Z. Aggregate affiliate revenue remains unattributed; no revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are authorized.",
         "requested_action": null,
         "proposal_id": null
       }
