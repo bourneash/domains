@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:29:07.136Z",
+  "generated_at": "2026-10-01T03:49:03.893Z",
   "summary": "cfo checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: maintain financial containment, approve no discretionary spend or revenue forecasts, and preserve only already-queued reversible work after capacity release. Revenue is supported only for 2026-09-21: Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission, all in aggregate tracking ID \"other\"; named site rows show $0 site-attributed commission. Site revenue, contribution margin, ROI, and causal lift are therefore unknown. September AI usage is $1,002.46 across 5,531 calls and 39 instrumented sites, including 234 errors; AI cost per call is approximately $0.18, but cost-to-learn per proven outcome is not calculable because costs are not linked to measured outcomes. Infrastructure, hosting, domains, labor, and marketing spend are unavailable; fixed-cost, marketing-budget, revenue-target, and revenue-floor fields are blank. Do not claim profitability or extrapolate the one-day Amazon result to monthly revenue. Minimum finance evidence required for a valid margin view: period-aligned revenue by registered site/tracking ID, AI cost by site/task, hosting/infrastructure/domain billing, and any included labor or marketing costs.",
+        "summary": "Recommendation: preserve containment, authorize no new spend, and reject revenue, ROI, contribution-margin, cost-to-learn, or causal-lift claims this cycle. Known evidence is AI spend of $1,002.4598 for 2026-09-01 through 2026-09-30 across 5,531 calls, with 234 errors and 39 instrumented sites. Amazon evidence covers only 2026-09-21: 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 aggregate commission under tracking ID other. The $4.92 cannot be assigned to sites; named site rows show $0 attributed income. A valid contribution margin is not calculable because revenue and AI-cost windows differ and infrastructure, hosting, registrar, labor, and other direct costs are absent. Naive arithmetic of $4.92 minus $1,002.4598 equals -$997.5398, but it is not a valid margin measure. The canonical affiliate CTA work may proceed only after capacity release, with no revenue forecast and measurement limited to registered affiliate clicks and available conversions.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Keep the 2026-09-21 Amazon result explicitly bounded: $4.92 aggregate commission cannot be assigned to a site, while named tracking rows currently support $0 site-attributed commission. Do not publish site revenue, ROI, margin, forecast, or causal-lift claims without period-aligned site identifiers and cost evidence.",
+        "summary": "Attribution quality is insufficient for site economics despite complete tracking-ID mapping: 18 named rows are mapped, but one aggregate provider row contains all $4.92 commission and cannot be assigned without inventing attribution. The minimum revenue measurement is a future provider export where every monetized link uses a registered site/content tracking ID, plus a dated reconciliation of clicks, ordered items, shipped items, and commission. Do not treat sessions, impressions, clicks, conversions, or AI calls as revenue.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Infrastructure spend is not calculable from the brief: operations has no deploy, uptime, error, or billing sweep results, and no fixed-cost or monthly spend limit is configured. Record this as an evidence gap in the finance baseline; do not access banking, change billing, or incur spend.",
+        "summary": "Cost-to-learn is not calculable from the brief: AI cost is available, but experiment-level exposure, control/treatment assignment, incremental outcome, and attributable revenue are absent; the experiments source reports zero experiments. The minimum measurement is one bounded hypothesis with recorded treatment/control exposure, pre-change baseline, incremental conversion or affiliate-click outcome, and matched attributable commission before dividing spend by learning or revenue outcome.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:29:07.135Z",
-  "summary": "ceo checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-01T03:49:03.893Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: reject the candidate plan’s new site-factory admission, control-plane proposal, and duplicate work this cycle. Delivery remains saturated at 10/10 slots, with 57 improvements measuring, 21 failed requests, and 108 approved proposals lacking execution. Preserve only canonical allthingsmasonic.com CTA request 4719e525-763b-42a4-9f16-e71e1c38b17b after CTO closes or justifies closure of the saveusfarms.com repair case by 2026-10-01T09:00Z. SearchWoot remains private and rights outreach unsent because rights, security, accuracy, measurement, and owner gates are incomplete. Amazon evidence is limited to $4.92 aggregate unattributed commission for 2026-09-21; site revenue, ROI, margin, and causal lift remain unknown. Smallest next step: CTO records validation or justified closure and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent under EXEC_CONV_12.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject the candidate plan’s new site-factory batch and control-plane implementation as capacity-gated planning context. Preserve the existing launch-readiness path for complicated.work without preview publication, deployment, spend, credentials, or production changes. Admit no new work until one active slot is released.",
+        "summary": "Recommendation: preserve containment under EXEC_CONV_12. Keep SearchWoot private and leave rights outreach unsent; Woot rights, security, accuracy, measurement, and owner gates remain incomplete. Preserve the canonical allthingsmasonic.com CTA refinement, but admit it only after CTO closes or justifies closure of the existing saveusfarms.com repair case by 2026-10-01T09:00Z. Evidence: 10/10 delivery slots occupied, 57 improvements measuring, 21 failed requests, 108 approved proposals without execution, and only $4.92 aggregate unattributed Amazon commission for 2026-09-21. Site revenue, margin, ROI, and causal lift remain unknown. Smallest next step: CTO records validation or justified closure and releases one slot. Owner decision: confirm SearchWoot remains private and rights outreach unsent.",
         "requested_action": null,
         "proposal_id": null
       }

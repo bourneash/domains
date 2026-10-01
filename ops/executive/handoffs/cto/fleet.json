@@ -2,28 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-01T03:29:07.136Z",
+  "generated_at": "2026-10-01T03:49:03.894Z",
   "summary": "cto checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Complete or close the existing saveusfarms.com repair-or-close case by 2026-10-01T09:00Z. Record ownership, root cause or justified closure, deterministic tests, isolated validation, build evidence, rollback point, release and security boundaries, attribution limits, measurement limits, and deduplication evidence. Release one slot only after the evidence is recorded.",
+        "summary": "Approve containment. No new production, prototype, telemetry, spend, credential, or duplicate queue work is technically admissible while all 10 delivery slots are occupied and measurement remains open. Keep existing private-launch and security gates unchanged. Complete or close the existing saveusfarms.com repair case by 2026-10-01T09:00Z with root-cause or closure evidence, deterministic tests, isolated validation, build evidence, rollback point, release/security boundaries, attribution limits, measurement limits, and deduplication evidence. After one slot is released, admit only canonical request 4719e525-763b-42a4-9f16-e71e1c38b17b.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "After one delivery slot is released, execute only the existing allthingsmasonic.com CTA refinement. Limit scope to CTA hierarchy, adjacent disclosure preservation, accessible names, visible focus, responsive layout, and existing destination validation. Add no tracking, dependencies, credentials, or spend. Validate deterministic tests, build output, link integrity, accessibility, and mobile/desktop behavior. Measure existing affiliate clicks and available GA4 outcomes against the recorded 61-click baseline for 14 days or 100 relevant impressions/clicks. Revert the single diff on validation failure or regression.",
+        "summary": "The existing allthingsmasonic.com CTA refinement is technically feasible, isolated to presentation and disclosure/accessibility behavior, and reversible as a single diff. Preserve registered affiliate destinations and identifiers; add no dependencies, routes, cross-site behavior, or telemetry. Acceptance requires deterministic tests, build/link validation, smoke checks, keyboard-visible focus, accessible labels, contrast, responsive layout, and unchanged destinations. Measure only existing registered affiliate clicks and available conversion fields for 14 days or 100 relevant impressions/clicks; report delta or inconclusive result without revenue or causal claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new site-factory, finance-report, SEO, affiliate-repair, prototype, telemetry, and duplicate implementation admissions this cycle. Delivery is saturated at 10/10 slots and active measurement remains in progress. Preserve only the existing canonical allthingsmasonic.com CTA refinement after the saveusfarms.com repair case releases one slot. Revenue, ROI, margin, and causal lift remain unknown; aggregate provider revenue must not be assigned to a site.",
+        "summary": "Revenue attribution remains insufficient for financial claims: the available Amazon window is one day, with aggregate commission not assignable to a site. Preserve the stated allthingsmasonic.com baseline of 61 registered affiliate clicks, 0 ordered items, and $0 site-attributed commission for 2026-09-21 without inferring ROI, margin, revenue impact, or causality.",
         "requested_action": null,
         "proposal_id": null
       }
