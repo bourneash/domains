@@ -1198,6 +1198,11 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="ctl-summary"/);
+  assert.match(app, /type="button" class="btn" id="control-refresh"/);
+  assert.match(
+    app,
+    /\$\('#control-refresh'\)\.addEventListener\('click', \(\) => renderControl\(\)\)/
+  );
   assert.match(app, /Sites monitored<\/span>/);
   assert.match(app, /Fully fresh<\/span>/);
   assert.match(app, /Need attention<\/span>/);

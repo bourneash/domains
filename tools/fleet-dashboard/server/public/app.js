@@ -4210,8 +4210,8 @@ async function renderControl() {
 
   app.innerHTML = `
     <div class="page-head">
-      <h2 class="page-title">Domain Control</h2>
-      <span class="muted">every role on every site · a column header opens that agent, a cell opens its log</span>
+      <div><h2 class="page-title">Domain Control</h2><span class="muted">every role on every site · a column header opens that agent, a cell opens its log</span></div>
+      <button type="button" class="btn" id="control-refresh">↻ Refresh</button>
     </div>
     <div id="ctl-bar"></div>
     <div id="ctl-matrix"></div>
@@ -4233,6 +4233,7 @@ async function renderControl() {
     </details>
     <div id="parked-inventory"></div>`;
 
+  $('#control-refresh').addEventListener('click', () => renderControl());
   controlDraw();
   renderParked(); // fills #parked-inventory once its fetch lands — never blocks the matrix
   if (!FRESH) applyUISnap();
