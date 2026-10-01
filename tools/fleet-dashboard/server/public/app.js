@@ -10249,6 +10249,9 @@ function shSyncTabs() {
     button.classList.toggle('active', active);
     button.setAttribute('aria-selected', String(active));
   });
+  const body = $('#sh-body');
+  const activeTab = $(`[data-sh-tab="${CSS.escape(SH.tab)}"]`);
+  if (body && activeTab) body.setAttribute('aria-labelledby', activeTab.id);
 }
 
 let shRefreshToken = 0;
@@ -10721,15 +10724,15 @@ async function renderSocialHub() {
         <button type="button" id="sh-tick" class="btn sm">Run tick</button>
       </span>
     </div>
-    <div class="seg" style="margin-bottom:14px">
+    <div class="seg" style="margin-bottom:14px" role="tablist" aria-label="Social Hub sections">
       ${tabs
         .map(
           ([id, label]) =>
-            `<button class="seg-btn ${SH.tab === id ? 'active' : ''}" data-sh-tab="${id}" role="tab" aria-selected="${SH.tab === id}">${label}</button>`
+            `<button type="button" class="seg-btn ${SH.tab === id ? 'active' : ''}" id="sh-tab-${id}" data-sh-tab="${id}" role="tab" aria-controls="sh-body" aria-selected="${SH.tab === id}">${label}</button>`
         )
         .join('')}
     </div>
-    <div id="sh-body"><div class="loading">Loading…</div></div>`;
+    <div id="sh-body" role="tabpanel" tabindex="0" aria-labelledby="sh-tab-${SH.tab}"><div class="loading">Loading…</div></div>`;
 
   shSyncTabs();
 

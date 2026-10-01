@@ -522,6 +522,13 @@ test('Social Hub exposes local refresh and accessible initial loading state', ()
     route,
     /\$\('#sh-refresh'\)\.addEventListener\('click', \(\) => renderSocialHub\(\)\)/
   );
+  assert.match(route, /role="tablist" aria-label="Social Hub sections"/);
+  assert.match(route, /role="tab" aria-controls="sh-body" aria-selected=/);
+  assert.match(
+    route,
+    /id="sh-body" role="tabpanel" tabindex="0" aria-labelledby="sh-tab-\$\{SH\.tab\}"/
+  );
+  assert.match(app, /body\.setAttribute\('aria-labelledby', activeTab\.id\)/);
 });
 
 test('Dev Sandbox destructive actions use the shared confirmation surface', () => {
