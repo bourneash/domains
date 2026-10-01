@@ -1073,6 +1073,19 @@ body[data-view="builds"] main { max-width: none; }
 .seo-coverage b { display: block; font-size: 21px; }
 .seo-coverage span { display: block; font-size: 10px; margin-top: 2px; }
 .improvement-card { margin-bottom: 12px; }
+.priority-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+.priority-pagination > span { flex: 1; text-align: center; font-size: 11px; }
+.priority-pagination .btn:disabled { cursor: not-allowed; opacity: .45; }
 .improvement-pagination {
   display: flex;
   align-items: center;
@@ -1125,6 +1138,10 @@ body[data-view="builds"] main { max-width: none; }
   text-align: center;
 }
 @media (max-width: 720px) {
+  body[data-view="priorities"] .seo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .priority-pagination { align-items: stretch; flex-wrap: wrap; }
+  .priority-pagination > span { order: -1; flex-basis: 100%; }
+  .priority-pagination .btn { flex: 1; }
   .improvement-pagination { align-items: stretch; flex-wrap: wrap; }
   .improvement-pagination > span { order: -1; flex-basis: 100%; }
   .improvement-pagination .btn { flex: 1; }

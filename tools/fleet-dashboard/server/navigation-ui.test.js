@@ -1964,6 +1964,13 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
     /role="status" aria-live="polite"><div class="loading">Joining portfolio signals…<\/div>/
   );
   assert.match(priorities, /type="button" id="priorities-refresh" class="btn"/);
+  assert.match(app, /const PRIORITY_PAGE_SIZE = 25/);
+  assert.match(priorities, /class="priority-pagination" aria-label="Priority action pages"/);
+  assert.match(priorities, /id="priority-prev"/);
+  assert.match(priorities, /id="priority-next"/);
+  assert.match(priorities, /caption class="sr-only">Prioritized recommended actions<\/caption>/);
+  assert.match(priorities, /class="fd-stale-banner priority-notice" role="note"/);
+  assert.doesNotMatch(priorities, /<div class="error-box">\$\{esc\(data\.notice/);
   assert.match(app, /const IMPROVEMENT_PAGE_SIZE = 20/);
   assert.match(improvements, /<h4>Quality gates<\/h4><div class="table-wrap"><table class="tbl">/);
   assert.match(
