@@ -2728,11 +2728,11 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
    would otherwise consume the entire viewport retain their icon and title. */
 @media (max-width: 720px) {
   .topbar { align-items: center; gap: 8px; min-height: 52px; padding: 8px 10px; }
-  .mobile-rail-toggle { order: 0; }
-  #ctx { order: 1; flex: 1 1 0; min-width: 0; overflow: hidden; }
+  .mobile-rail-toggle { display: grid; order: 0; }
+  .mobile-rail-backdrop { display: block; }
+  #ctx { order: 1; flex: 1 1 120px; min-width: 0; overflow: hidden; }
   #ctx .ctx-v { overflow: hidden; text-overflow: ellipsis; }
-  .actions { order: 2; flex: 0 1 auto; gap: 6px; max-width: calc(100% - 42px); overflow-x: auto; scrollbar-width: none; }
-  .actions::-webkit-scrollbar { display: none; }
+  .actions { order: 2; flex: 1 1 260px; min-width: 0; gap: 6px; max-width: 100%; overflow: visible; flex-wrap: wrap; align-content: center; }
   .actions #updated, .actions .auto-next { display: none; }
   .actions .density-toggle { width: 34px; padding: 7px 8px; overflow: hidden; font-size: 0; }
   .actions .density-toggle::before { content: '◐'; font-size: 15px; }

@@ -4294,11 +4294,11 @@ function controlDraw() {
 
   $('#ctl-bar').innerHTML = `
     <section class="ctl-summary" aria-label="Domain control summary">
-      <div class="ctl-stat"><strong>${sites.length}</strong><span>Sites monitored</span></div>
-      <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully fresh</span></div>
-      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Need attention</span></div>
-      <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>With paused roles</span></div>
-      <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common roles · ${tally.fresh} fresh cells</span></div>
+      <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully green sites</span></div>
+      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites needing attention</span></div>
+      <div class="ctl-stat ${nPaused ? 'ctl-stat-meta' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
+      <div class="ctl-stat ctl-stat-meta"><strong>${core.length}</strong><span>Common role columns</span></div>
+      <div class="ctl-stat ctl-stat-good"><strong>${tally.fresh}</strong><span>Fresh role cells</span></div>
     </section>
     <div class="ctl-bar">
       <div class="seg sm">

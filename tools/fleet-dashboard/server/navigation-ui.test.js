@@ -912,10 +912,13 @@ test('mobile navigation keeps keyboard focus inside the open drawer', () => {
 
 test('mobile command bar preserves context and keeps controls reachable', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  assert.match(theme, /#ctx \{ order: 1; flex: 1 1 0; min-width: 0; overflow: hidden; \}/);
+  assert.match(theme, /#ctx \{ order: 1; flex: 1 1 120px; min-width: 0; overflow: hidden; \}/);
   assert.match(theme, /\.actions #refresh::before \{ content: '↻'/);
   assert.match(theme, /\.actions \.density-toggle::before \{ content: '◐'/);
   assert.match(theme, /\.fleet-filter-wrap \{ order: 3; flex: 1 1 100%;/);
+  assert.match(theme, /\.mobile-rail-toggle \{ display: grid; order: 0; \}/);
+  assert.match(theme, /\.mobile-rail-backdrop \{ display: block; \}/);
+  assert.match(theme, /\.actions \{ order: 2; flex: 1 1 260px; min-width: 0; gap: 6px; max-width: 100%; overflow: visible; flex-wrap: wrap;/);
 });
 
 test('mobile task filters stack cleanly without horizontal page overflow', () => {
@@ -1278,9 +1281,11 @@ test('Domain Control presents fleet role health as a summary strip', () => {
     app,
     /\$\('#control-refresh'\)\.addEventListener\('click', \(\) => renderControl\(\)\)/
   );
-  assert.match(app, /Sites monitored<\/span>/);
-  assert.match(app, /Fully fresh<\/span>/);
-  assert.match(app, /Need attention<\/span>/);
+  assert.match(app, /Fully green sites<\/span>/);
+  assert.match(app, /Sites needing attention<\/span>/);
+  assert.match(app, /Sites with paused roles<\/span>/);
+  assert.match(app, /Common role columns<\/span>/);
+  assert.match(app, /Fresh role cells<\/span>/);
   assert.match(theme, /\.ctl-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.rmatrix thead th \{[\s\S]*position: sticky/);
   assert.match(theme, /\.rmatrix thead th\.rsite-h \{ left: 0; z-index: 5; \}/);
