@@ -1180,7 +1180,7 @@
     <div class="rl-top">
       <a class="rl-brand" title="Domain Control">
         <span class="rl-mark"></span>
-        <span class="rl-word">Domain Fleet Manager</span>
+        <span class="rl-word" title="Domain Fleet Manager">Domain Fleet Manager</span>
       </a>
       <button class="rl-fold" type="button" title="Collapse sidebar" aria-label="Collapse sidebar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 7.5 10 12l4.5 4.5"/></svg>

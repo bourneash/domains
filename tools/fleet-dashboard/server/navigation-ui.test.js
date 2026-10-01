@@ -119,6 +119,13 @@ test('dynamic form controls receive stable fallback names', () => {
   assert.match(shell, /control\.name = `fd-\$\{slug \|\| 'field'\}-\$\{fallbackIndex\+\+\}`/);
 });
 
+test('navigation branding stays readable when the rail is constrained', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(shell, /class="rl-word" title="Domain Fleet Manager"/);
+  assert.match(theme, /\.rl-word \{[\s\S]*text-overflow: ellipsis/);
+});
+
 test('private dashboard publishes valid non-indexing metadata', () => {
   const robots = fs.readFileSync(path.join(publicDir, 'robots.txt'), 'utf8');
   const llms = fs.readFileSync(path.join(publicDir, 'llms.txt'), 'utf8');
