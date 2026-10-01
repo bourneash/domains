@@ -4290,7 +4290,7 @@ function controlDraw() {
       : rows.slice().sort((a, b) => a.s.site.localeCompare(b.s.site));
 
   const seg = (k, label, n) =>
-    `<button class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}">${label}<span class="ctl-n">${n}</span></button>`;
+    `<button type="button" class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}" aria-pressed="${CONTROL.filter === k}">${label}<span class="ctl-n">${n}</span></button>`;
 
   $('#ctl-bar').innerHTML = `
     <section class="ctl-summary" aria-label="Domain control summary">
@@ -4308,8 +4308,8 @@ function controlDraw() {
         ${seg('paused', 'Has paused', nPaused)}
       </div>
       <div class="seg sm">
-        <button class="seg-btn${CONTROL.sort === 'name' ? ' active' : ''}" data-ctl-sort="name">A–Z</button>
-        <button class="seg-btn${CONTROL.sort === 'health' ? ' active' : ''}" data-ctl-sort="health">Worst first</button>
+        <button type="button" class="seg-btn${CONTROL.sort === 'name' ? ' active' : ''}" data-ctl-sort="name" aria-pressed="${CONTROL.sort === 'name'}">A–Z</button>
+        <button type="button" class="seg-btn${CONTROL.sort === 'health' ? ' active' : ''}" data-ctl-sort="health" aria-pressed="${CONTROL.sort === 'health'}">Worst first</button>
       </div>
       <span class="ctl-count muted">${rows.length} of ${sites.length} sites · ${core.length} common roles</span>
     </div>`;
@@ -5620,8 +5620,8 @@ function boardCard(t) {
 function renderFleetControls() {
   $('#task-controls').innerHTML = `
     <div class="seg sm">
-      <button class="seg-btn ${TASK.view === 'tree' ? 'active' : ''}" id="v-tree">tree</button>
-      <button class="seg-btn ${TASK.view === 'table' ? 'active' : ''}" id="v-table">table</button>
+      <button type="button" class="seg-btn ${TASK.view === 'tree' ? 'active' : ''}" id="v-tree" aria-pressed="${TASK.view === 'tree'}">tree</button>
+      <button type="button" class="seg-btn ${TASK.view === 'table' ? 'active' : ''}" id="v-table" aria-pressed="${TASK.view === 'table'}">table</button>
     </div>`;
   $('#v-tree').addEventListener('click', () => {
     TASK.view = 'tree';
@@ -5667,7 +5667,7 @@ function fleetFiltered() {
 
 function pill(group, val, label, extraCls = '') {
   const on = group === 'blocked' ? TASK.f.blocked === val : TASK.f[group].has(val);
-  return `<button class="pill ${on ? 'active ' + extraCls : ''}" data-group="${group}" data-val="${esc(val)}">${esc(label)}</button>`;
+  return `<button type="button" class="pill ${on ? 'active ' + extraCls : ''}" data-group="${group}" data-val="${esc(val)}" aria-pressed="${on}">${esc(label)}</button>`;
 }
 
 function renderFleet() {

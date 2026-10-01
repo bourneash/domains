@@ -678,6 +678,14 @@ test('Change Queue and Guides use shared loading announcements', () => {
   assert.match(app, /content\.setAttribute\('aria-busy', 'false'\)/);
 });
 
+test('segmented operator filters expose pressed state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /data-ctl-filter="\$\{k\}" aria-pressed="\$\{CONTROL\.filter === k\}"/);
+  assert.match(app, /data-ctl-sort="name" aria-pressed="\$\{CONTROL\.sort === 'name'\}"/);
+  assert.match(app, /id="v-tree" aria-pressed="\$\{TASK\.view === 'tree'\}"/);
+  assert.match(app, /data-group="\$\{group\}" data-val="\$\{esc\(val\)\}" aria-pressed="\$\{on\}"/);
+});
+
 test('role enrollment and bulk health actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const roles = app.slice(
