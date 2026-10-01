@@ -10637,7 +10637,7 @@ async function renderSocialHub() {
   const app = $('#app');
   if (FRESH)
     app.innerHTML =
-      '<div class="page-head"><div><h2 class="page-title">Social Hub</h2><span class="muted">Publishing, oversight, scheduling, and community inbox</span></div></div><div class="loading" role="status" aria-live="polite">Reading the social hub…</div>';
+      '<div class="page-head"><div><h2 class="page-title">Social Hub</h2><span class="muted">Publishing, oversight, scheduling, and community inbox</span></div><button type="button" id="sh-refresh" class="btn sm">↻ Refresh</button></div><div class="loading" role="status" aria-live="polite">Reading the social hub…</div>';
 
   let overview;
   try {
@@ -10649,12 +10649,13 @@ async function renderSocialHub() {
 
   if (!overview.available) {
     app.innerHTML = `
-      <div class="page-head"><h2 class="page-title">Social Hub</h2></div>
+      <div class="page-head"><h2 class="page-title">Social Hub</h2><button type="button" id="sh-refresh" class="btn sm">↻ Refresh</button></div>
       <div class="empty">
         <p><strong>social-hub is not reachable.</strong></p>
         <p class="muted">${esc(overview.error || '')}</p>
         <p class="muted">${esc(overview.hint || '')}</p>
       </div>`;
+    $('#sh-refresh').addEventListener('click', () => renderSocialHub());
     return;
   }
 
