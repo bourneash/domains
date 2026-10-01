@@ -1347,6 +1347,12 @@ test('Guardrails uses bounded tables and shared panel controls', () => {
   const view = app.slice(start, end);
   assert.equal((view.match(/class="card gr-panel"/g) || []).length, 4);
   assert.equal((view.match(/class="table-wrap"><table/g) || []).length, 2);
+  assert.match(
+    view,
+    /role="status" aria-live="polite"><div class="loading">Loading guardrails…<\/div>/
+  );
+  assert.match(view, /type="button" id="guardrails-refresh" class="btn"/);
+  assert.match(view, /aria-label="Add global blocked term"/);
   assert.match(view, /class="gr-term-input"/);
   assert.match(view, /gr-title-note/);
   assert.doesNotMatch(view, /style="(?:margin-top:0|margin-top:8px|max-width:)/);

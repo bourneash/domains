@@ -17165,7 +17165,9 @@ function grChip(term, onRemove) {
 
 async function renderGuardrails() {
   const app = $('#app');
-  if (FRESH) app.innerHTML = '<div class="loading">Loading guardrails…</div>';
+  if (FRESH)
+    app.innerHTML =
+      '<div role="status" aria-live="polite"><div class="loading">Loading guardrails…</div></div>';
   let cfg, log, sites;
   try {
     [cfg, log, sites] = await Promise.all([
@@ -17222,13 +17224,13 @@ async function renderGuardrails() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><h2 class="page-title">Guardrails</h2><span class="muted">Identity/content protection — blocked terms hard-fail every commit fleet-wide; warn terms only fail when the context-classifier flags them.</span></div>
+    <div class="page-head"><div><h2 class="page-title">Guardrails</h2><span class="muted">Identity/content protection — blocked terms hard-fail every commit fleet-wide; warn terms only fail when the context-classifier flags them.</span></div><button type="button" id="guardrails-refresh" class="btn">↻ Refresh</button></div>
 
     <div class="card gr-panel">
       <h3 class="gr-title">Global — Blocked <span class="muted gr-title-note">(no override, ever)</span></h3>
       <div class="chip-row">${globalBlocked}</div>
       <div class="task-toolbar gr-toolbar">
-        <input id="gr-add-global-blocked" class="gr-term-input" placeholder="add blocked term…">
+        <input id="gr-add-global-blocked" class="gr-term-input" aria-label="Add global blocked term" placeholder="add blocked term…">
         <button type="button" class="btn sm" id="gr-add-global-blocked-btn">Add</button>
       </div>
     </div>
@@ -17237,7 +17239,7 @@ async function renderGuardrails() {
       <h3 class="gr-title">Global — Warn <span class="muted gr-title-note">(context-checked; human can override with HUMAN_ALLOW_WARN=1)</span></h3>
       <div class="chip-row">${globalWarn}</div>
       <div class="task-toolbar gr-toolbar">
-        <input id="gr-add-global-warn" class="gr-term-input" placeholder="add warn term…">
+        <input id="gr-add-global-warn" class="gr-term-input" aria-label="Add global warning term" placeholder="add warn term…">
         <button type="button" class="btn sm" id="gr-add-global-warn-btn">Add</button>
       </div>
     </div>
@@ -17250,7 +17252,7 @@ async function renderGuardrails() {
       <div class="task-toolbar gr-toolbar">
         <select id="gr-repo-select"><option value="">site…</option>${siteOptions}</select>
         <select id="gr-repo-list"><option value="blocked">blocked</option><option value="warn">warn</option></select>
-        <input id="gr-repo-term" class="gr-repo-input" placeholder="term…">
+        <input id="gr-repo-term" class="gr-repo-input" aria-label="Add repository guardrail term" placeholder="term…">
         <button type="button" class="btn sm" id="gr-add-repo-btn">Add override</button>
       </div>
     </div>
@@ -17262,6 +17264,7 @@ async function renderGuardrails() {
       </div>
     </div>`;
 
+  $('#guardrails-refresh').addEventListener('click', () => renderGuardrails());
   wireGuardrails();
   if (!FRESH) applyUISnap();
   stamp();
