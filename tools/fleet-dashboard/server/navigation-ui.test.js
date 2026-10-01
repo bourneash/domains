@@ -439,6 +439,15 @@ test('Social Hub destructive actions use the shared confirmation surface', () =>
   assert.doesNotMatch(social, /confirm\(/);
 });
 
+test('Social Hub overview bounds platform engagement tables', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function shRenderOverview(data)');
+  const end = app.indexOf('function shRenderOversight(data)', start);
+  assert.ok(start >= 0 && end > start);
+  const overview = app.slice(start, end);
+  assert.match(overview, /class="card sh-table-wrap"><table class="tbl"/);
+});
+
 test('Dev Sandbox destructive actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const sandbox = [
