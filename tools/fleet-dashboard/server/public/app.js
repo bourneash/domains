@@ -8557,7 +8557,7 @@ async function renderLint() {
       <td><button type="button" class="btn sm lint-rescan" data-site="${esc(row.site)}" ${running ? 'disabled' : ''}>Rescan</button></td>
     </tr>
     <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="lint:${esc(row.site)}" data-rk="lint:${esc(row.site)}"><td colspan="6">
-      ${errs ? `<div class="cn-log-head">Prettier cannot parse — the pre-commit hook is skipping these</div><ul>${errs}</ul>` : ''}
+      ${errs ? `<div class="cn-log-head">Prettier cannot parse — the pre-commit hook is skipping these files</div><ul>${errs}</ul>` : ''}
       ${drift ? `<div class="cn-log-head muted">Unformatted (auto-fixes on next commit that stages them)</div><ul>${drift}</ul>` : ''}
     </td></tr>`;
     })
@@ -8572,6 +8572,7 @@ async function renderLint() {
     </div>
     ${newErrors.length ? `<div class="card lint-alert" role="status"><div class="cn-log-head">New since the previous sweep (${newErrors.length})</div><ul>${newErrors.map(e => `<li class="mono">${esc(e.site)}/${esc(e.file)}</li>`).join('')}</ul></div>` : ''}
     <div class="card lint-table"><div class="table-wrap"><table>
+      <caption class="sr-only">Lint findings by site</caption>
       <thead><tr><th>Site</th><th>Status</th><th>Parse errors</th><th>Unformatted</th><th>Files</th><th></th></tr></thead>
       <tbody>${rows || '<tr><td colspan="6" class="muted">Every site is clean.</td></tr>'}</tbody>
     </table></div></div>

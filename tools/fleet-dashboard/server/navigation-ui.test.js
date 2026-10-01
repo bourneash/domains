@@ -1795,6 +1795,8 @@ test('Lint separates sweep actions, findings, and remediation guidance', () => {
   );
   assert.match(app, /class="task-toolbar lint-toolbar" role="group" aria-label="Lint actions"/);
   assert.match(app, /class="card lint-table"><div class="table-wrap"><table/);
+  assert.match(app, /Lint findings by site/);
+  assert.match(app, /pre-commit hook is skipping these files/);
   assert.match(app, /class="lint-help"><summary>How to remediate lint findings/);
   assert.match(style, /\.lint-table \{[^}]*overflow: hidden/);
 });
