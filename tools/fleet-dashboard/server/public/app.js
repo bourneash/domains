@@ -3198,6 +3198,10 @@ async function renderSiteFacts() {
   const swept = d.lastSweep
     ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago'
     : 'never (first sweep is still running — hourly checks, give it a minute)';
+  const factStates = d.rows.flatMap(row => d.families.map(family => row.cells[family]));
+  const present = factStates.filter(state => state === 'green').length;
+  const missing = factStates.filter(state => state === 'yellow').length;
+  const pending = factStates.length - present - missing;
 
   const body = d.rows
     .map(row => {
@@ -3220,7 +3224,13 @@ async function renderSiteFacts() {
 
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Site Facts</h2><span class="muted">SEO/trust/branding/ads/legal presence checks + Amazon ASIN health — swept hourly, ${d.rows.length} sites</span></div>
-    <div class="task-toolbar"><span class="muted">last swept ${esc(swept)}</span></div>
+    <section class="sf-summary" aria-label="Site facts coverage summary">
+      <div class="sf-stat"><strong>${d.rows.length}</strong><span>Sites monitored</span></div>
+      <div class="sf-stat sf-stat-good"><strong>${present}</strong><span>Checks present</span></div>
+      <div class="sf-stat ${missing ? 'sf-stat-warn' : 'sf-stat-good'}"><strong>${missing}</strong><span>Checks missing</span></div>
+      <div class="sf-stat ${pending ? 'sf-stat-meta' : 'sf-stat-good'}"><strong>${pending}</strong><span>Awaiting data</span></div>
+      <div class="sf-stat sf-stat-meta"><strong>${esc(swept)}</strong><span>Last sweep · ${d.families.length} fact families</span></div>
+    </section>
     <div class="card"><table class="sf-table">
       <thead><tr><th>Site</th>${d.families.map(f => `<th>${esc(f)}</th>`).join('')}</tr></thead>
       <tbody>${body || '<tr><td colspan="99" class="muted">No sites found.</td></tr>'}</tbody>

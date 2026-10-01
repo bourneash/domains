@@ -1132,6 +1132,51 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
   .deploy-controls > .muted { width: 100%; margin: 0; }
 }
 
+/* ---------------------------------------------------------- site facts ---- */
+.sf-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr)) minmax(190px, 1.45fr);
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.sf-stat {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  background: var(--grad-panel), var(--panel);
+  box-shadow: var(--sh-1);
+}
+.sf-stat strong {
+  display: block;
+  color: var(--text-hi);
+  font-size: 20px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.sf-stat span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.sf-stat-good { border-top-color: var(--green); }
+.sf-stat-good strong { color: var(--green); }
+.sf-stat-warn { border-top-color: var(--yellow); }
+.sf-stat-warn strong { color: var(--yellow); }
+.sf-stat-meta { display: flex; flex-direction: column; justify-content: center; }
+.sf-stat-meta strong { color: var(--muted); font-size: 15px; }
+@media (max-width: 900px) {
+  .sf-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sf-stat-meta { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .sf-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .sf-stat-meta { grid-column: auto; }
+}
+
 /* ------------------------------------------------------ vitals rail (new) -- */
 #vitals {
   display: flex; align-items: stretch; gap: 10px;
