@@ -2670,8 +2670,10 @@ async function openErrorDrawer(id) {
     ? `${row.dataset.site} · live retained log`
     : 'tool container · live retained log';
   const log = $('#err-drawer-log', shell);
-  log.textContent = 'loading…';
+  log.classList.add('async-loading');
+  log.textContent = 'Loading…';
   log.textContent = await fetchErrorLines(id);
+  log.classList.remove('async-loading');
 }
 
 async function renderErrors() {
@@ -3226,7 +3228,7 @@ function dsRenderPanel(site, tab) {
       </div>
       <iframe class="ds-frame" src="${esc(s.devUrl)}"></iframe>`;
   } else if (tab === 'logs') {
-    el.innerHTML = `<pre class="cn-logs-box" id="ds-logs-${esc(site)}">loading…</pre>`;
+    el.innerHTML = `<pre class="cn-logs-box async-loading" id="ds-logs-${esc(site)}">Loading…</pre>`;
     dsFetchDevLogs(site);
   }
 }
@@ -3236,8 +3238,10 @@ async function dsFetchDevLogs(site) {
   if (!box) return;
   try {
     const r = await fetch(`/api/devsandbox/${encodeURIComponent(site)}/dev/logs?n=400`);
+    box.classList.remove('async-loading');
     box.textContent = await r.text();
   } catch (e) {
+    box.classList.remove('async-loading');
     box.textContent = `error: ${e.message}`;
   }
 }
@@ -3437,7 +3441,7 @@ function sfToggle(site) {
 async function sfRenderPanel(site) {
   const el = $(`#sf-panel-${CSS.escape(site)}`);
   if (!el) return;
-  el.innerHTML = '<span class="muted">loading…</span>';
+  el.innerHTML = '<span class="async-loading">Loading…</span>';
   let d;
   try {
     d = await api('GET', `/api/sitefacts/${encodeURIComponent(site)}`);
@@ -3554,7 +3558,7 @@ async function toggleGitDetail(slug) {
     return;
   }
   row.classList.remove('hidden');
-  box.innerHTML = '<span class="muted">loading…</span>';
+  box.innerHTML = '<span class="async-loading">Loading…</span>';
   await fillGitDetail(slug, box);
 }
 
@@ -3680,7 +3684,7 @@ function wireGitOps(slug, box) {
 async function loadGitBranches(slug, detailsEl) {
   const body = $('.gd-branches-body', detailsEl);
   if (!body || body.dataset.loaded === '1') return;
-  body.innerHTML = '<span class="muted">loading…</span>';
+  body.innerHTML = '<span class="async-loading">Loading…</span>';
   let b;
   try {
     b = await api('GET', `/api/git/${encodeURIComponent(slug)}/branches`);
@@ -3764,15 +3768,18 @@ async function toggleGitFileDiff(slug, box, p, btn) {
     return;
   }
   pre.classList.remove('hidden');
-  pre.textContent = 'loading diff…';
+  pre.classList.add('async-loading');
+  pre.textContent = 'Loading diff…';
   try {
     const r = await api(
       'GET',
       `/api/git/${encodeURIComponent(slug)}/diff?path=${encodeURIComponent(p)}`
     );
     pre.textContent = r.diff || (r.untracked ? '(new file — no diff)' : '(no changes vs HEAD)');
+    pre.classList.remove('async-loading');
   } catch (e) {
     pre.textContent = `diff failed: ${e.message}`;
+    pre.classList.remove('async-loading');
   }
 }
 
@@ -4011,12 +4018,15 @@ async function toggleStashDiff(slug, index) {
     return;
   }
   pre.classList.remove('hidden');
-  pre.textContent = 'loading diff…';
+  pre.classList.add('async-loading');
+  pre.textContent = 'Loading diff…';
   try {
     const r = await api('GET', `/api/git/${encodeURIComponent(slug)}/stashes/${index}/diff`);
     pre.textContent = r.diff || '(empty diff)';
+    pre.classList.remove('async-loading');
   } catch (e) {
     pre.textContent = `diff failed: ${e.message}`;
+    pre.classList.remove('async-loading');
   }
 }
 
@@ -4714,7 +4724,7 @@ async function openRole(site, role) {
       <span class="role-ctrl">${ctrl}</span>
     </div>
     <div class="section-title"><span id="role-logfile">latest log</span> <span class="live-tag">live</span></div>
-    <pre class="cn-logs-box" id="role-log">loading latest log…</pre>`;
+    <pre class="cn-logs-box async-loading" id="role-log">Loading latest log…</pre>`;
   $('#modal').classList.remove('hidden');
   ROLE_OPEN = { site, role };
   const tg = $('#role-toggle');
@@ -4741,12 +4751,14 @@ async function fetchRoleLog(site, role) {
     );
     const f = $('#role-logfile');
     if (f) f.textContent = r.file || 'no log file found';
+    pre.classList.remove('async-loading');
     if (pre.textContent !== r.log) {
       pre.textContent = r.log;
       if (atBottom) pre.scrollTop = pre.scrollHeight;
     }
   } catch (e) {
-    if (pre.textContent === 'loading latest log…') pre.textContent = `error: ${e.message}`;
+    pre.classList.remove('async-loading');
+    if (pre.textContent === 'Loading latest log…') pre.textContent = `error: ${e.message}`;
   }
 }
 
@@ -5031,7 +5043,8 @@ async function toggleAgentLog(site, role) {
     return;
   }
   row.classList.remove('hidden');
-  box.textContent = 'loading latest log…';
+  box.classList.add('async-loading');
+  box.textContent = 'Loading latest log…';
   await fetchAgentLog(site, role, box);
 }
 
@@ -5042,12 +5055,14 @@ async function fetchAgentLog(site, role, box) {
       'GET',
       `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/log?tail=400`
     );
+    box.classList.remove('async-loading');
     if (box.textContent !== r.log) {
       box.textContent = r.log;
       if (atBottom) box.scrollTop = box.scrollHeight;
     }
   } catch (e) {
-    if (box.textContent === 'loading latest log…') box.textContent = `error: ${e.message}`;
+    box.classList.remove('async-loading');
+    if (box.textContent === 'Loading latest log…') box.textContent = `error: ${e.message}`;
   }
 }
 
@@ -5268,7 +5283,8 @@ async function toggleContainerLogs(id) {
     return;
   }
   row.classList.remove('hidden');
-  box.textContent = 'loading logs…';
+  box.classList.add('async-loading');
+  box.textContent = 'Loading logs…';
   await fetchContainerLog(id, box);
 }
 
@@ -5302,7 +5318,8 @@ async function fetchContainerLog(id, box) {
       if (atBottom) box.scrollTop = box.scrollHeight;
     }
   } catch (e) {
-    if (!box.textContent || box.textContent === 'loading logs…')
+    box.classList.remove('async-loading');
+    if (!box.textContent || box.textContent === 'Loading logs…')
       box.textContent = `error: ${e.message}`;
   }
 }
@@ -8843,7 +8860,7 @@ async function renderDomains() {
       </tr>
       <tr class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="6">
         <div class="cn-log-head">${esc(j.id)}${j.error ? ` — <span class="b-red">${esc(j.error)}</span>` : ''}</div>
-        <pre class="cn-logs-box" data-rkh="domlog:${esc(j.id)}" data-domlog="${esc(j.id)}">${open ? 'loading…' : ''}</pre>
+        <pre class="cn-logs-box${open ? ' async-loading' : ''}" data-rkh="domlog:${esc(j.id)}" data-domlog="${esc(j.id)}">${open ? 'Loading…' : ''}</pre>
       </td></tr>`;
     })
     .join('');
@@ -9020,14 +9037,18 @@ function domToggleJob(id) {
 async function domLoadLog(id) {
   const pre = $(`pre[data-domlog="${CSS.escape(id)}"]`);
   if (!pre) return;
+  pre.classList.add('async-loading');
+  pre.textContent = 'Loading…';
   try {
     const d = await api('GET', `/api/domains/jobs/${encodeURIComponent(id)}`);
+    pre.classList.remove('async-loading');
     const pinned = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 24;
     pre.textContent =
       (d.truncated ? '… (earlier output truncated)\n' : '') +
       (d.log || '(no output yet — waiting for the host runner to pick this job up)');
     if (pinned) pre.scrollTop = pre.scrollHeight;
   } catch (e) {
+    pre.classList.remove('async-loading');
     pre.textContent = `log unavailable: ${e.message}`;
   }
 }

@@ -1231,6 +1231,16 @@ test('data-heavy routes use the shared production loading state', () => {
   );
 });
 
+test('secondary async panels use the shared compact loading treatment', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(theme, /\.async-loading::before[\s\S]*loading-spin/);
+  assert.match(theme, /pre\.async-loading[\s\S]*padding-left/);
+  assert.match(app, /class="async-loading">Loading…/);
+  assert.match(app, /class="cn-logs-box async-loading"/);
+  assert.match(app, /pre\.classList\.remove\('async-loading'\)/);
+});
+
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const facts = app.slice(

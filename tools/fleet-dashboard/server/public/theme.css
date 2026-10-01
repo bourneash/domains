@@ -816,6 +816,34 @@ td.site, .site-link { font-weight: 620; letter-spacing: -.01em; }
 }
 :root[data-theme="light"] .loading::before { border-color: rgba(40,70,110,.16); border-top-color: var(--a1); }
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -60% 0; } }
+.async-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted) !important;
+  font-size: 12px;
+}
+.async-loading::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 2px solid color-mix(in srgb, var(--muted) 28%, transparent);
+  border-top-color: var(--a1);
+  border-radius: 50%;
+  animation: loading-spin .75s linear infinite;
+}
+pre.async-loading {
+  display: block;
+  min-height: 42px;
+  padding-left: 34px;
+  position: relative;
+}
+pre.async-loading::before {
+  position: absolute;
+  left: 13px;
+  top: 14px;
+}
 /* Social Hub has dense, full-width surfaces. A shimmer over those surfaces
    reads as a bright page flash, especially on Calendar's large grid. */
 body[data-view="socialhub"] .loading {
