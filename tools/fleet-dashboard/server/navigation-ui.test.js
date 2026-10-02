@@ -1988,6 +1988,14 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(app, /id="wb-board-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search work board items"/);
+  assert.match(
+    app,
+    /class="wb-board-scroll-hint" role="note">Swipe horizontally to browse workflow stages/
+  );
+  assert.match(
+    app,
+    /class="wb-board" role="region" aria-label="Fleet work board stages" tabindex="0"/
+  );
   assert.match(app, /const WORK_BOARD_PAGE_SIZE = 20/);
   assert.match(app, /function renderWorkflowBoardLane\(key, label, items, total\)/);
   assert.match(app, /aria-label="\$\{esc\(label\)\} work items pages"/);
@@ -1997,7 +2005,13 @@ test('Work Board keeps one authoritative renderer', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.wb-lane-pagination \{/);
   assert.match(style, /\.wb-column \{ min-width: 0;/);
-  assert.match(style, /\.wb-board \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);
+  assert.match(
+    style,
+    /\.wb-board \{ grid-template-columns: none; grid-auto-columns: min\(84vw, 390px\); grid-auto-flow: column; align-items: start; overflow-x: auto;/
+  );
+  assert.match(style, /\.wb-column \{ align-self: start; scroll-snap-align: start; \}/);
+  assert.match(style, /\.wb-board \.wb-lane-pagination \{ position: static; \}/);
+  assert.match(style, /\.wb-board-scroll-hint \{ display: block;/);
   assert.match(app, /\.includes\(query\)/);
   assert.match(app, /aria-label="Open \$\{esc\(item\.title\)\} details"/);
   assert.match(app, /const diagnosticGroups = \[\]/);
