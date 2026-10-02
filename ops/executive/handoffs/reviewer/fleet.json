@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:18:59.010Z",
+  "generated_at": "2026-10-02T16:21:10.842Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the MarineActivity admission and all ungated or high-priority work. Aggregate affiliate commission remains unattributed, telemetry is low-volume or incomplete, and operations/security release evidence is unavailable. Routed two distinct-site, low-risk SEO changes with validation gates; other candidates remain blocked pending existing-work completion or launch evidence. Principal-engineer must reconcile blockers by 2026-10-02T17:00:00Z and escalate unresolved items to the CEO.",
+        "summary": "Reviewer disposition: reject all new production and high-priority queue admissions this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence; aggregate affiliate revenue remains unattributed and operations/security evidence is unavailable. Preserve the capacity gate. Principal-engineer must reconcile the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z; unresolved blockers escalate to the owner. Site-factory must complete scaffold launch-readiness evidence before any scaffold build. Existing review/measurement work remains the blocker for 0xroulette.com, deeppenetrations.com, and broadwayshowgirls.com.",
         "requested_action": null,
         "proposal_id": null
       }
