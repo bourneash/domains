@@ -2520,6 +2520,21 @@ body.has-rail .actions { margin-left: 0; }
 .nav-root-card-copy span { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .nav-root-arrow { flex: none; color: var(--faint); font-size: 18px; transition: color var(--dur), transform var(--dur); }
 .nav-root-card:hover .nav-root-arrow { color: rgb(var(--nav-card-rgb)); transform: translateX(3px); }
+:root[data-theme="light"] .nav-root-card {
+  border-color: var(--border);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 0 0, rgba(var(--nav-card-rgb),.09), transparent 46%),
+    linear-gradient(145deg, #fff, #f5f8fd);
+  box-shadow: var(--sh-2), inset 0 1px 0 rgba(255,255,255,.9);
+}
+:root[data-theme="light"] .nav-root-card:hover {
+  border-color: rgba(var(--nav-card-rgb),.42);
+  box-shadow: var(--sh-3), 0 0 0 1px rgba(var(--nav-card-rgb),.06);
+}
+:root[data-theme="light"] .nav-root-icon {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 4px 12px rgba(31,52,82,.08);
+}
 @media (max-width: 1100px) { .nav-root-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 680px) { .nav-root-grid { grid-template-columns: 1fr; } }
 
