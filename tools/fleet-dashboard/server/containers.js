@@ -42,8 +42,23 @@ const FIELDS = [
 // Every container whose compose working_dir is inside the domains repo. Running
 // ones, plus legacy cron containers even if down; adopted-site legacy cron rows
 // are filtered below because fleet-scheduler owns those schedules.
-async function list(root) {
-  const r = await sh('docker', ['ps', '-a', '--no-trunc', '--format', FIELDS]);
+function createLister(run = sh) {
+  const inFlight = new Map();
+
+  return function list(root) {
+    const pending = inFlight.get(root);
+    if (pending) return pending;
+
+    const request = listFresh(root, run).finally(() => {
+      if (inFlight.get(root) === request) inFlight.delete(root);
+    });
+    inFlight.set(root, request);
+    return request;
+  };
+}
+
+async function listFresh(root, run) {
+  const r = await run('docker', ['ps', '-a', '--no-trunc', '--format', FIELDS]);
   if (r.err) throw httpErr(500, dockerErr(r));
   const inRepo = w => w && (w === root || w.startsWith(root + '/'));
   const rows = r.stdout
@@ -103,6 +118,8 @@ async function list(root) {
       )
   );
 }
+
+const list = createLister();
 
 // Guardrail: never act on a container outside the domains repo.
 async function assertDomains(root, id) {
@@ -176,4 +193,4 @@ async function restartCrons(root) {
   return { ok: true, restarted: results.filter(x => x.ok).length, total: results.length, results };
 }
 
-module.exports = { list, action, logs, bounce, restartCrons };
+module.exports = { list, createLister, action, logs, bounce, restartCrons };
