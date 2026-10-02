@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T22:59:52.846Z",
+  "generated_at": "2026-10-02T23:01:06.036Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the Americastrikes.com report-only proposal and all new production or high-priority queue work. Revenue attribution, telemetry volume, active measurement overlap, and operations/security evidence remain insufficient. Approve only three isolated, low-priority preview implementations with no publication, deployment, telemetry activation, monetization, spend, credential/configuration changes, or dependency additions. Production remains blocked; unresolved preview blockers escalate by 2026-10-03T17:00:00Z.",
+        "summary": "Rejected the report-only oventoheaven.com baseline because it does not satisfy the delivery mandate. Revenue, production, and high-priority queue work remain blocked by unattributed affiliate income, low-volume/incomplete telemetry, active measurement overlap, and missing operations/security evidence. Routed only three isolated low-priority preview implementations on scaffold sites; no publication, deployment, telemetry activation, monetization, spend, credential/configuration change, dependency addition, or production claim is authorized. Unresolved blockers escalate by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
