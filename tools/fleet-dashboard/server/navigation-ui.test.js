@@ -1888,7 +1888,7 @@ test('global site filtering recalculates fleet task summary values', () => {
     values.map(value => value.textContent),
     ['2', '1', '1', '1', '1']
   );
-  assert.equal(meta.textContent, 'Sites with matching tasks · 0 done · 0 hold');
+  assert.equal(meta.textContent, 'Site with matching tasks · 0 done · 0 hold');
 });
 
 test('Health KPI summary follows the currently visible site cards', () => {
@@ -4030,7 +4030,10 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="tasks-summary"/);
   assert.match(app, /Visible tasks<\/span>/);
-  assert.match(app, /Sites with matching tasks · \$\{counts\.done\} done/);
+  assert.match(
+    app,
+    /\$\{counts\.sites === 1 \? 'Site' : 'Sites'\} with matching tasks · \$\{counts\.done\} done/
+  );
   assert.match(app, /Blocked<\/span>/);
   assert.match(app, /new Set\(rows\.map\(t => t\.site\)\)/);
   assert.match(theme, /\.tasks-summary \{[^}]*grid-template-columns/);

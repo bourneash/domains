@@ -474,7 +474,7 @@ function updateTaskFleetSummary(siteQuery = '') {
   if (meta) {
     const done = matching.filter(row => row.dataset.col === 'done').length;
     const hold = matching.filter(row => row.dataset.col === 'hold').length;
-    meta.textContent = `Sites with matching tasks · ${done} done · ${hold} hold`;
+    meta.textContent = `${sites.size === 1 ? 'Site' : 'Sites'} with matching tasks · ${done} done · ${hold} hold`;
   }
 }
 
@@ -6599,7 +6599,7 @@ function renderFleet() {
     <div class="task-stat task-stat-good"><strong>${counts.ip}</strong><span>In progress</span></div>
     <div class="task-stat ${counts.blocked ? 'task-stat-warn' : 'task-stat-good'}"><strong>${counts.blocked}</strong><span>Blocked</span></div>
     <div class="task-stat"><strong>${counts.bl}</strong><span>Backlog</span></div>
-    <div class="task-stat task-stat-meta"><strong>${counts.sites}</strong><span>Sites with matching tasks · ${counts.done} done · ${counts.hold} hold</span></div>
+    <div class="task-stat task-stat-meta"><strong>${counts.sites}</strong><span>${counts.sites === 1 ? 'Site' : 'Sites'} with matching tasks · ${counts.done} done · ${counts.hold} hold</span></div>
   </section>`;
   const search = `<label class="task-search">Find a task<input id="task-search" class="cm-input" type="search" aria-label="Search fleet tasks" placeholder="Title, site, role, or blocker…" value="${esc(fc.query)}"></label>`;
   const list = rows.length
