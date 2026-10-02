@@ -1801,6 +1801,8 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /WORK_BOARD_PAGES\[key\] = 1/);
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.wb-lane-pagination \{/);
+  assert.match(style, /\.wb-column \{ min-width: 0;/);
+  assert.match(style, /\.wb-board \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/);
   assert.match(app, /\.includes\(query\)/);
   assert.match(app, /aria-label="Open \$\{esc\(item\.title\)\} details"/);
   assert.match(app, /const diagnosticGroups = \[\]/);
