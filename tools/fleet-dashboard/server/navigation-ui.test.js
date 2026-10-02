@@ -2056,11 +2056,9 @@ test('wide rendered tables receive consistent mobile scroll affordances', () => 
     /wrap\.tabIndex = 0;\s+wrap\.setAttribute\('role', 'region'\);\s+wrap\.setAttribute\('aria-label', label\)/
   );
   assert.match(app, /Swipe horizontally to inspect all columns/);
-  assert.match(app, /panel\?\.querySelectorAll\('\.matrix-scroll-hint'\)/);
-  assert.match(
-    app,
-    /root\.children\]\.some\(\s*child => child\.classList\.contains\('matrix-scroll-hint'\)/
-  );
+  assert.match(app, /const hintSelector = '\[role="note"\]\[class\*="scroll-hint"\]'/);
+  assert.match(app, /panel\?\.querySelectorAll\(hintSelector\)/);
+  assert.match(app, /root\.children\]\.some\(\s*child => child\.matches\(hintSelector\)/);
   assert.match(
     app,
     /Promise\.resolve\(renderCurrentView\(\)\)\.then\(\(\) => \{\s+const app = \$\('#app'\);\s+enhanceScrollableTables\(app\);\s+removeDuplicatePageRefresh\(app\);/

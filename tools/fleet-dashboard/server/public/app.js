@@ -17508,15 +17508,12 @@ function enhanceScrollableTables(root) {
     wrap.setAttribute('aria-label', label);
     const precedes = (hint, node) => Boolean(hint.compareDocumentPosition(node) & 4);
     const panel = wrap.closest('.card, section, article');
+    const hintSelector = '[role="note"][class*="scroll-hint"]';
     const hasHint =
-      wrap.previousElementSibling?.classList.contains('matrix-scroll-hint') ||
-      [...wrap.querySelectorAll('.matrix-scroll-hint')].some(hint => precedes(hint, table)) ||
-      [...(panel?.querySelectorAll('.matrix-scroll-hint') || [])].some(hint =>
-        precedes(hint, wrap)
-      ) ||
-      [...root.children].some(
-        child => child.classList.contains('matrix-scroll-hint') && precedes(child, wrap)
-      );
+      wrap.previousElementSibling?.matches(hintSelector) ||
+      [...wrap.querySelectorAll(hintSelector)].some(hint => precedes(hint, table)) ||
+      [...(panel?.querySelectorAll(hintSelector) || [])].some(hint => precedes(hint, wrap)) ||
+      [...root.children].some(child => child.matches(hintSelector) && precedes(child, wrap));
     if (!hasHint) {
       const hint = document.createElement('div');
       hint.className = 'matrix-scroll-hint';
