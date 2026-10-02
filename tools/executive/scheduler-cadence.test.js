@@ -11,7 +11,11 @@ function store(lastStarted, ownerCreated = [], status = 'completed', failedDispa
     listExecutiveActions: ({ action_type }) =>
       action_type === 'other'
         ? failedDispatch
-          ? [{ target_type: 'scheduled-executive-run', status: 'failed', ...failedDispatch }]
+          ? (Array.isArray(failedDispatch) ? failedDispatch : [failedDispatch]).map(row => ({
+              target_type: 'scheduled-executive-run',
+              status: 'failed',
+              ...row,
+            }))
           : []
         : lastStarted
           ? [
@@ -69,6 +73,31 @@ test('failed-to-deliver scheduler verdict retries a completed model tick after t
   const result = shouldRunPlanning(store(tick, [], 'completed', dispatch), { now });
   assert.equal(result.run, true);
   assert.equal(result.reason, 'failed tick retry due');
+});
+
+test('repeated no-delivery failures back paid planning off while owner work still bypasses', () => {
+  const failures = [
+    {
+      started_at: '2026-10-02T20:57:45Z',
+      finished_at: '2026-10-02T21:00:38Z',
+      error: 'executive failed_to_deliver',
+    },
+    {
+      started_at: '2026-10-02T20:32:40Z',
+      finished_at: '2026-10-02T20:39:06Z',
+      error: 'executive failed_to_deliver',
+    },
+  ];
+  const now = Date.parse('2026-10-02T21:10:00Z');
+  const quiet = shouldRunPlanning(store('2026-10-02T20:59:06Z', [], 'completed', failures), {
+    now,
+  });
+  assert.equal(quiet.run, false);
+  const owner = shouldRunPlanning(
+    store('2026-10-02T20:59:06Z', ['2026-10-02T21:05:00Z'], 'completed', failures),
+    { now }
+  );
+  assert.equal(owner.reason, 'new owner request');
 });
 
 test('approved work drains before planning cooldown can skip the model pass', () => {
