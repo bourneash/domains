@@ -2,29 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:13:46.029Z",
-  "summary": "security checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T18:34:08.928Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security sitefacts are unknown across 61 sites; compliance is technical-only with 37 pass, 18 fail, and 6 unknown. Authentication boundaries, secrets exposure, container isolation, release controls, dependency provenance, TLS detail, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are therefore unevidenced. No credential exposure or exploit is evidenced, but missing telemetry is not clearance. Exact decision: reject the three proposed production change requests this cycle, retain security-sensitive release and launch gates, and permit only ordinary reversible work that introduces no credentials, permissions, dependencies, data collection, configuration, or cross-site behavior. Reassess after authorized evidence establishes access, secrets, isolation, dependency, release, TLS, monitoring, incident, and disclosure controls.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "SearchWoot remains private and blocked. Complete the existing read-only evidence bundle for access boundaries, secrets, isolation, TLS, dependencies, monitoring, incident response, data exposure, and disclosure readiness. Do not deploy, change credentials or configuration, expand notifications, add dependencies, or conduct external outreach.",
+        "summary": "Disposition: evidence_needed. Recommendation: approve only isolated preview artifacts for complicated.work, deadlymaracas.com, and driveford.net; preserve all production, public-launch, monetization, credential, configuration, dependency, telemetry, and deployment gates. Severity: high for production release due to missing control evidence; medium for isolated preview work. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security sitefacts are unknown across 61 managed sites; authentication boundaries, secrets handling, runtime isolation, dependency provenance, release controls, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance reports 36 passes, 19 fails, and 6 unknown; complicated.work fails consent/banner checks and deadlymaracas.com is unreachable. No credential exposure or exploit is evidenced, but missing telemetry is not clearance. Exact decision: permit only separate review-worktree previews with deterministic build, link, accessibility, metadata, and smoke validation; do not publish or deploy. Attach dated security/readiness evidence before reconsidering launch.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve private launch and security-sensitive release gates while allowing only bounded reversible growth that does not expand authority, data collection, dependencies, configuration, or exposure.",
-        "requested_action": "Use authorized metadata and retained artifacts only to document authentication and access boundaries, secrets handling, container isolation, release and deployment controls, TLS, dependency and supply-chain provenance, data exposure, monitoring and incident signals, incident readiness, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, expand notifications, or conduct external outreach. Reassess the three proposed changes only after canonical capacity, site-specific measurement, and security release evidence are complete.",
+        "title": "Maintain evidence-needed security gate for isolated scaffold previews",
+        "summary": "Security disposition is evidence_needed for the managed fleet. Isolated preview work is acceptable only for complicated.work, deadlymaracas.com, and driveford.net; public exposure, deployment, monetization, credentials, configuration changes, dependency additions, new telemetry, and cross-site runtime changes remain blocked until material controls are evidenced.",
+        "requested_action": "Approve preview-only implementation in separate review worktrees with no production exposure. Require dated artifacts covering authentication and access boundaries, secrets handling, runtime isolation, release and deployment controls, dependency provenance, TLS, data exposure, monitoring and incident readiness, and security.txt or disclosure readiness where applicable. Preserve known compliance and reachability failures as blockers; do not remediate production during preview work or claim certification.",
         "proposal_id": null
       }
     ]

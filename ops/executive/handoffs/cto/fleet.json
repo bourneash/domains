@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:13:46.028Z",
-  "summary": "cto checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T18:34:08.928Z",
+  "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three proposed implementation requests this cycle. They are technically reversible but not safely admissible: existing active/review/measurement work, unavailable operations and fleet-doctor evidence, incomplete AI-cost coverage, low or zero-volume baselines, and unresolved financial attribution prevent defensible release and outcome measurement. Retain the implementation, security, release, and financial-claim gates. Do not request duplicate telemetry or create new production work. Preserve the revenue intent and revisit the highest-value candidate only after canonical capacity, baseline, threshold, tests, attribution boundary, rollback, and release evidence are recorded.",
+        "summary": "Approve the three isolated preview-only scaffold changes with tightened technical gates. Work must remain in separate review worktrees and preview artifacts, with no production publish, deployment, credential/configuration change, dependency addition, analytics activation, affiliate setup, external spend, or cross-site shared runtime behavior. Acceptance requires deterministic build, link, accessibility, metadata, and preview smoke checks; an explicit launch-gate artifact; and a reversible isolated commit. Do not claim readiness, revenue, ROI, causal lift, or production safety. Preserve the production gate because launch-readiness, operations, and security evidence remain incomplete.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Technical disposition: queue admission is safe only for preview artifacts on complicated.work, deadlymaracas.com, and driveford.net. The current evidence does not support public exposure: analytics are unconfigured, one site fails compliance checks, one is unreachable, and operations/fleet-doctor evidence is unavailable. Preview validation may document failures as blockers; it must not remediate production, enable telemetry, or infer missing metrics.",
         "requested_action": null,
         "proposal_id": null
       }
