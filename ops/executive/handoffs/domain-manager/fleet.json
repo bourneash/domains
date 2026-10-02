@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:10:21.975Z",
+  "generated_at": "2026-10-02T16:14:22.107Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish a preview-only homepage implementation baseline for findyourlostpets.com",
-        "summary": "Site-specific implementation evidence is insufficient: findyourlostpets.com is queue-ready, but the supplied snapshot does not identify its lifecycle details, homepage source files, analytics configuration, or measurable baseline. Create one bounded repository and public-surface evidence artifact before admitting production work.",
-        "requested_action": "Inspect only the existing findyourlostpets.com repository and public homepage. Record the exact route entry file, related styles/assets, current CTA and content structure, build command, deterministic tests, analytics state, and one reversible homepage improvement candidate. Do not modify production, add tracking, add dependencies, deploy, or request duplicate telemetry.",
+        "title": "Hold new girlpain.com work until active measurement completes",
+        "summary": "girlpain.com has an active improvement in measurement with a due date of 2026-10-11. Adding another implementation would overlap active work and could confound attribution.",
+        "requested_action": "Retain no new implementation request. On 2026-10-11, review the existing improvement outcome and either queue one distinct reversible change or close the candidate if evidence is insufficient.",
         "proposal_id": null
       }
     ]
