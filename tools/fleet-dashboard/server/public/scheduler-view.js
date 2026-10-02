@@ -130,6 +130,14 @@ async function renderScheduler() {
     j => j.active && j.last_run && ['failed', 'timeout', 'lost'].includes(j.last_run.status)
   ).length;
   const c = st.counters || {};
+  const outcomeLabels = [
+    ['ok', 'Succeeded'],
+    ['failed', 'Failed'],
+    ['timeout', 'Timed out'],
+    ['skipped_overlap', 'Overlap skipped'],
+    ['skipped_queue', 'Queue skipped'],
+    ['missed', 'Missed'],
+  ];
 
   app.innerHTML = `
     <div id="sch-root">
@@ -140,13 +148,22 @@ async function renderScheduler() {
       </div>
       <span class="muted">${SCH.inst === 'scheduler' ? `one DB-backed scheduler for ${sites.length} sites · ${adoptedN} adopted · replaces per-site cron containers` : 'fleet-level jobs (tools/fleet-cron): reapers, auth watchdog, social hub tick, AI optimizer…'}</span></div>
     <div id="sch-panel" role="tabpanel" aria-labelledby="${SCH.inst === 'scheduler' ? 'sch-tab-sites' : 'sch-tab-fleet'}">
-    <div class="task-toolbar">
-      <span class="badge ${st.paused ? 'b-red' : 'b-green'}">${st.paused ? 'PAUSED' : 'active'}</span>
-      <strong>${st.running} running · ${st.queued} queued</strong>
-      <span class="muted">${st.scheduled}/${st.jobs} jobs scheduled · ${failing} failing · up ${Math.round(st.uptime_s / 3600)}h · lag ${st.loop_lag_s}s</span>
-      <span class="muted">runs since start: ${['ok', 'failed', 'timeout', 'skipped_overlap', 'skipped_queue', 'missed'].map(k => `${k} ${c[k] || 0}`).join(' · ')}</span>
-      <button type="button" class="btn sm" id="sch-pause" style="margin-left:auto">${st.paused ? 'Resume all' : 'Pause all'}</button>
-    </div>
+    <section class="sch-runtime-panel" aria-label="Scheduler runtime health">
+      <div class="sch-runtime-top">
+        <span class="badge ${st.paused ? 'b-red' : 'b-green'}">${st.paused ? 'PAUSED' : 'active'}</span>
+        <strong>${st.running} running · ${st.queued} queued</strong>
+        <button type="button" class="btn sm" id="sch-pause">${st.paused ? 'Resume all' : 'Pause all'}</button>
+      </div>
+      <div class="sch-runtime-metrics">
+        <div class="sch-runtime-metric"><strong>${st.scheduled}/${st.jobs}</strong><span>jobs scheduled</span></div>
+        <div class="sch-runtime-metric${failing ? ' is-risk' : ''}"><strong>${failing}</strong><span>failing jobs</span></div>
+        <div class="sch-runtime-metric"><strong>${Math.round(st.uptime_s / 3600)}h</strong><span>process uptime</span></div>
+        <div class="sch-runtime-metric"><strong>${esc(`${st.loop_lag_s}s`)}</strong><span>scheduler lag</span></div>
+      </div>
+      <details class="sch-run-outcomes"><summary>Run outcomes since process start</summary>
+        <div class="sch-run-outcome-grid">${outcomeLabels.map(([key, label]) => `<div><strong>${Number(c[key] || 0).toLocaleString()}</strong><span>${label}</span></div>`).join('')}</div>
+      </details>
+    </section>
     <div class="task-toolbar">
       <span class="muted">Concurrency caps</span>
       ${[

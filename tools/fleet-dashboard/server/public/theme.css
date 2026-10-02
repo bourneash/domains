@@ -3452,3 +3452,21 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 @media (min-width: 381px) and (max-width: 440px) {
   .cfb-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+.sch-runtime-panel { display: grid; gap: 10px; margin: 12px 0; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--grad-panel), var(--panel); box-shadow: var(--sh-1); }
+.sch-runtime-top { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.sch-runtime-top strong { color: var(--text-hi); font-size: 13px; font-variant-numeric: tabular-nums; }
+.sch-runtime-top .btn { margin-left: auto; }
+.sch-runtime-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.sch-runtime-metric { display: grid; align-content: center; gap: 3px; min-width: 0; padding: 8px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); }
+.sch-runtime-metric strong { color: var(--text-hi); font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sch-runtime-metric span,.sch-run-outcome-grid span { color: var(--muted); font-size: 10px; line-height: 1.3; }
+.sch-runtime-metric.is-risk strong { color: var(--red); }
+.sch-run-outcomes { border-top: 1px solid var(--border); padding-top: 8px; }
+.sch-run-outcomes summary { color: var(--muted); font-size: 11px; cursor: pointer; }
+.sch-run-outcome-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.sch-run-outcome-grid > div { display: grid; gap: 2px; min-width: 0; padding: 6px 7px; border-radius: 7px; background: var(--panel-2); }
+.sch-run-outcome-grid strong { color: var(--text-hi); font-size: 12px; font-variant-numeric: tabular-nums; }
+@media (max-width: 620px) {
+  .sch-runtime-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sch-run-outcome-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

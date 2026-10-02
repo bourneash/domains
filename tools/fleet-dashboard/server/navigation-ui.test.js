@@ -1292,6 +1292,12 @@ test('Scheduler prioritizes incidents and bounds both large registers', () => {
   );
   assert.match(scheduler, /aria-label="Scheduled jobs per page"/);
   assert.match(scheduler, /aria-label="Scheduler runs per page"/);
+  assert.match(scheduler, /class="sch-runtime-panel" aria-label="Scheduler runtime health"/);
+  assert.match(scheduler, /Run outcomes since process start/);
+  assert.match(scheduler, /\['skipped_overlap', 'Overlap skipped'\]/);
+  assert.match(theme, /\.sch-runtime-metrics \{[^}]*grid-template-columns: repeat\(4/);
+  assert.match(theme, /\.sch-run-outcome-grid \{[^}]*grid-template-columns: repeat\(6/);
+  assert.match(theme, /\.sch-runtime-metric\.is-risk strong \{ color: var\(--red\); \}/);
   assert.match(theme, /\.sch-pagination \{[^}]*display: flex/);
 });
 
