@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:02:10.948Z",
+  "generated_at": "2026-10-02T17:06:32.603Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Revalidate existing rc-9.com mobile-performance repair",
-        "summary": "Do not create overlapping work. Reuse the existing blocked request and release it only after the owner clears the retained review artifact.",
-        "requested_action": "Update existing request 528b1e8e-d51d-467e-8331-3a73fbb26221 with the smallest repair disposition; no deployment or new request is authorized until review is cleared.",
+        "title": "Capture homepage CTA evidence before admitting a reversible UX change",
+        "summary": "shoptopless.com has 85 sessions and 1 conversion in the current scorecard, but the homepage CTA hierarchy, destination, source file, and CTA-specific baseline are not evidenced. Complete one bounded inspection before implementation admission.",
+        "requested_action": "Inspect the public homepage at / and the repository entry point. Record the exact homepage renderer, stylesheet, CTA destination, accessibility issues, and a reversible CTA clarification candidate. Do not deploy, add tracking, change configuration, or claim lift.",
         "proposal_id": null
       }
     ]

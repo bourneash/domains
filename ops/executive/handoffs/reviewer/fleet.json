@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:04:18.198Z",
+  "generated_at": "2026-10-02T17:06:32.602Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, launch, security, and high-priority claims. Route only three reversible, validation-gated SEO candidates on distinct sites. Aggregate affiliate earnings remain unattributed; operations/fleet-doctor evidence is unavailable; active measurement and review work block duplicate changes. Principal-engineer must reconcile the admission ledger and existing blockers by 2026-10-03T17:00:00Z and escalate unresolved items.",
+        "summary": "Reject the report-only CTA proposal and unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. Route only three medium-priority, validation-gated SEO implementation reviews on distinct sites; no deployment, spend, credential/configuration change, duplicate telemetry, or lift claim is authorized. Existing measurement, review, attribution, and release blockers remain explicit and must be resolved before implementation proceeds.",
         "requested_action": null,
         "proposal_id": null
       }
