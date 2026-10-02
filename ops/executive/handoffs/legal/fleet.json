@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-02T13:58:51.419Z",
-  "summary": "legal checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T14:13:46.028Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for the bounded, no-spend SEO change on stinkyleftfoot.com; blocked for new public launches, monetization expansion, security-sensitive exposure, and unsupported financial or causal claims. Evidence supports a single-page reversible change using existing GSC/GA4 data: baseline is 988 impressions, 2 clicks, average position 8.9, and 0 conversions. Legal conditions: preserve existing consent, cookie/analytics disclosure, privacy/terms links, affiliate disclosures, claims, copyright/trademark boundaries, platform-policy compliance, and age-sensitive safeguards; add no tracking, data collection, vendors, affiliate behavior, or cross-site changes. Compliance is only a technical baseline, not certification: 37 pass, 18 fail, 6 unknown, with open banner, consent, GA4, privacy, and terms findings. AI-usage coverage is incomplete and Amazon revenue is aggregate/unattributed, so revenue, ROI, margin, forecast, cost-to-learn, and causal-lift claims remain blocked. Exact decision: approve queue admission only; do not deploy until the stated build, indexability, canonical, robots, sitemap, link, disclosure, and diff-scope checks pass, with isolated rollback if they fail. SearchWoot launch-readiness tracking remains active at 0 of 4 legal tasks evidenced closed; no task is closed. Keep searchwoot.com private. Its Woot API data use is blocked because access documentation does not establish storage, derivatives, public display, alerts, attribution, freshness, correction, takedown, affiliate, or advertising rights, and public terms restrict commercial/public reuse. User alert rules and sync results are evidence_needed: missing data inventory, retention, deletion, correction, access, processor, notification-consent, and unsubscribe evidence; smallest action is a read-only data-flow and retention table. GA4 is evidence_needed: missing deployed consent/withdrawal behavior, GA4 property and data-sharing settings, retention, vendor disclosure, and jurisdictional review; smallest action is a read-only configuration capture without enabling tracking. Operational logs and Cloudflare hosting data are evidence_needed: missing log-field inventory, retention/access controls, vendor/DPA review, incident handling, and request procedures; smallest action is a read-only operator/vendor inventory. Next evidence action: attach one dated read-only bundle containing those three evidence artifacts plus the field-level Woot rights matrix, and prepare—but do not send—a human-counsel-reviewed permission request. Human counsel is required for upstream rights, privacy/jurisdiction, notification, vendor, and future affiliate or advertising decisions.",
+        "summary": "Risk disposition: blocked for all three proposed production change requests and any new public launch or monetization expansion; conditional for ordinary no-spend reversible growth that preserves existing disclosures, consent, provenance, claims, and platform-policy boundaries. Evidence: compliance is technical-only with 37 pass, 18 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; AI-usage coverage is 20 of 40 expected sites; Amazon's $4.92 commission is aggregate and unattributed; and the proposed sites have zero/low-volume or incomplete baselines. Exact decision: reject the three change requests this cycle, retain existing release/security/financial gates, and do not claim revenue, ROI, margin, causal lift, or production readiness. Next action: reconcile the canonical admission ledger and site-specific baseline, threshold, tests, attribution boundary, rollback, and release evidence before reconsidering one candidate.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot launch-readiness remains blocked and private. Tracking is active at 0 of 4 legal tasks evidenced closed; no task is closed. The next evidence action is one dated read-only bundle containing the source-rights matrix, alert data-flow and retention table, deployed consent and GA4 settings capture, log/vendor/DPA inventory, and incident/deletion/correction/request procedures. Prepare, but do not send, a human-counsel-reviewed Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }

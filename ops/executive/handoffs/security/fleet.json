@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T13:58:51.419Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T14:13:46.029Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide, with conditional approval for the bounded stinkyleftfoot.com SEO change. Severity is high for security-sensitive releases and new public exposure because fleet-doctor has no run or checks, and operations deploy, uptime, and error sweeps have no results. Authentication boundaries, secrets handling, runtime isolation, dependency provenance, release controls, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced across the fleet. No credential exposure, exploit, or security incident is evidenced; absence of telemetry is not clearance. Exact decision: approve only the existing single-page SEO change because it adds no credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior. Require build, diff-scope, canonical, robots, sitemap, link, disclosure, and indexability checks plus isolated rollback. Retain private-launch and security-sensitive release gates; do not treat this as fleet security clearance or certification.",
+        "summary": "Disposition: evidence_needed. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security sitefacts are unknown across 61 sites; compliance is technical-only with 37 pass, 18 fail, and 6 unknown. Authentication boundaries, secrets exposure, container isolation, release controls, dependency provenance, TLS detail, data exposure, monitoring, incident readiness, and security.txt/disclosure readiness are therefore unevidenced. No credential exposure or exploit is evidenced, but missing telemetry is not clearance. Exact decision: reject the three proposed production change requests this cycle, retain security-sensitive release and launch gates, and permit only ordinary reversible work that introduces no credentials, permissions, dependencies, data collection, configuration, or cross-site behavior. Reassess after authorized evidence establishes access, secrets, isolation, dependency, release, TLS, monitoring, incident, and disclosure controls.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot remains private and blocked. Complete the existing read-only evidence bundle for access boundaries, secrets, isolation, TLS, dependencies, monitoring, incident response, data exposure, and disclosure readiness. Do not deploy, change credentials or configuration, expand notifications, add dependencies, or conduct external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Conditionally approve bounded stinkyleftfoot.com SEO change under security evidence gate",
-        "summary": "Approve the existing single-page, no-spend SEO change as ordinary reversible growth while retaining the fleet-wide evidence-needed security disposition and all security-sensitive release gates.",
-        "requested_action": "Route only the existing stinkyleftfoot.com change request through validation-gated implementation. Do not add credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior. Require deterministic checks and isolated rollback before deployment. Do not claim fleet security clearance, incident absence, or certification.",
+        "title": "Maintain evidence-needed security disposition and release gates",
+        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations sweeps have no results and material security controls remain unevidenced. Preserve private launch and security-sensitive release gates while allowing only bounded reversible growth that does not expand authority, data collection, dependencies, configuration, or exposure.",
+        "requested_action": "Use authorized metadata and retained artifacts only to document authentication and access boundaries, secrets handling, container isolation, release and deployment controls, TLS, dependency and supply-chain provenance, data exposure, monitoring and incident signals, incident readiness, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, expand notifications, or conduct external outreach. Reassess the three proposed changes only after canonical capacity, site-specific measurement, and security release evidence are complete.",
         "proposal_id": null
       }
     ]

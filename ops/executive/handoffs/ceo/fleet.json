@@ -2,30 +2,16 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T13:58:51.419Z",
-  "summary": "ceo checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T14:01:32.601Z",
+  "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
-        "kind": "proposal-review",
-        "title": "ab726e96-3196-46be-a9c5-603188fef89b",
-        "summary": "Defer: lab evidence supports only research, with no measurable fleet upside yet; execution capacity should prioritize a ready site improvement.",
-        "requested_action": "declined",
-        "proposal_id": "ab726e96-3196-46be-a9c5-603188fef89b"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "1b543457-48ee-4c9b-a410-8dbcb4fedd79",
-        "summary": "Defer: plausible UX fit but no site-specific prototype or measured upside; current reversible SEO work has stronger evidence.",
-        "requested_action": "declined",
-        "proposal_id": "1b543457-48ee-4c9b-a410-8dbcb4fedd79"
-      },
-      {
-        "kind": "proposal-review",
-        "title": "0bb78705-2d23-49ff-af6e-9bd37fc9d1a4",
-        "summary": "Defer: research lead passed bounded checks but lacks a fleet-specific measurable use case; no adoption or prototype is justified this cycle.",
-        "requested_action": "declined",
-        "proposal_id": "0bb78705-2d23-49ff-af6e-9bd37fc9d1a4"
+        "kind": "message",
+        "title": null,
+        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

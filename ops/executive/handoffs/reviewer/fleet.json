@@ -2,28 +2,42 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T13:58:51.419Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T14:13:46.029Z",
+  "summary": "reviewer checked in 5 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed stinkyleftfoot.com production SEO change: 988 impressions and 2 clicks are insufficient evidence for production work, and no attributable revenue or causal lift is established. Retain financial, security, release, and launch gates. Preserve one bounded, read-only Save Us Farms public-surface inspection to resolve the existing repair-disposition evidence gap. No credentials, configuration, spending, schedules, telemetry changes, or production mutation are authorized.",
+        "summary": "Reject all three proposed production changes this cycle. Low or zero-volume telemetry, incomplete AI-cost coverage, unattributed aggregate affiliate revenue, active delivery/review constraints, and unavailable operations/security evidence do not support production admission or revenue, ROI, margin, causal-lift, or readiness claims. Retain existing release, security, attribution, and capacity gates; release at most one candidate only after canonical capacity, baseline, threshold, tests, attribution boundary, rollback, and release evidence are complete.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the stinkyleftfoot.com production SEO change: 988 impressions and 2 clicks are insufficient for production admission, with no supported revenue or causal-lift claim. Retain financial, security, release, and launch gates. Approve only the bounded read-only Save Us Farms inspection. Existing candidates remain blocked by active work, infrastructure review, missing readiness evidence, or insufficient telemetry.",
+        "summary": "Owner concern: the current plan mixes reversible design intent with insufficient measurement and release evidence. Keep production work blocked, preserve the existing CTO security gate, and require the canonical admission ledger before any implementation is reconsidered.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: no implementation candidate currently satisfies non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Principal-engineer must reconcile the admission ledger and candidate blockers; unresolved items escalate to the owner.",
+        "summary": "Reject all three implementation requests this cycle. Low or zero-volume telemetry, incomplete cost coverage, unattributed aggregate affiliate revenue, and unavailable operations/security evidence do not support production admission or financial, ROI, causal-lift, or readiness claims. Retain all implementation, attribution, security, and release gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: principal-engineer must document the canonical admission ledger and candidate-specific baseline, threshold, tests, attribution boundary, rollback, and release evidence by 2026-10-02T17:00:00Z. Release at most one candidate only if every gate passes; otherwise escalate the exact blocker.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "No production implementation or high-priority queue work is admissible this cycle. Preserve bounded public-surface research only; do not request telemetry or alter credentials, configuration, spending, schedules, tracking, or production.",
         "requested_action": null,
         "proposal_id": null
       }
