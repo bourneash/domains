@@ -14,6 +14,8 @@ tools/fleet-dashboard/*
 !tools/fleet-dashboard/server/
 tools/fleet-dashboard/server/*
 !tools/fleet-dashboard/server/eventstore.js
+!tools/fleet-dashboard/server/site-build-contract.js
+!tools/fleet-dashboard/server/execution-gates.js
 !tools/fleet-dashboard/server/active-delivery.js
 !tools/fleet-dashboard/server/executive.js
 !tools/fleet-dashboard/server/changequeue.js

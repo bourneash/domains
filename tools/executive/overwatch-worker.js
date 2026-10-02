@@ -12,6 +12,7 @@ const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const runtime = require('./agent-runtime');
+const { alertConsecutiveFailures } = require('./overwatch-alert');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
 const AGENT_SLUG = 'fleet-exec-overwatch';
@@ -414,6 +415,13 @@ async function main() {
       next_due_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     });
   }
+  report.alert = await alertConsecutiveFailures(store, {
+    agent,
+    runId: started.run.run_id,
+    root: ROOT,
+    report,
+  });
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), { mode: 0o600 });
   store.close();
   return report;
 }

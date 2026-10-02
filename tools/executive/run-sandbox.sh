@@ -37,6 +37,8 @@ SOURCE_DIGEST="$({
   find "$ROOT/tools/executive" -type f ! -path '*/data/*' ! -path '*/logs/*' -print | sort | while IFS= read -r file; do sha256sum "$file"; done
   for file in \
     "$ROOT/tools/fleet-dashboard/server/eventstore.js" \
+    "$ROOT/tools/fleet-dashboard/server/site-build-contract.js" \
+    "$ROOT/tools/fleet-dashboard/server/execution-gates.js" \
     "$ROOT/tools/fleet-dashboard/server/active-delivery.js" \
     "$ROOT/tools/fleet-dashboard/server/executive.js" \
     "$ROOT/tools/fleet-dashboard/server/changequeue.js" \
