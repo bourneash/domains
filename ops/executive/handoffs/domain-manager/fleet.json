@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:28:25.942Z",
+  "generated_at": "2026-10-02T16:33:19.285Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish nsfwpixles.com public-surface readiness baseline",
-        "summary": "Site-specific implementation evidence is unavailable for nsfwpixles.com. Produce one bounded read-only baseline for the public homepage before selecting design, content, SEO, analytics, or monetization work.",
-        "requested_action": "Inspect only https://nsfwpixles.com/ and the existing nsfwpixles.com repository metadata needed to identify the homepage entrypoint, robots.txt, sitemap, canonical, title, description, primary heading, visible CTA, accessibility blockers, disclosure links, and analytics state. Do not modify production, credentials, configuration, tracking, spending, or schedules.",
+        "title": "Establish pervypotion.com evidence baseline and route one reversible improvement",
+        "summary": "Current authoritative snapshot does not expose site-specific analytics, SEO, revenue, health, or repository evidence for pervypotion.com. Complete one bounded read-only baseline, then nominate exactly one reversible implementation if evidence supports it.",
+        "requested_action": "Inspect the existing pervypotion.com repository and public entry surface only. Record available audience, UX, content, analytics, monetization, compliance, health, and backlog evidence without inventing missing telemetry. Produce a single next-step implementation brief or an explicit blocker.",
         "proposal_id": null
       }
     ]
