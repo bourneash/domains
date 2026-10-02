@@ -213,6 +213,7 @@ function applyFleetFilter() {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  if (STATE.view === 'containers') updateContainerFilterCount();
   $$('.ag-health-detail[data-site]').forEach(el => {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
@@ -227,9 +228,11 @@ function applyFleetFilter() {
     const unit =
       STATE.view === 'errors'
         ? 'records'
-        : units.size === 1
-          ? units.values().next().value
-          : 'items';
+        : STATE.view === 'containers'
+          ? 'containers'
+          : units.size === 1
+            ? units.values().next().value
+            : 'items';
     const pagedQueue = STATE.view === 'change-queue';
     const total = STATE.view === 'errors' ? ERRORS_UI.siteTotal : rows.length;
     const matching = STATE.view === 'errors' ? ERRORS_UI.siteMatches : visible;
@@ -5063,7 +5066,7 @@ function controlDraw() {
         <button type="button" class="seg-btn${CONTROL.sort === 'name' ? ' active' : ''}" data-ctl-sort="name" aria-pressed="${CONTROL.sort === 'name'}">A–Z</button>
         <button type="button" class="seg-btn${CONTROL.sort === 'health' ? ' active' : ''}" data-ctl-sort="health" aria-pressed="${CONTROL.sort === 'health'}">Worst first</button>
       </div>
-      <span class="ctl-count muted">${rows.length} of ${sites.length} sites · ${core.length} common roles</span>
+      <span class="ctl-count muted">${core.length} common roles</span>
     </div>`;
 
   const agentSet = new Set((STATE.agents || []).map(a => a.role));
@@ -6057,7 +6060,7 @@ async function renderContainers() {
 
 function applyContainerFilter() {
   const q = CN_FILTER.q.trim().toLowerCase();
-  const matches = $$('tr.cn-row').filter(row => {
+  $$('tr.cn-row').forEach(row => {
     const textMatch = !q || (row.dataset.cnName || '').includes(q);
     const statusMatch = CN_FILTER.status === 'all' || row.dataset.cnStatus === CN_FILTER.status;
     const kindMatch = CN_FILTER.kind === 'all' || row.dataset.cnKind === CN_FILTER.kind;
@@ -6065,10 +6068,23 @@ function applyContainerFilter() {
     row.classList.toggle('cn-filter-hidden', !visible);
     const detail = $(`tr[data-detail="${CSS.escape(row.dataset.id || '')}"]`);
     if (detail && !visible) detail.classList.add('hidden');
-    return visible;
   });
+  updateContainerFilterCount();
+}
+
+function updateContainerFilterCount() {
+  const rows = $$('tr.cn-row');
   const count = $('#cn-filter-count');
-  if (count) count.textContent = `${matches.length}/${$$('tr.cn-row').length} shown`;
+  if (!count) return;
+  const visible = rows.filter(
+    row => !row.classList.contains('cn-filter-hidden') && !row.classList.contains('fleet-hidden')
+  ).length;
+  const hasSiteFilter = Boolean($('#fleet-filter')?.value.trim());
+  count.textContent = hasSiteFilter ? `${visible} shown` : `${visible}/${rows.length} shown`;
+  count.setAttribute(
+    'aria-label',
+    `${visible} of ${rows.length} containers shown after all filters`
+  );
 }
 
 async function restartAllCrons() {
@@ -15955,6 +15971,14 @@ function mountExecutiveWorkspaceNav(active) {
         button.dataset.exWorkspace === 'overview' ? null : button.dataset.exWorkspace
       );
   });
+  const activeTab = nav.querySelector('.ex-workspace-tab.active');
+  if (activeTab) {
+    requestAnimationFrame(() => {
+      if (nav.scrollWidth > nav.clientWidth) {
+        activeTab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' });
+      }
+    });
+  }
 }
 
 function applyExecutiveWorkspace(page) {

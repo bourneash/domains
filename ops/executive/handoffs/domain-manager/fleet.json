@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T18:26:03.493Z",
+  "generated_at": "2026-10-02T18:28:15.318Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Reconcile ultrarough.com active measurement before admitting new work",
-        "summary": "ultrarough.com already has an active monetization improvement measuring through 2026-10-15. Avoid overlapping work while reconciling its evidence, baseline, and next admission gate.",
-        "requested_action": "Review the existing improvement run, attach its current measurement artifact, confirm the baseline of 7 sessions, 755 impressions, 7 clicks, and 1 conversion, preserve Amazon attribution as partial with 667 clicks and unavailable site-level orders/commission, and either keep the item measuring or nominate exactly one non-overlapping reversible follow-up after the window closes.",
+        "title": "Establish gate03.com launch and measurement baseline before implementation admission",
+        "summary": "gate03.com is live in the registry and queue-ready, but analytics is not configured and the snapshot contains no site-specific page, SEO, health, monetization, or active-work evidence. Complete one bounded read-only repository and public-surface baseline before selecting an implementation.",
+        "requested_action": "Inspect the existing gate03.com homepage, navigation, metadata, consent/disclosure surfaces, repository entrypoints, and current queue state. Record exact candidate files, current behavior, evidence gaps, and one reversible implementation that can be admitted next. Do not deploy, add tracking, change credentials, alter configuration, or claim traffic, revenue, conversion, or performance results.",
         "proposal_id": null
       }
     ]
