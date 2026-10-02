@@ -694,6 +694,7 @@ test('Retention exposes a primary loading state before reading policy data', () 
 
 test('executive conversation workspace behaves like an email inbox', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   const start = app.indexOf("} else if (page === 'conversation') {");
   const end = app.indexOf("} else if (page === 'runs')", start);
   assert.ok(start >= 0 && end > start);
@@ -703,6 +704,18 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(app, /Start a durable request here/);
   assert.match(workspace, /const split = requests\?\.querySelector\('\.ex-request-split'\)/);
   assert.match(workspace, /requests\.insertBefore\(compose, split\)/);
+  assert.match(
+    style,
+    /@media \(max-width: 720px\) \{\s*\.ex-shell\[data-workspace="conversation"\] \.ex-request-split \{\s*grid-template-columns: minmax\(0, 1fr\);\s*min-height: 0;/
+  );
+  assert.match(
+    style,
+    /\.ex-shell\[data-workspace="conversation"\] \.ex-request-list \{ max-height: 260px; \}/
+  );
+  assert.match(
+    style,
+    /\.ex-request-detail-pane:has\(> \.ex-request-detail\.ex-empty\) \{ display: none; \}/
+  );
   assert.match(app, /: null;\n  EXEC_INBOX_UI\.selected = selectedRequestId/);
   assert.match(app, /new Map\(\s*\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
   assert.match(app, /class="ex-request-list-summary"/);
