@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:56:59.757Z",
+  "generated_at": "2026-10-02T15:59:05.853Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete preview-only launch-readiness artifact for drivegm.net",
-        "summary": "drivegm.net is a scaffold with no configured analytics evidence. Create one bounded readiness artifact before any public build or launch work.",
-        "requested_action": "Inspect the existing drivegm.net scaffold and record owner approval, homepage scope, content, metadata, privacy/terms/disclosure surfaces, analytics readiness, security/release constraints, measurement plan, rollback point, and preview-only status. Do not publish, deploy, add tracking, spend, change credentials, or alter production.",
+        "title": "Reconcile active eastcoastrappers.com entry-path improvement before any new work",
+        "summary": "Do not add overlapping implementation while the existing primary entry-path clarity improvement is measuring. Reconcile its evidence, preserve the current deployed state, and define the next admissible implementation only after the measurement window completes.",
+        "requested_action": "Complete one bounded read-only reconciliation of the existing improvement and record whether it should remain measuring, be closed, or become the single next implementation candidate.",
         "proposal_id": null
       }
     ]

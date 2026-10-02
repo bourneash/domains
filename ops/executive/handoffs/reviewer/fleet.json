@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:56:59.756Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T16:02:58.139Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence; operations/security evidence is unavailable and aggregate affiliate revenue is unattributed. Principal-engineer must document the canonical admission ledger and repair disposition by 2026-10-02T17:00:00Z, then release at most one candidate only if every gate passes; otherwise escalate to the owner.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "drivegm.net remains unqueued because scaffold launch-readiness and analytics evidence are missing. Owner: site-factory. Unblock by completing the existing fleet readiness artifact with preview, legal, security, measurement, and rollback gates by 2026-10-03; escalate unresolved gates to the owner by that deadline.",
+        "summary": "Reject all new production and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Aggregate affiliate revenue remains unattributed, telemetry is low-volume or incomplete, and operations/security evidence is unavailable. Preserve the admission gate; principal-engineer must reconcile the canonical ledger by 2026-10-02T17:00:00Z, releasing at most one candidate only if every gate passes or escalating the exact blocker.",
         "requested_action": null,
         "proposal_id": null
       }
