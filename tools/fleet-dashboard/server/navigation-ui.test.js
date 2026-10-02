@@ -231,6 +231,21 @@ test('compact buttons retain a minimum touch-target height', () => {
   assert.match(theme, /\.btn\.sm \{ min-height: 26px;/);
 });
 
+test('screen-reader-only labels are anchored so table cells cannot cause page overflow', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const rule = style.match(/\.sr-only\s*\{([^}]+)\}/)?.[1] || '';
+  assert.match(rule, /left:\s*0/);
+  assert.match(rule, /top:\s*0/);
+});
+
+test('executive panel headers stack cleanly on narrow screens', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    style,
+    /@media\s*\(max-width:\s*650px\)\s*\{\s*\.ex-panel-head\s*\{[^}]*flex-direction:\s*column/
+  );
+});
+
 test('navigation branding stays readable when the rail is constrained', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

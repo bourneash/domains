@@ -14,7 +14,7 @@
 }
 
 * { box-sizing: border-box; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.sr-only { position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
@@ -1713,4 +1713,9 @@ body[data-view="social"] main { max-width: none; }
   .sh-calendar-wrap { scroll-snap-type: x proximity; }
   .sh-calendar-grid { grid-template-columns: repeat(var(--sh-calendar-days), 260px); width: max-content; min-width: 100%; gap: 8px; }
   .sh-cal-day { scroll-snap-align: start; }
+}
+
+@media (max-width: 650px) {
+  .ex-panel-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .ex-panel-head > :last-child { max-width: 100%; overflow-wrap: anywhere; }
 }
