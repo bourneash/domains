@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:05:03.710Z",
+  "generated_at": "2026-10-02T23:07:08.165Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete therareunicorn.com homepage readiness evidence",
-        "summary": "Create one bounded, read-only evidence artifact for the public homepage because site-specific analytics, revenue, operations, and launch-readiness evidence are not established in the available snapshot.",
-        "requested_action": "Inspect only the therareunicorn.com homepage at / and the existing repository files that render it. Record observable heading hierarchy, navigation, CTA destinations, disclosures, metadata, accessibility issues, reachability, and the smallest reversible implementation candidate. Do not infer telemetry, revenue, conversion, attribution, performance, readiness, or monetization.",
+        "title": "Resolve blackmarketapparel.com measurement and reachability blocker before new work",
+        "summary": "Do not admit overlapping implementation while the existing affiliate-CTA improvement is measuring and site health evidence is incomplete. Reconcile the retained run, investigate the recorded metrics-summary HTTP 500 and compliance fetch failure using authorized artifacts, and document whether measurement can resume.",
+        "requested_action": "Inspect the existing improvement run 31496214-52f3-4954-ae55-2ca6242165a1 and blackmarketapparel.com health artifacts only. Record the exact blocker, owner, next measurable check, and requeue-or-close disposition. Do not modify production, telemetry, credentials, configuration, schedules, or create duplicate implementation work.",
         "proposal_id": null
       }
     ]

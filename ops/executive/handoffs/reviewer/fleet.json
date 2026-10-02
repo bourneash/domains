@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:05:03.709Z",
+  "generated_at": "2026-10-02T23:07:08.164Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the therareunicorn report-only request: its evidence gap is already covered by completed public inspection, and reporting does not satisfy the delivery mandate. Approve only three isolated, low-priority preview implementations on complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, credentials, configuration, dependencies, spending, schedules, and financial or launch-readiness claims remain blocked. Preserve reachability and compliance failures as blockers; require dated QA, measurable preview gates, and rollback artifacts by 2026-10-03T17:00Z.",
+        "summary": "Rejected the report-only blackmarketapparel.com proposal because it does not satisfy the delivery mandate and would duplicate existing telemetry. Retain its current measurement gate; CTO owns the infrastructure evidence repair by 2026-10-03T17:00:00Z. Routed three isolated, low-priority preview implementations with no production, telemetry, monetization, credential, configuration, dependency, spend, or schedule changes.",
         "requested_action": null,
         "proposal_id": null
       }
