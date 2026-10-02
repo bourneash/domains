@@ -680,6 +680,28 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   assert.match(app, /aria-label="Contract health summary"/);
   assert.match(app, /id="dataquality-refresh"/);
   assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
+  assert.match(
+    app,
+    /const hasExcess = Number\(row\.expected\) > 0 && Number\.isFinite\(excess\) && excess > 0/
+  );
+  assert.match(app, /const status = hasExcess \? 'yellow' : row\.status/);
+  assert.match(app, /Math\.max\(0, Math\.min\(Number\(row\.completeness\), 1\)\)/);
+  assert.match(
+    app,
+    /extra observed \$\{excess === 1 \? 'row' : 'rows'\} beyond \$\{row\.expected\} expected/
+  );
+  assert.match(
+    app,
+    /const totals = \{\s*green: contracts\.filter\(row => row\.status === 'green'\)\.length,\s*yellow: contracts\.filter\(row => row\.status === 'yellow'\)\.length,\s*red: contracts\.filter\(row => row\.status === 'red'\)\.length,/
+  );
+  assert.match(app, /class="seo-stat-value">\$\{totals\.yellow\}/);
+  assert.doesNotMatch(
+    app.slice(
+      app.indexOf('async function renderDataQuality'),
+      app.indexOf('async function renderAutomation')
+    ),
+    /\$\{data\.totals\.(?:green|yellow|red)\}/
+  );
   assert.match(app, /No data quality contracts have been recorded yet/);
   assert.match(app, /caption class="sr-only">Data quality contract status<\/caption>/);
 });

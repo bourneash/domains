@@ -15046,13 +15046,31 @@ async function renderDataQuality() {
     renderViewError(app, e.message);
     return;
   }
-  const rows = (data.contracts || [])
+  const contracts = (data.contracts || []).map(row => {
+    const excess = Number(row.observed) - Number(row.expected);
+    const hasExcess = Number(row.expected) > 0 && Number.isFinite(excess) && excess > 0;
+    const status = hasExcess ? 'yellow' : row.status;
+    const completeness = Number.isFinite(Number(row.completeness))
+      ? Math.max(0, Math.min(Number(row.completeness), 1))
+      : 0;
+    const excessNote = hasExcess
+      ? `${excess} extra observed ${excess === 1 ? 'row' : 'rows'} beyond ${row.expected} expected; verify duplicate or out-of-scope records.`
+      : '';
+    const detail = [row.error, excessNote].filter(Boolean).join(' ');
+    return { ...row, status, completeness, error: detail };
+  });
+  const totals = {
+    green: contracts.filter(row => row.status === 'green').length,
+    yellow: contracts.filter(row => row.status === 'yellow').length,
+    red: contracts.filter(row => row.status === 'red').length,
+  };
+  const rows = contracts
     .map(
       row =>
         `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats dq-stats" aria-label="Contract health summary"><div class="seo-stat dq-healthy"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat dq-partial"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat dq-broken"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats dq-stats" aria-label="Contract health summary"><div class="seo-stat dq-healthy"><div class="seo-stat-value">${totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat dq-partial"><div class="seo-stat-value">${totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat dq-broken"><div class="seo-stat-value">${totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
   $('#dataquality-refresh').onclick = () => renderDataQuality();
   if (!FRESH) applyUISnap();
   stamp();
