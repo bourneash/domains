@@ -2234,6 +2234,10 @@ test('Health presents fleet status as a responsive summary strip', () => {
     /\$\('#health-refresh'\)\.addEventListener\('click', \(\) => renderHealth\(\)\)/
   );
   assert.match(style, /\.health-summary \{[^}]*grid-template-columns/);
+  assert.match(
+    style,
+    /@media \(max-width: 560px\)\s*\{\s*\.health-stat-meta \{ grid-column: 1 \/ -1; display: flex; align-items: center; justify-content: space-between/
+  );
   assert.match(style, /\.health-card-head \{[^}]*justify-content/);
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /a\.inline-help-link \{[^}]*text-decoration: underline/);
