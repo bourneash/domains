@@ -528,6 +528,16 @@ test('Change Queue mobile hero does not inherit a desktop flex height', () => {
   );
 });
 
+test('Change Queue mobile filters retain usable search and select widths', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /\.cq-register-toolbar \.cq-filter-group \{\s*display: grid;\s*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/
+  );
+  assert.match(theme, /\.cq-register-toolbar #cq-search \{ grid-column: 1 \/ -1; \}/);
+  assert.match(theme, /\.cq-register-toolbar \.cm-input \{ width: 100%; min-width: 0; \}/);
+});
+
 test('Work Board mobile hero does not inherit a desktop flex height', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(
