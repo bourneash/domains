@@ -213,6 +213,20 @@ function applyFleetFilter() {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  if (STATE.view === 'socialhub') {
+    const overviewCount = $('#sh-overview-count');
+    if (overviewCount) {
+      const cards = $$('.sh-cards > .sh-site');
+      const visibleCards = cards.filter(card => !card.classList.contains('fleet-hidden')).length;
+      const statusTotal = Number(overviewCount.dataset.shStatusCount) || 0;
+      const fleetTotal = Number(overviewCount.dataset.shTotalCount) || 0;
+      const inboxTotal = Number(overviewCount.dataset.shInboxCount) || 0;
+      overviewCount.textContent = q
+        ? `${visibleCards} shown of ${statusTotal} sites${statusTotal !== fleetTotal ? ` (${fleetTotal} total)` : ''}`
+        : `${statusTotal} of ${fleetTotal} sites`;
+      if (inboxTotal) overviewCount.textContent += ` · ${inboxTotal} unread inbox`;
+    }
+  }
   if (STATE.view === 'domains') {
     const jobRows = rows.filter(row => row.dataset.domJobRow === 'true');
     const visibleJobs = jobRows.filter(row => !row.classList.contains('fleet-hidden')).length;
@@ -420,7 +434,7 @@ function updateEngineerSummary(query = '') {
     staleNode.textContent = stale.length ? `⚠ stale pulse: ${stale.join(', ')}` : '';
   }
   const missingNode = $('[data-agent-engineer-missing]');
-  if (missingNode) missingNode.firstChild.textContent = `· ${missingCount} not enrolled `;
+  if (missingNode) missingNode.firstChild.textContent = `${missingCount} not enrolled `;
   updateAgentHealthPanel(query);
 }
 
@@ -450,7 +464,7 @@ function updateGenericAgentSummary(query = '') {
   const count = $('#ag-missing-count');
   if (count) count.textContent = `${missingCount} of ${missingRows.length} sites`;
   const missing = $('[data-agent-role-missing]');
-  if (missing) missing.firstChild.textContent = `· ${missingCount} not enrolled `;
+  if (missing) missing.firstChild.textContent = `${missingCount} not enrolled `;
   updateAgentHealthPanel(query);
 }
 
@@ -1161,7 +1175,7 @@ async function renderEngineers() {
       <strong data-agent-engineer-count>${eng.length} engineers</strong>
       <span class="muted" data-agent-engineer-tiers>${esc(summary)}</span>
       <span class="flag" data-agent-engineer-stale${stale.length ? '' : ' hidden'}>${stale.length ? `⚠ stale pulse: ${esc(stale.join(', '))}` : ''}</span>
-      <span class="ag-enrollment-gap" data-agent-engineer-missing>· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
+      <span class="ag-enrollment-gap" data-agent-engineer-missing>${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
       <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Help — show / hide the column key">? Help</button>
     </div>
     ${engineerHealthPanel(healthData)}
@@ -3444,13 +3458,14 @@ function ensureErrorDrawer() {
   return shell;
 }
 
-function closeErrorDrawer() {
+function closeErrorDrawer(restoreFocus = true) {
   const shell = $('#error-drawer-shell');
   if (!shell) return;
   shell.classList.add('hidden');
   const returnFocus = ERROR_DRAWER_RETURN_FOCUS;
   ERROR_DRAWER_RETURN_FOCUS = null;
-  if (returnFocus?.isConnected && !returnFocus.closest('.hidden')) returnFocus.focus();
+  if (restoreFocus && returnFocus?.isConnected && !returnFocus.closest('.hidden'))
+    returnFocus.focus();
 }
 
 async function copyErrorText(value, label) {
@@ -3586,15 +3601,14 @@ async function renderErrors() {
     .map(r => {
       const level = r.count24h > 0 ? r.lastLevel : null;
       const when = r.lastAt ? fmtAge((Date.now() - r.lastAt) / 1000) + ' ago' : '—';
-      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row role="button" tabindex="0" title="Click to view retained logs">
-      <td class="mono">${esc(r.name)}${r.activeAlert ? ' <span class="badge b-red" title="errorscan considers this an open alert — a Slack post (threshold or all-clear) may still be pending or may have failed silently">🔔 active</span>' : ''}</td>
+      return `<tr class="err-row" data-error-id="${esc(r.id)}" data-name="${esc(r.name)}" data-site="${esc(r.slug)}" data-last-line="${esc(r.lastLine || '')}" data-fleet-row>
+      <td class="mono"><button class="err-open" data-id="${esc(r.id)}" type="button" aria-label="Open retained logs for ${esc(r.name)}">${esc(r.name)}</button>${r.activeAlert ? ' <span class="badge b-red" title="errorscan considers this an open alert — a Slack post (threshold or all-clear) may still be pending or may have failed silently">🔔 active</span>' : ''}</td>
       <td>${r.scope === 'site' ? `<span class="site">${esc(r.slug)}</span>` : '<span class="muted">tool</span>'}</td>
       <td>${r.count1h ? `<span class="badge b-red">${r.count1h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${r.count24h ? `<span class="badge ${r.count1h ? 'b-red' : 'b-yellow'}">${r.count24h}</span>` : '<span class="muted">0</span>'}</td>
       <td>${errLevelBadge(level)}</td>
       <td class="mono muted">${esc(when)}</td>
-      <td class="mono muted err-line-cell"><span class="err-snippet" data-tooltip="${esc(r.lastLine || 'No matching line')}" title="${esc(r.lastLine || 'No matching line')}">${esc((r.lastLine || '—').slice(0, 90))}</span><button class="btn sm err-copy" data-id="${esc(r.id)}" type="button" aria-label="Copy last line for ${esc(r.name)}" title="Copy the full last line">Copy</button></td>
-      <td class="err-actions"><button class="btn sm err-toggle" data-id="${esc(r.id)}" type="button" aria-label="Open retained logs for ${esc(r.name)}">📜 Logs</button></td>
+      <td class="mono muted err-line-cell"><span class="err-snippet" data-tooltip="${esc(r.lastLine || 'No matching line')}" title="${esc(r.lastLine || 'No matching line')}">${esc((r.lastLine || '—').slice(0, 90))}</span>${r.lastLine ? `<button class="btn sm err-copy" data-id="${esc(r.id)}" type="button" aria-label="Copy last line for ${esc(r.name)}" title="Copy the full last line">Copy</button>` : ''}</td>
     </tr>`;
     })
     .join('');
@@ -3634,8 +3648,8 @@ async function renderErrors() {
       <label>Per page<select id="errors-page-size" class="cm-input">${[10, 25, 50, 100].map(n => `<option value="${n}" ${ERRORS_UI.pageSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
     </div>
     <div class="card error-card error-table"><div class="table-wrap"><table><caption class="sr-only">Container error summary and retained log actions</caption>
-      <thead><tr>${errorSortButton('name', 'Container')}${errorSortButton('slug', 'Site')}${errorSortButton('count1h', '1h')}${errorSortButton('count24h', '24h')}${errorSortButton('lastLevel', 'Level')}${errorSortButton('lastAt', 'Last')}${errorSortButton('lastLine', 'Last line')}<th>Actions</th></tr></thead>
-      <tbody>${body || `<tr><td colspan="8" class="muted">${rows.length ? 'No containers match the current filters.' : 'No containers scanned yet — the poller sweeps every 3 minutes in the background.'}</td></tr>`}</tbody>
+      <thead><tr>${errorSortButton('name', 'Container')}${errorSortButton('slug', 'Site')}${errorSortButton('count1h', '1h')}${errorSortButton('count24h', '24h')}${errorSortButton('lastLevel', 'Level')}${errorSortButton('lastAt', 'Last')}${errorSortButton('lastLine', 'Last line')}</tr></thead>
+      <tbody>${body || `<tr><td colspan="7" class="muted">${rows.length ? 'No containers match the current filters.' : 'No containers scanned yet — the poller sweeps every 3 minutes in the background.'}</td></tr>`}</tbody>
     </table></div></div>
     <div class="activity-pagination error-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ERRORS_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 containers'}</span><button id="errors-prev" class="btn sm" type="button" ${ERRORS_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ERRORS_UI.page} of ${pageCount}</span><button id="errors-next" class="btn sm" type="button" ${ERRORS_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <details class="error-help"><summary>How errors are classified</summary><p>Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p></details>`;
@@ -3653,18 +3667,7 @@ async function renderErrors() {
 }
 
 function wireErrorRows() {
-  $$('.err-row').forEach(row => {
-    row.addEventListener('click', e => {
-      if (!e.target.closest('button')) openErrorDrawer(row.dataset.errorId);
-    });
-    row.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openErrorDrawer(row.dataset.errorId);
-      }
-    });
-  });
-  $$('.err-toggle').forEach(b =>
+  $$('.err-open').forEach(b =>
     b.addEventListener('click', e => {
       e.stopPropagation();
       openErrorDrawer(b.dataset.id);
@@ -5895,7 +5898,7 @@ async function renderGenericAgent(role) {
     <div class="task-toolbar" data-agent-role-summary>
       <strong data-agent-role-count>${rows.length} sites</strong>
       <span class="muted" data-agent-role-status>${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>
-      <span class="ag-enrollment-gap" data-agent-role-missing>· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
+      <span class="ag-enrollment-gap" data-agent-role-missing>${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
     </div>
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
       <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted" id="ag-missing-count" aria-live="polite">${notEnrolled.length} sites</span></div>
@@ -8948,11 +8951,17 @@ async function renderSeoIntelligence() {
       return `<tr data-fleet-row data-site="${esc(row.site)}"><td>${siteLink(row.site)}</td>${cell('mobile')}${cell('desktop')}</tr>`;
     })
     .join('');
-  const sourceNote = upstream.ok
-    ? `${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
-    : upstream.partial
-      ? `Partial analytics coverage · ${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`
-      : `Search data unavailable: ${upstream.error || 'data-hub offline'} · showing stored technical evidence`;
+  const sourceStatus = upstream.ok ? 'healthy' : upstream.partial ? 'partial' : 'unavailable';
+  const sourceStatusLabel =
+    sourceStatus === 'healthy'
+      ? 'Search data connected'
+      : sourceStatus === 'partial'
+        ? 'Partial search data coverage'
+        : 'Search data unavailable';
+  const sourceStatusDetail =
+    sourceStatus === 'unavailable'
+      ? `${upstream.error || 'data-hub offline'} · showing stored technical evidence`
+      : `${source.gscReady}/${source.analyticsConfigured} GSC · ${source.ga4Ready}/${source.analyticsConfigured} GA4 ready`;
   const statCards = [
     ['Actions', data.totals.actions, `${data.totals.sites} sites`, 'var(--a1)'],
     ['High priority', data.totals.high, 'work first', 'var(--red)'],
@@ -9034,7 +9043,7 @@ async function renderSeoIntelligence() {
       .join('') || '<div class="empty seo-empty">No actions match these filters.</div>';
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence · ${esc(sourceNote)}</div></div><button type="button" class="btn" id="seo-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">SEO Intelligence</h2><div class="crumbs">First-party search demand joined with fleet technical evidence</div><div class="seo-source-status ${sourceStatus}" role="status" aria-live="polite"><strong class="seo-source-status-title">${esc(sourceStatusLabel)}</strong><span class="seo-source-status-detail">${esc(sourceStatusDetail)}</span></div></div><button type="button" class="btn" id="seo-refresh">↻ Refresh</button></div>
     <section class="dh-panel dh-wide seo-vitals-panel"><div class="seo-work-head"><div><h3>Web vitals operations</h3><span class="muted">Pinned Lighthouse lab baselines · mobile daily · desktop weekly</span></div><span class="muted">${vitals?.generated_at ? `<time datetime="${esc(vitals.generated_at)}">${esc(fmtDate(vitals.generated_at))}</time>` : 'unavailable'}</span></div><div class="seo-vitals-cards">${vitalCards}</div><div class="table-wrap"><table class="dh-sources"><caption class="sr-only">Web vitals by site</caption><thead><tr><th>site</th><th>mobile · perf / LCP</th><th>desktop · perf / LCP</th></tr></thead><tbody>${vitalRows || '<tr><td colspan="3" class="muted">No vitals reports yet.</td></tr>'}</tbody></table></div></section>
     <section class="seo-stats">${statCards}</section>
     <div class="seo-overview-grid">
@@ -12423,7 +12432,7 @@ function shRenderOverview(data) {
         ${chip('failing', 'Failing', rolled.filter(r => r.failed).length)}
         ${chip('idle', 'Idle', totals.idle)}
       </div>
-      <span class="ctl-count muted">${shown.length} of ${rolled.length} sites${totals.inbox ? ` · ${totals.inbox} unread inbox` : ''}</span>
+      <span id="sh-overview-count" class="ctl-count muted" data-sh-status-count="${shown.length}" data-sh-total-count="${rolled.length}" data-sh-inbox-count="${totals.inbox || 0}">${shown.length} of ${rolled.length} sites${totals.inbox ? ` · ${totals.inbox} unread inbox` : ''}</span>
     </div>
     <div class="cards sh-cards">${siteCards || '<div class="empty">No site matches this filter.</div>'}</div>
     <h3 class="sh-h">Engagement — last ${data.metrics.days || 30} days</h3>
@@ -12635,6 +12644,12 @@ async function shRenderQueue() {
     $('#sh-queue-count').textContent = `${filtered.length} of ${posts.length} shown`;
     const list = $('#sh-queue-list');
     list.classList.remove('loading');
+    const emptyScope =
+      SH.queuePlatform === SH_PUBLIC_PLATFORMS
+        ? ' on public platforms (Console local preview is excluded)'
+        : SH.queuePlatform
+          ? ` on ${esc(shPlatformLabel(SH.queuePlatform))}`
+          : '';
     const whenHeading =
       SH.status === 'posted'
         ? 'Posted at'
@@ -12642,7 +12657,7 @@ async function shRenderQueue() {
           ? 'Scheduled for'
           : 'Date';
     list.innerHTML = filtered.length
-      ? `<div class="card sh-table-wrap"><table class="tbl sh-table">
+      ? `<div class="sh-scroll-hint" role="note">Swipe horizontally to inspect post content, links, and actions</div><div class="card sh-table-wrap"><table class="tbl sh-table">
           <thead><tr>
             ${shSortHeader('queue', whenHeading, 'when')}
             ${shSortHeader('queue', 'Site', 'site')}
@@ -12653,7 +12668,8 @@ async function shRenderQueue() {
           </tr></thead>
           <tbody>${filtered.map(shPostRow).join('')}</tbody>
         </table></div>`
-      : `<div class="empty">No ${esc(SH.status)} posts${q ? ' matching your search' : ''}.</div>`;
+      : `<div class="empty">No ${esc(SH.status)} posts${emptyScope}${q ? ' matching your search' : ''}.</div>`;
+    enhanceScrollableTables(list);
     shBindSort('queue', list, () => shQueueRedraw(posts));
     $$('.sh-act', list).forEach(btn => btn.addEventListener('click', () => shPostAction(btn)));
     applyFleetFilter();
@@ -14290,7 +14306,7 @@ async function renderChangeQueue({ background = false } = {}) {
   const health = !data.settings.enabled
     ? ['Paused', 'warn']
     : staleQueued.length
-      ? ['Attention', 'warn']
+      ? [`Attention · ${staleQueued.length} stale`, 'warn']
       : active.length
         ? ['Operating', 'good']
         : queued.length
@@ -15769,6 +15785,12 @@ function dataQualityCompletenessLabel(completenessValue, expectedValue) {
   return `${Math.round(completenessValue * 100)}%`;
 }
 
+function dataQualityStatusLabel(status) {
+  return (
+    { green: 'Healthy', yellow: 'Partial', red: 'Broken' }[status] || String(status || 'Unknown')
+  );
+}
+
 async function renderDataQuality() {
   if (FRESH)
     app.innerHTML =
@@ -15801,7 +15823,7 @@ async function renderDataQuality() {
   const rows = contracts
     .map(
       row =>
-        `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${dataQualityCoverageLabel(row.observed, row.expected)}</td><td>${dataQualityCompletenessLabel(row.completeness, row.expected)}</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
+        `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(dataQualityStatusLabel(row.status))}</span></td><td>${dataQualityCoverageLabel(row.observed, row.expected)}</td><td>${dataQualityCompletenessLabel(row.completeness, row.expected)}</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
     )
     .join('');
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats dq-stats" aria-label="Contract health summary"><div class="seo-stat dq-healthy"><div class="seo-stat-value">${totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat dq-partial"><div class="seo-stat-value">${totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat dq-broken"><div class="seo-stat-value">${totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
@@ -17411,7 +17433,7 @@ async function renderExecutive() {
     <section class="ex-layout">
       <div class="ex-primary">
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" type="button" aria-label="${activeRun ? 'Executive team run is in progress' : 'Run executive team now'}" title="${activeRun ? 'Executive team run is in progress' : 'Run executive team now'}" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><caption class="sr-only">Executive run history</caption><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
-        <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new" type="button" aria-label="Schedule event" title="Schedule executive calendar event">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><caption class="sr-only">Executive calendar events</caption><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
+        <section class="ex-panel ex-followthrough"><div class="ex-panel-head"><div><div class="ex-eyebrow">DURABLE FOLLOW-THROUGH</div><h3>Executive calendar</h3><p class="muted">Checked-in events are picked up, resumed, and reviewed by the team. Past-due events stay visible until acknowledged.</p></div><button class="btn sm primary" id="ex-calendar-new" type="button" aria-label="＋ Schedule event" title="Schedule executive calendar event">＋ Schedule event</button></div><div class="table-wrap"><table class="tbl"><caption class="sr-only">Executive calendar events</caption><thead><tr><th>Event</th><th>When</th><th>Status</th><th>Action</th></tr></thead><tbody>${calendarRows || '<tr><td colspan="4" class="muted">No events scheduled yet.</td></tr>'}</tbody></table></div></section>
         <section class="ex-panel ex-attention"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER DECISIONS</div><h3>What needs your attention</h3><p class="muted ex-attention-intro">Only decisions that require an owner choice appear here. Evidence gathering, monitoring, and routine executive follow-through stay in the workbench.</p></div><span class="badge ${pendingCount ? 'b-yellow' : 'b-green'}">${pendingCount ? `${pendingCount} open` : 'all clear'}</span></div>${pendingApprovalRows || '<div class="ex-empty">Nothing is waiting for an owner decision.</div>'}</section>
         <section class="ex-panel ex-compose" id="ex-compose"><div class="ex-panel-head"><div><div class="ex-eyebrow">NEW CONVERSATION</div><h3>Message the executive team</h3></div><span class="muted">Draft saved across sessions</span></div><p class="muted ex-compose-help">Start a durable thread here. Your draft is kept in the host-side control plane until you submit it.</p><textarea id="ex-message" class="cm-input" rows="5" placeholder="What would you like the executive team to research, decide, or prioritize?">${esc(draft?.draft?.body || '')}</textarea><div class="ex-compose-foot"><span class="muted">Tip: include the question, context, links, and what a useful answer should contain.</span><button class="btn primary" id="ex-send">Start conversation</button></div></section>
         ${casePanel}
@@ -18071,7 +18093,7 @@ async function renderWorkbench() {
     .join('');
   const count = status => allCaseThreads.filter(item => item.status === status).length;
   app.innerHTML = `<div class="wb-shell"><div class="page-head wb-head"><div><div class="wb-eyebrow">ASSISTIVE OPERATING QUEUE</div><h2 class="page-title">Executive Workbench</h2><div class="muted">Decisions, evidence gaps, reviews, incidents, and learning in one queue. Roles update cases; humans step in when a decision or approval is needed.</div></div><div class="wb-head-actions"><button type="button" class="btn" id="wb-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new-toggle">＋ New case</button></div></div>
-    <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
+    <section class="wb-kpis"><div><b>${active.length}</b><span>open cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section><p class="muted wb-kpi-note">Blocked and waiting cases are included in the open count.</p>
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
     <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><div class="wb-filter-control"><span class="wb-filter-label">Show status</span><details class="wb-status-filter" id="wb-filter-status"><summary aria-label="${esc(statusFilterLabel)} — filter by status">${esc(statusFilterLabel)}</summary><div class="wb-status-options" role="group" aria-label="Workbench statuses">${WORKBENCH_STATUSES.map(value => `<label><input type="checkbox" value="${value}" ${selectedStatuses.includes(value) ? 'checked' : ''}><span>${value.replace('_', ' ')}</span></label>`).join('')}</div></details></div><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
     ${quickPager}<section class="wb-list" aria-label="Workbench cases">${rows || '<div class="empty">No workbench cases match these filters.</div>'}</section><nav class="wb-pagination" aria-label="Workbench case pages"><span class="muted" id="wb-page-status" role="status" aria-live="polite">${pageRange}</span><label class="muted">Rows <select id="wb-page-size" class="cm-input" aria-label="Workbench cases per page">${[10, 25, 50].map(size => `<option value="${size}" ${WORKBENCH_UI.pageSize === size ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="wb-page-prev" data-wb-page-direction="-1" aria-label="Previous workbench page" ${WORKBENCH_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="wb-page-next" data-wb-page-direction="1" aria-label="Next workbench page" ${WORKBENCH_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></nav></div>`;
@@ -19622,6 +19644,7 @@ async function boot() {
       (n.controlSort || null) !== STATE.controlSort ||
       socialHubChanged
     ) {
+      closeErrorDrawer(false);
       ROUTE_EPOCH += 1;
       STATE.view = n.view;
       STATE.agent = n.agent;

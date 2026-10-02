@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:17:13.495Z",
+  "generated_at": "2026-10-02T23:19:02.404Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject offshorehookup.com production CTA work: site-level orders, shipped items, and commission are unavailable, and the proposed click target is unsupported by low-volume attribution. Preserve the production gate. Route only three isolated, preview-only scaffold implementations for complicated.work, deadlymaracas.com, and driveford.net. Site-factory owns dated readiness artifacts by 2026-10-03T17:00Z; unresolved launch, legal, security, reachability, or measurement blockers must be escalated to the owner by that deadline. No publication, deployment, telemetry activation, monetization, credentials, configuration, dependencies, spend, schedules, or high-priority queue work is authorized.",
+        "summary": "Reject the vibratorporn.com report-only baseline: site-specific evidence and telemetry are missing, and no admissible implementation is supported. Route only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, credentials/configuration, dependencies, spending, schedules, and financial or readiness claims remain blocked. Site-factory must provide dated preview QA and readiness artifacts by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
