@@ -2821,13 +2821,21 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="dh-summary"/);
   assert.match(app, /VPN exits online<\/span>/);
-  assert.match(app, /Home-IP leaks<\/span>/);
+  assert.match(app, /Home-IP leaks\$\{vpnLeaks == null \? ' · unavailable' : ''\}<\/span>/);
   assert.match(
     app,
     /class="dh-counts">Skipped records <b>\$\{esc\(String\(\(health\.counts \|\| \{\}\)\.skipped \?\? '—'\)\)\}<\/b>/
   );
   assert.doesNotMatch(app, /class="dh-counts">items <b>/);
-  assert.match(app, /Sources enabled<\/span>/);
+  assert.match(app, /<span>Sources \$\{sourcesUnavailable \? 'unavailable' : 'enabled'\}<\/span>/);
+  assert.match(app, /const egressUnavailable = !eg \|\| eg\.ok === false/);
+  assert.match(app, /const sourcesUnavailable = !src \|\| src\.ok === false/);
+  assert.match(app, /const datasetsUnavailable = !ds \|\| ds\.ok === false/);
+  assert.match(app, /const pullsUnavailable = !pl \|\| pl\.ok === false/);
+  assert.match(app, /Egress ledger unavailable — \$\{dhUnavailable\(eg\)\}/);
+  assert.match(app, /Site-pull ledger unavailable — \$\{dhUnavailable\(pl\)\}/);
+  assert.match(app, /Dataset inventory unavailable — \$\{dhUnavailable\(ds\)\}/);
+  assert.match(app, /egressUnavailable \? 'unavailable' : 'live'/);
   assert.match(app, /type="button" class="btn" id="datahub-refresh"/);
   assert.match(app, /Loading Data Hub…/);
   assert.match(

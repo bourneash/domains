@@ -7628,7 +7628,13 @@ async function renderDataHub() {
     api('GET', '/api/datahub/pulls?limit=80'),
   ]);
 
-  const hubDown = health && health.ok === false;
+  const healthUnavailable = !health || health.ok === false;
+  const egressUnavailable = !eg || eg.ok === false;
+  const sourcesUnavailable = !src || src.ok === false;
+  const datasetsUnavailable = !ds || ds.ok === false;
+  const pullsUnavailable = !pl || pl.ok === false;
+  const dhUnavailable = result => esc(result?.error || 'Data Hub API unavailable');
+  const hubDown = healthUnavailable;
   const HOME_IPS = ['24.55.143.75', '158.173.25.169'];
 
   // ---- Panel 1: VPN Health ----
@@ -7667,11 +7673,14 @@ async function renderDataHub() {
     </tr>`
     )
     .join('');
+  const egressEmpty = egressUnavailable
+    ? `<tr><td colspan="7" class="muted">Egress ledger unavailable — ${dhUnavailable(eg)}</td></tr>`
+    : '<tr><td colspan="7" class="muted">no egress events yet</td></tr>';
   const egressHtml = `
     <div class="table-wrap"><table class="dh-egress">
       <caption class="sr-only">Outbound connection ledger</caption>
       <thead><tr><th>when</th><th>source</th><th>target</th><th>path</th><th>exit IP</th><th>status</th><th>note</th></tr></thead>
-      <tbody>${egRows || '<tr><td colspan="7" class="muted">no egress events yet</td></tr>'}</tbody>
+      <tbody>${egRows || egressEmpty}</tbody>
     </table></div>`;
 
   // ---- Panel 2b: Site Pulls (inbound — who consumed what, when) ----
@@ -7690,11 +7699,14 @@ async function renderDataHub() {
     </tr>`;
     })
     .join('');
+  const pullsEmpty = pullsUnavailable
+    ? `<tr><td colspan="5" class="muted">Site-pull ledger unavailable — ${dhUnavailable(pl)}</td></tr>`
+    : '<tr><td colspan="5" class="muted">no pulls yet</td></tr>';
   const pullsHtml = `
     <div class="table-wrap"><table class="dh-egress dh-pulls">
       <caption class="sr-only">Site data pulls</caption>
       <thead><tr><th>when</th><th>consumer</th><th>endpoint</th><th>items</th><th>client IP</th></tr></thead>
-      <tbody>${plRows || '<tr><td colspan="5" class="muted">no pulls yet</td></tr>'}</tbody>
+      <tbody>${plRows || pullsEmpty}</tbody>
     </table></div>`;
 
   // ---- Panel 3: Source Freshness (+ enabled/disabled toggle) ----
@@ -7703,8 +7715,10 @@ async function renderDataHub() {
   const disabledCount = srcs.length - enabledCount;
   const nodeValues = Object.values(health.nodes || {});
   const vpnNodes = nodeValues.filter(Boolean).length;
-  const vpnLeaks = nodeValues.filter(ip => HOME_IPS.includes(ip)).length;
-  const hubItems = health.counts?.items ?? 0;
+  const vpnLeaks = healthUnavailable ? null : nodeValues.filter(ip => HOME_IPS.includes(ip)).length;
+  const hubItems = healthUnavailable ? null : (health.counts?.items ?? null);
+  const vpnLeakState = vpnLeaks == null ? '' : vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good';
+  const sourceState = sourcesUnavailable ? '' : disabledCount ? 'dh-stat-warn' : 'dh-stat-good';
   const srcRows = srcs
     .map(s => {
       const st = s.state || {};
@@ -7727,11 +7741,11 @@ async function renderDataHub() {
     })
     .join('');
   const srcHtml = `
-    <div class="dh-srccount">${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}</div>
+    <div class="dh-srccount">${sourcesUnavailable ? `Unavailable — ${dhUnavailable(src)}` : `${enabledCount} enabled${disabledCount ? ` · <span class="dh-stale">${disabledCount} disabled</span>` : ''}`}</div>
     <div class="table-wrap"><table class="dh-sources">
       <caption class="sr-only">Data source freshness and controls</caption>
       <thead><tr><th scope="col">source</th><th scope="col">type</th><th scope="col">status</th><th scope="col">last fetch</th><th scope="col">Actions</th></tr></thead>
-      <tbody>${srcRows || '<tr><td colspan="5" class="muted">no source state</td></tr>'}</tbody>
+      <tbody>${srcRows || (sourcesUnavailable ? `<tr><td colspan="5" class="muted">Source state unavailable — ${dhUnavailable(src)}</td></tr>` : '<tr><td colspan="5" class="muted">no source state</td></tr>')}</tbody>
     </table></div>`;
 
   // ---- Panel 4: Datasets ----
@@ -7744,11 +7758,14 @@ async function renderDataHub() {
   </tr>`
     )
     .join('');
+  const datasetsEmpty = datasetsUnavailable
+    ? `<tr><td colspan="3" class="muted">Dataset inventory unavailable — ${dhUnavailable(ds)}</td></tr>`
+    : '<tr><td colspan="3" class="muted">no datasets</td></tr>';
   const dsHtml = `
     <div class="table-wrap"><table class="dh-datasets">
       <caption class="sr-only">Collected datasets</caption>
       <thead><tr><th>dataset</th><th>rows</th><th>latest</th></tr></thead>
-      <tbody>${dsRows || '<tr><td colspan="3" class="muted">no datasets</td></tr>'}</tbody>
+      <tbody>${dsRows || datasetsEmpty}</tbody>
     </table></div>`;
 
   // ---- Panel 5: Source×Site Matrix ----
@@ -7777,18 +7794,18 @@ async function renderDataHub() {
   app.innerHTML = `
     <div class="page-head"><h2 class="page-title">Data Hub</h2><span class="muted">Private-source collection, VPN egress, freshness, and site consumption in one operational view.</span><button type="button" class="btn" id="datahub-refresh">↻ Refresh</button></div>
     <section class="dh-summary" aria-label="Data hub summary">
-      <div class="dh-stat ${hubDown || vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${hubDown ? 'Down' : `${vpnNodes}/2`}</strong><span>VPN exits online</span></div>
-      <div class="dh-stat ${vpnLeaks ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${vpnLeaks}</strong><span>Home-IP leaks</span></div>
-      <div class="dh-stat"><strong>${esc(String(hubItems))}</strong><span>Collected items</span></div>
-      <div class="dh-stat ${disabledCount ? 'dh-stat-warn' : 'dh-stat-good'}"><strong>${enabledCount}/${srcs.length}</strong><span>Sources enabled</span></div>
-      <div class="dh-stat"><strong>${events.length}</strong><span>Egress events loaded</span></div>
-      <div class="dh-stat dh-stat-meta"><strong>${pulls.length}</strong><span>Site pulls loaded · ${dss.length} datasets</span></div>
+      <div class="dh-stat ${hubDown ? 'dh-stat-bad' : 'dh-stat-good'}"><strong>${hubDown ? 'Down' : `${vpnNodes}/2`}</strong><span>VPN exits online</span></div>
+      <div class="dh-stat ${vpnLeakState}"><strong>${vpnLeaks == null ? '—' : vpnLeaks}</strong><span>Home-IP leaks${vpnLeaks == null ? ' · unavailable' : ''}</span></div>
+      <div class="dh-stat"><strong>${esc(String(hubItems ?? '—'))}</strong><span>Collected items${hubItems == null ? ' · unavailable' : ''}</span></div>
+      <div class="dh-stat ${sourceState}"><strong>${sourcesUnavailable ? '—' : `${enabledCount}/${srcs.length}`}</strong><span>Sources ${sourcesUnavailable ? 'unavailable' : 'enabled'}</span></div>
+      <div class="dh-stat"><strong>${egressUnavailable ? '—' : events.length}</strong><span>Egress events ${egressUnavailable ? 'unavailable' : 'loaded'}</span></div>
+      <div class="dh-stat dh-stat-meta"><strong>${pullsUnavailable ? '—' : pulls.length}</strong><span>Site pulls ${pullsUnavailable ? 'unavailable' : 'loaded'} · ${datasetsUnavailable ? '— datasets unavailable' : `${dss.length} datasets`}</span></div>
     </section>
     <div class="matrix-scroll-hint dh-scroll-hint" role="note">Swipe horizontally inside wide tables to reveal remaining columns</div>
     <div class="dh-grid">
       <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
-      <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
-      <section class="dh-panel dh-wide" data-rk="dh-pulls"><h3>Site Pulls <span class="dh-sub-h">inbound — who consumed what</span> <span class="live-tag">live</span></h3>${pullsHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="${egressUnavailable ? 'dh-stale' : 'live-tag'}">${egressUnavailable ? 'unavailable' : 'live'}</span></h3>${egressHtml}</section>
+      <section class="dh-panel dh-wide" data-rk="dh-pulls"><h3>Site Pulls <span class="dh-sub-h">inbound — who consumed what</span> <span class="${pullsUnavailable ? 'dh-stale' : 'live-tag'}">${pullsUnavailable ? 'unavailable' : 'live'}</span></h3>${pullsHtml}</section>
       <section class="dh-panel" data-rk="dh-sources"><h3>Source Freshness</h3>${srcHtml}</section>
       <section class="dh-panel" data-rk="dh-datasets"><h3>Datasets</h3>${dsHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-matrix"><h3>Source × Site Matrix</h3>${matrixHtml}</section>
