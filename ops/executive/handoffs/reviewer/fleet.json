@@ -2,30 +2,37 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:21:22.233Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T02:33:13.527Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation admissions this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Financial, causal-lift, launch-readiness, security-clearance, and production-readiness claims remain unsupported. Retain the existing capacity gate and escalate unresolved blockers by 2026-10-02T12:00Z.",
+        "summary": "Reject all new implementation, high-priority queue work, unsupported financial or production claims, and duplicate security reporting. Retain the existing capacity and release gate. Aggregate affiliate commission is unattributed; telemetry and operations evidence do not support revenue, ROI, causal-lift, security-clearance, or production-readiness claims.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Owner concern: aggregate affiliate commission is unattributed, telemetry is low-volume or incomplete, and operations/fleet-doctor evidence is unavailable. Do not claim revenue, ROI, margin, forecasts, causal lift, launch readiness, or production readiness.",
+        "summary": "Owner concern: active work, low-volume telemetry, unavailable operations evidence, and incomplete release controls prevent defensible production admission. Principal-engineer must document the canonical admission ledger and repair disposition by 2026-10-02T12:00Z; release at most one candidate only if every baseline, threshold, test, attribution, rollback, and release gate passes.",
         "requested_action": null,
         "proposal_id": null
       },
       {
-        "kind": "proposal-review",
-        "title": "3943617d-d299-4fe7-94da-08645d281e65",
-        "summary": "Duplicate security evidence work; existing security gates and evidence-needed disposition already cover the gap.",
-        "requested_action": "declined",
-        "proposal_id": "3943617d-d299-4fe7-94da-08645d281e65"
+        "kind": "message",
+        "title": null,
+        "summary": "Reject all new implementation and high-priority queue admissions this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Financial, causal-lift, security-clearance, and production-readiness claims remain unsupported. Principal-engineer must reconcile the canonical admission ledger and repair disposition by 2026-10-02T12:00Z; release at most one candidate only if every gate passes, otherwise escalate to the owner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: aggregate affiliate commission is unattributed, telemetry is low-volume or incomplete, and operations evidence is unavailable. Do not claim revenue, ROI, margin, forecasts, causal lift, security clearance, or production readiness.",
+        "requested_action": null,
+        "proposal_id": null
       }
     ]
   }

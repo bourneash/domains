@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:04:28.151Z",
+  "generated_at": "2026-10-02T02:33:13.527Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the bounded read-only Save Us Farms public-surface inspection. It is technically feasible, isolated, reversible, and does not require telemetry, credentials, configuration, dependencies, spending, schedules, tracking, or production changes. Retain the implementation, release, security, and financial-claim gates. Do not admit a production candidate until principal-engineer documents the canonical admission ledger and repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence are complete; otherwise escalate.",
+        "summary": "Approve only the bounded read-only Save Us Farms public-surface inspection. It is technically feasible, isolated, reversible, low effort, and requires no credentials, configuration, dependencies, spending, schedules, tracking, telemetry changes, or production mutation. Retain the implementation, release, security, and financial-claim gates. Do not admit new implementation work this cycle. After the inspection, principal-engineer may document the canonical admission ledger and repair disposition, then release at most one candidate only if its existing baseline, measurable threshold, tests, attribution boundary, rollback point, and release evidence are complete; otherwise escalate by 2026-10-02T12:00Z. No revenue, ROI, margin, forecast, causal-lift, or production-readiness claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }

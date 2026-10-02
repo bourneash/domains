@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:04:28.151Z",
+  "generated_at": "2026-10-02T02:33:13.527Z",
   "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for the bounded read-only Save Us Farms inspection; blocked for new public launches, monetization expansion, security-sensitive exposure, and production implementation. Evidence: compliance baseline is technical-only with 37 pass, 18 fail, and 6 unknown; operations and fleet-doctor sweeps are unavailable; Amazon's $4.92 commission is aggregate and unattributed; and no candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Exact decision: approve only the specified read-only inspection, retain all implementation, financial-claim, security, and release gates, and release at most one candidate by 2026-10-02T12:00Z only if every gate is evidenced; otherwise escalate.",
+        "summary": "Risk disposition: conditional for the bounded read-only Save Us Farms inspection; blocked for new public launches, monetization expansion, security-sensitive exposure, and production implementation. Evidence: compliance is technical-only with 37 pass, 18 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; Amazon reports $4.92 aggregate unattributed commission; AI-cost coverage is incomplete and period-misaligned; and no candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Ordinary no-spend, no-credential, no-dependency, no-configuration, no-tracking reversible growth may continue within existing disclosure, consent, provenance, claims, copyright/trademark, platform-policy, and age-sensitive boundaries. Exact decision: retain the inspection, reject ungated implementation and financial claims, and release at most one candidate only after every gate is evidenced; otherwise escalate by 2026-10-02T12:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch-readiness remains blocked and private. Tracking is active with 0 of 4 legal tasks evidenced closed; no task is closed. Next evidence action: attach one dated read-only bundle containing the field-level source-rights matrix, repository/configuration data-flow and retention table, deployed consent and GA4 settings capture, log/vendor/DPA inventory, and incident/deletion/correction/request procedures. Prepare, but do not send, a human-counsel-reviewed Woot permission request.",
+        "summary": "SearchWoot launch-readiness tracking remains active at 0 of 4 legal tasks evidenced closed; no task is closed. The site remains private. Data-use decisions: Woot API deal and price-history data = blocked because access documentation does not establish storage, derivatives, public display, alerts, attribution, freshness, correction, takedown, affiliate, or advertising rights and public terms restrict commercial/public reuse; user alert rules and sync results = evidence_needed; GA4 analytics = evidence_needed; operational logs and Cloudflare hosting data = evidence_needed. Human counsel is required for upstream rights, privacy/jurisdiction, notification, vendor, and future affiliate or advertising questions. Next evidence action: attach one dated read-only bundle containing the field-level rights matrix, repository/configuration data-flow and retention table, deployed consent and GA4 settings capture, log/vendor/DPA inventory, and incident/deletion/correction/request procedures; prepare but do not send a counsel-reviewed permission request.",
         "requested_action": null,
         "proposal_id": null
       }
