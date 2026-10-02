@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:50:10.871Z",
+  "generated_at": "2026-10-02T16:51:24.559Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Affiliate revenue remains unattributed, telemetry is low-volume or incomplete, and operations/security evidence is unavailable. Preserve only the bounded public inspection and existing admission reconciliation; escalate unresolved blockers by 2026-10-02T17:00:00Z.",
+        "summary": "Reject new production and high-priority queue admissions this cycle. Aggregate affiliate revenue remains unattributed, telemetry is low-volume or incomplete, operations and fleet-doctor evidence are unavailable, and active measurement or review blocks duplicate work. Preserve the admission gate. Principal-engineer must document the canonical ledger and Save Us Farms repair disposition by 2026-10-02T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
