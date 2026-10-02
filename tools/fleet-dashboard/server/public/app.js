@@ -17533,6 +17533,33 @@ function siteTaskCount(data) {
   }, 0);
 }
 
+function siteLastRun(value) {
+  if (value == null || value === '') return '—';
+  let timestamp;
+  if (typeof value === 'number' || /^\d{10,16}(?:\.\d+)?$/.test(String(value))) {
+    timestamp = Number(value);
+    if (timestamp < 1e12) timestamp *= 1000;
+  } else {
+    timestamp = Date.parse(value);
+  }
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime())
+    ? '—'
+    : date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+}
+
+function siteStatusLabel(value) {
+  const label = String(value || '')
+    .replace(/[_-]+/g, ' ')
+    .trim();
+  return label ? `${label[0].toUpperCase()}${label.slice(1)}` : 'Unknown';
+}
+
 async function renderSiteDetail() {
   const app = $('#app');
   const site = STATE.siteSlug;
@@ -17542,7 +17569,7 @@ async function renderSiteDetail() {
 
   const [fleet, roles, deploy, gatus, errors, tasks, git, actions] = await Promise.all([
     apiOptional('GET', '/api/fleet', { rows: [] }),
-    apiOptional('GET', '/api/roles', { sites: [] }),
+    apiOptional('GET', '/api/roles', { sites: null }),
     apiOptional('GET', '/api/deploy-health', { sites: {} }),
     apiOptional('GET', '/api/gatus', { sites: {} }),
     apiOptional('GET', '/api/errors', { containers: [] }),
@@ -17552,7 +17579,8 @@ async function renderSiteDetail() {
   ]);
 
   const fleetRow = (fleet.rows || []).find(row => row.site === site) || {};
-  const roleSite = (roles.sites || []).find(row => row.site === site) || {};
+  const roleInventoryAvailable = Array.isArray(roles.sites);
+  const roleSite = (roleInventoryAvailable ? roles.sites : []).find(row => row.site === site) || {};
   const deploySite = deploy.sites?.[site] || {};
   const gatusSite = gatus.sites?.[site] || {};
   const siteErrors = (errors.containers || []).filter(row => row.slug === site);
@@ -17564,6 +17592,10 @@ async function renderSiteDetail() {
   const taskCount = siteTaskCount(tasks);
   const roleCells = Object.entries(roleSite.cells || {}).filter(
     ([, cell]) => cell && cell.installed !== false
+  );
+  const engineerCell = roleSite.cells?.engineer;
+  const engineerPulse = siteStatusLabel(
+    fleetRow.pulse || fleetRow.status || engineerCell?.state || engineerCell?.status
   );
   const healthyRoles = roleCells.filter(
     ([, cell]) => cell.state === 'fresh' || cell.status === 'fresh'
@@ -17584,27 +17616,27 @@ async function renderSiteDetail() {
     ? roleCells
         .map(
           ([role, cell]) =>
-            `<tr><td class="mono">${esc(role)}</td><td>${siteStatusBadge(cell.state === 'fresh' || cell.status === 'fresh', 'Fresh', cell.state || cell.status || 'Attention')}</td><td class="mono muted">${esc(cell.last_run || cell.last || '—')}</td><td>${cell.enabled === false ? '<span class="badge b-gray">Paused</span>' : '<span class="badge b-blue">Enabled</span>'}</td></tr>`
+            `<tr><td class="mono">${esc(role)}</td><td>${siteStatusBadge(cell.state === 'fresh' || cell.status === 'fresh', 'Fresh', cell.state || cell.status || 'Attention')}</td><td class="mono muted">${esc(siteLastRun(cell.last_run || cell.last))}</td><td>${cell.enabled === false ? '<span class="badge b-gray">Paused</span>' : '<span class="badge b-blue">Enabled</span>'}</td></tr>`
         )
         .join('')
-    : '<tr><td colspan="4" class="muted">No installed roles were reported.</td></tr>';
+    : `<tr><td colspan="4" class="muted">${roleInventoryAvailable ? 'No installed roles were reported.' : 'Role inventory is temporarily unavailable. Refresh to retry.'}</td></tr>`;
 
   app.innerHTML = `
     <div class="page-head site-command-head">
-      <div><div class="crumbs"><a class="crumb-link" id="site-back-control">Domain Control</a><span class="crumb-sep">›</span><span class="crumb-cur">${esc(site)}</span></div><h2 class="page-title">${esc(site)}</h2><span class="muted">Site command center · one operational view for health, delivery, work, and audit evidence.</span></div>
+      <div><div class="crumbs"><a class="crumb-link" id="site-back-control">← All sites</a></div><h2 class="page-title">${esc(site)}</h2><span class="muted">Site command center · one operational view for health, delivery, work, and audit evidence.</span></div>
       <div class="site-command-actions"><button class="btn" id="site-open-control" type="button">Filter fleet</button><button class="btn primary" id="site-run-engineer" type="button">▶ Run Engineer</button></div>
     </div>
     <section class="site-kpis" aria-label="${esc(site)} summary">
-      <div class="site-kpi"><span>Role health</span><strong>${rolePct == null ? '—' : `${rolePct}%`}</strong><small>${healthyRoles}/${roleCells.length || 0} installed roles fresh</small></div>
+      <div class="site-kpi"><span>Role health</span><strong>${rolePct == null ? '—' : `${rolePct}%`}</strong><small>${roleInventoryAvailable ? `${healthyRoles}/${roleCells.length} installed roles fresh` : 'Role inventory temporarily unavailable'}</small></div>
       <div class="site-kpi"><span>Deploy</span><strong>${esc({ live: 'Live', 'ops-only': 'Live · ops-only', deploying: 'Deploying', behind: 'Site changes pending', failed: 'Build failed', unknown: 'Unknown' }[deploySite.status] || (deploySite.live === true ? 'Live' : deploySite.live === false ? 'Site changes pending' : '—'))}</strong><small>${esc(deploySite.reason || (deploySite.deployedAt ? new Date(deploySite.deployedAt * 1000).toLocaleString() : 'No deploy evidence'))}</small></div>
       <div class="site-kpi"><span>Open work</span><strong>${taskCount}</strong><small>tasks across this site queue</small></div>
       <div class="site-kpi${activeErrors.length ? ' is-risk' : ''}"><span>Errors · 24h</span><strong>${activeErrors.length}</strong><small>${activeErrors.length ? 'Requires investigation' : 'No active container errors'}</small></div>
     </section>
     <section class="site-command-grid">
-      <article class="card site-panel"><div class="site-panel-head"><div><h3>Runtime posture</h3><p class="muted">Current evidence from role liveness, deploy health, and synthetic monitoring.</p></div>${siteStatusBadge(runtimeOk, 'Operational', 'Degraded')}</div><dl class="site-facts"><div><dt>Engineer pulse</dt><dd>${esc(fleetRow.pulse || fleetRow.status || 'Unknown')}</dd></div><div><dt>Live check</dt><dd>${gatusSite.failing == null ? 'Unknown' : gatusSite.failing === 0 ? 'Passing' : `${gatusSite.failing} failing`}</dd></div><div><dt>Last ship</dt><dd>${deploySite.deployedAt ? esc(new Date(deploySite.deployedAt * 1000).toLocaleString()) : 'No deploy evidence'}</dd></div><div><dt>Git</dt><dd>${esc(git.branch || git.currentBranch || 'Branch unknown')} · ${git.dirty ? 'uncommitted changes' : 'clean'}</dd></div></dl></article>
+      <article class="card site-panel"><div class="site-panel-head"><div><h3>Runtime posture</h3><p class="muted">Current evidence from role liveness, deploy health, and synthetic monitoring.</p></div>${siteStatusBadge(runtimeOk, 'Operational', 'Degraded')}</div><dl class="site-facts"><div><dt>Engineer pulse</dt><dd>${esc(engineerPulse)}</dd></div><div><dt>Live check</dt><dd>${gatusSite.failing == null ? 'Unknown' : gatusSite.failing === 0 ? 'Passing' : `${gatusSite.failing} failing`}</dd></div><div><dt>Last ship</dt><dd>${deploySite.deployedAt ? esc(new Date(deploySite.deployedAt * 1000).toLocaleString()) : 'No deploy evidence'}</dd></div><div><dt>Git</dt><dd>${esc(git.branch || git.currentBranch || 'Branch unknown')} · ${git.dirty ? 'uncommitted changes' : 'clean'}</dd></div></dl></article>
       <article class="card site-panel"><div class="site-panel-head"><div><h3>Immediate actions</h3><p class="muted">Safe shortcuts into the existing operational surfaces.</p></div></div><div class="site-action-list"><button class="btn" id="site-open-tasks" type="button">Open task board <span>→</span></button><button class="btn" id="site-open-git" type="button">Inspect Git status <span>→</span></button><button class="btn" id="site-open-errors" type="button">Review errors${activeErrors.length ? ` <span class="badge b-red">${activeErrors.length}</span>` : ''} <span>→</span></button></div></article>
     </section>
-    <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Installed roles</h3><p class="muted">The role matrix is the source of truth for scheduled ownership on this site.</p></div><span class="muted">${roleCells.length} roles</span></div><div class="table-wrap"><table><thead><tr><th>Role</th><th>Status</th><th>Last run</th><th>Control</th></tr></thead><tbody>${roleRows}</tbody></table></div></section>
+    <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Installed roles</h3><p class="muted">The role matrix is the source of truth for scheduled ownership on this site.</p></div><span class="muted">${roleInventoryAvailable ? roleCells.length : '—'} roles</span></div><div class="table-wrap"><table><thead><tr><th>Role</th><th>Status</th><th>Last run</th><th>Control</th></tr></thead><tbody>${roleRows}</tbody></table></div></section>
     <section class="card site-panel site-wide-panel"><div class="site-panel-head"><div><h3>Recent operator activity</h3><p class="muted">Mutating actions associated with this site.</p></div><a class="btn sm" href="#activity">Open full activity</a></div><div class="table-wrap"><table><thead><tr><th>When</th><th>Method</th><th>Path</th><th>Result</th></tr></thead><tbody>${actionRows}</tbody></table></div></section>`;
 
   $('#site-back-control').onclick = () => go('control');

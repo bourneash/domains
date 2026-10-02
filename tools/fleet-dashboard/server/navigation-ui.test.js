@@ -165,6 +165,33 @@ test('site command centers are shareable first-class routes', () => {
   const siteEnd = app.indexOf('function renderSiteDetail', siteStart + 1);
   const siteView = app.slice(siteStart, siteEnd > siteStart ? siteEnd : siteStart + 20000);
   assert.ok((siteView.match(/class="table-wrap"><table/g) || []).length >= 2);
+  assert.match(siteView, /engineerCell\?\.state \|\| engineerCell\?\.status/);
+  assert.match(siteView, /siteLastRun\(cell\.last_run \|\| cell\.last\)/);
+  assert.match(siteView, /id="site-back-control">← All sites/);
+  assert.match(siteView, /apiOptional\('GET', '\/api\/roles', \{ sites: null \}\)/);
+  assert.match(siteView, /Role inventory is temporarily unavailable/);
+});
+
+test('site command center formats numeric and ISO role-run timestamps', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function siteLastRun(value)');
+  const end = app.indexOf('\nasync function renderSiteDetail', start);
+  assert.ok(start >= 0 && end > start);
+  const format = vm.runInNewContext(`${app.slice(start, end)}\nsiteLastRun`, {});
+  const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+  const milliseconds = 1790919732453.9844;
+  const expected = new Date(milliseconds).toLocaleString(undefined, options);
+  assert.equal(format(milliseconds), expected);
+  assert.equal(format(String(Math.floor(milliseconds / 1000))), expected);
+  assert.equal(format(new Date(milliseconds).toISOString()), expected);
+  assert.equal(format(null), '—');
+  assert.equal(format('not-a-date'), '—');
+  const statusStart = app.indexOf('function siteStatusLabel(value)');
+  const statusEnd = app.indexOf('\nasync function renderSiteDetail', statusStart);
+  const label = vm.runInNewContext(`${app.slice(statusStart, statusEnd)}\nsiteStatusLabel`, {});
+  assert.equal(label('fresh'), 'Fresh');
+  assert.equal(label('blocked_infrastructure'), 'Blocked infrastructure');
+  assert.equal(label(''), 'Unknown');
 });
 
 test('site command deep links retain domain context in the shell title', () => {
