@@ -8295,6 +8295,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           column: req.params.column,
           title: payload.title || 'Untitled task',
           assigned_role: payload.assigned_role || null,
+          delivery_mode: payload.delivery_mode || null,
         },
       });
       res.json({
@@ -8304,7 +8305,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         correlation_id: payload.correlation_id,
       });
     } catch (e) {
-      res.status(e.httpStatus || 500).json({ error: e.message });
+      res.status(e.httpStatus || 500).json({
+        error: e.duplicateTask
+          ? `${e.message}: ${e.duplicateTask.column}/${e.duplicateTask.file}`
+          : e.message,
+        ...(e.duplicateTask ? { duplicate: true, existing_task: e.duplicateTask } : {}),
+      });
     }
   });
 

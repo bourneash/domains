@@ -235,25 +235,35 @@ function startManual({ store, root, request, baseline = {} }) {
   const taskId = crypto.randomUUID();
   const correlationId = `change-request:${request.request_id}`;
   const taskTarget = taskRoutingTarget(root, request) || existingTask;
-  const file = taskTarget
-    ? taskTarget.file
-    : tasks.create(root, request.site, 'backlog', {
-        task_id: taskId,
-        title: request.title,
-        priority: request.priority === 'high' ? 1 : request.priority === 'medium' ? 2 : 3,
-        type: request.category,
-        estimated_turns: request.max_turns,
-        assigned_role: request.assigned_role || 'engineer',
-        source: 'fleet-dashboard',
-        source_id: request.request_id,
-        delivery_mode: request.delivery_mode || 'direct',
-        correlation_id: correlationId,
-        // Keep runtime routing in the durable change-request/improvement rows,
-        // not in site task prose. Task bodies are untrusted work instructions;
-        // copying provider/model settings into them makes control-plane data
-        // look like instructions and creates a prompt-injection surface.
-        body: `## Human request\n\n${request.body}\n\n` + `change-request: ${request.request_id}\n`,
+  let file;
+  if (taskTarget) {
+    file = taskTarget.file;
+    const current = tasks.get(root, request.site, taskTarget.column, taskTarget.file);
+    if (current.meta.delivery_mode !== (request.delivery_mode || 'direct')) {
+      tasks.update(root, request.site, taskTarget.column, taskTarget.file, {
+        meta: { ...current.meta, delivery_mode: request.delivery_mode || 'direct' },
+        body: current.body,
       });
+    }
+  } else {
+    file = tasks.create(root, request.site, 'backlog', {
+      task_id: taskId,
+      title: request.title,
+      priority: request.priority === 'high' ? 1 : request.priority === 'medium' ? 2 : 3,
+      type: request.category,
+      estimated_turns: request.max_turns,
+      assigned_role: request.assigned_role || 'engineer',
+      source: 'fleet-dashboard',
+      source_id: request.request_id,
+      delivery_mode: request.delivery_mode || 'direct',
+      correlation_id: correlationId,
+      // Keep runtime routing in the durable change-request/improvement rows,
+      // not in site task prose. Task bodies are untrusted work instructions;
+      // copying provider/model settings into them makes control-plane data
+      // look like instructions and creates a prompt-injection surface.
+      body: `## Human request\n\n${request.body}\n\n` + `change-request: ${request.request_id}\n`,
+    });
+  }
   const run = store.createImprovement({
     run_id: runId,
     site: request.site,

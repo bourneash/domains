@@ -74,6 +74,7 @@ function serializeTask(meta, body) {
     'assigned_role',
     'source',
     'source_id',
+    'delivery_mode',
     'correlation_id',
     'measurement_due',
   ]) {
@@ -129,6 +130,7 @@ function readTaskCard(dir, col, name, slug) {
     task_id: meta.task_id || null,
     source: meta.source || null,
     source_id: meta.source_id || null,
+    delivery_mode: meta.delivery_mode || null,
     correlation_id: meta.correlation_id || null,
     measurement_due: meta.measurement_due ? String(meta.measurement_due) : null,
     started_at: meta.started_at ? String(meta.started_at) : null,
@@ -202,6 +204,46 @@ function findBySourceId(root, slug, sourceId) {
   return findAllBySourceId(root, slug, sourceId)[0] || null;
 }
 
+function lineageKey(task) {
+  const sourceId = String(task.source_id || '').trim();
+  if (sourceId) return `source-id:${sourceId}`;
+  const taskId = String(task.task_id || '').trim();
+  return taskId ? `task:${taskId}` : null;
+}
+
+const COLUMN_RANK = Object.freeze({ done: 0, 'in-progress': 1, backlog: 2, hold: 3 });
+
+// Return one authoritative card per durable lineage while retaining duplicate
+// records for a separate queue-health alert. Completed work suppresses stale
+// open copies; active work wins over backlog/hold copies otherwise.
+function reconcileLineages(cards) {
+  const groups = new Map();
+  for (const card of cards || []) {
+    const key = lineageKey(card);
+    if (!key) continue;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(card);
+  }
+  const canonical = new Map();
+  const duplicates = [];
+  for (const [key, group] of groups) {
+    group.sort(
+      (a, b) =>
+        COLUMN_RANK[a.column] - COLUMN_RANK[b.column] ||
+        String(a.file).localeCompare(String(b.file))
+    );
+    canonical.set(key, group[0]);
+    if (group.length > 1) duplicates.push({ key, canonical: group[0], tasks: group.slice(1) });
+  }
+  return {
+    canonical: (cards || []).filter(card => {
+      const key = lineageKey(card);
+      return !key || canonical.get(key) === card;
+    }),
+    duplicates,
+  };
+}
+
 // Read one task's full content + parsed parts for the editor.
 function get(root, slug, column, file) {
   if (!isValidColumn(column) || !isValidFilename(file))
@@ -234,6 +276,20 @@ function today() {
 // `YYYY-MM-DD-<slug>.md` name and de-duplicates with -2, -3, … if it collides.
 function create(root, slug, column, payload) {
   if (!isValidColumn(column)) throw httpErr(400, 'bad column');
+  const existing = list(root, slug);
+  const all = COLUMNS.flatMap(c => existing[c]);
+  const taskId = String(payload.task_id || '').trim();
+  const sourceId = String(payload.source_id || '').trim();
+  const duplicate = all.find(
+    task =>
+      (taskId && String(task.task_id || '').trim() === taskId) ||
+      (sourceId && String(task.source_id || '').trim() === sourceId)
+  );
+  if (duplicate) {
+    const error = httpErr(409, 'task lineage already exists');
+    error.duplicateTask = duplicate;
+    throw error;
+  }
   const meta = {
     task_id: payload.task_id || undefined,
     title: payload.title || 'Untitled task',
@@ -248,6 +304,7 @@ function create(root, slug, column, payload) {
     assigned_role: assignedRoleForType(payload.type, payload.assigned_role),
     source: payload.source || undefined,
     source_id: payload.source_id || undefined,
+    delivery_mode: payload.delivery_mode || undefined,
     correlation_id: payload.correlation_id || undefined,
     measurement_due: payload.measurement_due || undefined,
   };
@@ -341,6 +398,8 @@ module.exports = {
   listAll,
   findAllBySourceId,
   findBySourceId,
+  lineageKey,
+  reconcileLineages,
   get,
   create,
   update,

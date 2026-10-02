@@ -526,7 +526,7 @@ function applyThemeUI() {
   button.textContent = theme === 'light' ? '☾ Dark' : '☼ Light';
   button.title = `Switch to ${next} theme`;
   button.setAttribute('aria-label', `Switch to ${next} theme`);
-  button.setAttribute('aria-pressed', String(theme === 'light'));
+  button.removeAttribute('aria-pressed');
 }
 function toggleTheme() {
   const next = themeCfg() === 'light' ? 'dark' : 'light';
@@ -6151,6 +6151,8 @@ function openedLabel(t) {
 function boardCard(t, duplicateCount = 1) {
   const role = t.assigned_role ? `<span class="badge b-blue">${esc(t.assigned_role)}</span>` : '';
   const type = t.type ? `<span class="badge b-gray">${esc(t.type)}</span>` : '';
+  const delivery =
+    t.delivery_mode === 'report_only' ? '<span class="badge b-yellow">report only</span>' : '';
   const blk = t.blocked_on ? '<span class="blocked-tag">blocked</span>' : '';
   const repeated =
     duplicateCount > 1
@@ -6159,7 +6161,7 @@ function boardCard(t, duplicateCount = 1) {
   return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0">
     <span class="sr-only">Open task: </span>
     <div class="t-title">${esc(t.title)}${blk}${repeated}</div>
-    <div class="t-meta">${prioTag(t.priority)}${role}${type}</div>
+    <div class="t-meta">${prioTag(t.priority)}${role}${type}${delivery}</div>
     ${t.excerpt ? `<div class="t-excerpt">${esc(t.excerpt)}</div>` : ''}
     ${openedLabel(t)}
   </div>`;
@@ -6506,6 +6508,7 @@ async function openTaskModal({ mode, site, column, file }) {
       <div class="field"><label>Column</label><select id="f-col">${colOpts(column || 'backlog')}</select></div>
       <div class="field"><label>Blocked on</label><input id="f-blocked" value="${esc(meta.blocked_on || '')}" placeholder="(empty = not blocked)" /></div>
     </div>
+    <div class="field"><label for="f-delivery">Delivery scope</label><select id="f-delivery"><option value="direct" ${!meta.delivery_mode || meta.delivery_mode === 'direct' ? 'selected' : ''}>Direct implementation</option><option value="pull_request" ${meta.delivery_mode === 'pull_request' ? 'selected' : ''}>Pull request</option><option value="report_only" ${meta.delivery_mode === 'report_only' ? 'selected' : ''}>Report only · no production changes</option></select><span class="muted">This scope is stored with the task and shown on the board.</span></div>
     <div class="field"><label>Body (markdown)</label><textarea id="f-body" rows="12" placeholder="## Problem…">${esc(body)}</textarea></div>
     <div class="modal-foot">
       ${mode === 'edit' ? '<button class="btn danger spacer" id="f-delete">Delete</button>' : ''}
@@ -6536,6 +6539,7 @@ function collectMeta() {
   meta.estimated_turns = num($('#f-turns').value);
   meta.assigned_role = $('#f-role').value || undefined;
   meta.blocked_on = $('#f-blocked').value.trim() || undefined;
+  meta.delivery_mode = $('#f-delivery').value;
   return meta;
 }
 
@@ -11900,13 +11904,20 @@ function shRenderOverview(data) {
     .join('');
 
   const platformRows = Object.entries(data.metrics.platforms || {})
-    .map(
-      ([platform, m]) => `<tr>
+    .map(([platform, m]) => {
+      const impressions = Number(m.impressions) || 0;
+      const clicks = Number(m.clicks) || 0;
+      const ctr = impressions > 0 ? `${((clicks / impressions) * 100).toFixed(1)}%` : '—';
+      const ctrTitle =
+        impressions > 0
+          ? `${clicks.toLocaleString()} link clicks ÷ ${impressions.toLocaleString()} impressions`
+          : 'CTR unavailable: no impressions reported';
+      return `<tr>
         <td>${esc(shPlatformLabel(platform))}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
-        <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.clicks || 0}</td>
-        <td class="mono">${m.conversions || 0}</td><td class="mono">${m.ctr == null ? '—' : `${m.ctr}%`}</td><td class="mono">${m.avg_engagement}</td>
-      </tr>`
-    )
+        <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${clicks}</td>
+        <td class="mono">${impressions}</td><td class="mono">${m.conversions || 0}</td><td class="mono" title="${esc(ctrTitle)}">${ctr}</td><td class="mono">${m.avg_engagement}</td>
+      </tr>`;
+    })
     .join('');
 
   const ctrl = data.oversight || {};
@@ -11936,7 +11947,7 @@ function shRenderOverview(data) {
     ${
       platformRows
         ? `<div class="card sh-table-wrap"><table class="tbl"><caption class="sr-only">Social platform engagement over the selected period</caption><thead><tr><th>Platform</th><th>Posts</th><th>Likes</th>
-             <th>Reposts</th><th>Replies</th><th>Visits</th><th>Conversions</th><th>CTR</th><th>Avg engagement</th></tr></thead>
+             <th>Reposts</th><th>Replies</th><th>Link clicks</th><th>Impressions</th><th>Conversions</th><th>CTR</th><th>Avg engagement</th></tr></thead>
            <tbody>${platformRows}</tbody></table></div>`
         : '<div class="empty">Nothing published in this window yet.</div>'
     }`;
@@ -12046,14 +12057,14 @@ async function shRenderQueue() {
   const body = $('#sh-body');
   body.innerHTML = `
     <div class="task-toolbar sh-toolbar">
-      <select id="sh-f-status" class="cm-input">
+      <select id="sh-f-status" class="cm-input" aria-label="Filter by post status">
         ${SH_STATUSES.map(s => `<option value="${s}" ${s === SH.status ? 'selected' : ''}>${s}</option>`).join('')}
       </select>
-      <select id="sh-f-site" class="cm-input">${shSiteOptions(SH.site)}</select>
-      <select id="sh-f-platform" class="cm-input" title="Console is a local preview channel; it writes to the Social Hub outbox instead of a public network">
+      <select id="sh-f-site" class="cm-input" aria-label="Filter by site">${shSiteOptions(SH.site)}</select>
+      <select id="sh-f-platform" class="cm-input" aria-label="Filter by platform" title="Console is a local preview channel; it writes to the Social Hub outbox instead of a public network">
         ${shQueuePlatformOptions(SH.queuePlatform)}
       </select>
-      <select id="sh-f-kind" class="cm-input">
+      <select id="sh-f-kind" class="cm-input" aria-label="Filter by post type">
         <option value="" ${SH.kind === '' ? 'selected' : ''}>posts + replies</option>
         <option value="post" ${SH.kind === 'post' ? 'selected' : ''}>posts only</option>
         <option value="reply" ${SH.kind === 'reply' ? 'selected' : ''}>replies only</option>
@@ -12111,6 +12122,7 @@ async function shRenderQueue() {
       `/api/socialhub/posts?status=${SH.status}&kind=${SH.kind}&site=${encodeURIComponent(SH.site)}&platform=${encodeURIComponent(platform)}&limit=${publicOnly ? 500 : 100}`
     );
   } catch (e) {
+    $('#sh-queue-list')?.classList.remove('loading');
     renderViewError($('#sh-queue-list'), `Social queue failed: ${e.message}`);
     return;
   }
@@ -12139,6 +12151,7 @@ async function shRenderQueue() {
     });
     $('#sh-queue-count').textContent = `${filtered.length} of ${posts.length} shown`;
     const list = $('#sh-queue-list');
+    list.classList.remove('loading');
     const whenHeading =
       SH.status === 'posted'
         ? 'Posted at'
@@ -13156,7 +13169,7 @@ async function renderPriorities() {
     <td><span class="badge b-gray">${esc(item.kind)}</span></td>
     <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div>${item.duplicate_count > 1 ? `<details class="priority-duplicates"><summary>${item.duplicate_count} identical tasks grouped</summary><ul>${(item.task?.files || []).map(file => `<li><code>${esc(file)}</code></li>`).join('')}</ul></details>` : ''}</td>
     <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
-    <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
+    <td>${item.source === 'task-lineage-audit' && item.task?.file ? `<button class="btn sm priority-open-task" data-site="${esc(item.site)}" data-column="${esc(item.task.column)}" data-file="${esc(item.task.file)}">Open canonical task</button>` : item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
   </tr>`
     )
     .join('');
@@ -13204,6 +13217,16 @@ async function renderPriorities() {
         toast(e.message, 'err');
       }
     })
+  );
+  $$('.priority-open-task').forEach(button =>
+    button.addEventListener('click', () =>
+      openTaskModal({
+        mode: 'edit',
+        site: button.dataset.site,
+        column: button.dataset.column,
+        file: button.dataset.file,
+      })
+    )
   );
   applyFleetFilter();
   if (!FRESH) applyUISnap();
