@@ -125,22 +125,16 @@ try {
     .find(row => (Date.parse(row.started_at || '') || 0) >= scheduledStarted - 1000);
   const tickError = tick?.error || null;
   const windowStart = scheduledStarted - 1000;
-  const executableKinds = new Set(['implementation', 'content', 'design', 'engineering', 'seo']);
   const newRequests = store
     .listChangeRequests({ limit: 2000 })
     .filter(row => (Date.parse(row.created_at || '') || 0) >= windowStart);
-  const newExecutableWork = store
-    .listExecutiveWorkItems({ limit: 2000, quiet: 0 })
-    .filter(row => {
-      const created = Date.parse(row.created_at || '') || 0;
-      return (
-        created >= windowStart &&
-        executableKinds.has(String(row.kind)) &&
-        row.site &&
-        !['blocked', 'waiting', 'cancelled', 'done'].includes(String(row.status)) &&
-        !['blocker', 'report-only', 'tracking'].includes(String(row.actionability || ''))
-      );
-    });
+  const newExecutableWork = schedulerOutput.executableWorkItems(
+    store,
+    store.listExecutiveWorkItems({ limit: 2000, quiet: 0 }).filter(row =>
+      (Date.parse(row.created_at || '') || 0) >= windowStart
+    ),
+    windowStart
+  );
   const readiness = deliveryReadiness.snapshot(store, root);
   const eligibleIds = new Set(
     [...readiness.eligibleQueued, ...readiness.working, ...readiness.delivered].map(
