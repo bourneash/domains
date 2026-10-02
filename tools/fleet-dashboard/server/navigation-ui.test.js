@@ -1416,6 +1416,8 @@ test('Domains route separates command queueing from operational inventory', () =
     /role="status" aria-live="polite"><div class="loading">Loading domains…<\/div>/
   );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
+  assert.match(app, /<span>Recent jobs<\/span>/);
+  assert.match(app, /\$\{jobs\.length\} recent<\/span>/);
   assert.match(app, /type="button" class="btn" id="domains-refresh"/);
   assert.match(
     app,

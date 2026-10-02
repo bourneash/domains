@@ -9724,7 +9724,7 @@ async function renderDomains() {
     <div class="page-head"><div><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div><button type="button" class="btn" id="domains-refresh">↻ Refresh</button></div>
     <section class="dom-summary" aria-label="Domain operations summary">
       <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Onboarded sites</span></div>
-      <div class="dom-stat"><strong>${jobs.length}</strong><span>Recorded jobs</span></div>
+      <div class="dom-stat"><strong>${jobs.length}</strong><span>Recent jobs</span></div>
       <div class="dom-stat ${activeJobs ? 'dom-stat-warn' : ''}"><strong>${activeJobs}</strong><span>Queued or running</span></div>
       <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span>Failed jobs</span></div>
       <div class="dom-stat dom-stat-meta"><strong>${runnerLabel}</strong><span>Host runner</span></div>
@@ -9742,7 +9742,7 @@ async function renderDomains() {
     </section>
 
     <section class="card dom-panel">
-      <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recorded</span></div>
+      <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recent</span></div>
       <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Domain command job history"><table>
         <caption class="sr-only">Domain command job history</caption>
         <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
