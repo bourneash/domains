@@ -599,6 +599,7 @@ test('knowledge shelf is a first-class operator route', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /Knowledge shelf/);
+  assert.match(app, /Missing publisher or relevance details are surfaced in the catalog/);
   assert.match(app, /api\/executive\/knowledge/);
   assert.match(app, /return api\('GET', '\/api\/executive\/knowledge\?limit=300'\)/);
   assert.match(
