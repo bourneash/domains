@@ -8889,7 +8889,7 @@ async function renderAnalytics() {
       (rows.top || [])
         .map(
           r =>
-            `<tr><td class="dh-host">${esc(r.dim_key)}</td><td><b>${esc(String(r[metric] ?? 0))}</b></td></tr>`
+            `<tr><td class="dh-host" title="${esc(r.dim_key)}">${esc(r.dim_key)}</td><td><b>${esc(String(r[metric] ?? 0))}</b></td></tr>`
         )
         .join('') || `<tr><td colspan="2" class="muted">no ${label} data</td></tr>`;
 

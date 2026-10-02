@@ -1061,6 +1061,9 @@ body[data-view="builds"] main { max-width: none; }
 .an-site-position { min-width: 54px; font-size: 11px; text-align: right; }
 .an-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; grid-column: 1 / -1; scroll-margin-top: 76px; }
 .an-detail-grid > .dh-panel:first-child { grid-column: 1 / -1; }
+.an-detail-grid .dh-datasets { table-layout: fixed; }
+.an-detail-grid .dh-datasets th:last-child, .an-detail-grid .dh-datasets td:last-child { width: 136px; text-align: right; white-space: nowrap; }
+.an-detail-grid .dh-datasets td.dh-host { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .an-site-row { cursor: pointer; }
 .an-site-name { font-weight: 650; }
 .dh-down { color: #ffb454; padding: 8px 0; }
