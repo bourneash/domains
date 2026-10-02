@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:21:10.842Z",
+  "generated_at": "2026-10-02T16:23:41.903Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production and high-priority queue admissions this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence; aggregate affiliate revenue remains unattributed and operations/security evidence is unavailable. Preserve the capacity gate. Principal-engineer must reconcile the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z; unresolved blockers escalate to the owner. Site-factory must complete scaffold launch-readiness evidence before any scaffold build. Existing review/measurement work remains the blocker for 0xroulette.com, deeppenetrations.com, and broadwayshowgirls.com.",
+        "summary": "Reject the mynewgm.info report-only proposal and all new site production or high-priority queue work this cycle. No candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Principal-engineer must reconcile the canonical admission ledger and existing blocked work by 2026-10-02T17:00:00Z; CTO must preserve the security and operations gate and escalate missing evidence by the same deadline. No admissible three-site implementation batch exists.",
         "requested_action": null,
         "proposal_id": null
       }
