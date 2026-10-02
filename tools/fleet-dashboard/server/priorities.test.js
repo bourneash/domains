@@ -27,6 +27,10 @@ function fixture() {
     `---\ntitle: Do work\nassigned_role: missing-role\n---\nBody\n`
   );
   fs.writeFileSync(
+    path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog', 'work-copy.md'),
+    `---\ntitle: Do work\nassigned_role: missing-role\n---\nBody\n`
+  );
+  fs.writeFileSync(
     path.join(root, 'sites', 'live.example', 'ops', 'tasks', 'backlog', 'seo.md'),
     `---\ntitle: SEO work\ntype: seo\nassigned_role: engineer\n---\nBody\n`
   );
@@ -63,6 +67,11 @@ test('joins lifecycle, analytics gaps, task ownership and growth actions', () =>
   assert.equal(out.items.find(x => x.action_key === 'abc').expected_profit_usd, null);
   assert.ok(out.items.some(x => x.source === 'analytics-health'));
   assert.ok(out.items.some(x => x.source === 'task-board' && x.state === 'blocked'));
+  const duplicateOwnerGap = out.items.find(
+    x => x.source === 'task-board' && x.title.includes('Do work')
+  );
+  assert.equal(duplicateOwnerGap.duplicate_count, 2);
+  assert.deepEqual(duplicateOwnerGap.task.files, ['backlog/work-copy.md', 'backlog/work.md']);
   assert.ok(
     out.items.some(x => x.source === 'task-board' && x.title.includes('SEO work')),
     'missing SEO ownership must remain an owner gap'
@@ -137,4 +146,22 @@ test('does not demand production coverage from scaffold sites', () => {
     seo: { actions: [] },
   });
   assert.ok(!out.items.some(x => x.site === 'parked.example'));
+});
+
+test('analytics coverage counts successful sources only for live analytics-enabled sites', () => {
+  const root = fixture();
+  const out = priorities.build({
+    root,
+    discoveredSites: ['live.example'],
+    analyticsHealth: {
+      sites: {
+        'live.example': { ga4: { status: 'error' }, gsc: { status: 'not_observed' } },
+        'retired.example': { ga4: { status: 'ok' } },
+      },
+    },
+    revenue: {},
+    seo: { actions: [] },
+  });
+  assert.equal(out.coverage.analytics_sites, 0);
+  assert.equal(out.coverage.analytics_expected_sites, 1);
 });

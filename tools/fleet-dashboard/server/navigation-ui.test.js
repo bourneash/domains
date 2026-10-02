@@ -1848,6 +1848,8 @@ test('Priorities uses one contextual result count instead of repeating the queue
     /id="priority-page-status" role="status">Page \$\{PRIORITY_PAGE\} of \$\{pageCount\}/
   );
   assert.doesNotMatch(priorities, /\$\{rows\.length\} total actions/);
+  assert.match(priorities, /analytics_expected_sites/);
+  assert.match(priorities, /analytics-enabled live sites reporting/);
 });
 
 test('Git Hygiene keeps actions and long review tables bounded', () => {

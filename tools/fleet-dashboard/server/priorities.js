@@ -13,6 +13,11 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   );
   const taskRoleDisabled = (site, role) => disabledTaskRoles.get(site)?.has(role) === true;
   const analytics = analyticsHealth.sites || {};
+  const analyticsExpectedSites = live.filter(site => site.capabilities.includes('analytics'));
+  const analyticsReportingSites = analyticsExpectedSites.filter(site => {
+    const sources = analytics[site.domain] || {};
+    return sources.ga4?.status === 'ok' || sources.gsc?.status === 'ok';
+  }).length;
   const items = [];
 
   for (const action of seo.actions || []) {
@@ -210,6 +215,41 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     });
   }
 
+  // Multiple task files can describe the exact same ownership repair. Keep
+  // every source file attached for traceability, but present that repair as a
+  // single decision instead of making the operator triage identical rows.
+  const grouped = [];
+  const routingGroups = new Map();
+  for (const item of items) {
+    if (item.source !== 'task-routing-audit' && item.source !== 'task-board') {
+      grouped.push(item);
+      continue;
+    }
+    const key = JSON.stringify([
+      item.site,
+      item.source,
+      item.state,
+      item.title,
+      item.evidence,
+      item.task?.expected_role || '',
+    ]);
+    const existing = routingGroups.get(key);
+    if (!existing) {
+      item.task = {
+        ...item.task,
+        files: item.task?.file ? [`${item.task.column}/${item.task.file}`] : [],
+      };
+      item.duplicate_count = 1;
+      routingGroups.set(key, item);
+      grouped.push(item);
+    } else {
+      if (item.task?.file) existing.task.files.push(`${item.task.column}/${item.task.file}`);
+      existing.duplicate_count += 1;
+    }
+  }
+
+  items.length = 0;
+  items.push(...grouped);
   items.sort(
     (a, b) => b.score - a.score || b.proxy_value - a.proxy_value || a.site.localeCompare(b.site)
   );
@@ -265,7 +305,8 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     registry_sites: reg.sites.length,
     live_sites: live.length,
     discovered_sites: discovered.size,
-    analytics_sites: Object.keys(analytics).length,
+    analytics_sites: analyticsReportingSites,
+    analytics_expected_sites: analyticsExpectedSites.length,
     revenue_connected: Boolean(revenue && revenue.connected),
     // Site-level attribution is sufficient for portfolio decisions. Provider
     // aggregate rows (for example Amazon's `Other`) remain visible as an

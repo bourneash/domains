@@ -13041,7 +13041,11 @@ async function renderPriorities() {
       coverage.live_sites || 0,
       `${coverage.discovered_sites || 0} operational checkouts`,
     ],
-    ['Analytics', coverage.analytics_sites || 0, 'sites reporting'],
+    [
+      'Analytics',
+      `${coverage.analytics_sites ?? 0} / ${coverage.analytics_expected_sites ?? coverage.live_sites ?? 0}`,
+      'analytics-enabled live sites reporting',
+    ],
     [
       'Revenue',
       coverage.revenue_connected ? 'Connected' : 'Missing',
