@@ -122,7 +122,9 @@ const error = process.argv[5] || null;
 const usageFile = process.argv[6];
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const runtime = require(`${root}/tools/executive/agent-runtime`);
+const { alertConsecutiveFailures } = require(`${root}/tools/executive/overwatch-alert`);
 const store = eventstore.open(root);
+async function finish() {
 try {
   let usage = {};
   try { usage = JSON.parse(fs.readFileSync(usageFile, 'utf8')); } catch {}
@@ -134,7 +136,18 @@ try {
     result: { passes: usage.calls || [], estimated_total_tokens: Number(usage.estimated_total_tokens || 0) },
   });
   if (fs.existsSync(usageFile)) runtime.attachArtifact(store, updated, { kind: 'report', label: 'Executive usage ledger', uri: usageFile });
+  const agent = store.getAgent(updated.agent_id);
+  if (agent?.slug === 'fleet-ceo' && updated.status === 'failed') {
+    await alertConsecutiveFailures(store, {
+      agent, runId: updated.run_id, root,
+      report: { delivery_error: error },
+      label: 'Executive team', resultKey: 'executive_failure_alert',
+      notificationType: 'executive-run-failure',
+    });
+  }
 } finally { store.close(); }
+}
+finish().catch(error => { console.error(error.message); process.exitCode = 1; });
 NODE
 }
 

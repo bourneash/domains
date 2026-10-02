@@ -97,6 +97,19 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       row.status === 'deployed' ||
       (row.status === 'committed' && row.delivery_mode === 'pull_request')
   );
+  const recentVerifiedDeliveries = store
+    .listChangeRequests({ limit: 1000 })
+    .filter(
+      row =>
+        parseDate(row.updated_at) >= windowStart &&
+        row.delivery_mode !== 'report_only' &&
+        ['deployed', 'verified'].includes(row.status)
+    );
+  const activeDirectRequests = requests.filter(
+    row =>
+      row.delivery_mode !== 'report_only' &&
+      !['failed', 'blocked_infrastructure', 'blocked_owner', 'cancelled'].includes(row.status)
+  );
   return {
     window_start: iso(windowStart),
     window_end: iso(now),
@@ -116,6 +129,8 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       new_change_requests: requests.length,
       new_direct_change_requests: requests.filter(row => row.delivery_mode !== 'report_only')
         .length,
+      new_active_direct_change_requests: activeDirectRequests.length,
+      recent_verified_deliveries: recentVerifiedDeliveries.length,
       verified_artifacts: verifiedArtifacts.length,
       verified_deliveries: verifiedDeliveries.length,
       blocked_work_items: workItems.filter(row => row.status === 'blocked').length,
@@ -135,6 +150,27 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
           .sort((a, b) => parseDate(a.created_at) - parseDate(b.created_at))[0]?.created_at || null,
     },
   };
+}
+
+function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = [] }) {
+  const verified =
+    after.real_work.verified_deliveries > 0 || after.real_work.verified_artifacts > 0;
+  const queued =
+    after.real_work.new_direct_change_requests > 0 ||
+    repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
+  const recentExecutiveSuccess = before.cycles[0]?.status === 'completed';
+  const activeDelivery =
+    recentExecutiveSuccess &&
+    (before.real_work.new_active_direct_change_requests > 0 ||
+      before.real_work.recent_verified_deliveries > 0);
+  if (sandboxCode !== 0 || modelStatus !== 'succeeded')
+    return { status: 'failed', deliveryStatus: 'runner_failed', verified, queued };
+  if (verified)
+    return { status: 'succeeded', deliveryStatus: 'verified_delivery', verified, queued };
+  if (queued) return { status: 'succeeded', deliveryStatus: 'handoff_pending', verified, queued };
+  if (activeDelivery)
+    return { status: 'succeeded', deliveryStatus: 'observing_active_delivery', verified, queued };
+  return { status: 'failed', deliveryStatus: 'failed_to_deliver', verified, queued };
 }
 
 function hasExecutableHandoff(store, task) {
@@ -327,29 +363,29 @@ async function main() {
     } catch {}
   }
   const finalEvidence = collectEvidence(store, { baseline, since: auditStartedAt });
-  const verified =
-    finalEvidence.real_work.verified_deliveries > 0 ||
-    finalEvidence.real_work.verified_artifacts > 0;
-  const queued =
-    finalEvidence.real_work.new_direct_change_requests > 0 ||
-    repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
-  // A queue entry is a handoff, not a delivered improvement. Earlier cycles
-  // scored these as successes even when the new requests failed minutes later.
-  const deliveryStatus = verified
-    ? 'verified_delivery'
-    : queued
-      ? 'handoff_pending'
-      : 'failed_to_deliver';
+  const completed = store.getAgentRun(started.run.run_id);
+  const outcome = classifyOutcome({
+    sandboxCode: sandbox.code,
+    modelStatus: completed?.status,
+    before: evidence,
+    after: finalEvidence,
+    repairs,
+  });
+  const { verified, queued, deliveryStatus } = outcome;
+  const deliveryError =
+    deliveryStatus === 'runner_failed'
+      ? `Overwatch isolated model failed with status ${sandbox.code}.`
+      : deliveryStatus === 'failed_to_deliver'
+        ? 'Overwatch found no recent executable delivery, active handoff, or repair.'
+        : null;
   const report = {
     generated_at: new Date().toISOString(),
     agent: AGENT_SLUG,
     run_id: started.run.run_id,
     sandbox_status: sandbox.code,
+    monitor_status: outcome.status,
     delivery_status: deliveryStatus,
-    delivery_error:
-      deliveryStatus === 'failed_to_deliver'
-        ? 'Overwatch completed without verified delivery or executable downstream work.'
-        : null,
+    delivery_error: deliveryError,
     repairs,
     before: evidence,
     after: finalEvidence,
@@ -357,27 +393,18 @@ async function main() {
     output: sandbox.output,
   };
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), { mode: 0o600 });
-  const completed = store.getAgentRun(started.run.run_id);
   if (completed) {
     store.updateAgentRun(started.run.run_id, {
-      status: verified ? completed.status : 'failed',
-      error: verified
-        ? completed.error
-        : queued
-          ? 'Overwatch created a handoff but no verified delivery; downstream outcome is pending.'
-          : report.delivery_error,
+      status: outcome.status,
+      error: deliveryError,
       result: { ...(completed.result || {}), overwatch_report: reportPath, repairs },
     });
     runtime.recordAccountabilityOutcome(store, completed, {
       delivered: verified,
       reason: report.delivery_error,
     });
-    if (!verified) {
-      store.completeAgentDispatchForRun(
-        started.run.run_id,
-        'failed',
-        queued ? 'Overwatch handoff is pending downstream verification.' : report.delivery_error
-      );
+    if (outcome.status === 'failed') {
+      store.completeAgentDispatchForRun(started.run.run_id, 'failed', deliveryError);
     }
     store.createAgentArtifact({
       run_id: started.run.run_id,
@@ -392,6 +419,8 @@ async function main() {
         actionable: finalEvidence.real_work.actionable,
         verified,
         queued,
+        monitor_status: outcome.status,
+        delivery_status: deliveryStatus,
       },
     });
     store.createAgentEval({
@@ -399,12 +428,14 @@ async function main() {
       run_id: started.run.run_id,
       evaluator: 'exec-overwatch-deterministic',
       dimension: 'real-work-output',
-      score: verified ? 100 : queued ? 20 : 0,
+      score: verified ? 100 : queued ? 20 : deliveryStatus === 'observing_active_delivery' ? 10 : 0,
       feedback: verified
         ? 'Verified a delivered request, completed work item, or implementation artifact in this run.'
         : queued
-          ? 'Created a downstream handoff; no verified delivery yet, so this cycle is not a success.'
-          : 'Run failed to deliver executable work; repaired or escalated stuck handoffs.',
+          ? 'Created a downstream handoff; no verified delivery yet.'
+          : deliveryStatus === 'observing_active_delivery'
+            ? 'Monitor completed while recent executive delivery or active direct handoff was observed; no new Overwatch delivery claimed.'
+            : 'Run failed to observe executable work or repair stuck handoffs.',
       evidence: report.real_work_delta,
     });
   }
@@ -421,6 +452,21 @@ async function main() {
     root: ROOT,
     report,
   });
+  const executiveAgent = store.getAgent('fleet-ceo');
+  const latestExecutiveRun = executiveAgent
+    ? store.listAgentRuns({ agent_id: executiveAgent.agent_id, limit: 1 })[0]
+    : null;
+  report.executive_alert = latestExecutiveRun
+    ? await alertConsecutiveFailures(store, {
+        agent: executiveAgent,
+        runId: latestExecutiveRun.run_id,
+        root: ROOT,
+        report: { delivery_error: latestExecutiveRun.error },
+        label: 'Executive team',
+        resultKey: 'executive_failure_alert',
+        notificationType: 'executive-run-failure',
+      })
+    : { attempted: false, reason: 'executive agent unavailable' };
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), { mode: 0o600 });
   store.close();
   return report;
@@ -438,6 +484,7 @@ if (require.main === module) {
 module.exports = {
   captureSnapshot,
   collectEvidence,
+  classifyOutcome,
   repairHandoffs,
   repairStuckManagerTasks,
   main,

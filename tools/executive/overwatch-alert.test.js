@@ -93,3 +93,25 @@ test('keeps the alert pending when no fleet channel is configured', async () => 
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0].dedupe_key, 'overwatch-failure:run-1');
 });
+
+test('also alerts on two consecutive executive runner failures', async () => {
+  const { runs, store, agent } = fixture(['failed', 'failed', 'succeeded']);
+  const notifications = [];
+  store.createExecutiveNotification = input => notifications.push(input);
+  const result = await alertConsecutiveFailures(store, {
+    agent,
+    runId: 'run-0',
+    root: '/missing',
+    label: 'Executive team',
+    resultKey: 'executive_failure_alert',
+    notificationType: 'executive-run-failure',
+    env: { SLACK_BOT_TOKEN: 'test-token', SLACK_CHANNEL_FLEET: '#test' },
+    fetchImpl: async (_url, options) => {
+      assert.match(JSON.parse(options.body).text, /Executive team failed 2 consecutive runs/);
+      return { ok: true, json: async () => ({ ok: true }) };
+    },
+  });
+  assert.equal(result.sent, true);
+  assert.equal(runs[0].result.executive_failure_alert.sent, true);
+  assert.equal(notifications[0].notification_type, 'executive-run-failure');
+});

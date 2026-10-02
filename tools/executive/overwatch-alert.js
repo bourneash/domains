@@ -34,23 +34,33 @@ function failureStreak(runs) {
 
 async function alertConsecutiveFailures(
   store,
-  { agent, runId, root, report, fetchImpl = fetch, env = process.env }
+  {
+    agent,
+    runId,
+    root,
+    report,
+    fetchImpl = fetch,
+    env = process.env,
+    label = 'Exec Overwatch',
+    resultKey = 'overwatch_alert',
+    notificationType = 'overwatch-failure',
+  }
 ) {
   const runs = store.listAgentRuns({ agent_id: agent.agent_id, limit: 1000 });
   const streak = failureStreak(runs);
   if (streak.length < 2 || streak[0]?.run_id !== runId)
     return { attempted: false, streak: streak.length };
-  if (streak.some(run => run.result?.overwatch_alert?.sent)) {
+  if (streak.some(run => run.result?.[resultKey]?.sent)) {
     return { attempted: false, streak: streak.length, reason: 'already-alerted' };
   }
   if (store.createExecutiveNotification) {
     try {
       store.createExecutiveNotification({
         recipient: 'owner',
-        notification_type: 'overwatch-failure',
-        title: 'Exec Overwatch is failing repeatedly',
-        body: `${streak.length} consecutive failed runs. Latest run: ${runId}. Check the executive runner and Overwatch report.`,
-        dedupe_key: `overwatch-failure:${streak.at(-1).run_id}`,
+        notification_type: notificationType,
+        title: `${label} is failing repeatedly`,
+        body: `${streak.length} consecutive failed runs. Latest run: ${runId}. Check the executive runner and run report.`,
+        dedupe_key: `${notificationType}:${streak.at(-1).run_id}`,
       });
     } catch {
       // Slack delivery and run accounting must continue if the owner inbox is unavailable.
@@ -64,7 +74,7 @@ async function alertConsecutiveFailures(
     const error = String(
       report?.after?.cycles?.[0]?.error || report?.delivery_error || streak[0]?.error || ''
     ).slice(0, 350);
-    const text = `🚨 Exec Overwatch failed ${streak.length} consecutive runs. Executive delivery may be stalled. Latest: ${error || 'no verified delivery'}. Run ${runId}. Check the executive runner and Overwatch reports.`;
+    const text = `🚨 ${label} failed ${streak.length} consecutive runs. Executive delivery may be stalled. Latest: ${error || 'no verified delivery'}. Run ${runId}. Check the executive runner and run reports.`;
     try {
       const response = await fetchImpl('https://slack.com/api/chat.postMessage', {
         method: 'POST',
@@ -81,7 +91,7 @@ async function alertConsecutiveFailures(
   }
   result.at = new Date().toISOString();
   const current = store.getAgentRun(runId);
-  store.updateAgentRun(runId, { result: { ...current.result, overwatch_alert: result } });
+  store.updateAgentRun(runId, { result: { ...current.result, [resultKey]: result } });
   return result;
 }
 

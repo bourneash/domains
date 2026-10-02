@@ -10,9 +10,44 @@ const runtime = require('./agent-runtime');
 const {
   captureSnapshot,
   collectEvidence,
+  classifyOutcome,
   repairHandoffs,
   repairStuckManagerTasks,
 } = require('./overwatch-worker');
+
+test('monitoring an active executive handoff succeeds without claiming delivery', () => {
+  const before = {
+    cycles: [{ status: 'completed' }],
+    real_work: { new_active_direct_change_requests: 2, recent_verified_deliveries: 0 },
+  };
+  const after = {
+    real_work: { verified_deliveries: 0, verified_artifacts: 0, new_direct_change_requests: 0 },
+  };
+  assert.deepEqual(classifyOutcome({ sandboxCode: 0, modelStatus: 'succeeded', before, after }), {
+    status: 'succeeded',
+    deliveryStatus: 'observing_active_delivery',
+    verified: false,
+    queued: false,
+  });
+});
+
+test('no executive delivery or handoff remains a genuine Overwatch failure', () => {
+  const before = {
+    cycles: [{ status: 'failed' }],
+    real_work: { new_active_direct_change_requests: 0, recent_verified_deliveries: 0 },
+  };
+  const after = {
+    real_work: { verified_deliveries: 0, verified_artifacts: 0, new_direct_change_requests: 0 },
+  };
+  assert.equal(
+    classifyOutcome({ sandboxCode: 0, modelStatus: 'succeeded', before, after }).status,
+    'failed'
+  );
+  assert.equal(
+    classifyOutcome({ sandboxCode: 79, modelStatus: 'failed', before, after }).deliveryStatus,
+    'runner_failed'
+  );
+});
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'exec-overwatch-'));

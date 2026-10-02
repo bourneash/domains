@@ -21,3 +21,10 @@ test('isolated executive image includes eventstore static dependencies', () => {
     assert.ok(sandbox.includes(`$ROOT/${file}`), `${file} absent from source fingerprint`);
   }
 });
+
+test('sandbox terminal failure checks consecutive executive failures immediately', () => {
+  const sandbox = fs.readFileSync(path.join(__dirname, 'run-sandbox.sh'), 'utf8');
+  assert.match(sandbox, /runtime\.finish\(store, runId/);
+  assert.match(sandbox, /agent\?\.slug === 'fleet-ceo' && updated\.status === 'failed'/);
+  assert.match(sandbox, /await alertConsecutiveFailures\(store/);
+});
