@@ -48,6 +48,15 @@ test('mobile header keeps all action controls visible without horizontal scrolli
   assert.match(mobile, /\.topbar \.actions > \*\s*\{\s*flex-shrink:\s*0;/);
   assert.match(
     mobile,
+    /\.fleet-filter-count \{ flex: 0 0 auto; min-width: max-content; overflow: visible; text-overflow: clip; \}/
+  );
+  assert.match(
+    mobile,
+    /\.topbar \.actions #update-pill:not\(\.hidden\) \{[^}]*width: 44px;[^}]*font-size: 0;/
+  );
+  assert.match(mobile, /#update-pill:not\(\.hidden\)::before \{ content: '↻';/);
+  assert.match(
+    mobile,
     /\.topbar \.actions \.theme-toggle,[\s\S]*?\.topbar \.actions #refresh \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/
   );
   assert.match(
@@ -58,6 +67,26 @@ test('mobile header keeps all action controls visible without horizontal scrolli
     mobile,
     /body\[data-view="aiusage"\] \.aiu-summary > \.aiu-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
   );
+});
+
+test('Work Board detail controls have accessible names and sequential section headings', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function openWorkflowItem(source, id, data)');
+  const end = app.indexOf('function workBoardColumn(item)', start);
+  assert.ok(start >= 0 && end > start);
+  const detail = app.slice(start, end);
+  assert.equal((detail.match(/<h3 class="wb-detail-heading">/g) || []).length, 3);
+  assert.match(detail, /id="wb-link-relation" aria-label="Relationship type"/);
+  assert.match(detail, /id="wb-link-target" aria-label="Related work item"/);
+  assert.match(detail, /id="wb-link-search" class="cm-input" type="search"/);
+  assert.match(detail, /matches\.slice\(0, 40\)/);
+  assert.match(detail, /addLink\.disabled = !linkTarget\.value/);
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  assert.match(
+    mobile,
+    /\.fleet-filter-clear\s*\{[^}]*width:\s*30px;[^}]*min-width:\s*30px;[^}]*height:\s*30px/
+  );
+  assert.match(mobile, /\.wb-link-controls\s*\{\s*display:\s*grid/);
 });
 
 function routeFor(hash) {
@@ -204,7 +233,9 @@ test('site command centers are shareable first-class routes', () => {
   assert.equal(route.view, 'site');
   assert.equal(route.siteSlug, 'example.test');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /function renderSiteDetail\(\)/);
+  assert.match(style, /body\[data-view="site"\] \.fleet-filter-wrap \{ display: none; \}/);
   assert.match(app, /site command center/);
   assert.match(app, /site-console-link/);
   assert.match(app, /<dt>Last ship<\/dt>/);
@@ -429,28 +460,42 @@ test('light theme table headers keep the same contrast contract', () => {
 test('compact executive workspace tabs retain their full context', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const polish = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(
     app,
     /class="ex-workspace-tab \$\{active === key \? 'active' : ''\}"[\s\S]*title="\$\{esc\(`\$\{label\}: \$\{description\}`\)\}"/
   );
   assert.doesNotMatch(app, /class="ex-workspace-tab[^\n]*aria-label=/);
   assert.match(
-    style,
-    /@media \(max-width: 560px\) \{\s*\.ex-workspace-nav \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: 5px; padding: 5px; \}/
+    app,
+    /const activeTab = nav\.querySelector\('\.ex-workspace-tab\.active'\);[\s\S]*?activeTab\.scrollIntoView\(\{ block: 'nearest', inline: 'center', behavior: 'instant' \}\)/
+  );
+  assert.match(
+    polish,
+    /@media \(max-width: 560px\) \{[\s\S]*?\.ex-workspace-nav \{[\s\S]*?grid-auto-flow: column;[\s\S]*?grid-auto-columns: 150px;[\s\S]*?overflow-x: auto;[\s\S]*?scroll-snap-type: x proximity;/
   );
   assert.match(
     style,
     /\.ex-workspace-tab \{ min-height: 48px; padding: 7px 5px; border-color: var\(--border\); background: var\(--panel\); text-align: center; \}/
   );
+  assert.match(
+    polish,
+    /\.ex-workspace-tab \{\s*min-height: 56px;[\s\S]*?text-align: left;[\s\S]*?scroll-snap-align: start;/
+  );
 });
 
 test('focused executive workspaces hide repeated command-center KPIs', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const polish = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(app, /const kpis = shell\.querySelector\(':scope > \.ex-kpis'\);/);
   assert.match(app, /if \(page !== 'dashboard' && page !== 'overview'\) hide\(kpis\);/);
   assert.match(
     app,
     /else if \(page === 'conversation'\) \{\s*hide\(run\);\s*hide\(followThrough\);/
+  );
+  assert.match(
+    polish,
+    /\.ex-shell > \.ex-layout:has\(> \.ex-secondary\.ex-workspace-hidden\) \{\s*grid-template-columns: minmax\(0, 1fr\);/
   );
 });
 
@@ -702,8 +747,13 @@ test('workbench thread expansion exposes an accessible loading state', () => {
 
 test('change and Workbench detail timelines stay bounded on narrow screens', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  assert.ok(
-    (app.match(/<h4>Timeline<\/h4><div class="table-wrap"><table class="tbl">/g) || []).length >= 2
+  const changeTimeline = (
+    app.match(/<h4>Timeline<\/h4><div class="table-wrap"><table class="tbl">/g) || []
+  ).length;
+  assert.ok(changeTimeline >= 1);
+  assert.match(
+    app,
+    /<h3 class="wb-detail-heading">Timeline<\/h3>\s*<div class="table-wrap"><table class="tbl">/
   );
 });
 
@@ -1166,6 +1216,8 @@ test('dynamic action buttons default safely without changing form submits', () =
   assert.match(shell, /button:not\(\[type\]\)/);
   assert.match(shell, /if \(!button\.closest\('form'\)\) button\.type = 'button'/);
   assert.match(shell, /button\[title\]:not\(\[aria-label\]\)/);
+  assert.match(shell, /const visibleText = button\.textContent\?\.trim\(\) \|\| ''/);
+  assert.match(shell, /!\/\[\\p\{L\}\\p\{N\}\]\/u\.test\(visibleText\)/);
   assert.match(shell, /setAttribute\('aria-label', title\)/);
   assert.match(shell, /normalizeButtons\(\$\('#app'\)\)/);
 });
@@ -1471,14 +1523,32 @@ test('Scheduler prioritizes incidents and bounds both large registers', () => {
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(scheduler, /attention: 0, running: 1, healthy: 2, disabled: 3/);
+  assert.ok(
+    scheduler.includes("const siteQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();")
+  );
+  assert.match(
+    scheduler,
+    /const siteJobs = siteQuery\s*\? jobs\.filter\(job => String\(job\.site \|\| ''\)\.toLowerCase\(\)\.includes\(siteQuery\)\)/
+  );
+  assert.match(
+    scheduler,
+    /const siteRuns = siteQuery\s*\? runs\.filter\(run => String\(run\.site \|\| ''\)\.toLowerCase\(\)\.includes\(siteQuery\)\)/
+  );
+  assert.match(
+    scheduler,
+    /data-fleet-row data-fleet-unit="sites" data-site="\$\{esc\(s\.site\)\}"/
+  );
   assert.match(
     scheduler,
     /const pageJobs = shown\.slice\(jobPageStart, jobPageStart \+ SCH\.pageSize\)/
   );
   assert.match(
     scheduler,
-    /const pageRuns = runs\.slice\(runPageStart, runPageStart \+ SCH\.runPageSize\)/
+    /const pageRuns = siteRuns\.slice\(runPageStart, runPageStart \+ SCH\.runPageSize\)/
   );
+  assert.match(scheduler, /siteFilter\.addEventListener\('input'/);
+  assert.match(scheduler, /if \(STATE\.view !== 'scheduler'\) return/);
+  assert.match(scheduler, /applyFleetFilter\(\);\s+stamp\(\);/);
   assert.match(scheduler, /aria-label="Scheduled job pages"/);
   assert.match(scheduler, /aria-label="Recent run pages"/);
   assert.match(
@@ -1684,7 +1754,8 @@ test('Domains route separates command queueing from operational inventory', () =
     /role="status" aria-live="polite"><div class="loading">Loading domains…<\/div>/
   );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
-  assert.match(app, /<span>Checked-out sites<\/span>/);
+  assert.match(app, /<span>Total checked-out sites<\/span>/);
+  assert.match(app, /<span class="muted">\$\{\(d\.sites \|\| \[\]\)\.length\} total<\/span>/);
   assert.match(app, /<th>Created<\/th>/);
   assert.match(app, /createdLabel/);
   assert.match(app, /\$\{jobs\.length\} recent<\/span>/);
@@ -1770,7 +1841,7 @@ test('fleet filtering reports live match counts', () => {
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /\$\('#fleet-filter-count'\)/);
-  assert.match(app, /\$\{visible\}\/\$\{rows\.length\} \$\{unit\}/);
+  assert.match(app, /`\$\{visible\}\/\$\{rows\.length\}`/);
   assert.match(app, /matching \$\{unit\}/);
   assert.match(app, /No filterable items on this view/);
   assert.match(app, /const units = new Set\(rows\.map\(row => row\.dataset\.fleetUnit\)/);
@@ -1828,7 +1899,7 @@ test('fleet filter counter resets on empty views and counts named site groups', 
     $$: selector => (selector === '[data-fleet-row]' ? rows : []),
   };
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
-  assert.equal(count.textContent, '1/2 sites');
+  assert.equal(count.textContent, '1/2');
   assert.equal(count.attrs['aria-label'], '1 of 2 matching sites');
   assert.equal(rows[1].classList.hidden, true);
 
@@ -1842,7 +1913,7 @@ test('fleet filter counter resets on empty views and counts named site groups', 
   );
   input.value = 'marineactivity.com';
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
-  assert.equal(count.textContent, '4/10 rows on page');
+  assert.equal(count.textContent, '4/10');
   assert.equal(count.attrs['aria-label'], '4 of 10 rows on this page match the site filter');
 
   rows.length = 0;
@@ -1850,6 +1921,25 @@ test('fleet filter counter resets on empty views and counts named site groups', 
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
   assert.equal(count.textContent, '');
   assert.equal(count.attrs['aria-label'], 'No filterable items on this view');
+
+  context.STATE.view = 'retention';
+  input.value = 'marineactivity.com';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, 'Not used here');
+  assert.equal(count.attrs['aria-label'], 'Global site filter is not used on this view');
+
+  context.STATE.view = 'analytics';
+  context.ANALYTICS_SITE = 'marineactivity.com';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, 'Analytics site');
+  assert.match(count.attrs['aria-label'], /Analytics is scoped to marineactivity\.com/);
+
+  context.STATE.view = 'tasks';
+  context.STATE.taskSite = 'marineactivity.com';
+  context.TASK.mode = 'board';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, 'Board site');
+  assert.match(count.attrs['aria-label'], /Tasks Board is scoped to marineactivity\.com/);
 
   context.STATE.view = 'agents';
   input.value = 'marineactivity.com';
@@ -2234,7 +2324,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   assert.match(theme, /\.fleet-filter-wrap \{ order: 3; flex: 1 1 100%;/);
   assert.match(theme, /\.mobile-rail-toggle \{ display: grid; order: 0; \}/);
   assert.match(theme, /\.mobile-rail-backdrop \{ display: block; \}/);
-  assert.match(mobile, /\.topbar \.actions \.view-saves \{ order: 5; flex: 0 0 100%; \}/);
+  assert.match(mobile, /\.topbar \.actions \.view-saves \{ order: 5; flex: 0 0 auto; \}/);
   assert.match(
     theme,
     /\.actions \{ order: 2; flex: 1 1 260px; min-width: 0; gap: 6px; max-width: 100%; overflow: visible; flex-wrap: wrap;/
@@ -2273,8 +2363,13 @@ test('shared route headers keep context readable beside actions on narrow screen
 
 test('legacy direct-table cards remain horizontally usable on narrow screens', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(theme, /@media \(max-width: 720px\)/);
   assert.match(theme, /\.card:has\(> table\) \{ overflow-x: auto; \}/);
+  assert.match(
+    mobile,
+    /\.agent-table-wrap \.agent-table th:first-child,[\s\S]*left: 0;[\s\S]*background: var\(--panel\);/
+  );
 });
 
 test('Analytics provides route context, local refresh, and accessible loading state', () => {
@@ -2287,6 +2382,12 @@ test('Analytics provides route context, local refresh, and accessible loading st
   assert.match(route, /type="button" class="btn" id="analytics-refresh"/);
   assert.match(route, /Loading analytics…/);
   assert.match(route, /role="status" aria-live="polite"/);
+  assert.match(route, /uniqueSiteMatchForQuery\(\$\('#fleet-filter'\)\?\.value, siteNames\)/);
+  assert.match(route, /setAnalyticsSite\(filteredSite\)/);
+  assert.match(
+    app,
+    /STATE\.view === 'analytics'[\s\S]*?setAnalyticsSite\(filteredSite\);\s*renderAnalytics\(\);/
+  );
   assert.match(
     route,
     /\$\('#analytics-refresh'\)\.addEventListener\('click', \(\) => renderAnalytics\(\)\)/
@@ -2659,6 +2760,77 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
 
+test('Work Board fetches a bounded, deduplicated event timeline only for opened work', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function workflowBoardEvents(');
+  const end = app.indexOf('\nasync function openWorkflowItem(', start);
+  assert.ok(start >= 0 && end > start);
+  const calls = [];
+  const event = (event_id, occurred_at) => ({ event_id, occurred_at });
+  const context = {
+    URLSearchParams,
+    api: async (_method, path) => {
+      calls.push(path);
+      return path.includes('entity_id=')
+        ? {
+            events: [
+              event('shared', '2026-10-02T10:00:00Z'),
+              event('older', '2026-10-02T09:00:00Z'),
+            ],
+          }
+        : {
+            events: [
+              event('shared', '2026-10-02T10:00:00Z'),
+              event('newer', '2026-10-02T11:00:00Z'),
+            ],
+          };
+    },
+  };
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.readWorkflowEvents = workflowBoardEvents;`,
+    context
+  );
+  const events = await context.readWorkflowEvents('request', 'request-1');
+  assert.deepEqual(JSON.parse(JSON.stringify(events.map(item => item.event_id))), [
+    'newer',
+    'shared',
+    'older',
+  ]);
+  assert.deepEqual(calls, [
+    '/api/events?entity_id=request-1&limit=20',
+    '/api/events?correlation_id=request%3Arequest-1&limit=20',
+  ]);
+});
+
+test('Work Board cards and detail drawer share a gate summary for every source', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function wbGate(item)');
+  const end = app.indexOf('\nfunction workBoardCard(', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {};
+  vm.runInNewContext(`${app.slice(start, end)}\nglobalThis.gate = wbGate;`, context);
+  assert.equal(
+    context.gate({ source: 'work-item', next_action: 'Assign reviewer' }),
+    'Assign reviewer'
+  );
+  assert.equal(
+    context.gate({ source: 'request', auto_review: false, delivery_mode: 'pull-request' }),
+    'manual review · pull-request'
+  );
+  assert.equal(
+    context.gate({
+      source: 'proposal',
+      implementation: {
+        legal_review: { status: 'approved' },
+        security_review: { status: 'pending' },
+      },
+    }),
+    'owner decision · legal approved · security pending'
+  );
+  assert.match(app, /esc\(wbGate\(item\)\)/);
+  assert.doesNotMatch(app, /wbGate\(item\)\s*\{\s*$/);
+});
+
 test('global site filter matches Work Board site labels without hiding fleet-wide work', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function workBoardSiteMatches(');
@@ -2973,6 +3145,18 @@ test('Containers provides scoped search and operational filters', () => {
   assert.match(app, /id="cn-status"/);
   assert.match(app, /id="cn-kind"/);
   assert.match(app, /function applyContainerFilter\(\)/);
+  assert.match(app, /function updateContainerFilterCount\(\)/);
+  assert.match(
+    app,
+    /!row\.classList\.contains\('cn-filter-hidden'\) && !row\.classList\.contains\('fleet-hidden'\)/
+  );
+  assert.match(app, /if \(STATE\.view === 'containers'\) updateContainerFilterCount\(\);/);
+  assert.match(app, /shown after all filters/);
+  assert.match(app, /STATE\.view === 'containers'\s*\? 'containers'/);
+  assert.match(
+    app,
+    /const hasSiteFilter = Boolean\(\$\('#fleet-filter'\)\?\.value\.trim\(\)\);[\s\S]*hasSiteFilter \? `\$\{visible\} shown`/
+  );
   assert.match(app, /data-cn-status/);
   assert.match(
     app,
@@ -3031,8 +3215,19 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(app, /aria-label="Open retained logs for \$\{esc\(r\.name\)\}"/);
   assert.match(
     app,
-    /title="\$\{esc\(f\.textPreview \|\| ''\)\}"\>\$\{esc\(formatErrorPostPreview\(f\.textPreview\)\.slice\(0, 80\)\)\}/
+    /title="\$\{esc\(f\.textPreview \|\| ''\)\}"\>\$\{esc\(formatErrorPostPreview\(f\.textPreview\)\)\}/
   );
+  assert.match(
+    app,
+    /data-label="Latest"[\s\S]*data-label="Events"[\s\S]*data-label="Channel"[\s\S]*data-label="Error"[\s\S]*data-label="Message"/
+  );
+  assert.match(
+    app,
+    /class="err-delivery-details" open><summary>Review \$\{postFailureGroups\.length\} failed delivery patterns/
+  );
+  assert.match(app, /deliveryDetailsWasOpen \?\? !matchMedia\('\(max-width: 620px\)'\)\.matches/);
+  assert.match(theme, /\.error-banner-warn tbody \{ display: grid; gap: 8px;/);
+  assert.match(theme, /\.error-banner-warn tbody td::before \{\s*content: attr\(data-label\)/);
   assert.match(app, /type="button" class="btn" id="errors-refresh"/);
   assert.match(
     app,
@@ -3096,6 +3291,9 @@ test('Errors formats Slack delivery previews without changing the retained sourc
     '🚨 eastcoastrappers-cron — repeated ERROR open'
   );
   assert.equal(format(':unknown_code:'), 'unknown code');
+  const longPreview = format('🚨 '.repeat(50));
+  assert.ok(Array.from(longPreview).length <= 80);
+  assert.ok(longPreview.endsWith('…'));
 });
 
 test('Deploys provides status hierarchy and scoped filtering', () => {
@@ -3153,6 +3351,9 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(app, /type="button" class="btn sm" id="git-refresh"/);
   assert.match(app, /\$\('#git-refresh'\)\.addEventListener\('click', \(\) => renderGit\(\)\)/);
   assert.match(app, /function applyGitFilter\(\)/);
+  assert.match(app, /if \(STATE\.view === 'git'\) applyGitFilter\(\);/);
+  assert.match(app, /locallyVisible\.filter\(row => !row\.classList\.contains\('fleet-hidden'\)\)/);
+  assert.match(app, /repositories shown after all filters/);
   assert.match(app, /data-git-status/);
   assert.match(app, /Surface repositories that need operator action before the clean fleet/);
   assert.match(app, /const gitRank = r =>/);
@@ -3163,6 +3364,40 @@ test('Git Operations presents repository state with local filters', () => {
     /@media \(max-width: 560px\) \{\s*\.git-summary \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 8px; \}\s*\.git-actions \{ grid-column: 1 \/ -1; justify-content: flex-start; \}/
   );
   assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
+});
+
+test('Git result count intersects global site visibility with local repository filters', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function applyGitFilter()');
+  const end = app.indexOf('\nfunction gitPageTabs', start);
+  assert.ok(start >= 0 && end > start);
+  const makeRow = (slug, fleetHidden = false) => {
+    const classes = new Set(fleetHidden ? ['fleet-hidden'] : []);
+    return {
+      dataset: { slug, gitName: slug, gitStatus: 'synced' },
+      classList: {
+        contains: name => classes.has(name),
+        toggle: (name, on) => (on ? classes.add(name) : classes.delete(name)),
+      },
+    };
+  };
+  const rows = [makeRow('marineactivity.com'), makeRow('0daynews.com', true)];
+  const count = {
+    textContent: '',
+    attrs: {},
+    setAttribute(k, v) {
+      this.attrs[k] = v;
+    },
+  };
+  const context = {
+    GIT_FILTER: { q: '', status: 'all' },
+    CSS: { escape: value => value },
+    $$: selector => (selector === '.git-row' ? rows : []),
+    $: selector => (selector === '#git-filter-count' ? count : null),
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\napplyGitFilter();`, context);
+  assert.equal(count.textContent, '1/2 shown');
+  assert.equal(count.attrs['aria-label'], '1 of 2 repositories shown after all filters');
 });
 
 test('Domain Control keeps unique health context beside the role filters', () => {
@@ -3182,6 +3417,11 @@ test('Domain Control keeps unique health context beside the role filters', () =>
   assert.doesNotMatch(app, /Sites with paused roles<\/span>/);
   assert.doesNotMatch(app, /Common role columns<\/span>/);
   assert.match(app, /Has fresh roles/);
+  assert.match(app, /<span class="ctl-count muted">\$\{core\.length\} common roles<\/span>/);
+  assert.doesNotMatch(
+    app,
+    /class="ctl-count muted">\$\{rows\.length\} of \$\{sites\.length\} sites/
+  );
   assert.match(app, /matrix-scroll-hint/);
   assert.match(app, /class="rmatrix-tools"><summary aria-label="More tools for/);
   assert.match(app, /Parked domain inventory and renewal exposure/);
@@ -3247,10 +3487,7 @@ test('shell title injection does not duplicate nested custom-view headings', () 
 
 test('Agents landing cards use light surfaces in light theme', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  assert.match(
-    theme,
-    /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background:[\s\S]*linear-gradient\(145deg, #fff, #f5f8fd\)/
-  );
+  assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background: #fff/);
   assert.match(theme, /\.nav-root-card-copy strong \{ color: var\(--text-hi\);/);
 });
 
@@ -4132,7 +4369,27 @@ test('Tasks route provides context before its mode controls', () => {
   );
   assert.match(view, /role="group" aria-label="Task view mode"/);
   assert.match(view, /class="btn primary sm task-new-btn" id="new-task"/);
+  assert.match(view, /uniqueSiteMatchForQuery\(\$\('#fleet-filter'\)\?\.value\)/);
+  assert.match(app, /STATE\.view === 'tasks' && TASK\.mode === 'board'/);
   assert.match(theme, /\.task-route-toolbar > \.seg \{ display: flex; \}/);
+});
+
+test('Per-site views follow a unique global site match without guessing among multiple sites', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function uniqueSiteMatchForQuery(');
+  const end = app.indexOf('\nfunction prioClass', start);
+  assert.ok(start >= 0 && end > start);
+  const context = { STATE: { sites: [] } };
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.siteMatch = uniqueSiteMatchForQuery;`,
+    context
+  );
+  assert.equal(
+    context.siteMatch('marineactivity.com', ['marineactivity.com', 'other.test']),
+    'marineactivity.com'
+  );
+  assert.equal(context.siteMatch('shop', ['one-shop.test', 'two-shop.test']), null);
+  assert.equal(context.siteMatch('', ['marineactivity.com']), null);
 });
 
 test('fleet task table stays bounded while preserving its wide scan columns', () => {
@@ -4503,6 +4760,38 @@ test('category cards share the sidebar icon system', () => {
   assert.match(shell, /engineer: '🛠️'/);
 });
 
+test('Agents landing roles have distinct icons instead of repeated generic robots', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const map = shell.match(/const ROLE_EMOJI = \{([\s\S]*?)\n  \};/);
+  assert.ok(map, 'role icon map is present');
+  const roles = [
+    'ceo',
+    'cfo',
+    'cro',
+    'cto',
+    'delivery-lead',
+    'design-director',
+    'design-manager',
+    'exec-overwatch',
+    'growth-director',
+    'growth-manager',
+    'legal',
+    'operations-manager',
+    'project-manager',
+    'revenue-ops',
+    'reviewer',
+    'security',
+    'site-factory',
+    'site-factory-manager',
+  ];
+  const icons = roles.map(role => {
+    const entry = map[1].match(new RegExp(`['"]?${role}['"]?: '([^']+)'`));
+    assert.ok(entry, `${role} has a specific icon`);
+    return entry[1];
+  });
+  assert.equal(new Set(icons).size, icons.length, 'each primary role has a distinct icon');
+});
+
 test('command palette exposes a keyboard and screen-reader friendly listbox', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
@@ -4676,10 +4965,7 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(app, /button\.removeAttribute\('aria-pressed'\)/);
   assert.match(app, /aria-pressed', String\(density === 'compact'\)/);
   assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
-  assert.match(
-    theme,
-    /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*linear-gradient\(145deg, #fff, #f5f8fd\)/
-  );
+  assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background: #fff/);
   assert.match(
     theme,
     /:root\[data-theme="light"\] \.task \{[\s\S]*linear-gradient\(180deg, #fff, #f8fafd\)/
@@ -4701,6 +4987,8 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /.wb-status-options label {[^}]*flex-direction: row/);
   assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-column/);
+  assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card\s*\{[^}]*background: #fff/);
+  assert.match(theme, /:root\[data-theme="light"\] \.nav-root-icon\s*\{[^}]*box-shadow:/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-card/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-summary > div/);
   assert.match(theme, /:root\[data-theme="light"\] \.dh-panel/);

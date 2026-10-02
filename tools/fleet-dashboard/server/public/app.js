@@ -213,6 +213,12 @@ function applyFleetFilter() {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  if (STATE.view === 'git') applyGitFilter();
+  if (STATE.view === 'scheduler') {
+    const siteRows = $$('#sch-sites-table tbody tr[data-fleet-row]');
+    const noMatches = $('#sch-sites-no-matches');
+    if (noMatches) noMatches.hidden = siteRows.some(row => !row.classList.contains('fleet-hidden'));
+  }
   if (STATE.view === 'containers') updateContainerFilterCount();
   $$('.ag-health-detail[data-site]').forEach(el => {
     const site = (el.dataset.site || '').toLowerCase();
@@ -236,22 +242,30 @@ function applyFleetFilter() {
     const pagedQueue = STATE.view === 'change-queue';
     const total = STATE.view === 'errors' ? ERRORS_UI.siteTotal : rows.length;
     const matching = STATE.view === 'errors' ? ERRORS_UI.siteMatches : visible;
+    const emptyFilterStatus =
+      !rows.length && q
+        ? STATE.view === 'agents'
+          ? 'Site pages only'
+          : STATE.view === 'analytics'
+            ? 'Analytics site'
+            : STATE.view === 'tasks' && TASK.mode === 'board'
+              ? 'Board site'
+              : 'Not used here'
+        : '';
     count.textContent =
       STATE.view === 'errors'
         ? q
-          ? `${matching}/${total} ${unit}`
+          ? `${matching}/${total}`
           : `${matching} ${unit}`
         : rows.length
           ? pagedQueue
             ? q
-              ? `${visible}/${rows.length} rows on page`
+              ? `${visible}/${rows.length}`
               : `${rows.length} rows on page`
             : q
-              ? `${visible}/${rows.length} ${unit}`
+              ? `${visible}/${rows.length}`
               : `${rows.length} ${unit}`
-          : q && STATE.view === 'agents'
-            ? 'Site pages only'
-            : '';
+          : emptyFilterStatus;
     count.setAttribute(
       'aria-label',
       STATE.view === 'errors'
@@ -259,9 +273,15 @@ function applyFleetFilter() {
           ? `${matching} of ${total} matching ${unit}`
           : `${matching} ${unit} match the current filters`
         : !rows.length
-          ? q && STATE.view === 'agents'
+          ? emptyFilterStatus === 'Site pages only'
             ? 'Site filters apply on site-level pages; use Find an agent to search this directory'
-            : 'No filterable items on this view'
+            : emptyFilterStatus === 'Analytics site'
+              ? `Analytics is scoped to ${ANALYTICS_SITE || 'the selected site'}; a unique global match selects this site`
+              : emptyFilterStatus === 'Board site'
+                ? `Tasks Board is scoped to ${STATE.taskSite || 'no site'}; a unique global match selects the board site`
+                : q
+                  ? 'Global site filter is not used on this view'
+                  : 'No filterable items on this view'
           : q
             ? pagedQueue
               ? `${visible} of ${rows.length} rows on this page match the site filter`
@@ -1779,7 +1799,7 @@ async function renderGit() {
 function applyGitFilter() {
   const q = GIT_FILTER.q.trim().toLowerCase();
   const rows = $$('.git-row');
-  const visible = rows.filter(row => {
+  const locallyVisible = rows.filter(row => {
     const matchesQuery = !q || (row.dataset.gitName || '').includes(q);
     const matchesStatus =
       GIT_FILTER.status === 'all' || row.dataset.gitStatus === GIT_FILTER.status;
@@ -1790,7 +1810,14 @@ function applyGitFilter() {
     return show;
   });
   const count = $('#git-filter-count');
-  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
+  if (count) {
+    const visible = locallyVisible.filter(row => !row.classList.contains('fleet-hidden'));
+    count.textContent = `${visible.length}/${rows.length} shown`;
+    count.setAttribute(
+      'aria-label',
+      `${visible.length} of ${rows.length} repositories shown after all filters`
+    );
+  }
 }
 
 function gitPageTabs(active) {
@@ -3363,7 +3390,7 @@ function errorSortButton(key, label) {
 
 function formatErrorPostPreview(value) {
   const emoji = { rotating_light: '🚨', white_check_mark: '✅', warning: '⚠️' };
-  return String(value || '')
+  const text = String(value || '')
     .replace(/<([^>|]+)\|([^>]+)>/g, '$2')
     .replace(/<(https?:\/\/[^>]+)>/g, '$1')
     .replace(/:([a-z0-9_+-]+):/gi, (_, name) => emoji[name] || name.replaceAll('_', ' '))
@@ -3372,6 +3399,8 @@ function formatErrorPostPreview(value) {
     .replace(/`+/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+  const chars = Array.from(text);
+  return chars.length > 80 ? `${chars.slice(0, 79).join('').trimEnd()}…` : text;
 }
 
 function ensureErrorDrawer() {
@@ -3470,6 +3499,7 @@ function filterErrorRows(rows, { query = '', level = '', scope = '', siteQuery =
 
 async function renderErrors() {
   const app = $('#app');
+  const deliveryDetailsWasOpen = $('.err-delivery-details')?.open;
   if (FRESH) {
     app.innerHTML =
       '<div class="page-head"><div><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide retained log scan and alert review</span></div></div><div role="status" aria-live="polite"><div class="loading">Loading error scan…</div></div>';
@@ -3568,15 +3598,15 @@ async function renderErrors() {
     }
     ${
       postFailures.length
-        ? `<div class="card error-card error-banner error-banner-warn" role="alert"><div class="cn-log-head">⚠️ ${postFailures.length} failed Slack post(s) across ${postFailureGroups.length} failure pattern(s) — an alert or all-clear that never reached Slack</div><div class="table-wrap"><table>
+        ? `<div class="card error-card error-banner error-banner-warn"><div class="cn-log-head" role="alert">⚠️ ${postFailures.length} failed Slack post(s) across ${postFailureGroups.length} failure pattern(s) — an alert or all-clear that never reached Slack</div><details class="err-delivery-details" open><summary>Review ${postFailureGroups.length} failed delivery patterns</summary><div class="table-wrap"><table>
       <caption class="sr-only">Deduplicated failed Slack delivery patterns</caption><thead><tr><th>Latest</th><th>Events</th><th>Channel</th><th>Error</th><th>Message</th></tr></thead>
       <tbody>${postFailureGroups
         .map(
           f =>
-            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.latestAt) / 1000) + ' ago')}</td><td><span class="badge b-yellow">${f.count}</span></td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted" title="${esc(f.textPreview || '')}">${esc(formatErrorPostPreview(f.textPreview).slice(0, 80))}</td></tr>`
+            `<tr><td class="mono muted" data-label="Latest">${esc(fmtAge((Date.now() - f.latestAt) / 1000) + ' ago')}</td><td data-label="Events"><span class="badge b-yellow">${f.count}</span></td><td class="mono" data-label="Channel">${esc(f.channel || '—')}</td><td class="mono" data-label="Error">${esc(f.error || '—')}</td><td class="mono muted" data-label="Message" title="${esc(f.textPreview || '')}">${esc(formatErrorPostPreview(f.textPreview))}</td></tr>`
         )
         .join('')}</tbody>
-    </table></div></div>`
+    </table></div></details></div>`
         : ''
     }
     <div class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters">
@@ -3591,6 +3621,11 @@ async function renderErrors() {
     </table></div></div>
     <div class="activity-pagination error-pagination"><span class="muted">${filtered.length ? `Showing ${start + 1}–${Math.min(start + ERRORS_UI.pageSize, filtered.length)} of ${filtered.length}` : 'Showing 0 containers'}</span><button id="errors-prev" class="btn sm" type="button" ${ERRORS_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${ERRORS_UI.page} of ${pageCount}</span><button id="errors-next" class="btn sm" type="button" ${ERRORS_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></div>
     <details class="error-help"><summary>How errors are classified</summary><p>Classifies lines matching <b>error/exception/traceback/failed/failure</b> (error), <b>panic/fatal/out of memory</b> (crit), or <b>warn(ing)</b> (warn). Successful Astro route output and explicit zero-failure summaries are suppressed. One-off workers remain visible here, while Slack alerts come only from persistent site containers to avoid duplicates. Rolling ~26h retention, refreshed every 3 minutes.</p></details>`;
+
+  const deliveryDetails = $('.err-delivery-details');
+  if (deliveryDetails) {
+    deliveryDetails.open = deliveryDetailsWasOpen ?? !matchMedia('(max-width: 620px)').matches;
+  }
 
   $('#errors-refresh').addEventListener('click', () => renderErrors());
   wireErrorRows();
@@ -6318,6 +6353,15 @@ const TASK = {
 };
 const TASK_BOARD_PAGE_SIZE = 12;
 
+function uniqueSiteMatchForQuery(query, sites = STATE.sites) {
+  const q = String(query || '')
+    .trim()
+    .toLowerCase();
+  if (!q) return null;
+  const matches = sites.filter(site => String(site).toLowerCase().includes(q));
+  return matches.length === 1 ? matches[0] : null;
+}
+
 function prioClass(p) {
   if (p == null || p === '') return 'pn';
   const n = Number(p);
@@ -6358,6 +6402,10 @@ async function renderTasks() {
   $$('.seg-btn').forEach(b =>
     b.addEventListener('click', () => {
       TASK.mode = b.dataset.mode;
+      if (TASK.mode === 'board') {
+        const filteredSite = uniqueSiteMatchForQuery($('#fleet-filter')?.value);
+        if (filteredSite) STATE.taskSite = filteredSite;
+      }
       renderTasks();
     })
   );
@@ -8695,6 +8743,7 @@ let ANALYTICS_SITE = (() => {
   }
 })();
 let ANALYTICS_SCROLL_TO_DETAIL = false;
+let ANALYTICS_FILTER_TIMER = null;
 
 function setAnalyticsSite(site) {
   ANALYTICS_SITE = site;
@@ -9138,6 +9187,8 @@ async function renderAnalytics() {
     .map(s => (typeof s === 'string' ? s : s.domain || s.name))
     .filter(Boolean)
     .sort();
+  const filteredSite = uniqueSiteMatchForQuery($('#fleet-filter')?.value, siteNames);
+  if (filteredSite && filteredSite !== ANALYTICS_SITE) setAnalyticsSite(filteredSite);
   if (!ANALYTICS_SITE || !siteNames.includes(ANALYTICS_SITE)) ANALYTICS_SITE = siteNames[0] || null;
 
   const health = await api('GET', '/api/analytics/health');
@@ -10239,7 +10290,7 @@ async function renderDomains() {
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div><button type="button" class="btn" id="domains-refresh">↻ Refresh</button></div>
     <section class="dom-summary" aria-label="Domain operations summary">
-      <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Checked-out sites</span></div>
+      <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Total checked-out sites</span></div>
       <div class="dom-stat"><strong>${jobs.length}</strong><span>Recent jobs</span></div>
       <div class="dom-stat ${activeJobs ? 'dom-stat-warn' : ''}"><strong>${activeJobs}</strong><span>Queued or running</span></div>
       <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span>Failed jobs</span></div>
@@ -10267,7 +10318,7 @@ async function renderDomains() {
     </section>
 
     <section class="card dom-panel">
-      <div class="dom-panel-head"><div><h3>Checked-out sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
+      <div class="dom-panel-head"><div><h3>Checked-out sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} total</span></div>
       <div class="task-toolbar dom-sites-toolbar" role="group" aria-label="Find and browse checked-out sites">
         <label class="task-search">Find a site<input class="cm-input" id="dom-site-search" type="search" autocomplete="off" placeholder="Search domains…" value="${esc(DOM.siteQuery)}"></label>
         <span class="muted" id="dom-site-count" role="status" aria-live="polite"></span>
@@ -19358,6 +19409,25 @@ async function boot() {
         WORK_BOARD_SITE_FILTER_TIMER = setTimeout(() => {
           WORK_BOARD_COLUMNS.forEach(([key]) => (WORK_BOARD_PAGES[key] = 1));
           renderWorkflowBoard(WORK_BOARD_CACHE);
+        }, 180);
+      } else if (STATE.view === 'analytics') {
+        clearTimeout(ANALYTICS_FILTER_TIMER);
+        ANALYTICS_FILTER_TIMER = setTimeout(() => {
+          const sites = [...($('#an-site-picker')?.options || [])].map(option => option.value);
+          const filteredSite = uniqueSiteMatchForQuery(ff.value, sites);
+          if (filteredSite && filteredSite !== ANALYTICS_SITE) {
+            setAnalyticsSite(filteredSite);
+            renderAnalytics();
+          } else applyFleetFilter();
+        }, 180);
+      } else if (STATE.view === 'tasks' && TASK.mode === 'board') {
+        clearTimeout(TASK.siteFilterTimer);
+        TASK.siteFilterTimer = setTimeout(() => {
+          const filteredSite = uniqueSiteMatchForQuery(ff.value);
+          if (filteredSite && filteredSite !== STATE.taskSite) {
+            STATE.taskSite = filteredSite;
+            renderTasks();
+          } else applyFleetFilter();
         }, 180);
       } else applyFleetFilter();
     });

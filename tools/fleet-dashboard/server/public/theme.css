@@ -1407,6 +1407,25 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .error-help { margin-top: 12px; border-top: 1px solid var(--border); }
 .error-help summary { padding-top: 10px; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
 .error-help p { max-width: 92ch; margin: 7px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+@media (max-width: 620px) {
+  .error-banner-warn .table-wrap { overflow: visible; }
+  .error-banner-warn table { display: block; width: 100%; min-width: 0; }
+  .error-banner-warn thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .error-banner-warn tbody { display: grid; gap: 8px; padding: 8px; }
+  .error-banner-warn tbody tr {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+    padding: 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel);
+  }
+  .error-banner-warn tbody td {
+    display: grid; align-content: start; gap: 3px; min-width: 0; padding: 0; border: 0;
+    font-size: 11px; white-space: normal; overflow-wrap: anywhere;
+  }
+  .error-banner-warn tbody td::before {
+    content: attr(data-label); color: var(--muted); font-size: 9px; font-weight: 700;
+    letter-spacing: .045em; text-transform: uppercase;
+  }
+  .error-banner-warn tbody td:last-child { grid-column: 1 / -1; white-space: normal; line-height: 1.4; }
+}
 @media (max-width: 980px) {
   .error-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .error-stat-meta { grid-column: 1 / -1; }
@@ -2592,11 +2611,17 @@ body.has-rail .actions { margin-left: 0; }
   flex: none; padding: 5px 9px; border: 1px solid var(--border); border-radius: 999px;
   color: var(--muted); background: var(--panel); font-size: 11px; font-weight: 650;
 }
+.nav-root-search { display: grid; gap: 5px; max-width: 440px; margin: 0 0 2px; color: var(--muted); font-size: 11px; font-weight: 650; }
+.nav-root-search input { width: 100%; }
+.nav-root-search-status { min-height: 1.4em; margin: 0 0 8px; font-size: 11px; }
+.nav-root-card[hidden] { display: none; }
 .nav-root-grid {
   --nav-card-rgb: 94,169,255;
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
 }
 .nav-root-agents { --nav-card-rgb: 169,134,255; }
+.nav-root-agents .nav-root-card { min-height: 80px; padding: 14px 16px; gap: 14px; }
+.nav-root-agents .nav-root-icon { width: 40px; height: 40px; }
 .nav-root-content { --nav-card-rgb: 72,199,142; }
 .nav-root-growth { --nav-card-rgb: 245,174,66; }
 .nav-root-quality { --nav-card-rgb: 226,112,137; }
@@ -2637,9 +2662,9 @@ body.has-rail .actions { margin-left: 0; }
 :root[data-theme="light"] .nav-root-card {
   border-color: var(--border);
   color: var(--text);
-  background:
-    radial-gradient(circle at 0 0, rgba(var(--nav-card-rgb),.09), transparent 46%),
-    linear-gradient(145deg, #fff, #f5f8fd);
+  /* These are navigation controls, not status surfaces: keep them clearly
+     paper-white in light mode instead of carrying a dark-theme gradient. */
+  background: #fff;
   box-shadow: var(--sh-2), inset 0 1px 0 rgba(255,255,255,.9);
 }
 :root[data-theme="light"] .nav-root-card:hover {

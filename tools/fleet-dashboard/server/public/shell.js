@@ -241,6 +241,7 @@
       const roles = await rRes.json();
       const allCts = await cRes.json();
       if (requestId !== loadVitals.requestId) return;
+      const discoveredSites = roles.allSites || roles.sites || [];
       // The containers tile is the one cell that gets scoped to whatever page
       // it's sitting above: on Social Hub it has no business showing the
       // fleet's 70+ containers (dev sandboxes, every site's crons, ...) when
@@ -278,12 +279,12 @@
       const healthPct = Math.round((fresh / live) * 100);
       const mobileSummary = $('.vitals-mobile-summary', rail);
       if (mobileSummary)
-        mobileSummary.textContent = `${(roles.sites || []).length} sites · ${stale + overdue ? `${stale + overdue} need attention` : 'all roles healthy'} · ${healthPct}% health`;
+        mobileSummary.textContent = `${discoveredSites.length} checkouts · ${stale + overdue ? `${stale + overdue} roles need attention` : 'all scheduled roles healthy'} · ${healthPct}% role freshness`;
 
       setVal(
         'sites',
-        String((roles.sites || []).length),
-        `${(roles.roles || []).length} distinct roles`
+        String(discoveredSites.length),
+        `${(roles.sites || []).length} sites with scheduled roles · ${(roles.roles || []).length} distinct roles`
       );
       setMeter('sites', 100);
 
@@ -1058,6 +1059,24 @@
   // and provide keyword fallbacks for new/custom roles.
   const ROLE_EMOJI = {
     executive: '🧠',
+    ceo: '🧭',
+    cfo: '💰',
+    cro: '📈',
+    cto: '⚙️',
+    'delivery-lead': '🎯',
+    'design-director': '🎨',
+    'design-manager': '🖌️',
+    'exec-overwatch': '👁️',
+    'growth-director': '🌱',
+    'growth-manager': '📊',
+    legal: '⚖️',
+    'operations-manager': '🔄',
+    'project-manager': '🗓️',
+    'revenue-ops': '💹',
+    reviewer: '🔎',
+    security: '🔐',
+    'site-factory': '🏭',
+    'site-factory-manager': '🏗️',
     'product-manager-fleet': '🧰',
     'product-manager-sites': '🗂️',
     engineer: '🛠️',
@@ -1564,7 +1583,11 @@
     });
     $$('button[title]:not([aria-label])', root).forEach(button => {
       const title = button.getAttribute('title')?.trim();
-      if (title) button.setAttribute('aria-label', title);
+      const visibleText = button.textContent?.trim() || '';
+      // Preserve the button's visible text as its accessible name. Tooltips
+      // are a useful fallback only for icon/symbol-only controls; copying a
+      // longer title onto text buttons can fail label-in-name checks.
+      if (title && !/[\p{L}\p{N}]/u.test(visibleText)) button.setAttribute('aria-label', title);
     });
   }
 
