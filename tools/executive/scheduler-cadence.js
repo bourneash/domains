@@ -4,7 +4,20 @@
 // owner has supplied a new instruction. Delivery workers and measurements have
 // their own schedules and must not be throttled with the planning loop.
 function shouldRunPlanning(store, { now = Date.now(), minimumMinutes = 60 } = {}) {
-  const latest = store.listExecutiveActions({ action_type: 'tick', limit: 20 })[0];
+  const latestTick = store.listExecutiveActions({ action_type: 'tick', limit: 20 })[0];
+  // The scheduler can fail a technically completed model tick when its plan
+  // produced no executable handoff. Retry from that delivery verdict, not the
+  // model's process-level completion.
+  const failedDispatch = store
+    .listExecutiveActions({ action_type: 'other', limit: 50 })
+    .find(row => row.target_type === 'scheduled-executive-run' && row.status === 'failed');
+  const latest =
+    failedDispatch &&
+    (!latestTick ||
+      Date.parse(failedDispatch.finished_at || failedDispatch.started_at || '') >=
+        Date.parse(latestTick.started_at || ''))
+      ? failedDispatch
+      : latestTick;
   if (!latest) return { run: true, reason: 'first scheduled cycle' };
   const lastStarted = Date.parse(latest.started_at || '');
   if (!Number.isFinite(lastStarted)) return { run: true, reason: 'unknown last cycle time' };

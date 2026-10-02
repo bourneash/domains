@@ -6,18 +6,22 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { shouldRunPlanning } = require('./scheduler-cadence');
 
-function store(lastStarted, ownerCreated = [], status = 'completed') {
+function store(lastStarted, ownerCreated = [], status = 'completed', failedDispatch = null) {
   return {
-    listExecutiveActions: () =>
-      lastStarted
-        ? [
-            {
-              action_type: 'tick',
-              status,
-              started_at: lastStarted,
-            },
-          ]
-        : [],
+    listExecutiveActions: ({ action_type }) =>
+      action_type === 'other'
+        ? failedDispatch
+          ? [{ target_type: 'scheduled-executive-run', status: 'failed', ...failedDispatch }]
+          : []
+        : lastStarted
+          ? [
+              {
+                action_type: 'tick',
+                status,
+                started_at: lastStarted,
+              },
+            ]
+          : [],
     listExecutiveWorkItems: () => ownerCreated.map(created_at => ({ created_at })),
   };
 }
@@ -56,6 +60,15 @@ test('cooldown aligns with the fleet cron minute boundary', () => {
   assert.equal(shouldRunPlanning(store(previous, [], 'failed'), { now: due - 60_000 }).run, false);
   assert.equal(shouldRunPlanning(store(previous, [], 'failed'), { now: due }).run, true);
   assert.equal(shouldRunPlanning(store('2026-10-02T19:30:56Z'), { now: due }).run, true);
+});
+
+test('failed-to-deliver scheduler verdict retries a completed model tick after ten minutes', () => {
+  const tick = '2026-10-02T20:32:40Z';
+  const dispatch = { started_at: '2026-10-02T20:32:40Z', finished_at: '2026-10-02T20:39:06Z' };
+  const now = Date.parse('2026-10-02T20:50:00Z');
+  const result = shouldRunPlanning(store(tick, [], 'completed', dispatch), { now });
+  assert.equal(result.run, true);
+  assert.equal(result.reason, 'failed tick retry due');
 });
 
 test('approved work drains before planning cooldown can skip the model pass', () => {
