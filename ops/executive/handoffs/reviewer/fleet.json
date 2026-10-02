@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:38:20.836Z",
+  "generated_at": "2026-10-02T14:46:20.127Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. Route only one preview-only, reversible SEO implementation for saveusfarms.com; all other candidates remain blocked by active work, low-volume evidence, missing readiness artifacts, or infrastructure review. Preserve existing gates and escalate unresolved blockers by 2026-10-02T17:00:00Z.",
+        "summary": "Reject all new site production work, high-priority queue admissions, unsupported financial or causal claims, and duplicate telemetry. Affiliate commission remains unattributed; site telemetry is low-volume or incomplete; and operations/security release evidence is unavailable. Route only the bounded executive-runner preflight repair below. Existing site candidates remain blocked; principal-engineer must reconcile the admission ledger and repair disposition by 2026-10-02T17:00:00Z, then escalate unresolved blockers.",
         "requested_action": null,
         "proposal_id": null
       }

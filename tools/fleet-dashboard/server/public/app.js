@@ -264,6 +264,19 @@ function applyFleetFilter() {
       count.textContent = `${matching} matching records`;
       count.setAttribute('aria-label', `${matching} matching records across Build Usage registers`);
     }
+    if (STATE.view === 'workflow-board' && WORK_BOARD_CACHE) {
+      const workItems = workBoardItems(WORK_BOARD_CACHE).filter(workBoardVisible);
+      const matching = workItems.filter(item => workBoardSiteMatches(item, q)).length;
+      count.textContent = q
+        ? `${matching}/${workItems.length} work items`
+        : `${workItems.length} work items`;
+      count.setAttribute(
+        'aria-label',
+        q
+          ? `${matching} of ${workItems.length} work items match the site filter`
+          : `${workItems.length} work items available on this board`
+      );
+    }
   }
   if (STATE.view === 'tasks' && TASK.mode === 'fleet') {
     updateTaskFleetSummary(q);
@@ -326,6 +339,9 @@ function clearFleetFilter() {
   } else if (STATE.view === 'errors') {
     ERRORS_UI.page = 1;
     renderErrors();
+  } else if (STATE.view === 'workflow-board' && WORK_BOARD_CACHE) {
+    WORK_BOARD_COLUMNS.forEach(([key]) => (WORK_BOARD_PAGES[key] = 1));
+    renderWorkflowBoard(WORK_BOARD_CACHE);
   } else applyFleetFilter();
   input.focus();
 }
@@ -14643,6 +14659,8 @@ const WORK_BOARD_FILTER_KEY = 'fd.work-board.filters';
 const WORK_BOARD_COLUMN_KEYS = new Set(WORK_BOARD_COLUMNS.map(([key]) => key));
 let WORK_BOARD_QUERY = '';
 let WORK_BOARD_SEARCH_TIMER;
+let WORK_BOARD_CACHE = null;
+let WORK_BOARD_SITE_FILTER_TIMER;
 const WORK_BOARD_PAGE_SIZE = 20;
 const WORK_BOARD_MOBILE_PAGE_SIZE = 6;
 const WORK_BOARD_PAGES = Object.create(null);
@@ -14856,6 +14874,13 @@ function workBoardVisible(item) {
     .map(value => String(value || '').toLowerCase())
     .join(' ')
     .includes(query);
+}
+
+function workBoardSiteMatches(item, query) {
+  const site = String(item.site || 'fleet')
+    .trim()
+    .toLowerCase();
+  return !query || site.includes(String(query).trim().toLowerCase());
 }
 
 function workBoardColumn(item) {
@@ -15087,13 +15112,17 @@ function groupAgentRuntimeRuns(runs, deliveryState) {
   return groups;
 }
 
-async function renderWorkflowBoard() {
+async function renderWorkflowBoard(cachedData = null) {
   if (FRESH)
     app.innerHTML =
       '<div role="status" aria-live="polite"><div class="loading">Loading fleet workflow…</div></div>';
   try {
-    const data = await api('GET', '/api/workflow-board');
-    const items = workBoardItems(data).filter(workBoardVisible);
+    const data = cachedData || (await api('GET', '/api/workflow-board'));
+    WORK_BOARD_CACHE = data;
+    const siteQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+    const items = workBoardItems(data).filter(
+      item => workBoardVisible(item) && workBoardSiteMatches(item, siteQuery)
+    );
     const counts = WORK_BOARD_COLUMNS.map(
       ([key]) => items.filter(item => workBoardColumn(item) === key).length
     );
@@ -15219,6 +15248,7 @@ async function renderWorkflowBoard() {
       });
     });
     if (!FRESH) applyUISnap();
+    applyFleetFilter();
     stamp();
   } catch (e) {
     renderViewError(app, e.message);
@@ -19027,6 +19057,12 @@ async function boot() {
         ERRORS_UI.page = 1;
         clearTimeout(ERRORS_UI.fleetFilterTimer);
         ERRORS_UI.fleetFilterTimer = setTimeout(() => renderErrors(), 180);
+      } else if (STATE.view === 'workflow-board' && WORK_BOARD_CACHE) {
+        clearTimeout(WORK_BOARD_SITE_FILTER_TIMER);
+        WORK_BOARD_SITE_FILTER_TIMER = setTimeout(() => {
+          WORK_BOARD_COLUMNS.forEach(([key]) => (WORK_BOARD_PAGES[key] = 1));
+          renderWorkflowBoard(WORK_BOARD_CACHE);
+        }, 180);
       } else applyFleetFilter();
     });
     ff.addEventListener('keydown', e => {

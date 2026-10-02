@@ -1839,7 +1839,7 @@ test('fleet site filtering keeps task-view counts scoped to visible task groups 
   );
   assert.match(
     app,
-    /content\.innerHTML = search \+ counter \+ filterPanel \+ '<p id="task-fleet-filter-empty"/
+    /content\.innerHTML =\s*search \+\s*counter \+\s*filterPanel \+\s*'<p id="task-fleet-filter-empty"/
   );
   assert.match(app, /if \(!FRESH\) applyUISnap\(\);\s*applyFleetFilter\(\);\s*stamp\(\);\s*\}/);
   assert.match(app, /id="task-content">\$\{prev\}<\/div>`;\s*applyFleetFilter\(\);/);
@@ -2207,7 +2207,7 @@ test('Priorities uses one contextual result count instead of repeating the queue
   assert.match(priorities, /analytics-enabled live sites reporting/);
   assert.match(
     priorities,
-    /\['Filed', data\.totals\?\.filed \?\? all\.filter\(item => item\.state === 'filed'\)\.length/
+    /\[\s*'Filed',\s*data\.totals\?\.filed \?\? all\.filter\(item => item\.state === 'filed'\)\.length/
   );
   assert.match(
     style,
@@ -2291,7 +2291,10 @@ test('page-level failures do not fall back to generic empty markup', () => {
 
 test('Work Board keeps one authoritative renderer', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  assert.equal((app.match(/async function renderWorkflowBoard\(\)/g) || []).length, 1);
+  assert.equal(
+    (app.match(/async function renderWorkflowBoard\(cachedData = null\)/g) || []).length,
+    1
+  );
   assert.doesNotMatch(app, /renderWorkflowBoardLegacy/);
   assert.doesNotMatch(app, /function showWorkflowBacklogFormLegacy/);
   assert.doesNotMatch(app, /function openWorkflowItemLegacy/);
@@ -2316,6 +2319,9 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(app, /id="wb-board-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search work board items"/);
+  assert.match(app, /workBoardSiteMatches\(item, siteQuery\)/);
+  assert.match(app, /STATE\.view === 'workflow-board' && WORK_BOARD_CACHE/);
+  assert.match(app, /renderWorkflowBoard\(WORK_BOARD_CACHE\)/);
   assert.match(
     app,
     /class="wb-board-scroll-hint" role="note">Swipe horizontally to browse workflow stages/
@@ -2349,6 +2355,60 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /\$\{item\.count\} matches/);
   assert.match(app, /\$\('#wb-board-refresh'\)\.onclick = \(\) => renderWorkflowBoard\(\)/);
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
+});
+
+test('global site filter matches Work Board site labels without hiding fleet-wide work', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function workBoardSiteMatches(');
+  const end = app.indexOf('\nfunction workBoardCard', start);
+  assert.ok(start >= 0 && end > start);
+  const matchesSite = vm.runInNewContext(`${app.slice(start, end)}\nworkBoardSiteMatches`, {});
+  assert.equal(matchesSite({ site: 'SaltWaterNews.com' }, 'saltwater'), true);
+  assert.equal(matchesSite({ site: 'saltwaternews.com' }, 'shop'), false);
+  assert.equal(matchesSite({ site: null }, 'fleet'), true);
+  assert.equal(matchesSite({ site: null }, 'saltwater'), false);
+  assert.equal(matchesSite({ site: 'saltwaternews.com' }, ''), true);
+});
+
+test('global site filter reports Work Board matches across the complete filtered dataset', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function applyFleetFilter()');
+  const end = app.indexOf('\nfunction clearFleetFilter()', start);
+  assert.ok(start >= 0 && end > start);
+  const input = { value: 'north.test' };
+  const clear = { hidden: true };
+  const count = {
+    textContent: '',
+    attrs: {},
+    setAttribute(k, v) {
+      this.attrs[k] = v;
+    },
+  };
+  const workItems = [
+    { site: 'north.test' },
+    { site: 'north.test' },
+    { site: 'south.test' },
+    { site: null },
+  ];
+  const context = {
+    STATE: { view: 'workflow-board' },
+    TASK: {},
+    ERRORS_UI: {},
+    CF_BUILDS: {},
+    WORK_BOARD_CACHE: {},
+    workBoardItems: () => workItems,
+    workBoardVisible: () => true,
+    workBoardSiteMatches: (item, query) => (item.site || 'fleet').includes(query),
+    $: selector =>
+      ({ '#fleet-filter': input, '#fleet-filter-clear': clear, '#fleet-filter-count': count })[
+        selector
+      ],
+    $$: () => [],
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, '2/4 work items');
+  assert.equal(count.attrs['aria-label'], '2 of 4 work items match the site filter');
+  assert.equal(clear.hidden, false);
 });
 
 test('Work Board reduces mobile page length and keeps lane pagination in reach', () => {
@@ -2892,7 +2952,7 @@ test('Agents landing supports live role search with an accessible result count',
   assert.match(app, /search\.addEventListener\('input', updateAgentFilter\)/);
   assert.match(
     app,
-    /status\.textContent = query \? `\$\{visible\} of \$\{agentCards\.length\} roles match`/
+    /status\.textContent = query\s*\? `\$\{visible\} of \$\{agentCards\.length\} roles match`/
   );
   assert.match(theme, /\.nav-root-card\[hidden\] \{ display: none; \}/);
 });
