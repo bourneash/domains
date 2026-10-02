@@ -9800,6 +9800,11 @@ async function renderDomains() {
   const jobRows = jobs
     .map(j => {
       const open = DOM.openJob === j.id;
+      const created = j.createdAt ? new Date(j.createdAt) : null;
+      const createdLabel =
+        created && !Number.isNaN(created.getTime())
+          ? `${fmtAge(Math.max(0, (Date.now() - created.getTime()) / 1000))} ago`
+          : '—';
       const dur =
         j.startedAt && j.finishedAt
           ? fmtAge((new Date(j.finishedAt) - new Date(j.startedAt)) / 1000)
@@ -9809,13 +9814,14 @@ async function renderDomains() {
       const detailId = `dom-detail-${j.id}`;
       return `<tr data-fleet-row data-site="${esc(j.domain)}">
         <td class="site"><button type="button" class="table-link dom-open" data-id="${esc(j.id)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${esc(detailId)}" aria-label="${open ? 'Close' : 'Open'} ${esc(j.command)} job details for ${esc(j.domain)}" title="${open ? 'Close' : 'Open'} job details">${esc(j.domain)}</button></td>
+        <td class="mono muted"><time datetime="${created && !Number.isNaN(created.getTime()) ? esc(created.toISOString()) : ''}" title="${created && !Number.isNaN(created.getTime()) ? esc(created.toLocaleString()) : 'Creation time unavailable'}">${esc(createdLabel)}</time></td>
         <td class="mono">${esc(j.command)}${j.flags && j.flags.length ? ` <span class="muted">${esc(j.flags.join(' '))}</span>` : ''}</td>
         <td>${domJobBadge(j.status)}${j.status === 'running' ? ' <span class="live-tag">live</span>' : ''}</td>
         <td class="mono muted">${esc(dur)}</td>
         <td class="mono muted">${j.exitCode === null || j.exitCode === undefined ? '—' : esc(String(j.exitCode))}</td>
         <td>${j.status === 'queued' ? `<button type="button" class="btn sm dom-cancel" data-id="${esc(j.id)}" aria-label="Cancel queued ${esc(j.command)} job for ${esc(j.domain)}" title="Cancel queued job">Cancel</button>` : ''}</td>
       </tr>
-      <tr id="${esc(detailId)}" class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="6">
+      <tr id="${esc(detailId)}" class="cn-detail-row${open ? '' : ' hidden'}" data-detail="dom:${esc(j.id)}" data-rk="dom:${esc(j.id)}"><td colspan="7">
         <div class="cn-log-head">${esc(j.id)}${j.error ? ` — <span class="b-red">${esc(j.error)}</span>` : ''}</div>
         <pre class="cn-logs-box${open ? ' async-loading' : ''}" data-rkh="domlog:${esc(j.id)}" data-domlog="${esc(j.id)}">${open ? 'Loading…' : ''}</pre>
       </td></tr>`;
@@ -9838,7 +9844,7 @@ async function renderDomains() {
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">Domains</h2><span class="muted">onboard / offboard — remote control for <span class="mono">tools/scripts/domain-manager-cli.sh</span></span></div><button type="button" class="btn" id="domains-refresh">↻ Refresh</button></div>
     <section class="dom-summary" aria-label="Domain operations summary">
-      <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Onboarded sites</span></div>
+      <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Checked-out sites</span></div>
       <div class="dom-stat"><strong>${jobs.length}</strong><span>Recent jobs</span></div>
       <div class="dom-stat ${activeJobs ? 'dom-stat-warn' : ''}"><strong>${activeJobs}</strong><span>Queued or running</span></div>
       <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span>Failed jobs</span></div>
@@ -9860,15 +9866,15 @@ async function renderDomains() {
       <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recent</span></div>
       <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Domain command job history"><table>
         <caption class="sr-only">Domain command job history</caption>
-        <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
-        <tbody>${jobRows || '<tr><td colspan="6" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
+        <thead><tr><th>Domain</th><th>Created</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
+        <tbody>${jobRows || '<tr><td colspan="7" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
       </table></div>
     </section>
 
     <section class="card dom-panel">
-      <div class="dom-panel-head"><div><h3>Onboarded sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
-      <div class="matrix-scroll-hint" role="note">Swipe horizontally to review onboarded domains and available actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Onboarded domains and available actions"><table>
-        <caption class="sr-only">Onboarded domains and available actions</caption>
+      <div class="dom-panel-head"><div><h3>Checked-out sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to review checked-out domains and available actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Checked-out domains and available actions"><table>
+        <caption class="sr-only">Checked-out domains and available actions</caption>
         <thead><tr><th>Site</th><th>Actions</th></tr></thead>
         <tbody>${siteRows || '<tr><td colspan="2" class="muted">No sites checked out.</td></tr>'}</tbody>
       </table></div>

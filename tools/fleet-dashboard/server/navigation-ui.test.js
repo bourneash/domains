@@ -1444,7 +1444,9 @@ test('Domains route separates command queueing from operational inventory', () =
     /role="status" aria-live="polite"><div class="loading">Loading domains…<\/div>/
   );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
-  assert.match(app, /<span>Recent jobs<\/span>/);
+  assert.match(app, /<span>Checked-out sites<\/span>/);
+  assert.match(app, /<th>Created<\/th>/);
+  assert.match(app, /createdLabel/);
   assert.match(app, /\$\{jobs\.length\} recent<\/span>/);
   assert.match(app, /type="button" class="btn" id="domains-refresh"/);
   assert.match(
@@ -1464,11 +1466,15 @@ test('Domains route separates command queueing from operational inventory', () =
   assert.match(app, /aria-label="Check status for \$\{esc\(s\.slug\)\}"/);
   assert.match(app, /aria-label="Offboard \$\{esc\(s\.slug\)\}"/);
   assert.match(app, /caption class="sr-only">Domain command job history<\/caption>/);
-  assert.match(app, /caption class="sr-only">Onboarded domains and available actions<\/caption>/);
+  assert.match(app, /caption class="sr-only">Checked-out domains and available actions<\/caption>/);
   assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
   assert.match(app, /class="dom-panel-head"><div><h3>Job history<\/h3>/);
-  assert.match(app, /class="dom-panel-head"><div><h3>Onboarded sites<\/h3>/);
+  assert.match(app, /class="dom-panel-head"><div><h3>Checked-out sites<\/h3>/);
   assert.match(theme, /\.dom-command-form \{[^}]*grid-template-columns/);
+  assert.match(
+    theme,
+    /@media \(max-width: 560px\)[^\n]*\.dom-stat-meta \{ grid-column: 1 \/ -1; flex-direction: row/
+  );
   assert.match(theme, /\.dom-stat-bad/);
 });
 
