@@ -2030,6 +2030,41 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(theme, /a\.inline-help-link \{[^}]*text-decoration: underline/);
 });
 
+test('Health puts the sites with the most failing checks first', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function healthSiteOrder(order, sites)');
+  const end = app.indexOf('\n}\n\nasync function renderHealth', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const sortSites = vm.runInNewContext(`${app.slice(start, end)}; healthSiteOrder`);
+  const order = [
+    'z-healthy.example',
+    'c-failing.example',
+    'a-healthy.example',
+    'b-failing.example',
+  ];
+  const sorted = Array.from(
+    sortSites(order, {
+      'z-healthy.example': { failing: 0 },
+      'c-failing.example': { failing: 1 },
+      'a-healthy.example': { failing: 0 },
+      'b-failing.example': { failing: 4 },
+    })
+  );
+  assert.deepEqual(sorted, [
+    'b-failing.example',
+    'c-failing.example',
+    'a-healthy.example',
+    'z-healthy.example',
+  ]);
+  assert.deepEqual(order, [
+    'z-healthy.example',
+    'c-failing.example',
+    'a-healthy.example',
+    'b-failing.example',
+  ]);
+  assert.match(app, /const cards = healthSiteOrder\(order, sites\)/);
+});
+
 test('Containers provides scoped search and operational filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

@@ -2962,6 +2962,12 @@ async function renderCloudflareBuilds({ force = false } = {}) {
 //
 // Fleet-wide (2026-08-20): every site with an ops/smoke.yaml is monitored —
 // a site is only absent below if it has no smoke.yaml or is disabled there.
+function healthSiteOrder(order, sites) {
+  return [...order].sort(
+    (a, b) => (sites[b]?.failing || 0) - (sites[a]?.failing || 0) || a.localeCompare(b)
+  );
+}
+
 async function renderHealth() {
   const app = $('#app');
   if (FRESH)
@@ -2982,7 +2988,7 @@ async function renderHealth() {
   const totalChecks = order.reduce((sum, site) => sum + (sites[site].total || 0), 0);
   const failingChecks = order.reduce((sum, site) => sum + (sites[site].failing || 0), 0);
 
-  const cards = order
+  const cards = healthSiteOrder(order, sites)
     .map(g => {
       const s = sites[g];
       const badge =
