@@ -2,11 +2,13 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const yaml = require('js-yaml');
 
 function read(root) {
   const file = path.join(root, 'registry', 'fleet.yaml');
   try {
+    // The isolated executive image has no fleet registry or YAML package.
+    // Queue eligibility still works there; only descriptive site context is absent.
+    const yaml = require('js-yaml');
     const doc = yaml.load(fs.readFileSync(file, 'utf8')) || {};
     const sites = Object.entries(doc.sites || {}).map(([domain, row]) => ({
       site_id: `site:${domain}`,

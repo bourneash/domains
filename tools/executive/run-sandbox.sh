@@ -42,6 +42,8 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/active-delivery.js" \
     "$ROOT/tools/fleet-dashboard/server/executive.js" \
     "$ROOT/tools/fleet-dashboard/server/changequeue.js" \
+    "$ROOT/tools/fleet-dashboard/server/changequeue-view.js" \
+    "$ROOT/tools/fleet-dashboard/server/fleetregistry.js" \
     "$ROOT/tools/fleet-dashboard/server/task-routing.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-scorecard.js" \
     "$ROOT/tools/fleet-dashboard/server/executive-performance.js" \
@@ -67,6 +69,15 @@ if [[ "$CURRENT_DIGEST" != "$SOURCE_DIGEST" ]]; then
     --label "$IMAGE_SOURCE_LABEL=$SOURCE_DIGEST" \
     --label "com.bourneash.executive.base-image-id=$BASE_IMAGE_ID" \
     -f "$ROOT/tools/executive/Dockerfile" -t "$IMAGE" "$ROOT"
+fi
+
+# Build and import-check the isolated image without creating an agent run or
+# invoking a paid model. This catches missing COPY/dependency edges safely.
+if [[ "${EXECUTIVE_PREFLIGHT_ONLY:-0}" == "1" ]]; then
+  docker run --rm --network none --entrypoint node "$IMAGE" \
+    -e "require('/app/tools/executive/model-runner.js')"
+  echo "executive isolated image import preflight passed"
+  exit 0
 fi
 
 # fleet-cron launches this through the Docker socket. A /tmp path inside the
