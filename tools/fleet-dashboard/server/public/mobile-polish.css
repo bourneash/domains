@@ -65,7 +65,7 @@
   .topbar .actions #refresh { order: 2; }
   .topbar .actions .auto { order: 3; }
   .topbar .actions .access-badge { order: 4; }
-  .topbar .actions .view-saves { order: 5; }
+  .topbar .actions .view-saves { order: 5; flex: 0 0 100%; }
   .topbar .actions .theme-toggle,
   .topbar .actions .density-toggle,
   .topbar .actions #refresh {

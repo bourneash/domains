@@ -2205,6 +2205,7 @@ test('mobile navigation keeps keyboard focus inside the open drawer', () => {
 
 test('mobile command bar preserves context and keeps controls reachable', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(
     theme,
     /@media \(max-width: 720px\) \{[\s\S]*#vitals-content \{\s*display: grid; grid-template-columns: repeat\(6, 168px\); grid-template-rows: auto auto;/
@@ -2233,6 +2234,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   assert.match(theme, /\.fleet-filter-wrap \{ order: 3; flex: 1 1 100%;/);
   assert.match(theme, /\.mobile-rail-toggle \{ display: grid; order: 0; \}/);
   assert.match(theme, /\.mobile-rail-backdrop \{ display: block; \}/);
+  assert.match(mobile, /\.topbar \.actions \.view-saves \{ order: 5; flex: 0 0 100%; \}/);
   assert.match(
     theme,
     /\.actions \{ order: 2; flex: 1 1 260px; min-width: 0; gap: 6px; max-width: 100%; overflow: visible; flex-wrap: wrap;/
