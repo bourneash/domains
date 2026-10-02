@@ -48,11 +48,14 @@ test('task-card excerpts read cleanly without losing Markdown content', () => {
     '> Preserve this important note.',
   ].join('\n');
   fs.writeFileSync(path.join(dir, 'a.md'), tasks.serializeTask({ title: 'A' }, body));
+  fs.writeFileSync(path.join(dir, 'b.md'), `\`${'x'.repeat(200)}\``);
 
-  const excerpt = tasks.list(root, 'a.com').backlog[0].excerpt;
+  const excerpts = tasks.list(root, 'a.com').backlog;
+  const excerpt = excerpts.find(task => task.file === 'a.md').excerpt;
   assert.equal(
     excerpt,
     'What changed Keep bold guidance and inline code readable. Follow the checklist. Preserve this important note.'
   );
   assert.doesNotMatch(excerpt, /[`*_#]|https:\/\//);
+  assert.equal(excerpts.find(task => task.file === 'b.md').excerpt, 'x'.repeat(160));
 });
