@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T21:57:03.986Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T22:01:18.348Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only blackmarketapparel.com proposal as routine overlap reconciliation; do not admit new production work there while two delivery items and measurement remain active through 2026-10-07. Route only three isolated preview-only scaffold implementations on complicated.work, deadlymaracas.com, and driveford.net. Production, deployment, telemetry activation, monetization, spend, credentials, configuration, dependencies, and launch or financial claims remain blocked. Principal-engineer owns the canonical admission ledger and repair dispositions by 2026-10-03T17:00:00Z; CTO owns release/security evidence by the same deadline. Escalate unresolved blockers to the owner.",
+        "summary": "Reject all new production, financial, and high-priority queue work. Attribution, telemetry volume, active measurement overlap, and operations/security evidence remain insufficient. Existing CTO handoff repair and principal-engineer admission-ledger work remain the next actions; do not duplicate them.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Production, financial, and high-priority queue work remains rejected: attribution is aggregate, telemetry is incomplete or low-volume, 50 improvements are measuring, and operations/security evidence is unavailable. I routed only three isolated low-priority preview changes across distinct sites; publication, deployment, monetization, telemetry activation, spend, credentials, configuration, dependencies, and production claims remain blocked. Existing CTO handoff repair and principal-engineer admission-ledger work remain the unblockers, due 2026-10-03T17:00:00Z; unresolved blockers escalate then.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T21:57:03.987Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T22:10:00.234Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Reconcile blackmarketapparel.com active work before admitting the next homepage change",
-        "summary": "Do not add overlapping production work while blackmarketapparel.com has two active delivery items and an improvement measuring through 2026-10-07. Record the canonical status, measurement boundary, and next non-overlapping implementation slot using existing evidence only.",
-        "requested_action": "Create docs/queue/blackmarketapparel-active-work-reconciliation-2026-10-03.md. Record the two active items, their owners and states, the 2026-10-07 measurement deadline, the compliance fetch-failure evidence, and the exact terminal or pause disposition for each. After the measurement window clears, the smallest next implementation is one isolated homepage (/) merchandising/CTA adjustment in the existing homepage-rendering file, identified from the repository tree before coding; no second site item may be admitted.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "8d4cebb0-e877-45b5-9ab8-20a61f5fb022",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 2,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
