@@ -2091,6 +2091,14 @@ test('Work Board keeps one authoritative renderer', () => {
     app,
     /data-wb-exclude="\$\{key\}" aria-label="Hide \$\{esc\(label\)\}" aria-pressed="\$\{WORK_BOARD_EXCLUDE\.has\(key\)\}"/
   );
+  assert.match(
+    app,
+    /<details class="wb-filter-more" \$\{WORK_BOARD_EXCLUDE\.size \? 'open' : ''\}>/
+  );
+  assert.match(
+    app,
+    /Hide lanes\$\{WORK_BOARD_EXCLUDE\.size \? ` · \$\{WORK_BOARD_EXCLUDE\.size\} active` : ''\}/
+  );
   assert.match(app, /id="wb-board-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search work board items"/);
   assert.match(
@@ -2108,6 +2116,7 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /\$\$\('\[data-wb-page\]'\)/);
   assert.match(app, /WORK_BOARD_PAGES\[key\] = 1/);
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /\.wb-filter-more > summary \{[^}]*cursor: pointer/);
   assert.match(style, /\.wb-lane-pagination \{/);
   assert.match(style, /\.wb-column \{ min-width: 0;/);
   assert.match(
