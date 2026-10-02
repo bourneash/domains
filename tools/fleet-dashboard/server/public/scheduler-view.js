@@ -66,6 +66,15 @@ function schJobState(job) {
   return 'healthy';
 }
 
+function schSiteOrder(sites) {
+  return sites
+    .slice()
+    .sort(
+      (a, b) =>
+        Number(Boolean(a.adopted)) - Number(Boolean(b.adopted)) || a.site.localeCompare(b.site)
+    );
+}
+
 async function renderScheduler() {
   const app = $('#app');
   if (FRESH)
@@ -115,7 +124,7 @@ async function renderScheduler() {
   const runPageStart = (SCH.runPage - 1) * SCH.runPageSize;
   const pageRuns = runs.slice(runPageStart, runPageStart + SCH.runPageSize);
   if (SCH.openRun && !pageRuns.some(run => run.id === SCH.openRun)) SCH.openRun = null;
-  const sites = st.sites || [];
+  const sites = schSiteOrder(st.sites || []);
   const adoptedN = sites.filter(s => s.adopted).length;
   const failing = jobs.filter(
     j => j.active && j.last_run && ['failed', 'timeout', 'lost'].includes(j.last_run.status)
@@ -155,7 +164,8 @@ async function renderScheduler() {
     </div>
 
     <h2 style="margin:14px 0 6px">Sites</h2>
-    <div class="table-wrap" style="max-height:260px">
+    <div class="matrix-scroll-hint" role="note">Swipe horizontally to compare site adoption and scheduler status</div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Scheduler sites and adoption status" style="max-height:260px">
     <table class="tbl"><caption class="sr-only">Scheduler sites and adoption status</caption><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th>Actions</th></tr></thead><tbody>
       ${sites
         .map(
@@ -196,7 +206,8 @@ async function renderScheduler() {
       <span class="muted">${shown.length} matching jobs</span>
     </div>
     ${jobPageCount > 1 ? `<nav class="sch-pagination" aria-label="Scheduled job pages"><span class="muted" id="sch-job-page-status" role="status" aria-live="polite">Showing jobs ${jobPageStart + 1}–${Math.min(jobPageStart + SCH.pageSize, shown.length)} of ${shown.length}</span><label>Rows <select id="sch-job-page-size" aria-label="Scheduled jobs per page">${[10, 25, 50].map(size => `<option value="${size}" ${size === SCH.pageSize ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="sch-job-prev" aria-label="Previous scheduled job page" ${SCH.page <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="sch-job-next" aria-label="Next scheduled job page" ${SCH.page >= jobPageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
-    <div class="table-wrap"><table class="tbl" id="sch-jobs-table"><caption class="sr-only">Scheduled jobs and controls</caption><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th>Actions</th></tr></thead><tbody>
+    <div class="matrix-scroll-hint" role="note">Swipe horizontally to review job schedules, run state, and actions</div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Scheduled jobs and controls"><table class="tbl" id="sch-jobs-table"><caption class="sr-only">Scheduled jobs and controls</caption><thead><tr><th>Site</th><th>Job</th><th>Schedule</th><th>Class</th><th>State</th><th>Next</th><th>Last run</th><th>Actions</th></tr></thead><tbody>
       ${
         pageJobs.length
           ? pageJobs
@@ -219,14 +230,15 @@ async function renderScheduler() {
 
     <h2 style="margin:18px 0 6px">Recent runs <span class="muted">${runs.length} loaded</span></h2>
     ${runPageCount > 1 ? `<nav class="sch-pagination" aria-label="Recent run pages"><span class="muted" id="sch-run-page-status" role="status" aria-live="polite">Showing runs ${runPageStart + 1}–${Math.min(runPageStart + SCH.runPageSize, runs.length)} of ${runs.length}</span><label>Rows <select id="sch-run-page-size" aria-label="Scheduler runs per page">${[10, 25, 50].map(size => `<option value="${size}" ${size === SCH.runPageSize ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="sch-run-prev" aria-label="Previous scheduler run page" ${SCH.runPage <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="sch-run-next" aria-label="Next scheduler run page" ${SCH.runPage >= runPageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
-    <div class="table-wrap"><table class="tbl" id="sch-runs-table"><caption class="sr-only">Recent scheduler runs</caption><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
+    <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect scheduler run history and details</div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Recent scheduler runs"><table class="tbl" id="sch-runs-table"><caption class="sr-only">Recent scheduler runs</caption><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
       ${
         pageRuns.length
           ? pageRuns
               .map(
-                r => `<tr class="sch-run" data-id="${r.id}" role="button" tabindex="0" aria-label="Open run details for ${esc(r.name)} on ${esc(r.site)}" aria-expanded="${SCH.openRun === r.id}" aria-controls="sch-out-${r.id}" style="cursor:pointer">
+                r => `<tr class="sch-run" data-id="${r.id}" role="button" tabindex="0" aria-expanded="${SCH.openRun === r.id}" aria-controls="sch-out-${r.id}" style="cursor:pointer">
         <td>${schFmtTime(r.queued_at)}</td><td>${esc(r.site)}</td><td>${esc(r.name)}${r.trigger === 'manual' ? ' <span class="badge b-blue">manual</span>' : ''}</td>
-        <td>${schBadge(r.status)}</td><td>${r.exit_code ?? ''}</td><td>${schDur(r)}</td><td class="muted">${esc(r.note || '')}</td></tr>
+        <td>${schBadge(r.status)}</td><td>${r.exit_code ?? ''}</td><td>${schDur(r)}</td><td class="muted">${esc(r.note || '')}<span class="sr-only">Open run details</span></td></tr>
         <tr class="sch-out ${SCH.openRun === r.id ? '' : 'hidden'}" id="sch-out-${r.id}" data-for="${r.id}"><td colspan="7"><pre class="mono" style="white-space:pre-wrap;max-height:280px;overflow:auto;margin:0">${SCH.openRun === r.id ? 'loading…' : ''}</pre></td></tr>`
               )
               .join('')

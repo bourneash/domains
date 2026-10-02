@@ -735,7 +735,7 @@ test('sidebar supports persistent favorites and reordering', () => {
   assert.match(shell, /if \(src\.root\) location\.hash = `#\$\{src\.key\}`/);
   assert.match(
     shell,
-    /src\.root\n\s*\? navigationView === src\.key\n\s*: src\.el\.classList\.contains\('active'\)/
+    /src\.root[\s\S]{0,100}\? navigationView === src\.key[\s\S]{0,100}: src\.el\.classList\.contains\('active'\)/
   );
   assert.match(shell, /data-favorite-move/);
   assert.match(shell, /data-favorites-clear/);
@@ -1758,6 +1758,30 @@ test('Parked inventory presents renewal exposure before the domain table', () =>
   assert.match(app, /class="parked-help"><summary>How parked age and renewal are calculated/);
   assert.match(theme, /\.parked-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.parked-stat-bad/);
+});
+
+test('Scheduler surfaces sites needing adoption before already adopted sites', () => {
+  const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
+  const start = scheduler.indexOf('function schSiteOrder(sites)');
+  const end = scheduler.indexOf('\nasync function renderScheduler()', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {};
+  vm.runInNewContext(`${scheduler.slice(start, end)}\nglobalThis.order = schSiteOrder;`, context);
+  const sites = [
+    { site: 'z-adopted.test', adopted: true },
+    { site: 'b-legacy.test', adopted: false },
+    { site: 'a-legacy.test', adopted: false },
+  ];
+  const ordered = context.order(sites);
+  assert.deepEqual(
+    Array.from(ordered, site => site.site),
+    ['a-legacy.test', 'b-legacy.test', 'z-adopted.test']
+  );
+  assert.deepEqual(
+    Array.from(sites, site => site.site),
+    ['z-adopted.test', 'b-legacy.test', 'a-legacy.test']
+  );
+  assert.match(scheduler, /const sites = schSiteOrder\(st\.sites \|\| \[\]\)/);
 });
 
 test('Git Hygiene keeps actions and long review tables bounded', () => {
