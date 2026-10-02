@@ -14,12 +14,7 @@ function config(root, env = process.env) {
   };
   return {
     token: env.SLACK_BOT_TOKEN || fromFile('SLACK_BOT_TOKEN'),
-    channel:
-      env.SLACK_CHANNEL_FLEET_OPS ||
-      fromFile('SLACK_CHANNEL_FLEET_OPS') ||
-      env.SLACK_CHANNEL_FLEET ||
-      fromFile('SLACK_CHANNEL_FLEET') ||
-      '',
+    channel: env.EXEC_ALERT_CHANNEL || fromFile('EXEC_ALERT_CHANNEL') || 'domain-ops',
   };
 }
 
@@ -69,7 +64,7 @@ async function alertConsecutiveFailures(
   const { token, channel } = config(root, env);
   let result = { attempted: true, sent: false, streak: streak.length, channel };
   if (!token || !channel) {
-    result.reason = !token ? 'SLACK_BOT_TOKEN unavailable' : 'fleet Slack channel not configured';
+    result.reason = !token ? 'SLACK_BOT_TOKEN unavailable' : 'executive alert channel unavailable';
   } else {
     const error = String(
       report?.after?.cycles?.[0]?.error || report?.delivery_error || streak[0]?.error || ''
