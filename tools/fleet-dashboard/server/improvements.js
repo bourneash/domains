@@ -246,7 +246,6 @@ function startManual({ store, root, request, baseline = {} }) {
         assigned_role: request.assigned_role || 'engineer',
         source: 'fleet-dashboard',
         source_id: request.request_id,
-        delivery_mode: request.delivery_mode || 'direct',
         correlation_id: correlationId,
         // Keep runtime routing in the durable change-request/improvement rows,
         // not in site task prose. Task bodies are untrusted work instructions;
