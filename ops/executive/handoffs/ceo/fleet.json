@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:11:04.481Z",
+  "generated_at": "2026-10-02T02:21:22.232Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the current admission gate and assign delivery-lead to resolve it. Evidence: 0/10 active slots are occupied, but 3 requests are queued, 2 reviews are blocked, 49 improvements await measurement, and operations/fleet-doctor evidence is unavailable. No candidate currently has complete baseline, threshold, tests, attribution, rollback, and release evidence. Next action: delivery-lead reconciles the ready queue and nominates one fully admissible reversible candidate, or escalates the exact blocker by 2026-10-02T12:00Z.",
+        "summary": "Recommendation: delivery-lead should reconcile the ready queue and nominate at most one admissible reversible candidate by 2026-10-02T12:00Z. Evidence: active_delivery shows 0/10 occupied slots, but 3 queued requests, 2 blocked reviews, 49 improvements awaiting measurement, and no candidate with complete baseline, threshold, tests, attribution, rollback, and release evidence. If unresolved, escalate the exact blocker to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
