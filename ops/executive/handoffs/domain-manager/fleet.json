@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:07:58.655Z",
+  "generated_at": "2026-10-02T17:10:12.344Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Close active mobile-LCP measurement before admitting new work",
-        "summary": "Do not add overlapping implementation while the existing mobile-LCP improvement remains in measurement through 2026-10-12.",
-        "requested_action": "Reconcile the existing run on 2026-10-12 using its recorded baseline and outcome data, then either retain the change or route exactly one new reversible improvement.",
+        "title": "Baseline 0daynews.com homepage CTA and content-path usability",
+        "summary": "A site-specific page-level baseline is not present in the authoritative snapshot, so no non-duplicative implementation can be safely selected without inspecting the existing homepage and navigation evidence.",
+        "requested_action": "Inspect only https://0daynews.com/ and the existing homepage source file in the 0daynews.com repository. Record heading hierarchy, primary CTA or first-click path, navigation destinations, disclosure placement, mobile/accessibility defects, metadata, and the exact source files controlling the surface. Do not request duplicate telemetry, add tracking, change production, or claim lift.",
         "proposal_id": null
       }
     ]
