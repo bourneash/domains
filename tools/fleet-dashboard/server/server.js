@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const compression = require('compression');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
@@ -761,6 +762,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
     next();
   });
+
+  // Compress static text assets only. API responses can contain secrets and
+  // must not be compressed alongside attacker-controlled input (BREACH).
+  app.use(
+    compression({
+      filter(req, res) {
+        if (req.path.startsWith('/api/')) return false;
+        return compression.filter(req, res);
+      },
+    })
+  );
 
   app.use(express.static(path.join(__dirname, 'public')));
 
