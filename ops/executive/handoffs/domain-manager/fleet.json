@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:07:08.165Z",
+  "generated_at": "2026-10-02T23:09:16.673Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resolve blackmarketapparel.com measurement and reachability blocker before new work",
-        "summary": "Do not admit overlapping implementation while the existing affiliate-CTA improvement is measuring and site health evidence is incomplete. Reconcile the retained run, investigate the recorded metrics-summary HTTP 500 and compliance fetch failure using authorized artifacts, and document whether measurement can resume.",
-        "requested_action": "Inspect the existing improvement run 31496214-52f3-4954-ae55-2ca6242165a1 and blackmarketapparel.com health artifacts only. Record the exact blocker, owner, next measurable check, and requeue-or-close disposition. Do not modify production, telemetry, credentials, configuration, schedules, or create duplicate implementation work.",
+        "title": "Build isolated preview homepage surface for complicated.work",
+        "summary": "Implement the smallest branded homepage surface in the existing complicated.work scaffold for preview validation only. Preserve the production gate: no publication, deployment, analytics activation, affiliate setup, credentials, configuration, dependencies, spending, or new telemetry.",
+        "requested_action": "Route to site-factory for engineer execution in an isolated review worktree. Implement only the homepage route and its directly imported styles, then produce a dated readiness artifact documenting preview QA results and blockers.",
         "proposal_id": null
       }
     ]
