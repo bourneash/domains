@@ -1,6 +1,14 @@
 /* Compact the persistent mobile header without removing its actions. The
    action strip remains horizontally scrollable when the viewport is narrow. */
 @media (max-width: 720px) {
+  body[data-view="delivery"] .seo-stats > .seo-stat:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  body[data-view="delivery"] .seo-stats > .seo-stat:last-child:nth-child(odd) > .seo-stat-value { margin: 0; }
+
   .topbar .actions {
     flex: 1 1 100%;
     flex-wrap: nowrap;

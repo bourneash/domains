@@ -25,6 +25,10 @@ test('mobile header keeps the action strip to one horizontally scrollable row', 
   assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*nowrap/);
   assert.match(mobile, /\.topbar \.actions\s*\{[^}]*overflow-x:\s*auto/);
   assert.match(mobile, /\.topbar \.actions > \*\s*\{\s*flex-shrink:\s*0;/);
+  assert.match(
+    mobile,
+    /body\[data-view="delivery"\] \.seo-stats > \.seo-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
+  );
 });
 
 function routeFor(hash) {
