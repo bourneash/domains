@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:08:49.454Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T16:10:00.186Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Improve failbunny.com homepage entry clarity",
-        "summary": "Ship one bounded, reversible homepage UX improvement for failbunny.com. Scope is limited to the homepage hero, primary navigation, and existing primary action; no new tracking, dependencies, credentials, monetization, or cross-site changes.",
-        "requested_action": "Queue engineer implementation for failbunny.com and validate before any deployment.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "0e55924d-282e-4412-8056-ec0375f8cb87",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 2,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
