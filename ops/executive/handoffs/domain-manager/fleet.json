@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:33:19.285Z",
+  "generated_at": "2026-10-02T16:35:08.469Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish pervypotion.com evidence baseline and route one reversible improvement",
-        "summary": "Current authoritative snapshot does not expose site-specific analytics, SEO, revenue, health, or repository evidence for pervypotion.com. Complete one bounded read-only baseline, then nominate exactly one reversible implementation if evidence supports it.",
-        "requested_action": "Inspect the existing pervypotion.com repository and public entry surface only. Record available audience, UX, content, analytics, monetization, compliance, health, and backlog evidence without inventing missing telemetry. Produce a single next-step implementation brief or an explicit blocker.",
+        "title": "Establish pokererotic.com baseline and select one reversible homepage improvement",
+        "summary": "Pokererotic.com lacks site-specific analytics, SEO, revenue, health, and public-surface evidence in the authoritative snapshot. Complete one bounded read-only baseline before proposing production work.",
+        "requested_action": "Inspect the public homepage at https://pokererotic.com/ and the existing repository entry files; record observable audience path, page hierarchy, primary CTA, metadata, accessibility issues, disclosures, link health, and available measurement configuration. Select exactly one reversible implementation candidate or document the evidence-backed blocker. Do not deploy, add tracking, change credentials, spend, or infer traffic, revenue, conversions, or attribution.",
         "proposal_id": null
       }
     ]
