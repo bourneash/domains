@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:02:10.946Z",
+  "generated_at": "2026-10-02T17:04:18.198Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: no new implementation candidate is admissible this cycle. Existing work is blocked by active measurement/review, unavailable operations/security evidence, low-volume telemetry, or incomplete attribution. Retain the rc-9.com request only; principal-engineer must review the retained diagnosis and record a requeue-or-close decision by 2026-10-03T17:00:00Z, with unresolved blockers escalated to the owner at that deadline. CTO must preserve the production gate and document missing release evidence by 2026-10-02T17:00:00Z.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, launch, security, and high-priority claims. Route only three reversible, validation-gated SEO candidates on distinct sites. Aggregate affiliate earnings remain unattributed; operations/fleet-doctor evidence is unavailable; active measurement and review work block duplicate changes. Principal-engineer must reconcile the admission ledger and existing blockers by 2026-10-03T17:00:00Z and escalate unresolved items.",
         "requested_action": null,
         "proposal_id": null
       }
