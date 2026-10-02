@@ -3204,6 +3204,19 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 :root[data-theme="light"] .site-kpi.is-risk {
   background: linear-gradient(145deg, rgba(220,64,83,.08), #fff);
 }
+/* Neutral/missed run markers used by the Agents health history should read as
+   quiet gray in light mode, not the charcoal reserved for dark surfaces. */
+:root[data-theme="light"] .hbar i,
+:root[data-theme="light"] .hbar i.h-miss,
+:root[data-theme="light"] .hkey.h-miss,
+:root[data-theme="light"] .rh-bar .r-never,
+:root[data-theme="light"] .rcol-bar .r-never,
+:root[data-theme="light"] .rh-bar .r-paused,
+:root[data-theme="light"] .rcol-bar .r-paused,
+:root[data-theme="light"] .rh-bar .r-none,
+:root[data-theme="light"] .rcol-bar .r-none {
+  background: #bdc9d9;
+}
 :root[data-theme="light"] .ex-transcript-event pre,
 :root[data-theme="light"] .ex-run-log-entry pre {
   background: #f4f7fb;
