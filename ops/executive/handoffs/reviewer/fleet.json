@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:11:42.947Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T16:12:25.294Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. Preserve the capacity gate, but route two distinct-site, reversible SEO implementations supported by existing evidence. No deployment or lift claim is authorized until validation passes.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: aggregate affiliate commission remains unattributed; operations and fleet-doctor evidence are unavailable; and several sites remain in active measurement or review. Principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00Z, then escalate any unresolved blocker.",
+        "summary": "Reviewer disposition: reject all new implementation and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Revenue, ROI, causal-lift, security-clearance, launch-readiness, and production-readiness claims remain unsupported. Retain existing gates and escalate unresolved blockers by 2026-10-02T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
