@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:11:03.292Z",
+  "generated_at": "2026-10-02T01:21:10.883Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new implementation admissions this cycle. No surfaced candidate has complete non-duplicative evidence for baseline, measurable threshold, tests, attribution boundary, rollback, and release clearance. Existing candidates are blocked by active review or measurement, site overlap, infrastructure failure, missing launch-readiness evidence, or low-volume telemetry. Financial claims remain blocked because aggregate affiliate commission is unattributed and operations evidence is unavailable. Retain the existing capacity reconciliation; principal-engineer must document the authoritative admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z. Release at most one candidate only if every gate passes; otherwise escalate to the owner.",
+        "summary": "Reject all new implementation and high-priority queue admissions this cycle. No candidate has cleared deduplication, sufficient site-specific evidence, authoritative capacity, measurable threshold, tests, attribution boundary, rollback, and release gates. Retain the existing capacity reconciliation; principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if every gate passes or escalate. Revenue, ROI, causal-lift, launch-readiness, and production-readiness claims remain unsupported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "No safe implementation batch can be routed without inventing telemetry or violating active-work deduplication. 0xroulette.com is in review, broadwayshowgirls.com is measuring deployed work, deeppenetrations.com has an infrastructure-blocked review, scaffold candidates lack verified readiness artifacts, and other surfaced opportunities have active or overlapping work. Routine reporting remains internal.",
+        "summary": "Retain one bounded public-surface inspection for Save Us Farms only. It is read-only, reversible, uses a public URL, and addresses the existing repair-disposition evidence gap. Do not request telemetry or change credentials, configuration, spending, schedules, tracking, or production.",
         "requested_action": null,
         "proposal_id": null
       }
