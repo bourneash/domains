@@ -152,6 +152,28 @@ function siteLink(site) {
   return `<span class="site-link-wrap"><a class="site-link" href="https://${esc(site)}" target="_blank" rel="noopener noreferrer" title="Open https://${esc(site)}">${esc(site)}<span class="ext">↗</span></a><a class="site-console-link" href="#site/${encodeURIComponent(site)}" title="Open ${esc(site)} command center" aria-label="Open ${esc(site)} command center">⌘</a></span>`;
 }
 
+function wireMissingSiteFilter() {
+  const input = $('#ag-missing-filter');
+  const list = $('.ag-missing-list');
+  const count = $('#ag-missing-count');
+  const empty = $('#ag-missing-no-results');
+  if (!input || !list) return;
+  const items = [...list.querySelectorAll('li')];
+  const update = () => {
+    const query = input.value.trim().toLowerCase();
+    let visible = 0;
+    items.forEach(item => {
+      const match = item.dataset.site.toLowerCase().includes(query);
+      item.hidden = !match;
+      if (match) visible++;
+    });
+    if (count)
+      count.textContent = query ? `${visible} of ${items.length} sites` : `${items.length} sites`;
+    if (empty) empty.hidden = visible > 0;
+  };
+  input.addEventListener('input', update);
+}
+
 // F5: quick-links to the other portfolio tools that operate on this same site —
 // site-tracker's per-site detail page (:4742/site/<slug>) and the
 // domain-developer sandboxed dev panel (:7777/, no per-site deep link exists
@@ -848,10 +870,10 @@ async function renderEngineers() {
     </div>
     ${engineerHealthPanel(healthData)}
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
-      <div class="ag-missing-head"><strong>Sites not enrolled in Engineer</strong><span class="muted">${notEnrolled.length} sites</span></div>
+      <div class="ag-missing-head"><strong>Sites not enrolled in Engineer</strong><span class="muted" id="ag-missing-count" aria-live="polite">${notEnrolled.length} sites</span></div>
       ${
         notEnrolled.length
-          ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="engineer" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
+          ? `<label class="ag-missing-search">Filter sites<input id="ag-missing-filter" type="search" placeholder="Search ${notEnrolled.length} sites…" autocomplete="off"></label><ul class="ag-missing-list">${notEnrolled.map(site => `<li data-site="${esc(site)}"><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="engineer" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul><p class="muted ag-missing-empty" id="ag-missing-no-results" role="status" hidden>No sites match that filter.</p>`
           : '<p class="muted ag-missing-empty">Every discovered site is enrolled in Engineer.</p>'
       }
     </div>
@@ -888,6 +910,7 @@ async function renderEngineers() {
       missingToggle.setAttribute('aria-expanded', String(open));
       missingToggle.textContent = open ? 'hide sites' : 'show sites';
     });
+  wireMissingSiteFilter();
   $$('.ag-enroll').forEach(button =>
     button.addEventListener('click', () => {
       beginRoleEnrollment(button.dataset.site, button.dataset.role, button.dataset.schedule);
@@ -5425,10 +5448,10 @@ async function renderGenericAgent(role) {
       <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
     </div>
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
-      <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted">${notEnrolled.length} sites</span></div>
+      <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted" id="ag-missing-count" aria-live="polite">${notEnrolled.length} sites</span></div>
       ${
         notEnrolled.length && !familyPage
-          ? `<ul class="ag-missing-list">${notEnrolled.map(site => `<li><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="${esc(role)}" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul>`
+          ? `<label class="ag-missing-search">Filter sites<input id="ag-missing-filter" type="search" placeholder="Search ${notEnrolled.length} sites…" autocomplete="off"></label><ul class="ag-missing-list">${notEnrolled.map(site => `<li data-site="${esc(site)}"><span>${siteLink(site)}</span><button class="btn sm ag-enroll" type="button" data-site="${esc(site)}" data-role="${esc(role)}" data-schedule="${esc(suggestedSchedule)}">Enroll</button></li>`).join('')}</ul><p class="muted ag-missing-empty" id="ag-missing-no-results" role="status" hidden>No sites match that filter.</p>`
           : familyPage
             ? '<p class="muted ag-missing-empty">Enrollment is managed through the site-specific editorial profile.</p>'
             : '<p class="muted ag-missing-empty">Every discovered site is enrolled in this agent.</p>'
@@ -5451,6 +5474,7 @@ async function renderGenericAgent(role) {
       missingToggle.setAttribute('aria-expanded', String(open));
       missingToggle.textContent = open ? 'hide sites' : 'show sites';
     });
+  wireMissingSiteFilter();
   $$('.ag-enroll').forEach(button =>
     button.addEventListener('click', () => {
       beginRoleEnrollment(button.dataset.site, button.dataset.role, button.dataset.schedule);

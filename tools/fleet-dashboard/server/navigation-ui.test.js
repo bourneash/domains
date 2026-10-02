@@ -3370,6 +3370,9 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Remove \$\{role\} from \$\{site\}/);
   assert.match(app, /rebuilding cron/);
   assert.match(app, /Current health/);
+  assert.match(app, /Filter sites<input id="ag-missing-filter" type="search"/);
+  assert.match(app, /No sites match that filter\./);
+  assert.match(app, /wireMissingSiteFilter\(\);/);
   assert.match(
     app,
     /class="matrix-scroll-hint" role="note">Swipe horizontally to inspect agent status and actions/
@@ -3399,6 +3402,47 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /function fmtDate\(value\)/);
   assert.match(app, /Pause current issues/);
   assert.match(app, /Rerun historical failures/);
+});
+
+test('agent enrollment site filter narrows results and reports an accessible empty state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function wireMissingSiteFilter()');
+  const end = app.indexOf('\n}\n\n// F5:', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const nodes = [
+    { dataset: { site: '0daynews.com' }, hidden: false },
+    { dataset: { site: 'marineactivity.com' }, hidden: false },
+    { dataset: { site: 'reviewtattoo.com' }, hidden: false },
+  ];
+  const input = { value: '', addEventListener: (_event, fn) => (input.oninput = fn) };
+  const count = { textContent: '' };
+  const empty = { hidden: true };
+  const list = { querySelectorAll: () => nodes };
+  vm.runInNewContext(`${app.slice(start, end)}; wireMissingSiteFilter();`, {
+    $: selector =>
+      ({
+        '#ag-missing-filter': input,
+        '.ag-missing-list': list,
+        '#ag-missing-count': count,
+        '#ag-missing-no-results': empty,
+      })[selector],
+  });
+  input.value = 'marine';
+  input.oninput();
+  assert.deepEqual(
+    nodes.map(node => node.hidden),
+    [true, false, true]
+  );
+  assert.equal(count.textContent, '1 of 3 sites');
+  assert.equal(empty.hidden, true);
+  input.value = 'not-a-site';
+  input.oninput();
+  assert.deepEqual(
+    nodes.map(node => node.hidden),
+    [true, true, true]
+  );
+  assert.equal(count.textContent, '0 of 3 sites');
+  assert.equal(empty.hidden, false);
 });
 
 test('automation exposes a site-scoped refresh and loading state', () => {
