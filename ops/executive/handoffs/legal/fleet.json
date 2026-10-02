@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:34:23.813Z",
+  "generated_at": "2026-10-02T02:04:28.151Z",
   "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for ordinary reversible growth; blocked for new public launches, monetization expansion, and security-sensitive exposure. Evidence: compliance baseline is technical-only with 37 pass, 18 fail, and 6 unknown; 18 sites retain banner, consent, GA4, privacy, or terms findings. Data quality is green for registry, analytics, SEO, and revenue source availability, but revenue attribution is partial because $4.92 aggregate commission cannot be assigned to a site. Operations and fleet-doctor evidence are unavailable. Exact decision: retain only no-spend, no-credential, no-dependency, no-configuration, no-tracking, no-cross-site reversible work; keep launch and monetization gates blocked.",
+        "summary": "Risk disposition: conditional for the bounded read-only Save Us Farms inspection; blocked for new public launches, monetization expansion, security-sensitive exposure, and production implementation. Evidence: compliance baseline is technical-only with 37 pass, 18 fail, and 6 unknown; operations and fleet-doctor sweeps are unavailable; Amazon's $4.92 commission is aggregate and unattributed; and no candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Exact decision: approve only the specified read-only inspection, retain all implementation, financial-claim, security, and release gates, and release at most one candidate by 2026-10-02T12:00Z only if every gate is evidenced; otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot launch-readiness remains blocked and private. Progress is 0 of 4 legal tasks evidenced closed; no task is closed. Woot API use is blocked because evidence confirms access mechanics but not redistribution, storage, derivatives, public display, alerts, attribution, freshness, correction, takedown, affiliate, or advertising rights, while public terms restrict commercial/public reuse. Alerts, GA4, and operational logs remain evidence_needed. Next evidence action: attach one dated read-only bundle containing the field-level rights matrix, repository/config data-flow and retention table, deployed consent and GA4 settings capture, log/vendor/DPA inventory, and incident/deletion/correction/request procedures. Prepare but do not send a human-counsel-reviewed permission request; keep the private gate unchanged.",
+        "summary": "SearchWoot launch-readiness remains blocked and private. Tracking is active with 0 of 4 legal tasks evidenced closed; no task is closed. Next evidence action: attach one dated read-only bundle containing the field-level source-rights matrix, repository/configuration data-flow and retention table, deployed consent and GA4 settings capture, log/vendor/DPA inventory, and incident/deletion/correction/request procedures. Prepare, but do not send, a human-counsel-reviewed Woot permission request.",
         "requested_action": null,
         "proposal_id": null
       }

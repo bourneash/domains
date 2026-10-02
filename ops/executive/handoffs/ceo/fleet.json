@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:41:08.728Z",
+  "generated_at": "2026-10-02T02:11:04.481Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
+        "summary": "Recommendation: retain the current admission gate and assign delivery-lead to resolve it. Evidence: 0/10 active slots are occupied, but 3 requests are queued, 2 reviews are blocked, 49 improvements await measurement, and operations/fleet-doctor evidence is unavailable. No candidate currently has complete baseline, threshold, tests, attribution, rollback, and release evidence. Next action: delivery-lead reconciles the ready queue and nominates one fully admissible reversible candidate, or escalates the exact blocker by 2026-10-02T12:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,36 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:34:23.813Z",
-  "summary": "security checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-02T02:04:28.151Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed fleet-wide; conditional for ordinary reversible growth; blocked for security-sensitive exposure, new public launches, and release changes requiring unverified controls. Evidence: security baseline covers 61 sites but fleet-doctor is not operational (ok=false, last_run=null), operations deploy/uptime/error sweeps have no results, and authentication/access boundaries, secrets handling, container isolation, release controls, dependency provenance, data exposure, incident readiness, and disclosure readiness are not evidenced. Compliance records 37 pass, 18 fail, and 6 unknown, but this is technical baseline evidence only. TLS has no certificates expiring within 30 days, which is a limited positive signal—not proof of TLS configuration correctness. Exact decision: preserve existing security-sensitive and private-launch gates; permit only no-credential, no-permission, no-dependency, no-configuration, no-tracking, no-cross-site reversible work; continue bounded read-only evidence capture; do not claim certification or a clean bill of health.",
+        "summary": "Disposition: evidence_needed. Recommendation: retain the security, release, launch, and implementation gates; approve only the bounded read-only public-surface inspection. Evidence: fleet-doctor is unavailable with no last run or findings; operations deploy, uptime, and error sweeps have no results; fleet security sitefacts are unknown across 61 sites; authentication boundaries, secrets handling, runtime isolation, dependency provenance, release controls, monitoring, incident readiness, and disclosure readiness are therefore unevidenced. Compliance is technical-only: 37 pass, 18 fail, 6 unknown. No known exploit or credential exposure is evidenced, but absence of telemetry is not clearance. Exact decision: do not approve public launches, monetization expansion, security-sensitive exposure, credential/configuration changes, dependency additions, deployments, or production implementation this cycle. Permit the specified read-only inspection and ordinary reversible growth only when it adds no credentials, permissions, dependencies, data collection, cross-site behavior, or security-sensitive exposure. Reassess after dated evidence covers access boundaries, secrets, isolation, TLS, release/deploy controls, dependencies and supply chain, data exposure, incident signals, and security.txt/disclosure readiness.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "SearchWoot remains security-blocked and private. Evidence: the launch checklist reports the security and release gate blocked; access, secret, isolation, TLS, dependency, monitoring, incident, data-exposure, and disclosure evidence is incomplete. Legal also reports 0 of 4 readiness tasks evidenced closed and upstream data-use rights blocked. Exact decision: retain the private gate and permit only read-only internal evidence work; no public beta, credential/configuration changes, notification expansion, deployment, or external outreach.",
+        "summary": "SearchWoot remains private and security-blocked. Evidence: security and release checklist is blocked; access, secrets, isolation, TLS, dependency, monitoring, incident, data-exposure, and disclosure evidence is incomplete. Exact decision: retain the private gate and allow only read-only internal evidence work; no public beta, notification expansion, credential/configuration change, deployment, or external outreach.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Maintain evidence-needed fleet security disposition and release gates",
-        "summary": "Fleet-wide security clearance is unsupported because fleet-doctor and operations evidence are unavailable and material controls remain unevidenced. Preserve security-sensitive release and public-exposure gates while allowing only ordinary reversible work that does not add credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior.",
-        "requested_action": "Using only authorized metadata and retained artifacts, maintain a dated security evidence matrix for authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, dependency and supply-chain provenance, TLS, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions, deploy, add dependencies, request duplicate telemetry, or claim certification.",
-        "proposal_id": null
-      },
-      {
-        "kind": "proposal",
-        "title": "Maintain SearchWoot private security gate",
-        "summary": "Keep SearchWoot private while security and release evidence remains incomplete. Upstream data rights and related privacy/data-flow controls are also unresolved, so public exposure and expansion remain blocked.",
-        "requested_action": "Continue bounded read-only evidence work using existing repository and configuration artifacts. Complete the access, secrets, isolation, release, TLS, dependency, monitoring, incident, data-exposure, and disclosure checklist; do not change credentials or configuration, deploy, expand alerts, add tracking, or send external requests.",
+        "title": "Retain evidence-needed fleet security and release gates",
+        "summary": "Maintain an evidence_needed fleet security disposition because fleet-doctor, operations, and material control evidence are unavailable. Permit only bounded read-only evidence work and ordinary reversible growth within existing consent, disclosure, data-handling, and claims boundaries.",
+        "requested_action": "Retain the existing security and release gates. Document dated evidence or explicit unknowns for authentication and access boundaries, secrets exposure, container isolation, release and deployment controls, TLS, dependency and supply-chain risk, data exposure, monitoring and incident signals, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or configuration, add dependencies, deploy, or request duplicate telemetry. Release at most one candidate only after all non-security and security gates are evidenced; otherwise escalate by 2026-10-02T12:00Z.",
         "proposal_id": null
       }
     ]

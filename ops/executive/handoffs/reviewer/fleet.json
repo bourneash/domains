@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:41:08.727Z",
+  "generated_at": "2026-10-02T02:11:04.484Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue admissions this cycle. Aggregate affiliate revenue is unattributed, telemetry is low-volume or incomplete, operations and fleet-doctor evidence are unavailable, and no candidate has complete deduplication, baseline, threshold, tests, attribution boundary, rollback, and release evidence. Retain the capacity gate, approve one bounded Save Us Farms public-surface inspection, and escalate unresolved reconciliation to the owner by 2026-10-02T12:00Z.",
+        "summary": "Reject all new implementation admissions this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Aggregate affiliate revenue remains unattributed, and operations/fleet-doctor evidence is unavailable. Retain one bounded read-only Save Us Farms inspection. Owner concern: delivery-lead must reconcile the ready queue by 2026-10-02T12:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
