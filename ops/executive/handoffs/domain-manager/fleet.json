@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T11:05:00.169Z",
-  "summary": "daily domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-02T14:31:23.856Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "d56874f2-c12a-42e6-b36e-0ad4db61df5d",
-    "cadence": "daily",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 2,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Prepare the next organic-growth change for greatamericanlakes.com after current measurement clears",
+        "summary": "Existing greatamericanlakes.com work is measuring through 2026-10-15, so a new implementation would overlap active delivery. Prepare one non-duplicative follow-on change for /fishing/yellow-perch/st-clair using the existing SEO baseline.",
+        "requested_action": "By 2026-10-16, reconcile the active improvement, confirm the page remains eligible, and produce an engineer-ready implementation brief. Do not modify production or request duplicate telemetry.",
+        "proposal_id": null
+      }
+    ]
   }
 }

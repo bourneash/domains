@@ -2,42 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:13:46.029Z",
-  "summary": "reviewer checked in 5 executive handoff item(s)",
+  "generated_at": "2026-10-02T14:31:23.855Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all three proposed production changes this cycle. Low or zero-volume telemetry, incomplete AI-cost coverage, unattributed aggregate affiliate revenue, active delivery/review constraints, and unavailable operations/security evidence do not support production admission or revenue, ROI, margin, causal-lift, or readiness claims. Retain existing release, security, attribution, and capacity gates; release at most one candidate only after canonical capacity, baseline, threshold, tests, attribution boundary, rollback, and release evidence are complete.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: the current plan mixes reversible design intent with insufficient measurement and release evidence. Keep production work blocked, preserve the existing CTO security gate, and require the canonical admission ledger before any implementation is reconsidered.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject all three implementation requests this cycle. Low or zero-volume telemetry, incomplete cost coverage, unattributed aggregate affiliate revenue, and unavailable operations/security evidence do not support production admission or financial, ROI, causal-lift, or readiness claims. Retain all implementation, attribution, security, and release gates.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Owner concern: principal-engineer must document the canonical admission ledger and candidate-specific baseline, threshold, tests, attribution boundary, rollback, and release evidence by 2026-10-02T17:00:00Z. Release at most one candidate only if every gate passes; otherwise escalate the exact blocker.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No production implementation or high-priority queue work is admissible this cycle. Preserve bounded public-surface research only; do not request telemetry or alter credentials, configuration, spending, schedules, tracking, or production.",
+        "summary": "Rejected the report-only greatamericanlakes.com plan and all unsupported or overlapping production work. Routed two bounded SEO implementations: saveusfarms.com and stinkyleftfoot.com. No revenue, ROI, causal-lift, or production-readiness claims are supported. Other candidates remain blocked: greatamericanlakes.com owner=domain-manager, reconcile measurement by 2026-10-16, escalate unresolved overlap then; xxxtea.com owner=domain-manager, complete current measurement by 2026-10-16, escalate; broadwayshowgirls.com owner=principal-engineer, retain measurement through 2026-10-15, escalate; deeppenetrations.com owner=principal-engineer, resolve infrastructure review by 2026-10-02T17:00Z, escalate; scaffold candidates owner=site-factory, attach launch-readiness evidence before admission, escalate by 2026-10-02T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
