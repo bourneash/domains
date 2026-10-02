@@ -326,6 +326,9 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 .cq-throughput .cq-section-head { align-items: flex-start; }
 .cq-throughput .cq-section-head h3 { margin: 3px 0 1px; font-size: 16px; }
 .cq-throughput .cq-section-head > .muted { max-width: 360px; text-align: right; font-size: 10px; }
+.cq-delivery-flow { margin-bottom: 14px; padding: 14px 16px; }
+.cq-delivery-flow .cq-section-head { margin-bottom: 7px; }
+.cq-delivery-flow .cq-section-head h3 { margin: 0; font-size: 14px; }
 .cq-throughput-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
 .cq-throughput-stat { padding: 13px; border: 1px solid var(--border); border-radius: 9px; background: rgba(255,255,255,.025); }
 .cq-throughput-stat strong { display: block; color: var(--green); font: 700 25px/1 var(--mono); }

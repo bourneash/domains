@@ -2880,6 +2880,18 @@ test('Active Delivery paginates the complete attention queue', () => {
   assert.doesNotMatch(delivery, /data\.attention \|\| \[\]\)\s*\.slice\(0, 12\)/);
 });
 
+test('Active Delivery flow card is inset and avoids repeating its deployment KPI', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const start = app.indexOf(".querySelector('.seo-stats')\n      ?.insertAdjacentHTML(");
+  const end = app.indexOf("$('#delivery-refresh')", start);
+  assert.ok(start >= 0 && end > start);
+  const flow = app.slice(start, end);
+  assert.match(flow, /class="card cq-delivery-flow"/);
+  assert.doesNotMatch(flow, /flow\.deployed_today/);
+  assert.match(theme, /\.cq-delivery-flow \{[^}]*padding:\s*14px 16px/);
+});
+
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const facts = app.slice(

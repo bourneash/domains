@@ -14630,12 +14630,23 @@ async function renderActiveDelivery() {
       completionKpi.querySelector('.seo-stat-value').textContent = flow.deployed_today ?? 0;
       completionKpi.querySelector('.seo-stat-label').textContent = 'Verified deployments today';
     }
-    app
-      .querySelector('.seo-stats')
-      ?.insertAdjacentHTML(
-        'afterend',
-        `<section class="card"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY FLOW</div><h3>Work crossing the delivery boundary</h3></div></div><p class="muted">${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${Number(flow.oldest_queued_minutes)} min`} · ${Number(flow.blocked_reviews || 0)} infrastructure-blocked reviews · ${Number(flow.validated_today || 0)} validated today · ${Number(flow.deployed_today || 0)} deployment-verified today · ${Number(flow.measured_today || 0)} measured today.</p></section>`
-      );
+    app.querySelector('.seo-stats')?.insertAdjacentHTML(
+      'afterend',
+      `<section class="card cq-delivery-flow">
+          <div class="cq-section-head">
+            <div>
+              <div class="cq-eyebrow">DELIVERY FLOW</div>
+              <h3>Work crossing the delivery boundary</h3>
+            </div>
+          </div>
+          <p class="muted">
+            ${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${Number(flow.oldest_queued_minutes)} min`}
+            · ${Number(flow.blocked_reviews || 0)} infrastructure-blocked reviews
+            · ${Number(flow.validated_today || 0)} validated today
+            · ${Number(flow.measured_today || 0)} measured today.
+          </p>
+        </section>`
+    );
     $('#delivery-refresh').onclick = () => renderActiveDelivery();
     $('#delivery-attention-prev')?.addEventListener('click', () => {
       ACTIVE_DELIVERY_ATTENTION_PAGE = Math.max(1, ACTIVE_DELIVERY_ATTENTION_PAGE - 1);
