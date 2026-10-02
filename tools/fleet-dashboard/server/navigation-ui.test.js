@@ -8,6 +8,18 @@ const vm = require('node:vm');
 
 const publicDir = path.join(__dirname, 'public');
 
+test('light-mode secondary and danger button hover states keep legible ink', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.btn:hover:not\(\.primary\)\s*\{[^}]*color:\s*var\(--text-hi\)[^}]*background-color:\s*var\(--control-bg-hover\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.btn\.danger:hover\s*\{[^}]*color:\s*var\(--red\)/
+  );
+});
+
 function routeFor(hash) {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = source.indexOf('function topViews()');
@@ -84,6 +96,32 @@ test('agent navigation omits unavailable site counts instead of rendering undefi
     menu.innerHTML,
     /data-role="delivery-lead"><span>Delivery Lead<\/span><span class="dd-count">fleet queue<\/span>/
   );
+});
+
+test('Agents landing cards omit repeated filler when site coverage is unavailable', () => {
+  const appSource = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = appSource.indexOf('function renderCategoryRoot(id)');
+  const end = appSource.indexOf('\nfunction renderAgent(role)', start);
+  assert.ok(start >= 0 && end > start);
+  const app = { innerHTML: '' };
+  const context = {
+    STATE: {
+      agents: [
+        { role: 'ceo', label: 'CEO' },
+        { role: 'engineer', label: 'Engineer', sites: 4 },
+      ],
+    },
+    $: () => app,
+    $$: () => [],
+    esc: value => String(value),
+    agentLabel: role => role,
+    stamp() {},
+    globalThis: {},
+  };
+  vm.runInNewContext(`${appSource.slice(start, end)}\nrenderCategoryRoot('agents');`, context);
+  assert.doesNotMatch(app.innerHTML, /undefined/);
+  assert.doesNotMatch(app.innerHTML, /Automated role available across the fleet/);
+  assert.match(app.innerHTML, /4 sites run this agent/);
 });
 
 test('optional API reads do not hide authentication failures as empty data', () => {
@@ -213,8 +251,16 @@ test('shared dark theme primitives meet readable contrast targets', () => {
 
 test('light theme table headers keep the same contrast contract', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(theme, /:root\[data-theme="light"\][\s\S]*?--muted:\s+#5b6981;/);
-  assert.match(theme, /:root\[data-theme="light"\] th \{ color: #53627c; \}/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] th \{[\s\S]*background: var\(--panel-2\);[\s\S]*color: #53627c;/
+  );
+  assert.match(
+    style,
+    /\.ag-enrollment-gap \.ag-missing-toggle \{[\s\S]*background: var\(--control-bg\);/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.b-gray \{[^}]*color: #59677f/);
   assert.match(
     theme,
@@ -272,6 +318,10 @@ test('initial topbar renders shell controls before hydration', () => {
     assert.match(html, new RegExp(`class="[^"]*${marker}`));
   }
   assert.match(html, /aria-label="⌘ K — Open command palette"/);
+  for (const script of ['scheduler-view.js', 'app.js', 'shell.js'])
+    assert.match(html, new RegExp(`<script src="${script}" defer><\\/script>`));
+  assert.ok(html.indexOf('scheduler-view.js') < html.indexOf('app.js'));
+  assert.ok(html.indexOf('app.js') < html.indexOf('shell.js'));
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /\.fd-network-status\[hidden\] \{ display: none; \}/);
 });
@@ -393,6 +443,19 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /type="button" class="btn" id="wb-refresh"/);
   assert.match(app, /\$\('#wb-refresh'\)\.onclick = \(\) => renderWorkbench\(\)/);
   assert.match(app, /id="wb-search" class="cm-input" type="search"/);
+  assert.match(
+    app,
+    /const WORKBENCH_STATUSES = \['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'\]/
+  );
+  assert.match(
+    app,
+    /<details class="wb-status-filter" id="wb-filter-status"><summary aria-label="Filter workbench cases by status">/
+  );
+  assert.match(app, /class="wb-status-options" role="group" aria-label="Workbench statuses"/);
+  assert.match(
+    app,
+    /WORKBENCH_UI\.status = \$\$\('input\[type="checkbox"\]', \$\('#wb-filter-status'\)\)[\s\S]*?\.filter\(input => input\.checked\)/
+  );
   assert.match(app, /aria-label="Search workbench cases"/);
   assert.match(app, /searchable\.includes\(query\)/);
   assert.match(app, /const wbGroups = new Map\(\)/);
@@ -474,8 +537,9 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   );
   assert.match(
     app,
-    /page-title">Data Quality[\s\S]*<section class="card"><div class="table-wrap"><table class="tbl">/
+    /page-title">Data Quality[\s\S]*class="seo-stats dq-stats"[\s\S]*class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl">/
   );
+  assert.match(app, /aria-label="Contract health summary"/);
   assert.match(app, /id="dataquality-refresh"/);
   assert.match(app, /\$\('#dataquality-refresh'\)\.onclick = \(\) => renderDataQuality\(\)/);
   assert.match(app, /No data quality contracts have been recorded yet/);
@@ -533,8 +597,14 @@ test('executive conversation route skips unrelated control-plane requests', () =
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /Knowledge shelf/);
   assert.match(app, /api\/executive\/knowledge/);
+  assert.match(app, /return api\('GET', '\/api\/executive\/knowledge\?limit=300'\)/);
+  assert.match(
+    app,
+    /\.catch\(e => \{\s+if \(isStaleRouteError\(e\)\) throw e;\s+renderViewError\(app, `Knowledge shelf failed to load:/
+  );
   assert.match(app, /kn-learning-save/);
   assert.match(app, /id="kn-search" class="cm-input" type="search"/);
   assert.match(app, /Search knowledge sources/);
@@ -542,6 +612,12 @@ test('knowledge shelf is a first-class operator route', () => {
   assert.match(app, /button\.setAttribute\('aria-expanded', String\(expanded\)\)/);
   assert.match(app, /type="button" class="btn" id="kn-refresh"/);
   assert.match(app, /\$\('#kn-refresh'\)\.onclick = \(\) => renderKnowledge\(\)/);
+  assert.match(
+    theme,
+    /@media \(max-width: 700px\)[\s\S]*\.kn-list \{ grid-template-columns: minmax\(0, 1fr\); \}/
+  );
+  assert.match(theme, /\.kn-card \{ min-width: 0; \}/);
+  assert.match(theme, /\.kn-foot \{ flex-wrap: wrap; \}/);
 });
 
 test('executive overview gives repeated operational actions row context', () => {
@@ -562,12 +638,23 @@ test('Git operations and Git Hygiene share one page with distinct tabs', () => {
   assert.equal(routeFor('#githygiene').gitTab, 'hygiene');
 });
 
+test('disabled Git sync actions retain their visible action in the explanation', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /disabled title="Pull all unavailable — nothing to pull"/);
+  assert.match(app, /disabled title="Push all unavailable — nothing to push"/);
+  assert.match(app, /disabled title="Push unavailable — nothing to push"/);
+  assert.match(app, /disabled title="Pull unavailable — nothing to pull"/);
+});
+
 test('Git repository rows are keyboard-operable disclosures', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /class="git-row"[\s\S]*role="button" tabindex="0" aria-expanded="false"/);
+  assert.match(app, /<span class="sr-only">Open repository details<\/span><\/td>\s*<\/tr>/);
   assert.match(
     app,
-    /class="git-row"[\s\S]*role="button" tabindex="0" aria-label="Open repository details/
+    /class="table-wrap" tabindex="0" role="region" aria-label="Fleet repository status"/
   );
+  assert.match(app, /Swipe horizontally to compare branch, working-tree, and remote status/);
   assert.match(app, /aria-expanded="false" aria-controls="gd-\$\{esc\(r\.slug\)\}"/);
   assert.match(app, /\['Enter', ' '\]\.includes\(e\.key\)/);
   assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
@@ -578,15 +665,15 @@ test('Task cards and fleet rows are keyboard-operable editors', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
     app,
-    /class="task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0" aria-label="Open task/
+    /class="task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"\s*>\s*<span class="sr-only">Open task: <\/span>/
   );
   assert.match(
     app,
-    /class="tree-task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"/
+    /class="tree-task \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"\s*>\s*<span class="sr-only">Open task: <\/span>/
   );
   assert.match(
     app,
-    /class="ttr \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"/
+    /class="ttr \$\{t\.blocked_on \? 'task-blocked' : ''\}"[\s\S]*role="button" tabindex="0"\s*>\s*<td><span class="sr-only">Open task: <\/span>/
   );
   assert.match(
     app,
@@ -616,6 +703,12 @@ test('sidebar category navigation and disclosure use separate controls', () => {
   );
   assert.doesNotMatch(shell, /an active item inside a collapsed section/);
   assert.match(theme, /\.rail-folded \.rl-fold\s*\{[^}]*position:\s*absolute;[^}]*z-index:\s*3;/s);
+});
+
+test('initial sidebar build skips a redundant zero-scroll layout flush', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /const scroll = nav\.scrollTop/);
+  assert.match(shell, /if \(scroll > 0\) nav\.scrollTop = scroll/);
 });
 
 test('sidebar supports persistent favorites and reordering', () => {
@@ -1047,7 +1140,16 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
   assert.match(scheduler, /globalThis\.fleetConfirm\?\.\(/);
   assert.match(scheduler, /confirmLabel: 'Adopt site'/);
   assert.match(scheduler, /confirmLabel: 'Release site'/);
-  assert.match(scheduler, /class="table-wrap"><table class="tbl"/);
+  assert.match(
+    scheduler,
+    /class="table-wrap" tabindex="0" role="region" aria-label="Scheduled jobs and controls"><table class="tbl"/
+  );
+  assert.match(scheduler, /aria-label="Scheduler sites and adoption status"/);
+  assert.match(scheduler, /aria-label="Recent scheduler runs"/);
+  assert.equal(
+    (scheduler.match(/class="matrix-scroll-hint" role="note">Swipe horizontally to/g) || []).length,
+    3
+  );
   assert.match(scheduler, /<div class="page-head"><h1 class="sr-only">Scheduler<\/h1>/);
   assert.match(scheduler, /class="sch-run" data-id="\$\{r\.id\}" role="button" tabindex="0"/);
   assert.match(scheduler, /root\.addEventListener\('keydown'/);
@@ -1059,10 +1161,8 @@ test('Scheduler actions use the shared text and confirmation modals', () => {
     scheduler,
     /aria-label="Edit schedule for \$\{esc\(j\.name\)\} on \$\{esc\(j\.site\)\}"/
   );
-  assert.match(
-    scheduler,
-    /aria-label="Open run details for \$\{esc\(r\.name\)\} on \$\{esc\(r\.site\)\}"/
-  );
+  assert.match(scheduler, /class="sch-run" data-id="\$\{r\.id\}" role="button" tabindex="0"/);
+  assert.match(scheduler, /<span class="sr-only">Open run details<\/span><\/td><\/tr>/);
   assert.match(scheduler, /<label class="sr-only" for="sch-text">Filter jobs<\/label>/);
   assert.match(scheduler, /role="tablist" aria-label="Scheduler scope"/);
   assert.match(scheduler, /role="tab" class="btn sm/);
@@ -1157,6 +1257,8 @@ test('Git Hygiene actions use shared text and confirmation modals', () => {
 
 test('AI Optimizer decisions use shared text and confirmation modals', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /<strong>Recommendation queue<\/strong>/);
+  assert.doesNotMatch(app, /<strong>AI Optimizer<\/strong>/);
   const optimizer = app.slice(app.indexOf("$$('[data-aiopt-run]"));
   assert.equal((optimizer.match(/globalThis\.fleetConfirm\?\.\(/g) || []).length, 2);
   assert.equal((optimizer.match(/globalThis\.fleetTextPrompt\?\.\(/g) || []).length, 2);
@@ -1397,7 +1499,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(
     theme,
-    /@media \(max-width: 720px\) \{[\s\S]*#vitals \{\s*display: grid; grid-template-columns: repeat\(6, 168px\); grid-template-rows: auto auto;/
+    /@media \(max-width: 720px\) \{[\s\S]*#vitals-content \{\s*display: grid; grid-template-columns: repeat\(6, 168px\); grid-template-rows: auto auto;/
   );
   assert.match(
     theme,
@@ -1429,7 +1531,7 @@ test('mobile command bar preserves context and keeps controls reachable', () => 
   );
   assert.match(
     theme,
-    /@media \(max-width: 560px\) \{[\s\S]*#vitals \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[\s\S]*overflow-x: visible;/
+    /@media \(max-width: 560px\) \{[\s\S]*#vitals-content \{[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);[\s\S]*overflow-x: visible;/
   );
   assert.match(theme, /@media \(max-width: 560px\) \{[\s\S]*\.vt \{ min-width: 0; width: auto;/);
 });
@@ -1535,6 +1637,14 @@ test('Retention presents policy posture before editable rows', () => {
   assert.match(app, /class="retention-toolbar" role="group" aria-label="Retention policy actions"/);
   assert.match(app, /class="retention-days" type="number"/);
   assert.match(app, /class="retention-help"><summary>How the policy is applied/);
+  assert.match(
+    app,
+    /class="matrix-scroll-hint" role="note">Swipe horizontally to review retention classes and policy details/
+  );
+  assert.match(
+    app,
+    /role="region" aria-label="Retention policy by data class"><table class="rmatrix">\s*<caption class="sr-only">Retention policy by data class/
+  );
   assert.match(theme, /\.retention-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.retention-stat-warn/);
 });
@@ -1570,7 +1680,7 @@ test('Git Hygiene keeps actions and long review tables bounded', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="gh-toolbar" role="group" aria-label="Git hygiene actions"/);
   assert.match(app, /class="gh-help"><summary>What the “Always…” decisions do/);
-  assert.match(app, /class="card gh-panel"><h3>Review queue/);
+  assert.match(app, /class="card gh-panel"><h2>Review queue/);
   assert.match(theme, /\.gh-toolbar \{[^}]*flex-wrap/);
   assert.match(theme, /\.gh-panel \{[^}]*overflow: hidden/);
 });
@@ -1697,9 +1807,16 @@ test('Change Queue register controls expose explicit accessible context', () => 
   assert.match(app, /'cq-sort': 'Sort change requests'/);
   assert.match(app, /'cq-page-size': 'Change queue rows per page'/);
   assert.match(app, /Pause automatic dispatch/);
-  assert.match(app, /Sort change requests \$\{CHANGE_QUEUE_SORT_DIR/);
+  assert.match(
+    app,
+    /\$\{CHANGE_QUEUE_SORT_DIR === 'asc' \? 'Ascending' : 'Descending'\} — sort change requests/
+  );
+  assert.match(app, /aria-label="Dispatch due work — dispatch all due change requests"/);
   assert.match(app, /caption\.className = 'sr-only'/);
   assert.match(app, /caption\.textContent = 'Change request work register'/);
+  assert.match(app, /const cqTableWrap = cqTable\?\.closest\('\.table-wrap'\)/);
+  assert.match(app, /cqTableWrap\.setAttribute\('aria-label', caption\?\.textContent/);
+  assert.match(app, /Swipe horizontally to review change requests and available actions/);
 });
 
 test('AI Usage chart zoom supports touch and pointer cancellation', () => {
@@ -1761,7 +1878,7 @@ test('Containers provides scoped search and operational filters', () => {
   assert.match(app, /data-cn-status/);
   assert.match(
     app,
-    /class="card cn-table"><div class="table-wrap"><table><caption class="sr-only">Container runtime status and lifecycle controls<\/caption>/
+    /class="card cn-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect container health and lifecycle actions<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Container runtime status and lifecycle controls"><table><caption class="sr-only">Container runtime status and lifecycle controls<\/caption>/
   );
   assert.match(
     app,
@@ -1820,7 +1937,10 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
   assert.match(app, /id="deploy-status"/);
   assert.match(app, /function applyDeployFilter\(\)/);
   assert.match(app, /data-deploy-status/);
-  assert.match(app, /class="card deploy-table"><div class="table-wrap"><table/);
+  assert.match(
+    app,
+    /class="card deploy-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare deployment status, versions, and errors<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Deployment health by site"><table/
+  );
   assert.match(app, /Deployment health by site/);
   assert.match(app, /class="deploy-help"><summary>How deployment status is determined/);
   assert.match(theme, /\.deploy-summary-grid \{[^}]*grid-template-columns/);
@@ -1893,10 +2013,79 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   assert.match(theme, /\.rmatrix th\.rsite-h,[\s\S]*width: 240px/);
 });
 
+test('wide rendered tables receive consistent mobile scroll affordances', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /function enhanceScrollableTables\(root\)/);
+  assert.match(app, /root\.querySelectorAll\('table'\)/);
+  assert.match(app, /getComputedStyle\(wrap\)\.overflowX/);
+  assert.match(app, /wrap\.scrollWidth > wrap\.clientWidth \+ 1/);
+  assert.match(
+    app,
+    /wrap\.tabIndex = 0;\s+wrap\.setAttribute\('role', 'region'\);\s+wrap\.setAttribute\('aria-label', label\)/
+  );
+  assert.match(app, /Swipe horizontally to inspect all columns/);
+  assert.match(app, /panel\?\.querySelectorAll\('\.matrix-scroll-hint'\)/);
+  assert.match(
+    app,
+    /root\.children\].some\(child => child\.classList\.contains\('matrix-scroll-hint'\)/
+  );
+  assert.match(
+    app,
+    /Promise\.resolve\(renderCurrentView\(\)\)\.then\(\(\) => \{\s+const app = \$\('#app'\);\s+enhanceScrollableTables\(app\);\s+removeDuplicatePageRefresh\(app\);/
+  );
+});
+
+test('shared view refresh replaces duplicate generic page-head refresh actions', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  assert.match(app, /function removeDuplicatePageRefresh\(root\)/);
+  assert.match(app, /mainHead\?\.querySelectorAll\('button\[id\$="-refresh"\]'\)/);
+  assert.match(app, /if \(label === 'Refresh'\) button\.remove\(\)/);
+  assert.match(app, /removeDuplicatePageRefresh\(app\)/);
+  assert.match(
+    index,
+    /id="refresh" class="btn" type="button" aria-label="Refresh dashboard data" title="Refresh this view and preserve filters and scroll"/
+  );
+});
+
+test('improvement run summary stays compact on mobile', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    style,
+    /@media \(max-width: 720px\)[\s\S]*body\[data-view="improvements"\] \.seo-stats[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/
+  );
+  assert.match(style, /body\[data-view="delivery"\] \.seo-stats/);
+});
+
+test('shell title injection does not duplicate nested custom-view headings', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(
+    shell,
+    /app\.querySelector\(':scope > \.page-head, :scope > \.crumbs, \.page-head \.page-title'\)/
+  );
+});
+
+test('Agents landing cards use light surfaces in light theme', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background:[\s\S]*linear-gradient\(145deg, #fff, #f5f8fd\)/
+  );
+  assert.match(theme, /\.nav-root-card-copy strong \{ color: var\(--text-hi\);/);
+});
+
 test('Git Hygiene presents safety state and searchable review queue', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="gh-summary"/);
+  assert.match(app, /Repos needing review<\/span>/);
+  assert.match(app, /paths awaiting decision/);
+  assert.match(app, /Review queue \(\$\{filteredQueue\.length\} paths\)/);
+  assert.match(app, /<h2>Review queue \(\$\{filteredQueue\.length\} paths\)<\/h2>/);
+  assert.match(app, /<h2>Last sweep<\/h2>/);
+  assert.match(app, /Swipe horizontally to review paths and choose an action/);
+  assert.match(app, /role="region" aria-label="Git hygiene review queue"/);
+  assert.match(app, /role="region" aria-label="Git hygiene last sweep results"/);
   assert.match(app, /id="gh-search"/);
   assert.match(app, /id="gh-refresh"/);
   assert.match(
@@ -1911,6 +2100,7 @@ test('Git Hygiene presents safety state and searchable review queue', () => {
   assert.match(app, /id="gh-page-prev"/);
   assert.match(app, /id="gh-page-next"/);
   assert.match(theme, /\.gh-summary \{[^}]*grid-template-columns/);
+  assert.match(theme, /\.gh-panel h2 \{ font-size: 1\.17em; \}/);
   assert.match(theme, /\.gh-pagination \{[^}]*display: flex/);
   assert.match(theme, /\.gh-filter-hidden \{ display: none; \}/);
 });
@@ -1987,6 +2177,12 @@ test('Product Feed presents queue health as a summary strip', () => {
   assert.match(app, /Queues below target<\/span>/);
   assert.match(app, /Verified products<\/span>/);
   assert.match(app, /class="card pf-panel"/);
+  assert.equal(
+    (app.match(/class="matrix-scroll-hint" role="note">Swipe horizontally to/g) || []).length >= 2,
+    true
+  );
+  assert.match(app, /\$\$\('\.pf-panel \.table-wrap', app\)\.forEach\(wrap =>/);
+  assert.match(app, /wrap\.setAttribute\('role', 'region'\)/);
   assert.match(app, /class="pf-help"><summary>How the product feed is maintained/);
   assert.match(
     app,
@@ -2012,7 +2208,10 @@ test('AI Inventory presents provider and policy coverage as a summary strip', ()
   assert.match(app, /const inventoryPageSize = 20/);
   assert.match(app, /AI-backed services<\/span>/);
   assert.match(app, /No-AI services · \$\{s\.conditional \|\| 0\} conditional/);
-  assert.match(app, /class="card aii-table"><div class="table-wrap"><table/);
+  assert.match(
+    app,
+    /class="card aii-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare branch, working-tree, and remote status<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Fleet repository status"><table/
+  );
   assert.match(app, /AI service inventory/);
   assert.match(app, /class="aii-help"><summary>How to interpret AI inventory/);
   assert.match(theme, /\.aii-summary \{[^}]*grid-template-columns/);
@@ -2032,9 +2231,14 @@ test('Compliance keeps scan controls explicit and safe', () => {
     app,
     /role="status" aria-live="polite"><div class="loading">Loading live compliance evidence…<\/div>/
   );
-  assert.match(app, /type="button" id="compliance-refresh" class="btn"/);
-  assert.match(app, /compliance-table"><div class="table-wrap"><table>/);
+  assert.doesNotMatch(app, /compliance-refresh/);
+  assert.match(
+    app,
+    /compliance-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare compliance checks, evidence, and scan dates<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Compliance evidence by site"><table>/
+  );
   assert.match(app, /Compliance evidence by site/);
+  assert.match(app, /class="compliance-trend" role="img" aria-label="Fleet pass rate trend from/);
+  assert.match(app, /class="compliance-trend-range" aria-hidden="true"/);
   assert.match(app, /id="compliance-scan" class="btn sm compliance-scan"/);
   assert.match(app, /type="button" class="badge .*compliance-status/);
   assert.match(
@@ -2042,6 +2246,8 @@ test('Compliance keeps scan controls explicit and safe', () => {
     /compliance-status" data-site="\$\{esc\(r\.site\)\}" aria-label="Show \$\{esc\(r\.status\)\} compliance evidence for \$\{esc\(r\.site\)\}"/
   );
   assert.match(style, /\.compliance-scan \{ margin-left: auto; \}/);
+  assert.match(style, /\.compliance-trend \{[^}]*height: 44px/);
+  assert.match(style, /\.compliance-trend-range \{[^}]*justify-content: space-between/);
   assert.match(
     style,
     /\.compliance-filter-tag\[aria-pressed="false"\] \{ border-color: var\(--border-hi\); \}/
@@ -2053,6 +2259,13 @@ test('Social Accounts keeps matrix, inventory, and persona tables contextual', (
   assert.match(app, /Social account matrix by site and platform/);
   assert.match(app, /Social account inventory/);
   assert.match(app, /Social personas and account coverage/);
+  assert.equal(
+    (app.match(/class="sh-scroll-hint" role="note">Swipe horizontally/g) || []).length,
+    3
+  );
+  assert.match(app, /role="region" aria-label="Social account matrix by site and platform"/);
+  assert.match(app, /role="region" aria-label="Social account inventory"/);
+  assert.match(app, /role="region" aria-label="Social personas and account coverage"/);
   assert.match(app, /class="muted" for="soc-group">Group<\/label>/);
 });
 
@@ -2170,14 +2383,19 @@ test('AI Usage panels use shared spacing and severity classes', () => {
   assert.ok(start >= 0 && end > start);
   const view = app.slice(start, end);
   assert.match(view, /class="card aiu-panel"/);
-  assert.match(view, /class="empty aiu-notice aiu-notice-danger"/);
+  assert.match(view, /class="aiu-notice aiu-notice-danger" role="alert"/);
+  assert.match(view, /class="aiu-notice" role="note"/);
   assert.match(view, /class="task-toolbar aiu-subhead/);
   assert.doesNotMatch(
     view,
     /style="(?:margin-bottom:14px|margin-top:12px|margin-top:16px|margin-bottom:14px; color: var\(--red\))/
   );
   assert.match(style, /\.aiu-panel \{ margin-bottom: 14px; \}/);
-  assert.match(style, /\.aiu-notice-danger \{ color: var\(--red\); \}/);
+  assert.match(style, /\.aiu-notice \{ display: block; min-height: 0;/);
+  assert.match(
+    style,
+    /\.aiu-notice-danger \{ border-left-color: var\(--red\); color: var\(--text\); \}/
+  );
 });
 
 test('Guardrails uses bounded tables and shared panel controls', () => {
@@ -2188,7 +2406,11 @@ test('Guardrails uses bounded tables and shared panel controls', () => {
   assert.ok(start >= 0 && end > start);
   const view = app.slice(start, end);
   assert.equal((view.match(/class="card gr-panel"/g) || []).length, 4);
-  assert.equal((view.match(/class="table-wrap"><table/g) || []).length, 2);
+  assert.equal((view.match(/class="table-wrap" tabindex="0" role="region"/g) || []).length, 2);
+  assert.equal(
+    (view.match(/class="matrix-scroll-hint" role="note">Swipe horizontally to/g) || []).length,
+    2
+  );
   assert.match(
     view,
     /role="status" aria-live="polite"><div class="loading">Loading guardrails…<\/div>/
@@ -2237,6 +2459,11 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(app, /class="dh-summary"/);
   assert.match(app, /VPN exits online<\/span>/);
   assert.match(app, /Home-IP leaks<\/span>/);
+  assert.match(
+    app,
+    /class="dh-counts">Skipped records <b>\$\{esc\(String\(\(health\.counts \|\| \{\}\)\.skipped \?\? '—'\)\)\}<\/b>/
+  );
+  assert.doesNotMatch(app, /class="dh-counts">items <b>/);
   assert.match(app, /Sources enabled<\/span>/);
   assert.match(app, /type="button" class="btn" id="datahub-refresh"/);
   assert.match(app, /Loading Data Hub…/);
@@ -2245,6 +2472,12 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
     /\$\('#datahub-refresh'\)\.addEventListener\('click', \(\) => renderDataHub\(\)\)/
   );
   assert.match(app, /class="dh-help"><summary>How Data Hub protects and routes collection/);
+  assert.match(
+    app,
+    /class="matrix-scroll-hint dh-scroll-hint" role="note">Swipe horizontally inside wide tables to reveal remaining columns/
+  );
+  assert.match(app, /wrap\.setAttribute\('role', 'region'\)/);
+  assert.match(app, /table\.caption\?\.textContent\?\.trim\(\) \|\| 'Data Hub table'/);
   assert.match(app, /class="table-wrap"><table class="dh-egress"/);
   assert.match(app, /Outbound connection ledger/);
   assert.match(app, /Site data pulls/);
@@ -2300,6 +2533,14 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   assert.match(view, /dhiBindImageActions\(imageGallery\)/);
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.dhi-pagination \{/);
+  assert.match(
+    style,
+    /\.dhi-stats-grid \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/
+  );
+  assert.match(
+    style,
+    /@media \(max-width: 560px\) \{ \.dhi-stats-grid \{ grid-template-columns: minmax\(0, 1fr\); \} \}/
+  );
 });
 
 test('data-heavy routes use the shared production loading state', () => {
@@ -2381,7 +2622,15 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
     app.indexOf('function improvementActions', app.indexOf('async function renderImprovements()'))
   );
   assert.ok((facts.match(/class="table-wrap"><table class="sf-detail-table"/g) || []).length >= 2);
-  assert.ok((priorities.match(/class="table-wrap"><table class="tbl"/g) || []).length >= 2);
+  assert.ok((priorities.match(/class="table-wrap"[^>]*><table class="tbl"/g) || []).length >= 2);
+  assert.equal(
+    (priorities.match(/class="matrix-scroll-hint priority-scroll-hint" role="note"/g) || []).length,
+    2
+  );
+  assert.match(
+    priorities,
+    /class="table-wrap" tabindex="0" role="region" aria-label="Prioritized recommended actions"/
+  );
   assert.match(
     priorities,
     /role="status" aria-live="polite"><div class="loading">Joining portfolio signals…<\/div>/
@@ -2398,6 +2647,9 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.match(priorities, /<th scope="col">Action<\/th>/);
   assert.match(priorities, /caption class="sr-only">Prioritized recommended actions<\/caption>/);
   assert.match(priorities, /class="fd-stale-banner priority-notice" role="note"/);
+  assert.match(priorities, /class="priority-duplicates"/);
+  assert.match(priorities, /identical tasks grouped/);
+  assert.match(priorities, /\(item\.task\?\.files \|\| \[\]\)\.map/);
   assert.match(priorities, /class="fd-stale-banner priority-truncated" role="alert"/);
   assert.match(
     priorities,
@@ -2439,8 +2691,12 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   assert.match(app, /id="task-search" class="cm-input" type="search"/);
   assert.match(app, /aria-label="Search fleet tasks"/);
   assert.match(app, /TASK\.f\.query/);
-  assert.match(app, /Sites with active work open by default; backlog-only sites stay collapsed/);
+  assert.match(app, /Active sites open by default; expand a stage to browse its tasks/);
   assert.match(app, /const hasAttention = ip > 0 \|\| tasks\.some\(t => t\.blocked_on\)/);
+  assert.match(app, /class="tree-stage" data-rk="tree-stage:/);
+  assert.match(app, /const open = stage === 'in-progress' \|\| blocked > 0/);
+  assert.match(app, /\$\$\('\.tree-site, \.tree-stage'\)/);
+  assert.match(style, /\.tree-stage > summary \{ display: flex;/);
   assert.match(style, /\.tree-control-actions \{ display: flex;/);
 });
 
@@ -2497,8 +2753,41 @@ test('fleet task table stays bounded while preserving its wide scan columns', ()
   assert.match(view, /<th>Title<\/th><th>Role<\/th><th>Created<\/th>/);
 });
 
+test('fleet task tree separates site and stage expansion, prioritizing active work', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const tree = app.slice(app.indexOf('function fleetTree('), app.indexOf('function fleetTable('));
+  assert.match(tree, /class="tree-stage" data-rk="tree-stage:/);
+  assert.match(tree, /<span class="tree-stage-count">\$\{stageTasks\.length\}/);
+  assert.match(tree, /const open = stage === 'in-progress' \|\| blocked > 0/);
+  assert.match(tree, /Sites with active work|Active sites open by default/);
+  assert.match(app, /\$\$\('\.tree-site, \.tree-stage'\)/);
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(style, /\.tree-stage > summary \{ display: flex;/);
+});
+
+test('large per-site task boards paginate each stage without discarding counts', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const controls = app.slice(
+    app.indexOf('function renderBoardControls()'),
+    app.indexOf('async function loadBoard()')
+  );
+  const board = app.slice(
+    app.indexOf('function renderBoard(data)'),
+    app.indexOf('// "Opened" label')
+  );
+  assert.match(app, /const TASK_BOARD_PAGE_SIZE = 12/);
+  assert.match(controls, /<label class="muted" for="task-site">Site<\/label>/);
+  assert.match(board, /items\.slice\(start, start \+ TASK_BOARD_PAGE_SIZE\)/);
+  assert.match(board, /aria-label="\$\{esc\(COL_LABEL\[col\]\)\} task pages"/);
+  assert.match(board, /Page \$\{page\} of \$\{pageCount\} · \$\{start \+ 1\}–/);
+  assert.match(board, /Next page of \$\{esc\(COL_LABEL\[col\]\)\} tasks/);
+  assert.match(board, /renderBoard\(TASK\.boardData\)/);
+});
+
 test('Cron cards isolate schedule overflow and use explicit action buttons', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /type="button" class="btn" id="cron-refresh"/);
   const start = app.indexOf('function cmCard(sys)');
   const end = app.indexOf('function cmRow(sys, e)', start);
@@ -2506,11 +2795,27 @@ test('Cron cards isolate schedule overflow and use explicit action buttons', () 
   const card = app.slice(start, end);
   const rowEnd = app.indexOf('// Look up the live entry object', end);
   const row = app.slice(end, rowEnd);
-  assert.match(card, /<div class="table-wrap"><table class="cm-jobs"><caption class="sr-only">/);
+  assert.match(
+    card,
+    /<div class="table-wrap" tabindex="0" role="region" aria-label="\$\{esc\(sys\.slug\)\} cron jobs and controls"><table class="cm-jobs"><caption class="sr-only">/
+  );
   assert.match(card, /<button type="button" class="cm-collapse"/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cm-card,[\s\S]*background: var\(--grad-panel\), #fff;/
+  );
+  assert.match(style, /\.cm-jobrow\.cm-paused \{ opacity: 1; \}/);
   assert.match(card, /aria-controls="\$\{esc\(bodyId\)\}"/);
+  assert.match(
+    card,
+    /<th scope="col">State<\/th><th scope="col">Job<\/th><th scope="col">Schedule<\/th><th scope="col">Last run<\/th><th scope="col">Actions<\/th>/
+  );
   assert.match(app, /function cmHasCollapsePreference\(\)/);
   assert.match(app, /Open Scheduler →/);
+  assert.match(
+    app,
+    /class="matrix-scroll-hint cron-scroll-hint" role="note">Expanded cron job tables swipe horizontally/
+  );
   assert.match(app, /!s\.failed && !s\.needsRebuild/);
   assert.match(card, /<button type="button" class="btn sm cm-addjob"/);
   assert.match(row, /type="button" class="btn sm cm-toggle"/);
@@ -2531,6 +2836,14 @@ test('Engineer and Git Hygiene action controls declare button intent', () => {
     )
   );
   assert.match(engineers, /type="button" class="btn sm tasks-link"/);
+  assert.match(
+    engineers,
+    /class="btn sm tasks-link"[^>]*title="Tasks\$\{r\.queue \? ` \$\{r\.queue\}` : ''\} — open \$\{esc\(r\.site\)\}'s task board"/
+  );
+  assert.match(
+    engineers,
+    /id="fleet-help-toggle"[^>]*title="Help — show \/ hide the column key">\? Help<\/button>/
+  );
   assert.match(engineers, /type="button" class="btn sm run-eng"/);
   assert.match(engineers, /type="button" class="btn sm .*ag-toggle"/);
   assert.ok((hygiene.match(/type="button" class="btn sm gh-act/g) || []).length >= 5);
@@ -2740,17 +3053,25 @@ test('fleet vitals cards provide destinations and role-health context', () => {
   assert.match(shell, /data-vt-action="containers"/);
   assert.match(shell, /scheduled-role freshness/);
   assert.match(shell, /openVitalView/);
+  assert.match(
+    shell,
+    /class="vitals-mobile-toggle" aria-expanded="false" aria-controls="vitals-content"/
+  );
+  assert.match(shell, /mobileVitals\.matches\) rail\.classList\.add\('vitals-mobile-collapsed'\)/);
+  assert.match(shell, /vitals-mobile-summary/);
+  assert.match(shell, /aria-expanded', String\(expanded\)/);
   assert.match(app, /controlFilter/);
   assert.match(app, /CONTROL\.filter === 'fresh'/);
   assert.match(app, /Has fresh roles/);
   assert.match(
     theme,
-    /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);\s*grid-template-rows: auto repeat\(2, auto\)/
+    /#vitals-content \{[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);\s*grid-template-rows: auto repeat\(2, auto\)/
   );
   assert.match(
     theme,
-    /@media \(max-width: 380px\) \{\s*#vitals \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/
+    /@media \(max-width: 380px\) \{\s*#vitals-content \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/
   );
+  assert.match(theme, /#vitals\.vitals-mobile-collapsed #vitals-content \{ display: none; \}/);
 });
 
 test('category cards share the sidebar icon system', () => {
@@ -2886,6 +3207,10 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(index, /<main id="app" aria-busy="true">/);
   assert.doesNotMatch(index, /<button(?![^>]*\btype=)[^>]*>/);
   assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
+  assert.match(
+    index,
+    /document\.querySelector\('meta\[name="theme-color"\]'\)\?\.setAttribute\('content', theme === 'light' \? '#f4f7fb' : '#070910'\)/
+  );
   assert.match(app, /function applyThemeUI\(\)/);
   assert.match(app, /document\.documentElement\.dataset\.theme = theme/);
   assert.match(app, /function watchSystemTheme\(\)/);
@@ -2893,7 +3218,25 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(app, /aria-pressed', String\(theme === 'light'\)/);
   assert.match(app, /aria-pressed', String\(density === 'compact'\)/);
   assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*linear-gradient\(145deg, #fff, #f5f8fd\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.task \{[\s\S]*linear-gradient\(180deg, #fff, #f8fafd\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] #fd-back-top \{[\s\S]*background: rgba\(255,255,255,\.94\)/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.sh-tile/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] option,[\s\S]*background-color: #fff; color: var\(--text\)/
+  );
+  assert.match(theme, /.wb-status-options {[^}]*position: absolute/);
+  assert.match(theme, /.wb-status-options label {[^}]*flex-direction: row/);
   assert.match(theme, /:root\[data-theme="light"\] \.seg-btn\.active/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-column/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-card/);
@@ -2925,6 +3268,7 @@ test('light theme is wired into the shell and shared route surfaces', () => {
 
 test('agent pages expose enrollment actions that open the automation editor', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="btn sm ag-enroll"/);
   assert.match(app, /AUTO_ROLE_DRAFT = \{/);
   assert.match(app, /go\('automation'\)/);
@@ -2935,6 +3279,17 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Remove \$\{role\} from \$\{site\}/);
   assert.match(app, /rebuilding cron/);
   assert.match(app, /Current health/);
+  assert.match(
+    app,
+    /class="matrix-scroll-hint" role="note">Swipe horizontally to inspect agent status and actions/
+  );
+  assert.match(app, /class="agent-table-wrap" tabindex="0" role="region" aria-label=/);
+  assert.match(app, /const agentSiteView = body\s*\? `[\s\S]*class="card agent-table-card"/);
+  assert.match(
+    app,
+    /class="card ag-empty-state" role="status"><strong>No sites enrolled<\/strong>/
+  );
+  assert.match(theme, /:root\[data-theme="light"\] \* \{ scrollbar-color: #bdc9d9 transparent; \}/);
   assert.match(app, /healthy now/);
   assert.match(app, /7d history/);
   assert.doesNotMatch(app, /<details class="card ag-health" open>/);

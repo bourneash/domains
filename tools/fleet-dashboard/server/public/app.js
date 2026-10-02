@@ -728,7 +728,7 @@ async function renderEngineers() {
       if (r.engineer && !r.cron_up) flags.unshift('no-cron-container');
       const flagHtml = flags.length ? `<span class="flag">${esc(flags.join(', '))}</span>` : '';
       const cover = healthCell(h);
-      const tasksBtn = `<button type="button" class="btn sm tasks-link" data-site="${esc(r.site)}" title="Open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
+      const tasksBtn = `<button type="button" class="btn sm tasks-link" data-site="${esc(r.site)}" title="Tasks${r.queue ? ` ${r.queue}` : ''} — open ${esc(r.site)}'s task board">📋 Tasks${r.queue ? ` <span class="qn">${r.queue}</span>` : ''}</button>`;
       const engineerCell = (roleData.sites || []).find(s => s.site === r.site)?.cells?.engineer;
       const runBtn = r.engineer
         ? `<button type="button" class="btn sm run-eng" data-site="${esc(r.site)}"${r.cron_up ? '' : ' disabled title="cron container not running"'}>▶ Run</button> `
@@ -839,7 +839,7 @@ async function renderEngineers() {
       <span class="muted">${esc(summary)}</span>
       ${stale.length ? `<span class="flag">⚠ stale pulse: ${esc(stale.join(', '))}</span>` : ''}
       <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
-      <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Show / hide the column key">? Help</button>
+      <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Help — show / hide the column key">? Help</button>
     </div>
     ${engineerHealthPanel(healthData)}
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
@@ -1127,21 +1127,21 @@ async function renderGitHygiene() {
     <section class="gh-summary" aria-label="Git hygiene summary">
       <div class="gh-stat"><strong>${summary.length}</strong><span>Repositories swept</span></div>
       <div class="gh-stat gh-stat-good"><strong>${clean}</strong><span>Clean</span></div>
-      <div class="gh-stat ${notClean.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${notClean.length}</strong><span>Need review</span></div>
+      <div class="gh-stat ${notClean.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${notClean.length}</strong><span>Repos needing review</span></div>
       <div class="gh-stat ${blocked.length ? 'gh-stat-bad' : 'gh-stat-good'}"><strong>${blocked.length}</strong><span>Blocked paths</span></div>
       <div class="gh-stat ${skipped.length ? 'gh-stat-warn' : 'gh-stat-good'}"><strong>${skipped.length}</strong><span>Skipped repos</span></div>
       <div class="gh-stat gh-stat-meta"><strong>${b.policy.rules.length}</strong><span>Policy rules · ${b.policy.ignoreBlock.length} managed ignore lines</span></div>
     </section>
     <div class="gh-toolbar" role="group" aria-label="Git hygiene actions">
       <strong>Git Hygiene</strong>
-      <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${q.length} to review` : ''}</span>
+      <span class="muted">last sweep: ${when}${last ? ` · ${last.repos} repos · ${q.length} paths awaiting decision` : ''}</span>
       <button class="btn sm" type="button" id="gh-refresh">↻ Refresh</button>
       <button class="btn sm" type="button" id="gh-audit"${b.running ? ' disabled' : ''}>Audit (dry run)</button>
       <button class="btn sm" type="button" id="gh-sweep"${b.running ? ' disabled' : ''}>⚙ Sweep now</button>
     </div>`;
 
   const blockedCard = blocked.length
-    ? `<div class="card gh-panel"><h3>⛔ Blocked — credential-shaped paths</h3><div class="table-wrap"><table>
+    ? `<div class="card gh-panel"><h2>⛔ Blocked — credential-shaped paths</h2><div class="table-wrap"><table>
         <thead><tr><th>Site</th><th>Path</th><th>Why</th></tr></thead><tbody>${blocked
           .map(
             x =>
@@ -1152,7 +1152,7 @@ async function renderGitHygiene() {
     : '';
 
   const skipCard = skipped.length
-    ? `<div class="card gh-panel"><h3>Skipped repos</h3><div class="table-wrap"><table>
+    ? `<div class="card gh-panel"><h2>Skipped repos</h2><div class="table-wrap"><table>
         <thead><tr><th>Site</th><th>Why</th></tr></thead><tbody>${skipped
           .map(x => `<tr><td class="site">${esc(x.slug)}</td><td>${esc(x.why)}</td></tr>`)
           .join('')}</tbody></table></div></div>`
@@ -1207,17 +1207,17 @@ async function renderGitHygiene() {
 
   app.innerHTML = `${head}${blockedCard}
     <div class="gh-controls" role="group" aria-label="Search hygiene queue"><label class="gh-search"><span class="sr-only">Search review queue</span><input id="gh-search" class="cm-input" type="search" placeholder="Search site, path, or reason…" value="${esc(GH_FILTER.q)}" autocomplete="off" /></label><span id="gh-filter-count" class="muted" role="status" aria-live="polite" data-total="${filteredQueue.length}" data-page-count="${pageCount}"></span></div>
-    <div class="card gh-panel"><h3>Review queue (${filteredQueue.length})</h3><div class="table-wrap"><table>
+    <div class="card gh-panel"><h2>Review queue (${filteredQueue.length} paths)</h2><div class="matrix-scroll-hint" role="note">Swipe horizontally to review paths and choose an action</div><div class="table-wrap" tabindex="0" role="region" aria-label="Git hygiene review queue"><table>
       <thead><tr><th>Site</th><th>Path</th><th>Why it needs you</th><th>Since</th><th>Decision</th></tr></thead>
       <tbody>${queueRows}</tbody></table></div>
       <div class="gh-pagination" aria-label="Git hygiene review pages"><span class="muted">Page ${GH_PAGE} of ${pageCount} · showing ${pageItems.length} of ${filteredQueue.length}</span><button type="button" class="btn sm" id="gh-page-prev" ${GH_PAGE <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="gh-page-next" ${GH_PAGE >= pageCount ? 'disabled' : ''}>Next →</button></div>
       <details class="gh-help"><summary>What the “Always…” decisions do</summary><p>"Always…" writes a rule into <span class="mono">tools/fleet-git/policy.json</span> so the whole class is handled unattended from the next sweep on.</p></details>
     </div>
     ${skipCard}
-    <div class="card gh-panel"><h3>Last sweep</h3><div class="table-wrap"><table>
+    <div class="card gh-panel"><h2>Last sweep</h2><div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect each repository result</div><div class="table-wrap" tabindex="0" role="region" aria-label="Git hygiene last sweep results"><table>
       <thead><tr><th>Site</th><th>Tree</th><th>Commits</th><th>Remote</th><th>Review</th><th>Errors</th></tr></thead>
       <tbody>${stateRows}</tbody></table></div></div>
-    <div class="card gh-panel"><h3>Policy</h3>
+    <div class="card gh-panel"><h2>Policy</h2>
       <p class="muted">${b.policy.rules.length} rules · managed .gitignore block: ${b.policy.ignoreBlock.length} lines ·
       max ${b.policy.limits.max_files_per_commit} files/commit</p>
       <button class="btn sm" type="button" id="gh-ignore-sync">Preview .gitignore adoption</button>
@@ -1413,16 +1413,15 @@ async function renderGit() {
         ? ` <a href="${esc(r.remoteWebUrl)}" target="_blank" rel="noopener" class="rcol-link" title="Open repo on GitHub">↗</a>`
         : '';
       const gitStatus = r.dirty > 0 ? 'dirty' : r.syncState === 'synced' ? 'synced' : r.syncState;
-      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-git-name="${esc(`${r.slug} ${r.branch || ''}`.toLowerCase())}" data-git-status="${esc(gitStatus)}" data-fleet-row data-site="${esc(r.slug)}" role="button" tabindex="0" aria-label="Open repository details for ${esc(r.slug)}" aria-expanded="false" aria-controls="gd-${esc(r.slug)}">
+      return `<tr class="git-row" data-slug="${esc(r.slug)}" data-git-name="${esc(`${r.slug} ${r.branch || ''}`.toLowerCase())}" data-git-status="${esc(gitStatus)}" data-fleet-row data-site="${esc(r.slug)}" role="button" tabindex="0" aria-expanded="false" aria-controls="gd-${esc(r.slug)}">
       <td class="site">${esc(r.slug)}${repoLink} <span class="muted">▸</span></td>
       <td class="mono">${esc(r.branch || '—')} ${shaLine}${stashBadge}</td>
       <td>${dirty}</td>
-      <td>${sync.join(' ')}</td>
+      <td>${sync.join(' ')}<span class="sr-only">Open repository details</span></td>
     </tr>
     <tr class="git-detail-row hidden" data-detail="${esc(r.slug)}" data-rk="git:${esc(r.slug)}"><td colspan="4"><div class="git-detail" id="gd-${esc(r.slug)}" data-rkh="git:${esc(r.slug)}"></div></td></tr>`;
     })
     .join('');
-
   app.innerHTML = `
     ${gitPageTabs('operations')}
     <section class="git-summary" aria-label="Git fleet summary">
@@ -1431,14 +1430,14 @@ async function renderGit() {
       <div class="git-stat ${dirtyCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${dirtyCount}</strong><span>Dirty trees</span></div>
       <div class="git-stat ${pushCount ? 'git-stat-warn' : 'git-stat-good'}"><strong>${pushCount}</strong><span>Need push</span></div>
       <div class="git-stat ${pullCount ? 'git-stat-bad' : 'git-stat-good'}"><strong>${pullCount}</strong><span>Need pull</span></div>
-      <div class="git-actions"><button type="button" class="btn sm" id="git-refresh">↻ Refresh</button><button type="button" class="btn sm" id="pull-all"${pullCount ? '' : ' disabled title="nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button><button type="button" class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button></div>
+      <div class="git-actions"><button type="button" class="btn sm" id="git-refresh">↻ Refresh</button><button type="button" class="btn sm" id="pull-all"${pullCount ? '' : ' disabled title="Pull all unavailable — nothing to pull"'}>⇩ Pull all${pullCount ? ` (${pullCount})` : ''}</button><button type="button" class="btn sm" id="push-all"${pushCount ? '' : ' disabled title="Push all unavailable — nothing to push"'}>⇧ Push all${pushCount ? ` (${pushCount})` : ''}</button></div>
     </section>
     <div class="git-controls" role="group" aria-label="Filter repositories">
       <label class="git-search"><span class="sr-only">Search repositories</span><input id="git-search" class="cm-input" type="search" placeholder="Search repository or branch…" value="${esc(GIT_FILTER.q)}" autocomplete="off" /></label>
       <label><span class="sr-only">Repository status</span><select id="git-status" class="cm-input"><option value="all">All states</option><option value="dirty">Dirty tree</option><option value="synced">Synced</option><option value="ahead">Need push</option><option value="behind">Need pull</option><option value="diverged-behind">Diverged</option><option value="no-upstream">No upstream</option></select></label>
       <span id="git-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card aii-table"><div class="table-wrap"><table><caption class="sr-only">Fleet repository status</caption>
+    <div class="card aii-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare branch, working-tree, and remote status</div><div class="table-wrap" tabindex="0" role="region" aria-label="Fleet repository status"><table><caption class="sr-only">Fleet repository status</caption>
       <thead><tr><th>Site</th><th>Branch</th><th>Working tree</th><th>Remote</th></tr></thead>
       <tbody>${body}</tbody>
     </table></div>`;
@@ -1876,6 +1875,7 @@ async function renderProductFeed() {
     </section>
     <div class="card pf-panel">
       <h3>Subscriptions</h3>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to compare tags, inventory targets, queues, and outcomes</div>
       <div class="table-wrap"><table><caption class="sr-only">Product feed subscriptions and queue health</caption>
         <thead><tr><th>Site</th><th>Selection tags</th><th>Available / target</th><th>Reviewing</th><th>Selected queue / max</th><th>Published</th><th>Rejected</th></tr></thead>
         <tbody>${subRows || '<tr><td colspan="7" class="muted">No subscriptions registered — see registry/subscriptions.yaml</td></tr>'}</tbody>
@@ -1883,12 +1883,20 @@ async function renderProductFeed() {
     </div>
     <div class="card pf-panel">
       <h3>Recently verified products <span class="muted pf-panel-count">Showing ${productItems.length} most recent of ${stats.products || productItems.length} verified</span></h3>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect price, rating, and product tags</div>
       <div class="table-wrap"><table><caption class="sr-only">Most recently verified Amazon products</caption>
         <thead><tr><th>Verified</th><th>Exact Amazon product</th><th>ASIN</th><th>Price</th><th>Rating</th><th>Tags</th></tr></thead>
         <tbody>${productRows || '<tr><td colspan="6" class="muted">No verified products yet; collector will top up deficient subscriptions.</td></tr>'}</tbody>
       </table></div>
     </div>
     <details class="pf-help"><summary>How the product feed is maintained</summary><p>Subscriptions define each site's selection tags and target inventory depth. The collector fills deficits, routes products through review, and only publishes verified records; rejected items remain visible in the queue totals for auditability.</p></details>`;
+  $$('.pf-panel .table-wrap', app).forEach(wrap => {
+    const table = $('table', wrap);
+    if (!table) return;
+    wrap.tabIndex = 0;
+    wrap.setAttribute('role', 'region');
+    wrap.setAttribute('aria-label', table.caption?.textContent?.trim() || 'Product feed table');
+  });
   $('#product-feed-refresh').addEventListener('click', () => renderProductFeed());
   if (!FRESH) applyUISnap();
   applyFleetFilter();
@@ -2314,12 +2322,12 @@ async function renderAIUsage() {
     </section>
     ${
       modelDriftCalls
-        ? `<div class="empty aiu-notice aiu-notice-danger">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
         : ''
     }
     ${
       mixedCompactionCalls
-        ? `<div class="empty aiu-notice">ℹ <strong>${mixedCompactionCalls} call${mixedCompactionCalls === 1 ? '' : 's'}</strong> included multiple model families (${fmtUSD(mixedCompactionCostUsd)}). These are tracked as mixed compaction usage, not model drift, when the requested family is present.</div>`
+        ? `<div class="aiu-notice" role="note">ℹ <strong>${mixedCompactionCalls} call${mixedCompactionCalls === 1 ? '' : 's'}</strong> included multiple model families (${fmtUSD(mixedCompactionCostUsd)}). These are tracked as mixed compaction usage, not model drift, when the requested family is present.</div>`
         : ''
     }
     <div class="card aiu-chart-card">
@@ -2396,10 +2404,10 @@ async function renderAIUsage() {
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Calls', 'Calls where the resolved model family differed from the requested one.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${modelDriftRowsHtml}</tbody></table></div>`
             : ''
         }
-        ${notWired.length ? `<div class="empty aiu-notice aiu-notice-danger">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
-        ${wiredAwaiting.length ? `<div class="empty aiu-notice">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
-        ${noAiRole.length ? `<div class="empty aiu-notice">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
-        ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="empty aiu-notice aiu-notice-danger">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
+        ${notWired.length ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
+        ${wiredAwaiting.length ? `<div class="aiu-notice" role="note">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
+        ${noAiRole.length ? `<div class="aiu-notice" role="note">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
+        ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
         <div class="task-toolbar aiu-subhead aiu-subhead-late"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table></div>
       </div>
@@ -2615,7 +2623,7 @@ async function renderDeployHealth() {
       <label><span class="sr-only">Deployment status</span><select id="deploy-status" class="cm-input"><option value="all">All statuses</option><option value="live">Live</option><option value="ops-only">Ops-only</option><option value="deploying">Deploying</option><option value="behind">Site changes pending</option><option value="failed">Build failed</option><option value="unknown">Unknown</option></select></label>
       <span id="deploy-filter-count" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card deploy-table"><div class="table-wrap"><table>
+    <div class="card deploy-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare deployment status, versions, and errors</div><div class="table-wrap" tabindex="0" role="region" aria-label="Deployment health by site"><table>
       <caption class="sr-only">Deployment health by site</caption>
       <thead><tr><th>Site</th><th>Worker</th><th>Status</th><th>Version</th><th>Deployed at</th><th>Error</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No deploy-health data yet — either no CF credentials are configured, or the poller hasn\'t swept yet.</td></tr>'}</tbody>
@@ -4016,8 +4024,8 @@ function renderGitDetail(slug, box, s) {
   const lc = s.lastCommit
     ? `<span class="gd-last muted">last commit <span class="mono">${esc(s.lastCommit.hash)}</span> · ${esc(s.lastCommit.subject)} · ${esc(s.lastCommit.when)}</span>`
     : '';
-  const pushBtn = `<button type="button" class="btn sm gd-push"${s.ahead ? '' : ' disabled title="nothing to push"'}>⇧ Push${s.ahead ? ` ${s.ahead}` : ''}</button>`;
-  const pullBtn = `<button type="button" class="btn sm gd-pull"${s.behind ? '' : ' disabled title="nothing to pull"'}>⇩ Pull${s.behind ? ` ${s.behind}` : ''}</button>`;
+  const pushBtn = `<button type="button" class="btn sm gd-push"${s.ahead ? '' : ' disabled title="Push unavailable — nothing to push"'}>⇧ Push${s.ahead ? ` ${s.ahead}` : ''}</button>`;
+  const pullBtn = `<button type="button" class="btn sm gd-pull"${s.behind ? '' : ' disabled title="Pull unavailable — nothing to pull"'}>⇩ Pull${s.behind ? ` ${s.behind}` : ''}</button>`;
 
   if (!s.files.length) {
     box.innerHTML = `<div class="gd-head">${lc}</div>
@@ -4851,8 +4859,8 @@ async function renderRetention() {
       <button class="btn primary" id="retention-save" type="button">Save changes</button>
       <span id="retention-msg" class="muted" role="status" aria-live="polite"></span>
     </div>
-    <div class="card retention-table"><div class="table-wrap"><table class="rmatrix">
-      <thead><tr><th>Class</th><th>Method</th><th>Keep raw</th><th>Deletion</th><th>Why</th></tr></thead>
+    <div class="card retention-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to review retention classes and policy details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Retention policy by data class"><table class="rmatrix">
+      <caption class="sr-only">Retention policy by data class</caption><thead><tr><th>Class</th><th>Method</th><th>Keep raw</th><th>Deletion</th><th>Why</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>
     <details class="retention-help"><summary>How the policy is applied</summary><p>Retention means <b>compress, not delete</b>. Files past the window are gzipped (stats ledgers) or rolled into one archive per site per day (role logs), verified, and kept. <b>Deletion is file-only</b> and off everywhere; an undeclared path is reported, never swept. The policy is applied nightly at 04:45 by <code>tools/scripts/prune-fleet-data.py</code>.</p></details>`;
@@ -5396,6 +5404,12 @@ async function renderGenericAgent(role) {
     <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="7"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
     .join('');
+  const agentSiteView = body
+    ? `<div class="card agent-table-card"><div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect agent status and actions</div><div class="agent-table-wrap" tabindex="0" role="region" aria-label="${esc(agentLabel(role))} sites and agent controls"><table class="agent-table">
+      <thead><tr><th scope="col">Site</th><th scope="col">Status</th><th scope="col">Last run</th><th scope="col">Cadence</th><th scope="col">Publishing</th><th scope="col">Health · 7d</th><th scope="col">Actions</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table></div></div>`
+    : `<section class="card ag-empty-state" role="status"><strong>No sites enrolled</strong><p>${familyPage ? 'Enrollment is managed through each site’s editorial profile.' : 'Use “show sites” above to choose sites to enroll. Once enrolled, run status and controls will appear here.'}</p></section>`;
 
   app.innerHTML = `
     ${breadcrumb(role)}
@@ -5416,11 +5430,9 @@ async function renderGenericAgent(role) {
       }
     </div>
     ${healthPanel}
-    <div class="card agent-table-wrap"><table class="agent-table">
-      <thead><tr><th>Site</th><th>Status</th><th>Last run</th><th>Cadence</th><th>Publishing</th><th>Health · 7d</th><th>Actions</th></tr></thead>
-      <tbody>${body || '<tr><td colspan="7" class="empty">No sites currently run this agent.</td></tr>'}</tbody>
-    </table></div>
-    <p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site. ← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
+    ${agentSiteView}
+    ${body ? `<p class="muted" style="margin-top:12px">Each row is one site running the <b>${esc(agentLabel(role))}</b> agent. Open <b>Logs</b> for the live-tailing latest run, or pause/resume the role per site.</p>` : ''}
+    <p class="muted" style="margin-top:12px">← back to <a class="crumb-link" id="crumb-control2">Domain Control</a>.</p>`;
 
   $('#agent-refresh').addEventListener('click', () => renderGenericAgent(role));
   wireCrumbs();
@@ -5616,7 +5628,7 @@ async function renderContainers() {
       <span id="cn-filter-count" class="muted" role="status" aria-live="polite"></span>
       <button type="button" class="btn sm" id="restart-crons" aria-label="Restart legacy schedulers" title="Released-site legacy cron containers only — adopted sites are managed in Ops → Scheduler">↻ Restart legacy schedulers</button>
     </div>
-    <div class="card cn-table"><div class="table-wrap"><table><caption class="sr-only">Container runtime status and lifecycle controls</caption>
+    <div class="card cn-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect container health and lifecycle actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Container runtime status and lifecycle controls"><table><caption class="sr-only">Container runtime status and lifecycle controls</caption>
       <thead><tr><th>Container</th><th>Site</th><th>Service</th><th>Status</th><th>Up</th><th>Actions</th></tr></thead>
       <tbody>${body || '<tr><td colspan="6" class="muted">No domains containers running.</td></tr>'}</tbody>
     </table></div></div>
@@ -5878,6 +5890,8 @@ const TASK = {
   mode: 'fleet', // 'fleet' | 'board'
   view: 'tree', // fleet sub-view: 'tree' | 'table'
   all: [], // every task across the fleet
+  boardData: null,
+  boardPages: {},
   f: {
     priority: new Set(),
     stage: new Set(['backlog', 'in-progress']),
@@ -5888,6 +5902,7 @@ const TASK = {
     query: '',
   },
 };
+const TASK_BOARD_PAGE_SIZE = 12;
 
 function prioClass(p) {
   if (p == null || p === '') return 'pn';
@@ -5951,7 +5966,7 @@ function renderBoardControls() {
     )
     .join('');
   $('#task-controls').innerHTML =
-    `<label class="muted">Site</label> <select id="task-site">${opts}</select>`;
+    `<label class="muted" for="task-site">Site</label> <select id="task-site">${opts}</select>`;
   $('#task-site').addEventListener('change', e => {
     STATE.taskSite = e.target.value;
     loadBoard();
@@ -5971,19 +5986,41 @@ async function loadBoard() {
     renderViewError(content, e.message);
     return;
   }
+  renderBoard(data);
+}
+
+function renderBoard(data) {
+  TASK.boardData = data;
   const titleCounts = new Map();
   COLS.forEach(stage =>
     (data[stage] || []).forEach(task =>
       titleCounts.set(task.title, (titleCounts.get(task.title) || 0) + 1)
     )
   );
-  content.innerHTML = `<div class="board">${COLS.map(col => {
+  $('#task-content').innerHTML = `<div class="board">${COLS.map(col => {
     const items = data[col] || [];
-    const cards = items.length
-      ? items.map(t => boardCard(t, titleCounts.get(t.title) || 1)).join('')
+    const pageKey = `${TASK.taskSite}:${col}`;
+    const pageCount = Math.max(1, Math.ceil(items.length / TASK_BOARD_PAGE_SIZE));
+    const page = Math.min(Math.max(1, TASK.boardPages[pageKey] || 1), pageCount);
+    TASK.boardPages[pageKey] = page;
+    const start = (page - 1) * TASK_BOARD_PAGE_SIZE;
+    const visible = items.slice(start, start + TASK_BOARD_PAGE_SIZE);
+    const cards = visible.length
+      ? visible.map(t => boardCard(t, titleCounts.get(t.title) || 1)).join('')
       : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
-    return `<div class="col"><div class="col-head"><h3>${COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div></div>`;
+    const pagination =
+      pageCount > 1
+        ? `<nav class="board-pagination" aria-label="${esc(COL_LABEL[col])} task pages"><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="-1" ${page === 1 ? 'disabled' : ''}><span aria-hidden="true">←</span><span class="sr-only">Previous page of ${esc(COL_LABEL[col])} tasks</span></button><span role="status">Page ${page} of ${pageCount} · ${start + 1}–${Math.min(start + TASK_BOARD_PAGE_SIZE, items.length)} of ${items.length}</span><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="1" ${page === pageCount ? 'disabled' : ''}><span aria-hidden="true">→</span><span class="sr-only">Next page of ${esc(COL_LABEL[col])} tasks</span></button></nav>`
+        : '';
+    return `<div class="col"><div class="col-head"><h3>${COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div>${pagination}</div>`;
   }).join('')}</div>`;
+  $$('.board-page').forEach(button =>
+    button.addEventListener('click', () => {
+      const key = `${TASK.taskSite}:${button.dataset.col}`;
+      TASK.boardPages[key] = (TASK.boardPages[key] || 1) + Number(button.dataset.delta);
+      renderBoard(TASK.boardData);
+    })
+  );
   $$('.task').forEach(el =>
     el.addEventListener('click', () =>
       openTaskModal({
@@ -6024,7 +6061,8 @@ function boardCard(t, duplicateCount = 1) {
     duplicateCount > 1
       ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
       : '';
-  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} in ${esc(STAGE_LABEL[t.column] || t.column)}${duplicateCount > 1 ? `; title appears in ${duplicateCount} task files` : ''}">
+  return `<div class="task ${t.blocked_on ? 'task-blocked' : ''}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0">
+    <span class="sr-only">Open task: </span>
     <div class="t-title">${esc(t.title)}${blk}${repeated}</div>
     <div class="t-meta">${prioTag(t.priority)}${role}${type}</div>
     ${t.excerpt ? `<div class="t-excerpt">${esc(t.excerpt)}</div>` : ''}
@@ -6210,7 +6248,7 @@ function renderFleet() {
   );
   $$('.tree-all').forEach(b =>
     b.addEventListener('click', () =>
-      $$('.tree-site').forEach(d => {
+      $$('.tree-site, .tree-stage').forEach(d => {
         d.open = b.dataset.open === '1';
       })
     )
@@ -6233,41 +6271,42 @@ function fleetTree(rows, repeatedTitles = new Map()) {
   const bySite = {};
   for (const t of rows) (bySite[t.site] = bySite[t.site] || []).push(t);
   const groups = Object.entries(bySite).sort((a, b) => b[1].length - a[1].length);
-  const ctrls = `<div class="tree-controls"><span class="muted">Sites with active work open by default; backlog-only sites stay collapsed.</span><span class="tree-control-actions"><button type="button" class="tree-all" data-open="1">expand all</button><button type="button" class="tree-all" data-open="0">collapse all</button></span></div>`;
+  const ctrls = `<div class="tree-controls"><span class="muted">Active sites open by default; expand a stage to browse its tasks.</span><span class="tree-control-actions"><button type="button" class="tree-all" data-open="1">expand all</button><button type="button" class="tree-all" data-open="0">collapse all</button></span></div>`;
   const body = groups
     .map(([site, tasks]) => {
       const ip = tasks.filter(t => t.column === 'in-progress').length;
       const bl = tasks.filter(t => t.column === 'backlog').length;
-      let lastStage = '';
-      const items = tasks
-        .map(t => {
-          const duplicateCount = repeatedTitles.get([t.site, t.title].join('\u001f')) || 1;
-          const repeated =
-            duplicateCount > 1
-              ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
-              : '';
-          const label =
-            t.column !== lastStage
-              ? ((lastStage = t.column),
-                `<div class="tree-stage-label">${STAGE_LABEL[t.column]}</div>`)
-              : '';
-          return (
-            label +
-            `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)}${duplicateCount > 1 ? `; title appears in ${duplicateCount} task files` : ''}">
+      const stages = COLS.filter(stage => tasks.some(task => task.column === stage));
+      const items = stages
+        .map(stage => {
+          const stageTasks = tasks.filter(task => task.column === stage);
+          const blocked = stageTasks.filter(task => task.blocked_on).length;
+          const stageItems = stageTasks
+            .map(t => {
+              const duplicateCount = repeatedTitles.get([t.site, t.title].join('\u001f')) || 1;
+              const repeated =
+                duplicateCount > 1
+                  ? `<span class="task-repeat-note" title="${duplicateCount} task files on this site share this title; each remains a separate task.">${duplicateCount} matching titles</span>`
+                  : '';
+              return `<div class="tree-task ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0">
+        <span class="sr-only">Open task: </span>
         <span class="prio ${prioClass(t.priority)} tree-pri">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span>
         <span class="tree-type">${esc(t.type || '')}</span>
         <span class="tree-title">${esc(t.title)}${t.blocked_on ? '<span class="blocked-tag">blocked</span>' : ''}${repeated}</span>
         <span class="tree-role">${esc(t.assigned_role || '')}</span>
         <span class="tree-est">${t.estimated_turns ? '~' + esc(t.estimated_turns) + 't' : ''}</span>
-      </div>`
-          );
+      </div>`;
+            })
+            .join('');
+          const open = stage === 'in-progress' || blocked > 0;
+          return `<details class="tree-stage" data-rk="tree-stage:${esc(site)}:${esc(stage)}"${open ? ' open' : ''}><summary><span>${STAGE_LABEL[stage]}</span><span class="tree-stage-count">${stageTasks.length}${blocked ? ` · ${blocked} blocked` : ''}</span></summary><div class="tree-tasks">${stageItems}</div></details>`;
         })
         .join('');
       const hasAttention = ip > 0 || tasks.some(t => t.blocked_on);
       return `<details class="tree-site"${hasAttention ? ' open' : ''} data-rk="tree:${esc(site)}"><summary class="tree-summary">
         <span class="tree-site-name">${esc(site)}</span>
         <span class="tree-meta">${ip ? `<span class="badge b-blue">${ip} in-progress</span>` : ''}${bl ? `<span class="badge b-gray">${bl} not started</span>` : ''}</span>
-      </summary><div class="tree-tasks">${items}</div></details>`;
+      </summary><div class="tree-stages">${items}</div></details>`;
     })
     .join('');
   return ctrls + `<div class="tree-list">${body}</div>`;
@@ -6289,8 +6328,8 @@ function fleetTable(rows, repeatedTitles = new Map()) {
           : '';
       return (
         divider +
-        `<tr class="ttr ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0" aria-label="Open task ${esc(t.title)} for ${esc(t.site)}">
-      <td><span class="prio ${prioClass(t.priority)}">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span></td>
+        `<tr class="ttr ${t.blocked_on ? 'task-blocked' : ''}" data-site="${esc(t.site)}" data-col="${esc(t.column)}" data-file="${esc(t.file)}" role="button" tabindex="0">
+      <td><span class="sr-only">Open task: </span><span class="prio ${prioClass(t.priority)}">${t.priority != null ? 'P' + esc(t.priority) : '—'}</span></td>
       <td class="mono">${esc(t.site)}</td>
       <td><span class="badge b-gray">${STAGE_LABEL[t.column]}</span></td>
       <td>${esc(t.type || '')}</td>
@@ -6723,6 +6762,7 @@ async function renderCron() {
       <button type="button" class="btn sm" id="cm-collapse-all" style="margin-left:auto">Collapse all</button>
       <button type="button" class="btn sm" id="cm-expand-all">Expand all</button>
     </div>
+    <div class="matrix-scroll-hint cron-scroll-hint" role="note">Expanded cron job tables swipe horizontally to reach schedules, run times, and actions</div>
     <div class="cm-systems">${systems.map(s => cmCard(s)).join('')}</div>
     <p class="muted" style="margin-top:12px">Each card is one cron container (a site or tool). Edits write the on-disk <span class="mono">crontab.docker</span>; the container keeps running its baked-in copy until you <b>Rebuild &amp; restart</b>. <b>Pause/Resume</b> on a worker role toggles its <span class="mono">.&lt;role&gt;-disabled</span> flag (instant, no rebuild). <span class="cm-badge stale">stale</span> = disk crontab changed since the last build — rebuild or revert.</p>`;
 
@@ -6792,8 +6832,8 @@ function cmCard(sys) {
       <span class="cm-container mono">${esc(sys.container)}</span>
     </div>
     <div class="cm-body${collapsed ? ' hidden' : ''}" id="${esc(bodyId)}" data-rk="cron:${esc(sys.slug)}">
-      <div class="table-wrap"><table class="cm-jobs"><caption class="sr-only">${esc(sys.slug)} cron jobs and controls</caption>
-        <thead><tr><th>State</th><th>Job</th><th>Schedule</th><th>Last run</th><th></th></tr></thead>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="${esc(sys.slug)} cron jobs and controls"><table class="cm-jobs"><caption class="sr-only">${esc(sys.slug)} cron jobs and controls</caption>
+        <thead><tr><th scope="col">State</th><th scope="col">Job</th><th scope="col">Schedule</th><th scope="col">Last run</th><th scope="col">Actions</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
       <div class="cm-foot">${foot.join(' ')}${hint}
@@ -7546,7 +7586,7 @@ async function renderDataHub() {
       <div class="dh-health">
         ${nodeCell('US exit', nodes.us)}
         ${nodeCell('EU exit', nodes.eu)}
-        <div class="dh-counts">items <b>${esc(String((health.counts || {}).items ?? '—'))}</b> · skipped <b>${esc(String((health.counts || {}).skipped ?? '—'))}</b></div>
+        <div class="dh-counts">Skipped records <b>${esc(String((health.counts || {}).skipped ?? '—'))}</b></div>
       </div>`;
   }
 
@@ -7683,6 +7723,7 @@ async function renderDataHub() {
       <div class="dh-stat"><strong>${events.length}</strong><span>Egress events loaded</span></div>
       <div class="dh-stat dh-stat-meta"><strong>${pulls.length}</strong><span>Site pulls loaded · ${dss.length} datasets</span></div>
     </section>
+    <div class="matrix-scroll-hint dh-scroll-hint" role="note">Swipe horizontally inside wide tables to reveal remaining columns</div>
     <div class="dh-grid">
       <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
@@ -7693,6 +7734,13 @@ async function renderDataHub() {
     </div>
     <details class="dh-help"><summary>How Data Hub protects and routes collection</summary><p>Private sources are fetched through the configured VPN exits, while the egress ledger records the target, path, exit IP, and outcome. Site pulls show who consumed collected data; home-IP leaks are surfaced as a hard warning. Source toggles apply on the next collection cycle.</p></details>`;
 
+  $$('.dh-panel .table-wrap', app).forEach(wrap => {
+    const table = $('table', wrap);
+    if (!table) return;
+    wrap.tabIndex = 0;
+    wrap.setAttribute('role', 'region');
+    wrap.setAttribute('aria-label', table.caption?.textContent?.trim() || 'Data Hub table');
+  });
   $('#datahub-refresh').addEventListener('click', () => renderDataHub());
   const dhPageSize = 20;
   $$('.dh-panel table', app).forEach((table, index) => {
@@ -7926,12 +7974,16 @@ async function renderCompliance() {
       }, {})
   ).sort((a, b) => b[1] - a[1]);
   const trendHtml = trend.length
-    ? `<div class="compliance-trend" title="Fleet pass rate over recent scan windows">${trend
+    ? `<div class="compliance-trend" role="img" aria-label="Fleet pass rate trend from ${esc(
+        new Date(trend[0].at).toLocaleString()
+      )} to ${esc(new Date(trend[trend.length - 1].at).toLocaleString())}; currently ${trend[trend.length - 1].passRate}% pass">${trend
         .map(
           point =>
-            `<i style="height:${Math.max(3, point.passRate * 0.24)}px" title="${esc(new Date(point.at).toLocaleString())}: ${point.passRate}% pass"></i>`
+            `<i style="height:${Math.max(3, point.passRate * 0.4)}px" title="${esc(new Date(point.at).toLocaleString())}: ${point.passRate}% pass"></i>`
         )
-        .join('')}<span>${trend[trend.length - 1].passRate}% pass</span></div>`
+        .join(
+          ''
+        )}<span>${trend[trend.length - 1].passRate}% pass</span></div><div class="compliance-trend-range" aria-hidden="true"><span>${esc(new Date(trend[0].at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span><span>${esc(new Date(trend[trend.length - 1].at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span></div>`
     : '<span class="muted">Trend begins after the next scan</span>';
   const rowHtml = r => {
     const c = r.checks || {};
@@ -7977,7 +8029,7 @@ async function renderCompliance() {
   };
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div><button type="button" id="compliance-refresh" class="btn">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">Compliance</h2><span class="muted">Live technical privacy baseline — not legal certification</span><span class="muted compliance-last-scan">Last scan: ${esc(lastScan ? new Date(lastScan).toLocaleString() : 'not yet scanned')}</span></div></div>
     <div class="task-toolbar compliance-toolbar" role="group" aria-label="Compliance filters and actions">
       <strong>${rows.length} domains</strong>
       <button type="button" class="badge b-green compliance-filter-tag" data-status="pass" aria-pressed="${COMPLIANCE_UI.statuses.has('pass')}">${counts.pass} pass</button>
@@ -8024,12 +8076,11 @@ async function renderCompliance() {
       <div class="compliance-trend-wrap"><strong>Pass-rate trend</strong>${trendHtml}</div>
     </div>
     <div class="compliance-note">A pass requires a detected cookie consent UI with both accept and reject choices, a Privacy Policy, and Terms. If GA4 is present, it must show default-denied consent mode or basic consent gating. “Unknown” means the deployed site could not be verified; it is never treated as a pass or failure.</div>
-    <div class="card compliance-table"><div class="table-wrap"><table>
+    <div class="card compliance-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare compliance checks, evidence, and scan dates</div><div class="table-wrap" tabindex="0" role="region" aria-label="Compliance evidence by site"><table>
       <caption class="sr-only">Compliance evidence by site</caption>
       <thead><tr>${sortHeader('Site', 'site')}${sortHeader('Status', 'status')}${sortHeader('Banner', 'banner')}${sortHeader('Accept', 'accept')}${sortHeader('Reject', 'reject')}${sortHeader('GA4', 'ga4')}${sortHeader('GA consent', 'gaConsentGated')}${sortHeader('Privacy', 'privacy')}${sortHeader('Terms', 'terms')}${sortHeader('Evidence / issue', 'evidence')}${sortHeader('Checked', 'checkedAt')}<th>Action</th></tr></thead>
       <tbody id="compliance-body"></tbody>
     </table></div></div>`;
-  $('#compliance-refresh').addEventListener('click', () => renderCompliance());
   $('#compliance-check-filter').value = COMPLIANCE_UI.check;
 
   const bySite = new Map(rows.map(row => [row.site, row]));
@@ -9692,7 +9743,7 @@ async function renderDomains() {
 
     <section class="card dom-panel">
       <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recorded</span></div>
-      <div class="table-wrap"><table>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Domain command job history"><table>
         <caption class="sr-only">Domain command job history</caption>
         <thead><tr><th>Domain</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
         <tbody>${jobRows || '<tr><td colspan="6" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
@@ -9701,7 +9752,7 @@ async function renderDomains() {
 
     <section class="card dom-panel">
       <div class="dom-panel-head"><div><h3>Onboarded sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
-      <div class="table-wrap"><table>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to review onboarded domains and available actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Onboarded domains and available actions"><table>
         <caption class="sr-only">Onboarded domains and available actions</caption>
         <thead><tr><th>Site</th><th>Actions</th></tr></thead>
         <tbody>${siteRows || '<tr><td colspan="2" class="muted">No sites checked out.</td></tr>'}</tbody>
@@ -10449,7 +10500,8 @@ function socMatrixHTML() {
   </tr>`;
   const empty = `<tr><td colspan="${platforms.length + 3}" class="muted soc-empty-row">No domains match the current filters.</td></tr>`;
   return `<div data-soc-results data-visible="${sites.length}" data-total="${SOC.data.sites.length}" data-unit="domains">
-    <div class="card soc-table-card"><table class="soc-matrix">
+    <div class="sh-scroll-hint" role="note">Swipe horizontally to compare platform coverage · Site stays pinned</div>
+    <div class="card soc-table-card" tabindex="0" role="region" aria-label="Social account matrix by site and platform"><table class="soc-matrix">
     <caption class="sr-only">Social account matrix by site and platform</caption>
     <thead><tr>
       ${socSortHeader('matrix', 'site', 'Site')}
@@ -10597,7 +10649,8 @@ function socListHTML() {
   const empty = `<tr><td colspan="${SOC_COLS.length}" class="muted soc-empty-row">No accounts match the current filters.</td></tr>`;
   const sortedLabel = SOC_COLS.find(c => c.key === sort.key)?.label || sort.key;
   return `<div data-soc-results data-visible="${rows.length}" data-total="${SOC.data.accounts.length}" data-unit="accounts">
-    <div class="card soc-table-card"><table class="soc-list"><caption class="sr-only">Social account inventory</caption>${head}<tbody>${body || empty}</tbody></table></div>
+    <div class="sh-scroll-hint" role="note">Swipe horizontally to inspect profile, status, and account details</div>
+    <div class="card soc-table-card" tabindex="0" role="region" aria-label="Social account inventory"><table class="soc-list"><caption class="sr-only">Social account inventory</caption>${head}<tbody>${body || empty}</tbody></table></div>
     <div class="muted soc-legend"><span>Grouped by ${esc(SOC.group)}.</span><span>Sorted by ${esc(sortedLabel)} ${sort.dir > 0 ? 'ascending' : 'descending'}.</span><span>Click a row to edit.</span></div></div>`;
 }
 
@@ -10638,7 +10691,8 @@ function socPersonasHTML() {
     .join('');
   const empty = `<tr><td colspan="6" class="muted soc-empty-row">${SOC.data.personas.length ? 'No personas match the current filters.' : 'No personas yet. Use + Persona to add a byline.'}</td></tr>`;
   return `<div data-soc-results data-visible="${personas.length}" data-total="${SOC.data.personas.length}" data-unit="personas">
-    <div class="card soc-table-card"><table>
+    <div class="sh-scroll-hint" role="note">Swipe horizontally to inspect persona details and platform accounts</div>
+    <div class="card soc-table-card" tabindex="0" role="region" aria-label="Social personas and account coverage"><table>
     <caption class="sr-only">Social personas and account coverage</caption>
     <thead><tr><th>Site</th><th>Persona</th><th>Email</th><th>Beat</th><th>Accounts</th><th></th></tr></thead>
     <tbody>${rows || empty}</tbody></table></div>
@@ -12888,7 +12942,7 @@ async function renderPriorities() {
     <td><b>${esc(item.score)}</b></td><td>${siteLink(item.site)}</td>
     <td><span class="badge ${item.state === 'blocked' ? 'b-red' : item.state === 'filed' ? 'b-green' : 'b-blue'}">${esc(item.state)}</span></td>
     <td><span class="badge b-gray">${esc(item.kind)}</span></td>
-    <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div></td>
+    <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div>${item.duplicate_count > 1 ? `<details class="priority-duplicates"><summary>${item.duplicate_count} identical tasks grouped</summary><ul>${(item.task?.files || []).map(file => `<li><code>${esc(file)}</code></li>`).join('')}</ul></details>` : ''}</td>
     <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
     <td>${item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
   </tr>`
@@ -12904,10 +12958,10 @@ async function renderPriorities() {
     ${data.notice ? `<div class="fd-stale-banner priority-notice" role="note"><strong>Data note</strong><span>${esc(data.notice)}</span></div>` : ''}
     ${omittedActions ? `<div class="fd-stale-banner priority-truncated" role="alert"><strong>Incomplete queue</strong><span>The API reports ${reportedTotal} recommendations but returned ${all.length}; ${omittedActions} actions are not available in this view yet.</span></div>` : ''}
     <section class="seo-stats">${tiles}</section>
-    <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="table-wrap"><table class="tbl"><caption class="sr-only">Portfolio allocation scorecard by live site</caption><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
+    <details class="card"><summary><strong>Portfolio allocation scorecard</strong> <span class="muted">value, direct AI cost, and attributable margin by live site</span></summary><div class="matrix-scroll-hint priority-scroll-hint" role="note">Swipe horizontally to inspect all scorecard columns</div><div class="table-wrap" tabindex="0" role="region" aria-label="Portfolio allocation scorecard by live site"><table class="tbl"><caption class="sr-only">Portfolio allocation scorecard by live site</caption><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
     <div class="task-toolbar"><strong>${rows.length} items</strong><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)}</span><select id="priority-state" class="cm-input" aria-label="Filter prioritized actions by state"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
     ${pageCount > 1 ? `<nav class="priority-pagination" aria-label="Priority action pages"><button type="button" class="btn sm" id="priority-prev" ${PRIORITY_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="priority-page-status" role="status">Page ${PRIORITY_PAGE} of ${pageCount} · ${rows.length} total actions</span><button type="button" class="btn sm" id="priority-next" ${PRIORITY_PAGE === pageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
-    <section class="card"><div class="table-wrap"><table class="tbl"><caption class="sr-only">Prioritized recommended actions</caption><thead><tr><th scope="col">Score</th><th scope="col">Site</th><th scope="col">State</th><th scope="col">Kind</th><th scope="col">Recommended action</th><th scope="col">Confidence</th><th scope="col">Expected profit</th><th scope="col">Action</th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
+    <section class="card"><div class="matrix-scroll-hint priority-scroll-hint" role="note">Swipe horizontally to inspect all recommendation columns</div><div class="table-wrap" tabindex="0" role="region" aria-label="Prioritized recommended actions"><table class="tbl"><caption class="sr-only">Prioritized recommended actions</caption><thead><tr><th scope="col">Score</th><th scope="col">Site</th><th scope="col">State</th><th scope="col">Kind</th><th scope="col">Recommended action</th><th scope="col">Confidence</th><th scope="col">Expected profit</th><th scope="col">Action</th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
   $('#priorities-refresh').addEventListener('click', () => renderPriorities());
   $('#priority-state').value = PRIORITY_STATE;
   $('#priority-state').addEventListener('change', e => {
@@ -13600,7 +13654,7 @@ async function renderChangeQueue({ background = false } = {}) {
     )
     .join('');
   app.innerHTML = `<div class="page-head cq-page-head"><div><div class="cq-eyebrow">OPERATIONS CONTROL PLANE</div><h2 class="page-title">Change Queue</h2><div class="crumbs">One place to decide what needs attention, what is moving, and what is safe to leave alone.</div></div><div class="cq-head-actions"><span class="cq-health ${health[1]}"><i></i>${health[0]}</span><button type="button" class="btn primary" id="cq-new" aria-label="Create a new change request">New change request</button></div></div>
-    <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" aria-label="${data.settings.enabled ? 'Pause automatic dispatch' : 'Resume automatic dispatch'}" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><div class="cq-command-stat"><span>Blocked</span><strong>${blocked}</strong><small>${data.queue_metrics?.oldest_blocked_at ? `oldest ${cqAge(data.queue_metrics.oldest_blocked_at)}` : 'none'}</small></div><button type="button" class="btn sm" id="cq-pickup-all" aria-label="Dispatch all due change requests">Dispatch due work</button></section>
+    <section class="cq-command-strip"><div class="cq-command-main"><div class="cq-eyebrow">AUTOMATION</div><div class="cq-command-title"><label class="cq-switch"><input type="checkbox" id="cq-enabled" aria-label="${data.settings.enabled ? 'Pause automatic dispatch' : 'Resume automatic dispatch'}" ${data.settings.enabled ? 'checked' : ''}><span></span></label><div><strong>${data.settings.enabled ? 'Automatic dispatch is on' : 'Automatic dispatch is paused'}</strong><p>${data.settings.enabled ? 'The dispatcher will pick up eligible work automatically.' : 'Nothing will start until you dispatch it manually or resume automation.'}</p></div></div></div><div class="cq-command-stat"><span>Next pickup</span><strong id="cq-next-pickup">calculating…</strong><small>every ${esc(data.settings.interval_minutes)} min</small></div><div class="cq-command-stat"><span>Capacity</span><strong>${active.length}<em> / ${capacity}</em></strong><small>${capacity - active.length > 0 ? `${capacity - active.length} slot${capacity - active.length === 1 ? '' : 's'} open` : 'at capacity'}</small></div><div class="cq-command-stat"><span>Blocked</span><strong>${blocked}</strong><small>${data.queue_metrics?.oldest_blocked_at ? `oldest ${cqAge(data.queue_metrics.oldest_blocked_at)}` : 'none'}</small></div><button type="button" class="btn sm" id="cq-pickup-all" aria-label="Dispatch due work — dispatch all due change requests">Dispatch due work</button></section>
     <section class="card cq-working-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">LIVE WORK</div><h3>Currently being worked</h3><p class="muted">Claimed, running, and reviewing requests with their worker and heartbeat.</p></div><span class="cq-live-count ${working.length ? 'is-working' : ''}"><i></i>${working.length ? `${working.length} active` : 'Nothing active'}</span></div><div class="cq-working-list">${workingCards || '<div class="cq-no-work"><strong>No request is being worked right now.</strong><span>The queue is idle or waiting for eligible work.</span></div>'}</div></section>
     <section class="cq-overview-grid cq-overview-grid--single"><aside class="card cq-status-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">QUEUE PULSE</div><h3>Work at a glance</h3></div><span class="muted">${requests.length} total</span></div><div class="cq-pipeline">${pipeline.map(([key, label, count, color]) => `<div class="cq-pipeline-step"><i style="--step-color:${color}"></i><strong>${count}</strong><span>${label}</span></div>`).join('')}</div>${blocked ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${blocked} queued request${blocked === 1 ? '' : 's'} blocked — not failed</strong><small>These requests have no error; capacity, another run, or a measurement window is holding them. Open a queued row for the exact reason.</small></div></div>` : ''}${attention.length ? `<div class="cq-status-note warn"><span class="cq-dot warn"></span><div><strong>${attention.length} request${attention.length === 1 ? '' : 's'} actually failed</strong><small>Failed work is separate from blocked queue work. Open the failed view to see the recorded reason and retry path.</small></div></div>` : ''}<div class="cq-status-note ${data.settings.auto_review_enabled === false ? 'warn' : ''}"><span class="cq-dot ${data.settings.auto_review_enabled === false ? 'warn' : 'good'}"></span><div><strong>Automatic review ${data.settings.auto_review_enabled === false ? 'off' : 'on'}</strong><small>${data.settings.auto_review_enabled === false ? 'Review items manually before delivery.' : 'Eligible work moves through validation automatically.'}</small></div></div><details class="cq-policy"><summary>Dispatch policy <span>＋</span></summary><div class="task-toolbar"><label class="muted">Every <input id="cq-interval" type="number" min="1" max="1440" value="${esc(data.settings.interval_minutes)}"> min</label><label class="muted">Concurrency <input id="cq-concurrency" type="number" min="1" max="10" value="${esc(data.settings.max_concurrent)}"></label><label class="muted">Lease <input id="cq-lease-minutes" type="number" min="5" max="1440" value="${esc(data.settings.lease_minutes || 30)}"> min</label><label class="muted">Auto reviewer <input type="checkbox" id="cq-auto-review-enabled" ${data.settings.auto_review_enabled !== false ? 'checked' : ''}></label><button class="btn sm" id="cq-save-settings">Save policy</button></div></details></aside></section><section class="card cq-throughput"><div class="cq-section-head"><div><div class="cq-eyebrow">DELIVERY THROUGHPUT</div><h3>Actually shipped</h3><p class="muted">Deployed changes only · as of ${esc(fmtDate(deliveryMetrics.as_of))}</p></div><span class="muted">${esc(deliveryMetrics.definition || '')}</span></div><div class="cq-throughput-grid">${[
       ['24h', 'Last 24 hours'],
@@ -13646,7 +13700,7 @@ async function renderChangeQueue({ background = false } = {}) {
   if (cqSortDirection)
     cqSortDirection.setAttribute(
       'aria-label',
-      `Sort change requests ${CHANGE_QUEUE_SORT_DIR === 'asc' ? 'descending' : 'ascending'}`
+      `${CHANGE_QUEUE_SORT_DIR === 'asc' ? 'Ascending' : 'Descending'} — sort change requests ${CHANGE_QUEUE_SORT_DIR === 'asc' ? 'descending' : 'ascending'}`
     );
   const cqTable = $('.cq-table');
   if (cqTable && !cqTable.querySelector('caption')) {
@@ -13654,6 +13708,21 @@ async function renderChangeQueue({ background = false } = {}) {
     caption.className = 'sr-only';
     caption.textContent = 'Change request work register';
     cqTable.prepend(caption);
+  }
+  const cqTableWrap = cqTable?.closest('.table-wrap');
+  if (cqTable && cqTableWrap) {
+    const caption = cqTable.querySelector('caption');
+    cqTableWrap.tabIndex = 0;
+    cqTableWrap.setAttribute('role', 'region');
+    cqTableWrap.setAttribute(
+      'aria-label',
+      caption?.textContent?.trim() || 'Change request work register'
+    );
+    const hint = document.createElement('div');
+    hint.className = 'matrix-scroll-hint';
+    hint.setAttribute('role', 'note');
+    hint.textContent = 'Swipe horizontally to review change requests and available actions';
+    cqTableWrap.before(hint);
   }
   if (CHANGE_QUEUE_CLOCK) clearInterval(CHANGE_QUEUE_CLOCK);
   const updatePickupClock = () => {
@@ -14737,7 +14806,7 @@ async function renderDataQuality() {
         `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
     )
     .join('');
-  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats"><div class="seo-stat"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card"><div class="table-wrap"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
+  app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats dq-stats" aria-label="Contract health summary"><div class="seo-stat dq-healthy"><div class="seo-stat-value">${data.totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat dq-partial"><div class="seo-stat-value">${data.totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat dq-broken"><div class="seo-stat-value">${data.totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;
   $('#dataquality-refresh').onclick = () => renderDataQuality();
   if (!FRESH) applyUISnap();
   stamp();
@@ -16817,6 +16886,7 @@ const WORKBENCH_UI = {
   page: 1,
   pageSize: window.matchMedia?.('(max-width: 700px)').matches ? 10 : 25,
 };
+const WORKBENCH_STATUSES = ['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'];
 let workbenchSearchTimer;
 
 function workItemBadge(value, type = 'status') {
@@ -16883,6 +16953,13 @@ async function renderWorkbench() {
     return;
   }
   const all = data.work_items || [];
+  const selectedStatuses = WORKBENCH_UI.status.split(',').filter(Boolean);
+  const statusFilterLabel =
+    selectedStatuses.length === 0
+      ? 'All statuses'
+      : selectedStatuses.length === 1
+        ? selectedStatuses[0].replace('_', ' ')
+        : `${selectedStatuses.length} statuses`;
   const wbStatusRank = { open: 4, in_progress: 4, blocked: 4, waiting: 4, done: 2, cancelled: 1 };
   const wbCaseKey = item =>
     [item.site || 'fleet', item.owner || '', item.kind || '', item.title || ''].join('\u001f');
@@ -16960,7 +17037,7 @@ async function renderWorkbench() {
   app.innerHTML = `<div class="wb-shell"><div class="page-head wb-head"><div><div class="wb-eyebrow">ASSISTIVE OPERATING QUEUE</div><h2 class="page-title">Executive Workbench</h2><div class="muted">One place for decisions, evidence gaps, reviews, incidents, and learning. Roles can update cases autonomously; humans step in only when a decision or approval is actually required.</div></div><div class="wb-head-actions"><button type="button" class="btn" id="wb-refresh">↻ Refresh</button><button type="button" class="btn primary" id="wb-new-toggle">＋ New case</button></div></div>
     <section class="wb-kpis"><div><b>${active.length}</b><span>active cases</span></div><div><b>${count('blocked')}</b><span>blocked</span></div><div><b>${count('waiting')}</b><span>waiting</span></div><div><b>${count('done')}</b><span>completed</span></div></section>
     <section class="card wb-new hidden" id="wb-new"><div class="wb-new-head"><div><h3>Open a workbench case</h3><p class="muted">Use this for a durable next action, not a general note.</p></div><button class="icon-btn" id="wb-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="wb-title" class="cm-input" placeholder="e.g. Confirm affiliate disclosure requirements"></label><label>Kind<select id="wb-kind" class="cm-input">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], '', 'Choose kind')}</select></label><label>Owner<select id="wb-owner-new" class="cm-input">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], 'ceo', 'Choose owner')}</select></label><label>Priority<select id="wb-priority" class="cm-input">${options(['urgent', 'high', 'normal', 'low'], 'normal', 'Choose priority')}</select></label></div><label>Summary<textarea id="wb-summary" class="cm-input" rows="2" placeholder="Why this matters and what is known so far"></textarea></label><label>Next action<input id="wb-next" class="cm-input" placeholder="The smallest useful next step"></label><div class="task-toolbar"><span class="muted">Cases are visible to the executive roles on their next brief.</span><button class="btn primary" id="wb-create">Create case</button></div></section>
-    <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><label>Show status<select id="wb-filter-status" class="cm-input" multiple size="4" aria-label="Filter workbench cases by status">${['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'].map(value => `<option value="${value}" ${WORKBENCH_UI.status.split(',').includes(value) ? 'selected' : ''}>${value.replace('_', ' ')}</option>`).join('')}</select></label><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
+    <section class="wb-toolbar"><label class="wb-search">Find a case<input id="wb-search" class="cm-input" type="search" placeholder="Title, site, owner, or next action…" aria-label="Search workbench cases" value="${esc(WORKBENCH_UI.query)}"></label><div class="wb-filter-control"><span class="wb-filter-label">Show status</span><details class="wb-status-filter" id="wb-filter-status"><summary aria-label="Filter workbench cases by status">${esc(statusFilterLabel)}</summary><div class="wb-status-options" role="group" aria-label="Workbench statuses">${WORKBENCH_STATUSES.map(value => `<label><input type="checkbox" value="${value}" ${selectedStatuses.includes(value) ? 'checked' : ''}><span>${value.replace('_', ' ')}</span></label>`).join('')}</div></details></div><label>Owner<select id="wb-filter-owner" class="cm-input" aria-label="Filter workbench cases by owner">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], WORKBENCH_UI.owner, 'All owners')}</select></label><label>Kind<select id="wb-filter-kind" class="cm-input" aria-label="Filter workbench cases by kind">${options(['decision', 'research', 'incident', 'legal', 'security', 'education', 'evidence', 'implementation'], WORKBENCH_UI.kind, 'All kinds')}</select></label><span class="muted wb-count">${visible.length} of ${all.length} cases shown</span></section>
     <section class="wb-list" aria-label="Workbench cases">${rows || '<div class="empty">No workbench cases match these filters.</div>'}</section><nav class="wb-pagination" aria-label="Workbench case pages"><span class="muted" id="wb-page-status" role="status" aria-live="polite">${threads.length ? `Showing ${pageStart + 1}–${Math.min(pageStart + WORKBENCH_UI.pageSize, threads.length)} of ${threads.length} case threads` : 'No case threads to show'}</span><label class="muted">Rows <select id="wb-page-size" class="cm-input" aria-label="Workbench cases per page">${[10, 25, 50].map(size => `<option value="${size}" ${WORKBENCH_UI.pageSize === size ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="wb-page-prev" aria-label="Previous workbench page" ${WORKBENCH_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="wb-page-next" aria-label="Next workbench page" ${WORKBENCH_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></nav></div>`;
   const wbCount = $('.wb-count');
   if (wbCount) {
@@ -16982,8 +17059,11 @@ async function renderWorkbench() {
       softRender();
     }, 180);
   };
-  $('#wb-filter-status').onchange = e => {
-    WORKBENCH_UI.status = [...e.target.selectedOptions].map(option => option.value).join(',');
+  $('#wb-filter-status').onchange = () => {
+    WORKBENCH_UI.status = $$('input[type="checkbox"]', $('#wb-filter-status'))
+      .filter(input => input.checked)
+      .map(input => input.value)
+      .join(',');
     WORKBENCH_UI.page = 1;
     softRender();
   };
@@ -17126,7 +17206,7 @@ function renderKnowledge() {
   if (FRESH)
     app.innerHTML =
       '<div role="status" aria-live="polite"><div class="loading">Loading knowledge shelf…</div></div>';
-  api('GET', '/api/executive/knowledge?limit=300')
+  return api('GET', '/api/executive/knowledge?limit=300')
     .then(data => {
       const all = data.knowledge || [];
       const visible = all.filter(
@@ -17263,6 +17343,7 @@ function renderKnowledge() {
       stamp();
     })
     .catch(e => {
+      if (isStaleRouteError(e)) throw e;
       renderViewError(app, `Knowledge shelf failed to load: ${e.message}`);
     });
 }
@@ -17390,7 +17471,79 @@ async function renderSiteDetail() {
   stamp();
 }
 
+function enhanceScrollableTables(root) {
+  if (!root) return;
+  const scrollers = new Map();
+  root.querySelectorAll('table').forEach(table => {
+    let wrap = table.parentElement;
+    while (wrap && wrap !== root) {
+      const overflowX = getComputedStyle(wrap).overflowX;
+      if (
+        (overflowX === 'auto' || overflowX === 'scroll') &&
+        wrap.scrollWidth > wrap.clientWidth + 1
+      ) {
+        scrollers.set(wrap, table);
+        break;
+      }
+      wrap = wrap.parentElement;
+    }
+  });
+  [...scrollers].forEach(([wrap, table], index) => {
+    const caption = table.querySelector('caption')?.textContent?.trim();
+    const heading = wrap
+      .closest('.card, section, article')
+      ?.querySelector('h2, h3, h4')
+      ?.textContent?.trim();
+    const label =
+      wrap.getAttribute('aria-label') ||
+      caption ||
+      heading ||
+      `${document.title.replace(/ · Domain Fleet Manager$/, '')} table ${index + 1}`;
+    wrap.tabIndex = 0;
+    wrap.setAttribute('role', 'region');
+    wrap.setAttribute('aria-label', label);
+    const precedes = (hint, node) => Boolean(hint.compareDocumentPosition(node) & 4);
+    const panel = wrap.closest('.card, section, article');
+    const hasHint =
+      wrap.previousElementSibling?.classList.contains('matrix-scroll-hint') ||
+      [...wrap.querySelectorAll('.matrix-scroll-hint')].some(hint => precedes(hint, table)) ||
+      [...(panel?.querySelectorAll('.matrix-scroll-hint') || [])].some(hint =>
+        precedes(hint, wrap)
+      ) ||
+      [...root.children].some(
+        child => child.classList.contains('matrix-scroll-hint') && precedes(child, wrap)
+      );
+    if (!hasHint) {
+      const hint = document.createElement('div');
+      hint.className = 'matrix-scroll-hint';
+      hint.setAttribute('role', 'note');
+      hint.textContent = 'Swipe horizontally to inspect all columns';
+      if (wrap.classList.contains('card')) wrap.prepend(hint);
+      else wrap.before(hint);
+    }
+  });
+}
+
+function removeDuplicatePageRefresh(root) {
+  if (!root || !document.querySelector('#refresh')) return;
+  const mainHead =
+    root.querySelector(':scope > .page-head') ||
+    root.querySelector('.page-head .page-title')?.closest('.page-head');
+  mainHead?.querySelectorAll('button[id$="-refresh"]').forEach(button => {
+    const label = button.textContent.trim().replace(/^↻\s*/, '').trim();
+    if (label === 'Refresh') button.remove();
+  });
+}
+
 function render() {
+  return Promise.resolve(renderCurrentView()).then(() => {
+    const app = $('#app');
+    enhanceScrollableTables(app);
+    removeDuplicatePageRefresh(app);
+  });
+}
+
+function renderCurrentView() {
   $('#app')?.setAttribute('aria-busy', 'true');
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -17530,9 +17683,10 @@ function renderCategoryRoot(id) {
         ...(STATE.agents || []).map(a => [
           a.role,
           a.label || agentLabel(a.role),
-          a.scope === 'fleet'
-            ? a.description || 'Recurring fleet executive role with an operator work queue'
-            : a.description || `${a.sites} site${a.sites === 1 ? '' : 's'} run this agent`,
+          a.description ||
+            (a.sites != null && Number.isFinite(Number(a.sites))
+              ? `${Number(a.sites)} site${Number(a.sites) === 1 ? '' : 's'} run this agent`
+              : ''),
         ]),
       ]
     : group.items.map(([view, label]) => [
@@ -17548,7 +17702,7 @@ function renderCategoryRoot(id) {
         description,
       ]) => `<button class="nav-root-card" type="button" data-root-target="${esc(key)}">
       <span class="nav-root-icon" aria-hidden="true">${isAgents && typeof globalThis.fleetAgentIcon === 'function' ? globalThis.fleetAgentIcon(key) : typeof globalThis.fleetNavIcon === 'function' ? globalThis.fleetNavIcon(key) : ''}</span>
-      <span class="nav-root-card-copy"><strong>${esc(label)}</strong><span>${esc(description)}</span></span>
+      <span class="nav-root-card-copy"><strong>${esc(label)}</strong>${description ? `<span>${esc(description)}</span>` : ''}</span>
       <span class="nav-root-arrow" aria-hidden="true">→</span>
     </button>`
     )
@@ -18431,7 +18585,7 @@ async function renderGuardrails() {
 
     <div class="card gr-panel">
       <h3 class="gr-title">Per-repo overrides <span class="muted gr-title-note">(additive only — adds to the global lists for that repo)</span></h3>
-      <div class="table-wrap"><table><thead><tr><th>Repo</th><th>Blocked</th><th>Warn</th></tr></thead>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect repository guardrail overrides</div><div class="table-wrap" tabindex="0" role="region" aria-label="Per-repository guardrail overrides"><table><caption class="sr-only">Per-repository guardrail overrides</caption><thead><tr><th>Repo</th><th>Blocked</th><th>Warn</th></tr></thead>
         <tbody>${repoRows || '<tr><td colspan="3" class="muted">No per-repo overrides yet.</td></tr>'}</tbody></table>
       </div>
       <div class="task-toolbar gr-toolbar">
@@ -18444,7 +18598,7 @@ async function renderGuardrails() {
 
     <div class="card gr-panel">
       <h3 class="gr-title">Audit log <span class="muted gr-title-note">(last 100 hits — every commit blocked or warn-flagged)</span></h3>
-      <div class="table-wrap"><table><thead><tr><th>When</th><th>Repo</th><th>Result</th><th>Term</th><th>Line</th><th>Reason</th></tr></thead>
+      <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect guardrail audit details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Guardrail audit log"><table><caption class="sr-only">Guardrail audit log</caption><thead><tr><th>When</th><th>Repo</th><th>Result</th><th>Term</th><th>Line</th><th>Reason</th></tr></thead>
         <tbody>${logRows || '<tr><td colspan="6" class="muted">No guardrail hits recorded yet.</td></tr>'}</tbody></table>
       </div>
     </div>`;
@@ -18684,7 +18838,7 @@ async function renderAIOptimizer() {
   app.innerHTML = `
     <div class="card" style="margin-bottom:14px">
       <div class="task-toolbar">
-        <strong>AI Optimizer</strong>
+        <strong>Recommendation queue</strong>
         <span class="muted">AI-cost findings filed by the analyst — approve, deny, or let sit</span>
       </div>
       <div style="padding:0 12px 12px">
