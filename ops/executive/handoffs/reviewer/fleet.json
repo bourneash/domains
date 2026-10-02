@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:16:22.992Z",
+  "generated_at": "2026-10-02T16:18:59.010Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. The scaffold proposal is report-only and blocked by missing analytics and launch evidence. Routed only one reversible SEO implementation with existing evidence; all other candidates remain blocked by active work, low-volume telemetry, infrastructure review, or missing release evidence. Principal-engineer must reconcile the admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z, escalating unresolved blockers.",
+        "summary": "Rejected the MarineActivity admission and all ungated or high-priority work. Aggregate affiliate commission remains unattributed, telemetry is low-volume or incomplete, and operations/security release evidence is unavailable. Routed two distinct-site, low-risk SEO changes with validation gates; other candidates remain blocked pending existing-work completion or launch evidence. Principal-engineer must reconcile blockers by 2026-10-02T17:00:00Z and escalate unresolved items to the CEO.",
         "requested_action": null,
         "proposal_id": null
       }
