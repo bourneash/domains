@@ -1868,6 +1868,28 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
 
+test('Work Board reduces mobile page length and keeps lane pagination in reach', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const start = app.indexOf('function currentWorkBoardPageSize()');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const viewport = { matches: false };
+  const pageSize = vm.runInNewContext(`${app.slice(start, end)}; currentWorkBoardPageSize`, {
+    WORK_BOARD_PAGE_SIZE: 20,
+    WORK_BOARD_MOBILE_PAGE_SIZE: 6,
+    window: { matchMedia: () => viewport },
+  });
+  assert.equal(pageSize(), 20);
+  viewport.matches = true;
+  assert.equal(pageSize(), 6);
+  assert.match(app, /const pageSize = currentWorkBoardPageSize\(\)/);
+  assert.match(
+    style,
+    /@media \(max-width: 720px\) \{\s*\.wb-board \{ overflow: visible; \}\s*\.wb-lane-pagination \{\s*position: sticky;\s*bottom: 60px;/
+  );
+});
+
 test('Work Board filters persist and cannot contradict each other', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /fd\.work-board\.filters/);
@@ -3349,6 +3371,10 @@ test('light theme is wired into the shell and shared route surfaces', () => {
     /:root\[data-theme="light"\] #fd-back-top \{[\s\S]*background: rgba\(255,255,255,\.94\)/
   );
   assert.match(theme, /:root\[data-theme="light"\] \.sh-tile/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.toast \{[\s\S]*background: linear-gradient\(180deg, rgba\(255,255,255/
+  );
   assert.match(
     theme,
     /:root\[data-theme="light"\] option,[\s\S]*background-color: #fff; color: var\(--text\)/

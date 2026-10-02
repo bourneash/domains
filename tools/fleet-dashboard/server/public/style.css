@@ -1572,6 +1572,19 @@ body[data-view="social"] main { max-width: none; }
 .wb-lane-pagination { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--border); }
 .wb-lane-pagination .muted { font-size: 10px; font-variant-numeric: tabular-nums; }
 .wb-lane-pagination .btn { min-width: 30px; padding: 3px 6px; }
+@media (max-width: 720px) {
+  .wb-board { overflow: visible; }
+  .wb-lane-pagination {
+    position: sticky;
+    bottom: 60px;
+    z-index: 4;
+    padding: 7px 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    box-shadow: var(--sh-2);
+  }
+}
 .wb-card { display: grid; gap: 7px; padding: 10px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; background: var(--panel); cursor: grab; box-shadow: 0 3px 10px rgba(0,0,0,.12); }
 .wb-card:active { cursor: grabbing; }
 .wb-card:hover { border-color: var(--accent); }

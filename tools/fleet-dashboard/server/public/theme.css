@@ -3008,6 +3008,14 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   background: #fff;
   border-color: var(--border);
 }
+:root[data-theme="light"] .toast {
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(255,255,255,.99), rgba(244,248,253,.98));
+  border-color: var(--border-hi);
+  box-shadow: var(--sh-3);
+}
+:root[data-theme="light"] .toast.ok { border-color: rgba(22,118,79,.45); }
+:root[data-theme="light"] .toast.err { border-color: rgba(181,38,61,.45); }
 :root[data-theme="light"] .error-box {
   color: #8b2935;
   background: linear-gradient(145deg, rgba(220,64,83,.08), rgba(40,70,110,.015));

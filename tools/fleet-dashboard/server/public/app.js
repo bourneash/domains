@@ -14278,7 +14278,13 @@ const WORK_BOARD_COLUMN_KEYS = new Set(WORK_BOARD_COLUMNS.map(([key]) => key));
 let WORK_BOARD_QUERY = '';
 let WORK_BOARD_SEARCH_TIMER;
 const WORK_BOARD_PAGE_SIZE = 20;
+const WORK_BOARD_MOBILE_PAGE_SIZE = 6;
 const WORK_BOARD_PAGES = Object.create(null);
+function currentWorkBoardPageSize() {
+  return window.matchMedia?.('(max-width: 720px)')?.matches
+    ? WORK_BOARD_MOBILE_PAGE_SIZE
+    : WORK_BOARD_PAGE_SIZE;
+}
 function readWorkBoardFilters() {
   try {
     const saved = JSON.parse(localStorage.getItem(WORK_BOARD_FILTER_KEY) || '{}');
@@ -14627,16 +14633,17 @@ async function renderActiveDelivery() {
 }
 
 function renderWorkflowBoardLane(key, label, items, total) {
-  const pageCount = Math.max(1, Math.ceil(total / WORK_BOARD_PAGE_SIZE));
+  const pageSize = currentWorkBoardPageSize();
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const page = (WORK_BOARD_PAGES[key] = Math.min(WORK_BOARD_PAGES[key] || 1, pageCount));
-  const start = (page - 1) * WORK_BOARD_PAGE_SIZE;
+  const start = (page - 1) * pageSize;
   const cards = items
-    .slice(start, start + WORK_BOARD_PAGE_SIZE)
+    .slice(start, start + pageSize)
     .map(workBoardCard)
     .join('');
   const pagination =
     pageCount > 1
-      ? `<nav class="wb-lane-pagination" aria-label="${esc(label)} work items pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + WORK_BOARD_PAGE_SIZE, total)} of ${total}</span><button type="button" class="btn sm" data-wb-page="${key}" data-direction="-1" aria-label="Previous ${esc(label)} work items" ${page <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-wb-page="${key}" data-direction="1" aria-label="Next ${esc(label)} work items" ${page >= pageCount ? 'disabled' : ''}>→</button></nav>`
+      ? `<nav class="wb-lane-pagination" aria-label="${esc(label)} work items pages"><span class="muted" role="status" aria-live="polite">${start + 1}–${Math.min(start + pageSize, total)} of ${total}</span><button type="button" class="btn sm" data-wb-page="${key}" data-direction="-1" aria-label="Previous ${esc(label)} work items" ${page <= 1 ? 'disabled' : ''}>←</button><button type="button" class="btn sm" data-wb-page="${key}" data-direction="1" aria-label="Next ${esc(label)} work items" ${page >= pageCount ? 'disabled' : ''}>→</button></nav>`
       : '';
   return `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${total} item${total === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${cards || '<div class="wb-empty">Drop work here</div>'}</div>${pagination}</div>`;
 }
