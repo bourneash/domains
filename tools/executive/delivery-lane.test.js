@@ -34,7 +34,7 @@ test('queues only HowToFry first and never duplicates the request', () => {
   store.close();
 });
 
-test('advances MagicEscorts only after a reviewed PR artifact', () => {
+test('advances MagicEscorts only after a reviewer-passed branch artifact', () => {
   const { root, store } = fixture();
   const first = lane.reconcile(store, root);
   store.updateChangeRequest(first.request_id, { status: 'committed' });
@@ -42,6 +42,27 @@ test('advances MagicEscorts only after a reviewed PR artifact', () => {
   assert.equal(second.state, 'queued');
   assert.equal(second.site, 'magicescorts.com');
   assert.equal(store.getChangeRequest(second.request_id).delivery_mode, 'pull_request');
+  store.close();
+});
+
+test('flags four-hour no-artifact delay despite a fresh heartbeat', () => {
+  const { root, store } = fixture();
+  const now = Date.now();
+  const request = store.createChangeRequest({
+    site: 'howtofry.com',
+    title: 'Test owner lane work',
+    action_key: lane.WORK[0].action_key,
+    delivery_mode: 'pull_request',
+    category: 'engineering',
+    created_at: new Date(now - 5 * 60 * 60_000).toISOString(),
+  });
+  store.updateChangeRequest(request.request_id, {
+    status: 'running',
+    updated_at: new Date(now).toISOString(),
+  });
+  const state = lane.reconcile(store, root, now);
+  assert.equal(state.state, 'stalled');
+  assert.ok(state.age_minutes >= 300);
   store.close();
 });
 

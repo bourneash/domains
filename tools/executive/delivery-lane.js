@@ -1,7 +1,8 @@
 'use strict';
 
 // Two owner-priority implementation slices, advanced by artifact rather than
-// executive prose. A reviewed PR is the milestone; publication is separate.
+// executive prose. A reviewer-passed, pushed branch is the milestone;
+// production publication is separate.
 const fs = require('node:fs');
 const path = require('node:path');
 const eventstore = require('../fleet-dashboard/server/eventstore');
@@ -16,8 +17,8 @@ const WORK = Object.freeze([
     body: [
       'Owner priority: produce a real, reviewable HowToFry improvement. The recipes page currently filters by cooking method but has no search.',
       'Implement an accessible client-side search on /recipes/ that matches recipe title and ingredients and composes with the existing method filter. Show a visible result count and useful empty state; preserve a working all-recipes reset. The page must remain usable when JavaScript is unavailable.',
-      'Acceptance: add focused automated coverage for matching/filter behavior and empty state; run npm run ci:verify in site/; provide changed paths and test output in the PR. Keep existing recipes, safety copy, and category filters intact.',
-      'This is a pull request for review, not production authorization. Do not push or deploy from the worker. No affiliate, analytics, or social credentials are available for this task.',
+      'Acceptance: add focused automated coverage for matching/filter behavior and empty state; run npm run ci:verify in site/; provide changed paths and test output in the reviewable branch. Keep existing recipes, safety copy, and category filters intact.',
+      'This uses the queue pull_request mode to publish a reviewable branch, not production authorization. Do not push or deploy from the worker. No affiliate, analytics, or social credentials are available for this task.',
     ].join('\n\n'),
   },
   {
@@ -27,8 +28,8 @@ const WORK = Object.freeze([
     body: [
       'Owner priority: a real, reviewable MagicEscorts content feature. The homepage promises coin magic, but /tricks/ currently teaches only two card effects.',
       'Add one technically sound beginner coin trick guide, link it from the trick room and the relevant homepage coin card, and keep the established theatrical voice. Instructions must be performable with ordinary props and clear about practice, angles, and limitations. Do not imply supernatural powers or a real performer/service.',
-      'Acceptance: relevant navigation works; tests or build checks cover the new route and links; run npm run ci:verify in site/; provide changed paths and test output in the PR. Keep the truthful coming-soon/no-booking disclosures.',
-      'This is a pull request for review, not production authorization. Do not push or deploy from the worker. Do not add affiliate links, analytics, intake, or booking.',
+      'Acceptance: relevant navigation works; tests or build checks cover the new route and links; run npm run ci:verify in site/; provide changed paths and test output in the reviewable branch. Keep the truthful coming-soon/no-booking disclosures.',
+      'This uses the queue pull_request mode to publish a reviewable branch, not production authorization. Do not push or deploy from the worker. Do not add affiliate links, analytics, intake, or booking.',
     ].join('\n\n'),
   },
 ]);
@@ -105,7 +106,9 @@ function reconcile(store, root, now = Date.now()) {
         freeze_planning: true,
       };
     if (!ACCEPTED.has(row.request.status)) {
-      const age = now - (Date.parse(row.request.updated_at || row.request.created_at || '') || now);
+      // Heartbeats update updated_at, so age must be measured from original
+      // queue admission or a live run could evade the no-artifact SLA forever.
+      const age = now - (Date.parse(row.request.created_at || '') || now);
       return {
         state: age >= STALE_MS ? 'stalled' : 'working',
         site: row.site,
