@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:15:06.929Z",
+  "generated_at": "2026-10-02T23:17:13.495Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the noveltyguns.com implementation proposal and all new production or high-priority queue work. The snapshot lacks site-specific repository, active-work, telemetry, release, and security evidence; no measurable production outcome is supportable. Preserve the gate. CTO and principal-engineer must document release and admission evidence by 2026-10-03T17:00Z; unresolved blockers escalate to the owner. One bounded public inspection is retained to address the specific evidence gap without changing telemetry, configuration, credentials, spending, schedules, or production.",
+        "summary": "Reject offshorehookup.com production CTA work: site-level orders, shipped items, and commission are unavailable, and the proposed click target is unsupported by low-volume attribution. Preserve the production gate. Route only three isolated, preview-only scaffold implementations for complicated.work, deadlymaracas.com, and driveford.net. Site-factory owns dated readiness artifacts by 2026-10-03T17:00Z; unresolved launch, legal, security, reachability, or measurement blockers must be escalated to the owner by that deadline. No publication, deployment, telemetry activation, monetization, credentials, configuration, dependencies, spend, schedules, or high-priority queue work is authorized.",
         "requested_action": null,
         "proposal_id": null
       }

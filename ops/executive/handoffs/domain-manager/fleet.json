@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:15:06.929Z",
+  "generated_at": "2026-10-02T23:17:13.496Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish noveltyguns.com homepage implementation baseline",
-        "summary": "The supplied authoritative snapshot does not expose noveltyguns.com’s current page files, lifecycle state, analytics status, or active-work state. Safely scope one reversible homepage improvement only after those site-specific facts are verified.",
-        "requested_action": "Assign engineer to inspect the noveltyguns.com repository and current queue, then create the bounded artifact at docs/domain-manager/noveltyguns-homepage-baseline.md. Record the exact homepage entry file, stylesheet files, metadata source, existing CTA/disclosure surfaces, active-work conflicts, available telemetry, deterministic tests, baseline metric, acceptance threshold, and rollback commit. Do not modify production, deploy, add telemetry, change configuration, or overlap existing work. After the artifact is reviewed, implement only the smallest non-overlapping improvement on page `/` using the recorded files.",
+        "title": "Improve offshorehookup.com homepage affiliate CTA clarity",
+        "summary": "Ship one reversible homepage-only improvement that makes existing affiliate calls to action clearer while preserving current destinations, disclosures, consent behavior, and styling system.",
+        "requested_action": "Assign engineer to update only the existing homepage (/). Keep the current affiliate tracking ID offshorehookup-20 and do not add telemetry, products, spend, or new routes.",
         "proposal_id": null
       }
     ]
