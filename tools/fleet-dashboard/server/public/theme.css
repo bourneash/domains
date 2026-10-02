@@ -2931,6 +2931,24 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   background: var(--control-bg-active);
   color: var(--text-hi);
 }
+:root[data-theme="light"] .dd-count {
+  background: rgba(40,70,110,.08);
+  color: #59677f;
+}
+:root[data-theme="light"] .cmdk-hint {
+  background: rgba(40,70,110,.045);
+  border-color: rgba(61,86,120,.18);
+  color: #59677f;
+}
+:root[data-theme="light"] .fd-shortcuts-grid > div {
+  background: #f7f9fc;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .fd-shortcuts-grid kbd {
+  background: #edf2f8;
+  border-color: #d5deea;
+  color: var(--text-hi);
+}
 :root[data-theme="light"] #rail {
   background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,249,253,.96));
   border-right-color: rgba(61,86,120,.14);
