@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:13:27.069Z",
+  "generated_at": "2026-10-02T23:15:06.929Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve howfishthink.com homepage keyboard access",
-        "summary": "Ship a small reversible accessibility improvement on the homepage without changing content, analytics, monetization, or other routes.",
-        "requested_action": "Route one isolated pull-request implementation to engineer; do not deploy directly.",
+        "title": "Establish noveltyguns.com homepage implementation baseline",
+        "summary": "The supplied authoritative snapshot does not expose noveltyguns.com’s current page files, lifecycle state, analytics status, or active-work state. Safely scope one reversible homepage improvement only after those site-specific facts are verified.",
+        "requested_action": "Assign engineer to inspect the noveltyguns.com repository and current queue, then create the bounded artifact at docs/domain-manager/noveltyguns-homepage-baseline.md. Record the exact homepage entry file, stylesheet files, metadata source, existing CTA/disclosure surfaces, active-work conflicts, available telemetry, deterministic tests, baseline metric, acceptance threshold, and rollback commit. Do not modify production, deploy, add telemetry, change configuration, or overlap existing work. After the artifact is reviewed, implement only the smallest non-overlapping improvement on page `/` using the recorded files.",
         "proposal_id": null
       }
     ]
