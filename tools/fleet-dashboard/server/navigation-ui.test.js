@@ -384,11 +384,20 @@ test('light theme table headers keep the same contrast contract', () => {
 
 test('compact executive workspace tabs retain their full context', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(
     app,
     /class="ex-workspace-tab \$\{active === key \? 'active' : ''\}"[\s\S]*title="\$\{esc\(`\$\{label\}: \$\{description\}`\)\}"/
   );
   assert.match(app, /aria-label="\$\{esc\(`\$\{label\}: \$\{description\}`\)\}"/);
+  assert.match(
+    style,
+    /@media \(max-width: 560px\) \{\s*\.ex-workspace-nav \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 5px; padding: 5px; \}/
+  );
+  assert.match(
+    style,
+    /\.ex-workspace-tab \{ min-height: 48px; padding: 7px 5px; border-color: var\(--border\); background: var\(--panel\); text-align: center; \}/
+  );
 });
 
 test('fleet vitals ignore stale route-scoped container responses', () => {
