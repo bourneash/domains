@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-01T23:51:05.965Z",
+  "generated_at": "2026-10-02T00:01:13.145Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the implementation gate under d4abc482-75de-438f-9fcf-522fcdf330c860. Evidence: 0/10 active slots are occupied, but 3 requests are queued, 2 reviews are blocked, 49 improvements await measurement, and operations/fleet-doctor evidence is unavailable. Amazon's 2026-09-21 commission is $4.92 aggregate and unattributed, so ROI is not calculable. Unknown: canonical admission state and the Save Us Farms repair disposition. Smallest next step: principal-engineer documents both by 2026-10-02T12:00Z, then releases at most one fully evidenced candidate or escalates. Owner decision: approve this deadline and reassignment.",
+        "summary": "Recommendation: approve the existing principal-engineer reconciliation under d4abc482-75de-438f-9fcf-522fcdf330c860 through 2026-10-02T12:00Z. Evidence: active_delivery shows 0/10 occupied slots, 3 queued requests, 2 blocked reviews, and 49 improvements awaiting measurement; operations and fleet-doctor evidence remain unavailable. Amazon’s 2026-09-21 $4.92 commission is aggregate and unattributed, so ROI is not calculable. Unknown: the canonical admission state and Save Us Farms repair disposition. Smallest next step: document both, then release at most one fully evidenced candidate or escalate. Owner decision: approve the deadline and reassignment.",
         "requested_action": null,
         "proposal_id": null
       }
