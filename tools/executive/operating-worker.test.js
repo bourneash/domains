@@ -146,3 +146,42 @@ test('sensitive site onboarding remains an explicit owner concept gate', async (
   assert.equal(store.listChangeRequests({ site: 'magicescorts.com' }).length, 0);
   store.close();
 });
+
+test('completed host onboarding cannot overwrite a later owner decision or live milestone', async () => {
+  const { root, store } = fixture();
+  const request = executive.ownerRequest(store, {
+    body: 'Build magicescorts.com as a magic performance site.',
+  });
+  const queued = await worker.processSiteFactory(store, root, {
+    workerId: 'test-operating-worker',
+  });
+  const jobPath = path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'domain-jobs',
+    `${queued.result.job_id}.json`
+  );
+  const job = JSON.parse(fs.readFileSync(jobPath, 'utf8'));
+  job.status = 'done';
+  job.exitCode = 0;
+  fs.writeFileSync(jobPath, JSON.stringify(job));
+  fs.mkdirSync(path.join(root, 'sites', 'magicescorts.com'), { recursive: true });
+  worker.reconcileSiteFactory(store, root);
+  for (const id of [request.execution.task.work_id, request.work_item.work_id]) {
+    store.updateExecutiveWorkItem(id, {
+      status: 'in_progress',
+      waiting_on: 'site-factory-manager',
+      next_action: 'Public coming-soon site is live; finish affiliate and role work.',
+    });
+  }
+  assert.deepEqual(worker.reconcileSiteFactory(store, root), []);
+  for (const id of [request.execution.task.work_id, request.work_item.work_id]) {
+    const item = store.getExecutiveWorkItem(id);
+    assert.equal(item.status, 'in_progress');
+    assert.equal(item.waiting_on, 'site-factory-manager');
+    assert.match(item.next_action, /Public coming-soon site is live/);
+  }
+  store.close();
+});

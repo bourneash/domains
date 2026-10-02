@@ -159,12 +159,15 @@ function enqueueSiteFactory(root, task) {
 
 function reconcileSiteFactory(store, root) {
   const results = [];
-  const tasks = store
-    .listExecutiveWorkItems({ source_type: 'operating-task', limit: 1000 })
-    .filter(
-      task =>
-        task.owner === 'site-factory-manager' && ['in_progress', 'blocked'].includes(task.status)
-    );
+  const tasks = store.listExecutiveWorkItems({ source_type: 'operating-task', limit: 1000 }).filter(
+    task =>
+      task.owner === 'site-factory-manager' &&
+      ['in_progress', 'blocked'].includes(task.status) &&
+      // Reconcile only a still-active host handoff or its build worker.
+      // A later milestone (including a live release) must never replay the
+      // historical onboarding job and overwrite its current blocker.
+      ['domain-job-runner', 'site-build-worker'].includes(task.waiting_on)
+  );
   for (const task of tasks) {
     const domain = task.site || extractDomain(task.summary);
     if (!domain) continue;
@@ -205,10 +208,6 @@ function reconcileSiteFactory(store, root) {
       }
       continue;
     }
-    // The host onboarding result is a milestone. Once handed to the build
-    // worker (or an explicit owner decision), do not replay the same job on
-    // every reconciliation tick.
-    if (['site-build-worker', 'owner-concept-decision'].includes(task.waiting_on)) continue;
     const job = domains
       .listJobs(root)
       .filter(item => item.domain === domain && ['done', 'failed'].includes(item.status))
