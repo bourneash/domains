@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:46:20.127Z",
+  "generated_at": "2026-10-02T15:11:54.210Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new site production work, high-priority queue admissions, unsupported financial or causal claims, and duplicate telemetry. Affiliate commission remains unattributed; site telemetry is low-volume or incomplete; and operations/security release evidence is unavailable. Route only the bounded executive-runner preflight repair below. Existing site candidates remain blocked; principal-engineer must reconcile the admission ledger and repair disposition by 2026-10-02T17:00:00Z, then escalate unresolved blockers.",
+        "summary": "Reject all new implementation and high-priority queue admissions this cycle. No candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Production and financial claims remain blocked by unattributed affiliate revenue, low-volume or incomplete telemetry, and unavailable operations/security evidence. Preserve only the existing capacity reconciliation and escalate unresolved blockers by 2026-10-02T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
