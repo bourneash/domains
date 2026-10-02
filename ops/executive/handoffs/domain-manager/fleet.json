@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:37:03.179Z",
+  "generated_at": "2026-10-02T16:41:11.786Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish reviewtattoo.com homepage evidence baseline before implementation",
-        "summary": "Site-specific page, UX, SEO, monetization, and active-work evidence is not present in the authoritative snapshot, so production implementation is not yet safely bounded.",
-        "requested_action": "Inspect the existing reviewtattoo.com homepage and repository in read-only mode. Record the exact homepage source file(s), visible hierarchy and CTA, mobile/accessibility issues, metadata, disclosures, affiliate destinations, active queue overlap, and available analytics/SEO baseline. Select one reversible implementation only if the evidence supports it; otherwise record the precise blocker.",
+        "title": "Establish a site-specific homepage conversion baseline for sinderella.org",
+        "summary": "A safe implementation target cannot be selected without page-level inspection and repository file evidence. Existing attribution records 50 Amazon clicks for sinderella.org and 0 ordered items/$0 commission in the available 2026-09-21 window; no homepage-level behavior or conversion baseline is available.",
+        "requested_action": "Perform one bounded read-only inspection of sinderella.org homepage `/` and its repository-rendering files. Identify the exact homepage template/component, stylesheet, visible primary CTA, affiliate destinations, disclosure placement, accessibility issues, and one reversible implementation candidate. Do not deploy, alter telemetry, credentials, configuration, tracking, spending, or production.",
         "proposal_id": null
       }
     ]

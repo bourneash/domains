@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:37:03.178Z",
+  "generated_at": "2026-10-02T16:41:11.785Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer decision: reject the proposed report-only reviewtattoo.com baseline and route no new implementation this cycle. No candidate clears all admission gates: existing candidates are blocked by active measurement/review overlap, infrastructure failure, scaffold launch-readiness gaps, low or missing telemetry, unattributed affiliate revenue, or unavailable operations/security evidence. Principal-engineer must document the canonical admission ledger and repair disposition by 2026-10-02T17:00:00Z; site-factory must complete the scaffold readiness artifact by the same deadline; unresolved blockers escalate to the owner. No revenue, ROI, causal-lift, launch-readiness, security-clearance, or production-readiness claims are supported.",
+        "summary": "Reject the proposed report-only Sinderella baseline as duplicative planning. No new implementation candidate clears non-overlapping active-work, measurable-threshold, attribution, rollback, and release gates this cycle. Preserve one bounded public inspection to resolve the Sinderella evidence gap; keep production, financial, and high-priority queue work blocked. Principal-engineer must reconcile the admission ledger by 2026-10-03T17:00:00Z and escalate unresolved blockers to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
