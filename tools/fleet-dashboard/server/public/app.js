@@ -2044,15 +2044,20 @@ function usageChart(rows, bucket) {
   const plotH = height - top - bottom;
   const step = (width - left - 10) / rows.length;
   const barW = Math.max(3, Math.min(28, step * 0.66));
+  const maxLabels = bucket === 'day' ? Math.min(rows.length, 7) : 6;
+  const labelEvery = Math.max(1, Math.ceil((rows.length - 1) / Math.max(1, maxLabels - 1)));
+  const hourlyDates =
+    bucket === 'hour' && rows[0][bucket].slice(0, 10) !== rows.at(-1)[bucket].slice(0, 10);
   const bars = rows
     .map((r, index) => {
       const h = Math.max(2, (r.total_cost_usd / max) * plotH);
       const x = left + index * step + (step - barW) / 2;
       const y = height - bottom - h;
       const value = r[bucket];
-      const label = bucket === 'hour' ? value.slice(11, 16) : value.slice(5);
-      const showLabel =
-        rows.length <= (bucket === 'hour' ? 48 : 31) || index === 0 || index === rows.length - 1;
+      const clock = bucket === 'hour' ? value.slice(11, 16) : '';
+      const date = value.slice(5, 10).replace('-', '/');
+      const label = bucket === 'hour' ? `${hourlyDates ? `${date} ` : ''}${clock}` : date;
+      const showLabel = index === 0 || index === rows.length - 1 || index % labelEvery === 0;
       return `<g><title>${esc(value)}: ${fmtUSD(r.total_cost_usd)} · ${r.calls} calls · ${fmtTokens(r.input_tokens + r.output_tokens)} tokens</title><rect class="aiu-bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2"/>${showLabel ? `<text class="aiu-chart-label" x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" text-anchor="middle">${esc(label)}</text>` : ''}</g>`;
     })
     .join('');

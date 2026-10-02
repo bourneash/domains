@@ -1970,6 +1970,45 @@ test('AI Usage period rows show compact UTC labels with machine-readable timesta
   assert.match(app, /aiuPeriodTime\(r\[bucket\], bucket\)/);
 });
 
+test('AI Usage chart spaces ticks and includes dates across multiple days', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function usageChart(rows, bucket)');
+  const end = app.indexOf('\n}\n\n// Click-and-drag zoom', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const render = vm.runInNewContext(`${app.slice(start, end)}; usageChart`, {
+    AIU_CHART_GEOM: { width: 760, height: 190, left: 44, bottom: 28, top: 12 },
+    esc: value => String(value),
+    fmtUSD: value => `$${value}`,
+    fmtTokens: value => String(value),
+  });
+  const hourly = Array.from({ length: 132 }, (_, index) => ({
+    hour: new Date(Date.UTC(2026, 8, 26) + index * 60 * 60 * 1000)
+      .toISOString()
+      .replace('.000', ''),
+    total_cost_usd: (index % 4) + 1,
+    calls: 1,
+    input_tokens: 10,
+    output_tokens: 20,
+  }));
+  const hourlyChart = render(hourly, 'hour');
+  const tickCount = (hourlyChart.match(/class="aiu-chart-label"/g) || []).length;
+  assert.equal(tickCount, 6);
+  assert.match(hourlyChart, />09\/26 00:00<\/text>/);
+  assert.match(hourlyChart, />10\/01 11:00<\/text>/);
+  const dailyChart = render(
+    hourly.slice(0, 7).map((row, index) => ({
+      day: row.hour.slice(0, 10),
+      total_cost_usd: index + 1,
+      calls: 1,
+      input_tokens: 10,
+      output_tokens: 20,
+    })),
+    'day'
+  );
+  assert.equal((dailyChart.match(/class="aiu-chart-label"/g) || []).length, 7);
+  assert.match(dailyChart, />09\/26<\/text>/);
+});
+
 test('Health presents fleet status as a responsive summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
