@@ -244,6 +244,7 @@ function applyFleetFilter() {
     }
   }
   globalThis.updateTaskBudgetPagination?.();
+  if (STATE.view === 'domains') domRenderSitePage();
 }
 
 function clearFleetFilter() {
@@ -9763,8 +9764,40 @@ function openGuideIdeaModal() {
 
 const DOM = {
   openJob: null, // job id whose log is expanded
+  siteQuery: '',
+  sitePage: 0,
   form: { command: 'add', domain: '', flags: new Set(['--full']) },
 };
+
+const DOM_SITE_PAGE_SIZE = 12;
+
+function domRenderSitePage() {
+  const rows = $$('#app [data-dom-site-row]');
+  const query = DOM.siteQuery.trim().toLowerCase();
+  const matches = rows.filter(
+    row => !row.classList.contains('fleet-hidden') && row.dataset.site.toLowerCase().includes(query)
+  );
+  const pageCount = Math.max(1, Math.ceil(matches.length / DOM_SITE_PAGE_SIZE));
+  DOM.sitePage = Math.max(0, Math.min(DOM.sitePage, pageCount - 1));
+  const start = DOM.sitePage * DOM_SITE_PAGE_SIZE;
+  const visible = new Set(matches.slice(start, start + DOM_SITE_PAGE_SIZE));
+  rows.forEach(row => (row.hidden = !visible.has(row)));
+
+  const count = $('#dom-site-count');
+  if (count) {
+    count.textContent = matches.length
+      ? `Showing ${start + 1}–${Math.min(start + DOM_SITE_PAGE_SIZE, matches.length)} of ${matches.length}${query ? ` matches` : ' sites'}`
+      : query
+        ? `No sites match “${DOM.siteQuery.trim()}”`
+        : 'No checked-out sites';
+  }
+  const page = $('#dom-site-page');
+  if (page) page.textContent = `Page ${DOM.sitePage + 1} of ${pageCount}`;
+  const previous = $('#dom-site-previous');
+  if (previous) previous.disabled = DOM.sitePage === 0;
+  const next = $('#dom-site-next');
+  if (next) next.disabled = DOM.sitePage >= pageCount - 1;
+}
 
 function domJobBadge(status) {
   const map = {
@@ -9857,7 +9890,7 @@ async function renderDomains() {
 
   const siteRows = (d.sites || [])
     .map(
-      s => `<tr data-fleet-row data-site="${esc(s.slug)}">
+      s => `<tr data-fleet-row data-site="${esc(s.slug)}" data-dom-site-row>
       <td class="site">${siteLink(s.slug)}</td>
       <td>
         <button type="button" class="btn sm dom-quick" data-cmd="status" data-domain="${esc(s.slug)}" aria-label="Check status for ${esc(s.slug)}" title="Check status">Status</button>
@@ -9900,6 +9933,11 @@ async function renderDomains() {
 
     <section class="card dom-panel">
       <div class="dom-panel-head"><div><h3>Checked-out sites</h3><p class="muted">Quick status, repair, and offboarding actions for checked-out domains.</p></div><span class="muted">${(d.sites || []).length} sites</span></div>
+      <div class="task-toolbar dom-sites-toolbar" role="group" aria-label="Find and browse checked-out sites">
+        <label class="task-search">Find a site<input class="cm-input" id="dom-site-search" type="search" autocomplete="off" placeholder="Search domains…" value="${esc(DOM.siteQuery)}"></label>
+        <span class="muted" id="dom-site-count" role="status" aria-live="polite"></span>
+        <div class="dom-site-pagination" role="group" aria-label="Checked-out site pages"><button type="button" class="btn sm" id="dom-site-previous" aria-label="Previous sites">Previous</button><span class="muted" id="dom-site-page" aria-live="polite"></span><button type="button" class="btn sm" id="dom-site-next" aria-label="Next sites">Next</button></div>
+      </div>
       <div class="matrix-scroll-hint" role="note">Swipe horizontally to review checked-out domains and available actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Checked-out domains and available actions"><table>
         <caption class="sr-only">Checked-out domains and available actions</caption>
         <thead><tr><th>Site</th><th>Actions</th></tr></thead>
@@ -9909,6 +9947,7 @@ async function renderDomains() {
 
   $('#domains-refresh').addEventListener('click', () => renderDomains());
   wireDomains();
+  domRenderSitePage();
   if (DOM.openJob) domLoadLog(DOM.openJob);
   // A running job's log grows; keep the view (and any open log) current.
   if (jobs.some(j => j.status === 'running' || j.status === 'queued'))
@@ -9921,6 +9960,22 @@ async function renderDomains() {
 }
 
 function wireDomains() {
+  const siteSearch = $('#dom-site-search');
+  if (siteSearch)
+    siteSearch.addEventListener('input', () => {
+      DOM.siteQuery = siteSearch.value;
+      DOM.sitePage = 0;
+      domRenderSitePage();
+    });
+  $('#dom-site-previous')?.addEventListener('click', () => {
+    DOM.sitePage -= 1;
+    domRenderSitePage();
+  });
+  $('#dom-site-next')?.addEventListener('click', () => {
+    DOM.sitePage += 1;
+    domRenderSitePage();
+  });
+
   const cmd = $('#dom-cmd');
   if (cmd)
     cmd.addEventListener('change', () => {

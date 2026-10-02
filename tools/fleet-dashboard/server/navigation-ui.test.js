@@ -1540,6 +1540,20 @@ test('Domains route separates command queueing from operational inventory', () =
   assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
   assert.match(app, /class="dom-panel-head"><div><h3>Job history<\/h3>/);
   assert.match(app, /class="dom-panel-head"><div><h3>Checked-out sites<\/h3>/);
+  assert.match(app, /const DOM_SITE_PAGE_SIZE = 12/);
+  assert.match(app, /function domRenderSitePage\(\)/);
+  assert.match(app, /data-dom-site-row/);
+  assert.match(app, /id="dom-site-search" type="search"/);
+  assert.match(app, /aria-label="Checked-out site pages"/);
+  assert.match(app, /id="dom-site-count" role="status" aria-live="polite"/);
+  assert.match(app, /id="dom-site-previous" aria-label="Previous sites"/);
+  assert.match(app, /id="dom-site-next" aria-label="Next sites"/);
+  assert.match(app, /siteSearch\.addEventListener\('input'/);
+  assert.match(
+    app,
+    /!row\.classList\.contains\('fleet-hidden'\) && row\.dataset\.site\.toLowerCase\(\)\.includes\(query\)/
+  );
+  assert.match(app, /if \(STATE\.view === 'domains'\) domRenderSitePage\(\)/);
   assert.match(theme, /\.dom-command-form \{[^}]*grid-template-columns/);
   assert.match(
     theme,
