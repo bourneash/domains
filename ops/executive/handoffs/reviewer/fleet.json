@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:11:17.034Z",
+  "generated_at": "2026-10-02T23:13:27.068Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the dumbsluts.com production-oriented UX proposal: site-specific baseline, attribution, release, and security evidence are not present. Route only three isolated preview implementations on complicated.work, deadlymaracas.com, and driveford.net. Preserve all production, telemetry, monetization, credential, configuration, dependency, spend, and deployment gates. Unresolved preview blockers require site-factory evidence by 2026-10-03T17:00Z and owner escalation.",
+        "summary": "Reviewer disposition: route only four isolated, reversible implementations to engineer: one accessibility PR for howfishthink.com and three preview-only scaffold artifacts for complicated.work, deadlymaracas.com, and driveford.net. Block production publication, deployment, telemetry or affiliate activation, credentials/configuration changes, dependencies, spend, schedules, and financial, readiness, security, or causal-lift claims. Existing measurement, review, attribution, and infrastructure gaps block all other candidates; principal-engineer and CTO must record dated unblock evidence or escalate by 2026-10-03T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

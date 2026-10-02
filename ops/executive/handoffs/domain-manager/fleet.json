@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:11:17.035Z",
+  "generated_at": "2026-10-02T23:13:27.069Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve dumbsluts.com homepage hierarchy and primary action clarity",
-        "summary": "Implement one isolated, reversible homepage UX pass for dumbsluts.com using the existing template and styles. Improve first-viewport hierarchy, primary-action prominence, mobile spacing, and keyboard accessibility without adding tracking, dependencies, monetization, or new routes.",
-        "requested_action": "Route to engineer for preview implementation and review. Do not deploy directly.",
+        "title": "Improve howfishthink.com homepage keyboard access",
+        "summary": "Ship a small reversible accessibility improvement on the homepage without changing content, analytics, monetization, or other routes.",
+        "requested_action": "Route one isolated pull-request implementation to engineer; do not deploy directly.",
         "proposal_id": null
       }
     ]
