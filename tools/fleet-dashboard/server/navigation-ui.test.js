@@ -290,6 +290,14 @@ test('legacy scheduler restart accessible name includes its visible action', () 
   );
 });
 
+test('container filters pair status and type controls on narrow screens', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /@media \(max-width: 620px\) \{[\s\S]*?\.cn-controls \{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}[\s\S]*?\.cn-controls > \.cn-search,[\s\S]*?\.cn-controls > #restart-crons \{ grid-column: 1 \/ -1; \}/
+  );
+});
+
 test('compact buttons retain a minimum touch-target height', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /\.btn\.sm \{ min-height: 26px;/);
