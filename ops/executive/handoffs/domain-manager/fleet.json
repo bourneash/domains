@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:14:22.107Z",
+  "generated_at": "2026-10-02T16:16:22.993Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Hold new girlpain.com work until active measurement completes",
-        "summary": "girlpain.com has an active improvement in measurement with a due date of 2026-10-11. Adding another implementation would overlap active work and could confound attribution.",
-        "requested_action": "Retain no new implementation request. On 2026-10-11, review the existing improvement outcome and either queue one distinct reversible change or close the candidate if evidence is insufficient.",
+        "title": "Create preview-only launch-readiness artifact for infrainnovator.com",
+        "summary": "infrainnovator.com is a scaffold with analytics unconfigured and no verified launch-readiness artifact. Create one bounded evidence artifact before any public implementation or deployment.",
+        "requested_action": "Inspect only the existing infrainnovator.com repository and record the smallest preview-only homepage implementation path. Do not deploy, publish, add tracking, change credentials, spend, or alter production.",
         "proposal_id": null
       }
     ]

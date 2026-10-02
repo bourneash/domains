@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:14:22.106Z",
+  "generated_at": "2026-10-02T16:16:22.992Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Financial, causal-lift, launch-readiness, security-clearance, and production-readiness claims remain blocked by unattributed affiliate revenue, low-volume or incomplete telemetry, and unavailable operations evidence. I retained only two preview-only, reversible SEO implementations with explicit measurement and rollback gates. Other candidates remain blocked by active measurement, infrastructure review, or missing launch-readiness evidence; owners must document unblock evidence by 2026-10-02T17:00:00Z or escalate to the CEO.",
+        "summary": "Rejected unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. The scaffold proposal is report-only and blocked by missing analytics and launch evidence. Routed only one reversible SEO implementation with existing evidence; all other candidates remain blocked by active work, low-volume telemetry, infrastructure review, or missing release evidence. Principal-engineer must reconcile the admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z, escalating unresolved blockers.",
         "requested_action": null,
         "proposal_id": null
       }
