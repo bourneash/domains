@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:06:32.602Z",
+  "generated_at": "2026-10-02T17:07:58.654Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only CTA proposal and unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. Route only three medium-priority, validation-gated SEO implementation reviews on distinct sites; no deployment, spend, credential/configuration change, duplicate telemetry, or lift claim is authorized. Existing measurement, review, attribution, and release blockers remain explicit and must be resolved before implementation proceeds.",
+        "summary": "Reviewer disposition: reject the proposed production batch and retain the capacity gate. Aggregate affiliate revenue is unattributed, telemetry is low-volume or incomplete, operations and fleet-doctor evidence are unavailable, and active measurement/review work prevents defensible non-overlapping implementation. Principal-engineer must reconcile the canonical admission ledger and totaljerks.com measurement disposition by 2026-10-03T17:00:00Z; CTO must document release and security evidence by the same deadline. Escalate unresolved blockers to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
