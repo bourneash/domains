@@ -2038,6 +2038,8 @@ test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
   assert.match(app, /Tracked spend<\/span>/);
   assert.match(app, /Sites instrumented<\/span>/);
   assert.match(app, /type="button" class="btn" id="aiu-refresh"/);
+  assert.match(app, /All usage buckets/);
+  assert.match(app, /outside inventory/);
   assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
 });
 
@@ -2751,7 +2753,9 @@ test('AI Usage gives dense tables context and mobile scroll guidance', () => {
   assert.match(app, /const aiuTableLabels = \[/);
   assert.match(app, /AI usage tracking coverage/);
   assert.match(app, /Swipe horizontally to inspect all columns/);
-  assert.match(app, /Filter AI usage by site/);
+  assert.match(app, /Filter AI usage by site or usage bucket/);
+  assert.match(app, /Ledger site value; buckets outside the current site inventory are labeled/);
+  assert.match(app, /const usageSiteLabel = site =>/);
   assert.match(app, /const aiuPageSize = 20/);
   assert.match(app, /className = 'aiu-pagination'/);
   assert.match(app, /aria-live="polite"/);
