@@ -2238,6 +2238,10 @@ test('Errors presents scan severity as a readable KPI strip', () => {
     /failed Slack post\(s\) across \$\{postFailureGroups\.length\} failure pattern/
   );
   assert.match(app, /aria-label="Open retained logs for \$\{esc\(r\.name\)\}"/);
+  assert.match(
+    app,
+    /title="\$\{esc\(f\.textPreview \|\| ''\)\}"\>\$\{esc\(formatErrorPostPreview\(f\.textPreview\)\.slice\(0, 80\)\)\}/
+  );
   assert.match(app, /type="button" class="btn" id="errors-refresh"/);
   assert.match(
     app,
@@ -2249,6 +2253,21 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   );
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.error-banner-bad \{[^}]*border-left/);
+});
+
+test('Errors formats Slack delivery previews without changing the retained source text', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function formatErrorPostPreview(');
+  const end = app.indexOf('\n}\n\nfunction ensureErrorDrawer', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const format = vm.runInNewContext(`${app.slice(start, end)}; formatErrorPostPreview`);
+  assert.equal(
+    format(
+      ':rotating_light: *eastcoastrappers-cron* — repeated `ERROR` <https://example.com|open>'
+    ),
+    '🚨 eastcoastrappers-cron — repeated ERROR open'
+  );
+  assert.equal(format(':unknown_code:'), 'unknown code');
 });
 
 test('Deploys provides status hierarchy and scoped filtering', () => {

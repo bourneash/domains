@@ -3086,6 +3086,19 @@ function errorSortButton(key, label) {
   return `<th aria-sort="${active ? (ERRORS_UI.dir < 0 ? 'descending' : 'ascending') : 'none'}"><button class="error-sort${active ? ' active' : ''}" data-error-sort="${key}" type="button" title="Sort by ${esc(label)}">${esc(label)} <span aria-hidden="true">${arrow}</span></button></th>`;
 }
 
+function formatErrorPostPreview(value) {
+  const emoji = { rotating_light: '🚨', white_check_mark: '✅', warning: '⚠️' };
+  return String(value || '')
+    .replace(/<([^>|]+)\|([^>]+)>/g, '$2')
+    .replace(/<(https?:\/\/[^>]+)>/g, '$1')
+    .replace(/:([a-z0-9_+-]+):/gi, (_, name) => emoji[name] || name.replaceAll('_', ' '))
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/~([^~]+)~/g, '$1')
+    .replace(/`+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function ensureErrorDrawer() {
   let shell = $('#error-drawer-shell');
   if (shell) return shell;
@@ -3262,7 +3275,7 @@ async function renderErrors() {
       <tbody>${postFailureGroups
         .map(
           f =>
-            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.latestAt) / 1000) + ' ago')}</td><td><span class="badge b-yellow">${f.count}</span></td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted">${esc((f.textPreview || '').slice(0, 80))}</td></tr>`
+            `<tr><td class="mono muted">${esc(fmtAge((Date.now() - f.latestAt) / 1000) + ' ago')}</td><td><span class="badge b-yellow">${f.count}</span></td><td class="mono">${esc(f.channel || '—')}</td><td class="mono">${esc(f.error || '—')}</td><td class="mono muted" title="${esc(f.textPreview || '')}">${esc(formatErrorPostPreview(f.textPreview).slice(0, 80))}</td></tr>`
         )
         .join('')}</tbody>
     </table></div></div>`
