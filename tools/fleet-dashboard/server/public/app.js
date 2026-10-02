@@ -2968,6 +2968,15 @@ function healthSiteOrder(order, sites) {
   );
 }
 
+function healthFailureMarkup(error, index) {
+  const detail = String(error);
+  const bodyPattern = detail.match(/pat\(\*([^*]+)\*\)/i);
+  const summary = bodyPattern
+    ? `Body pattern check failed: ${bodyPattern[1]}`
+    : `Show failure detail ${index + 1}`;
+  return `<details class="health-failure-detail"><summary>${esc(summary)}</summary><code>${esc(detail)}</code></details>`;
+}
+
 async function renderHealth() {
   const app = $('#app');
   if (FRESH)
@@ -3001,7 +3010,7 @@ async function renderHealth() {
           c => `<tr data-fleet-row data-site="${esc(g)}">
           <td class="mono muted">${esc(c.name)}</td>
           <td>${c.statusCode != null ? esc(String(c.statusCode)) : '<span class="muted">no response</span>'}</td>
-          <td class="muted">${c.errors.length ? esc(c.errors.join('; ')) : ''}</td>
+          <td>${c.errors.map(healthFailureMarkup).join('')}</td>
         </tr>`
         )
         .join('');

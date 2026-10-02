@@ -2065,6 +2065,29 @@ test('Health puts the sites with the most failing checks first', () => {
   assert.match(app, /const cards = healthSiteOrder\(order, sites\)/);
 });
 
+test('Health summarizes response-pattern failures and discloses raw detail on demand', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const start = app.indexOf('function healthFailureMarkup(error, index)');
+  const end = app.indexOf('\n}\n\nasync function renderHealth', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const markup = vm.runInNewContext(`${app.slice(start, end)}; healthFailureMarkup`, {
+    esc: value =>
+      String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;'),
+  });
+  const detail = '<!doctype html><html lang="en"> (truncated) == pat(*searchwoot.com*)';
+  const result = markup(detail, 0);
+  assert.match(result, /<summary>Body pattern check failed: searchwoot\.com<\/summary>/);
+  assert.match(result, /<code>&lt;!doctype html&gt;&lt;html lang=&quot;en&quot;&gt;/);
+  assert.doesNotMatch(result, /<code><!doctype html>/);
+  assert.match(style, /\.health-failure-detail code \{[^}]*max-height: 8em;[^}]*overflow: auto/);
+});
+
 test('Containers provides scoped search and operational filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
