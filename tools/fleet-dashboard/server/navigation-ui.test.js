@@ -3168,6 +3168,7 @@ test('fleet task view presents the filtered slice as a summary strip', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="tasks-summary"/);
   assert.match(app, /Visible tasks<\/span>/);
+  assert.match(app, /Sites with matching tasks · \$\{counts\.done\} done/);
   assert.match(app, /Blocked<\/span>/);
   assert.match(app, /new Set\(rows\.map\(t => t\.site\)\)/);
   assert.match(theme, /\.tasks-summary \{[^}]*grid-template-columns/);
