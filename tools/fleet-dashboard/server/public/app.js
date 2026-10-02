@@ -12132,6 +12132,7 @@ async function shRenderCalendar() {
     });
     const activeDays = days.filter(day => day.posts.length);
     const busiest = activeDays.length ? Math.max(...activeDays.map(day => day.posts.length)) : 0;
+    list.classList.remove('loading');
     list.innerHTML = `
       <div class="sh-calendar-intro">
         <div>
@@ -12150,7 +12151,8 @@ async function shRenderCalendar() {
         <div><strong>${activeDays.length}</strong><span>active day${activeDays.length === 1 ? '' : 's'}</span></div>
         <div><strong>${busiest}</strong><span>busiest day</span></div>
       </div>
-      <div class="sh-calendar-wrap">
+      <div class="matrix-scroll-hint sh-calendar-scroll-hint" role="note">Swipe horizontally to browse day columns; scroll within a day to review its posts</div>
+      <div class="sh-calendar-wrap" tabindex="0" role="region" aria-label="Upcoming posts by day">
         <div class="sh-calendar-grid" style="--sh-calendar-days:${days.length}">
           ${days
             .map(day => {

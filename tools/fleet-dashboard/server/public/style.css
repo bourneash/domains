@@ -1508,7 +1508,7 @@ body[data-view="social"] main { max-width: none; }
 .sh-calendar-summary strong { font-size: 16px; font-variant-numeric: tabular-nums; }
 .sh-calendar-summary span { color: var(--muted); font-size: 11px; }
 .sh-calendar-view-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
-.sh-calendar-wrap { width: 100%; overflow-x: hidden; padding: 2px 1px 10px; }
+.sh-calendar-wrap { width: 100%; overflow-x: auto; padding: 2px 1px 10px; scroll-padding-inline: 8px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
 .sh-calendar-grid { display: grid; grid-template-columns: repeat(var(--sh-calendar-days), minmax(0, 1fr)); gap: 8px; align-items: stretch; width: 100%; }
 .sh-cal-day { min-height: 260px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); overflow: hidden; box-shadow: 0 5px 16px rgba(0,0,0,.12); }
 .sh-cal-day.is-weekend { background: color-mix(in srgb, var(--panel) 92%, var(--purple)); }
@@ -1694,5 +1694,7 @@ body[data-view="social"] main { max-width: none; }
   .sh-calendar-intro { align-items: start; flex-direction: column; }
   .sh-calendar-legend { justify-content: start; }
   .sh-calendar-summary { flex-wrap: wrap; }
-  .sh-calendar-grid { gap: 6px; }
+  .sh-calendar-wrap { scroll-snap-type: x proximity; }
+  .sh-calendar-grid { grid-template-columns: repeat(var(--sh-calendar-days), 260px); width: max-content; min-width: 100%; gap: 8px; }
+  .sh-cal-day { scroll-snap-align: start; }
 }

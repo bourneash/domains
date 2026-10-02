@@ -1026,6 +1026,29 @@ test('Social Hub exposes local refresh and accessible initial loading state', ()
   assert.match(app, /body\.setAttribute\('aria-labelledby', activeTab\.id\)/);
 });
 
+test('Social Hub calendar exits loading flex and keeps mobile day columns readable', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function shRenderCalendar()');
+  const end = app.indexOf('function shMentionBadge', start);
+  assert.ok(start >= 0 && end > start);
+  const calendar = app.slice(start, end);
+  assert.match(calendar, /list\.classList\.remove\('loading'\);\s+list\.innerHTML/);
+  assert.match(calendar, /class="matrix-scroll-hint sh-calendar-scroll-hint" role="note"/);
+  assert.match(
+    calendar,
+    /class="sh-calendar-wrap" tabindex="0" role="region" aria-label="Upcoming posts by day"/
+  );
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    style,
+    /@media \(max-width: 720px\)[\s\S]*\.sh-calendar-wrap \{ scroll-snap-type: x proximity; \}/
+  );
+  assert.match(
+    style,
+    /\.sh-calendar-grid \{ grid-template-columns: repeat\(var\(--sh-calendar-days\), 260px\); width: max-content; min-width: 100%;/
+  );
+});
+
 test('Dev Sandbox destructive actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const sandbox = [
