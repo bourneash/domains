@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:58:18.314Z",
+  "generated_at": "2026-10-02T17:00:07.774Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Hold xxxtea.com branded-query SEO change until current measurement closes",
-        "summary": "xxxtea.com already has an active branded-query cannibalization improvement in measurement through 2026-10-16. Creating another SEO change would overlap active work and invalidate comparison.",
-        "requested_action": "Keep the current improvement as the sole active SEO work. On 2026-10-16, reconcile the existing result and, if measurement is complete, admit exactly one next change affecting only the competing branded-query surfaces: /, /gallery, /technique, /leaves/mixed, and /about. The next implementation must be limited to canonical/internal-link/snippet alignment, with no new tracking or deployment by this plan.",
+        "title": "Hold new amputeenews.com work until active improvements complete measurement",
+        "summary": "amputeenews.com has two active improvements in measurement, so adding another change would overlap the existing navigation and affiliate work.",
+        "requested_action": "Reconcile the existing improvement records bdea1423-0dc1-484c-87b3-36d3cb558c9f and 4877e1d4-71b8-4567-95d8-e2080b9bdf1c after their measurement windows. Select exactly one next bounded improvement only after the current work is verified, regressed, or closed.",
         "proposal_id": null
       }
     ]
