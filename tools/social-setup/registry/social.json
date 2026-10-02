@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-02T04:09:40.368Z",
+  "updatedAt": "2026-10-02T13:30:50.389Z",
   "platforms": [],
   "siteMeta": {
     "0daynews.com": {
@@ -2131,6 +2131,24 @@
       "lastPostedAt": null,
       "createdAt": "2026-10-01T19:10:14.319Z",
       "updatedAt": "2026-10-01T19:10:14.319Z"
+    },
+    {
+      "id": "acc_f63b51b08708",
+      "site": "howtofry.com",
+      "platform": "bluesky",
+      "scope": "brand",
+      "personaId": null,
+      "status": "active",
+      "handle": "howtofry.bsky.social",
+      "statusNote": "Account signup verified by handle resolution; authenticated API profile update succeeded. First public post not yet verified.",
+      "credsInVault": true,
+      "profileUrl": "",
+      "notes": "",
+      "tags": [],
+      "followers": null,
+      "lastPostedAt": null,
+      "createdAt": "2026-10-02T13:30:50.389Z",
+      "updatedAt": "2026-10-02T13:30:50.389Z"
     }
   ]
 }
