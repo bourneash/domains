@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T19:32:12.457Z",
+  "generated_at": "2026-10-02T20:52:15.810Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish magicescorts.com preview readiness and homepage change boundary",
-        "summary": "A bounded evidence artifact is required before site implementation because the authoritative snapshot provides no page-level file map, analytics configuration, or site-specific readiness evidence for magicescorts.com.",
-        "requested_action": "Inspect only the existing homepage route `/` and repository `bourneash/magicescorts.com`; record the actual homepage entrypoint, stylesheet/assets used, visible navigation and CTA structure, metadata, disclosures, accessibility issues, and launch blockers. Do not request telemetry, enable analytics, change production, add dependencies, or deploy.",
+        "title": "Complete the existing 0xroulette.com primary CTA clarity review",
+        "summary": "Finish the already-active review for the existing primary entry surface without creating overlapping work. Clarify the primary CTA hierarchy and destination using only the existing page structure, styles, and assets.",
+        "requested_action": "Route the existing review to engineer. Inspect the current primary entry route, record the exact route/component/style file paths before editing, implement only the CTA-label, hierarchy, focus-state, and destination-clarity changes, and return the review with evidence. Do not add tracking, change analytics, alter credentials, deploy directly, or modify unrelated routes.",
         "proposal_id": null
       }
     ]

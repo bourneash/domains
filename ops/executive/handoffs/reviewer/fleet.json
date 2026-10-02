@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:37:27.917Z",
+  "generated_at": "2026-10-02T20:52:15.809Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the three isolated, low-priority preview validations for complicated.work, deadlymaracas.com, and driveford.net. Reject production publication, deployment, analytics or affiliate activation, spending, credential/configuration changes, dependency additions, high-priority queue work, and all revenue, ROI, causal-lift, security-clearance, or launch-readiness claims. Preserve observed compliance and reachability failures as blockers. Require dated preview QA, readiness artifacts, measurable preview quality gates, and isolated rollback evidence by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Approve only three isolated, preview-only engineer changes for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, and revenue or readiness claims remain blocked. Each request requires dated preview QA, measurable quality-gate results, and isolated rollback evidence by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
