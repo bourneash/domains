@@ -3214,6 +3214,21 @@ test('Active Delivery flow card is inset and avoids repeating its deployment KPI
   assert.match(theme, /\.cq-delivery-flow \.cq-section-head \{[^}]*flex-direction: column/);
 });
 
+test('empty Active Delivery slots provide clear, safe routes to available work', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const start = app.indexOf('async function renderActiveDelivery()');
+  const end = app.indexOf('function renderWorkflowBoardLane(', start);
+  const delivery = app.slice(start, end);
+  assert.match(delivery, /const activePortfolio = slotRows\s*\?/);
+  assert.match(delivery, /No implementation work occupies a slot/);
+  assert.match(delivery, /\$\{policy\.open_slots \|\| 0\} slots are open/);
+  assert.match(delivery, /href="#workflow-board">Open Work Board/);
+  assert.match(delivery, /href="#change-queue">Review request queue/);
+  assert.match(theme, /\.delivery-empty-state\s*\{[^}]*background: var\(--panel-2\)/);
+  assert.match(theme, /\.delivery-empty-actions\s*\{[^}]*flex-wrap: wrap/);
+});
+
 test('Active Delivery formats long queue waits in readable day/hour units', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function formatDeliveryWaitMinutes(');

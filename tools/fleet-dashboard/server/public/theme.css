@@ -365,6 +365,11 @@ a:hover { color: var(--a2); text-decoration: underline; text-underline-offset: 3
 .cq-delivery-flow { margin-bottom: 14px; padding: 14px 16px; }
 .cq-delivery-flow .cq-section-head { margin-bottom: 7px; }
 .cq-delivery-flow .cq-section-head h3 { margin: 0; font-size: 14px; }
+.delivery-empty-state { display: flex; align-items: flex-start; gap: 13px; padding: 16px; border: 1px dashed var(--border-hi); border-radius: var(--radius-sm); background: var(--panel-2); }
+.delivery-empty-icon { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border: 1px solid var(--control-border); border-radius: 10px; color: var(--accent); background: var(--control-bg); font-size: 18px; font-weight: 750; }
+.delivery-empty-state strong { color: var(--text-hi); font-size: 13px; }
+.delivery-empty-state p { margin: 4px 0 10px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.delivery-empty-actions { display: flex; flex-wrap: wrap; gap: 7px; }
 .cq-throughput-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
 .cq-throughput-stat { padding: 13px; border: 1px solid var(--border); border-radius: 9px; background: rgba(255,255,255,.025); }
 .cq-throughput-stat strong { display: block; color: var(--green); font: 700 25px/1 var(--mono); }
