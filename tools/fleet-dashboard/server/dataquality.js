@@ -79,6 +79,24 @@ function assess({
   const siteAttributionRows = (revenue.attribution || []).filter(
     row => row.attribution_scope !== 'aggregate'
   );
+  const aiUsageSites = new Set(
+    (aiUsage.by_site || []).map(row => row.site).filter(site => typeof site === 'string' && site)
+  );
+  const liveSiteDomains = new Set(live.map(site => site.domain));
+  const aiUsageMissingSites = live
+    .filter(site => !aiUsageSites.has(site.domain))
+    .map(site => site.domain);
+  const aiUsageOutOfScope = [...aiUsageSites].filter(site => !liveSiteDomains.has(site));
+  const aiUsageBoundary = [
+    aiUsageMissingSites.length
+      ? `Missing live-site ledgers: ${aiUsageMissingSites.join(', ')}.`
+      : null,
+    aiUsageOutOfScope.length
+      ? `Excluded out-of-scope usage rows: ${aiUsageOutOfScope.join(', ')}.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' ');
   const aggregateIncome = aggregateRevenue.reduce(
     (sum, row) => sum + (Number(row.commission_income) || 0),
     0
@@ -120,8 +138,9 @@ function assess({
       'ai-usage',
       true,
       live.length,
-      new Set((aiUsage.by_site || []).map(r => r.site)).size,
-      aiUsage.generated_at
+      live.length - aiUsageMissingSites.length,
+      aiUsage.generated_at,
+      aiUsageBoundary || null
     ),
     contract(
       'amazon-revenue',
@@ -198,11 +217,21 @@ function assess({
             ? 'Keep aggregate provider rows visible; require every new site link to use its registered tracking ID.'
             : null,
       },
+      ai_usage: {
+        expected_sites: live.length,
+        observed_sites: live.length - aiUsageMissingSites.length,
+        missing_sites: aiUsageMissingSites,
+        out_of_scope_rows: aiUsageOutOfScope,
+        next_action: aiUsageMissingSites.length
+          ? 'Restore AI usage ledger instrumentation for the listed live sites; aggregate and non-live rows are excluded from site coverage.'
+          : null,
+      },
     },
     next_actions: [
       ...(analyticsMissingSites.length ? ['close analytics coverage gaps'] : []),
       ...(sourceIssues.length ? ['repair analytics source permissions or collector errors'] : []),
       ...(unmappedRevenue.length ? ['resolve affiliate tracking-ID attribution'] : []),
+      ...(aiUsageMissingSites.length ? ['close AI usage coverage gaps'] : []),
     ],
     totals: {
       green: contracts.filter(r => r.status === 'green').length,

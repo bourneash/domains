@@ -51,6 +51,31 @@ test('does not count an analytics row with no successful source as observed', ()
   assert.deepEqual(out.coverage.analytics.missing_sites, ['a.com']);
 });
 
+test('AI usage coverage excludes aggregate and non-live buckets and reports missing live sites', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-ai-usage-scope-'));
+  fs.mkdirSync(path.join(root, 'registry'));
+  fs.writeFileSync(
+    path.join(root, 'registry', 'fleet.yaml'),
+    'sites:\n  a.com:\n    status: live\n  b.com:\n    status: live\n'
+  );
+  const out = dataquality.assess({
+    root,
+    discoveredSites: ['a.com', 'b.com'],
+    aiUsage: { by_site: [{ site: 'a.com' }, { site: '_fleet' }, { site: 'retired.example' }] },
+  });
+  const contract = out.contracts.find(row => row.source === 'ai-usage');
+  assert.equal(contract.expected, 2);
+  assert.equal(contract.observed, 1);
+  assert.equal(contract.completeness, 0.5);
+  assert.equal(contract.status, 'yellow');
+  assert.match(contract.error, /Missing live-site ledgers: b\.com/);
+  assert.match(contract.error, /Excluded out-of-scope usage rows: _fleet, retired\.example/);
+  assert.deepEqual(out.coverage.ai_usage.missing_sites, ['b.com']);
+  assert.deepEqual(out.coverage.ai_usage.out_of_scope_rows, ['_fleet', 'retired.example']);
+  assert.match(out.coverage.ai_usage.next_action, /Restore AI usage ledger instrumentation/);
+  assert.ok(out.next_actions.includes('close AI usage coverage gaps'));
+});
+
 test('uses the managed-site scope when assessing analytics coverage', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fd-quality-scope-'));
   fs.mkdirSync(path.join(root, 'registry'));
