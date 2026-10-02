@@ -55,6 +55,29 @@ test('does not route failure follow-ups back into direct implementation work', (
   store.close();
 });
 
+test('does not clear a substantive owner gate merely because the workflow graph has no edge', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-owner-gate-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  store.createExecutiveWorkItem({
+    work_id: 'operating-task:magic-preview',
+    title: 'Hold public launch for owner decision',
+    kind: 'implementation',
+    status: 'blocked',
+    owner: 'site-factory-manager',
+    source_type: 'operating-task',
+    site: 'magicescorts.com',
+    waiting_on: 'owner-concept-decision',
+    next_action: 'Owner must decide the public concept before launch.',
+  });
+  const result = manager.run(store, { limit: 20 });
+  assert.equal(result.dependency_changes.length, 0);
+  assert.equal(result.changed.length, 0);
+  const item = store.getExecutiveWorkItem('operating-task:magic-preview');
+  assert.equal(item.status, 'blocked');
+  assert.equal(item.waiting_on, 'owner-concept-decision');
+  store.close();
+});
+
 test('keeps performance recovery assigned to the evaluated role', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-performance-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });

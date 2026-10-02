@@ -65,3 +65,176 @@ test('reconcile repairs acknowledged requests missing execution dispatch', () =>
   );
   store.close();
 });
+
+test('reconcile preserves site-factory milestone and owner blocker on the parent request', () => {
+  const store = fixture();
+  const owner = executive.ownerRequest(store, { body: 'Build a new website for milestone.test.' });
+  const task = store.updateExecutiveWorkItem(owner.execution.task.work_id, {
+    status: 'blocked',
+    waiting_on: 'owner-concept-decision',
+    next_action: 'Owner must approve the concept before a publicly reachable preview.',
+  });
+  operating.reconcileOwnerRequests(store);
+  const parent = store.getExecutiveWorkItem(owner.work_item.work_id);
+  assert.equal(parent.status, 'blocked');
+  assert.equal(parent.waiting_on, task.waiting_on);
+  assert.equal(parent.next_action, task.next_action);
+  assert.equal(operating.reconcileOwnerRequests(store).length, 0);
+  store.close();
+});
+
+test('site build continuation preserves the full owner brief and is idempotent', () => {
+  const store = fixture();
+  const root = store.root;
+  fs.mkdirSync(path.join(root, 'sites', 'fryexample.test'), { recursive: true });
+  const brief =
+    'Build fryexample.test with a colorful cooking guide.\nRequired: frying safety, recipes, and ingredient guides.';
+  const owner = executive.ownerRequest(store, { body: brief });
+  const first = operating.ensureSiteBuildRequest(store, owner.execution.task, {
+    root,
+    site: 'fryexample.test',
+  });
+  assert.equal(first.request.delivery_mode, 'pull_request');
+  assert.equal(first.request.action_key, `site-build:${owner.work_item.work_id}`);
+  assert.match(first.request.body, /Required: frying safety, recipes, and ingredient guides/);
+  assert.equal(store.getExecutiveWorkItem(owner.execution.task.work_id).status, 'in_progress');
+  assert.equal(store.getExecutiveWorkItem(owner.work_item.work_id).status, 'in_progress');
+  const again = operating.ensureSiteBuildRequest(store, owner.execution.task, {
+    root,
+    site: 'fryexample.test',
+  });
+  assert.equal(again.reused, true);
+  assert.equal(again.request.request_id, first.request.request_id);
+  store.close();
+});
+
+test('sensitive site concept does not auto-dispatch a publicly reachable build preview', () => {
+  const store = fixture();
+  const root = store.root;
+  fs.mkdirSync(path.join(root, 'sites', 'magicescorts.com'), { recursive: true });
+  const owner = executive.ownerRequest(store, {
+    body: 'Build magicescorts.com for a private review.',
+  });
+  const continuation = operating.ensureSiteBuildRequest(store, owner.execution.task, {
+    root,
+    site: 'magicescorts.com',
+  });
+  assert.equal(continuation.blocked, true);
+  assert.equal(continuation.request, null);
+  assert.equal(store.listChangeRequests({ site: 'magicescorts.com' }).length, 0);
+  store.close();
+});
+
+test('narrow recovery reopens onboarding-only completion with an audit event', () => {
+  const store = fixture();
+  const parent = store.createExecutiveWorkItem({
+    title: 'Owner request: build fryexample.test',
+    source_type: 'owner-request',
+    owner: 'ceo',
+    summary: 'Build a new website for fryexample.test.',
+    status: 'done',
+    lifecycle_state: 'closed',
+    outcome: 'Host onboarding passed',
+  });
+  store.createExecutiveWorkItem({
+    title: 'Execute owner request',
+    source_type: 'operating-task',
+    parent_work_id: parent.work_id,
+    owner: 'site-factory-manager',
+    labels: ['site-factory'],
+    status: 'done',
+    outcome: 'Host onboarding passed',
+  });
+  const recovered = operating.reopenOnboardingOnlySiteBuild(store, parent.work_id, {
+    site: 'fryexample.test',
+  });
+  assert.equal(recovered.task.status, 'in_progress');
+  assert.equal(recovered.parent.lifecycle_state, 'actioned');
+  assert.equal(recovered.parent.status, 'in_progress');
+  assert.equal(recovered.parent.summary, 'Build a new website for fryexample.test.');
+  assert.equal(
+    store.list({ correlation_id: `executive-work-item:${parent.work_id}` })[0].event_type,
+    'executive.owner-request.site-build-reopened'
+  );
+  assert.throws(
+    () =>
+      operating.reopenOnboardingOnlySiteBuild(store, parent.work_id, { site: 'fryexample.test' }),
+    /onboarding-only closed request/
+  );
+  store.close();
+});
+
+test('older duplicate site brief is reopened as merged without a second build dispatch', () => {
+  const store = fixture();
+  const root = store.root;
+  fs.mkdirSync(path.join(root, 'sites', 'fryexample.test'), { recursive: true });
+  const older = store.createExecutiveWorkItem({
+    title: 'Owner request: older fryexample',
+    source_type: 'owner-request',
+    owner: 'ceo',
+    summary: 'Build a new website for fryexample.test.',
+    status: 'done',
+    lifecycle_state: 'closed',
+    outcome: 'Onboarded',
+  });
+  store.createExecutiveWorkItem({
+    title: 'Older operating task',
+    source_type: 'operating-task',
+    parent_work_id: older.work_id,
+    owner: 'site-factory-manager',
+    labels: ['site-factory'],
+    status: 'done',
+    outcome: 'Onboarded',
+  });
+  const newer = executive.ownerRequest(store, {
+    body: 'Build a new website for fryexample.test with media and full recipe guides.',
+  });
+  const merged = operating.reopenOnboardingOnlySiteBuild(store, older.work_id, {
+    site: 'fryexample.test',
+    supersededBy: newer.work_item.work_id,
+  });
+  assert.equal(merged.task.status, 'waiting');
+  assert.equal(merged.parent.status, 'in_progress');
+  assert.match(merged.parent.next_action, new RegExp(newer.work_item.request_ref));
+  assert.throws(
+    () => operating.ensureSiteBuildRequest(store, merged.task, { root, site: 'fryexample.test' }),
+    /merged into a newer owner request/
+  );
+  assert.equal(store.listChangeRequests({ site: 'fryexample.test' }).length, 0);
+  store.close();
+});
+
+test('recovery can defer canonical build dispatch while an existing builder is working', () => {
+  const store = fixture();
+  const root = store.root;
+  fs.mkdirSync(path.join(root, 'sites', 'fryexample.test'), { recursive: true });
+  const parent = store.createExecutiveWorkItem({
+    title: 'Owner request: fryexample',
+    source_type: 'owner-request',
+    owner: 'ceo',
+    summary: 'Build a new website for fryexample.test.',
+    status: 'done',
+    lifecycle_state: 'closed',
+    outcome: 'Onboarded',
+  });
+  store.createExecutiveWorkItem({
+    title: 'Operating task',
+    source_type: 'operating-task',
+    parent_work_id: parent.work_id,
+    owner: 'site-factory-manager',
+    labels: ['site-factory'],
+    status: 'done',
+    outcome: 'Onboarded',
+  });
+  const reopened = operating.reopenOnboardingOnlySiteBuild(store, parent.work_id, {
+    site: 'fryexample.test',
+    deferBuildDispatch: true,
+  });
+  assert.equal(reopened.task.status, 'waiting');
+  assert.equal(reopened.task.waiting_on, 'existing-site-builder');
+  assert.throws(
+    () => operating.ensureSiteBuildRequest(store, reopened.task, { root, site: 'fryexample.test' }),
+    /deferred to an existing builder/
+  );
+  store.close();
+});

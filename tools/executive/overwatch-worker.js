@@ -26,7 +26,6 @@ const MANAGER_SLUGS = new Set([
 const MANAGER_AGENT_BY_OWNER = new Map(
   [...MANAGER_SLUGS].map(slug => [slug.replace(/^fleet-/, ''), slug])
 );
-const TERMINAL_REQUEST_STATUSES = new Set(['committed', 'deployed', 'verified', 'completed']);
 const EXECUTABLE_WORK_KINDS = new Set([
   'implementation',
   'content',
@@ -80,17 +79,6 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
   const requests = baseline
     ? [...snapshot.requests.values()].filter(item => !baseline.requests.has(item.request_id))
     : [...snapshot.requests.values()].filter(item => parseDate(item.created_at) >= windowStart);
-  const progressedRequests = baseline
-    ? [...snapshot.requests.values()].filter(item => {
-        const before = baseline.requests.get(item.request_id);
-        return (
-          before &&
-          !TERMINAL_REQUEST_STATUSES.has(String(before.status)) &&
-          TERMINAL_REQUEST_STATUSES.has(String(item.status)) &&
-          parseDate(item.updated_at) >= windowStart
-        );
-      })
-    : [];
   const newArtifacts = baseline
     ? store
         .listAgentArtifacts({ limit: 1000 })
@@ -99,12 +87,14 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
   const managerDispatches = store
     .listAgentDispatches({ limit: 2000 })
     .filter(row => MANAGER_SLUGS.has(store.getAgent(row.agent_id)?.slug));
-  const verifiedArtifacts = newArtifacts.filter(item =>
-    ['diff', 'preview', 'test', 'deployment'].includes(String(item.kind))
+  const verifiedArtifacts = newArtifacts.filter(
+    item => String(item.kind) === 'deployment' && item.metadata?.verified === true
   );
   const executableWorkItems = workItems.filter(isExecutableWork);
-  const verifiedDeliveries = [...progressedRequests, ...workItems].filter(row =>
-    TERMINAL_REQUEST_STATUSES.has(String(row.status))
+  const verifiedDeliveries = requests.filter(
+    row =>
+      row.status === 'deployed' ||
+      (row.status === 'committed' && row.delivery_mode === 'pull_request')
   );
   return {
     window_start: iso(windowStart),
@@ -121,7 +111,7 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
     real_work: {
       new_work_items: workItems.length,
       new_executable_work_items: executableWorkItems.length,
-      completed_work_items: verifiedDeliveries.length,
+      completed_work_items: workItems.filter(row => row.status === 'done').length,
       new_change_requests: requests.length,
       new_direct_change_requests: requests.filter(row => row.delivery_mode !== 'report_only')
         .length,
@@ -342,7 +332,13 @@ async function main() {
   const queued =
     finalEvidence.real_work.new_direct_change_requests > 0 ||
     repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
-  const deliveryStatus = verified || queued ? 'delivered_to_downstream' : 'failed_to_deliver';
+  // A queue entry is a handoff, not a delivered improvement. Earlier cycles
+  // scored these as successes even when the new requests failed minutes later.
+  const deliveryStatus = verified
+    ? 'verified_delivery'
+    : queued
+      ? 'handoff_pending'
+      : 'failed_to_deliver';
   const report = {
     generated_at: new Date().toISOString(),
     agent: AGENT_SLUG,
@@ -363,16 +359,24 @@ async function main() {
   const completed = store.getAgentRun(started.run.run_id);
   if (completed) {
     store.updateAgentRun(started.run.run_id, {
-      status: deliveryStatus === 'failed_to_deliver' ? 'failed' : completed.status,
-      error: deliveryStatus === 'failed_to_deliver' ? report.delivery_error : completed.error,
+      status: verified ? completed.status : 'failed',
+      error: verified
+        ? completed.error
+        : queued
+          ? 'Overwatch created a handoff but no verified delivery; downstream outcome is pending.'
+          : report.delivery_error,
       result: { ...(completed.result || {}), overwatch_report: reportPath, repairs },
     });
     runtime.recordAccountabilityOutcome(store, completed, {
-      delivered: deliveryStatus !== 'failed_to_deliver',
+      delivered: verified,
       reason: report.delivery_error,
     });
-    if (deliveryStatus === 'failed_to_deliver') {
-      store.completeAgentDispatchForRun(started.run.run_id, 'failed', report.delivery_error);
+    if (!verified) {
+      store.completeAgentDispatchForRun(
+        started.run.run_id,
+        'failed',
+        queued ? 'Overwatch handoff is pending downstream verification.' : report.delivery_error
+      );
     }
     store.createAgentArtifact({
       run_id: started.run.run_id,
@@ -394,11 +398,11 @@ async function main() {
       run_id: started.run.run_id,
       evaluator: 'exec-overwatch-deterministic',
       dimension: 'real-work-output',
-      score: verified ? 100 : queued ? 60 : 0,
+      score: verified ? 100 : queued ? 20 : 0,
       feedback: verified
         ? 'Verified a delivered request, completed work item, or implementation artifact in this run.'
         : queued
-          ? 'Created executable downstream work, but delivery is not verified yet.'
+          ? 'Created a downstream handoff; no verified delivery yet, so this cycle is not a success.'
           : 'Run failed to deliver executable work; repaired or escalated stuck handoffs.',
       evidence: report.real_work_delta,
     });

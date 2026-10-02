@@ -90,6 +90,22 @@ test('evidence uses an exact baseline instead of subtracting rolling counts', ()
   store.close();
 });
 
+test('a newly queued direct request is a handoff, not verified delivery', () => {
+  const { store } = fixture();
+  const baseline = captureSnapshot(store);
+  store.createChangeRequest({
+    site: 'example.test',
+    title: 'Build a real page',
+    delivery_mode: 'direct',
+    status: 'queued',
+  });
+  const evidence = collectEvidence(store, { baseline, since: Date.now() - 1000 });
+  assert.equal(evidence.real_work.new_direct_change_requests, 1);
+  assert.equal(evidence.real_work.verified_deliveries, 0);
+  assert.equal(evidence.real_work.verified_artifacts, 0);
+  store.close();
+});
+
 test('stale manager tasks are requeued and eventually escalated', () => {
   const { store } = fixture();
   const agent = store.createAgent({

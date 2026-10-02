@@ -9,6 +9,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 const workflowEngine = require('./workflow-engine');
+const siteBuildContract = require('./site-build-contract');
 
 const TYPES = /^[a-z][a-z0-9_.-]{1,79}$/;
 const EXECUTIVE_EVIDENCE_TYPES = new Set([
@@ -3082,6 +3083,37 @@ function open(root, { file } = {}) {
         !String(next.resolution_note || '').trim()
       )
         throw httpErr(409, 'completion requires outcome, resolution note, or evidence');
+      if (
+        next.source_type === 'operating-task' &&
+        (next.owner === 'site-factory-manager' || next.labels?.includes('site-factory'))
+      ) {
+        const parent = next.parent_work_id ? getExecutiveWorkItem(next.parent_work_id) : null;
+        siteBuildContract.assertSiteBuildCompletion(
+          root,
+          next,
+          parent,
+          listChangeRequests({ site: next.site || undefined, limit: 1000 })
+        );
+      }
+    }
+    if (
+      next.source_type === 'owner-request' &&
+      (next.status === 'done' || next.lifecycle_state === 'closed') &&
+      (current.status !== 'done' || current.lifecycle_state !== 'closed')
+    ) {
+      const siteFactoryTask = listExecutiveWorkItems({
+        parent_work_id: next.work_id,
+        limit: 100,
+      }).find(
+        item =>
+          item.source_type === 'operating-task' &&
+          (item.owner === 'site-factory-manager' || item.labels?.includes('site-factory'))
+      );
+      if (siteFactoryTask && siteFactoryTask.status !== 'done')
+        throw httpErr(
+          409,
+          'site build completion requires the site-factory task to pass acceptance'
+        );
     }
     if (next.status === 'in_progress' && current.status !== 'in_progress') {
       const boardItems = [

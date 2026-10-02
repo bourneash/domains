@@ -13,7 +13,7 @@ const eventstore = require('../fleet-dashboard/server/eventstore');
 const dispatcher = require('./agent-dispatcher');
 const runtime = require('./agent-runtime');
 const domains = require('../fleet-dashboard/server/domains');
-const executive = require('../fleet-dashboard/server/executive');
+const operatingLayer = require('./operating-layer');
 
 const DOMAIN_RE = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)\b/gi;
 const IGNORED_DOMAINS = new Set(['github.com', 'example.com', 'localhost']);
@@ -168,6 +168,47 @@ function reconcileSiteFactory(store, root) {
   for (const task of tasks) {
     const domain = task.site || extractDomain(task.summary);
     if (!domain) continue;
+    if (task.waiting_on === 'site-build-worker') {
+      const request = store
+        .listChangeRequests({ site: domain, limit: 1000 })
+        .find(item => item.action_key === `site-build:${task.parent_work_id}`);
+      if (
+        request &&
+        ['failed', 'blocked_infrastructure', 'blocked_owner', 'cancelled'].includes(request.status)
+      ) {
+        const error = request.error || `Build request ${request.request_id} is ${request.status}`;
+        if (task.status === 'blocked' && task.last_error === error) continue;
+        store.updateExecutiveWorkItem(task.work_id, {
+          status: 'blocked',
+          waiting_on: 'site-build-worker',
+          last_error: error,
+          next_action: `Repair build request ${request.request_id} for ${domain}; retain the same owner build until validation passes.`,
+        });
+        results.push({
+          work_id: task.work_id,
+          domain,
+          status: 'build-blocked',
+          request_id: request.request_id,
+        });
+      } else if (request?.status === 'committed') {
+        store.updateExecutiveWorkItem(task.work_id, {
+          status: 'in_progress',
+          waiting_on: 'private-preview-verification',
+          next_action: `Review pull request ${request.request_id}, verify a private preview and site-build/v1 acceptance evidence, then decide the separate production launch gate.`,
+        });
+        results.push({
+          work_id: task.work_id,
+          domain,
+          status: 'preview-review',
+          request_id: request.request_id,
+        });
+      }
+      continue;
+    }
+    // The host onboarding result is a milestone. Once handed to the build
+    // worker (or an explicit owner decision), do not replay the same job on
+    // every reconciliation tick.
+    if (['site-build-worker', 'owner-concept-decision'].includes(task.waiting_on)) continue;
     const job = domains
       .listJobs(root)
       .filter(item => item.domain === domain && ['done', 'failed'].includes(item.status))
@@ -183,28 +224,34 @@ function reconcileSiteFactory(store, root) {
       },
     ];
     if (job.status === 'done') {
+      const build = operatingLayer.ensureSiteBuildRequest(store, task, { root, site: domain });
+      const waitingOn = build.blocked ? 'owner-concept-decision' : 'site-build-worker';
+      const nextAction = build.blocked
+        ? `${build.reason} Onboarding job ${job.id} is complete; the requested site build remains open.`
+        : `Build request ${build.request.request_id} must produce a reviewed implementation and acceptance evidence; onboarding job ${job.id} alone does not complete the site.`;
       const updated = store.updateExecutiveWorkItem(task.work_id, {
-        status: 'done',
-        waiting_on: null,
-        next_action: `Verify the live ${domain} site and continue the requested content, design, SEO, and role setup work.`,
-        outcome: `Host onboarding completed successfully for ${domain}; job ${job.id} passed its smoke test.`,
+        site: domain,
+        status: build.blocked ? 'blocked' : 'in_progress',
+        waiting_on: waitingOn,
+        next_action: nextAction,
+        outcome: `Host onboarding milestone completed for ${domain}; full site build is not yet accepted.`,
         evidence,
       });
-      let parent = null;
-      if (task.parent_work_id) {
-        try {
-          parent = executive.transitionOwnerRequest(store, task.parent_work_id, 'closed', {
-            outcome: `Site Factory completed onboarding for ${domain}; job ${job.id} passed its smoke test.`,
-          });
-        } catch (error) {
-          parent = { error: error.message };
-        }
+      const parent = task.parent_work_id ? store.getExecutiveWorkItem(task.parent_work_id) : null;
+      if (parent && parent.lifecycle_state !== 'closed') {
+        store.updateExecutiveWorkItem(parent.work_id, {
+          status: 'in_progress',
+          lifecycle_state: 'actioned',
+          waiting_on: waitingOn,
+          next_action: nextAction,
+        });
       }
       results.push({
         work_id: task.work_id,
         domain,
         job_id: job.id,
-        status: 'done',
+        status: build.blocked ? 'blocked' : 'building',
+        build_request_id: build.request?.request_id || null,
         updated,
         parent,
       });

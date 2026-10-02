@@ -82,7 +82,7 @@ test('a clean sandbox with no executable output is a failed delivery', async () 
   store.close();
 });
 
-test('reconciles the newest completed host job and closes the owner request', async () => {
+test('reconciles host onboarding into a persistent build request without closing the owner request', async () => {
   const { root, store } = fixture();
   const request = executive.ownerRequest(store, {
     body: 'Build and onboard a new website at reconciliation.test for the fleet.',
@@ -103,9 +103,46 @@ test('reconciles the newest completed host job and closes the owner request', as
   job.finishedAt = new Date().toISOString();
   job.exitCode = 0;
   fs.writeFileSync(jobPath, JSON.stringify(job, null, 2));
+  fs.mkdirSync(path.join(root, 'sites', 'reconciliation.test'), { recursive: true });
   const reconciled = worker.reconcileSiteFactory(store, root);
-  assert.equal(reconciled[0].status, 'done');
-  assert.equal(store.getExecutiveWorkItem(request.execution.task.work_id).status, 'done');
-  assert.equal(store.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'closed');
+  assert.equal(reconciled[0].status, 'building');
+  assert.equal(store.getExecutiveWorkItem(request.execution.task.work_id).status, 'in_progress');
+  assert.equal(store.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'actioned');
+  const build = store.getChangeRequest(reconciled[0].build_request_id);
+  assert.equal(build.delivery_mode, 'pull_request');
+  assert.match(build.body, /Build and onboard a new website/);
+  assert.equal(worker.reconcileSiteFactory(store, root).length, 0);
+  store.close();
+});
+
+test('sensitive site onboarding remains an explicit owner concept gate', async () => {
+  const { root, store } = fixture();
+  const request = executive.ownerRequest(store, {
+    body: 'Build magicescorts.com as a fictional magic performance site.',
+  });
+  const queued = await worker.processSiteFactory(store, root, {
+    workerId: 'test-operating-worker',
+  });
+  const jobPath = path.join(
+    root,
+    'tools',
+    'fleet-dashboard',
+    'data',
+    'domain-jobs',
+    `${queued.result.job_id}.json`
+  );
+  const job = JSON.parse(fs.readFileSync(jobPath, 'utf8'));
+  job.status = 'done';
+  job.exitCode = 0;
+  fs.writeFileSync(jobPath, JSON.stringify(job));
+  fs.mkdirSync(path.join(root, 'sites', 'magicescorts.com'), { recursive: true });
+  const reconciled = worker.reconcileSiteFactory(store, root);
+  assert.equal(reconciled[0].status, 'blocked');
+  assert.equal(
+    store.getExecutiveWorkItem(request.execution.task.work_id).waiting_on,
+    'owner-concept-decision'
+  );
+  assert.notEqual(store.getExecutiveWorkItem(request.work_item.work_id).lifecycle_state, 'closed');
+  assert.equal(store.listChangeRequests({ site: 'magicescorts.com' }).length, 0);
   store.close();
 });

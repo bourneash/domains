@@ -30,6 +30,31 @@ if [[ "$queue_enabled" == "1" ]]; then
 else
   export EXECUTIVE_ALLOW_QUEUE=0
 fi
+# Keep the deterministic approved-work drain on every cron fire. Only the
+# speculative model planning pass is cooled down; delivery must not stall.
+APPROVED_WORK_STATUS=0
+if [[ "$queue_enabled" == "1" ]]; then
+  if "$ROOT/tools/executive/run-approved-work.sh"; then
+    :
+  else
+    APPROVED_WORK_STATUS=$?
+    echo "[$(date -Is)] approved-work drain failed; continuing with delivery triage" >&2
+  fi
+fi
+if [[ "${EXECUTIVE_FORCE:-0}" != "1" && -z "${CALENDAR_EVENT_ID:-}" ]]; then
+  cadence="$(node - "$ROOT" <<'NODE'
+const root = process.argv[2];
+const store = require(`${root}/tools/fleet-dashboard/server/eventstore`).open(root);
+const { shouldRunPlanning } = require(`${root}/tools/executive/scheduler-cadence`);
+try { process.stdout.write(JSON.stringify(shouldRunPlanning(store))); }
+finally { store.close(); }
+NODE
+)"
+  if [[ "$(node -p 'JSON.parse(process.argv[1]).run' "$cadence")" != "true" ]]; then
+    echo "[$(date -Is)] executive scheduled tick skipped: $(node -p 'JSON.parse(process.argv[1]).reason' "$cadence")"
+    exit 0
+  fi
+fi
 # Keep the leadership sequence hungry and deterministic. Each pass is still
 # bounded, and run-sandbox.sh applies the hard wall-clock/container cap.
 export EXECUTIVE_PASSES="${EXECUTIVE_PASSES:-adaptive}"
@@ -63,7 +88,6 @@ try {
 NODE
 )"
 export RUN_ACTION_ID
-APPROVED_WORK_STATUS=0
 CHECKIN_STATUS=0
 finish_scheduler_action() {
   local exit_code=$?
@@ -232,17 +256,6 @@ NODE
 }
 trap finish_scheduler_action EXIT
 echo "[$(date -Is)] executive scheduled tick start"
-# Approved work is routed deterministically before the model starts. A
-# failure here is audited but must not prevent the leadership pass from
-# running; the normal queue/reviewer path remains authoritative.
-if [[ "$queue_enabled" == "1" ]]; then
-  if "$ROOT/tools/executive/run-approved-work.sh"; then
-    :
-  else
-    APPROVED_WORK_STATUS=$?
-    echo "[$(date -Is)] approved-work drain failed; continuing with executive tick" >&2
-  fi
-fi
 "$ROOT/tools/executive/run-sandbox.sh"
 if "$ROOT/tools/executive/checkin.sh"; then
   :

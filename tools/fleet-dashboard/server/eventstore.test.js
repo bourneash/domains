@@ -5,7 +5,20 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
+const zlib = require('node:zlib');
 const eventstore = require('./eventstore');
+const { briefHash } = require('./site-build-contract');
+
+function writeSiteBrief(root, site, brief) {
+  const repo = path.join(root, 'sites', site);
+  fs.mkdirSync(path.join(repo, 'ops'), { recursive: true });
+  fs.writeFileSync(
+    path.join(repo, 'CLAUDE.md'),
+    `# ${site}\n\nOwner brief SHA256: ${briefHash(brief)}\n`
+  );
+  fs.writeFileSync(path.join(repo, 'ops', 'AGENT_BUILD_PROMPT.md'), `# Owner brief\n\n${brief}\n`);
+}
 
 test('records and follows a durable causal chain', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-events-'));
@@ -166,6 +179,180 @@ test('requires completion evidence and rejects stale work-item writes', () => {
     expected_updated_at: updated.updated_at,
   });
   assert.equal(done.status, 'done');
+  store.close();
+});
+
+test('site-factory completion rejects onboarding-only evidence and requires a real build', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-site-build-gate-'));
+  const site = 'built.example';
+  const pages = path.join(root, 'sites', site, 'site', 'src', 'pages');
+  fs.mkdirSync(pages, { recursive: true });
+  const brief = 'Build a preview-only website with a homepage for built.example.';
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const parent = store.createExecutiveWorkItem({
+    title: 'Owner site build',
+    source_type: 'owner-request',
+    owner: 'ceo',
+    summary: brief,
+    status: 'in_progress',
+  });
+  const task = store.createExecutiveWorkItem({
+    title: 'Build the site',
+    source_type: 'operating-task',
+    parent_work_id: parent.work_id,
+    owner: 'site-factory-manager',
+    site,
+    status: 'in_progress',
+    evidence: [{ type: 'artifact', label: 'Onboarding job passed' }],
+  });
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', outcome: 'Onboarded' }),
+    /site build completion requires site-build\/v1 evidence/
+  );
+  assert.throws(
+    () => store.updateExecutiveWorkItem(parent.work_id, { status: 'done', outcome: 'Onboarded' }),
+    /site-factory task to pass acceptance/
+  );
+  const proof = {
+    type: 'artifact',
+    label: 'Site build acceptance',
+    contract: 'site-build/v1',
+    site,
+    brief_sha256: briefHash(brief),
+    pages: ['index.astro'],
+    build: { command: 'npm run build', exit_code: 0, commit: 'a'.repeat(40) },
+    preview: {
+      url: 'http://127.0.0.1:4321/',
+      status: 'verified-private',
+      checked_at: new Date().toISOString(),
+    },
+  };
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [proof] }),
+    /site instructions and AGENT_BUILD_PROMPT/
+  );
+  writeSiteBrief(root, site, brief);
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [proof] }),
+    /existing page index.astro/
+  );
+  fs.writeFileSync(path.join(pages, 'index.astro'), '<h1>COMING SOON</h1>'.repeat(30));
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [proof] }),
+    /non-placeholder content/
+  );
+  fs.writeFileSync(
+    path.join(pages, 'index.astro'),
+    '<main><h1>Frying guide</h1><p>Practical frying safety and recipes.</p></main>'.repeat(5)
+  );
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [proof] }),
+    /downstream build request/
+  );
+  const request = store.createChangeRequest({
+    site,
+    title: 'Build site',
+    body: brief,
+    action_key: `site-build:${parent.work_id}`,
+    delivery_mode: 'pull_request',
+  });
+  store.updateChangeRequest(request.request_id, { status: 'verified' });
+  const completed = store.updateExecutiveWorkItem(task.work_id, {
+    status: 'done',
+    evidence: [proof],
+  });
+  assert.equal(completed.status, 'done');
+  assert.equal(
+    store.updateExecutiveWorkItem(parent.work_id, {
+      status: 'done',
+      outcome: 'Build accepted for private review',
+    }).status,
+    'done'
+  );
+  store.close();
+});
+
+test('public site acceptance requires production proof and verifies an external builder commit', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-public-site-gate-'));
+  const site = 'launch.example';
+  const repo = path.join(root, 'sites', site);
+  const pages = path.join(repo, 'site', 'src', 'pages');
+  fs.mkdirSync(pages, { recursive: true });
+  fs.writeFileSync(
+    path.join(pages, 'index.astro'),
+    '<main><h1>Public cooking site</h1><p>Complete tested launch content.</p></main>'.repeat(5)
+  );
+  const object = Buffer.from('commit 0\0');
+  const commit = crypto.createHash('sha1').update(object).digest('hex');
+  const gitDir = path.join(repo, '.git');
+  const objectDir = path.join(gitDir, 'objects', commit.slice(0, 2));
+  fs.mkdirSync(objectDir, { recursive: true });
+  fs.writeFileSync(path.join(objectDir, commit.slice(2)), zlib.deflateSync(object));
+  fs.writeFileSync(path.join(gitDir, 'HEAD'), `${commit}\n`);
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  const brief = 'Build and launch a full public site for launch.example.';
+  writeSiteBrief(root, site, brief);
+  const parent = store.createExecutiveWorkItem({
+    title: 'Owner public site build',
+    source_type: 'owner-request',
+    owner: 'ceo',
+    summary: brief,
+    status: 'in_progress',
+  });
+  const task = store.createExecutiveWorkItem({
+    title: 'Build public site',
+    source_type: 'operating-task',
+    parent_work_id: parent.work_id,
+    owner: 'site-factory-manager',
+    site,
+    status: 'in_progress',
+  });
+  const proof = {
+    type: 'artifact',
+    label: 'External build acceptance',
+    contract: 'site-build/v1',
+    source: 'external-builder',
+    site,
+    brief_sha256: briefHash(brief),
+    pages: ['index.astro'],
+    build: { command: 'npm run build', exit_code: 0, commit, log_uri: 'build-log.txt' },
+    preview: {
+      url: 'http://127.0.0.1:4321/',
+      status: 'verified-private',
+      checked_at: new Date().toISOString(),
+    },
+  };
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [proof] }),
+    /production deployment/
+  );
+  proof.preview = {
+    url: `https://${site}/`,
+    status: 'verified-production',
+    checked_at: new Date().toISOString(),
+  };
+  proof.deployment = {
+    method: 'github-cloudflare-workers-builds',
+    status: 'success',
+    commit,
+    checked_at: new Date().toISOString(),
+  };
+  const badCommit = {
+    ...proof,
+    build: { ...proof.build, commit: 'a'.repeat(40) },
+    deployment: { ...proof.deployment, commit: 'a'.repeat(40) },
+  };
+  assert.throws(
+    () => store.updateExecutiveWorkItem(task.work_id, { status: 'done', evidence: [badCommit] }),
+    /checked-out site-repository commit/
+  );
+  assert.equal(
+    store.updateExecutiveWorkItem(task.work_id, {
+      status: 'done',
+      evidence: [proof],
+    }).status,
+    'done'
+  );
   store.close();
 });
 

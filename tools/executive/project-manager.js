@@ -238,15 +238,22 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
         store.updateExecutiveWorkItem(item.work_id, {
           status: 'blocked',
           waiting_on: waiting,
+          labels: [...new Set([...(item.labels || []), 'workflow-dependency'])],
           next_action:
             `Waiting for ${waiting} to complete before work can start. ${item.next_action || ''}`.trim(),
         })
       );
-    } else if (item.status === 'blocked' && node.ready) {
+    } else if (
+      item.status === 'blocked' &&
+      node.ready &&
+      ((item.labels || []).includes('workflow-dependency') ||
+        String(item.next_action || '').startsWith('Waiting for '))
+    ) {
       dependencyChanges.push(
         store.updateExecutiveWorkItem(item.work_id, {
           status: 'ready',
           waiting_on: null,
+          labels: (item.labels || []).filter(label => label !== 'workflow-dependency'),
           next_action: `Dependency cleared. ${item.next_action || 'Ready for the next action.'}`,
         })
       );
