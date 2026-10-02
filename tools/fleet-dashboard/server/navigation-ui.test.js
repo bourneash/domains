@@ -2389,6 +2389,10 @@ test('legacy agent and queue panels use light surfaces in light theme', () => {
   );
   assert.match(
     theme,
+    /:root\[data-theme="light"\] \.ex-shell\[data-workspace="conversation"\] \.ex-requests \{ background: var\(--grad-panel\), var\(--panel\)/
+  );
+  assert.match(
+    theme,
     /:root\[data-theme="light"\] \.ex-transcript-event pre,[\s\S]*?\.ex-run-log-entry pre \{ background: #f2f5fa; color: #33425c; \}/
   );
   assert.match(
