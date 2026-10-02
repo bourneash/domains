@@ -464,7 +464,7 @@ test('executive workbench is a first-class operator route', () => {
   );
   assert.match(
     app,
-    /<details class="wb-status-filter" id="wb-filter-status"><summary aria-label="Filter workbench cases by status">/
+    /<details class="wb-status-filter" id="wb-filter-status"><summary aria-label="\$\{esc\(statusFilterLabel\)\} — filter by status">\$\{esc\(statusFilterLabel\)\}<\/summary>/
   );
   assert.match(app, /class="wb-status-options" role="group" aria-label="Workbench statuses"/);
   assert.match(
