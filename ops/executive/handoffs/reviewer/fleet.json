@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T22:58:08.098Z",
+  "generated_at": "2026-10-02T22:59:52.846Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Reject production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, high-priority queue work, and revenue, ROI, causal-lift, security-clearance, or launch-readiness claims. Evidence gaps: complicated.work has compliance failures, deadlymaracas.com is unreachable, and analytics are unconfigured. Site-factory must produce dated preview-readiness artifacts by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Reject the Americastrikes.com report-only proposal and all new production or high-priority queue work. Revenue attribution, telemetry volume, active measurement overlap, and operations/security evidence remain insufficient. Approve only three isolated, low-priority preview implementations with no publication, deployment, telemetry activation, monetization, spend, credential/configuration changes, or dependency additions. Production remains blocked; unresolved preview blockers escalate by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

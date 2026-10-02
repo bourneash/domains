@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T22:10:00.234Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-02T22:59:52.846Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "8d4cebb0-e877-45b5-9ab8-20a61f5fb022",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 2,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Reconcile active work before the next Americastrikes.com SEO admission",
+        "summary": "Americastrikes.com has two active measuring items and existing SEO/content backlog candidates, so new implementation would overlap the current measurement window. Produce one canonical reconciliation identifying each active item, its metric baseline, measurement due date, rollback point, and the first non-overlapping implementation to admit afterward.",
+        "requested_action": "Create a dated reconciliation artifact using existing telemetry only. Do not deploy, modify tracking, or create duplicate implementation work. Smallest next implementation step: after the 2026-10-07 measurement gate, admit exactly one bounded internal-linking or thin-article refresh candidate if its baseline, threshold, tests, attribution boundary, rollback, and release evidence are complete.",
+        "proposal_id": null
+      }
+    ]
   }
 }
