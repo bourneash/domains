@@ -444,6 +444,16 @@ test('compact executive workspace tabs retain their full context', () => {
   );
 });
 
+test('focused executive workspaces hide repeated command-center KPIs', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const kpis = shell\.querySelector\(':scope > \.ex-kpis'\);/);
+  assert.match(app, /if \(page !== 'dashboard' && page !== 'overview'\) hide\(kpis\);/);
+  assert.match(
+    app,
+    /else if \(page === 'conversation'\) \{\s*hide\(run\);\s*hide\(followThrough\);/
+  );
+});
+
 test('executive visible button labels match their accessible names', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /id="ex-notify-enable"[^>]*aria-label="Enable alerts"/);

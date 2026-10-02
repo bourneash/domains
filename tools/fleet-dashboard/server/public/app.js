@@ -15889,6 +15889,7 @@ function applyExecutiveWorkspace(page) {
   const primary = shell.querySelector('.ex-primary');
   const secondary = shell.querySelector('.ex-secondary');
   const layout = shell.querySelector('.ex-layout');
+  const kpis = shell.querySelector(':scope > .ex-kpis');
   const run = shell.querySelector('.ex-run-panel');
   const followThrough = shell.querySelector('.ex-followthrough');
   const attention = shell.querySelector('.ex-attention');
@@ -15923,6 +15924,10 @@ function applyExecutiveWorkspace(page) {
     performance,
     decisions,
   ].forEach(show);
+  // These command-center totals are repeated on the overview and dashboard,
+  // but add little to focused workspaces such as Conversation or Runs. Keep
+  // the task-specific panels in those workspaces above the fold instead.
+  if (page !== 'dashboard' && page !== 'overview') hide(kpis);
   show(layout);
   if (page === 'dashboard') {
     hide(attention);
@@ -15947,6 +15952,7 @@ function applyExecutiveWorkspace(page) {
     hide(decisions);
   } else if (page === 'conversation') {
     hide(run);
+    hide(followThrough);
     hide(cases);
     hide(attention);
     hide(secondary);
