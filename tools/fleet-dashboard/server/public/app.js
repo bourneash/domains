@@ -11473,7 +11473,7 @@ async function renderSocialHub() {
         <button type="button" id="sh-tick" class="btn sm">Run tick</button>
       </span>
     </div>
-    <div class="seg" style="margin-bottom:14px" role="tablist" aria-label="Social Hub sections">
+    <div class="seg sh-tabs" style="margin-bottom:14px" role="tablist" aria-label="Social Hub sections">
       ${tabs
         .map(
           ([id, label]) =>

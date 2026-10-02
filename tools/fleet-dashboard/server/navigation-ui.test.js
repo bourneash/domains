@@ -1012,6 +1012,12 @@ test('Social Hub exposes local refresh and accessible initial loading state', ()
     /\$\('#sh-refresh'\)\.addEventListener\('click', \(\) => renderSocialHub\(\)\)/
   );
   assert.match(route, /role="tablist" aria-label="Social Hub sections"/);
+  assert.match(route, /class="seg sh-tabs"[^>]*role="tablist"/);
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    style,
+    /@media \(max-width: 560px\) \{\s*\.seg\.sh-tabs \{ display: flex; width: 100%; flex-wrap: wrap; overflow: visible; \}/
+  );
   assert.match(route, /role="tab" aria-controls="sh-body" aria-selected=/);
   assert.match(
     route,
@@ -1815,7 +1821,10 @@ test('Change Queue register controls expose explicit accessible context', () => 
   assert.match(app, /caption\.className = 'sr-only'/);
   assert.match(app, /caption\.textContent = 'Change request work register'/);
   assert.match(app, /const cqTableWrap = cqTable\?\.closest\('\.table-wrap'\)/);
-  assert.match(app, /cqTableWrap\.setAttribute\('aria-label', caption\?\.textContent/);
+  assert.match(
+    app,
+    /cqTableWrap\.setAttribute\([\s\S]*?'aria-label',[\s\S]*?caption\?\.textContent/
+  );
   assert.match(app, /Swipe horizontally to review change requests and available actions/);
 });
 
@@ -2027,7 +2036,7 @@ test('wide rendered tables receive consistent mobile scroll affordances', () => 
   assert.match(app, /panel\?\.querySelectorAll\('\.matrix-scroll-hint'\)/);
   assert.match(
     app,
-    /root\.children\].some\(child => child\.classList\.contains\('matrix-scroll-hint'\)/
+    /root\.children\]\.some\(\s*child => child\.classList\.contains\('matrix-scroll-hint'\)/
   );
   assert.match(
     app,
