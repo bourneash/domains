@@ -3399,3 +3399,13 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 @media (max-width: 650px) {
   .cq-delivery-flow .cq-section-head { align-items: flex-start; flex-direction: column; gap: 8px; }
 }
+
+@media (max-width: 650px) {
+  .cq-register-toolbar .cq-filter-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .cq-register-toolbar #cq-search { grid-column: 1 / -1; }
+  .cq-register-toolbar .cm-input { width: 100%; min-width: 0; }
+}
