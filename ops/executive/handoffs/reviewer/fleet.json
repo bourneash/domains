@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:08:49.453Z",
+  "generated_at": "2026-10-02T16:10:21.974Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject failbunny.com implementation because analytics and site-specific outcome evidence are absent. Route only two bounded SEO implementations—saveusfarms.com and stinkyleftfoot.com—because they have measurable search baselines and reversible scopes. No revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are supported. A third actionable candidate was not available: other surfaced candidates are blocked by active measurement/review, infrastructure, launch-readiness, or missing telemetry. Domain-manager must attach failbunny.com analytics and baseline evidence by 2026-10-09; escalate unresolved evidence to the owner by 2026-10-09T17:00Z.",
+        "summary": "Reviewer disposition: reject the report-only admission and all new production work this cycle. No three-site batch is admissible: available candidates are blocked by active work, missing launch-readiness/analytics evidence, infrastructure review, or insufficient non-duplicative telemetry. Preserve one bounded public-surface research request for findyourlostpets.com. Owners must document unblock evidence by 2026-10-03T17:00:00Z; escalate unresolved launch, security, attribution, or measurement blockers then.",
         "requested_action": null,
         "proposal_id": null
       }

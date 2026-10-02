@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:10:00.186Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-02T16:10:21.975Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "0e55924d-282e-4412-8056-ec0375f8cb87",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 2,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "proposal",
+        "title": "Establish a preview-only homepage implementation baseline for findyourlostpets.com",
+        "summary": "Site-specific implementation evidence is insufficient: findyourlostpets.com is queue-ready, but the supplied snapshot does not identify its lifecycle details, homepage source files, analytics configuration, or measurable baseline. Create one bounded repository and public-surface evidence artifact before admitting production work.",
+        "requested_action": "Inspect only the existing findyourlostpets.com repository and public homepage. Record the exact route entry file, related styles/assets, current CTA and content structure, build command, deterministic tests, analytics state, and one reversible homepage improvement candidate. Do not modify production, add tracking, add dependencies, deploy, or request duplicate telemetry.",
+        "proposal_id": null
+      }
+    ]
   }
 }
