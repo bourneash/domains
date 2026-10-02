@@ -519,7 +519,7 @@ sites:
     - site-tracker
     - social
   howtofry.com:
-    status: scaffold
+    status: live
     repo: bourneash/howtofry.com
     worker: howtofry-com
     cf_zone: howtofry.com
@@ -537,7 +537,7 @@ sites:
     - domains-index
     - site-tracker
   magicescorts.com:
-    status: scaffold
+    status: live
     repo: bourneash/magicescorts.com
     worker: magicescorts-com
     cf_zone: magicescorts.com
