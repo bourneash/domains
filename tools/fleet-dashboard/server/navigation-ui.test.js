@@ -3207,7 +3207,19 @@ test('Containers provides scoped search and operational filters', () => {
 test('Errors presents scan severity as a readable KPI strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(app, /class="error-summary"/);
+  assert.match(app, /class="activity-pagination error-pagination"/);
+  assert.match(
+    mobile,
+    /\.error-pagination \{\s*display: grid;\s*grid-template-columns: auto minmax\(0, 1fr\) auto;/
+  );
+  assert.match(
+    mobile,
+    /\.error-pagination > \.muted \{\s*grid-column: 1 \/ -1;[\s\S]*?white-space: nowrap;/
+  );
+  assert.match(mobile, /\.error-pagination \.activity-page-count \{[\s\S]*?width: max-content;/);
+  assert.match(mobile, /\.error-pagination \.btn \{ min-height: 40px; \}/);
   assert.match(
     app,
     /function filterErrorRows\(rows, \{ query = '', level = '', scope = '', siteQuery = '' \} = \{\}\)/

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-02T18:34:08.928Z",
+  "generated_at": "2026-10-02T20:37:27.917Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve only the three isolated preview-only scaffold changes, with no publication, analytics activation, affiliate setup, deployment, or external spend. Reject revenue, contribution-margin, ROI, cost-to-learn, budget, causal-lift, and forecast claims. For the 30-day window pulled 2026-10-02, Amazon reports 5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items; all commission is aggregate and unattributed, so site revenue and margin are unsupported. AI usage for 2026-10-01 to 2026-10-02 is $54.5828597 across 359 calls with 22 errors; only 28 of 40 expected sites are instrumented. Contribution margin, cost-to-learn, and budget exposure are not calculable because revenue and AI costs are not period-aligned, AI allocation is incomplete, infrastructure/domain costs and labor rates are absent, and no monthly budgets are provided. Minimum measurement: period-aligned site/content revenue, registered tracking IDs, complete AI ledger coverage, infrastructure/domain invoices, labor-cost basis, and approved budget limits. Preview QA and readiness completion are learning outputs, not financial returns.",
+        "summary": "Recommendation: approve only the three isolated preview-only scaffold changes, with no publication, deployment, analytics or affiliate activation, external spend, credential/configuration changes, or monetization. For the 30-day Amazon window pulled 2026-10-02, reported activity was 5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items; all commission is aggregate and unattributed, so site revenue, contribution margin, ROI, and revenue forecasts are unsupported. AI usage for 2026-10-01 to 2026-10-02 was $54.5828597 across 359 calls with 22 errors, but only 28 of 40 expected sites are instrumented. Cost-to-learn is not calculable because preview labor rates and period-aligned attributable outcomes are absent. Budget exposure is not calculable because monthly spend limits, infrastructure/domain costs, and labor costs are blank. Minimum measurement is a period-aligned ledger by site and change: attributable revenue/commission, AI and infrastructure cost, labor cost or approved rate, external spend, baseline and post-change outcomes, and registered tracking IDs. Retain the existing preview QA and dated readiness artifacts; do not claim financial benefit or zero cost.",
         "requested_action": null,
         "proposal_id": null
       }

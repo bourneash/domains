@@ -2,28 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-02T18:34:08.928Z",
-  "summary": "legal checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T20:37:27.917Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch and monetization; conditional for isolated preview-only work. Recommendation: retain the production gate. Evidence: compliance baseline is technical-only with 36 passes, 19 fails, and 6 unknowns; complicated.work fails banner/accept/reject/GA4 checks; deadlymaracas.com is unreachable; analytics are unconfigured for all three preview sites; operations and fleet-doctor evidence are unavailable; and no verified launch-readiness artifact exists. Preview work may proceed only in isolated review paths with no publication, deployment, analytics activation, affiliate setup, external spend, or new data collection. No go-live proposal is supported.",
+        "summary": "Risk disposition: conditional for isolated preview-only work; blocked for public launch, monetization, analytics activation, and production exposure. Evidence: compliance is technical-only with 36 passes, 19 fails, and 6 unknowns; complicated.work fails banner/accept/reject/GA4 checks; deadlymaracas.com is unreachable; analytics are unconfigured; operations and fleet-doctor evidence are unavailable; affiliate commission is aggregate and unattributed. Exact decision: retain the three isolated preview change requests only, with no publication, deployment, telemetry activation, affiliate setup, spend, dependency, credential, configuration, or schedule changes. Do not close the launch-readiness workstream or approve go-live. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and any future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: no existing SearchWoot legal task is closed. Source-rights evidence remains blocked because public API documentation confirms access mechanics but not commercial/public redistribution, caching, historical derivatives, alerts, images, prices, affiliate, or advertising rights. Data-flow evidence is partial; consent/analytics evidence is partial; public terms are draft-only. Next evidence actions are: attach the authoritative permission or terms record and field-level rights matrix; produce the repository/configuration data-flow and retention table; capture deployed consent and GA4 settings without enabling tracking; and inventory log fields, vendors, retention, access, incident, deletion, correction, and request procedures. Human counsel is required before any external rights request is sent or any public beta, affiliate, advertising, or notification expansion is approved.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use review dispositions: Woot deal and price-history data: blocked pending current written permission or API terms, field-level provenance, stale-data behavior, accuracy/correction, attribution, takedown, and affiliate/advertising rights; smallest action is to attach the authoritative rights record and field matrix. User alert rules and sync results: evidence_needed pending data inventory, retention/deletion/correction workflow, processor terms, notification consent, and unsubscribe behavior; smallest action is a read-only data-flow and retention table. GA4 analytics: evidence_needed pending deployed consent/withdrawal evidence, property and data-sharing settings, retention, vendor disclosure, and jurisdiction review; smallest action is a read-only configuration capture with no new tracking. Operational logs and Cloudflare hosting: evidence_needed pending log-field inventory, retention/access controls, vendor terms or DPA review, and incident/request procedures; smallest action is a read-only vendor and log inventory. None is clear for public launch.",
+        "summary": "Launch-readiness progress: 0 of 4 legal tasks are evidenced as complete; none may be closed. Existing evidence confirms the Woot API access mechanism but not public redistribution, storage, derivative, display, alert, affiliate, or advertising rights. The next evidence action is to attach a read-only data-flow, retention, consent/configuration, and vendor/log evidence bundle to the checklist; separately prepare, but do not send, a Woot permission request pending owner authorization and human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

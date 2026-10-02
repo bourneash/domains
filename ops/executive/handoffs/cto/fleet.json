@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-02T18:34:08.928Z",
+  "generated_at": "2026-10-02T20:37:27.917Z",
   "summary": "cto checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve the three isolated preview-only scaffold changes with tightened technical gates. Work must remain in separate review worktrees and preview artifacts, with no production publish, deployment, credential/configuration change, dependency addition, analytics activation, affiliate setup, external spend, or cross-site shared runtime behavior. Acceptance requires deterministic build, link, accessibility, metadata, and preview smoke checks; an explicit launch-gate artifact; and a reversible isolated commit. Do not claim readiness, revenue, ROI, causal lift, or production safety. Preserve the production gate because launch-readiness, operations, and security evidence remain incomplete.",
+        "summary": "Technical disposition: approve the three isolated preview-only scaffold changes for complicated.work, deadlymaracas.com, and driveford.net. Queue admission is safe because work remains in separate review worktrees with no publication, deployment, analytics or affiliate activation, credential/configuration changes, dependency additions, external spend, or cross-site runtime behavior. Corrected gates: use only existing repository assets and tooling; record deterministic build, link, accessibility, metadata, and preview-smoke results; document reachability failures as blockers; create one dated readiness artifact per site; and retain an isolated rollback commit. Preview quality-gate results are implementation evidence only, not production readiness or telemetry. Production exposure remains blocked pending launch, compliance, operations, security, measurement, and owner gates. Deadline: 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Technical disposition: queue admission is safe only for preview artifacts on complicated.work, deadlymaracas.com, and driveford.net. The current evidence does not support public exposure: analytics are unconfigured, one site fails compliance checks, one is unreachable, and operations/fleet-doctor evidence is unavailable. Preview validation may document failures as blockers; it must not remediate production, enable telemetry, or infer missing metrics.",
+        "summary": "Do not treat preview completion as launch readiness, revenue evidence, ROI, causal lift, security clearance, or production safety. For complicated.work, preserve the observed compliance failures as readiness blockers. For deadlymaracas.com, preview validation may document the current reachability blocker but must not remediate production. For driveford.net, analytics remain unconfigured and must not be activated.",
         "requested_action": null,
         "proposal_id": null
       }

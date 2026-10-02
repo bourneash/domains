@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T19:40:57.392Z",
+  "generated_at": "2026-10-02T20:37:27.916Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: approve isolated preview-only implementation for complicated.work, deadlymaracas.com, and driveford.net while preserving the production gate. Evidence: 19 scaffold domains, 3 queue-ready candidates, no verified launch-readiness artifacts; analytics are unconfigured, complicated.work fails consent/banner checks, deadlymaracas.com is unreachable, and operations/fleet-doctor evidence is unavailable. Unknown: complete launch, legal, security, and measurement evidence. Smallest next step: site-factory completes dated preview QA and readiness artifacts by 2026-10-03T17:00Z. Owner decision: approve preview-only work with no publication, deployment, telemetry activation, monetization, spend, or credential/configuration changes. Reference: EXEC_CONV_92FDD1C9.",
+        "summary": "Recommendation: approve isolated preview-only implementation for complicated.work, deadlymaracas.com, and driveford.net. Evidence: all three are queue-ready scaffolds, but analytics are unconfigured; complicated.work currently fails consent/banner checks and deadlymaracas.com is unreachable. Unknown: launch, legal, security, and production-readiness evidence. Smallest next step: complete preview QA and dated readiness artifacts within 72 hours. Owner decision: approve preview-only work with no publication, deployment, telemetry activation, monetization, spend, or credential/configuration changes. Reference: EXEC_CONV_92FDD1C9.",
         "requested_action": null,
         "proposal_id": null
       }
