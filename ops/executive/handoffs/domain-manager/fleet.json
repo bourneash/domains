@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:09:16.673Z",
+  "generated_at": "2026-10-02T23:11:17.035Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Build isolated preview homepage surface for complicated.work",
-        "summary": "Implement the smallest branded homepage surface in the existing complicated.work scaffold for preview validation only. Preserve the production gate: no publication, deployment, analytics activation, affiliate setup, credentials, configuration, dependencies, spending, or new telemetry.",
-        "requested_action": "Route to site-factory for engineer execution in an isolated review worktree. Implement only the homepage route and its directly imported styles, then produce a dated readiness artifact documenting preview QA results and blockers.",
+        "title": "Improve dumbsluts.com homepage hierarchy and primary action clarity",
+        "summary": "Implement one isolated, reversible homepage UX pass for dumbsluts.com using the existing template and styles. Improve first-viewport hierarchy, primary-action prominence, mobile spacing, and keyboard accessibility without adding tracking, dependencies, monetization, or new routes.",
+        "requested_action": "Route to engineer for preview implementation and review. Do not deploy directly.",
         "proposal_id": null
       }
     ]
