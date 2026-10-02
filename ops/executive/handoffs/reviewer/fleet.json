@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T21:01:05.610Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T21:53:18.396Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, financial, high-priority, and duplicate telemetry work. Revenue attribution is incomplete, telemetry is low-volume or missing, 50 improvements are measuring, and operations/security evidence is unavailable. Preserve the admission gate. CTO owns the failed handoff repair; principal-engineer owns the canonical admission ledger and repair dispositions; unresolved blockers escalate by 2026-10-03T17:00Z.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Reject production, financial, high-priority, and duplicate telemetry work. Route only three isolated preview-only scaffold implementations. Revenue attribution, low-volume telemetry, launch/compliance evidence, operations, and security clearance remain insufficient for production claims. Unresolved blockers escalate to the owner by 2026-10-03T17:00Z.",
+        "summary": "Approve only three isolated, low-priority preview implementations. Production publication, deployment, telemetry or affiliate activation, spend, credential/configuration changes, dependency additions, and revenue, ROI, causal-lift, security-clearance, or launch-readiness claims remain blocked. Site-factory owns dated readiness artifacts by 2026-10-03T17:00Z; unresolved launch, legal, security, analytics, measurement, reachability, or ownership blockers must escalate to the owner by that deadline.",
         "requested_action": null,
         "proposal_id": null
       }
