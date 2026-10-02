@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:41:11.786Z",
+  "generated_at": "2026-10-02T16:48:02.194Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish a site-specific homepage conversion baseline for sinderella.org",
-        "summary": "A safe implementation target cannot be selected without page-level inspection and repository file evidence. Existing attribution records 50 Amazon clicks for sinderella.org and 0 ordered items/$0 commission in the available 2026-09-21 window; no homepage-level behavior or conversion baseline is available.",
-        "requested_action": "Perform one bounded read-only inspection of sinderella.org homepage `/` and its repository-rendering files. Identify the exact homepage template/component, stylesheet, visible primary CTA, affiliate destinations, disclosure placement, accessibility issues, and one reversible implementation candidate. Do not deploy, alter telemetry, credentials, configuration, tracking, spending, or production.",
+        "title": "Establish unsupervisedmedia.com homepage baseline and nominate one reversible improvement",
+        "summary": "A site-specific implementation cannot yet be admitted because the snapshot provides no page-level UX, CTA, SEO, conversion, or revenue evidence for unsupervisedmedia.com. Perform one bounded evidence pass using existing telemetry and the public homepage, then nominate exactly one implementation or record the blocker.",
+        "requested_action": "Inspect the public homepage (/) and the existing repository homepage, metadata, and analytics integration files without modifying production or requesting duplicate telemetry. Record exact paths, visible hierarchy, primary CTA destination, disclosures, metadata, accessibility issues, and the existing baseline for sessions, conversions, and CTA clicks where available.",
         "proposal_id": null
       }
     ]

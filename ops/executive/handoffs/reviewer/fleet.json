@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:43:18.809Z",
+  "generated_at": "2026-10-02T16:48:02.193Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Unattributed affiliate revenue, low-volume telemetry, active measurement/review overlap, and unavailable operations/security evidence block production and financial claims. Principal-engineer must reconcile the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z; release at most one candidate only if every gate passes, otherwise escalate.",
+        "summary": "Reviewer disposition: reject the proposed report-only admission and all new implementation or high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence; operations/security evidence is unavailable and affiliate revenue remains unattributed. Preserve the implementation gate. Domain-manager owns the unsupervisedmedia.com evidence gap: complete the bounded public inspection by 2026-10-03T17:00:00Z, then nominate at most one reversible implementation only if every gate passes; escalate unresolved blockers to the owner by the same deadline.",
         "requested_action": null,
         "proposal_id": null
       }
