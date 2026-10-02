@@ -392,7 +392,7 @@ test('compact executive workspace tabs retain their full context', () => {
   assert.match(app, /aria-label="\$\{esc\(`\$\{label\}: \$\{description\}`\)\}"/);
   assert.match(
     style,
-    /@media \(max-width: 560px\) \{\s*\.ex-workspace-nav \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 5px; padding: 5px; \}/
+    /@media \(max-width: 560px\) \{\s*\.ex-workspace-nav \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: 5px; padding: 5px; \}/
   );
   assert.match(
     style,
@@ -489,7 +489,7 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(style, /body\[data-view="agent"\] main:has\(\.ex-shell\) \{ max-width: none; \}/);
   assert.match(
     style,
-    /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/
+    /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/
   );
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
