@@ -3068,6 +3068,20 @@ test('secondary async panels use the shared compact loading treatment', () => {
   assert.match(app, /pre\.classList\.remove\('async-loading'\)/);
 });
 
+test('shared log and diff panels use light surfaces after the dark code treatment', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const darkCodeSurface = theme.indexOf('.cn-logs-box, .err-drawer-log, .gd-diff-out, .cm-log-out');
+  const lightCodeSurface = theme.indexOf(':root[data-theme="light"] .cn-logs-box', darkCodeSurface);
+  assert.ok(darkCodeSurface >= 0);
+  assert.ok(lightCodeSurface > darkCodeSurface);
+  const override = theme.slice(lightCodeSurface, theme.indexOf('}', lightCodeSurface));
+  for (const surface of ['.cn-logs-box', '.err-drawer-log', '.gd-diff-out', '.cm-log-out']) {
+    assert.ok(override.includes(`:root[data-theme="light"] ${surface}`));
+  }
+  assert.match(override, /color:\s*#33425c/);
+  assert.match(override, /background:\s*#f4f7fb/);
+});
+
 test('workbench board styling has one authoritative responsive definition', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.equal((style.match(/\.wb-board\s*\{\s*display:/g) || []).length, 1);

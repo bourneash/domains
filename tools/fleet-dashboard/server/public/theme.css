@@ -3470,3 +3470,15 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   .sch-runtime-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sch-run-outcome-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Keep the shared log/diff code panels readable in light mode. This rule is
+   intentionally last: the base code-panel treatment is a fixed dark surface. */
+:root[data-theme="light"] .cn-logs-box,
+:root[data-theme="light"] .err-drawer-log,
+:root[data-theme="light"] .gd-diff-out,
+:root[data-theme="light"] .cm-log-out {
+  color: #33425c;
+  background: #f4f7fb;
+  border-color: var(--border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
