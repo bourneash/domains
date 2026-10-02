@@ -3252,6 +3252,7 @@ test('fleet task tree separates site and stage expansion, prioritizing active wo
 
 test('large per-site task boards paginate each stage without discarding counts', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   const controls = app.slice(
     app.indexOf('function renderBoardControls()'),
     app.indexOf('async function loadBoard()')
@@ -3263,10 +3264,23 @@ test('large per-site task boards paginate each stage without discarding counts',
   assert.match(app, /const TASK_BOARD_PAGE_SIZE = 12/);
   assert.match(controls, /<label class="muted" for="task-site">Site<\/label>/);
   assert.match(board, /items\.slice\(start, start \+ TASK_BOARD_PAGE_SIZE\)/);
+  assert.match(
+    board,
+    /class="task-board-scroll-hint" role="note">Swipe horizontally to browse workflow stages/
+  );
+  assert.match(
+    board,
+    /class="board task-board" role="region" aria-label="Task board workflow stages" tabindex="0"/
+  );
   assert.match(board, /aria-label="\$\{esc\(COL_LABEL\[col\]\)\} task pages"/);
   assert.match(board, /Page \$\{page\} of \$\{pageCount\} · \$\{start \+ 1\}–/);
   assert.match(board, /Next page of \$\{esc\(COL_LABEL\[col\]\)\} tasks/);
   assert.match(board, /renderBoard\(TASK\.boardData\)/);
+  assert.match(
+    style,
+    /\.board\.task-board \{[\s\S]*grid-auto-columns: min\(82vw, 340px\);[\s\S]*grid-auto-flow: column;[\s\S]*overflow-x: auto;[\s\S]*scroll-snap-type: x mandatory;/
+  );
+  assert.match(style, /\.task-board \.col-head \{ position: static; \}/);
 });
 
 test('Cron cards isolate schedule overflow and use explicit action buttons', () => {

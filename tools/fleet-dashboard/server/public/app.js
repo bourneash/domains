@@ -6084,23 +6084,26 @@ function renderBoard(data) {
       titleCounts.set(task.title, (titleCounts.get(task.title) || 0) + 1)
     )
   );
-  $('#task-content').innerHTML = `<div class="board">${COLS.map(col => {
-    const items = data[col] || [];
-    const pageKey = `${TASK.taskSite}:${col}`;
-    const pageCount = Math.max(1, Math.ceil(items.length / TASK_BOARD_PAGE_SIZE));
-    const page = Math.min(Math.max(1, TASK.boardPages[pageKey] || 1), pageCount);
-    TASK.boardPages[pageKey] = page;
-    const start = (page - 1) * TASK_BOARD_PAGE_SIZE;
-    const visible = items.slice(start, start + TASK_BOARD_PAGE_SIZE);
-    const cards = visible.length
-      ? visible.map(t => boardCard(t, titleCounts.get(t.title) || 1)).join('')
-      : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
-    const pagination =
-      pageCount > 1
-        ? `<nav class="board-pagination" aria-label="${esc(COL_LABEL[col])} task pages"><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="-1" ${page === 1 ? 'disabled' : ''}><span aria-hidden="true">←</span><span class="sr-only">Previous page of ${esc(COL_LABEL[col])} tasks</span></button><span role="status">Page ${page} of ${pageCount} · ${start + 1}–${Math.min(start + TASK_BOARD_PAGE_SIZE, items.length)} of ${items.length}</span><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="1" ${page === pageCount ? 'disabled' : ''}><span aria-hidden="true">→</span><span class="sr-only">Next page of ${esc(COL_LABEL[col])} tasks</span></button></nav>`
-        : '';
-    return `<div class="col"><div class="col-head"><h3>${COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div>${pagination}</div>`;
-  }).join('')}</div>`;
+  $('#task-content').innerHTML =
+    `<p class="task-board-scroll-hint" role="note">Swipe horizontally to browse workflow stages</p><div class="board task-board" role="region" aria-label="Task board workflow stages" tabindex="0">${COLS.map(
+      col => {
+        const items = data[col] || [];
+        const pageKey = `${TASK.taskSite}:${col}`;
+        const pageCount = Math.max(1, Math.ceil(items.length / TASK_BOARD_PAGE_SIZE));
+        const page = Math.min(Math.max(1, TASK.boardPages[pageKey] || 1), pageCount);
+        TASK.boardPages[pageKey] = page;
+        const start = (page - 1) * TASK_BOARD_PAGE_SIZE;
+        const visible = items.slice(start, start + TASK_BOARD_PAGE_SIZE);
+        const cards = visible.length
+          ? visible.map(t => boardCard(t, titleCounts.get(t.title) || 1)).join('')
+          : '<div class="empty" style="padding:20px;font-size:12px">empty</div>';
+        const pagination =
+          pageCount > 1
+            ? `<nav class="board-pagination" aria-label="${esc(COL_LABEL[col])} task pages"><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="-1" ${page === 1 ? 'disabled' : ''}><span aria-hidden="true">←</span><span class="sr-only">Previous page of ${esc(COL_LABEL[col])} tasks</span></button><span role="status">Page ${page} of ${pageCount} · ${start + 1}–${Math.min(start + TASK_BOARD_PAGE_SIZE, items.length)} of ${items.length}</span><button type="button" class="btn sm board-page" data-col="${esc(col)}" data-delta="1" ${page === pageCount ? 'disabled' : ''}><span aria-hidden="true">→</span><span class="sr-only">Next page of ${esc(COL_LABEL[col])} tasks</span></button></nav>`
+            : '';
+        return `<div class="col"><div class="col-head"><h3>${COL_LABEL[col]}</h3><span class="count">${items.length}</span></div><div class="col-body">${cards}</div>${pagination}</div>`;
+      }
+    ).join('')}</div>`;
   $$('.board-page').forEach(button =>
     button.addEventListener('click', () => {
       const key = `${TASK.taskSite}:${button.dataset.col}`;
