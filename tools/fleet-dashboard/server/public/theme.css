@@ -3442,3 +3442,9 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 /* The conversation layout has a more-specific legacy selector than the
    general component overrides above, so explicitly out-rank it here. */
 :root[data-theme="light"] .ex-shell[data-workspace="conversation"] .ex-requests { background: var(--grad-panel), var(--panel); border-color: var(--border); box-shadow: var(--sh-2); }
+
+:root[data-theme="light"] .cfb-stat {
+  background: var(--grad-panel), var(--panel);
+  border-color: var(--border);
+  box-shadow: var(--sh-2);
+}

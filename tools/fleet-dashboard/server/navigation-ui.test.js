@@ -1726,6 +1726,11 @@ test('dashboard includes a keyboard skip link to the current page content', () =
 
 test('Build Usage exposes a scoped refresh control', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cfb-stat \{\s*background: var\(--grad-panel\), var\(--panel\);\s*border-color: var\(--border\);/
+  );
   assert.match(app, /type="button" class="btn" id="cfb-refresh"/);
   assert.match(
     app,
