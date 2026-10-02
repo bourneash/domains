@@ -138,6 +138,36 @@
 :root[data-theme="light"] .card,
 :root[data-theme="light"] .vt,
 :root[data-theme="light"] .ex-kpi { background: var(--grad-panel), #fff; border-color: var(--border); box-shadow: var(--sh-2); }
+/* A few older agent/work-queue surfaces predate the tokenized component layer
+   and carry dark-only fills. Keep those panels and embedded controls on the
+   same paper surfaces as the rest of the dashboard in light mode. */
+:root[data-theme="light"] .ex-kpi { background: var(--grad-panel), #fff; }
+:root[data-theme="light"] .ex-kpi b,
+:root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
+:root[data-theme="light"] .ex-workspace-nav,
+:root[data-theme="light"] .ex-request-list,
+:root[data-theme="light"] .ex-inbox-toolbar,
+:root[data-theme="light"] .ex-run-log-controls { background: var(--panel-2); border-color: var(--border); }
+:root[data-theme="light"] .ex-workspace-tab:hover { background: var(--control-bg-hover); }
+:root[data-theme="light"] .ex-workspace-tab.active,
+:root[data-theme="light"] .ex-request-list-item.selected,
+:root[data-theme="light"] .ex-case-list-item.selected { background: linear-gradient(135deg, rgba(31,101,181,.12), rgba(109,75,178,.08)); border-color: rgba(31,101,181,.42); }
+:root[data-theme="light"] .ex-run-panel,
+:root[data-theme="light"] .ex-transcript-panel,
+:root[data-theme="light"] .ex-request-detail,
+:root[data-theme="light"] .ex-case-detail { background: var(--grad-panel), var(--panel); border-color: var(--border); }
+:root[data-theme="light"] .ex-request-list-item,
+:root[data-theme="light"] .ex-case-list-item,
+:root[data-theme="light"] .ex-run-log-entry,
+:root[data-theme="light"] .ex-run-action-item,
+:root[data-theme="light"] .ex-thread-message { background: var(--panel); border-color: var(--border); }
+:root[data-theme="light"] .ex-transcript-event pre,
+:root[data-theme="light"] .ex-run-log-entry pre { background: #f2f5fa; color: #33425c; }
+:root[data-theme="light"] .wb-head,
+:root[data-theme="light"] .cq-page-head { background: var(--grad-panel), var(--panel); border-color: var(--border); }
+:root[data-theme="light"] .wb-column,
+:root[data-theme="light"] .cq-controls { background: var(--panel-2); border-color: var(--border); }
+:root[data-theme="light"] .cq-kpi { background: var(--grad-panel), var(--panel); border-color: var(--border); }
 :root[data-theme="light"] .cm-input,
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea,

@@ -2381,6 +2381,26 @@ test('Agents landing cards use light surfaces in light theme', () => {
   assert.match(theme, /\.nav-root-card-copy strong \{ color: var\(--text-hi\);/);
 });
 
+test('legacy agent and queue panels use light surfaces in light theme', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.ex-run-panel,[\s\S]*?\.ex-transcript-panel,[\s\S]*?\.ex-request-detail,[\s\S]*?\.ex-case-detail \{ background: var\(--grad-panel\), var\(--panel\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.ex-transcript-event pre,[\s\S]*?\.ex-run-log-entry pre \{ background: #f2f5fa; color: #33425c; \}/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.wb-column,[\s\S]*?\.cq-controls \{ background: var\(--panel-2\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cq-kpi \{ background: var\(--grad-panel\), var\(--panel\)/
+  );
+});
+
 test('Git Hygiene presents safety state and searchable review queue', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
