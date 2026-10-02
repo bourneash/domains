@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-02T01:04:15.984Z",
+  "generated_at": "2026-10-02T01:34:23.812Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the implementation and financial-claim gates. Approve only the bounded read-only public-surface research request because it is isolated, reversible, and requires no telemetry or production mutation. Retain both report-only work items using existing evidence; do not admit implementation until canonical capacity, repair disposition, site-specific baseline, threshold, tests, attribution boundary, rollback, and release evidence are documented. Do not make revenue, ROI, causal-lift, profitability, forecast, budget, or production-readiness claims.",
+        "summary": "Retain the implementation, financial-claim, and release gates. Approve only the bounded read-only Save Us Farms public-surface inspection because it is isolated, reversible, and does not request telemetry or mutate production. Reject new implementation admission and the additional finance report this cycle: existing intelligence already establishes the attribution and cost-data boundaries, while operations and fleet-doctor evidence remain unavailable. After inspection, principal-engineer may document the canonical admission ledger and repair disposition, then release at most one candidate only if baseline, threshold, tests, attribution boundary, rollback, and release evidence are complete by 2026-10-02T12:00Z; otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       }
