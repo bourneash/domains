@@ -150,7 +150,7 @@ function validate(input, knownSite) {
     throw httpErr(400, 'invalid provider');
   if (!DELIVERY_MODES.includes(String(input.delivery_mode || 'direct')))
     throw httpErr(400, 'invalid delivery mode');
-  if (String(input.delivery_mode || 'direct') === 'direct') {
+  if (['direct', 'pull_request'].includes(String(input.delivery_mode || 'direct'))) {
     const deferralReason = directRequestDeferralReason(input);
     if (deferralReason) throw httpErr(400, deferralReason);
   }
@@ -265,14 +265,8 @@ function update(store, id, patch, knownSite, availableRolesForSite) {
   )
     throw httpErr(409, `cannot transition ${current.status} to ${patch.status}`);
   if (
-    patch.site ||
-    patch.title ||
-    patch.category ||
-    patch.priority ||
-    patch.provider ||
-    patch.delivery_mode ||
-    patch.action_key ||
-    patch.max_turns
+    editKeys.some(key => Object.prototype.hasOwnProperty.call(patch, key)) ||
+    ['queued', 'claimed'].includes(patch.status)
   )
     validate(merged, knownSite);
   const normalizedPatch = {
@@ -349,6 +343,32 @@ function reconcileVerified(store, id, knownSite) {
   return next;
 }
 
+// Legacy producers and persisted requests can bypass create/update validation.
+// Recheck the claimed record before any workspace or paid worker is started.
+function blockDeferredExecution(store, request) {
+  if (!['direct', 'pull_request'].includes(request.delivery_mode || 'direct')) return null;
+  const reason = directRequestDeferralReason(request);
+  if (!reason) return null;
+  const blocked = store.updateChangeRequest(request.request_id, {
+    status: 'blocked_owner',
+    error: reason,
+    next_attempt_at: null,
+    lease_owner: null,
+    lease_expires_at: null,
+    heartbeat_at: null,
+  });
+  store.record({
+    event_type: 'change-request.execution_deferred',
+    source: 'fleet-dashboard',
+    site_id: `site:${request.site}`,
+    entity_type: 'change-request',
+    entity_id: request.request_id,
+    correlation_id: `change-request:${request.request_id}`,
+    payload: { status: blocked.status, reason },
+  });
+  return blocked;
+}
+
 function pick(store, { now = new Date(), max = 1 } = {}) {
   const due = store
     .listChangeRequests({ status: 'queued', limit: 100 })
@@ -407,5 +427,6 @@ module.exports = {
   inferredDeliveryMode,
   normalizeInput,
   directRequestDeferralReason,
+  blockDeferredExecution,
   transcribe,
 };

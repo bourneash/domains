@@ -130,6 +130,84 @@ test('direct work cannot enter an automatic queue while its own instructions def
   store.close();
 });
 
+test('body edits and status-only retries cannot bypass execution prerequisites', () => {
+  const { store } = fixture();
+  const known = () => true;
+  const request = queue.create(store, { site: 'example.com', title: 'Improve navigation' }, known);
+  assert.throws(
+    () =>
+      queue.update(
+        store,
+        request.request_id,
+        { body: 'Do not execute until a slot opens.' },
+        known
+      ),
+    /unresolved execution prerequisite/
+  );
+  assert.equal(store.getChangeRequest(request.request_id).body, '');
+  store.updateChangeRequest(request.request_id, {
+    status: 'failed',
+    body: 'Retain as unclaimed engineer queue work only.',
+  });
+  assert.throws(
+    () => queue.update(store, request.request_id, { status: 'queued' }, known),
+    /dispatches automatically/
+  );
+  assert.equal(store.getChangeRequest(request.request_id).status, 'failed');
+  assert.equal(
+    queue.update(store, request.request_id, { status: 'cancelled' }, known).status,
+    'cancelled'
+  );
+  store.close();
+});
+
+test('legacy claimed work is blocked before execution, without a retry lease', () => {
+  const { store } = fixture();
+  const request = store.createChangeRequest({
+    site: 'example.com',
+    title: 'Capacity-gated change',
+    body: 'Do not execute until the authoritative capacity ledger is reconciled.',
+    delivery_mode: 'direct',
+    status: 'queued',
+  });
+  const claimed = store.claimQueuedChangeRequest(request.request_id, {
+    owner: 'test-worker',
+    claimedAt: new Date().toISOString(),
+    leaseExpiresAt: new Date(Date.now() + 60000).toISOString(),
+  });
+  assert.ok(claimed);
+  const blocked = queue.blockDeferredExecution(store, claimed);
+  assert.equal(blocked.status, 'blocked_owner');
+  assert.equal(blocked.lease_owner, null);
+  assert.equal(blocked.lease_expires_at, null);
+  assert.equal(blocked.next_attempt_at, null);
+  assert.deepEqual(queue.pick(store), []);
+  assert.equal(
+    queue.blockDeferredExecution(store, { ...claimed, delivery_mode: 'report_only' }),
+    null
+  );
+  store.close();
+});
+
+test('pull request delivery honors the same execution prerequisites as direct work', () => {
+  const { store } = fixture();
+  assert.throws(
+    () =>
+      queue.create(
+        store,
+        {
+          site: 'example.com',
+          title: 'Wait',
+          body: 'Do not execute until owner confirmation.',
+          delivery_mode: 'pull_request',
+        },
+        () => true
+      ),
+    /unresolved execution prerequisite/
+  );
+  store.close();
+});
+
 test('routes SEO requests to the SEO analyst even when engineer is requested', () => {
   const { store } = fixture();
   const known = () => true;

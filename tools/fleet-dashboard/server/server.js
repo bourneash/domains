@@ -790,6 +790,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       throw Object.assign(new Error('request was already claimed or is no longer due'), {
         httpStatus: 409,
       });
+    const deferred = changequeue.blockDeferredExecution(events, claimed);
+    if (deferred)
+      throw Object.assign(new Error(deferred.error), { httpStatus: 409, request: deferred });
     // Last-mile defense for requests queued before role routing was enforced.
     // Resolve against the site's installed roles: `content-writer` is the
     // canonical fleet owner, but some sites intentionally use `news-writer`,
