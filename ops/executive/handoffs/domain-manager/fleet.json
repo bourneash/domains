@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:48:02.194Z",
+  "generated_at": "2026-10-02T16:50:10.872Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish unsupervisedmedia.com homepage baseline and nominate one reversible improvement",
-        "summary": "A site-specific implementation cannot yet be admitted because the snapshot provides no page-level UX, CTA, SEO, conversion, or revenue evidence for unsupervisedmedia.com. Perform one bounded evidence pass using existing telemetry and the public homepage, then nominate exactly one implementation or record the blocker.",
-        "requested_action": "Inspect the public homepage (/) and the existing repository homepage, metadata, and analytics integration files without modifying production or requesting duplicate telemetry. Record exact paths, visible hierarchy, primary CTA destination, disclosures, metadata, accessibility issues, and the existing baseline for sessions, conversions, and CTA clicks where available.",
+        "title": "Identify and scope the first reversible homepage UX improvement for weapontester.com",
+        "summary": "A site-specific implementation cannot be safely selected until the public homepage structure, repository route, existing CTA hierarchy, and active-work status are evidenced. Perform one bounded inspection to identify the smallest reversible homepage improvement.",
+        "requested_action": "Inspect only the weapontester.com homepage and its repository homepage entry point. Record the exact page and files that would change, current visible hierarchy and primary action, accessibility issues, disclosure surfaces, and any active-work overlap. Do not modify production, credentials, configuration, tracking, schedules, dependencies, or deployment.",
         "proposal_id": null
       }
     ]
