@@ -223,6 +223,18 @@ function computeSyncState({ ahead, behind, upstream }) {
   return 'synced';
 }
 
+function parseRoleSummary(slug, result) {
+  if (!result.ok && !result.out) return { slug, isRepo: false, branch: null, ahead: 0, dirty: 0 };
+  const parsed = parsePorcelain(result.out);
+  return {
+    slug,
+    isRepo: true,
+    branch: parsed.branch,
+    ahead: parsed.ahead,
+    dirty: parsed.files.filter(file => file.kind !== 'ignored').length,
+  };
+}
+
 // Full git snapshot for one site repo (submodule). Never throws.
 async function status(root, slug) {
   const cwd = siteDir(root, slug);
@@ -806,6 +818,32 @@ async function pullAll(root, slugs) {
   return { ok: true, pulled: results.filter(r => r.ok).length, total: results.length, results };
 }
 
+// Minimal status used by the role matrix. That view only needs the current
+// branch, ahead count, and dirty-file count to classify deployer cells; running
+// the full summary here would add log, remote, ref, and stash subprocesses to
+// every dashboard refresh.
+async function roleSummaries(root, slugs, concurrency = 8) {
+  const rows = new Array(slugs.length);
+  let next = 0;
+  const workers = Math.min(slugs.length, Math.max(1, Math.floor(concurrency) || 1));
+  await Promise.all(
+    Array.from({ length: workers }, async () => {
+      while (next < slugs.length) {
+        const index = next++;
+        const slug = slugs[index];
+        const result = await git(siteDir(root, slug), [
+          'status',
+          '--porcelain=v1',
+          '--branch',
+          '-z',
+        ]);
+        rows[index] = parseRoleSummary(slug, result);
+      }
+    })
+  );
+  return rows;
+}
+
 // Cheap fleet-wide summary (one row per site) for the dashboard table.
 async function summaries(root, slugs) {
   return Promise.all(
@@ -835,8 +873,10 @@ async function summaries(root, slugs) {
 module.exports = {
   status,
   summaries,
+  roleSummaries,
   parsePorcelain,
   computeSyncState,
+  parseRoleSummary,
   remoteToWebUrl,
   parseLocalBranches,
   parseMergedSet,

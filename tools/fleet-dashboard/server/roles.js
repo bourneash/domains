@@ -341,11 +341,10 @@ function cellState(enabled, last, schedule, now) {
 async function matrix(root, slugs) {
   const now = Date.now();
   const freq = {};
-  // Per-site git state (branch / ahead / dirty), computed once and reused for
-  // the deployer cell. Cheap: reads the local origin/main tracking ref (no
-  // fetch) — and it's the same clone the crons push from, so it's current.
+  // Minimal per-site git state (branch / ahead / dirty), computed once and
+  // reused for deployer cells. Reads local tracking refs without fetching.
   const gitBySlug = {};
-  for (const g of await gitMod.summaries(root, slugs)) gitBySlug[g.slug] = g;
+  for (const g of await gitMod.roleSummaries(root, slugs)) gitBySlug[g.slug] = g;
   const sites = slugs
     .map(slug => {
       const cwd = siteDir(root, slug);

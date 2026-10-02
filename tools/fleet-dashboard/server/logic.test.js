@@ -111,6 +111,20 @@ test('parsePorcelain handles normal, fresh, and detached headers', () => {
   assert.equal(detached.detached, true);
 });
 
+test('role summaries keep the matrix Git projection minimal and parse missing repos safely', () => {
+  assert.deepEqual(
+    git.parseRoleSummary('status.test', {
+      ok: true,
+      out: '## main...origin/main [ahead 2, behind 1]\0 M tracked.txt\0?? untracked.txt\0',
+    }),
+    { slug: 'status.test', isRepo: true, branch: 'main', ahead: 2, dirty: 2 }
+  );
+  assert.deepEqual(
+    git.parseRoleSummary('missing.test', { ok: false, out: '', err: 'not a repository' }),
+    { slug: 'missing.test', isRepo: false, branch: null, ahead: 0, dirty: 0 }
+  );
+});
+
 /* ---- sync-state color classification ---- */
 test('computeSyncState classifies upstream sync correctly', () => {
   assert.equal(git.computeSyncState({ ahead: 0, behind: 0, upstream: 'origin/main' }), 'synced');
