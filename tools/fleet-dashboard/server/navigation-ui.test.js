@@ -1882,6 +1882,257 @@ test('global site filtering recalculates fleet task summary values', () => {
   assert.equal(meta.textContent, 'Sites with matching tasks · 0 done · 0 hold');
 });
 
+test('Health KPI summary follows the currently visible site cards', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function updateHealthSummary()');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const cards = [
+    {
+      dataset: { healthFailing: '0', healthChecks: '12' },
+      classList: { contains: () => false },
+    },
+    {
+      dataset: { healthFailing: '2', healthChecks: '3' },
+      classList: { contains: name => name === 'fleet-hidden' },
+    },
+  ];
+  const statClasses = Array.from({ length: 4 }, () => new Set());
+  const stats = statClasses.map(classes => ({
+    classList: { toggle: (name, on) => (on ? classes.add(name) : classes.delete(name)) },
+  }));
+  const values = Array.from({ length: 4 }, () => ({ textContent: '', innerHTML: '' }));
+  const context = {
+    $$: selector =>
+      selector === '.health-card' ? cards : selector === '.health-stat' ? stats : values,
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nupdateHealthSummary();`, context);
+  assert.deepEqual(
+    values.slice(0, 3).map(value => value.textContent),
+    ['1', '1', '0']
+  );
+  assert.equal(values[3].innerHTML, '0<small>/12</small>');
+  assert.equal(statClasses[2].has('health-stat-bad'), false);
+  assert.equal(statClasses[3].has('health-stat-good'), true);
+  cards[1].classList.contains = () => false;
+  vm.runInNewContext(`${app.slice(start, end)}\nupdateHealthSummary();`, context);
+  assert.deepEqual(
+    values.slice(0, 3).map(value => value.textContent),
+    ['2', '1', '1']
+  );
+  assert.equal(values[3].innerHTML, '2<small>/15</small>');
+  assert.equal(statClasses[2].has('health-stat-bad'), true);
+  assert.equal(statClasses[3].has('health-stat-bad'), true);
+  assert.equal(statClasses[3].has('health-stat-good'), false);
+});
+
+test('Engineer summary and stale warnings follow the global site filter', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function updateEngineerSummary(');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const row = (site, tier, stale, hidden) => ({
+    dataset: { site, agentTier: tier, agentStale: stale },
+    classList: { contains: name => name === 'fleet-hidden' && hidden },
+  });
+  const first = row('north.test', 'PARTIAL', 'true', false);
+  const second = row('south.test', 'aligned', 'false', true);
+  const missingRows = ['north-blog.test', 'south-blog.test'].map(site => ({
+    dataset: { site },
+    classList: {
+      hidden: false,
+      toggle(name, hidden) {
+        this.hidden = hidden;
+      },
+      contains(name) {
+        return name === 'fleet-hidden' && this.hidden;
+      },
+    },
+  }));
+  const summaryCount = { textContent: '' };
+  const tiers = { textContent: '' };
+  const stale = { hidden: false, textContent: '' };
+  const missing = { firstChild: { textContent: '' } };
+  const missingCount = { textContent: '' };
+  const context = {
+    updateAgentHealthPanel() {},
+    $$: selector =>
+      selector === '[data-fleet-row][data-agent-tier]'
+        ? [first, second]
+        : selector === '.ag-missing-list li[data-site]'
+          ? missingRows
+          : [],
+    $: selector =>
+      ({
+        '[data-agent-engineer-count]': summaryCount,
+        '[data-agent-engineer-tiers]': tiers,
+        '[data-agent-engineer-stale]': stale,
+        '[data-agent-engineer-missing]': missing,
+        '#ag-missing-count': missingCount,
+      })[selector] || null,
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nupdateEngineerSummary('north');`, context);
+  assert.equal(summaryCount.textContent, '1 engineer');
+  assert.equal(tiers.textContent, 'PARTIAL=1');
+  assert.equal(stale.hidden, false);
+  assert.equal(stale.textContent, '⚠ stale pulse: north.test');
+  assert.equal(missingRows[0].classList.hidden, false);
+  assert.equal(missingRows[1].classList.hidden, true);
+  assert.equal(missingCount.textContent, '1 of 2 sites');
+  assert.equal(missing.firstChild.textContent, '· 1 not enrolled ');
+});
+
+test('Engineer health summary aggregates only sites matched by the global filter', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function updateAgentHealthPanel(');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const elements = {
+    current: { textContent: '' },
+    history: { textContent: '' },
+    detail: { innerHTML: '' },
+    historyDetail: { innerHTML: '' },
+    drift: { textContent: '' },
+  };
+  const context = {
+    AGENT_HEALTH: {
+      summary: {},
+      rows: [
+        {
+          site: 'north.test',
+          state: 'fresh',
+          enabled: true,
+          expected: 20,
+          observed: 18,
+          failed: 1,
+          missed: 2,
+          drift: true,
+        },
+        {
+          site: 'south.test',
+          state: 'overdue',
+          enabled: true,
+          expected: 30,
+          observed: 22,
+          failed: 3,
+          missed: 4,
+          drift: false,
+        },
+      ],
+    },
+    $: selector =>
+      selector === '.ag-health'
+        ? {}
+        : {
+            '.ag-health-summaryline .health-now': elements.current,
+            '.ag-health-summaryline .ag-health-history': elements.history,
+            '[data-agent-health-current-detail]': elements.detail,
+            '[data-agent-health-history-detail]': elements.historyDetail,
+            '[data-agent-health-drift]': elements.drift,
+          }[selector] || null,
+    agentHealthOverview: ({ summary }, rows) => ({
+      current: `${rows.length} enrolled`,
+      history: `${summary.failed} failures`,
+      currentDetail: `${rows.length} sites`,
+    }),
+    esc: value => String(value),
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nupdateAgentHealthPanel('north');`, context);
+  assert.equal(elements.current.textContent, '1 enrolled');
+  assert.equal(elements.history.textContent, '7d history: 1 failures');
+  assert.equal(elements.detail.innerHTML, '<b>Now</b> 1 sites');
+  assert.equal(
+    elements.historyDetail.innerHTML,
+    '<b>7d history</b> 20 expected · 18 observed · 1 failed · 2 missed'
+  );
+  assert.equal(elements.drift.textContent, '1 prompt/runner drifted');
+});
+
+test('generic agent counts and alerts recalculate from visible site rows', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function updateGenericAgentSummary(');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const rows = [
+    {
+      dataset: { agentEnabled: 'true', agentIssue: 'false', agentAlerts: '2' },
+      classList: { contains: () => false },
+    },
+    {
+      dataset: { agentEnabled: 'false', agentIssue: 'false', agentAlerts: '0' },
+      classList: { contains: name => name === 'fleet-hidden' },
+    },
+  ];
+  const missingRows = [
+    {
+      dataset: { site: 'north-blog.test' },
+      hidden: false,
+      classList: { contains: () => false, toggle() {} },
+    },
+  ];
+  const count = { textContent: '' };
+  const status = { innerHTML: '' };
+  const missingCount = { textContent: '' };
+  const missing = { firstChild: { textContent: '' } };
+  const context = {
+    $$: selector =>
+      selector === '.ag-row[data-site]'
+        ? rows
+        : selector === '.ag-missing-list li[data-site]'
+          ? missingRows
+          : [],
+    $: selector =>
+      ({
+        '[data-agent-role-count]': count,
+        '[data-agent-role-status]': status,
+        '#ag-missing-count': missingCount,
+        '[data-agent-role-missing]': missing,
+      })[selector] || null,
+    updateAgentHealthPanel() {},
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nupdateGenericAgentSummary('north');`, context);
+  assert.equal(count.textContent, '1 site');
+  assert.equal(
+    status.innerHTML,
+    '1 enabled · 0 paused · <span class="flag">2 publishing alerts</span>'
+  );
+  assert.equal(missingCount.textContent, '1 of 1 sites');
+  assert.equal(missing.firstChild.textContent, '· 1 not enrolled ');
+});
+
+test('fleet site filters synchronize across tabs and refresh the active Work Board', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function syncFleetFilterFromStorage(');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const input = { value: 'old.test' };
+  const cache = { items: [] };
+  const pages = { backlog: 4, ready: 2 };
+  let rendered = null;
+  const context = {
+    $: selector => (selector === '#fleet-filter' ? input : null),
+    STATE: { view: 'workflow-board' },
+    WORK_BOARD_SITE_QUERY: 'old.test',
+    WORK_BOARD_CACHE: cache,
+    WORK_BOARD_COLUMNS: [['backlog'], ['ready']],
+    WORK_BOARD_PAGES: pages,
+    WORK_BOARD_SITE_FILTER_TIMER: null,
+    CF_BUILDS: { filter: 'old.test' },
+    clearTimeout() {},
+    renderWorkflowBoard: data => (rendered = data),
+  };
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nsyncFleetFilterFromStorage({key:'fd.fleet-filter',newValue:' North.Test '});`,
+    context
+  );
+  assert.equal(input.value, ' North.Test ');
+  assert.equal(context.WORK_BOARD_SITE_QUERY, 'north.test');
+  assert.equal(context.CF_BUILDS.filter, 'north.test');
+  assert.equal(pages.backlog, 1);
+  assert.equal(pages.ready, 1);
+  assert.equal(rendered, cache);
+});
+
 test('narrow screens get a usable navigation drawer instead of icon-only navigation', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
@@ -2396,6 +2647,7 @@ test('global site filter reports Work Board matches across the complete filtered
     ERRORS_UI: {},
     CF_BUILDS: {},
     WORK_BOARD_CACHE: {},
+    WORK_BOARD_SITE_QUERY: 'north.test',
     workBoardItems: () => workItems,
     workBoardVisible: () => true,
     workBoardSiteMatches: (item, query) => (item.site || 'fleet').includes(query),
@@ -2564,7 +2816,10 @@ test('Health presents fleet status as a responsive summary strip', () => {
   assert.match(app, /uptime checks across fleet sites and shared services/);
   assert.match(app, /Failing checks<\/span>/);
   assert.match(app, /class="health-card-head"/);
-  assert.match(app, /<div class="card health-card" data-fleet-row data-site="\$\{esc\(g\)\}">/);
+  assert.match(
+    app,
+    /<div class="card health-card" data-fleet-row data-fleet-unit="targets" data-site="\$\{esc\(g\)\}" data-health-failing="\$\{s\.failing\}" data-health-checks="\$\{s\.total\}">/
+  );
   assert.match(app, /<tr data-site="\$\{esc\(g\)\}">/);
   assert.doesNotMatch(app, /<tr data-fleet-row data-site="\$\{esc\(g\)\}">/);
   assert.match(app, /class="inline-help-link" href="http:\/\/127\.0\.0\.1:8580"/);
@@ -2901,7 +3156,7 @@ test('wide rendered tables receive consistent scroll affordances', () => {
   assert.match(app, /\.\.\.root\.children/);
   assert.match(
     app,
-    /Promise\.resolve\(renderCurrentView\(\)\)\.then\(\(\) => \{\s+const app = \$\('#app'\);\s+enhanceScrollableTables\(app\);\s+removeDuplicatePageRefresh\(app\);/
+    /Promise\.resolve\(renderCurrentView\(\)\)\.then\(\(\) => \{[\s\S]*?if \(STATE\.view !== 'domains'\) applyFleetFilter\(\);\s+const app = \$\('#app'\);\s+enhanceScrollableTables\(app\);\s+removeDuplicatePageRefresh\(app\);/
   );
 });
 
@@ -4243,6 +4498,45 @@ test('route navigation respects dirty modal editors before replacing the view', 
   assert.match(go, /return true;/);
 });
 
+test('shared route renderer clears stale filter counts and recalculates the active view', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function clearFleetFilterCount()');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const filterCount = {
+    textContent: '0/298 work items',
+    attrs: { 'aria-label': '0 of 298 work items match the site filter' },
+    removeAttribute(name) {
+      delete this.attrs[name];
+    },
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nclearFleetFilterCount();`, {
+    $: selector => (selector === '#fleet-filter-count' ? filterCount : null),
+  });
+  assert.equal(filterCount.textContent, '');
+  assert.deepEqual(filterCount.attrs, {});
+  const renderStart = app.indexOf('function renderCurrentView()');
+  const renderEnd = app.indexOf('\n}', renderStart) + 2;
+  assert.ok(renderStart >= 0 && renderEnd > renderStart);
+  assert.match(
+    app.slice(renderStart, renderEnd),
+    /^function renderCurrentView\(\) \{\s*clearFleetFilterCount\(\);/
+  );
+  const sharedStart = app.indexOf('function render()');
+  const sharedEnd = app.indexOf('\nfunction renderCurrentView()', sharedStart);
+  const calls = [];
+  const sharedContext = {
+    STATE: { view: 'executive' },
+    renderCurrentView: () => calls.push('view'),
+    applyFleetFilter: () => calls.push('filter'),
+    $: () => ({}),
+    enhanceScrollableTables: () => calls.push('enhance'),
+    removeDuplicatePageRefresh: () => calls.push('dedupe'),
+  };
+  await vm.runInNewContext(`${app.slice(sharedStart, sharedEnd)}\nrender();`, sharedContext);
+  assert.deepEqual(calls, ['view', 'filter', 'enhance', 'dedupe']);
+});
+
 test('saved-view navigation shares the dirty-editor guard', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
@@ -4404,6 +4698,9 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Filter sites<input id="ag-missing-filter" type="search"/);
   assert.match(app, /No sites match that filter\./);
   assert.match(app, /wireMissingSiteFilter\(\);/);
+  assert.match(app, /data-agent-tier="\$\{esc\(r\.tier \|\| 'none'\)\}" data-agent-stale=/);
+  assert.match(app, /class="ag-health-detail hidden" data-site="\$\{esc\(row\.site\)\}"/);
+  assert.match(app, /\$\$\('\.ag-health-detail\[data-site\]'\)\.forEach/);
   assert.match(
     app,
     /class="matrix-scroll-hint" role="note">Swipe horizontally to inspect agent status and actions/

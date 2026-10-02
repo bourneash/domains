@@ -161,9 +161,11 @@ function wireMissingSiteFilter() {
   const items = [...list.querySelectorAll('li')];
   const update = () => {
     const query = input.value.trim().toLowerCase();
+    const fleetQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
     let visible = 0;
     items.forEach(item => {
-      const match = item.dataset.site.toLowerCase().includes(query);
+      const site = item.dataset.site.toLowerCase();
+      const match = site.includes(query) && site.includes(fleetQuery);
       item.hidden = !match;
       if (match) visible++;
     });
@@ -211,6 +213,13 @@ function applyFleetFilter() {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  $$('.ag-health-detail[data-site]').forEach(el => {
+    const site = (el.dataset.site || '').toLowerCase();
+    el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
+  });
+  if ($('[data-agent-engineer-summary]')) updateEngineerSummary(q);
+  if ($('[data-agent-role-summary]')) updateGenericAgentSummary(q);
+  if (STATE.view === 'health') updateHealthSummary();
   const count = $('#fleet-filter-count');
   if (count) {
     const visible = rows.filter(row => !row.classList.contains('fleet-hidden')).length;
@@ -266,13 +275,14 @@ function applyFleetFilter() {
     }
     if (STATE.view === 'workflow-board' && WORK_BOARD_CACHE) {
       const workItems = workBoardItems(WORK_BOARD_CACHE).filter(workBoardVisible);
-      const matching = workItems.filter(item => workBoardSiteMatches(item, q)).length;
-      count.textContent = q
+      const query = WORK_BOARD_SITE_QUERY;
+      const matching = workItems.filter(item => workBoardSiteMatches(item, query)).length;
+      count.textContent = query
         ? `${matching}/${workItems.length} work items`
         : `${workItems.length} work items`;
       count.setAttribute(
         'aria-label',
-        q
+        query
           ? `${matching} of ${workItems.length} work items match the site filter`
           : `${workItems.length} work items available on this board`
       );
@@ -295,6 +305,146 @@ function applyFleetFilter() {
   }
   globalThis.updateTaskBudgetPagination?.();
   if (STATE.view === 'domains') domRenderSitePage();
+}
+
+function updateHealthSummary() {
+  const cards = $$('.health-card');
+  if (!cards.length) return;
+  const visible = cards.filter(card => !card.classList.contains('fleet-hidden'));
+  const healthy = visible.filter(card => Number(card.dataset.healthFailing) === 0).length;
+  const needsAttention = visible.length - healthy;
+  const failing = visible.reduce(
+    (total, card) => total + Number(card.dataset.healthFailing || 0),
+    0
+  );
+  const checks = visible.reduce((total, card) => total + Number(card.dataset.healthChecks || 0), 0);
+  const stats = $$('.health-stat');
+  const values = $$('.health-stat strong');
+  if (values.length < 4 || stats.length < 4) return;
+  values[0].textContent = String(visible.length);
+  values[1].textContent = String(healthy);
+  values[2].textContent = String(needsAttention);
+  values[3].innerHTML = `${failing}<small>/${checks}</small>`;
+  stats[2].classList.toggle('health-stat-bad', needsAttention > 0);
+  stats[3].classList.toggle('health-stat-bad', failing > 0);
+  stats[3].classList.toggle('health-stat-good', failing === 0);
+}
+
+function updateEngineerSummary(query = '') {
+  const rows = $$('[data-fleet-row][data-agent-tier]');
+  if (!rows.length) return;
+  const visible = rows.filter(row => !row.classList.contains('fleet-hidden'));
+  const tiers = {};
+  visible.forEach(row => {
+    const tier = row.dataset.agentTier || 'none';
+    tiers[tier] = (tiers[tier] || 0) + 1;
+  });
+  const summary = Object.entries(tiers)
+    .map(([tier, count]) => `${tier}=${count}`)
+    .join(' · ');
+  const stale = visible
+    .map(row => (row.dataset.agentStale === 'true' ? row.dataset.site : ''))
+    .filter(Boolean);
+  const missingRows = $$('.ag-missing-list li[data-site]');
+  missingRows.forEach(row => {
+    row.classList.toggle(
+      'fleet-hidden',
+      Boolean(query) && !row.dataset.site.toLowerCase().includes(query)
+    );
+  });
+  const missingCount = missingRows.filter(
+    row => !row.hidden && !row.classList.contains('fleet-hidden')
+  ).length;
+  const countNode = $('#ag-missing-count');
+  if (countNode) countNode.textContent = `${missingCount} of ${missingRows.length} sites`;
+  const count = $('[data-agent-engineer-count]');
+  if (count) count.textContent = `${visible.length} engineer${visible.length === 1 ? '' : 's'}`;
+  const tiersNode = $('[data-agent-engineer-tiers]');
+  if (tiersNode) tiersNode.textContent = summary;
+  const staleNode = $('[data-agent-engineer-stale]');
+  if (staleNode) {
+    staleNode.hidden = stale.length === 0;
+    staleNode.textContent = stale.length ? `⚠ stale pulse: ${stale.join(', ')}` : '';
+  }
+  const missingNode = $('[data-agent-engineer-missing]');
+  if (missingNode) missingNode.firstChild.textContent = `· ${missingCount} not enrolled `;
+  updateAgentHealthPanel(query);
+}
+
+function updateGenericAgentSummary(query = '') {
+  const rows = $$('.ag-row[data-site]');
+  const visible = rows.filter(row => !row.classList.contains('fleet-hidden'));
+  const enabled = visible.filter(row => row.dataset.agentEnabled === 'true').length;
+  const paused = visible.length - enabled;
+  const issues = visible.filter(row => row.dataset.agentIssue === 'true').length;
+  const alerts = visible.reduce((total, row) => total + Number(row.dataset.agentAlerts || 0), 0);
+  const missingRows = $$('.ag-missing-list li[data-site]');
+  missingRows.forEach(row =>
+    row.classList.toggle(
+      'fleet-hidden',
+      Boolean(query) && !row.dataset.site.toLowerCase().includes(query)
+    )
+  );
+  const missingCount = missingRows.filter(
+    row => !row.hidden && !row.classList.contains('fleet-hidden')
+  ).length;
+  const countNode = $('[data-agent-role-count]');
+  if (countNode) countNode.textContent = `${visible.length} site${visible.length === 1 ? '' : 's'}`;
+  const status = $('[data-agent-role-status]');
+  if (status) {
+    status.innerHTML = `${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${alerts ? ` · <span class="flag">${alerts} publishing alert${alerts === 1 ? '' : 's'}</span>` : ''}`;
+  }
+  const count = $('#ag-missing-count');
+  if (count) count.textContent = `${missingCount} of ${missingRows.length} sites`;
+  const missing = $('[data-agent-role-missing]');
+  if (missing) missing.firstChild.textContent = `· ${missingCount} not enrolled `;
+  updateAgentHealthPanel(query);
+}
+
+function updateAgentHealthPanel(query = '') {
+  const data = AGENT_HEALTH;
+  if (!data || !$('.ag-health')) return;
+  const rows = (data.rows || []).filter(
+    row =>
+      !query ||
+      String(row.site || '')
+        .toLowerCase()
+        .includes(query)
+  );
+  const summary = {
+    ...(data.summary || {}),
+    enrolled: rows.length,
+    expected: rows.reduce((total, row) => total + Number(row.expected || 0), 0),
+    observed: rows.reduce((total, row) => total + Number(row.observed || 0), 0),
+    failed: rows.reduce((total, row) => total + Number(row.failed || 0), 0),
+    missed: rows.reduce((total, row) => total + Number(row.missed || 0), 0),
+    drifted: rows.filter(row => row.drift).length,
+  };
+  const overview = agentHealthOverview({ ...data, summary }, rows);
+  const current = $('.ag-health-summaryline .health-now');
+  if (current) current.textContent = overview.current;
+  const history = $('.ag-health-summaryline .ag-health-history');
+  if (history) history.textContent = `7d history: ${overview.history}`;
+  const detail = $('[data-agent-health-current-detail]');
+  if (detail) detail.innerHTML = `<b>Now</b> ${esc(overview.currentDetail)}`;
+  const historyDetail = $('[data-agent-health-history-detail]');
+  if (historyDetail)
+    historyDetail.innerHTML = `<b>7d history</b> ${summary.expected} expected · ${summary.observed} observed · ${summary.failed} failed · ${summary.missed} missed`;
+  const drift = $('[data-agent-health-drift]');
+  if (drift) drift.textContent = `${summary.drifted} prompt/runner drifted`;
+  const pause = $('.ag-health-pause');
+  if (pause)
+    pause.textContent = query ? 'Pause current issues (fleet-wide)' : 'Pause current issues';
+  const rerun = $('.ag-health-rerun');
+  if (rerun)
+    rerun.textContent = query ? 'Rerun failures (fleet-wide)' : 'Rerun historical failures';
+}
+
+function clearFleetFilterCount() {
+  const count = $('#fleet-filter-count');
+  if (!count) return;
+  count.textContent = '';
+  count.removeAttribute('aria-label');
 }
 
 function updateTaskFleetSummary(siteQuery = '') {
@@ -328,6 +478,7 @@ function clearFleetFilter() {
   const input = $('#fleet-filter');
   if (!input) return;
   input.value = '';
+  WORK_BOARD_SITE_QUERY = '';
   try {
     localStorage.removeItem('fd.fleet-filter');
   } catch {}
@@ -865,7 +1016,7 @@ async function renderEngineers() {
             : '') +
           ` <button type="button" class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="engineer">Remove</button>`
         : tasksBtn;
-      return `<tr>
+      return `<tr data-fleet-row data-fleet-unit="sites" data-site="${esc(r.site)}" data-agent-tier="${esc(r.tier || 'none')}" data-agent-stale="${r.pulse_age && r.pulse_age > 35 * 60 ? 'true' : 'false'}">
       <td class="site">${siteLink(r.site)}</td>
       <td>${tier(r.tier)}</td>
       <td>${r.engineer ? feats(r) : '<span class="muted">—</span>'}</td>
@@ -952,12 +1103,12 @@ async function renderEngineers() {
 
   app.innerHTML = `
     ${breadcrumb('engineer')}
-    <div class="page-head"><div><h2 class="page-title">Engineer</h2><span class="muted">${eng.length} sites run this agent — live pulse, render, Cloudflare, queue</span></div><button type="button" class="btn" id="engineer-refresh">↻ Refresh</button></div>
-    <div class="task-toolbar">
-      <strong>${eng.length} engineers</strong>
-      <span class="muted">${esc(summary)}</span>
-      ${stale.length ? `<span class="flag">⚠ stale pulse: ${esc(stale.join(', '))}</span>` : ''}
-      <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
+    <div class="page-head"><div><h2 class="page-title">Engineer</h2><span class="muted">Live pulse, render, Cloudflare, and queue health for enrolled sites</span></div><button type="button" class="btn" id="engineer-refresh">↻ Refresh</button></div>
+    <div class="task-toolbar" data-agent-engineer-summary>
+      <strong data-agent-engineer-count>${eng.length} engineers</strong>
+      <span class="muted" data-agent-engineer-tiers>${esc(summary)}</span>
+      <span class="flag" data-agent-engineer-stale${stale.length ? '' : ' hidden'}>${stale.length ? `⚠ stale pulse: ${esc(stale.join(', '))}` : ''}</span>
+      <span class="ag-enrollment-gap" data-agent-engineer-missing>· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
       <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Help — show / hide the column key">? Help</button>
     </div>
     ${engineerHealthPanel(healthData)}
@@ -1081,7 +1232,7 @@ function agentHealthPanel(data, currentRows = []) {
     ? '<span class="muted">Controls remain on each site\'s exact editorial profile.</span>'
     : '<button class="btn sm ag-health-pause" type="button">Pause current issues</button><button class="btn sm ag-health-rerun" type="button">Rerun historical failures</button>';
   return `<details class="card ag-health"><summary><strong>Current health</strong><span class="ag-health-summaryline"><span class="health-now">${esc(overview.current)}</span><span class="ag-health-history">7d history: ${esc(overview.history)}</span></span></summary>
-    <div class="task-toolbar ag-health-toolbar"><span><b>Now</b> ${esc(overview.currentDetail)}</span><span><b>7d history</b> ${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.failed} failed · ${data.summary.missed} missed</span><span>${data.summary.drifted} prompt/runner drifted</span>${familyControls}</div>
+    <div class="task-toolbar ag-health-toolbar"><span data-agent-health-current-detail><b>Now</b> ${esc(overview.currentDetail)}</span><span data-agent-health-history-detail><b>7d history</b> ${data.summary.expected} expected · ${data.summary.observed} observed · ${data.summary.failed} failed · ${data.summary.missed} missed</span><span data-agent-health-drift>${data.summary.drifted} prompt/runner drifted</span>${familyControls}</div>
     <p class="muted ag-health-note">Current status is shown first. The seven-day counts are historical context and do not mean a site is failing now. Expected slots come from the active cron schedule; paused roles are excluded. Expand a row for execution history and recent failures. AI cost comes from the tracked usage ledger.</p></details>`;
 }
 
@@ -1107,7 +1258,7 @@ function healthDetailRow(row, colspan = 10) {
         )
         .join('')
     : '<li class="muted">No expected run slots in this window.</li>';
-  return `<tr class="ag-health-detail hidden" data-health-detail="${esc(row.site)}:${esc(row.role || '')}"><td colspan="${colspan}"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
+  return `<tr class="ag-health-detail hidden" data-site="${esc(row.site)}" data-health-detail="${esc(row.site)}:${esc(row.role || '')}"><td colspan="${colspan}"><div class="ag-health-detail-grid"><span><b>Schedule</b><br><span class="mono">${esc(row.schedule)}</span></span><span><b>Last run</b><br>${row.last ? esc(fmtDate(row.last)) : '—'}</span><span><b>Runner</b><br><span class="mono">${esc(row.runner)}</span></span><span><b>Prompt hash</b><br><span class="mono">${esc(row.promptHash || 'missing')}</span></span><span><b>AI calls</b><br>${row.calls} · ${fmtUSD(row.costUsd)}</span><span><b>Execution history</b><br><span class="muted">${row.expected} expected · ${row.missed} missed · ${row.unknown} unknown</span><ul>${history}</ul></span><span><b>Recent failures</b><br><ul>${failures}</ul></span></div></td></tr>`;
 }
 
 function toggleHealthDetail(button) {
@@ -3119,7 +3270,7 @@ async function renderHealth() {
         </tr>`
         )
         .join('');
-      return `<div class="card health-card" data-fleet-row data-site="${esc(g)}">
+      return `<div class="card health-card" data-fleet-row data-fleet-unit="targets" data-site="${esc(g)}" data-health-failing="${s.failing}" data-health-checks="${s.total}">
         <div class="health-card-head">
           <h2 class="page-title">${siteLink(g)}</h2>
           <span class="muted">${badge} · ${s.passing}/${s.total} checks green</span>
@@ -5008,6 +5159,30 @@ function controlDraw() {
   applyFleetFilter();
 }
 
+function syncFleetFilterFromStorage(event) {
+  if (event.key !== 'fd.fleet-filter') return;
+  const input = $('#fleet-filter');
+  if (!input) return;
+  const value = event.newValue || '';
+  const query = value.trim().toLowerCase();
+  const changed = query !== WORK_BOARD_SITE_QUERY || input.value !== value;
+  input.value = value;
+  WORK_BOARD_SITE_QUERY = query;
+  CF_BUILDS.filter = query;
+  if (!changed) return;
+  if (STATE.view === 'workflow-board' && WORK_BOARD_CACHE) {
+    clearTimeout(WORK_BOARD_SITE_FILTER_TIMER);
+    WORK_BOARD_COLUMNS.forEach(([key]) => (WORK_BOARD_PAGES[key] = 1));
+    renderWorkflowBoard(WORK_BOARD_CACHE);
+  } else if (STATE.view === 'builds') {
+    CF_BUILDS.pages = { repos: 1, builds: 1, triggers: 1 };
+    renderCloudflareBuilds();
+  } else if (STATE.view === 'errors') {
+    ERRORS_UI.page = 1;
+    renderErrors();
+  } else applyFleetFilter();
+}
+
 /* ---- retention policy (F20/F43) ----
  * tools/retention/policy.yaml is the single declaration of how long the fleet
  * keeps each class of data. This view reads it and can change retain_days.
@@ -5602,7 +5777,7 @@ async function renderGenericAgent(role) {
           : r.state === 'never'
             ? '<span class="badge b-gray">no log</span>'
             : `<span class="badge b-yellow">${esc(STATE_LABEL[r.state] || r.state)}</span>`;
-      return `<tr class="ag-row" data-fleet-row data-site="${esc(r.site)}">
+      return `<tr class="ag-row" data-fleet-row data-fleet-unit="sites" data-site="${esc(r.site)}" data-agent-enabled="${r.enabled ? 'true' : 'false'}" data-agent-issue="${r.enabled && ['stale', 'overdue'].includes(r.state) ? 'true' : 'false'}" data-agent-alerts="${(r.editorial?.alerts || []).length}">
       <td class="site">${siteLink(r.site)}${toolLinks(r.site)}</td>
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
@@ -5624,10 +5799,10 @@ async function renderGenericAgent(role) {
   app.innerHTML = `
     ${breadcrumb(role)}
     <div class="page-head"><h2 class="page-title">${esc(agentLabel(role))}</h2><button type="button" class="btn" id="agent-refresh">↻ Refresh</button></div>
-    <div class="task-toolbar">
-      <strong>${rows.length} sites</strong>
-      <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>
-      <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
+    <div class="task-toolbar" data-agent-role-summary>
+      <strong data-agent-role-count>${rows.length} sites</strong>
+      <span class="muted" data-agent-role-status>${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>
+      <span class="ag-enrollment-gap" data-agent-role-missing>· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
     </div>
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
       <div class="ag-missing-head"><strong>Sites not enrolled in ${esc(agentLabel(role))}</strong><span class="muted" id="ag-missing-count" aria-live="polite">${notEnrolled.length} sites</span></div>
@@ -14503,7 +14678,7 @@ function showChangeGateForm(request, action) {
       await api(
         'POST',
         `/api/change-requests/${encodeURIComponent(request.request_id)}/gate${configure ? '' : '/' + action}`,
-        body
+        { ...body, expected_revision: request.gate_revision }
       );
       closeModal(true);
       toast(
@@ -14517,6 +14692,10 @@ function showChangeGateForm(request, action) {
     } catch (error) {
       button.disabled = false;
       toast(error.message, 'err');
+      if (/revision changed/.test(error.message)) {
+        closeModal(true);
+        softRender();
+      }
     }
   };
 }
@@ -14661,6 +14840,7 @@ let WORK_BOARD_QUERY = '';
 let WORK_BOARD_SEARCH_TIMER;
 let WORK_BOARD_CACHE = null;
 let WORK_BOARD_SITE_FILTER_TIMER;
+let WORK_BOARD_SITE_QUERY = '';
 const WORK_BOARD_PAGE_SIZE = 20;
 const WORK_BOARD_MOBILE_PAGE_SIZE = 6;
 const WORK_BOARD_PAGES = Object.create(null);
@@ -15119,7 +15299,7 @@ async function renderWorkflowBoard(cachedData = null) {
   try {
     const data = cachedData || (await api('GET', '/api/workflow-board'));
     WORK_BOARD_CACHE = data;
-    const siteQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+    const siteQuery = WORK_BOARD_SITE_QUERY;
     const items = workBoardItems(data).filter(
       item => workBoardVisible(item) && workBoardSiteMatches(item, siteQuery)
     );
@@ -18176,6 +18356,10 @@ function removeDuplicatePageRefresh(root) {
 
 function render() {
   return Promise.resolve(renderCurrentView()).then(() => {
+    // Route renderers may finish after navigation or retain old filter markup
+    // while loading. Recompute the shared counter against the active view once
+    // its DOM is current so a prior route's status cannot linger in the header.
+    if (STATE.view !== 'domains') applyFleetFilter();
     const app = $('#app');
     enhanceScrollableTables(app);
     removeDuplicatePageRefresh(app);
@@ -18183,6 +18367,7 @@ function render() {
 }
 
 function renderCurrentView() {
+  clearFleetFilterCount();
   $('#app')?.setAttribute('aria-busy', 'true');
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
@@ -19040,11 +19225,13 @@ async function boot() {
     try {
       ff.value = localStorage.getItem('fd.fleet-filter') || '';
     } catch {}
+    WORK_BOARD_SITE_QUERY = ff.value.trim().toLowerCase();
     CF_BUILDS.filter = ff.value.trim().toLowerCase();
     ff.addEventListener('input', () => {
       try {
         localStorage.setItem('fd.fleet-filter', ff.value);
       } catch {}
+      WORK_BOARD_SITE_QUERY = ff.value.trim().toLowerCase();
       if (STATE.view === 'builds') {
         const query = ff.value.trim().toLowerCase();
         if (query !== CF_BUILDS.filter) {
@@ -19065,6 +19252,7 @@ async function boot() {
         }, 180);
       } else applyFleetFilter();
     });
+    window.addEventListener('storage', syncFleetFilterFromStorage);
     ff.addEventListener('keydown', e => {
       if (e.key === 'Escape' && ff.value) {
         e.stopPropagation();
