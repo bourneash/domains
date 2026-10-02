@@ -3537,7 +3537,7 @@ async function renderErrors() {
 
   const swept = d.lastSweep ? fmtAge((Date.now() - d.lastSweep) / 1000) + ' ago' : 'never';
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide log scan — error/warn lines tailed from every in-repo container's docker logs.</span></div><button type="button" class="btn" id="errors-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">Errors</h2><span class="muted">Fleet-wide scan across in-repo containers. Site filters narrow the log table; scan totals and Slack-delivery alerts remain fleet-wide.</span></div><button type="button" class="btn" id="errors-refresh">↻ Refresh</button></div>
     <section class="error-summary" aria-label="Error scan summary">
       <div class="error-stat"><strong>${rows.length}</strong><span>Containers scanned</span></div>
       <div class="error-stat ${noisy1h ? 'error-stat-bad' : 'error-stat-good'}"><strong>${noisy1h}</strong><span>Reporting errors · 1h</span></div>

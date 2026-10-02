@@ -2964,6 +2964,10 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(app, /Critical lines · 24h<\/span>/);
   assert.match(
     app,
+    /Site filters narrow the log table; scan totals and Slack-delivery alerts remain fleet-wide\./
+  );
+  assert.match(
+    app,
     /class="task-toolbar errors-toolbar" role="group" aria-label="Error scan filters"/
   );
   assert.match(app, /class="error-help"><summary>How errors are classified/);
