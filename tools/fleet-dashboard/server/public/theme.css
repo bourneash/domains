@@ -2445,6 +2445,29 @@ body.has-rail .actions { margin-left: 0; }
   body.mobile-rail-open #rail { transform: translateX(0); }
 }
 
+/* The compact desktop rail hides labels below 980px; once the mobile drawer
+   opens, restore the full navigation so every destination is self-identifying. */
+@media (max-width: 720px) {
+  body.mobile-rail-open .rl-word { display: block; opacity: 1; width: auto; }
+  body.mobile-rail-open .rl-h-t,
+  body.mobile-rail-open .rl-h-n,
+  body.mobile-rail-open .rl-caret,
+  body.mobile-rail-open .rl-t,
+  body.mobile-rail-open .rl-n { display: initial; }
+  body.mobile-rail-open .rl-h-main { justify-content: flex-start; padding: 7px 4px 7px 10px; }
+  body.mobile-rail-open .rl-toggle { display: grid; }
+  body.mobile-rail-open .rl-it,
+  body.mobile-rail-open.rail-folded .rl-it { justify-content: flex-start; padding: 5.5px 10px !important; }
+  body.mobile-rail-open.rail-folded .rl-top { padding: 0 12px 0 16px; }
+  body.mobile-rail-open.rail-folded .rl-nav { padding: 10px 10px 16px; }
+  body.mobile-rail-open.rail-folded .rl-root-fav,
+  body.mobile-rail-open.rail-folded .rl-fav,
+  body.mobile-rail-open.rail-folded .rl-fav-moves { display: block; }
+  body.mobile-rail-open.rail-folded .rl-favorites-head { justify-content: space-between; padding: 5px 10px 6px; }
+  body.mobile-rail-open.rail-folded .rl-favorites-label .rl-h-t,
+  body.mobile-rail-open.rail-folded .rl-favorites-label .rl-h-n { display: initial; }
+}
+
 /* ------------------------------------------------ category landing pages -- */
 .nav-root-head { align-items: flex-start; }
 .nav-root-head > div { min-width: 0; }

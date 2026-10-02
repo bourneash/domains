@@ -1515,6 +1515,18 @@ test('narrow screens get a usable navigation drawer instead of icon-only navigat
   assert.match(theme, /body\.has-rail \{ padding-left: 0; \}/);
   assert.match(theme, /body\.mobile-rail-open #rail/);
   assert.match(theme, /body\.mobile-rail-open \{ overflow: hidden; \}/);
+  assert.match(
+    theme,
+    /body\.mobile-rail-open \.rl-word \{ display: block; opacity: 1; width: auto; \}/
+  );
+  assert.match(
+    theme,
+    /body\.mobile-rail-open \.rl-t,[\s\S]*body\.mobile-rail-open \.rl-n \{ display: initial; \}/
+  );
+  assert.match(
+    theme,
+    /body\.mobile-rail-open\.rail-folded \.rl-it \{ justify-content: flex-start;/
+  );
 });
 
 test('mobile navigation keeps keyboard focus inside the open drawer', () => {
