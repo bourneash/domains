@@ -14845,6 +14845,30 @@ function groupWorkflowBoardActions(actions) {
   return groups;
 }
 
+function groupAgentRuntimeRuns(runs, deliveryState) {
+  const groups = [];
+  for (const run of runs) {
+    const error = run.error || run.result?.delivery_error || '';
+    const previous = groups.at(-1);
+    const priorRun = previous?.runs.at(-1);
+    const elapsed = priorRun
+      ? Math.abs(Date.parse(run.started_at) - Date.parse(priorRun.started_at))
+      : Infinity;
+    const canGroup =
+      Boolean(error) &&
+      run.status === 'failed' &&
+      priorRun?.status === 'failed' &&
+      run.agent_id === priorRun.agent_id &&
+      deliveryState(run) === deliveryState(priorRun) &&
+      error === (priorRun.error || priorRun.result?.delivery_error || '') &&
+      Number.isFinite(elapsed) &&
+      elapsed <= 10 * 60 * 1000;
+    if (canGroup) previous.runs.push(run);
+    else groups.push({ runs: [run] });
+  }
+  return groups;
+}
+
 async function renderWorkflowBoard() {
   if (FRESH)
     app.innerHTML =
@@ -15685,12 +15709,24 @@ async function renderAgentRuntime() {
         return `<tr><td><b>${esc(agent.name)}</b><div class="muted">${esc(agent.role)} · ${esc(agent.adapter || 'adapter')}</div></td><td>${statusBadge(agent.status)}${accountability.execution_generation ? `<div class="muted">generation ${esc(accountability.execution_generation)}</div>` : ''}</td><td>${agentDelivered} delivered · ${agentFailures} failed<div class="muted">${agentDeferred} deferred${accountability.total_failures ? ` · ${esc(accountability.total_failures)} lifetime failures` : ''}</div>${accountability.last_failure_reason ? `<div class="muted" title="${esc(accountability.last_failure_reason)}">last: ${esc(accountability.last_failure_reason.slice(0, 70))}${accountability.last_failure_reason.length > 70 ? '…' : ''}</div>` : ''}</td><td>${agentRuns.length} runs<div class="muted">${agentEvals.length ? `${average}/100 eval` : 'not evaluated'}</div></td><td><button class="btn sm agent-runtime-toggle" data-agent-id="${esc(agent.agent_id)}" data-status="${esc(agent.status)}">${agent.status === 'paused' ? 'Resume' : 'Pause'}</button></td></tr>`;
       })
       .join('');
-    const runTable = runRows
-      .slice(0, 30)
-      .map(
-        run =>
-          `<tr><td><b>${esc(agentName(run.agent_id))}</b><div class="muted">${esc(run.run_id.slice(0, 12))} · ${esc(fmtDate(run.started_at))}</div></td><td>${statusBadge(run.status)}<div class="muted">${deliveryBadge(deliveryState(run))}</div></td><td>${esc(run.total_tokens || 0)} tokens<div class="muted">$${Number(run.cost_usd || 0).toFixed(4)}</div></td><td>${esc(run.error || run.result?.delivery_error || run.result?.routine || '—')}</td></tr>`
-      )
+    const renderRunRow = run =>
+      `<tr><td><b>${esc(agentName(run.agent_id))}</b><div class="muted">${esc(run.run_id.slice(0, 12))} · ${esc(fmtDate(run.started_at))}</div></td><td>${statusBadge(run.status)}<div class="muted">${deliveryBadge(deliveryState(run))}</div></td><td>${esc(run.total_tokens || 0)} tokens<div class="muted">$${Number(run.cost_usd || 0).toFixed(4)}</div></td><td>${esc(run.error || run.result?.delivery_error || run.result?.routine || '—')}</td></tr>`;
+    const runTable = groupAgentRuntimeRuns(runRows.slice(0, 30), deliveryState)
+      .map(({ runs: group }) => {
+        if (group.length === 1) return renderRunRow(group[0]);
+        const latest = group[0];
+        const oldest = group[group.length - 1];
+        const error = latest.error || latest.result?.delivery_error || 'Repeated failure';
+        const tokenTotal = group.reduce((sum, run) => sum + Number(run.total_tokens || 0), 0);
+        const costTotal = group.reduce((sum, run) => sum + Number(run.cost_usd || 0), 0);
+        const runIds = group
+          .map(
+            run =>
+              `<li><span class="mono">${esc(run.run_id)}</span> · ${esc(fmtDate(run.started_at))}</li>`
+          )
+          .join('');
+        return `<tr class="ex-run-repeat"><td><b>${esc(agentName(latest.agent_id))}</b><div class="muted">${group.length} matching runs · ${esc(fmtDate(latest.started_at))}–${esc(fmtDate(oldest.started_at))}</div><details><summary>Show run IDs and times</summary><ul>${runIds}</ul></details></td><td>${statusBadge(latest.status)}<div class="muted">${deliveryBadge(deliveryState(latest))}</div></td><td>${group.length} runs<div class="muted">${tokenTotal} tokens · $${costTotal.toFixed(4)}</div></td><td>${esc(error)}</td></tr>`;
+      })
       .join('');
     const budgetTable = budgetRows
       .map(

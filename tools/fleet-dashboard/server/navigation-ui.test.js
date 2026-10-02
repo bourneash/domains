@@ -3258,6 +3258,35 @@ test('Work Board groups only adjacent matching audit events in the same minute',
   assert.match(app, /similar updates within one minute/);
 });
 
+test('Agent runtime groups only adjacent matching failures and keeps every run identifier', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function groupAgentRuntimeRuns(runs, deliveryState) {');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const groupRuns = vm.runInNewContext(`${app.slice(start, end)}; groupAgentRuntimeRuns;`);
+  const failed = {
+    agent_id: 'ceo',
+    status: 'failed',
+    error: 'provider exited with status 79',
+    started_at: '2026-10-02T10:00:00Z',
+  };
+  const groups = groupRuns(
+    [
+      { ...failed, run_id: 'run-new' },
+      { ...failed, run_id: 'run-old', started_at: '2026-10-02T09:58:00Z' },
+      { ...failed, run_id: 'other-agent', agent_id: 'cto' },
+      { ...failed, run_id: 'different-error', error: 'timeout' },
+      { ...failed, run_id: 'too-old', started_at: '2026-10-02T09:40:00Z' },
+    ],
+    run => run.status
+  );
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(groups.map(group => group.runs.map(run => run.run_id)))),
+    [['run-new', 'run-old'], ['other-agent'], ['different-error'], ['too-old']]
+  );
+  assert.match(app, /<details><summary>Show run IDs and times<\/summary><ul>\$\{runIds\}/);
+});
+
 test('Active Delivery paginates the complete attention queue', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const delivery = app.slice(
