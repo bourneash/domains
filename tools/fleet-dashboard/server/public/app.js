@@ -307,6 +307,10 @@ async function api(method, url, body) {
     if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
     return data;
   } catch (e) {
+    // A failed response from an abandoned route is just as stale as a
+    // successful one. In particular, a timeout from the previous view must
+    // never replace the route the operator has navigated to since.
+    if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
     if (e?.name === 'AbortError')
       throw new Error(`Request timed out after ${API_TIMEOUT_MS / 1000}s`);
     throw e;

@@ -229,6 +229,35 @@ test('shared API reads abandon stale route responses before renderers continue',
   assert.match(app, /message\.includes\('route changed while data was loading'\)/);
 });
 
+test('failed API reads from an abandoned route cannot replace the current view', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const staleStart = app.indexOf('class StaleRouteError extends Error');
+  const staleEnd = app.indexOf('\nconst EXEC_RUN', staleStart);
+  const apiStart = app.indexOf('const API_TIMEOUT_MS = 60000;');
+  const apiEnd = app.indexOf('\n// Optional panels', apiStart);
+  assert.ok(staleStart >= 0 && staleEnd > staleStart && apiStart >= 0 && apiEnd > apiStart);
+
+  const context = vm.createContext({
+    AbortController,
+    clearTimeout,
+    fetch: () =>
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('old route request failed')), 10)
+      ),
+    setTimeout,
+  });
+  vm.runInContext(
+    `let ROUTE_EPOCH = 0;\n${app.slice(staleStart, staleEnd)}\n${app.slice(apiStart, apiEnd)}\n` +
+      `globalThis.beginRead = () => api('GET', '/api/containers');\n` +
+      `globalThis.navigateAway = () => { ROUTE_EPOCH += 1; };`,
+    context
+  );
+
+  const pending = context.beginRead();
+  context.navigateAway();
+  await assert.rejects(pending, error => error.name === 'StaleRouteError');
+});
+
 test('async route renders surface failures without unhandled promise rejections', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(
