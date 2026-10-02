@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:17:12.457Z",
+  "generated_at": "2026-10-02T17:21:50.542Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer decision: reject the Arttogogh report-only proposal and route no new implementation this cycle. All actionable candidates are blocked by active measurement or queued work, missing launch-readiness evidence, unavailable operations/security evidence, or incomplete attribution. Principal-engineer must reconcile the admission ledger and release at most one candidate only if every gate passes; unresolved blockers escalate by 2026-10-03T17:00Z.",
+        "summary": "Reject the SearchWoot report-only proposal as duplicate evidence work. Route only three bounded, preview-only scaffold implementations across distinct sites. Production launch remains blocked pending owner, legal, security, analytics, measurement, and rollback evidence; no revenue, ROI, causal-lift, or production-readiness claims are supported.",
         "requested_action": null,
         "proposal_id": null
       }

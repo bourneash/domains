@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:17:12.459Z",
+  "generated_at": "2026-10-02T17:21:50.542Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Hold new Arttogogh work until active measurement clears",
-        "summary": "arttogogh.com has three active improvements in measurement with a 2026-10-10 measurement due date. Adding another implementation would overlap active work and invalidate comparison windows.",
-        "requested_action": "Reconcile the three existing improvements in the authoritative queue, preserve their measurement windows, and admit exactly one new reversible change only after they finish, are paused, or are consolidated. Smallest next step: attach each existing improvement’s result or blocker and record the first available non-overlapping implementation slot by 2026-10-03T17:00:00Z.",
+        "title": "Complete SearchWoot launch-gate evidence packet",
+        "summary": "SearchWoot remains private because source rights, data-flow retention, consent analytics, security, accuracy, and measurement evidence are incomplete. Existing authorized evidence identifies four open launch-readiness tasks; no duplicate telemetry or production change is needed.",
+        "requested_action": "Route one bounded read-only evidence packet covering the four open tasks. Do not publish, deploy, add tracking, change credentials or configuration, send external outreach, or alter the private gate.",
         "proposal_id": null
       }
     ]
