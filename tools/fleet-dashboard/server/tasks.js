@@ -99,7 +99,21 @@ function readTaskCard(dir, col, name, slug) {
   }
   if (!st.isFile()) return null;
   const { meta, body } = parseTask(fs.readFileSync(fp, 'utf8'));
-  const excerpt = body.replace(/^#.*$/gm, '').replace(/\s+/g, ' ').trim().slice(0, 160);
+  const excerpt = body
+    .replace(/^\s*#{1,6}\s*/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*>\s?/gm, '')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/(`{1,3})(.*?)\1/g, '$2')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/_([^_]+)_/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
   const prio = meta.priority;
   return {
     site: slug,
