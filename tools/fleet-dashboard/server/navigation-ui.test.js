@@ -2416,6 +2416,7 @@ test('AI Usage gives dense tables context and mobile scroll guidance', () => {
 test('AI Usage panels use shared spacing and severity classes', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   const start = app.indexOf('async function renderAIUsage()');
   const end = app.indexOf('/* ===================== DEPLOYS ===================== */', start);
   assert.ok(start >= 0 && end > start);
@@ -2424,6 +2425,10 @@ test('AI Usage panels use shared spacing and severity classes', () => {
   assert.match(view, /class="aiu-notice aiu-notice-danger" role="alert"/);
   assert.match(view, /class="aiu-notice" role="note"/);
   assert.match(view, /class="task-toolbar aiu-subhead/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.aiu-granularity-btn\.active\s*\{[^}]*color: #174f92/
+  );
   assert.doesNotMatch(
     view,
     /style="(?:margin-bottom:14px|margin-top:12px|margin-top:16px|margin-bottom:14px; color: var\(--red\))/
