@@ -168,6 +168,12 @@
 :root[data-theme="light"] .wb-column,
 :root[data-theme="light"] .cq-controls { background: var(--panel-2); border-color: var(--border); }
 :root[data-theme="light"] .cq-kpi { background: var(--grad-panel), var(--panel); border-color: var(--border); }
+:root[data-theme="light"] .ex-workspace-tab.active small,
+:root[data-theme="light"] .ex-legend-prompt { color: #174f92; }
+:root[data-theme="light"] .ex-legend-response { color: #17623d; }
+:root[data-theme="light"] .ex-legend-background,
+:root[data-theme="light"] .ex-run-log-tool .ex-run-log-label { color: #68459b; }
+:root[data-theme="light"] .ex-inventory-card { background: var(--panel-2); border-color: var(--border); }
 :root[data-theme="light"] .cm-input,
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea,
