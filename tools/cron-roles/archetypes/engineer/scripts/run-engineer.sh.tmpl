@@ -199,7 +199,8 @@ fi
 # second engineer on it. The lock auto-reclaims after LOCK_STALE_SECS so a crashed
 # pass can never wedge the site (the failed-pid-cleanup guard).
 RESULT_FILE=""
-trap 'rm -f "${RESULT_FILE:-}" 2>/dev/null; release_work_lock; repo_mutation_lock_release 2>/dev/null || true' EXIT
+CLAUDE_STDERR_FILE=""
+trap 'rm -f "${RESULT_FILE:-}" "${CLAUDE_STDERR_FILE:-}" 2>/dev/null; release_work_lock; repo_mutation_lock_release 2>/dev/null || true' EXIT
 MUTATION_LOCK_HELPER="$REPO_ROOT/.monorepo-tools/cron-roles/repo-mutation-lock.sh"
 [[ -f "$MUTATION_LOCK_HELPER" ]] || MUTATION_LOCK_HELPER="$REPO_ROOT/../../tools/cron-roles/repo-mutation-lock.sh"
 # shellcheck source=/dev/null
@@ -276,6 +277,7 @@ if [[ -n "$QUEUE_LIST" ]]; then
 fi
 log "engineer turn budget: max=${MAX_TURNS} default=${DEFAULT_MAX_TURNS} queued_tasks=${QUEUE_LIST:-none}"
 RESULT_FILE="$(mktemp)"
+CLAUDE_STDERR_FILE="$(mktemp)"
 
 # A capped/failed pass must not strand source edits: principal-engineer has a
 # deliberate clean-checkout guard, so leaving a partial tree here deadlocks the
@@ -341,33 +343,64 @@ log "invoking {{MODEL}} engineer pass (max ${MAX_TURNS} turns)..."
 # Revoke git-push capability for the model pass (the wrapper does the build-gated
 # push). GIT_SSH_COMMAND=/bin/false means a misbehaving model can't reach the remote
 # despite --dangerously-skip-permissions + mounted SSH keys.
+CLAUDE_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+CLAUDE_STARTED_EPOCH="$(date +%s)"
 set +e
 GIT_SSH_COMMAND='/bin/false' GIT_TERMINAL_PROMPT=0 CRON_SITE="$CRON_SITE" CRON_ROLE=engineer REPO_ROOT="$REPO_ROOT" \
 timeout "$WORK_TIMEOUT" "$CLAUDE_TRACKED" "$PROMPT" --model "$MODEL" \
-  --max-turns "$MAX_TURNS" --dangerously-skip-permissions > "$RESULT_FILE" 2>>"$LOG"
+  --max-turns "$MAX_TURNS" --dangerously-skip-permissions > "$RESULT_FILE" 2>"$CLAUDE_STDERR_FILE"
 CLAUDE_EXIT=$?
 set -e
+CLAUDE_FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+CLAUDE_ELAPSED_SECONDS=$(( $(date +%s) - CLAUDE_STARTED_EPOCH ))
 tee -a "$LOG" < "$RESULT_FILE" > /dev/null
+tee -a "$LOG" < "$CLAUDE_STDERR_FILE" > /dev/null
+
+classify_claude_failure() {
+  case "$CLAUDE_EXIT" in
+    124) printf 'timeout\n' ;;
+    137) printf 'terminated_or_oom\n' ;;
+    *)
+      if grep -Eiq 'error_max_turns|max[- ]?turns|turn limit' "$RESULT_FILE" "$CLAUDE_STDERR_FILE" 2>/dev/null; then
+        printf 'turn_limit\n'
+      else
+        printf 'unknown_nonzero\n'
+      fi
+      ;;
+  esac
+}
 
 archive_failed_pass() {
   local reason="$1" stamp artifact_base
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
   artifact_base="$ENGINEER_FAILURE_DIR/${stamp}"
   mkdir -p "$ENGINEER_FAILURE_DIR"
+  CLAUDE_FAILURE_CLASS="$(classify_claude_failure)"
+  FAILED_ARTIFACT_BASE="$artifact_base"
   cp "$RESULT_FILE" "${artifact_base}.partial.txt" 2>/dev/null || true
+  cp "$CLAUDE_STDERR_FILE" "${artifact_base}.stderr.txt" 2>/dev/null || true
   git diff --binary HEAD -- site ops/scripts ops/roles ops/tasks ops/board/engineer-log.md \
     > "${artifact_base}.patch" 2>/dev/null || true
   git ls-files --others --exclude-standard -z -- site ops/scripts ops/roles ops/tasks \
     | tar --null -czf "${artifact_base}.untracked.tgz" -T - 2>/dev/null \
     || rm -f "${artifact_base}.untracked.tgz"
-  printf 'reason=%s\nprepass_shippable_dirty=%s\n' "$reason" "$([[ -n "$PREPASS_SHIPPABLE_DIRTY" ]] && echo 1 || echo 0)" \
-    > "${artifact_base}.meta"
+  {
+    printf 'format_version=2\nreason=%s\nfailure_class=%s\nclaude_exit=%s\n' \
+      "$reason" "$CLAUDE_FAILURE_CLASS" "$CLAUDE_EXIT"
+    printf 'max_turns=%s\nwork_timeout_seconds=%s\nelapsed_seconds=%s\n' \
+      "$MAX_TURNS" "$WORK_TIMEOUT" "$CLAUDE_ELAPSED_SECONDS"
+    printf 'started_at_utc=%s\nfinished_at_utc=%s\n' "$CLAUDE_STARTED_AT" "$CLAUDE_FINISHED_AT"
+    printf 'queued_tasks=%q\n' "$QUEUE_LIST"
+    printf 'stdout_bytes=%s\nstderr_bytes=%s\nprepass_shippable_dirty=%s\n' \
+      "$(wc -c < "$RESULT_FILE")" "$(wc -c < "$CLAUDE_STDERR_FILE")" \
+      "$( [[ -n "$PREPASS_SHIPPABLE_DIRTY" ]] && echo 1 || echo 0)"
+  } > "${artifact_base}.meta"
   if [[ -z "$PREPASS_SHIPPABLE_DIRTY" ]]; then
     git restore --staged --worktree --source=HEAD -- site ops/scripts ops/roles ops/tasks ops/board/engineer-log.md 2>>"$LOG" || true
     git clean -fd -- site ops/scripts ops/roles ops/tasks 2>>"$LOG" || true
-    log "archived failed pass at ${artifact_base}.* and restored clean shippable tree"
+    log "archived failed pass at ${artifact_base}.* (class=${CLAUDE_FAILURE_CLASS} exit=${CLAUDE_EXIT} elapsed=${CLAUDE_ELAPSED_SECONDS}s max_turns=${MAX_TURNS}) and restored clean shippable tree"
   else
-    log "archived failed pass at ${artifact_base}.*; preserved pre-existing shippable edits"
+    log "archived failed pass at ${artifact_base}.* (class=${CLAUDE_FAILURE_CLASS} exit=${CLAUDE_EXIT} elapsed=${CLAUDE_ELAPSED_SECONDS}s max_turns=${MAX_TURNS}); preserved pre-existing shippable edits"
   fi
 }
 
@@ -406,8 +439,8 @@ fi
 if [[ "$CLAUDE_EXIT" == "124" ]]; then
   archive_failed_pass "timeout after ${WORK_TIMEOUT}s"
   log "engineer pass TIMED OUT after ${WORK_TIMEOUT}s"
-  slack "🔴 *{{SITE_SHORT}} engineer* timed out after ${WORK_TIMEOUT}s · ${NOW_ET}" "danger"
-  board_block "🔴 **Timeout** — {{MODEL}} pass exceeded ${WORK_TIMEOUT}s. ${STATUS_LINE}"
+  slack "🔴 *{{SITE_SHORT}} engineer* timed out after ${WORK_TIMEOUT}s — diagnostics: ${FAILED_ARTIFACT_BASE}.* · ${NOW_ET}" "danger"
+  board_block "🔴 **Timeout** — {{MODEL}} pass exceeded ${WORK_TIMEOUT}s; diagnostics archived at ${FAILED_ARTIFACT_BASE}.*. ${STATUS_LINE}"
   exit 1
 fi
 
@@ -422,8 +455,8 @@ fi
 if [[ "$CLAUDE_EXIT" != "0" ]]; then
   archive_failed_pass "claude exit ${CLAUDE_EXIT}"
   log "engineer pass FAILED (exit=${CLAUDE_EXIT}) — task remains in backlog, will retry next tick"
-  slack "🔴 *{{SITE_SHORT}} engineer* pass failed (exit=${CLAUDE_EXIT}, likely max-turns) — task stays queued for retry · ${NOW_ET}" "danger"
-  board_block "⚠️ **Truncated** — pass exited ${CLAUDE_EXIT} (max-turns or crash). Task stays in backlog for retry. ${STATUS_LINE}"
+  slack "🔴 *{{SITE_SHORT}} engineer* pass failed (class=${CLAUDE_FAILURE_CLASS}, exit=${CLAUDE_EXIT}) — diagnostics: ${FAILED_ARTIFACT_BASE}.* · task stays queued for retry · ${NOW_ET}" "danger"
+  board_block "⚠️ **Engineer pass failed** — class=${CLAUDE_FAILURE_CLASS}, exit=${CLAUDE_EXIT}; diagnostics archived at ${FAILED_ARTIFACT_BASE}.*. Task stays in backlog for retry. ${STATUS_LINE}"
   exit 1
 fi
 
