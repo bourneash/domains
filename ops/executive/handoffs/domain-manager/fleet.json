@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:15:06.119Z",
+  "generated_at": "2026-10-02T17:17:12.459Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Execute the existing affiliate conversion-path improvement without adding overlapping work",
-        "summary": "No new site work is admissible because allthingsmasonic.com already has active homepage work and a queued affiliate conversion-path request. The existing request should proceed as the sole next implementation item.",
-        "requested_action": "Execute request 4719e525-763b-42a4-9f16-e71e1c38b17b. Scope only existing commercial-page CTA, product relevance, and disclosure placement. Baseline: 61 Amazon clicks with ordered items and commission unavailable for the site-level row. Acceptance: exact changed files and pages recorded, deterministic tests/build/link/disclosure checks pass, no unrelated routes or tracking change, and rollback is a revert of the bounded diff. Measure site-attributed Amazon clicks and any newly disclosed orders/commission for 14 days or 100 relevant clicks; do not claim lift if attribution remains unavailable. Due: 2026-10-09. Smallest next step: principal-engineer claims the queued request and records the target page/file map before editing. Rollback: revert only this change and restore the prior revision.",
+        "title": "Hold new Arttogogh work until active measurement clears",
+        "summary": "arttogogh.com has three active improvements in measurement with a 2026-10-10 measurement due date. Adding another implementation would overlap active work and invalidate comparison windows.",
+        "requested_action": "Reconcile the three existing improvements in the authoritative queue, preserve their measurement windows, and admit exactly one new reversible change only after they finish, are paused, or are consolidated. Smallest next step: attach each existing improvement’s result or blocker and record the first available non-overlapping implementation slot by 2026-10-03T17:00:00Z.",
         "proposal_id": null
       }
     ]
