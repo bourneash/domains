@@ -69,3 +69,7 @@ try {
   store.close();
 }
 NODE
+
+# Owner-priority delivery is deterministic and independent of an Exec model
+# pass. Its alert uses the existing domain-ops Slack path.
+node "$ROOT/tools/executive/delivery-lane.js"

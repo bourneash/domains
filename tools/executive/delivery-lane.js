@@ -1,0 +1,186 @@
+'use strict';
+
+// Two owner-priority implementation slices, advanced by artifact rather than
+// executive prose. A reviewed PR is the milestone; publication is separate.
+const fs = require('node:fs');
+const path = require('node:path');
+const eventstore = require('../fleet-dashboard/server/eventstore');
+const changequeue = require('../fleet-dashboard/server/changequeue');
+const { config } = require('./overwatch-alert');
+
+const WORK = Object.freeze([
+  {
+    site: 'howtofry.com',
+    action_key: 'owner-delivery-lane:howtofry-recipe-search-v1',
+    title: 'Add usable recipe search to HowToFry',
+    body: [
+      'Owner priority: produce a real, reviewable HowToFry improvement. The recipes page currently filters by cooking method but has no search.',
+      'Implement an accessible client-side search on /recipes/ that matches recipe title and ingredients and composes with the existing method filter. Show a visible result count and useful empty state; preserve a working all-recipes reset. The page must remain usable when JavaScript is unavailable.',
+      'Acceptance: add focused automated coverage for matching/filter behavior and empty state; run npm run ci:verify in site/; provide changed paths and test output in the PR. Keep existing recipes, safety copy, and category filters intact.',
+      'This is a pull request for review, not production authorization. Do not push or deploy from the worker. No affiliate, analytics, or social credentials are available for this task.',
+    ].join('\n\n'),
+  },
+  {
+    site: 'magicescorts.com',
+    action_key: 'owner-delivery-lane:magicescorts-coin-guide-v1',
+    title: 'Deliver the promised coin trick guide on MagicEscorts',
+    body: [
+      'Owner priority: a real, reviewable MagicEscorts content feature. The homepage promises coin magic, but /tricks/ currently teaches only two card effects.',
+      'Add one technically sound beginner coin trick guide, link it from the trick room and the relevant homepage coin card, and keep the established theatrical voice. Instructions must be performable with ordinary props and clear about practice, angles, and limitations. Do not imply supernatural powers or a real performer/service.',
+      'Acceptance: relevant navigation works; tests or build checks cover the new route and links; run npm run ci:verify in site/; provide changed paths and test output in the PR. Keep the truthful coming-soon/no-booking disclosures.',
+      'This is a pull request for review, not production authorization. Do not push or deploy from the worker. Do not add affiliate links, analytics, intake, or booking.',
+    ].join('\n\n'),
+  },
+]);
+
+const ACCEPTED = new Set(['committed', 'deployed', 'verified']);
+const TERMINAL_PROBLEM = new Set([
+  'failed',
+  'blocked_owner',
+  'blocked_infrastructure',
+  'needs_human_review',
+  'cancelled',
+]);
+const STALE_MS = 4 * 60 * 60 * 1000;
+
+function siteHasOwner(root, site) {
+  return fs.existsSync(path.join(root, 'sites', site, 'ops', 'roles', 'engineer.md'));
+}
+
+function getRequests(store, site) {
+  return store.listChangeRequests({ site, limit: 'all' });
+}
+
+function reconcile(store, root, now = Date.now()) {
+  if (store.getChangeQueueSettings()?.enabled !== true)
+    return { state: 'queue-disabled', freeze_planning: false };
+  const rows = WORK.map(work => ({
+    ...work,
+    request: getRequests(store, work.site).find(row => row.action_key === work.action_key),
+  }));
+  for (let index = 0; index < rows.length; index++) {
+    const row = rows[index];
+    if (index && !ACCEPTED.has(rows[index - 1].request?.status)) {
+      return {
+        state: 'waiting-on-first-artifact',
+        site: row.site,
+        prior_status: rows[index - 1].request?.status || null,
+        freeze_planning: true,
+      };
+    }
+    if (!row.request) {
+      if (!siteHasOwner(root, row.site))
+        return { state: 'missing-site-owner', site: row.site, freeze_planning: true };
+      const request = changequeue.create(
+        store,
+        {
+          site: row.site,
+          title: row.title,
+          body: row.body,
+          category: 'engineering',
+          priority: 'high',
+          assigned_role: 'engineer',
+          requested_by: 'owner-delivery-lane',
+          delivery_mode: 'pull_request',
+          action_key: row.action_key,
+          auto_review: true,
+          max_turns: 40,
+        },
+        site => site === row.site,
+        () => ['engineer']
+      );
+      return {
+        state: 'queued',
+        site: row.site,
+        request_id: request.request_id,
+        freeze_planning: true,
+      };
+    }
+    if (TERMINAL_PROBLEM.has(row.request.status))
+      return {
+        state: 'blocked',
+        site: row.site,
+        request_id: row.request.request_id,
+        status: row.request.status,
+        freeze_planning: true,
+      };
+    if (!ACCEPTED.has(row.request.status)) {
+      const age = now - (Date.parse(row.request.updated_at || row.request.created_at || '') || now);
+      return {
+        state: age >= STALE_MS ? 'stalled' : 'working',
+        site: row.site,
+        request_id: row.request.request_id,
+        status: row.request.status,
+        age_minutes: Math.floor(age / 60000),
+        freeze_planning: true,
+      };
+    }
+  }
+  return {
+    state: 'two-reviewable-artifacts',
+    freeze_planning: false,
+    requests: rows.map(row => ({
+      site: row.site,
+      request_id: row.request.request_id,
+      status: row.request.status,
+    })),
+  };
+}
+
+async function alert(store, root, state, { env = process.env, fetchImpl = fetch } = {}) {
+  if (!['blocked', 'stalled', 'missing-site-owner'].includes(state.state))
+    return { attempted: false };
+  // Repeat a continuing blocker at most once per two hours, not every poll.
+  const bucket = Math.floor(Date.now() / (2 * 60 * 60 * 1000));
+  const dedupe_key = `owner-delivery-lane:${state.site}:${state.state}:${state.request_id || 'owner'}:${bucket}`;
+  if (
+    store
+      .listExecutiveNotifications({ recipient: 'owner', limit: 1000 })
+      .some(row => row.dedupe_key === dedupe_key)
+  )
+    return { attempted: false, reason: 'already-alerted' };
+  const message = `🚨 Owner delivery lane ${state.state}: ${state.site}; request ${state.request_id || 'not queued'}; status ${state.status || 'n/a'}; age ${state.age_minutes ?? 'n/a'} min. Inspect the request and name a human owner for the blocker. No new speculative planning is needed.`;
+  store.createExecutiveNotification({
+    recipient: 'owner',
+    notification_type: 'owner-delivery-lane',
+    title: `Delivery lane ${state.state}: ${state.site}`,
+    body: message,
+    dedupe_key,
+  });
+  const { token, channel } = config(root, env);
+  if (!token) return { attempted: true, sent: false, error: 'SLACK_BOT_TOKEN unavailable' };
+  try {
+    const response = await fetchImpl('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel, text: message }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const body = await response.json();
+    return {
+      attempted: true,
+      sent: Boolean(response.ok && body?.ok),
+      channel,
+      error: body?.ok ? null : body?.error || `HTTP ${response.status}`,
+    };
+  } catch (error) {
+    return { attempted: true, sent: false, channel, error: String(error.message || error) };
+  }
+}
+
+if (require.main === module) {
+  const root = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
+  const store = eventstore.open(root);
+  const state = reconcile(store, root);
+  alert(store, root, state)
+    .then(notification => {
+      process.stdout.write(`${JSON.stringify({ ...state, notification })}\n`);
+    })
+    .catch(error => {
+      console.error(error);
+      process.exitCode = 1;
+    })
+    .finally(() => store.close());
+}
+
+module.exports = { WORK, reconcile, alert, siteHasOwner };

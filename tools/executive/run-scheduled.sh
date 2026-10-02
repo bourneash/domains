@@ -56,6 +56,22 @@ fi
 # immediately executable handoff is not misreported as an empty pipeline.
 node "$ROOT/tools/executive/delivery-pressure.js" || echo "[$(date -Is)] delivery pressure check failed" >&2
 if [[ "${EXECUTIVE_FORCE:-0}" != "1" || -n "${CALENDAR_EVENT_ID:-}" ]]; then
+  # While a named implementation is in flight, spend the scheduled poll on
+  # queue progress and blocker alerts, not another speculative plan.
+  delivery_lane_decision="$(node - "$ROOT" <<'NODE'
+const root = process.argv[2];
+const store = require(`${root}/tools/fleet-dashboard/server/eventstore`).open(root);
+try { process.stdout.write(JSON.stringify(require(`${root}/tools/executive/delivery-lane`).reconcile(store, root))); }
+finally { store.close(); }
+NODE
+)"
+  if [[ "$(node -p 'JSON.parse(process.argv[1]).freeze_planning === true' "$delivery_lane_decision")" == "true" ]]; then
+    echo "[$(date -Is)] executive model planning paused for owner delivery lane: $delivery_lane_decision"
+    complete_calendar_skip 'owner delivery lane active'
+    exit 0
+  fi
+fi
+if [[ "${EXECUTIVE_FORCE:-0}" != "1" || -n "${CALENDAR_EVENT_ID:-}" ]]; then
   cadence="$(node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const store = require(`${root}/tools/fleet-dashboard/server/eventstore`).open(root);
