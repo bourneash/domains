@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T22:01:18.348Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T22:58:08.098Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, financial, and high-priority queue work. Attribution, telemetry volume, active measurement overlap, and operations/security evidence remain insufficient. Existing CTO handoff repair and principal-engineer admission-ledger work remain the next actions; do not duplicate them.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Production, financial, and high-priority queue work remains rejected: attribution is aggregate, telemetry is incomplete or low-volume, 50 improvements are measuring, and operations/security evidence is unavailable. I routed only three isolated low-priority preview changes across distinct sites; publication, deployment, monetization, telemetry activation, spend, credentials, configuration, dependencies, and production claims remain blocked. Existing CTO handoff repair and principal-engineer admission-ledger work remain the unblockers, due 2026-10-03T17:00:00Z; unresolved blockers escalate then.",
+        "summary": "Approve only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Reject production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, high-priority queue work, and revenue, ROI, causal-lift, security-clearance, or launch-readiness claims. Evidence gaps: complicated.work has compliance failures, deadlymaracas.com is unreachable, and analytics are unconfigured. Site-factory must produce dated preview-readiness artifacts by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
