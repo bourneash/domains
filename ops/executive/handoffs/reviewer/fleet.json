@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:52:04.705Z",
+  "generated_at": "2026-10-02T16:54:04.788Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the proposed weirdassstuff.com production admission. The click baseline is measurable, but site-level orders and commission are unavailable, operations/fleet-doctor evidence is absent, and production release controls remain unevidenced. CTO must document release, security, monitoring, and rollback evidence by 2026-10-03T17:00:00Z; principal-engineer must reconcile the admission ledger and nominate at most one fully gated candidate by the same deadline, escalating unresolved blockers to the owner.",
+        "summary": "Reviewer disposition: reject the weirdgirlstore.com report-only admission because site-specific telemetry and repository evidence are absent. Route only two reversible SEO implementations supported by existing search baselines: saveusfarms.com and stinkyleftfoot.com. No revenue, ROI, causal-lift, launch-readiness, security-clearance, or production-readiness claims are supported. Other candidates remain blocked by active measurement, review, infrastructure, launch-readiness, or missing telemetry. Principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

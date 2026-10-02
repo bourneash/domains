@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:52:04.707Z",
+  "generated_at": "2026-10-02T16:54:04.789Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Improve weirdassstuff.com homepage affiliate CTA clarity",
-        "summary": "Ship one reversible homepage-only UX improvement using the existing affiliate destination and disclosure. The site has 584 clicks attributed to tracking ID weirdassstuff-20 in the available 30-day revenue window; orders and commission are unavailable at site level.",
-        "requested_action": "Queue an engineer to modify only the homepage CTA presentation and existing disclosure, without adding tracking, changing destinations, adding dependencies, or deploying directly.",
+        "title": "Establish weirdgirlstore.com homepage baseline before UX implementation",
+        "summary": "Site-specific homepage telemetry and public-surface evidence are not present in the authoritative snapshot, so a reversible UX change cannot be safely scoped without inventing a baseline.",
+        "requested_action": "Run one bounded read-only inspection of the homepage route `/` and existing repository implementation. Record the exact homepage entry file, shared stylesheet/component files, visible hierarchy, primary CTA destination, accessibility issues, and available GA4/GSC baseline. Then nominate one reversible homepage improvement or document the blocker.",
         "proposal_id": null
       }
     ]
