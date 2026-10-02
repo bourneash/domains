@@ -4697,7 +4697,7 @@ async function renderControl() {
 
   app.innerHTML = `
     <div class="page-head">
-      <div><h2 class="page-title">Fleet role coverage</h2><span class="muted">one row per site · role issues include stale, overdue, or missing logs; paused roles are separate</span></div>
+      <div><h2 class="page-title">Fleet role coverage</h2><span class="muted">one row per site with scheduled roles · stale, overdue, or missing logs count as issues; paused roles are separate</span></div>
       <button type="button" class="btn" id="control-refresh">↻ Refresh</button>
     </div>
     <div id="ctl-bar"></div>
@@ -13236,6 +13236,15 @@ async function renderPriorities() {
 let IMPROVEMENT_STATE = 'active';
 let IMPROVEMENT_PAGE = 1;
 const IMPROVEMENT_PAGE_SIZE = 20;
+
+function cleanImprovementTitle(title) {
+  const value = String(title || '').trim();
+  if (!value) return 'Untitled improvement';
+  const repeatedRepairPrefix = /^(?:Repair failed request:\s*)+/i;
+  if (!repeatedRepairPrefix.test(value)) return value;
+  const detail = value.replace(repeatedRepairPrefix, '').trim();
+  return detail ? `Repair failed request: ${detail}` : 'Repair failed request';
+}
 const IMPROVEMENT_TERMINAL = new Set(['proven', 'inconclusive', 'cancelled', 'rolled-back']);
 
 function improvementActions(run, transitions) {
@@ -13298,7 +13307,7 @@ async function renderImprovements() {
     renderViewError(app, e.message);
     return;
   }
-  const all = data.runs || [];
+  const all = (data.runs || []).map(run => ({ ...run, title: cleanImprovementTitle(run.title) }));
   const runs = all.filter(
     run =>
       IMPROVEMENT_STATE === 'all' ||
@@ -17394,7 +17403,7 @@ async function renderWorkbench() {
     ${quickPager}<section class="wb-list" aria-label="Workbench cases">${rows || '<div class="empty">No workbench cases match these filters.</div>'}</section><nav class="wb-pagination" aria-label="Workbench case pages"><span class="muted" id="wb-page-status" role="status" aria-live="polite">${pageRange}</span><label class="muted">Rows <select id="wb-page-size" class="cm-input" aria-label="Workbench cases per page">${[10, 25, 50].map(size => `<option value="${size}" ${WORKBENCH_UI.pageSize === size ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="wb-page-prev" data-wb-page-direction="-1" aria-label="Previous workbench page" ${WORKBENCH_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="wb-page-next" data-wb-page-direction="1" aria-label="Next workbench page" ${WORKBENCH_UI.page >= pageCount ? 'disabled' : ''}>Next →</button></nav></div>`;
   const wbCount = $('.wb-count');
   if (wbCount) {
-    wbCount.textContent = `${visible.length - wbCollapsedRecords} case threads · ${visible.length} records shown${wbDuplicateGroups ? ` · ${wbDuplicateGroups} duplicate set${wbDuplicateGroups === 1 ? '' : 's'} collapsed` : ''}`;
+    wbCount.textContent = `${visible.length - wbCollapsedRecords} case threads · ${visible.length} source records${wbDuplicateGroups ? ` · ${wbDuplicateGroups} duplicate set${wbDuplicateGroups === 1 ? '' : 's'} collapsed` : ''}`;
   }
   $('#wb-refresh').onclick = () => renderWorkbench();
   $('#wb-new-toggle').onclick = async () => {
@@ -17550,7 +17559,7 @@ async function renderWorkbench() {
   stamp();
 }
 
-const KNOWLEDGE_UI = { status: '', audience: '', query: '' };
+const KNOWLEDGE_UI = { status: '', audience: '', metadata: '', query: '' };
 let knowledgeSearchTimer;
 
 function renderKnowledge() {
@@ -17565,6 +17574,9 @@ function renderKnowledge() {
         item =>
           (!KNOWLEDGE_UI.status || item.status === KNOWLEDGE_UI.status) &&
           (!KNOWLEDGE_UI.audience || item.audience === KNOWLEDGE_UI.audience) &&
+          (!KNOWLEDGE_UI.metadata ||
+            String(item.publisher || '').trim() === '' ||
+            String(item.summary || '').trim() === '') &&
           (!KNOWLEDGE_UI.query ||
             [
               item.title,
@@ -17594,7 +17606,7 @@ function renderKnowledge() {
       app.innerHTML = `<div class="kn-shell"><div class="page-head"><div><div class="wb-eyebrow">CURATED LEARNING SYSTEM</div><h2 class="page-title">Knowledge shelf</h2><div class="muted">Role-relevant references for focused learning. Missing publisher or relevance details are surfaced in the catalog; sources are not legal advice.</div></div><div class="kn-head-actions"><button type="button" class="btn" id="kn-refresh">↻ Refresh</button><button type="button" class="btn primary" id="kn-new-toggle">＋ Add source</button></div></div>
       <section class="kn-kpis"><div><b>${all.filter(i => ['queued', 'in_progress'].includes(i.status)).length}</b><span>learning queue</span></div><div><b>${all.filter(i => i.status === 'complete').length}</b><span>completed</span></div><div><b>${all.filter(i => i.audience === 'legal').length}</b><span>legal resources</span></div><div><b>${all.length}</b><span>catalogued</span></div></section>
       <section class="card kn-new hidden" id="kn-new"><div class="page-head"><div><h3>Add a source</h3><p class="muted">Record enough provenance that a role can judge whether it is worth its time.</p></div><button class="icon-btn" id="kn-new-close" aria-label="Close">✕</button></div><div class="form-grid"><label>Title<input id="kn-title" class="cm-input" placeholder="e.g. FTC Endorsement Guides"></label><label>Type<select id="kn-type" class="cm-input">${options(['official', 'book', 'course', 'checklist', 'paper', 'reference'], 'official', 'Choose type')}</select></label><label>Audience<select id="kn-audience-new" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], 'all', 'Choose audience')}</select></label><label>URL<input id="kn-url" class="cm-input" type="url" placeholder="https://…"></label><label>Publisher<input id="kn-publisher" class="cm-input" placeholder="Publisher or institution"></label><label>Jurisdiction<input id="kn-jurisdiction" class="cm-input" placeholder="US / EU / general"></label><label>License<input id="kn-license" class="cm-input" placeholder="Public / CC BY / paid / verify"></label></div><label>Why it matters<textarea id="kn-summary" class="cm-input" rows="2" placeholder="What decision or capability does this support?"></textarea><div class="task-toolbar"><span class="muted">Sources can be queued for a role without interrupting the human owner.</span><button class="btn primary" id="kn-create">Add source</button></div></section>
-      <section class="kn-toolbar"><label class="kn-search">Search sources<input id="kn-search" class="cm-input" type="search" placeholder="Title, publisher, tag…" aria-label="Search knowledge sources" value="${esc(KNOWLEDGE_UI.query)}"></label><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><span class="muted">${visible.length} of ${all.length} sources shown</span>${all.some(i => !String(i.publisher || '').trim() || !String(i.summary || '').trim()) ? `<span class="kn-data-quality">Catalog gaps: ${all.filter(i => !String(i.publisher || '').trim()).length} missing publisher · ${all.filter(i => !String(i.summary || '').trim()).length} missing relevance note</span>` : ''}</section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
+      <section class="kn-toolbar"><label class="kn-search">Search sources<input id="kn-search" class="cm-input" type="search" placeholder="Title, publisher, tag…" aria-label="Search knowledge sources" value="${esc(KNOWLEDGE_UI.query)}"></label><label>Status<select id="kn-filter-status" class="cm-input">${options(['candidate', 'queued', 'in_progress', 'complete', 'rejected'], KNOWLEDGE_UI.status, 'All statuses')}</select></label><label>Audience<select id="kn-filter-audience" class="cm-input">${options(['all', 'ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'engineer'], KNOWLEDGE_UI.audience, 'All roles')}</select></label><label>Metadata<select id="kn-filter-metadata" class="cm-input" aria-label="Filter sources by metadata completeness"><option value="" ${!KNOWLEDGE_UI.metadata ? 'selected' : ''}>All sources</option><option value="incomplete" ${KNOWLEDGE_UI.metadata === 'incomplete' ? 'selected' : ''}>Needs metadata</option></select></label><span class="muted">${visible.length} of ${all.length} sources shown</span>${all.some(i => !String(i.publisher || '').trim() || !String(i.summary || '').trim()) ? `<span class="kn-data-quality">Catalog gaps: ${all.filter(i => !String(i.publisher || '').trim()).length} missing publisher · ${all.filter(i => !String(i.summary || '').trim()).length} missing relevance note</span>` : ''}</section><section class="kn-list">${cards || '<div class="empty">No sources match this view.</div>'}</section></div>`;
       $('#kn-refresh').onclick = () => renderKnowledge();
       $('#kn-new-toggle').onclick = async () => {
         const panel = $('#kn-new');
@@ -17608,6 +17620,10 @@ function renderKnowledge() {
       };
       $('#kn-filter-audience').onchange = e => {
         KNOWLEDGE_UI.audience = e.target.value;
+        softRender();
+      };
+      $('#kn-filter-metadata').onchange = e => {
+        KNOWLEDGE_UI.metadata = e.target.value;
         softRender();
       };
       $('#kn-search').oninput = e => {
@@ -17709,11 +17725,23 @@ function siteStatusBadge(ok, good = 'Healthy', bad = 'Needs attention') {
       : '<span class="badge b-gray">Unknown</span>';
 }
 
+const SITE_TERMINAL_TASK_COLUMNS = new Set([
+  'done',
+  'complete',
+  'completed',
+  'cancelled',
+  'canceled',
+  'rejected',
+  'archived',
+]);
+
 function siteTaskCount(data) {
   if (!data || typeof data !== 'object') return 0;
   if (Array.isArray(data)) return data.length;
   return Object.entries(data).reduce((n, [key, value]) => {
-    if (['summary', 'site', 'ok'].includes(key)) return n;
+    const normalizedKey = key.toLowerCase().replace(/[\s_-]/g, '');
+    if (['summary', 'site', 'ok'].includes(key) || SITE_TERMINAL_TASK_COLUMNS.has(normalizedKey))
+      return n;
     return (
       n +
       (Array.isArray(value) ? value.length : typeof value === 'object' ? siteTaskCount(value) : 0)
