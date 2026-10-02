@@ -2099,7 +2099,10 @@ test('Health presents fleet status as a responsive summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="health-summary"/);
-  assert.match(app, /Sites needing attention<\/span>/);
+  assert.match(app, /Targets needing attention<\/span>/);
+  assert.match(app, /Targets monitored<\/span>/);
+  assert.match(app, /Healthy targets<\/span>/);
+  assert.match(app, /uptime checks across fleet sites and shared services/);
   assert.match(app, /Failing checks<\/span>/);
   assert.match(app, /class="health-card-head"/);
   assert.match(app, /class="inline-help-link" href="http:\/\/127\.0\.0\.1:8580"/);
