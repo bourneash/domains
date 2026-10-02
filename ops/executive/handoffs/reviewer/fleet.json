@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:02:58.139Z",
+  "generated_at": "2026-10-02T16:08:49.453Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Aggregate affiliate revenue remains unattributed, telemetry is low-volume or incomplete, and operations/security evidence is unavailable. Preserve the admission gate; principal-engineer must reconcile the canonical ledger by 2026-10-02T17:00:00Z, releasing at most one candidate only if every gate passes or escalating the exact blocker.",
+        "summary": "Reviewer disposition: reject failbunny.com implementation because analytics and site-specific outcome evidence are absent. Route only two bounded SEO implementations—saveusfarms.com and stinkyleftfoot.com—because they have measurable search baselines and reversible scopes. No revenue, ROI, causal-lift, launch-readiness, or production-readiness claims are supported. A third actionable candidate was not available: other surfaced candidates are blocked by active measurement/review, infrastructure, launch-readiness, or missing telemetry. Domain-manager must attach failbunny.com analytics and baseline evidence by 2026-10-09; escalate unresolved evidence to the owner by 2026-10-09T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
