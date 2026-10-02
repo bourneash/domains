@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:52:15.809Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T21:01:05.610Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three isolated, preview-only engineer changes for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, and revenue or readiness claims remain blocked. Each request requires dated preview QA, measurable quality-gate results, and isolated rollback evidence by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Reject all new production, financial, high-priority, and duplicate telemetry work. Revenue attribution is incomplete, telemetry is low-volume or missing, 50 improvements are measuring, and operations/security evidence is unavailable. Preserve the admission gate. CTO owns the failed handoff repair; principal-engineer owns the canonical admission ledger and repair dispositions; unresolved blockers escalate by 2026-10-03T17:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject production, financial, high-priority, and duplicate telemetry work. Route only three isolated preview-only scaffold implementations. Revenue attribution, low-volume telemetry, launch/compliance evidence, operations, and security clearance remain insufficient for production claims. Unresolved blockers escalate to the owner by 2026-10-03T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
