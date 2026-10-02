@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:54:08.633Z",
+  "generated_at": "2026-10-02T15:56:59.757Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare driveford.net preview-build admission packet",
-        "summary": "Driveford.net is a scaffold with no verified audience brief, launch-readiness artifact, configured analytics, or site-specific content/file evidence. Create one bounded repository and preview inspection packet so the smallest safe homepage build can be admitted without inventing telemetry or publishing.",
-        "requested_action": "Inspect the existing driveford.net scaffold and produce a dated implementation packet identifying the exact homepage entry file, stylesheet, asset locations, available routes, current metadata, build command, preview URL or local preview path, and unresolved owner/legal/security/analytics gates. Define the next engineer task: implement only a preview-only homepage and metadata pass in the identified files; do not deploy or publish.",
+        "title": "Complete preview-only launch-readiness artifact for drivegm.net",
+        "summary": "drivegm.net is a scaffold with no configured analytics evidence. Create one bounded readiness artifact before any public build or launch work.",
+        "requested_action": "Inspect the existing drivegm.net scaffold and record owner approval, homepage scope, content, metadata, privacy/terms/disclosure surfaces, analytics readiness, security/release constraints, measurement plan, rollback point, and preview-only status. Do not publish, deploy, add tracking, spend, change credentials, or alter production.",
         "proposal_id": null
       }
     ]
