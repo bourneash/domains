@@ -29,6 +29,10 @@ test('mobile header keeps the action strip to one horizontally scrollable row', 
     mobile,
     /body\[data-view="delivery"\] \.seo-stats > \.seo-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
   );
+  assert.match(
+    mobile,
+    /body\[data-view="aiusage"\] \.aiu-summary > \.aiu-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
+  );
 });
 
 function routeFor(hash) {

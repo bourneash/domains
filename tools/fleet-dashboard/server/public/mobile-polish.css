@@ -9,6 +9,14 @@
   }
   body[data-view="delivery"] .seo-stats > .seo-stat:last-child:nth-child(odd) > .seo-stat-value { margin: 0; }
 
+  body[data-view="aiusage"] .aiu-summary > .aiu-stat:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  body[data-view="aiusage"] .aiu-summary > .aiu-stat:last-child:nth-child(odd) > span { margin-top: 0; }
+
   .topbar .actions {
     flex: 1 1 100%;
     flex-wrap: nowrap;
