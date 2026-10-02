@@ -1516,8 +1516,8 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
   .git-actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
 @media (max-width: 560px) {
-  .git-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .git-actions { grid-column: auto; }
+  .git-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .git-actions { grid-column: 1 / -1; justify-content: flex-start; }
   .git-controls > label, .git-controls > label .cm-input { width: 100%; }
   .git-controls > .muted { width: 100%; margin: 0; }
 }

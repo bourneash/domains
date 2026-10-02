@@ -2303,6 +2303,10 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(app, /const gitRank = r =>/);
   assert.match(app, /rows\.sort\(\(a, b\) => gitRank\(a\) - gitRank\(b\)/);
   assert.match(theme, /\.git-summary \{[^}]*grid-template-columns/);
+  assert.match(
+    theme,
+    /@media \(max-width: 560px\) \{\s*\.git-summary \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 8px; \}\s*\.git-actions \{ grid-column: 1 \/ -1; justify-content: flex-start; \}/
+  );
   assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
 });
 
