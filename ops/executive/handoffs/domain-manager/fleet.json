@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:23:41.904Z",
+  "generated_at": "2026-10-02T16:25:23.004Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish mynewgm.info launch-readiness baseline",
-        "summary": "Site-specific lifecycle, public-surface, analytics, SEO, monetization, compliance, and operations evidence is not present in the supplied snapshot, so implementation admission is blocked without inventing telemetry.",
-        "requested_action": "Run one bounded read-only inspection of the repository root and homepage route, recording the existing homepage entrypoint, metadata files, analytics state, affiliate state, build/test commands, and launch gates. Then route the smallest reversible homepage or instrumentation change supported by evidence.",
+        "title": "Establish nsfwpixels.com homepage readiness baseline",
+        "summary": "Analytics is not configured for nsfwpixels.com, so audience, conversion, monetization, and causal-lift claims cannot be made. Create one bounded evidence artifact before admitting production work.",
+        "requested_action": "Inspect the public homepage at / and the repository’s current homepage, metadata, stylesheet, analytics/configuration, and test files. Record exact filenames, visible CTA and disclosure state, indexability metadata, accessibility defects, build/test commands, and the smallest reversible implementation candidate. Do not add tracking, change production, deploy, spend, or request duplicate telemetry.",
         "proposal_id": null
       }
     ]

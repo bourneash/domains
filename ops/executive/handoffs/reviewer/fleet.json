@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:23:41.903Z",
+  "generated_at": "2026-10-02T16:25:23.002Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the mynewgm.info report-only proposal and all new site production or high-priority queue work this cycle. No candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Principal-engineer must reconcile the canonical admission ledger and existing blocked work by 2026-10-02T17:00:00Z; CTO must preserve the security and operations gate and escalate missing evidence by the same deadline. No admissible three-site implementation batch exists.",
+        "summary": "Retain financial, security, launch, and production gates: affiliate commission is aggregate and unattributed; telemetry is low-volume or incomplete; operations and fleet-doctor evidence are unavailable. Route only two medium-priority, validation-gated SEO implementation reviews on distinct sites. No deployment, spend, credential/configuration change, duplicate telemetry, or lift claim is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
