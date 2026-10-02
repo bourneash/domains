@@ -8869,7 +8869,7 @@ async function renderAnalytics() {
       const metricCard = (label, value, source, delta = '', note = '') => {
         const displayValue =
           value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toLocaleString();
-        return `<article class="an-kpi" role="listitem"><span class="an-kpi-label">${label}</span><strong>${esc(displayValue)}</strong><div class="an-kpi-foot"><span class="an-kpi-source">${source}</span>${delta}${note ? `<span class="an-kpi-note">${note}</span>` : ''}</div></article>`;
+        return `<div class="an-kpi" role="listitem"><span class="an-kpi-label">${label}</span><strong>${esc(displayValue)}</strong><div class="an-kpi-foot"><span class="an-kpi-source">${source}</span>${delta}${note ? `<span class="an-kpi-note">${note}</span>` : ''}</div></div>`;
       };
       const clickRate =
         hasGA4 && summary.sessions
