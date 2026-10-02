@@ -77,6 +77,8 @@ test('does not repeat a delivered alert, but retries a failed Slack post', async
 
 test('keeps the alert pending when no fleet channel is configured', async () => {
   const { store, agent } = fixture(['failed', 'failed']);
+  const notifications = [];
+  store.createExecutiveNotification = input => notifications.push(input);
   const result = await alertConsecutiveFailures(store, {
     agent,
     runId: 'run-0',
@@ -88,4 +90,6 @@ test('keeps the alert pending when no fleet channel is configured', async () => 
   });
   assert.equal(result.sent, false);
   assert.equal(result.reason, 'fleet Slack channel not configured');
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0].dedupe_key, 'overwatch-failure:run-1');
 });

@@ -43,6 +43,19 @@ async function alertConsecutiveFailures(
   if (streak.some(run => run.result?.overwatch_alert?.sent)) {
     return { attempted: false, streak: streak.length, reason: 'already-alerted' };
   }
+  if (store.createExecutiveNotification) {
+    try {
+      store.createExecutiveNotification({
+        recipient: 'owner',
+        notification_type: 'overwatch-failure',
+        title: 'Exec Overwatch is failing repeatedly',
+        body: `${streak.length} consecutive failed runs. Latest run: ${runId}. Check the executive runner and Overwatch report.`,
+        dedupe_key: `overwatch-failure:${streak.at(-1).run_id}`,
+      });
+    } catch {
+      // Slack delivery and run accounting must continue if the owner inbox is unavailable.
+    }
+  }
   const { token, channel } = config(root, env);
   let result = { attempted: true, sent: false, streak: streak.length, channel };
   if (!token || !channel) {
