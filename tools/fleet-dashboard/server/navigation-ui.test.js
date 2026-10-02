@@ -2173,6 +2173,14 @@ test('Containers provides scoped search and operational filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="cn-summary"/);
+  assert.doesNotMatch(
+    app,
+    /class="cn-summary-stat"><strong>\$\{rows\.length\}<\/strong><span>Total containers<\/span>/
+  );
+  assert.doesNotMatch(
+    app,
+    /class="cn-summary-stat cn-summary-good"><strong>\$\{tally\.healthy\}<\/strong><span>Healthy<\/span>/
+  );
   assert.match(app, /class="page-title">Containers<\/h2>/);
   assert.match(app, /type="button" class="btn" id="containers-refresh"/);
   assert.match(app, /Listing containers…/);
@@ -2196,7 +2204,10 @@ test('Containers provides scoped search and operational filters', () => {
   assert.match(app, /aria-label="Restart \$\{esc\(r\.name\)\}"/);
   assert.match(app, /trigger\?\.setAttribute\('aria-expanded', 'true'\)/);
   assert.match(app, /class="cn-help"><summary>What container actions do/);
-  assert.match(theme, /\.cn-summary \{[^}]*grid-template-columns/);
+  assert.match(
+    theme,
+    /\.cn-summary \{[^}]*grid-template-columns: repeat\(2, minmax\(112px, 1fr\)\) minmax\(220px, 1\.7fr\)/
+  );
   assert.match(theme, /\.cn-table \{[^}]*overflow: hidden/);
   assert.match(theme, /\.cn-filter-hidden \{ display: none; \}/);
 });

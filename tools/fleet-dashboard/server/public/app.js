@@ -5678,8 +5678,6 @@ async function renderContainers() {
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">Containers</h2><span class="muted">Live runtime health and lifecycle controls across the fleet</span></div><button type="button" class="btn" id="containers-refresh">↻ Refresh</button></div>
     <section class="cn-summary" aria-label="Container fleet summary">
-      <div class="cn-summary-stat"><strong>${rows.length}</strong><span>Total containers</span></div>
-      <div class="cn-summary-stat cn-summary-good"><strong>${tally.healthy}</strong><span>Healthy</span></div>
       <div class="cn-summary-stat ${tally.unhealthy ? 'cn-summary-bad' : ''}"><strong>${tally.unhealthy}</strong><span>Unhealthy</span></div>
       <div class="cn-summary-stat ${tally.stopped ? 'cn-summary-warn' : ''}"><strong>${tally.stopped}</strong><span>Stopped</span></div>
       <div class="cn-summary-meta"><strong>${cronUp}/${cron.length}</strong><span>Legacy cron online · ${workers} worker run${workers === 1 ? '' : 's'} in-flight</span></div>

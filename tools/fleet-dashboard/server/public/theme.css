@@ -1212,7 +1212,7 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 /* ---------------------------------------------------------- containers ---- */
 .cn-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(112px, 1fr)) minmax(220px, 1.7fr);
+  grid-template-columns: repeat(2, minmax(112px, 1fr)) minmax(220px, 1.7fr);
   gap: 10px;
   margin: 0 0 14px;
 }
@@ -1268,12 +1268,12 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .cn-controls > .muted { margin-right: auto; font: 11px var(--mono); white-space: nowrap; }
 .cn-filter-hidden { display: none; }
 @media (max-width: 980px) {
-  .cn-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cn-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cn-summary-meta { grid-column: 1 / -1; }
 }
 @media (max-width: 620px) {
   .cn-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .cn-summary-meta { grid-column: auto; }
+  .cn-summary-meta { grid-column: 1 / -1; }
   .cn-controls > label, .cn-controls > label .cm-input, .cn-controls > #restart-crons { width: 100%; }
   .cn-controls > .muted { width: 100%; margin: 0 0 2px; }
 }
