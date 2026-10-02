@@ -2,22 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:53:02.007Z",
+  "generated_at": "2026-10-02T13:58:51.419Z",
   "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Fleet security clearance is unsupported because fleet-doctor has no run or findings, operations deploy/uptime/error sweeps have no results, and security sitefacts are unknown across 61 sites. Authentication and access boundaries, secrets handling, container isolation, dependency provenance, release controls, monitoring, incident readiness, TLS detail, data exposure, and disclosure readiness are therefore unevidenced. No credential exposure or exploit is evidenced; missing telemetry is not clearance. Exact decision: retain security-sensitive release and launch gates, do not approve deployments or configuration, credential, dependency, or exposure changes, and allow the prepared saveusfarms.com SEO change only after the existing admission ledger and repair disposition clear. Severity: high for security-sensitive exposure; low-to-medium for the narrow metadata-only change.",
+        "summary": "Security disposition: evidence_needed fleet-wide, with conditional approval for the bounded stinkyleftfoot.com SEO change. Severity is high for security-sensitive releases and new public exposure because fleet-doctor has no run or checks, and operations deploy, uptime, and error sweeps have no results. Authentication boundaries, secrets handling, runtime isolation, dependency provenance, release controls, monitoring, incident readiness, and security.txt/disclosure readiness remain unevidenced across the fleet. No credential exposure, exploit, or security incident is evidenced; absence of telemetry is not clearance. Exact decision: approve only the existing single-page SEO change because it adds no credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior. Require build, diff-scope, canonical, robots, sitemap, link, disclosure, and indexability checks plus isolated rollback. Retain private-launch and security-sensitive release gates; do not treat this as fleet security clearance or certification.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Retain evidence-needed security gate and conditionally permit narrow SEO work",
-        "summary": "Fleet security disposition remains evidence_needed because material control evidence is unavailable. Preserve security-sensitive release and launch gates while permitting the prepared reversible SEO change only after the canonical admission ledger and repair disposition are documented and all non-security execution gates pass.",
-        "requested_action": "Do not approve public launches, gated-product exposure, monetization expansion, deployments, credential or configuration changes, dependency additions, or security-sensitive production work. Keep the saveusfarms.com change out of the queue until principal-engineer clears the admission gate by 2026-10-02T12:00Z. If cleared, permit only the stated metadata/content diff with no tracking, new data collection, permissions, dependencies, or cross-site behavior; require focused tests, unchanged disclosures and canonical/indexability behavior, exact diff evidence, and metadata-only rollback. Continue read-only evidence capture for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness.",
+        "title": "Conditionally approve bounded stinkyleftfoot.com SEO change under security evidence gate",
+        "summary": "Approve the existing single-page, no-spend SEO change as ordinary reversible growth while retaining the fleet-wide evidence-needed security disposition and all security-sensitive release gates.",
+        "requested_action": "Route only the existing stinkyleftfoot.com change request through validation-gated implementation. Do not add credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior. Require deterministic checks and isolated rollback before deployment. Do not claim fleet security clearance, incident absence, or certification.",
         "proposal_id": null
       }
     ]

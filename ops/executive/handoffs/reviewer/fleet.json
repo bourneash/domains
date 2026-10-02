@@ -2,14 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T03:10:49.122Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T13:58:51.419Z",
+  "summary": "reviewer checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue work this cycle. No candidate has complete baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Retain the capacity gate; principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if every gate passes or escalate.",
+        "summary": "Reject the proposed stinkyleftfoot.com production SEO change: 988 impressions and 2 clicks are insufficient evidence for production work, and no attributable revenue or causal lift is established. Retain financial, security, release, and launch gates. Preserve one bounded, read-only Save Us Farms public-surface inspection to resolve the existing repair-disposition evidence gap. No credentials, configuration, spending, schedules, telemetry changes, or production mutation are authorized.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reject the stinkyleftfoot.com production SEO change: 988 impressions and 2 clicks are insufficient for production admission, with no supported revenue or causal-lift claim. Retain financial, security, release, and launch gates. Approve only the bounded read-only Save Us Farms inspection. Existing candidates remain blocked by active work, infrastructure review, missing readiness evidence, or insufficient telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: no implementation candidate currently satisfies non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Principal-engineer must reconcile the admission ledger and candidate blockers; unresolved items escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
