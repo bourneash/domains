@@ -2889,6 +2889,7 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .kn-kpis span, .kn-meta, .kn-foot { color: var(--muted, #94a3b8); font-size: .82rem; }
 .kn-new { margin-bottom: 16px; }
 .kn-toolbar { display: flex; gap: 12px; align-items: end; margin: 14px 0; flex-wrap: wrap; }
+.kn-data-quality { flex: 1 1 100%; color: var(--muted); font-size: 11px; }
 .kn-toolbar label { min-width: 150px; }
 .kn-toolbar .kn-search { min-width: min(320px, 100%); flex: 1 1 260px; }
 .kn-search input { width: 100%; }

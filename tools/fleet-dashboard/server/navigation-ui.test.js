@@ -612,6 +612,8 @@ test('knowledge shelf is a first-class operator route', () => {
   assert.match(app, /button\.setAttribute\('aria-expanded', String\(expanded\)\)/);
   assert.match(app, /type="button" class="btn" id="kn-refresh"/);
   assert.match(app, /\$\('#kn-refresh'\)\.onclick = \(\) => renderKnowledge\(\)/);
+  assert.doesNotMatch(app, /Publisher not recorded|No relevance note recorded\./);
+  assert.match(app, /class="kn-data-quality">Catalog gaps:/);
   assert.match(
     theme,
     /@media \(max-width: 700px\)[\s\S]*\.kn-list \{ grid-template-columns: minmax\(0, 1fr\); \}/
@@ -2883,7 +2885,7 @@ test('Active Delivery paginates the complete attention queue', () => {
 test('Active Delivery flow card is inset and avoids repeating its deployment KPI', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  const start = app.indexOf(".querySelector('.seo-stats')\n      ?.insertAdjacentHTML(");
+  const start = app.indexOf("app.querySelector('.seo-stats')?.insertAdjacentHTML(");
   const end = app.indexOf("$('#delivery-refresh')", start);
   assert.ok(start >= 0 && end > start);
   const flow = app.slice(start, end);
