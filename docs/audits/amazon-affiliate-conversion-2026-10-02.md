@@ -17,7 +17,7 @@ Account checks:
 - **35 registered tracking IDs**; every detected site tag matches an ID on Manage Tracking IDs. HowToFry uses the full `howtofry.com-20`; Weird Girl Store uses `weirdgirlshop-20`; Sinderella.org uses `sinderellaorg-20`.
 - **All 35 affiliate/code-bearing fleet domains are now on SiteList**, which has 36 entries including the existing `sinderella.com`. No missing fleet domain was found.
 - US and Canada tax status both display Completed. No account-inactivity warning was found on the inspected pages. Payment details were not changed.
-- OneLink preferences display no default IDs; Link Stores displays no linked stores; OneLink shows its Getting started flow. International configuration is incomplete in the inspected UI. The warning explicitly permits an alternative global-store configuration; global enrollment was not independently established, so this audit does not claim every foreign purchase is uncredited.
+- **Corrected after follow-up:** the legacy OneLink pages have no IDs/linked stores, but this does not establish an international earning gap. The former redirection-preferences route now redirects to Amazon’s Global Earning announcement, which says US creators are automatically enrolled across US, Canada, UK, Germany, France, Italy, Spain, Netherlands, Poland and Sweden. US and Canada tax statuses are Completed. The payment page confirms the existing bank is assigned to Netherlands, Sweden and Poland; the US uses an Amazon Gift Card, and six additional countries have no payment method assigned. Country opt-out preferences were not independently exposed in the inspected account UI. See the follow-up repair report for the exact distinction between enrollment and payout setup.
 
 ## Why clicks do not represent thousands of ready buyers
 
@@ -51,8 +51,8 @@ Search destinations are common: Fishhook Labs, Great American Lakes, Marine Acti
 Confirmed specific gaps:
 
 1. **Saltwater News attribution leak:** all five `/go/` Amazon search destinations omit the registered tag. The live unslashed route confirmed the missing parameter. Commit `c55a15f` appends `tag=saltwaternews-20` to all five, adds a build gate rejecting missing/duplicate/mismatched Amazon tags, and corrects the disclosure's activation wording. Build passes, 29 pages. Connected GitHub → Cloudflare build `9585963d-0005-4cc4-aea2-25c90ecd1baa` succeeded; all five production redirects were verified to carry exactly `saltwaternews-20`. Its slashed variant 404s, but the site's rendered links use the working unslashed form; this was not mislabeled as a broken shopper route.
-2. **Amputee News:** the tag is literal and registered, but the product-registry environment approval gate disables buy links. The live Gear page has no Amazon links and says activation is pending. Review the catalog and build configuration before activation; tag registration alone does not satisfy that product-review gate.
-3. **Black Market Apparel:** all six catalog destinations are direct Anthropologie/Shinola/Zappos/Shopbop retail URLs without visible affiliate network attribution; its declared Amazon tag is unused by the sampled live shop links. Amazon cannot credit purchases completed at those retailers. Merchant account/network attribution is unverified; this catalog needs genuine partner links or verified Amazon alternatives.
+2. **Amputee News:** the tag is literal and registered, but the product-registry environment approval gate disables buy links. The live Gear page has no Amazon links and says activation is pending. Follow-up completed: 40 product pages reviewed, one unavailable item archived, 39 active tagged products verified live; approval is now literal in code and every build checks the reviewed registry and disclosure.
+3. **Black Market Apparel:** all six catalog destinations are direct Anthropologie/Shinola/Zappos/Shopbop retail URLs without visible affiliate network attribution; its declared Amazon tag is unused by the sampled live shop links. Amazon cannot credit purchases completed at those retailers. Follow-up completed: six in-stock Amazon alternatives reviewed and published, all six live routes verified with blackmarketapparel-20; names/material claims and editorial-image disclosure updated to match the new catalog.
 4. **Weapon Tester:** the public site is a private preview, so the redirect destinations could not be checked as a shopper.
 5. **Measurement tooling:** `tools/affiliate-funnel/snapshot.py` requests `/metrics/summary` without a site even though that API requires one. It therefore cannot produce the advertised fleet baseline. It also does not verify aligned dates/coverage. The export freshness issue above compounds this.
 
@@ -62,7 +62,7 @@ Confirmed specific gaps:
 2. Extend the proven UltraRough crawler/prefetch response behavior to other affiliate routes, keeping real shopper destinations intact, and log suppressed traffic separately. Compare complete subsequent Amazon report days rather than retroactively subtracting unmatched route counts.
 3. Repair fresh-export selection and exact date verification; repair per-site funnel collection; preserve suppressed values as null and show analytics coverage. Use one Amazon tracking ID per domain, with optional registered campaign IDs for meaningful channel tests.
 4. Review Amputee News's activation gate and Black Market Apparel's monetization paths. Include HowToFry in analytics collection and sentinel discovery, and include Black Market Apparel/GirlPain/Saltwater News in applicable monitoring; they were absent from the current sentinel cron or unsupported by its discovery.
-5. Complete international enrollment/OneLink mapping for relevant countries after verifying the human audience and the account's available global-enrollment path. Country totals dominated by monitors/scanners are not shopper geography.
+5. Verify Global Earning payout assignments for the six unassigned countries; do not infer missing international enrollment from legacy OneLink screens. Keep any existing US payment preference intact unless the owner explicitly requests a change. Country totals dominated by monitors/scanners are not shopper geography.
 6. On the highest-intent existing pages, use verified products, accurate variants, fit/use guidance, availability and transparent Amazon CTAs. Measure real orders and earnings over a complete window. No benchmark or guaranteed uplift is asserted.
 
 ## Per-domain evidence
@@ -115,7 +115,10 @@ Amazon click cells marked Not displayed are absent from this report's visible ta
 - [Tracking IDs are linked to the main account](https://affiliate-program.amazon.com/help/node/topic/GS4DGSRUYG5BX8E3)
 - [24-hour attribution window](https://affiliate-program.amazon.com/help/node/topic/G9SMD8TQHFJ7728F)
 - [Commissions are earned after shipment](https://affiliate-program.amazon.com/help/topic/t3/a3)
+- [Global Earning announcement](https://www.amazon.com/b?node=216882793011)
 - [OneLink integration](https://affiliate-program.amazon.com/help/node/topic/GKHRXG4YEJBTCAFC)
 - [Creators API eligibility](https://affiliate-program.amazon.com/creatorsapi/docs/en-us/introduction)
 
 Sanitized supporting data: `amazon-affiliate-conversion-2026-10-02.json`. No account session cookies, API credentials, banking details, or tax-interview URLs are included.
+
+Follow-up: [Affiliate monetization repairs and international verification](amazon-affiliate-repairs-2026-10-02.md).

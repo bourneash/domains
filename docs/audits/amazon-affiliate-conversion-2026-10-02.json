@@ -447,7 +447,7 @@
       "US": "Completed",
       "CA": "Completed"
     },
-    "onelink": "No default Tracking IDs configured; no linked stores displayed; Getting started screen. Global-store enrollment status not independently established."
+    "onelink": "Legacy OneLink has no mappings; this is not proof of missing international earning. Follow-up: legacy redirection settings redirect to Global Earning, which automatically enrolls US creators. Payment assignment verified separately: NL/SE/PL bank, US gift card, six countries unassigned. Country opt-outs not independently established."
   },
   "inventory": [
     {

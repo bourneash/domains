@@ -1,0 +1,844 @@
+{
+  "checkedAt": "2026-10-02",
+  "scope": "Repair existing affiliate attribution and activation gaps; source scan is not an exhaustive product stock certification.",
+  "sourceScan": [
+    {
+      "domain": "0daynews.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "0xroulette.com",
+      "registry": "sites/0xroulette.com/site/src/lib/affiliate.ts",
+      "products": 17,
+      "ASINs": 13,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "3boobs.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "aliencouncil.com",
+      "registry": "sites/aliencouncil.com/site/src/lib/affiliate.ts",
+      "products": 9,
+      "ASINs": 9,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "allthingsmasonic.com",
+      "registry": "sites/allthingsmasonic.com/site/src/lib/catalog.ts",
+      "products": 676,
+      "ASINs": 668,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "americastrikes.com",
+      "registry": "sites/americastrikes.com/site/src/lib/affiliate.ts",
+      "products": 55,
+      "ASINs": 55,
+      "amazonStaticRedirects": 114,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "amputeenews.com",
+      "registry": "sites/amputeenews.com/site/src/lib/affiliate.ts",
+      "products": 39,
+      "ASINs": 39,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "arttogogh.com",
+      "registry": "sites/arttogogh.com/site/src/lib/catalog.ts",
+      "products": 60,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "registry": "sites/blackmarketapparel.com/site/src/data/products.ts",
+      "products": 6,
+      "ASINs": 6,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "broadwayshowgirls.com",
+      "registry": "sites/broadwayshowgirls.com/ops/affiliate/products.json",
+      "products": 15,
+      "ASINs": 15,
+      "amazonStaticRedirects": 30,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "complicated.work",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "deadlymaracas.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "deeppenetrations.com",
+      "registry": "sites/deeppenetrations.com/site/src/lib/affiliate.ts",
+      "products": 40,
+      "ASINs": 40,
+      "amazonStaticRedirects": 40,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "driveford.net",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "drivegm.net",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "dumbsluts.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "eastcoastrappers.com",
+      "registry": "sites/eastcoastrappers.com/site/src/lib/affiliate.ts",
+      "products": 18,
+      "ASINs": 18,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "elevatorfriends.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "failbunny.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "findyourlostpets.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "fishhooklabs.com",
+      "registry": "sites/fishhooklabs.com/site/src/data/catalog/field.ts",
+      "products": 101,
+      "ASINs": 0,
+      "amazonStaticRedirects": 202,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "gate03.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "girlpain.com",
+      "registry": "sites/girlpain.com/site/src/data/affiliate.ts",
+      "products": 14,
+      "ASINs": 14,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "greatamericanlakes.com",
+      "registry": "sites/greatamericanlakes.com/site/src/lib/affiliate.ts",
+      "products": 93,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "howfishthink.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "howtofry.com",
+      "registry": "sites/howtofry.com/site/src/lib/affiliate.ts",
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "infrainnovator.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "magicescorts.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "marineactivity.com",
+      "registry": "sites/marineactivity.com/site/src/lib/affiliate.ts",
+      "products": 18,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "mynewgm.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "mynewgm.info",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "newmomshop.com",
+      "registry": "sites/newmomshop.com/site/src/lib/affiliate.ts",
+      "products": 19,
+      "ASINs": 16,
+      "amazonStaticRedirects": 38,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "noveltyguns.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "nsfwpixels.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "offshorehookup.com",
+      "registry": "sites/offshorehookup.com/site/src/lib/affiliate.ts",
+      "products": 24,
+      "ASINs": 24,
+      "amazonStaticRedirects": 48,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "oventoheaven.com",
+      "registry": "sites/oventoheaven.com/site/src/data/affiliates.ts",
+      "products": 30,
+      "ASINs": 30,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "pervypotion.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "pokererotic.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "rc-9.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "reviewtattoo.com",
+      "registry": "sites/reviewtattoo.com/site/src/lib/affiliate.ts",
+      "products": 17,
+      "ASINs": 17,
+      "amazonStaticRedirects": 46,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "rodhat.com",
+      "registry": "sites/rodhat.com/site/src/data/affiliate.ts",
+      "products": 27,
+      "ASINs": 17,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "saltwaternews.com",
+      "registry": "sites/saltwaternews.com/site/src/lib/affiliate.ts",
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 5,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "saveusfarms.com",
+      "registry": "sites/saveusfarms.com/site/src/lib/affiliate.ts",
+      "products": 16,
+      "ASINs": 16,
+      "amazonStaticRedirects": 16,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "searchwoot.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "seedstosauce.com",
+      "registry": "sites/seedstosauce.com/site/src/data/products.json",
+      "products": 69,
+      "ASINs": 68,
+      "amazonStaticRedirects": 138,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "shoppinkflamingo.com",
+      "registry": "sites/shoppinkflamingo.com/site/src/data/products.ts",
+      "products": 12,
+      "ASINs": 10,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "shoptopless.com",
+      "registry": "sites/shoptopless.com/site/src/lib/affiliate.ts",
+      "products": 82,
+      "ASINs": 82,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "sinderella.org",
+      "registry": "sites/sinderella.org/site/src/lib/affiliate.ts",
+      "products": 27,
+      "ASINs": 27,
+      "amazonStaticRedirects": 54,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "stinkyleftfoot.com",
+      "registry": "sites/stinkyleftfoot.com/site/src/data/products.json",
+      "products": 25,
+      "ASINs": 25,
+      "amazonStaticRedirects": 50,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "therareunicorn.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "totaljerks.com",
+      "registry": "sites/totaljerks.com/site/src/lib/affiliate.ts",
+      "products": 133,
+      "ASINs": 133,
+      "amazonStaticRedirects": 266,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "trainingsharks.com",
+      "registry": "sites/trainingsharks.com/site/src/lib/affiliate.ts",
+      "products": 7,
+      "ASINs": 7,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "ultrarough.com",
+      "registry": "sites/ultrarough.com/site/src/lib/affiliate.ts",
+      "products": 235,
+      "ASINs": 56,
+      "amazonStaticRedirects": 219,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "unsupervisedmedia.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "vibratorporn.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "weapontester.com",
+      "registry": "sites/weapontester.com/site/src/lib/affiliate.ts",
+      "products": 31,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "weirdassstuff.com",
+      "registry": "sites/weirdassstuff.com/site/src/lib/affiliate.ts",
+      "products": 309,
+      "ASINs": 309,
+      "amazonStaticRedirects": 618,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "weirdgirlstore.com",
+      "registry": "sites/weirdgirlstore.com/site/src/lib/affiliate.ts",
+      "products": 142,
+      "ASINs": 142,
+      "amazonStaticRedirects": 284,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "wetpages.com",
+      "registry": "sites/wetpages.com/site/src/lib/affiliate.ts",
+      "products": 5,
+      "ASINs": 5,
+      "amazonStaticRedirects": 5,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "wetslit.com",
+      "registry": null,
+      "products": 0,
+      "ASINs": 0,
+      "amazonStaticRedirects": 0,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    },
+    {
+      "domain": "xxxtea.com",
+      "registry": "sites/xxxtea.com/site/src/lib/affiliate.ts",
+      "products": 93,
+      "ASINs": 46,
+      "amazonStaticRedirects": 93,
+      "missingOrDuplicateStaticTags": [],
+      "legacyPlaceholderMarkers": false
+    }
+  ],
+  "liveVerification": [
+    {
+      "domain": "amputeenews.com",
+      "status": 200,
+      "reviewedTaggedProducts": 39,
+      "tag": "amputeenews-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "black-structured-blazer",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B09KG9L9FX?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "silver-chain-necklace",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B07JG8PWT6?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "black-leather-loafers",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B0BNWFZC1T?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "smoked-frame-sunglasses",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B0C4T3P2NH?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "ivory-silk-shirt",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B0BTPC8P3D?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "blackmarketapparel.com",
+      "route": "oxblood-bag",
+      "status": 302,
+      "destination": "https://www.amazon.com/dp/B0FN5QHGXD?tag=blackmarketapparel-20"
+    },
+    {
+      "domain": "saltwaternews.com",
+      "route": "circle-hooks",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=inline+circle+hooks+saltwater&tag=saltwaternews-20"
+    },
+    {
+      "domain": "saltwaternews.com",
+      "route": "pliers",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=saltwater+fishing+pliers&tag=saltwaternews-20"
+    },
+    {
+      "domain": "saltwaternews.com",
+      "route": "dry-bag",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=marine+dry+bag&tag=saltwaternews-20"
+    },
+    {
+      "domain": "saltwaternews.com",
+      "route": "pfd",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=offshore+inflatable+pfd&tag=saltwaternews-20"
+    },
+    {
+      "domain": "saltwaternews.com",
+      "route": "leader",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=fluorocarbon+leader+saltwater&tag=saltwaternews-20"
+    }
+  ],
+  "rodhatLive": [
+    {
+      "route": "book-apue",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-tcpip",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-tlpi",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-taocp",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-gof",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-taoup",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-ostep",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-bash",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-sedawk",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-bpfperf",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-sre",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "book-practice",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "gadget-keyboard",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "gadget-console",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "gadget-pi",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "gadget-kvm",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "gadget-dock",
+      "kind": "amazon",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "digitalocean",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "linode",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "namecheap",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "protonmail",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "nordvpn",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "1password",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "jetbrains",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "backblaze",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "fastmail",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    },
+    {
+      "route": "oreilly",
+      "kind": "partner",
+      "status": 200,
+      "verified": true
+    }
+  ],
+  "international": {
+    "globalEarningInfoUrl": "https://www.amazon.com/b?node=216882793011",
+    "paymentSettingsUrl": "https://affiliate-program.amazon.com/home/account/paymentMethods",
+    "legacyRedirectionSettingsRedirectToGlobalEarning": true,
+    "USCreatorAutomaticEnrollment": "Stated by the current Amazon Global Earning page; legacy OneLink mapping is not required for the ten launch marketplaces.",
+    "taxStatus": {
+      "United States": "Completed",
+      "Canada": "Completed"
+    },
+    "existingBankAssignedCountries": [
+      "Netherlands",
+      "Sweden",
+      "Poland"
+    ],
+    "existingGiftCardAssignedCountries": [
+      "United States"
+    ],
+    "unassignedPaymentCountries": [
+      "Canada",
+      "United Kingdom",
+      "Germany",
+      "France",
+      "Italy",
+      "Spain"
+    ],
+    "financialSettingsChanged": false,
+    "approval": "Asked owner whether the six unassigned countries may be added to the existing bank account, preserving the US gift-card preference. Awaiting reply.",
+    "countryOptOutPreferences": "Not independently exposed in the inspected account UI; do not claim these were verified."
+  },
+  "builds": {
+    "amputeenews.com": {
+      "commit": "c29e16d110965889ef6d76f34e48af745e034fa9",
+      "build": "c6b17ef8-2076-46be-b9de-1fe6ae7871d6",
+      "outcome": "success"
+    },
+    "blackmarketapparel.com": {
+      "commit": "b91e21029ffbf52425979a0ddf08732299c2c91d",
+      "build": "899d9e6a-42a8-41a4-b799-5bc19e001c12",
+      "outcome": "success"
+    },
+    "rodhat.com": {
+      "commit": "2896bae3ec12effdc5deaea53166fa52c4cbc238",
+      "build": "dc969eaf-1290-4610-a8d9-25a041881196",
+      "outcome": "success"
+    },
+    "saltwaternews.com": {
+      "commit": "c55a15f27896d9dbfebbf3ba6509f2b0e081d81f",
+      "build": "9585963d-0005-4cc4-aea2-25c90ecd1baa",
+      "outcome": "success"
+    }
+  }
+}
