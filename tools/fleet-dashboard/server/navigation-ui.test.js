@@ -748,6 +748,10 @@ test('executive conversation workspace behaves like an email inbox', () => {
   assert.match(app, /: null;\n  EXEC_INBOX_UI\.selected = selectedRequestId/);
   assert.match(app, /new Map\(\s*\(inbox\.requests \|\| requests\.work_items \|\| \[\]\)\.map/);
   assert.match(app, /class="ex-request-list-summary"/);
+  assert.match(
+    app,
+    /\$\{unreadNotifications\.length\} unread notifications · \$\{allOwnerRequests\.length\} tracked requests/
+  );
   assert.match(app, /<b>Full thread<\/b>/);
   assert.match(app, /const threadSection =\s*thread\.length > 1/);
   assert.doesNotMatch(app, /ex-request-response/);
