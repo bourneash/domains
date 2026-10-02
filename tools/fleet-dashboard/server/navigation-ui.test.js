@@ -2341,10 +2341,10 @@ test('Git Operations presents repository state with local filters', () => {
   assert.match(theme, /\.git-filter-hidden \{ display: none; \}/);
 });
 
-test('Domain Control presents fleet role health as a summary strip', () => {
+test('Domain Control keeps unique health context beside the role filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  assert.match(app, /class="ctl-summary"/);
+  assert.match(app, /class="ctl-coverage-good"><strong>\$\{nFreshSites\}<\/strong> fully green/);
   assert.match(app, /type="button" class="btn" id="control-refresh"/);
   assert.match(
     app,
@@ -2352,9 +2352,9 @@ test('Domain Control presents fleet role health as a summary strip', () => {
   );
   assert.match(app, /Fleet role coverage<\/h2>/);
   assert.match(app, /role issues include stale, overdue, or missing logs/);
-  assert.match(app, /Fully green sites<\/span>/);
-  assert.match(app, /Sites with role issues<\/span>/);
-  assert.match(app, /Sites with paused roles<\/span>/);
+  assert.doesNotMatch(app, /class="ctl-summary"/);
+  assert.doesNotMatch(app, /Sites with role issues<\/span>/);
+  assert.doesNotMatch(app, /Sites with paused roles<\/span>/);
   assert.doesNotMatch(app, /Common role columns<\/span>/);
   assert.match(app, /Has fresh roles/);
   assert.match(app, /matrix-scroll-hint/);

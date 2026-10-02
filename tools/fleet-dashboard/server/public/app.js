@@ -4756,12 +4756,8 @@ function controlDraw() {
     `<button type="button" class="seg-btn${CONTROL.filter === k ? ' active' : ''}" data-ctl-filter="${k}" aria-pressed="${CONTROL.filter === k}">${label}<span class="ctl-n">${n}</span></button>`;
 
   $('#ctl-bar').innerHTML = `
-    <section class="ctl-summary" aria-label="Fleet role coverage summary">
-      <div class="ctl-stat ctl-stat-good"><strong>${nFreshSites}</strong><span>Fully green sites</span></div>
-      <div class="ctl-stat ${nAttention ? 'ctl-stat-warn' : 'ctl-stat-good'}"><strong>${nAttention}</strong><span>Sites with role issues</span></div>
-      <div class="ctl-stat ${nPaused ? 'ctl-stat-paused' : 'ctl-stat-good'}"><strong>${nPaused}</strong><span>Sites with paused roles</span></div>
-    </section>
     <div class="ctl-bar">
+      <span class="ctl-coverage-good"><strong>${nFreshSites}</strong> fully green</span>
       <div class="seg sm">
         ${seg('all', 'All sites', sites.length)}
         ${seg('fresh', 'Has fresh roles', rolled.filter(x => x.r.fresh > 0).length)}

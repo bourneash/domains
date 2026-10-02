@@ -1719,3 +1719,11 @@ body[data-view="social"] main { max-width: none; }
   .ex-panel-head { align-items: flex-start; flex-direction: column; gap: 6px; }
   .ex-panel-head > :last-child { max-width: 100%; overflow-wrap: anywhere; }
 }
+
+.ctl-coverage-good {
+  display: inline-flex; align-items: baseline; gap: 5px; flex: none;
+  padding: 5px 9px; border: 1px solid rgba(46,160,67,.28);
+  border-radius: 8px; background: rgba(46,160,67,.08);
+  color: var(--muted); font-size: 11px; white-space: nowrap;
+}
+.ctl-coverage-good strong { color: var(--green); font-size: 14px; font-variant-numeric: tabular-nums; }
