@@ -178,6 +178,35 @@
 :root[data-theme="light"] select,
 :root[data-theme="light"] textarea,
 :root[data-theme="light"] input { background: #fff; color: var(--text); border-color: var(--control-border); }
+:root[data-theme="light"] .dd-item.active {
+  background: linear-gradient(90deg, rgba(40,119,212,.13), rgba(40,119,212,.045));
+  color: #174f92;
+  box-shadow: inset 2px 0 0 var(--a1);
+}
+:root[data-theme="light"] .dd-item.active .dd-count { background: rgba(40,119,212,.1); color: #315b91; }
+:root[data-theme="light"] .seg,
+:root[data-theme="light"] .pill { background: rgba(40,70,110,.045); border-color: var(--border); }
+:root[data-theme="light"] .seg-btn.active,
+:root[data-theme="light"] .cm-seg button.active {
+  background: var(--control-bg-active);
+  border-color: rgba(40,119,212,.3);
+  color: #174f92;
+  box-shadow: inset 0 0 0 1px rgba(40,119,212,.2);
+}
+:root[data-theme="light"] .pill.active {
+  background: #d7e6fa;
+  border-color: #9bbce6;
+  color: #174f92;
+  box-shadow: 0 3px 10px -7px rgba(40,119,212,.35);
+}
+:root[data-theme="light"] .icon-btn:hover,
+:root[data-theme="light"] .fleet-filter-clear:hover,
+:root[data-theme="light"] .fleet-filter-clear:focus-visible {
+  background: var(--control-bg-hover);
+  color: var(--text-hi);
+}
+:root[data-theme="light"] select:focus,
+:root[data-theme="light"] select.cm-input:focus { background-color: #fff; }
 :root[data-theme="light"] .btn.primary {
   background: #1f65b5;
   border-color: #1f65b5;
@@ -185,8 +214,25 @@
 :root[data-theme="light"] .btn.primary:hover {
   background: #185497;
 }
-:root[data-theme="light"] th { color: #53627c; }
+:root[data-theme="light"] .btn:hover:not(.primary) {
+  color: var(--text-hi);
+  background-color: var(--control-bg-hover);
+}
+:root[data-theme="light"] .btn.danger:hover {
+  color: var(--red);
+  background-color: rgba(181,38,61,.08);
+}
+:root[data-theme="light"] th {
+  background: var(--panel-2);
+  border-bottom-color: var(--border);
+  backdrop-filter: none;
+  color: #53627c;
+}
 :root[data-theme="light"] .cn-logs-box { background: #f7f9fc; color: #33425c; }
+:root[data-theme="light"] option,
+:root[data-theme="light"] optgroup { background-color: #fff; color: var(--text); }
+:root[data-theme="light"] option:checked,
+:root[data-theme="light"] option:hover { background-color: var(--control-bg-active); color: var(--text-hi); }
 :root[data-theme="light"] .modal { background: rgba(32,49,76,.32); }
 :root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #bdc9d9; background-clip: padding-box; }
 
