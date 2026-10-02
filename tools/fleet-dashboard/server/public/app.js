@@ -1863,7 +1863,7 @@ async function renderProductFeed() {
     .join('');
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">Product Feed</h2><span class="muted">${esc(stats.products || 0)} verified Amazon products · independent site queues (:4761)</span></div><button type="button" class="btn" id="product-feed-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">Product Feed</h2><span class="muted">Verified Amazon inventory for independent site publishing queues</span></div><button type="button" class="btn" id="product-feed-refresh">↻ Refresh</button></div>
     ${healthHtml}
     <section class="pf-summary" aria-label="Product feed summary">
       <div class="pf-stat"><strong>${subscriptionRows.length}</strong><span>Subscribed sites</span></div>
@@ -1882,7 +1882,7 @@ async function renderProductFeed() {
       </table></div>
     </div>
     <div class="card pf-panel">
-      <h3>Recently verified products <span class="muted pf-panel-count">Showing ${productItems.length} most recent of ${stats.products || productItems.length} verified</span></h3>
+      <h3>Recently verified products <span class="muted pf-panel-count">Showing ${productItems.length} most recent</span></h3>
       <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect price, rating, and product tags</div>
       <div class="table-wrap"><table><caption class="sr-only">Most recently verified Amazon products</caption>
         <thead><tr><th>Verified</th><th>Exact Amazon product</th><th>ASIN</th><th>Price</th><th>Rating</th><th>Tags</th></tr></thead>

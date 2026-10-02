@@ -2220,7 +2220,9 @@ test('Product Feed presents queue health as a summary strip', () => {
     app,
     /caption class="sr-only">Product feed subscriptions and queue health<\/caption>/
   );
-  assert.match(app, /Showing \$\{productItems\.length\} most recent of \$\{stats\.products/);
+  assert.match(app, /Verified Amazon inventory for independent site publishing queues/);
+  assert.doesNotMatch(app, /queues \(:4761\)/);
+  assert.match(app, /Showing \$\{productItems\.length\} most recent<\/span>/);
   assert.match(app, /caption class="sr-only">Most recently verified Amazon products<\/caption>/);
   assert.match(theme, /\.pf-summary \{[^}]*grid-template-columns/);
   assert.match(theme, /\.pf-panel \{[^}]*overflow: hidden/);
