@@ -3961,6 +3961,13 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(app, /class="dh-summary"/);
+  assert.match(app, /function dhNoteMarkup\(note\)/);
+  assert.match(
+    app,
+    /class="dh-note-details"><summary><strong>\$\{esc\(summary\)\}<\/strong><span>Details<\/span>/
+  );
+  assert.match(app, /<td class="dh-note">\$\{dhNoteMarkup\(e\.note\)\}<\/td>/);
+  assert.match(theme, /\.dh-note-details summary strong \{[^}]*text-overflow: ellipsis/);
   assert.match(app, /VPN exits online<\/span>/);
   assert.match(app, /Home-IP leaks\$\{vpnLeaks == null \? ' · unavailable' : ''\}<\/span>/);
   assert.match(
@@ -4006,6 +4013,31 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
   assert.match(style, /\.dh-pagination \{[^}]*display: flex/);
   assert.match(theme, /\.dh-summary \{[^}]*grid-template-columns/);
   assert.match(style, /\.dh-help \{[^}]*border-top/);
+});
+
+test('Data Hub keeps long connection diagnostics compact but available on demand', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function dhNoteMarkup(note)');
+  const end = app.indexOf('\nasync function renderDataHub()', start);
+  assert.ok(start >= 0 && end > start);
+  const markup = vm.runInNewContext(`${app.slice(start, end)}\ndhNoteMarkup`, {
+    esc: value =>
+      String(value ?? '').replace(
+        /[&<>"']/g,
+        char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]
+      ),
+  });
+  assert.equal(markup(''), '—');
+  assert.equal(markup('request timed out'), 'request timed out');
+  const note =
+    "Server error '502 Bad Gateway' for url 'https://feed.example.test/newest?q=cve' For more information see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/502. <debug>upstream</debug>";
+  const rendered = markup(note);
+  assert.match(
+    rendered,
+    /<summary><strong>502 Bad Gateway<\/strong><span>Details<\/span><\/summary>/
+  );
+  assert.match(rendered, /https:\/\/feed\.example\.test\/newest\?q=cve/);
+  assert.match(rendered, /&lt;debug&gt;upstream&lt;\/debug&gt;/);
 });
 
 test('Data Hub Images uses shared loading and bounded ledger patterns', () => {

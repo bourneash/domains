@@ -8101,6 +8101,17 @@ function dhPathBadge(policy, exitNode) {
   return `<span class="dh-path dh-vpn">vpn:${esc(exitNode || '?')}</span>`;
 }
 
+function dhNoteMarkup(note) {
+  const normalized = String(note || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized) return '—';
+  if (normalized.length <= 120) return esc(normalized);
+  const status = normalized.match(/(\d{3}\s+[A-Za-z][A-Za-z -]*?)(?:['"])?(?=\s+for\b|$)/);
+  const summary = status ? status[1].trim() : `${normalized.slice(0, 76).trimEnd()}…`;
+  return `<details class="dh-note-details"><summary><strong>${esc(summary)}</strong><span>Details</span></summary><code>${esc(normalized)}</code></details>`;
+}
+
 async function renderDataHub() {
   const app = $('#app');
   if (FRESH)
@@ -8156,7 +8167,7 @@ async function renderDataHub() {
       <td>${dhPathBadge(e.policy, e.exit_node)}</td>
       <td class="dh-ip">${esc(e.exit_ip || '—')}</td>
       <td>${dhBadge(e.status)}</td>
-      <td class="dh-note">${esc(e.note || '')}</td>
+      <td class="dh-note">${dhNoteMarkup(e.note)}</td>
     </tr>`
     )
     .join('');
