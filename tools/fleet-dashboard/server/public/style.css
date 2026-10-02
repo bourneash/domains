@@ -1642,6 +1642,7 @@ body[data-view="social"] main { max-width: none; }
   .wb-summary { grid-template-columns: repeat(2, 1fr); }
   .wb-board { grid-template-columns: none; grid-auto-columns: min(84vw, 390px); grid-auto-flow: column; align-items: start; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x mandatory; }
   .wb-column { align-self: start; scroll-snap-align: start; }
+  .wb-column { min-height: 160px; }
   .wb-board .wb-lane-pagination { position: static; }
   .wb-board-scroll-hint { display: block; margin: 0 0 7px; color: var(--muted); font-size: 11px; }
   .wb-head { align-items: flex-start; flex-direction: column; }

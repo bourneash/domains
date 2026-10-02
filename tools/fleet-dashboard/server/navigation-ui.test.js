@@ -2054,6 +2054,7 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(style, /\.wb-column \{ align-self: start; scroll-snap-align: start; \}/);
   assert.match(style, /\.wb-board \.wb-lane-pagination \{ position: static; \}/);
+  assert.match(style, /@media \(max-width: 700px\)[\s\S]*?\.wb-column \{ min-height: 160px; \}/);
   assert.match(style, /\.wb-board-scroll-hint \{ display: block;/);
   assert.match(app, /\.includes\(query\)/);
   assert.match(app, /aria-label="Open \$\{esc\(item\.title\)\} details"/);
