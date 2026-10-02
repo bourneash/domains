@@ -6,6 +6,7 @@ const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const executive = require('../fleet-dashboard/server/executive');
 const changequeue = require('../fleet-dashboard/server/changequeue');
+const executionGates = require('../fleet-dashboard/server/execution-gates');
 const handoff = require('./handoff');
 const research = require('./research');
 const croResearch = require('./cro');
@@ -17,6 +18,7 @@ const executivePerformance = require('../fleet-dashboard/server/executive-perfor
 const launchReadiness = require('./launch-readiness');
 const productivityProgram = require('../fleet-dashboard/server/productivity-program');
 const activeDelivery = require('../fleet-dashboard/server/active-delivery');
+const deliveryReadiness = require('./delivery-readiness');
 const crypto = require('node:crypto');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
@@ -585,6 +587,7 @@ async function buildBrief(store, root = ROOT) {
     : [];
   const fleetQueueReadiness = productivityProgram.queueReadiness(store, sites);
   const activeDeliverySnapshot = activeDelivery.snapshot(store);
+  const deliveryQueue = deliveryReadiness.snapshot(store, root);
   const completedActions = completedActionIndex(store);
   const allActionCandidates = actionCandidates(intel.intelligence, sites, completedActions, 100);
   const launchReadinessCandidates = siteFactoryCandidates(
@@ -729,6 +732,17 @@ async function buildBrief(store, root = ROOT) {
       lanes: productivityProgram.LANES,
     },
     active_delivery: activeDeliverySnapshot,
+    delivery_readiness: {
+      eligible_queued: deliveryQueue.eligibleQueued.length,
+      working: deliveryQueue.working.length,
+      blocked_queued: deliveryQueue.blockedQueued.length,
+      blocked_sites: deliveryQueue.blockedQueued.slice(0, 20).map(row => ({
+        site: row.site,
+        title: row.title,
+        reason: row.queue_block?.primary?.code || 'blocked',
+        next_check_at: row.queue_block?.next_check_at || null,
+      })),
+    },
     proposal_execution: proposalExecution,
     action_mandate: {
       cadence: 'hourly',
@@ -1069,6 +1083,7 @@ function emptyPlan() {
     proposals: [],
     research_requests: [],
     work_items: [],
+    skipped_work_items: [],
     tracking_updates: [],
     knowledge: [],
     change_requests: [],
@@ -1328,6 +1343,7 @@ function compactModelBrief(brief) {
       next_action: item.next_action,
     })),
   };
+  compact.delivery_readiness = brief?.delivery_readiness || {};
   compact.handoffs = (brief?.handoffs || []).slice(0, 12).map(handoff => ({
     handoff_id: handoff.handoff_id,
     site: handoff.site,
@@ -1397,6 +1413,7 @@ Rules:
 - Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. When slots are open, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites and lanes. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
+- A queued request blocked by measurement or an execution gate is not an executable handoff. Inspect delivery_readiness; if your preferred site is blocked, select a distinct queue-ready candidate instead. Do not recreate the same blocked task with a new title. Advance a currently eligible request or create a non-overlapping direct implementation request; planning notes and blocked queue rows do not satisfy throughput.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -2815,6 +2832,9 @@ function reconcileApprovedProposalFollowThrough(
       .map(row => String(row.site || '').toLowerCase())
       .filter(Boolean)
   );
+  const measuringImprovements = store
+    .listImprovements({ limit: 1000 })
+    .filter(row => row.state === 'measuring');
   // A deployed or measuring improvement is no longer occupying the
   // implementation slot. It must continue measuring, but it should not block
   // a bounded read-only evidence/report request for the same site. Only work
@@ -2898,7 +2918,7 @@ function reconcileApprovedProposalFollowThrough(
     }
     const implementation = normalizeApprovedImplementation(proposal, root);
     const ready = Boolean(implementation.site && implementation.title && implementation.body);
-    const directImplementation = String(implementation.delivery_mode || 'direct') !== 'report_only';
+    const directImplementation = deliveryReadiness.isDelivery(implementation);
     const queueDecision = approvedFollowThroughQueueDecision(proposal, implementation);
     const blockers = implementationBlockers(proposal, implementation);
     const terminalRequest =
@@ -2949,6 +2969,13 @@ function reconcileApprovedProposalFollowThrough(
     }
     if (terminalRequest)
       blockers.push(`existing request is ${currentRequest.status}; automatic retry is disabled`);
+    const measurementHold = directImplementation
+      ? deliveryReadiness.measurementHold(implementation, measuringImprovements)
+      : null;
+    if (measurementHold)
+      blockers.push(
+        `${measurementHold.reason}${measurementHold.due_at ? ` until ${measurementHold.due_at}` : ''}`
+      );
     if (directImplementation && implementationQueued >= implementationCapacity)
       blockers.push(`active delivery capacity is full (${activeDelivery.MAX_ACTIVE_SLOTS} slots)`);
 
@@ -3237,7 +3264,6 @@ function failedRequestDescendantCompleted(requests, requestId) {
         request.action_key === `failure-diagnosis:${requestId}` &&
         request.status === 'verified'
     );
-    if (diagnosis) return diagnosis;
     const repair = requests.find(
       request =>
         request.request_id !== requestId &&
@@ -3245,14 +3271,14 @@ function failedRequestDescendantCompleted(requests, requestId) {
         ['deployed', 'verified'].includes(request.status)
     );
     if (repair) return repair;
+    if (diagnosis) return diagnosis;
   }
   return null;
 }
 
 // Failure cases are durable audit records, but their workbench projections
-// must not remain open after a bounded diagnosis or a descendant repair has
-// completed. This is deliberately conservative: failed descendants do not
-// close the parent, and no request is deleted or retried here.
+// close after delivered repair. A completed diagnosis leaves implementation
+// waiting for explicit release, including historically misclosed projections.
 function reconcileCompletedFailureFollowups(store, { limit = 1000 } = {}) {
   const requests = store.listChangeRequests({ limit: 5000 });
   const items = store
@@ -3260,7 +3286,12 @@ function reconcileCompletedFailureFollowups(store, { limit = 1000 } = {}) {
     .filter(
       item =>
         item.source_type === 'failed-change-request' &&
-        ['open', 'in_progress', 'ready'].includes(item.status)
+        (['open', 'in_progress', 'ready'].includes(item.status) ||
+          (item.status === 'done' &&
+            /Closed by deterministic failure-followup reconciliation/.test(
+              item.resolution_note || ''
+            )) ||
+          (item.status === 'blocked' && item.waiting_on === 'implementation-release'))
     );
   const reconciled = [];
   for (const item of items) {
@@ -3270,16 +3301,64 @@ function reconcileCompletedFailureFollowups(store, { limit = 1000 } = {}) {
       ['deployed', 'verified', 'cancelled'].includes(original.status) ||
       failedRequestDescendantCompleted(requests, original.request_id);
     if (!completed) continue;
-    const descendant =
-      original.status === 'failed'
-        ? failedRequestDescendantCompleted(requests, original.request_id)
-        : null;
+    const descendant = !['deployed', 'verified', 'cancelled'].includes(original.status)
+      ? failedRequestDescendantCompleted(requests, original.request_id)
+      : null;
+    if (
+      descendant?.delivery_mode === 'report_only' &&
+      ['direct', 'pull_request'].includes(original.delivery_mode || 'direct')
+    ) {
+      if (executionGates.hasGate(original) && !executionGates.reason(original)) continue;
+      if (item.status === 'blocked' && item.waiting_on === 'implementation-release') continue;
+      // A diagnosis is evidence, not a delivered repair or a capacity release.
+      const condition =
+        original.hold_condition ||
+        (executionGates.legacyReason(original) ? original.body : null) ||
+        `Review diagnosis ${descendant.request_id} and explicitly release the corrected implementation.`;
+      if (!executionGates.hasGate(original))
+        changequeue.hold(store, original.request_id, {
+          expected_revision: original.gate_revision,
+          hold_condition: condition,
+          gate_not_before: executionGates.legacyNotBefore(original),
+        });
+      else if (executionGates.reason(original))
+        store.updateChangeRequest(original.request_id, {
+          status: 'blocked_owner',
+          next_attempt_at: null,
+          error: condition,
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+        });
+      store.updateExecutiveWorkItem(item.work_id, {
+        status: 'blocked',
+        lifecycle_state: 'waiting',
+        waiting_on: 'implementation-release',
+        closed_at: null,
+        resolved_at: null,
+        resolution_note: null,
+        next_action: `Diagnosis ${descendant.request_id} is complete. Record clearance evidence and explicitly release the original implementation; the diagnosis does not release it.`,
+        evidence: appendWorkEvidence(item, {
+          type: 'artifact',
+          label: 'diagnosis completed; implementation held',
+          note: descendant.request_id,
+        }),
+      });
+      reconciled.push({
+        type: 'failure-followup-held',
+        work_id: item.work_id,
+        request_id: original.request_id,
+      });
+      continue;
+    }
+    if (item.status === 'done') continue;
     const note = descendant
       ? `Linked descendant ${descendant.request_id} completed as ${descendant.status}.`
       : `Original request ${original.request_id} completed as ${original.status}.`;
     const updated = store.updateExecutiveWorkItem(item.work_id, {
       status: 'done',
       lifecycle_state: 'closed',
+      waiting_on: null,
       closed_at: new Date().toISOString(),
       resolved_at: new Date().toISOString(),
       resolution_note: `${note} Closed by deterministic failure-followup reconciliation.`,
@@ -3950,6 +4029,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     proposals: [],
     change_requests: [],
     work_items: [],
+    skipped_work_items: [],
     tracking_updates: [],
     knowledge: [],
     skipped_change_requests: [],
@@ -3975,9 +4055,29 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     created.tracking_updates.push(item);
     created.created_refs.tracking_updates.push(item.work_id || null);
   }
+  const openPlanningBacklog = store
+    .listExecutiveWorkItems({ limit: 1000, quiet: 0 })
+    .filter(
+      row =>
+        ['decision', 'research'].includes(String(row.kind)) &&
+        !['done', 'cancelled'].includes(String(row.status))
+    ).length;
+  let newPlanningItems = 0;
   for (const item of plan.work_items) {
     const workId = canonicalCapacityWorkId(item) || item.work_id;
     const existing = workId ? store.getExecutiveWorkItem(workId) : null;
+    if (
+      !existing &&
+      ['decision', 'research'].includes(String(item.kind)) &&
+      !isBoundedAccountabilityWorkItem(item) &&
+      (openPlanningBacklog >= 10 || newPlanningItems >= 2)
+    ) {
+      created.skipped_work_items.push({
+        title: item.title,
+        reason: 'planning backlog cap; advance an existing case or executable delivery instead',
+      });
+      continue;
+    }
     // Existing ordinary work-item refreshes are audit information, not new
     // work. Keep them in the dedicated tracking stream so the workbench only
     // contains durable cases and explicit blocker escalations.
@@ -4011,6 +4111,7 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
       ? store.updateExecutiveWorkItem(existing.work_id, payload)
       : store.createExecutiveWorkItem(payload);
     created.work_items.push(workItem);
+    if (!existing && ['decision', 'research'].includes(String(item.kind))) newPlanningItems += 1;
     created.created_refs.work_items.push({
       work_id: workItem.work_id,
       operation: existing ? 'updated' : 'created',
@@ -4339,12 +4440,28 @@ async function applyPlan(store, plan, { allowQueue = false, root = ROOT } = {}) 
     );
     let queuedCount = 0;
     let directQueuedCount = 0;
+    const measuringImprovements = store
+      .listImprovements({ limit: 1000 })
+      .filter(run => run.state === 'measuring');
     for (const rawItem of plan.change_requests) {
       const item = normalizeDirectChangeRequest(rawItem);
       if (!item.site || !item.title || !item.body)
         throw new Error('change request requires site, title and body');
       const site = String(item.site).trim().toLowerCase();
-      const directImplementation = String(item.delivery_mode || 'direct') !== 'report_only';
+      const directImplementation = deliveryReadiness.isDelivery(item);
+      const measurementHold = directImplementation
+        ? deliveryReadiness.measurementHold(item, measuringImprovements)
+        : null;
+      if (measurementHold) {
+        created.skipped_change_requests.push({
+          site,
+          title: item.title,
+          reason: measurementHold.reason,
+          due_at: measurementHold.due_at,
+          conflicting_run_ids: measurementHold.run_ids,
+        });
+        continue;
+      }
       const deferralReason = directImplementation
         ? changequeue.directRequestDeferralReason(item)
         : null;

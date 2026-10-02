@@ -1,6 +1,7 @@
 'use strict';
 
 const changequeue = require('../fleet-dashboard/server/changequeue');
+const deliveryReadiness = require('./delivery-readiness');
 const workflowEngine = require('../fleet-dashboard/server/workflow-engine');
 const workflowBoard = require('../fleet-dashboard/server/workflow-board');
 
@@ -271,7 +272,7 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
     const nextAction = acceptanceCriteria(item);
     const summary =
       item.summary || `Project-manager brief: ${item.title}. Scope: ${item.site || 'fleet-wide'}.`;
-    const updated = store.updateExecutiveWorkItem(item.work_id, {
+    let updated = store.updateExecutiveWorkItem(item.work_id, {
       owner,
       status: 'in_progress',
       summary,
@@ -290,24 +291,30 @@ function run(store, { knownSite = () => true, availableRolesForSite = () => [], 
         ? owner
         : IMPLEMENTATION_ROLES.find(role => roles.includes(role));
       if (assignedRole) {
-        request = changequeue.create(
-          store,
-          {
-            site: item.site,
-            title: item.title,
-            body: `${summary}\n\n${nextAction}\n\nProject-manager work_id: ${item.work_id}`,
-            category: 'engineering',
-            priority:
-              item.priority === 'urgent' ? 'high' : item.priority === 'low' ? 'low' : 'medium',
-            assigned_role: assignedRole,
-            provider: 'chatgpt',
-            delivery_mode: 'direct',
-            requested_by: 'project-manager',
-            auto_review: true,
-          },
-          knownSite,
-          availableRolesForSite
+        const requestInput = {
+          site: item.site,
+          title: item.title,
+          body: `${summary}\n\n${nextAction}\n\nProject-manager work_id: ${item.work_id}`,
+          category: 'engineering',
+          priority:
+            item.priority === 'urgent' ? 'high' : item.priority === 'low' ? 'low' : 'medium',
+          assigned_role: assignedRole,
+          provider: 'chatgpt',
+          delivery_mode: 'direct',
+          requested_by: 'project-manager',
+          auto_review: true,
+        };
+        const measurementHold = deliveryReadiness.measurementHold(
+          requestInput,
+          store.listImprovements({ limit: 1000 })
         );
+        if (measurementHold) {
+          updated = store.updateExecutiveWorkItem(item.work_id, {
+            status: 'waiting',
+            waiting_on: 'measurement',
+            next_action: `Wait for the overlapping measurement${measurementHold.due_at ? ` until ${measurementHold.due_at}` : ''}; then re-evaluate this implementation or choose an independent site.`,
+          });
+        } else request = changequeue.create(store, requestInput, knownSite, availableRolesForSite);
       }
     }
     changed.push({ work_item: updated, request });

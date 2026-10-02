@@ -56,6 +56,7 @@ const ACTION_TYPES = new Set([
   'other',
 ]);
 const changequeue = require('./changequeue');
+const deliveryReadiness = require('../../executive/delivery-readiness');
 const operatingLayer = require('../../executive/operating-layer');
 const OWNER_REQUEST_LIFECYCLE = new Set([
   'submitted',
@@ -575,6 +576,7 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
       throw httpErr(409, 'security-sensitive approval requires an approved Security review');
   }
   let linkedRequestId = input.linked_request_id;
+  let measurementHold = null;
   if (
     input.status === 'approved' &&
     !linkedRequestId &&
@@ -583,18 +585,24 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
     current.implementation?.body
   ) {
     if (typeof knownSite !== 'function') throw httpErr(500, 'approval executor is not configured');
-    const request = changequeue.create(
-      store,
-      {
-        ...current.implementation,
-        source: 'executive-approval',
-        requested_by: current.created_by,
-        source_proposal_id: current.proposal_id,
-      },
-      knownSite,
-      availableRolesForSite
+    measurementHold = deliveryReadiness.measurementHold(
+      current.implementation,
+      store.listImprovements({ limit: 1000 })
     );
-    linkedRequestId = request.request_id;
+    if (!measurementHold) {
+      const request = changequeue.create(
+        store,
+        {
+          ...current.implementation,
+          source: 'executive-approval',
+          requested_by: current.created_by,
+          source_proposal_id: current.proposal_id,
+        },
+        knownSite,
+        availableRolesForSite
+      );
+      linkedRequestId = request.request_id;
+    }
   }
   const proposal = store.decideExecutiveProposal(id, {
     ...input,
@@ -603,11 +611,18 @@ function decision(store, id, input = {}, { knownSite, availableRolesForSite } = 
   const workId = `executive-proposal:${proposal.proposal_id}`;
   if (store.getExecutiveWorkItem?.(workId)) {
     store.updateExecutiveWorkItem(workId, {
-      status: proposal.status === 'approved' ? 'in_progress' : 'waiting',
-      waiting_on: proposal.status === 'approved' ? 'project-manager' : proposal.created_by,
+      status: proposal.status === 'approved' && !measurementHold ? 'in_progress' : 'waiting',
+      waiting_on:
+        proposal.status === 'approved'
+          ? measurementHold
+            ? 'measurement'
+            : 'project-manager'
+          : proposal.created_by,
       next_action:
         proposal.status === 'approved'
-          ? 'Project manager will route the approved work through the existing queue and report progress in this thread.'
+          ? measurementHold
+            ? `Approved implementation overlaps active measurement${measurementHold.due_at ? ` until ${measurementHold.due_at}` : ''}; project manager must re-evaluate it after the window or choose independent work now.`
+            : 'Project manager will route the approved work through the existing queue and report progress in this thread.'
           : proposal.status === 'feedback'
             ? 'The proposing role must review the owner reply, revise the proposal, and return it for approval.'
             : 'Proposal declined; preserve the thread as the decision record.',

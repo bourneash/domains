@@ -473,7 +473,7 @@ test('recognizes a completed diagnosis or repair descendant', () => {
   assert.equal(runner.failedRequestDescendantCompleted(requests, 'missing'), null);
 });
 
-test('reconciles completed failure work items without deleting request history', () => {
+test('completed diagnosis holds implementation instead of resolving delivery', () => {
   const items = [
     {
       work_id: 'failed-change-request:failed-1',
@@ -494,6 +494,7 @@ test('reconciles completed failure work items without deleting request history',
   ];
   let updated;
   const store = {
+    transaction: callback => callback(),
     listChangeRequests: () => requests,
     listExecutiveWorkItems: () => items,
     getChangeRequest: id => requests.find(request => request.request_id === id),
@@ -501,12 +502,20 @@ test('reconciles completed failure work items without deleting request history',
       updated = { id, patch };
       return { ...items[0], ...patch };
     },
+    updateChangeRequest: (id, patch) => {
+      const row = requests.find(r => r.request_id === id);
+      Object.assign(row, patch);
+      return row;
+    },
+    record: () => {},
   };
   const result = runner.reconcileCompletedFailureFollowups(store);
   assert.equal(result.length, 1);
-  assert.equal(updated.patch.status, 'done');
-  assert.equal(updated.patch.lifecycle_state, 'closed');
-  assert.match(updated.patch.resolution_note, /diagnosis-1/);
+  assert.equal(updated.patch.status, 'blocked');
+  assert.equal(updated.patch.waiting_on, 'implementation-release');
+  assert.equal(updated.patch.resolution_note, null);
+  assert.match(updated.patch.next_action, /diagnosis-1/);
+  assert.equal(requests[0].status, 'blocked_owner');
   assert.equal(requests.length, 2);
 });
 
@@ -2121,6 +2130,66 @@ test('a request that says to remain unclaimed cannot enter the automatic dispatc
   store.close();
 });
 
+test('executive does not queue a direct change overlapping active measurement', async () => {
+  const { root, store } = db();
+  store.createImprovement({
+    site: 'example.com',
+    source: 'fleet-dashboard',
+    title: 'Measure /guides/controller search CTR',
+    state: 'measuring',
+    measurement_due: '2026-10-16T00:00:00Z',
+    baseline: { request_category: 'seo' },
+  });
+  const plan = runner.emptyPlan();
+  plan.change_requests.push({
+    site: 'example.com',
+    title: 'Improve /guides/controller search snippet',
+    body: 'Update /guides/controller metadata and measure CTR.',
+    category: 'seo',
+    priority: 'medium',
+    delivery_mode: 'direct',
+  });
+  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+  assert.equal(created.change_requests.length, 0);
+  assert.match(created.skipped_change_requests[0].reason, /measurement window/);
+  assert.equal(created.skipped_change_requests[0].due_at, '2026-10-16T00:00:00Z');
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 0);
+  store.close();
+});
+
+test('planning backlog stops new decision churn without blocking delivery', async () => {
+  const { root, store } = db();
+  for (let index = 0; index < 10; index++)
+    store.createExecutiveWorkItem({
+      work_id: `open-decision-${index}`,
+      title: `Existing decision ${index}`,
+      kind: 'decision',
+      status: 'waiting',
+      owner: 'project-manager',
+    });
+  const plan = runner.emptyPlan();
+  plan.work_items.push({
+    title: 'Another generic review',
+    kind: 'decision',
+    status: 'waiting',
+    owner: 'project-manager',
+    priority: 'normal',
+    next_action: 'Review later',
+  });
+  plan.change_requests.push({
+    site: 'example.com',
+    title: 'Improve /about entry clarity',
+    body: 'Update /about heading, test the build, measure page engagement, and roll back if needed.',
+    category: 'design',
+    priority: 'medium',
+    delivery_mode: 'direct',
+  });
+  const created = await runner.applyPlan(store, plan, { allowQueue: true, root });
+  assert.equal(created.skipped_work_items.length, 1);
+  assert.equal(created.change_requests.length, 1);
+  store.close();
+});
+
 test('binds executive request follow-up to its role and preserves report-only routing', () => {
   const plan = runner.parseOutput(
     JSON.stringify({
@@ -2699,4 +2768,64 @@ test('research gateway blocks private hosts and persists bounded public results'
   );
   assert.equal(result[0].status, 'completed');
   assert.equal(research.recent(root)[0].text_preview, 'public evidence');
+});
+
+test('diagnosis reconciliation repairs historical false closure without releasing the parent', () => {
+  const original = {
+    request_id: 'held-original',
+    site: 'example.com',
+    title: 'CTA',
+    status: 'blocked_owner',
+    delivery_mode: 'direct',
+    hold_condition: 'Capacity ledger clearance',
+  };
+  const diagnosis = {
+    request_id: 'diagnosis',
+    status: 'verified',
+    delivery_mode: 'report_only',
+    action_key: 'failure-diagnosis:held-original',
+  };
+  const work = {
+    work_id: 'failed-change-request:held-original',
+    source_type: 'failed-change-request',
+    source_id: original.request_id,
+    status: 'done',
+    resolution_note: 'Closed by deterministic failure-followup reconciliation.',
+    evidence: [],
+  };
+  let updated;
+  const store = {
+    listChangeRequests: () => [original, diagnosis],
+    listExecutiveWorkItems: () => [work],
+    getChangeRequest: () => original,
+    updateChangeRequest: (_, patch) => Object.assign(original, patch),
+    updateExecutiveWorkItem: (_, patch) => {
+      updated = Object.assign(work, patch);
+      return updated;
+    },
+  };
+  runner.reconcileCompletedFailureFollowups(store);
+  assert.equal(updated.status, 'blocked');
+  assert.equal(original.status, 'blocked_owner');
+  assert.equal(runner.reconcileCompletedFailureFollowups(store).length, 0);
+});
+
+test('a delivered repair closes its case even when a diagnosis also exists', () => {
+  const original = { request_id: 'original', status: 'failed', delivery_mode: 'direct' };
+  const diagnosis = {
+    request_id: 'diagnosis',
+    status: 'verified',
+    delivery_mode: 'report_only',
+    action_key: 'failure-diagnosis:original',
+  };
+  const repair = {
+    request_id: 'repair',
+    status: 'deployed',
+    delivery_mode: 'direct',
+    body: 'failed-change-request:original',
+  };
+  assert.equal(
+    runner.failedRequestDescendantCompleted([original, diagnosis, repair], 'original').request_id,
+    'repair'
+  );
 });

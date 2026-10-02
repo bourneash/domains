@@ -13,6 +13,7 @@ const { spawn } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const runtime = require('./agent-runtime');
 const { alertConsecutiveFailures } = require('./overwatch-alert');
+const deliveryReadiness = require('./delivery-readiness');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
 const AGENT_SLUG = 'fleet-exec-overwatch';
@@ -75,6 +76,8 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
     .filter(row => parseDate(row.started_at) >= windowStart)
     .slice(0, 4);
   const snapshot = captureSnapshot(store);
+  const readiness = deliveryReadiness.snapshot(store, ROOT, now);
+  const eligibleQueuedIds = new Set(readiness.eligibleQueued.map(row => row.request_id));
   const workItems = baseline
     ? [...snapshot.work.values()].filter(item => !baseline.work.has(item.work_id))
     : [...snapshot.work.values()].filter(item => parseDate(item.created_at) >= windowStart);
@@ -110,7 +113,8 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
   const activeDirectRequests = requests.filter(
     row =>
       DELIVERY_MODES.has(row.delivery_mode) &&
-      !['failed', 'blocked_infrastructure', 'blocked_owner', 'cancelled'].includes(row.status)
+      (eligibleQueuedIds.has(row.request_id) ||
+        ['claimed', 'running', 'reviewing', 'review', 'delivery_pending'].includes(row.status))
   );
   return {
     window_start: iso(windowStart),
@@ -131,13 +135,19 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       new_change_requests: requests.length,
       new_direct_change_requests: requests.filter(row => DELIVERY_MODES.has(row.delivery_mode))
         .length,
+      new_eligible_direct_change_requests: activeDirectRequests.length,
       new_active_direct_change_requests: activeDirectRequests.length,
+      eligible_queued_direct_requests: readiness.eligibleQueued.length,
+      blocked_queued_direct_requests: readiness.blockedQueued.length,
+      stale_eligible_direct_requests: readiness.eligibleQueued.filter(
+        row => now - parseDate(row.created_at) >= 30 * 60 * 1000
+      ).length,
       recent_verified_deliveries: recentVerifiedDeliveries.length,
       verified_artifacts: verifiedArtifacts.length,
       verified_deliveries: verifiedDeliveries.length,
       blocked_work_items: workItems.filter(row => row.status === 'blocked').length,
       actionable:
-        requests.some(row => DELIVERY_MODES.has(row.delivery_mode)) ||
+        activeDirectRequests.length > 0 ||
         verifiedDeliveries.length > 0 ||
         verifiedArtifacts.length > 0,
     },
@@ -158,7 +168,7 @@ function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = []
   const verified =
     after.real_work.verified_deliveries > 0 || after.real_work.verified_artifacts > 0;
   const queued =
-    after.real_work.new_direct_change_requests > 0 ||
+    after.real_work.new_eligible_direct_change_requests > 0 ||
     repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
   const recentExecutiveSuccess = before.cycles[0]?.status === 'completed';
   const activeDelivery =
@@ -169,6 +179,8 @@ function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = []
     return { status: 'failed', deliveryStatus: 'runner_failed', verified, queued };
   if (verified)
     return { status: 'succeeded', deliveryStatus: 'verified_delivery', verified, queued };
+  if (before.real_work.stale_eligible_direct_requests > 0)
+    return { status: 'failed', deliveryStatus: 'eligible_queue_stalled', verified, queued };
   if (queued) return { status: 'succeeded', deliveryStatus: 'handoff_pending', verified, queued };
   if (activeDelivery)
     return { status: 'succeeded', deliveryStatus: 'observing_active_delivery', verified, queued };

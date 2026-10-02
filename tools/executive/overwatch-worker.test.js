@@ -49,6 +49,34 @@ test('no executive delivery or handoff remains a genuine Overwatch failure', () 
   );
 });
 
+test('a blocked queued request does not make Overwatch healthy', () => {
+  const before = {
+    cycles: [{ status: 'completed' }],
+    real_work: {
+      new_active_direct_change_requests: 0,
+      recent_verified_deliveries: 0,
+      stale_eligible_direct_requests: 0,
+    },
+  };
+  const after = {
+    real_work: {
+      verified_deliveries: 0,
+      verified_artifacts: 0,
+      new_direct_change_requests: 1,
+      new_eligible_direct_change_requests: 0,
+    },
+  };
+  assert.equal(
+    classifyOutcome({ sandboxCode: 0, modelStatus: 'succeeded', before, after }).status,
+    'failed'
+  );
+  before.real_work.stale_eligible_direct_requests = 1;
+  assert.equal(
+    classifyOutcome({ sandboxCode: 0, modelStatus: 'succeeded', before, after }).deliveryStatus,
+    'eligible_queue_stalled'
+  );
+});
+
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'exec-overwatch-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });

@@ -17,12 +17,23 @@ export EXECUTIVE_LOCK_HELD=1
 export EXECUTIVE_SCOPE=fleet
 settings="$(node -e "const s=require('$ROOT/tools/fleet-dashboard/server/eventstore').open('$ROOT'); const x=s.getExecutiveSettings(); const q=s.getChangeQueueSettings(); const enabled=x.queue_execution_enabled === undefined ? q.enabled === true : x.queue_execution_enabled === true; process.stdout.write([x.tick_enabled === true ? '1' : '0', enabled ? '1' : '0'].join('|')); s.close()" 2>/dev/null || printf '0|0')"
 IFS='|' read -r enabled queue_enabled <<<"$settings"
+complete_calendar_skip() {
+  [[ -n "${CALENDAR_EVENT_ID:-}" ]] || return 0
+  node - "$ROOT" "$CALENDAR_EVENT_ID" "$1" <<'NODE'
+const root = process.argv[2];
+const id = process.argv[3];
+const reason = process.argv[4];
+const cal = require(`${root}/tools/fleet-dashboard/server/executive-calendar`);
+cal.completeClaim(root, id, process.env.CALENDAR_CLAIM_ID, { exit_code: 0, skipped: true, reason });
+NODE
+}
 # EXECUTIVE_FORCE bypasses the recurring tick_enabled switch for an operator
 # run, but never bypasses the separately reviewed queue_execution setting.
 # Reading both settings in every mode also keeps queue_enabled initialized
 # under set -u, which previously made forced/manual runs brittle.
-if [[ "${EXECUTIVE_FORCE:-0}" != "1" && "$enabled" != "1" ]]; then
+if [[ ( "${EXECUTIVE_FORCE:-0}" != "1" || -n "${CALENDAR_EVENT_ID:-}" ) && "$enabled" != "1" ]]; then
   echo "[$(date -Is)] executive scheduled tick skipped: tick_enabled is false"
+  complete_calendar_skip 'tick disabled'
   exit 0
 fi
 if [[ "$queue_enabled" == "1" ]]; then
@@ -41,7 +52,10 @@ if [[ "$queue_enabled" == "1" ]]; then
     echo "[$(date -Is)] approved-work drain failed; continuing with delivery triage" >&2
   fi
 fi
-if [[ "${EXECUTIVE_FORCE:-0}" != "1" && -z "${CALENDAR_EVENT_ID:-}" ]]; then
+# Pressure is checked after the deterministic approved-work drain so an
+# immediately executable handoff is not misreported as an empty pipeline.
+node "$ROOT/tools/executive/delivery-pressure.js" || echo "[$(date -Is)] delivery pressure check failed" >&2
+if [[ "${EXECUTIVE_FORCE:-0}" != "1" || -n "${CALENDAR_EVENT_ID:-}" ]]; then
   cadence="$(node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const store = require(`${root}/tools/fleet-dashboard/server/eventstore`).open(root);
@@ -52,6 +66,7 @@ NODE
 )"
   if [[ "$(node -p 'JSON.parse(process.argv[1]).run' "$cadence")" != "true" ]]; then
     echo "[$(date -Is)] executive scheduled tick skipped: $(node -p 'JSON.parse(process.argv[1]).reason' "$cadence")"
+    complete_calendar_skip 'planning cooldown'
     exit 0
   fi
 fi
@@ -100,6 +115,7 @@ const checkinStatus = Number(process.argv[6]);
 const eventstore = require(`${root}/tools/fleet-dashboard/server/eventstore`);
 const executive = require(`${root}/tools/fleet-dashboard/server/executive`);
 const schedulerOutput = require(`${root}/tools/executive/scheduler-output`);
+const deliveryReadiness = require(`${root}/tools/executive/delivery-readiness`);
 const store = eventstore.open(root);
 try {
   const scheduled = store.getExecutiveAction(actionId);
@@ -125,11 +141,19 @@ try {
         !['blocker', 'report-only', 'tracking'].includes(String(row.actionability || ''))
       );
     });
-  const newExecutableRequests = schedulerOutput.executableRequests(newRequests);
+  const readiness = deliveryReadiness.snapshot(store, root);
+  const eligibleIds = new Set(
+    [...readiness.eligibleQueued, ...readiness.working, ...readiness.delivered].map(
+      row => row.request_id
+    )
+  );
+  const newExecutableRequests = schedulerOutput.executableRequests(newRequests).filter(
+    row => eligibleIds.has(row.request_id)
+  );
   const failedToDeliver = schedulerOutput.failedToDeliver({
     exitCode,
     tickStatus: tick?.status,
-    requests: newRequests,
+    requests: newExecutableRequests,
     workItems: newExecutableWork,
   });
   const ceo = store.getAgent('fleet-ceo');

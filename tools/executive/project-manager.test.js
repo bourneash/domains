@@ -30,6 +30,35 @@ test('triages backlog work, writes acceptance criteria, and queues implementatio
   store.close();
 });
 
+test('holds overlapping implementation as waiting measurement instead of queueing it', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-measurement-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  store.createImprovement({
+    site: 'example.com',
+    source: 'fleet-dashboard',
+    title: 'Measure /checkout entry change',
+    state: 'measuring',
+    measurement_due: '2026-10-16T00:00:00Z',
+    baseline: { request_category: 'engineering' },
+  });
+  store.createExecutiveWorkItem({
+    title: 'Improve /checkout entry',
+    kind: 'implementation',
+    site: 'example.com',
+    owner: 'engineer',
+    summary: 'Update /checkout entry and validate the result.',
+  });
+  const result = manager.run(store, {
+    knownSite: site => site === 'example.com',
+    availableRolesForSite: () => ['engineer'],
+  });
+  assert.equal(result.changed[0].request, null);
+  assert.equal(result.changed[0].work_item.status, 'waiting');
+  assert.equal(result.changed[0].work_item.waiting_on, 'measurement');
+  assert.equal(store.listChangeRequests({ site: 'example.com' }).length, 0);
+  store.close();
+});
+
 test('does not route failure follow-ups back into direct implementation work', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-pm-failure-'));
   const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });

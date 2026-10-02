@@ -594,6 +594,45 @@ test('owner approval turns a bounded implementation into a linked change request
   db.close();
 });
 
+test('owner approval waits for overlapping measurement without queueing a duplicate', () => {
+  const db = store();
+  db.createImprovement({
+    site: 'example.com',
+    source: 'fleet-dashboard',
+    title: 'Measure /guides/controller search CTR',
+    state: 'measuring',
+    measurement_due: '2026-10-16T00:00:00Z',
+    baseline: { request_category: 'seo' },
+  });
+  const proposal = executive.proposal(db, {
+    title: 'Improve controller snippet',
+    proposal_type: 'growth',
+    summary: 'A reversible SEO improvement.',
+    requested_action: 'Approve the bounded task.',
+    implementation: {
+      site: 'example.com',
+      title: 'Improve /guides/controller snippet',
+      body: 'Update /guides/controller metadata.',
+      category: 'seo',
+      priority: 'low',
+    },
+  });
+  const approved = executive.decision(
+    db,
+    proposal.proposal_id,
+    { status: 'approved' },
+    { knownSite: site => site === 'example.com' }
+  );
+  assert.equal(approved.status, 'approved');
+  assert.equal(approved.linked_request_id, null);
+  assert.equal(db.listChangeRequests({ site: 'example.com' }).length, 0);
+  assert.equal(
+    db.getExecutiveWorkItem(`executive-proposal:${proposal.proposal_id}`).waiting_on,
+    'measurement'
+  );
+  db.close();
+});
+
 test('requires Legal approval before a go-live proposal can route work', () => {
   const db = store();
   const proposal = executive.proposal(db, {
