@@ -3271,6 +3271,14 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   border-color: rgba(40,119,212,.25);
 }
 :root[data-theme="light"] .cq-command-stat { border-left-color: var(--border); }
+:root[data-theme="light"] .cq-switch span {
+  background: var(--panel-3);
+  border-color: var(--control-border);
+}
+:root[data-theme="light"] .cq-switch input:checked + span {
+  background: rgba(22,118,79,.18);
+  border-color: var(--green);
+}
 :root[data-theme="light"] .cq-kpi,
 :root[data-theme="light"] .cq-controls,
 :root[data-theme="light"] .cq-throughput-stat,

@@ -3866,6 +3866,14 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.sh-calendar-intro/);
   assert.match(theme, /:root\[data-theme="light"\] \.cq-request-cell b/);
   assert.match(theme, /:root\[data-theme="light"\] \.cq-command-strip/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cq-switch span \{[^}]*background: var\(--panel-3\);[^}]*border-color: var\(--control-border\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cq-switch input:checked \+ span \{[^}]*background: rgba\(22,118,79,\.18\)/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.cq-working-card/);
   assert.match(theme, /:root\[data-theme="light"\] \.ui-collapsible\.is-collapsed/);
   assert.match(theme, /:root\[data-theme="light"\] \.soc-sub/);
