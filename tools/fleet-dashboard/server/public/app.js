@@ -5767,14 +5767,27 @@ async function renderProductManager(role) {
 async function renderGenericAgent(role) {
   const app = $('#app');
   const requestedRole = role;
+  const renderEpoch = (renderGenericAgent.epoch = (renderGenericAgent.epoch || 0) + 1);
   if (FRESH)
     app.innerHTML = `<div role="status" aria-live="polite"><div class="loading">Loading ${esc(agentLabel(role))} agent…</div></div>`;
-  let data, healthData;
+  let data,
+    healthData,
+    healthRequest,
+    healthPending = false;
   try {
-    [data, healthData] = await Promise.all([
-      api('GET', '/api/roles'),
-      api('GET', `/api/agents/${encodeURIComponent(role)}/health`).catch(() => null),
-    ]);
+    let healthReady = false;
+    healthRequest = api('GET', `/api/agents/${encodeURIComponent(role)}/health`)
+      .then(value => {
+        healthReady = true;
+        return value;
+      })
+      .catch(() => {
+        healthReady = true;
+        return null;
+      });
+    data = await api('GET', '/api/roles');
+    healthData = healthReady ? await healthRequest : null;
+    healthPending = !healthReady;
   } catch (e) {
     if (!routeIs('agent', requestedRole, null)) return;
     renderViewError(app, e.message);
@@ -5805,7 +5818,15 @@ async function renderGenericAgent(role) {
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
   const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
-  const healthPanel = healthData && rows.length ? agentHealthPanel(healthData, rows) : '';
+  const healthPanel = rows.length
+    ? `<div id="agent-health-panel">${
+        healthPending
+          ? '<section class="card ag-health-loading" role="status">Loading health history and execution details…</section>'
+          : healthData
+            ? agentHealthPanel(healthData, rows)
+            : '<section class="card ag-health-unavailable" role="status"><strong>Health history unavailable</strong><p class="muted">Core agent data is available. Refresh to retry the health summary.</p></section>'
+      }</div>`
+    : '';
 
   const body = rows
     .map(r => {
@@ -5821,6 +5842,9 @@ async function renderGenericAgent(role) {
       const healthDetails = h
         ? ` <button class="btn sm ag-health-details" type="button" aria-expanded="false" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Expand</button>`
         : '';
+      const healthContent = healthPending
+        ? '<span class="muted" aria-label="Loading health history">Loading…</span>'
+        : agentHealthCell(h);
       const badge = !r.enabled
         ? '<span class="badge b-gray">paused</span>'
         : r.state === 'fresh'
@@ -5828,13 +5852,13 @@ async function renderGenericAgent(role) {
           : r.state === 'never'
             ? '<span class="badge b-gray">no log</span>'
             : `<span class="badge b-yellow">${esc(STATE_LABEL[r.state] || r.state)}</span>`;
-      return `<tr class="ag-row" data-fleet-row data-fleet-unit="sites" data-site="${esc(r.site)}" data-agent-enabled="${r.enabled ? 'true' : 'false'}" data-agent-issue="${r.enabled && ['stale', 'overdue'].includes(r.state) ? 'true' : 'false'}" data-agent-alerts="${(r.editorial?.alerts || []).length}">
+      return `<tr class="ag-row" data-fleet-row data-fleet-unit="sites" data-site="${esc(r.site)}" data-agent-role="${esc(actualRole)}" data-agent-enabled="${r.enabled ? 'true' : 'false'}" data-agent-issue="${r.enabled && ['stale', 'overdue'].includes(r.state) ? 'true' : 'false'}" data-agent-alerts="${(r.editorial?.alerts || []).length}">
       <td class="site">${siteLink(r.site)}${toolLinks(r.site)}</td>
       <td>${badge}</td>
       <td class="mono muted">${r.age != null ? esc(fmtAge(r.age)) + ' ago' : '—'}</td>
       <td class="mono muted" title="${esc(r.schedule)}"><span class="badge b-blue">${esc(editorialCadenceLabel(r.cadence))}</span><br>${esc(r.schedule)}</td>
       <td>${editorialTelemetryCell(r.editorial, actualRole, secondary)}</td>
-      <td>${agentHealthCell(h)}</td>
+      <td data-agent-health>${healthContent}</td>
       <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Remove</button></td>
     </tr>${h ? healthDetailRow(h, 7) : ''}
     <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="7"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
@@ -5920,6 +5944,53 @@ async function renderGenericAgent(role) {
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
+
+  if (healthPending) {
+    healthRequest.then(resolvedHealth => {
+      if (renderEpoch !== renderGenericAgent.epoch || !routeIs('agent', requestedRole, null))
+        return;
+      AGENT_HEALTH = resolvedHealth;
+      const healthPanelNode = $('#agent-health-panel');
+      if (healthPanelNode) {
+        healthPanelNode.innerHTML = resolvedHealth
+          ? agentHealthPanel(resolvedHealth, rows)
+          : '<section class="card ag-health-unavailable" role="status"><strong>Health history unavailable</strong><p class="muted">Core agent data is available. Refresh to retry the health summary.</p></section>';
+      }
+      const healthBySiteRole = Object.fromEntries(
+        (resolvedHealth?.rows || []).map(h => [`${h.site}:${h.role || role}`, h])
+      );
+      $$('.ag-row[data-agent-role]').forEach(row => {
+        const h = healthBySiteRole[`${row.dataset.site}:${row.dataset.agentRole}`];
+        const cell = $('[data-agent-health]', row);
+        if (cell) cell.innerHTML = agentHealthCell(h);
+        const actions = $('.cn-actions', row);
+        if (!h || !actions || $('.ag-health-details', actions)) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn sm ag-health-details';
+        button.setAttribute('aria-expanded', 'false');
+        button.dataset.site = row.dataset.site;
+        button.dataset.role = row.dataset.agentRole;
+        button.textContent = 'Expand';
+        const removeButton = $('.ag-remove', actions);
+        actions.insertBefore(button, removeButton || null);
+        row.insertAdjacentHTML('afterend', healthDetailRow(h, 7));
+        button.addEventListener('click', () => toggleHealthDetail(button));
+      });
+      $$('.ag-health-toggle').forEach(b =>
+        b.addEventListener('click', () =>
+          toggleRole(b.dataset.site, role, b.dataset.enabled === '1')
+        )
+      );
+      if (!familyPage) {
+        $('.ag-health-pause')?.addEventListener('click', () =>
+          bulkAgentHealthAction(role, 'pause')
+        );
+        $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
+      }
+      stamp();
+    });
+  }
 }
 
 // Fire a worker role now on one site (detached run-worker.sh, work-lock safe).

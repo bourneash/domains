@@ -316,6 +316,29 @@ test('async agent pages abandon stale route responses', () => {
   assert.match(app, /if \(!executiveRouteActive\(\)\) return;/);
 });
 
+test('generic agent pages render role data before slower health history resolves', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderGenericAgent(role)');
+  const end = app.indexOf('\n// Fire a worker role now', start);
+  assert.ok(start >= 0 && end > start);
+  const renderer = app.slice(start, end);
+  assert.match(
+    renderer,
+    /healthRequest = api\('GET', `\/api\/agents\/\$\{encodeURIComponent\(role\)\}\/health`\)/
+  );
+  assert.match(
+    renderer,
+    /data = await api\('GET', '\/api\/roles'\);\s*healthData = healthReady \? await healthRequest : null;/
+  );
+  assert.match(renderer, /Loading health history and execution details/);
+  assert.match(renderer, /healthRequest\.then\(resolvedHealth =>/);
+  assert.match(
+    renderer,
+    /renderEpoch !== renderGenericAgent\.epoch \|\| !routeIs\('agent', requestedRole, null\)/
+  );
+  assert.match(renderer, /\[data-agent-health\]/);
+});
+
 test('shared API reads abandon stale route responses before renderers continue', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /let ROUTE_EPOCH = 0;/);
