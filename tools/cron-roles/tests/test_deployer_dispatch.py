@@ -15,6 +15,10 @@ def make_site(tmp_path: Path, invocation: str) -> Path:
     (scripts / "run-deployer.sh").write_text(
         f"#!/usr/bin/env bash\n{invocation}\n", encoding="utf-8"
     )
+    (scripts / "deploy.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+    (docker / "crontab.docker").write_text(
+        "*/5 * * * * bash ops/scripts/run-deployer.sh\n", encoding="utf-8"
+    )
     (docker / "entrypoint-worker.sh").write_text(
         "#!/usr/bin/env bash\n"
         "case \"${1:-}\" in\n"
@@ -47,6 +51,32 @@ def test_rejects_entrypoint_override(tmp_path: Path):
     result = run_validator(site)
     assert result.returncode == 1
     assert "overrides the worker entrypoint" in result.stderr
+
+
+def test_rejects_missing_deploy_script(tmp_path: Path):
+    site = make_site(tmp_path, "docker compose run --rm worker deployer")
+    (site / "ops/scripts/deploy.sh").unlink()
+    result = run_validator(site)
+    assert result.returncode == 1
+    assert f"missing {site}/ops/scripts/deploy.sh" in result.stderr
+
+
+def test_rejects_missing_crontab(tmp_path: Path):
+    site = make_site(tmp_path, "docker compose run --rm worker deployer")
+    (site / "ops/docker/crontab.docker").unlink()
+    result = run_validator(site)
+    assert result.returncode == 1
+    assert f"missing {site}/ops/docker/crontab.docker" in result.stderr
+
+
+def test_rejects_commented_out_deployer_schedule(tmp_path: Path):
+    site = make_site(tmp_path, "docker compose run --rm worker deployer")
+    (site / "ops/docker/crontab.docker").write_text(
+        "# */5 * * * * bash ops/scripts/run-deployer.sh\n", encoding="utf-8"
+    )
+    result = run_validator(site)
+    assert result.returncode == 1
+    assert "no active run-deployer.sh schedule" in result.stderr
 
 
 def test_canonical_template_and_marineactivity_are_safe():
