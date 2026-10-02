@@ -105,12 +105,14 @@
   rail.id = 'vitals';
   rail.className = 'vitals-pending';
   rail.setAttribute('aria-label', 'Fleet vitals');
+  const mobileVitals = matchMedia('(max-width: 560px)');
+  if (mobileVitals.matches) rail.classList.add('vitals-mobile-collapsed');
   // This strip is injected once above <main> and stays fixed across every
   // view (Domain Control, Social Hub, Containers, ...) — it is NEVER scoped
   // to the page underneath it. Without a label that reads as "whatever page
   // I'm on", which it isn't: it's fleet-wide cron-role + container state from
   // /api/roles and /api/containers, full stop.
-  rail.innerHTML = `<div class="vt-scope">Fleet-wide — every site, every role</div>` + railHTML;
+  rail.innerHTML = `<button type="button" class="vitals-mobile-toggle" aria-expanded="false" aria-controls="vitals-content"><span class="vitals-mobile-title">Fleet overview</span><span class="vitals-mobile-summary">Loading fleet health…</span><span class="vitals-mobile-chevron" aria-hidden="true">⌄</span></button><div id="vitals-content" class="vitals-content"><div class="vt-scope">Fleet-wide — every site, every role</div>${railHTML}</div>`;
 
   const cell = k => $(`.vt[data-vt="${k}"]`, rail);
   const setVal = (k, v, sub) => {
@@ -137,6 +139,18 @@
   };
 
   let vitalsTimer = null;
+  rail.querySelector('.vitals-mobile-toggle')?.addEventListener('click', event => {
+    const button = event.currentTarget;
+    const expanded = button.getAttribute('aria-expanded') !== 'true';
+    rail.classList.toggle('vitals-mobile-collapsed', !expanded);
+    button.setAttribute('aria-expanded', String(expanded));
+  });
+  mobileVitals.addEventListener?.('change', event => {
+    rail.classList.toggle('vitals-mobile-collapsed', event.matches);
+    rail
+      .querySelector('.vitals-mobile-toggle')
+      ?.setAttribute('aria-expanded', String(!event.matches));
+  });
   function openVitalView(card) {
     const target = card?.dataset.vtAction;
     if (target) location.hash = `#${target}`;
@@ -262,6 +276,9 @@
       const running = cts.filter(c => c.running).length;
       const unhealthy = cts.filter(c => c.unhealthy).length;
       const healthPct = Math.round((fresh / live) * 100);
+      const mobileSummary = $('.vitals-mobile-summary', rail);
+      if (mobileSummary)
+        mobileSummary.textContent = `${(roles.sites || []).length} sites · ${stale + overdue ? `${stale + overdue} need attention` : 'all roles healthy'} · ${healthPct}% health`;
 
       setVal(
         'sites',
@@ -1432,7 +1449,9 @@
         toggleSection(h.closest('.rl-sec'));
       })
     );
-    nav.scrollTop = scroll;
+    // Assigning scrollTop after replacing a large nav tree forces layout even
+    // when both the old and new positions are zero. Only restore real movement.
+    if (scroll > 0) nav.scrollTop = scroll;
     sync();
     normalizeMenus();
   }
@@ -1446,10 +1465,7 @@
     $$('.rl-it', rail).forEach(b => {
       const src = bound.get(b);
       const on =
-        !!src &&
-        (src.root
-          ? navigationView === src.key
-          : src.el.classList.contains('active') || src.key === navigationView);
+        !!src && (src.root ? navigationView === src.key : src.el.classList.contains('active'));
       b.classList.toggle('on', on);
       if (on) {
         activeSec = b.dataset.sec;
@@ -1528,7 +1544,7 @@
   function ensureTitle() {
     const app = $('#app');
     if (!app || !app.firstElementChild) return; // loading placeholder
-    if (app.querySelector(':scope > .page-head, :scope > .crumbs')) return;
+    if (app.querySelector(':scope > .page-head, :scope > .crumbs, .page-head .page-title')) return;
     const label = $('#ctx .ctx-v')?.textContent?.trim();
     if (!label || label === 'Fleet') return;
     const h = document.createElement('div');

@@ -735,7 +735,7 @@ test('sidebar supports persistent favorites and reordering', () => {
   assert.match(shell, /if \(src\.root\) location\.hash = `#\$\{src\.key\}`/);
   assert.match(
     shell,
-    /src\.root\n\s*\? navigationView === src\.key\n\s*: src\.el\.classList\.contains\('active'\) \|\| src\.key === navigationView/
+    /src\.root\n\s*\? navigationView === src\.key\n\s*: src\.el\.classList\.contains\('active'\)/
   );
   assert.match(shell, /data-favorite-move/);
   assert.match(shell, /data-favorites-clear/);
