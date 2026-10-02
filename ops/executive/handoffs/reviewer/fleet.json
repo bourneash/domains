@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T19:32:12.456Z",
+  "generated_at": "2026-10-02T19:40:57.393Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject the magicescorts.com report-only admission and all production, monetization, telemetry, credential/configuration, spend, and high-priority queue work. Revenue and ROI claims remain unsupported because attribution is aggregate/incomplete and telemetry is low-volume. Route only three isolated preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Site-factory owns dated launch-readiness artifacts by 2026-10-03T17:00:00Z; unresolved legal, security, compliance, reachability, or measurement blockers escalate to the owner.",
+        "summary": "Approve only three isolated, preview-only implementation reviews for complicated.work, deadlymaracas.com, and driveford.net, routed to engineer. No publication, deployment, telemetry activation, monetization, spend, credential/configuration changes, dependency additions, or production claims are authorized. Acceptance requires deterministic build, link, accessibility, metadata, and preview-smoke checks; a dated readiness artifact; measurable preview quality-gate results; and an isolated rollback commit. Production remains blocked because launch-readiness, compliance, analytics, operations, and security evidence are incomplete. Site-factory owns the readiness artifacts by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
