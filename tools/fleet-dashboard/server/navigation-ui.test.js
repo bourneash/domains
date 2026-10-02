@@ -512,7 +512,14 @@ test('Exec Overwatch exposes a self-contained refresh action', () => {
 test('executive workbench is a first-class operator route', () => {
   assert.equal(routeFor('#workbench').view, 'workbench');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const styles = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /Executive Workbench/);
+  assert.match(app, /Decisions, evidence gaps, reviews, incidents, and learning in one queue/);
+  assert.match(
+    styles,
+    /@media \(max-width: 720px\)\s*\{\s*\.wb-shell > \.wb-head \{ gap: 12px; padding: 14px 16px; \}/
+  );
+  assert.match(styles, /\.wb-shell \.wb-kpis > div \{ padding: 10px 12px; \}/);
   assert.match(app, /api\/executive\/work-items/);
   assert.match(app, /wb-thread-toggle/);
   assert.match(app, /aria-label="Open thread for \${esc\(item\.title\)}"/);

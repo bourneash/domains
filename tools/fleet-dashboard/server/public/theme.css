@@ -3488,3 +3488,12 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   border-color: var(--border);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
 }
+
+@media (max-width: 720px) {
+  .wb-shell > .wb-head { gap: 12px; padding: 14px 16px; }
+  .wb-shell > .wb-head .muted { font-size: 13px; line-height: 1.4; }
+  .wb-shell .wb-kpis { gap: 8px; margin-bottom: 10px; }
+  .wb-shell .wb-kpis > div { padding: 10px 12px; }
+  .wb-shell .wb-kpis b { font-size: 21px; }
+  .wb-shell .wb-kpis span { margin-top: 4px; }
+}
