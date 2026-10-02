@@ -2525,7 +2525,7 @@ test('Domain Control keeps unique health context beside the role filters', () =>
   assert.match(theme, /\.rmatrix th\.rsite-h,[\s\S]*width: 240px/);
 });
 
-test('wide rendered tables receive consistent mobile scroll affordances', () => {
+test('wide rendered tables receive consistent scroll affordances', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /function enhanceScrollableTables\(root\)/);
   assert.match(app, /root\.querySelectorAll\('table'\)/);
@@ -2535,10 +2535,11 @@ test('wide rendered tables receive consistent mobile scroll affordances', () => 
     app,
     /wrap\.tabIndex = 0;\s+wrap\.setAttribute\('role', 'region'\);\s+wrap\.setAttribute\('aria-label', label\)/
   );
-  assert.match(app, /Swipe horizontally to inspect all columns/);
+  assert.match(app, /Scroll or swipe horizontally to inspect all columns/);
+  assert.match(app, /hint\.classList\.add\('is-overflowing'\)/);
   assert.match(app, /const hintSelector = '\[role="note"\]\[class\*="scroll-hint"\]'/);
   assert.match(app, /panel\?\.querySelectorAll\(hintSelector\)/);
-  assert.match(app, /root\.children\]\.some\(\s*child => child\.matches\(hintSelector\)/);
+  assert.match(app, /\.\.\.root\.children/);
   assert.match(
     app,
     /Promise\.resolve\(renderCurrentView\(\)\)\.then\(\(\) => \{\s+const app = \$\('#app'\);\s+enhanceScrollableTables\(app\);\s+removeDuplicatePageRefresh\(app\);/
@@ -3231,6 +3232,7 @@ test('Active Delivery formats long queue waits in readable day/hour units', () =
 
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   const facts = app.slice(
     app.indexOf('async function sfRenderPanel('),
     app.indexOf('function reloadSiteFacts()', app.indexOf('async function sfRenderPanel('))
@@ -3258,6 +3260,7 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
     /role="status" aria-live="polite"><div class="loading">Joining portfolio signals…<\/div>/
   );
   assert.match(priorities, /type="button" id="priorities-refresh" class="btn"/);
+  assert.match(app, /let PRIORITY_STATE = 'ready'/);
   assert.match(app, /const PRIORITY_PAGE_SIZE = 25/);
   assert.match(priorities, /class="priority-pagination" aria-label="Priority action pages"/);
   assert.match(priorities, /id="priority-prev"/);
@@ -3278,6 +3281,16 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
     /The API reports \$\{reportedTotal\} recommendations but returned \$\{all\.length\}/
   );
   assert.doesNotMatch(priorities, /<div class="error-box">\$\{esc\(data\.notice/);
+  const scrollEnhancer = app.slice(
+    app.indexOf('function enhanceScrollableTables('),
+    app.indexOf(
+      'function removeDuplicatePageRefresh(',
+      app.indexOf('function enhanceScrollableTables(')
+    )
+  );
+  assert.match(scrollEnhancer, /hint\.classList\.add\('is-overflowing'\)/);
+  assert.match(scrollEnhancer, /Scroll or swipe horizontally/);
+  assert.match(theme, /\.matrix-scroll-hint\.is-overflowing\s*\{\s*display: flex;/);
   assert.match(app, /const IMPROVEMENT_PAGE_SIZE = 20/);
   assert.match(improvements, /<h4>Quality gates<\/h4><div class="table-wrap"><table class="tbl">/);
   assert.match(

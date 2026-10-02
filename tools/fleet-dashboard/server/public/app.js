@@ -13093,7 +13093,10 @@ function cycleAutomationSite(direction) {
   renderAutomation();
 }
 
-let PRIORITY_STATE = 'all';
+// Open on work an operator can start immediately; the state filter still
+// exposes blocked and filed recommendations without mixing them into the
+// first-action queue by default.
+let PRIORITY_STATE = 'ready';
 let PRIORITY_PAGE = 1;
 const PRIORITY_PAGE_SIZE = 25;
 
@@ -17779,16 +17782,24 @@ function enhanceScrollableTables(root) {
     const precedes = (hint, node) => Boolean(hint.compareDocumentPosition(node) & 4);
     const panel = wrap.closest('.card, section, article');
     const hintSelector = '[role="note"][class*="scroll-hint"]';
-    const hasHint =
-      wrap.previousElementSibling?.matches(hintSelector) ||
-      [...wrap.querySelectorAll(hintSelector)].some(hint => precedes(hint, table)) ||
-      [...(panel?.querySelectorAll(hintSelector) || [])].some(hint => precedes(hint, wrap)) ||
-      [...root.children].some(child => child.matches(hintSelector) && precedes(child, wrap));
-    if (!hasHint) {
+    const existingHints = [
+      wrap.previousElementSibling,
+      ...wrap.querySelectorAll(hintSelector),
+      ...(panel?.querySelectorAll(hintSelector) || []),
+      ...root.children,
+    ].filter(hint => hint?.matches?.(hintSelector) && precedes(hint, wrap));
+    const hint = existingHints.at(-1);
+    if (hint) {
+      hint.classList.add('is-overflowing');
+      hint.textContent = hint.textContent.replace(
+        /^Swipe horizontally/,
+        'Scroll or swipe horizontally'
+      );
+    } else {
       const hint = document.createElement('div');
-      hint.className = 'matrix-scroll-hint';
+      hint.className = 'matrix-scroll-hint is-overflowing';
       hint.setAttribute('role', 'note');
-      hint.textContent = 'Swipe horizontally to inspect all columns';
+      hint.textContent = 'Scroll or swipe horizontally to inspect all columns';
       if (wrap.classList.contains('card')) wrap.prepend(hint);
       else wrap.before(hint);
     }
