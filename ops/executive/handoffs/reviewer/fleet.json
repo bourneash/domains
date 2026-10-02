@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:12:28.357Z",
+  "generated_at": "2026-10-02T17:15:06.119Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and production claims. Affiliate earnings remain aggregate/unattributed; telemetry is low-volume or incomplete; operations and fleet-doctor evidence are unavailable. Route only the three bounded preview-only SEO implementations below. No deployment, spend, credential/configuration change, duplicate telemetry, or lift claim is authorized. Principal-engineer owns admission reconciliation by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Reviewer decision: reject the proposed allthingsmasonic.com execution because the site has active homepage work, overlapping queued affiliate work, incomplete site-level revenue attribution, and low-volume outcome evidence. No new implementation candidate clears all gates this cycle. Preserve the capacity gate. Domain-manager must reconcile active-work overlap by 2026-10-03T17:00Z; principal-engineer must document the canonical admission ledger and release at most one candidate only if baseline, threshold, tests, attribution, rollback, and release evidence pass. Site-factory must complete preview-only launch-readiness evidence for scaffold candidates; CTO must document operations/security evidence. Escalate unresolved blockers to the owner by the same deadline. No revenue, ROI, causal-lift, production-readiness, security-clearance, or deployment claim is supported.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:12:28.357Z",
+  "generated_at": "2026-10-02T17:15:06.119Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Reconcile active SEO measurement before next aliencouncil.com change",
-        "summary": "aliencouncil.com is already in an active measurement window through 2026-10-10, so adding overlapping production work is blocked. Reconcile the existing improvement and prepare one non-duplicative next action for the page with the clearest recorded SEO opportunity.",
-        "requested_action": "Review the existing aliencouncil.com improvement record and the page /cases/00509-presidential-memorandum-uap-nda-abrogation-pursue-designee. Record the current title, meta description, canonical, internal links, and competing active-work status; do not modify production or telemetry. By 2026-10-10, either close the measurement gate with evidence or nominate exactly one reversible SEO implementation.",
+        "title": "Execute the existing affiliate conversion-path improvement without adding overlapping work",
+        "summary": "No new site work is admissible because allthingsmasonic.com already has active homepage work and a queued affiliate conversion-path request. The existing request should proceed as the sole next implementation item.",
+        "requested_action": "Execute request 4719e525-763b-42a4-9f16-e71e1c38b17b. Scope only existing commercial-page CTA, product relevance, and disclosure placement. Baseline: 61 Amazon clicks with ordered items and commission unavailable for the site-level row. Acceptance: exact changed files and pages recorded, deterministic tests/build/link/disclosure checks pass, no unrelated routes or tracking change, and rollback is a revert of the bounded diff. Measure site-attributed Amazon clicks and any newly disclosed orders/commission for 14 days or 100 relevant clicks; do not claim lift if attribution remains unavailable. Due: 2026-10-09. Smallest next step: principal-engineer claims the queued request and records the target page/file map before editing. Rollback: revert only this change and restore the prior revision.",
         "proposal_id": null
       }
     ]
