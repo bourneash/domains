@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:23:13.936Z",
+  "generated_at": "2026-10-02T18:24:12.320Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Resume the blocked Trainingsharks homepage UX improvement after diagnosis release",
-        "summary": "Continue the existing blocked_owner implementation for trainingsharks.com without creating overlapping work. The retained diagnosis 1ef2c5ad-296b-47f5-afdc-f1a9b0eaedd8 requires explicit release before implementation.",
-        "requested_action": "Release the existing engineer request for bounded implementation only after the diagnosis is reviewed. Do not create a duplicate request or change production directly.",
+        "title": "Reconcile trainingsharks.com active work before admitting another change",
+        "summary": "New implementation is blocked by two existing trainingsharks.com improvements in measurement and a blocked engineer request. Reconcile the existing work without creating overlapping production changes.",
+        "requested_action": "Review the existing requests 0c0d71a0-a34a-42a4-85b5-8f3118fbdf93 and the two active trainingsharks.com improvements. Record whether each is continued, consolidated, or closed; admit no new production work unless the site has one clear active item.",
         "proposal_id": null
       }
     ]
