@@ -65,7 +65,7 @@ try { process.stdout.write(JSON.stringify(require(`${root}/tools/executive/deliv
 finally { store.close(); }
 NODE
 )"
-  if [[ "$(node -p 'JSON.parse(process.argv[1]).freeze_planning === true' "$delivery_lane_decision")" == "true" ]]; then
+  if node -e 'process.exit(JSON.parse(process.argv[1]).freeze_planning === true ? 0 : 1)' "$delivery_lane_decision"; then
     echo "[$(date -Is)] executive model planning paused for owner delivery lane: $delivery_lane_decision"
     complete_calendar_skip 'owner delivery lane active'
     exit 0
@@ -80,7 +80,7 @@ try { process.stdout.write(JSON.stringify(shouldRunPlanning(store))); }
 finally { store.close(); }
 NODE
 )"
-  if [[ "$(node -p 'JSON.parse(process.argv[1]).run' "$cadence")" != "true" ]]; then
+  if ! node -e 'process.exit(JSON.parse(process.argv[1]).run === true ? 0 : 1)' "$cadence"; then
     echo "[$(date -Is)] executive scheduled tick skipped: $(node -p 'JSON.parse(process.argv[1]).reason' "$cadence")"
     complete_calendar_skip 'planning cooldown'
     exit 0

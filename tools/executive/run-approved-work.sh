@@ -7,6 +7,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 MAX_QUEUE="${EXECUTIVE_MAX_APPROVED_QUEUE_ACTIONS:-6}"
 
+# Reconcile the owner lane before any historical proposal drain. A live named
+# implementation takes priority over more queue activity from old plans.
+DELIVERY_LANE_STATE="$(node "$ROOT/tools/executive/delivery-lane.js")"
+echo "$DELIVERY_LANE_STATE"
+if node -e 'process.exit(JSON.parse(process.argv[1]).freeze_planning === true ? 0 : 1)' "$DELIVERY_LANE_STATE"; then
+  echo "[$(date -Is)] approved proposal drain paused for owner delivery lane"
+  exit 0
+fi
+
 node - "$ROOT" "$MAX_QUEUE" <<'NODE'
 const root = process.argv[2];
 const maxQueue = Number(process.argv[3]);
@@ -69,7 +78,3 @@ try {
   store.close();
 }
 NODE
-
-# Owner-priority delivery is deterministic and independent of an Exec model
-# pass. Its alert uses the existing domain-ops Slack path.
-node "$ROOT/tools/executive/delivery-lane.js"
