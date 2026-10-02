@@ -141,6 +141,23 @@ test('a newly queued direct request is a handoff, not verified delivery', () => 
   store.close();
 });
 
+test('fleet reports do not count as site delivery handoffs', () => {
+  const { store } = fixture();
+  const baseline = captureSnapshot(store);
+  store.createChangeRequest({
+    site: 'fleet',
+    title: 'Fleet status report',
+    delivery_mode: 'fleet_report',
+    status: 'deployed',
+  });
+  const evidence = collectEvidence(store, { baseline, since: Date.now() - 1000 });
+  assert.equal(evidence.real_work.new_change_requests, 1);
+  assert.equal(evidence.real_work.new_direct_change_requests, 0);
+  assert.equal(evidence.real_work.verified_deliveries, 0);
+  assert.equal(evidence.real_work.actionable, false);
+  store.close();
+});
+
 test('stale manager tasks are requeued and eventually escalated', () => {
   const { store } = fixture();
   const agent = store.createAgent({

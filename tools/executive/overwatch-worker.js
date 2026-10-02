@@ -34,6 +34,7 @@ const EXECUTABLE_WORK_KINDS = new Set([
   'engineering',
   'seo',
 ]);
+const DELIVERY_MODES = new Set(['direct', 'pull_request']);
 
 function iso(value) {
   return new Date(value).toISOString();
@@ -94,20 +95,21 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
   const executableWorkItems = workItems.filter(isExecutableWork);
   const verifiedDeliveries = requests.filter(
     row =>
-      row.status === 'deployed' ||
-      (row.status === 'committed' && row.delivery_mode === 'pull_request')
+      DELIVERY_MODES.has(row.delivery_mode) &&
+      (row.status === 'deployed' ||
+        (row.status === 'committed' && row.delivery_mode === 'pull_request'))
   );
   const recentVerifiedDeliveries = store
     .listChangeRequests({ limit: 1000 })
     .filter(
       row =>
         parseDate(row.updated_at) >= windowStart &&
-        row.delivery_mode !== 'report_only' &&
+        DELIVERY_MODES.has(row.delivery_mode) &&
         ['deployed', 'verified'].includes(row.status)
     );
   const activeDirectRequests = requests.filter(
     row =>
-      row.delivery_mode !== 'report_only' &&
+      DELIVERY_MODES.has(row.delivery_mode) &&
       !['failed', 'blocked_infrastructure', 'blocked_owner', 'cancelled'].includes(row.status)
   );
   return {
@@ -127,7 +129,7 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       new_executable_work_items: executableWorkItems.length,
       completed_work_items: workItems.filter(row => row.status === 'done').length,
       new_change_requests: requests.length,
-      new_direct_change_requests: requests.filter(row => row.delivery_mode !== 'report_only')
+      new_direct_change_requests: requests.filter(row => DELIVERY_MODES.has(row.delivery_mode))
         .length,
       new_active_direct_change_requests: activeDirectRequests.length,
       recent_verified_deliveries: recentVerifiedDeliveries.length,
@@ -135,7 +137,7 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       verified_deliveries: verifiedDeliveries.length,
       blocked_work_items: workItems.filter(row => row.status === 'blocked').length,
       actionable:
-        requests.some(row => row.delivery_mode !== 'report_only') ||
+        requests.some(row => DELIVERY_MODES.has(row.delivery_mode)) ||
         verifiedDeliveries.length > 0 ||
         verifiedArtifacts.length > 0,
     },
