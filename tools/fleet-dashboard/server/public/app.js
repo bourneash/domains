@@ -14823,6 +14823,28 @@ function renderWorkflowBoardLane(key, label, items, total) {
   return `<div class="wb-column" data-wb-drop="${key}"><div class="wb-column-head"><div><h3>${label}</h3><span>${total} item${total === 1 ? '' : 's'}</span></div><i></i></div><div class="wb-cards">${cards || '<div class="wb-empty">Drop work here</div>'}</div>${pagination}</div>`;
 }
 
+function groupWorkflowBoardActions(actions) {
+  const groups = [];
+  (actions || []).forEach(action => {
+    const timestamp = Date.parse(action.started_at || '');
+    const key = [action.status, action.actor, action.summary].join('\u001f');
+    const previous = groups.at(-1);
+    if (
+      previous &&
+      previous.key === key &&
+      Number.isFinite(timestamp) &&
+      Number.isFinite(previous.timestamp) &&
+      Math.abs(previous.timestamp - timestamp) <= 60_000
+    ) {
+      previous.count += 1;
+      previous.timestamp = Math.max(previous.timestamp, timestamp);
+      return;
+    }
+    groups.push({ key, action, count: 1, timestamp });
+  });
+  return groups;
+}
+
 async function renderWorkflowBoard() {
   if (FRESH)
     app.innerHTML =
@@ -14833,11 +14855,10 @@ async function renderWorkflowBoard() {
     const counts = WORK_BOARD_COLUMNS.map(
       ([key]) => items.filter(item => workBoardColumn(item) === key).length
     );
-    const activity = (data.actions || [])
-      .slice(0, 12)
+    const activity = groupWorkflowBoardActions((data.actions || []).slice(0, 12))
       .map(
-        action =>
-          `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`
+        ({ action, count }) =>
+          `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}${count > 1 ? ` <span class="badge b-gray" aria-label="${count} similar updates within one minute" title="${count} matching audit events">${count} similar updates</span>` : ''}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`
       )
       .join('');
     const diagnosticGroups = [];

@@ -3237,6 +3237,27 @@ test('workbench board styling has one authoritative responsive definition', () =
   assert.match(style, /\.wb-link-list\s*\{/);
 });
 
+test('Work Board groups only adjacent matching audit events in the same minute', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function groupWorkflowBoardActions(actions) {');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const groupActions = vm.runInNewContext(`${app.slice(start, end)}; groupWorkflowBoardActions;`);
+  const action = {
+    status: 'completed',
+    actor: 'system',
+    summary: 'Capture fleet security control evidence',
+  };
+  const groups = groupActions([
+    { ...action, started_at: '2026-10-02T08:00:10Z' },
+    { ...action, started_at: '2026-10-02T08:00:09Z' },
+    { ...action, actor: 'owner', started_at: '2026-10-02T08:00:08Z' },
+    { ...action, started_at: '2026-10-02T07:58:00Z' },
+  ]);
+  assert.deepEqual(JSON.parse(JSON.stringify(groups.map(({ count }) => count))), [2, 1, 1]);
+  assert.match(app, /similar updates within one minute/);
+});
+
 test('Active Delivery paginates the complete attention queue', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const delivery = app.slice(
