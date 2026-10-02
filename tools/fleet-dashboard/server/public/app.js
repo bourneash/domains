@@ -1949,6 +1949,24 @@ function fmtDate(value) {
   return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
 }
 
+function aiuPeriodTime(value, bucket) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return esc(String(value || '—'));
+  const options =
+    bucket === 'hour'
+      ? {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hourCycle: 'h23',
+          timeZone: 'UTC',
+        }
+      : { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' };
+  const label = new Intl.DateTimeFormat('en-US', options).format(date);
+  return `<time datetime="${date.toISOString()}">${esc(label)} UTC</time>`;
+}
+
 // Hover-help for table headers: title attr, plus a dotted underline (CSS)
 // so it's discoverable without a legend.
 function aiuTh(label, help) {
@@ -2239,7 +2257,7 @@ async function renderAIUsage() {
   const periodRows = filteredPeriods
     .map(
       r => `<tr>
-    <td class="mono">${esc(r[bucket])}</td>
+    <td class="mono">${aiuPeriodTime(r[bucket], bucket)}</td>
     <td>${r.calls}</td>
     <td class="mono">${fmtTokens(r.input_tokens + r.output_tokens)}</td>
     <td class="mono">${fmtUSD(r.total_cost_usd)}</td>

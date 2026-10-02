@@ -1929,6 +1929,25 @@ test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
   assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
 });
 
+test('AI Usage period rows show compact UTC labels with machine-readable timestamps', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function aiuPeriodTime(value, bucket)');
+  const end = app.indexOf('\n}\n\n// Hover-help', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const formatter = vm.runInNewContext(`${app.slice(start, end)}; aiuPeriodTime`, {
+    esc: value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;'),
+  });
+  assert.equal(
+    formatter('2026-09-26T08:00:00Z', 'hour'),
+    '<time datetime="2026-09-26T08:00:00.000Z">Sep 26, 08:00 UTC</time>'
+  );
+  assert.equal(
+    formatter('2026-09-26', 'day'),
+    '<time datetime="2026-09-26T00:00:00.000Z">Sep 26, 2026 UTC</time>'
+  );
+  assert.match(app, /aiuPeriodTime\(r\[bucket\], bucket\)/);
+});
+
 test('Health presents fleet status as a responsive summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
