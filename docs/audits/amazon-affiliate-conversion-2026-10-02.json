@@ -1,0 +1,3621 @@
+{
+  "collected_at": "2026-10-02T18:03:24.805805+00:00",
+  "amazon": {
+    "ui_window": {
+      "start": "2026-09-02",
+      "end": "2026-10-01"
+    },
+    "ui_summary": {
+      "clicks": 5715,
+      "ordered_items": 29,
+      "conversion_percent": 0.51,
+      "ordered_revenue_usd": 338.55,
+      "shipped_items": 5,
+      "ordinary_commissions_usd": 4.24,
+      "creator_connections_usd": 5.09,
+      "summary_usd": 9.33
+    },
+    "registered_ids": [
+      "0xroulette-20",
+      "aliencouncil-20",
+      "allthingsmasonic-20",
+      "americastrikes-20",
+      "amputeenews-20",
+      "arttogogh-20",
+      "blackmarketapparel-20",
+      "broadwayshowgirls-20",
+      "deeppenetrations-20",
+      "eastcoastrappers-20",
+      "fishhooklabs-20",
+      "girlpain-20",
+      "greatamericanlakes-20",
+      "howtofry.com-20",
+      "marineactivity-20",
+      "newmomshop-20",
+      "offshorehookup-20",
+      "oventoheaven-20",
+      "reviewtattoo-20",
+      "rodhat-20",
+      "saltwaternews-20",
+      "saveusfarms-20",
+      "seedstosauce-20",
+      "shoppinkflamingo-20",
+      "shoptopless-20",
+      "sinderellaorg-20",
+      "stinkyleftfoot-20",
+      "totaljerks-20",
+      "trainingsharks-20",
+      "ultrarough-20",
+      "weapontester-20",
+      "weirdassstuff-20",
+      "weirdgirlshop-20",
+      "wetpages-20",
+      "xxxtea-20"
+    ],
+    "registered_sites": [
+      "0xroulette.com",
+      "aliencouncil.com",
+      "allthingsmasonic.com",
+      "americastrikes.com",
+      "amputeenews.com",
+      "arttogogh.com",
+      "blackmarketapparel.com",
+      "broadwayshowgirls.com",
+      "deeppenetrations.com",
+      "eastcoastrappers.com",
+      "fishhooklabs.com",
+      "girlpain.com",
+      "greatamericanlakes.com",
+      "howtofry.com",
+      "marineactivity.com",
+      "newmomshop.com",
+      "offshorehookup.com",
+      "oventoheaven.com",
+      "reviewtattoo.com",
+      "rodhat.com",
+      "saltwaternews.com",
+      "saveusfarms.com",
+      "seedstosauce.com",
+      "shoppinkflamingo.com",
+      "shoptopless.com",
+      "sinderella.com",
+      "sinderella.org",
+      "stinkyleftfoot.com",
+      "totaljerks.com",
+      "trainingsharks.com",
+      "ultrarough.com",
+      "weapontester.com",
+      "weirdassstuff.com",
+      "weirdgirlstore.com",
+      "wetpages.com",
+      "xxxtea.com"
+    ],
+    "tracking_table_rows": [
+      [
+        "Other",
+        "388",
+        "27",
+        "2",
+        "29",
+        "7.47%",
+        "$338.55",
+        "0.52%",
+        "3.00%",
+        "5",
+        "0",
+        "$141.17",
+        "$4.24",
+        "$0.00",
+        "$0.00",
+        "$4.24",
+        "$0.00"
+      ],
+      [
+        "eastcoastrappers-20",
+        "20",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "sinderellaorg-20",
+        "18",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "ultrarough-20",
+        "762",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "wetpages-20",
+        "33",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "weirdgirlshop-20",
+        "505",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "americastrikes-20",
+        "133",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "broadwayshowgirls-20",
+        "444",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "xxxtea-20",
+        "224",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "0xroulette-20",
+        "54",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "weirdassstuff-20",
+        "584",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "deeppenetrations-20",
+        "302",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "allthingsmasonic-20",
+        "61",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "stinkyleftfoot-20",
+        "31",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "shoptopless-20",
+        "460",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "offshorehookup-20",
+        "347",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "totaljerks-20",
+        "476",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "reviewtattoo-20",
+        "873",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "$0.00"
+      ],
+      [
+        "No data found"
+      ],
+      [
+        "We are currently unable to provide the data requested. Please try a smaller date range or download the reports."
+      ],
+      [
+        "Your session has timed out. Please click here to refresh the page and try again."
+      ]
+    ],
+    "tax_status": {
+      "US": "Completed",
+      "CA": "Completed"
+    },
+    "onelink": "No default Tracking IDs configured; no linked stores displayed; Getting started screen. Global-store enrollment status not independently established."
+  },
+  "inventory": [
+    {
+      "site": "0xroulette.com",
+      "tag": "0xroulette-20",
+      "registry": "sites/0xroulette.com/site/src/lib/affiliate.ts",
+      "products": 13,
+      "asin_products": 13,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "taleb-fooled-by-randomness",
+          "asin": "0812975219",
+          "name": "Fooled by Randomness",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "mlodinow-drunkards-walk",
+          "asin": "0307275175",
+          "name": "The Drunkard's Walk",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "feller-probability-vol1",
+          "asin": "0471257087",
+          "name": "An Introduction to Probability Theory, Vol. 1",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "aliencouncil.com",
+      "tag": "aliencouncil-20",
+      "registry": "sites/aliencouncil.com/site/src/lib/affiliate.ts",
+      "products": 9,
+      "asin_products": 9,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "rtl-sdr-blog-v3",
+          "asin": "B0BMKZCKTF",
+          "name": "RTL-SDR Blog V3 (RTL2832U/R860)",
+          "url": null,
+          "query": "rtl-sdr blog v3 dongle"
+        },
+        {
+          "id": "nooelec-smart-xtr-v2-hf-bundle",
+          "asin": "B0BBWK577H",
+          "name": "NESDR Smart XTR v2 HF Bundle (300Hz\u20132.3GHz, upconverter included)",
+          "url": null,
+          "query": "nooelec nesdr smart xtr v2 hf bundle"
+        },
+        {
+          "id": "nooelec-sawbird-h1",
+          "asin": "B07XPV9RX2",
+          "name": "SAWbird+ H1 LNA (1420 MHz Hydrogen Line)",
+          "url": null,
+          "query": "nooelec sawbird+ h1 hydrogen line"
+        }
+      ]
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "tag": "allthingsmasonic-20",
+      "registry": "sites/allthingsmasonic.com/site/src/lib/catalog.ts",
+      "products": 668,
+      "asin_products": 668,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "1-american-flag-with-masonic-square-and-compasses",
+          "asin": "B00FRMB6U4",
+          "name": "1\" American Flag with Masonic Square and Compasses Freemason Lapel Pin",
+          "url": null,
+          "query": "masonic lapel pin square and compass"
+        },
+        {
+          "id": "10-20-50-100pcs-masonic-lapel-pins-bulk",
+          "asin": "B0D2CK7N64",
+          "name": "10/20/50/100Pcs Masonic Lapel Pins Bulk",
+          "url": null,
+          "query": "masonic lapel pin square and compass"
+        },
+        {
+          "id": "10-24-100-pcs-masonic-flag-lapel-pins",
+          "asin": "B0CW3FSJDF",
+          "name": "10/24/100 Pcs Masonic Flag Lapel Pins Bulk",
+          "url": null,
+          "query": "masonic lapel pin set"
+        }
+      ]
+    },
+    {
+      "site": "americastrikes.com",
+      "tag": "americastrikes-20",
+      "registry": "sites/americastrikes.com/site/src/lib/affiliate.ts",
+      "products": 55,
+      "asin_products": 55,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "all-quiet-iran",
+          "asin": "0199754101",
+          "name": "Guardians of the Revolution: Iran and the World in the Age of the Ayatollahs",
+          "url": null,
+          "query": "guardians of the revolution iran ray takeyh"
+        },
+        {
+          "id": "strait-of-hormuz-book",
+          "asin": "014312367X",
+          "name": "The Twilight War: The Secret History of America's Thirty-Year Conflict with Iran",
+          "url": null,
+          "query": "the twilight war secret history iran america crist"
+        },
+        {
+          "id": "world-war-3-book",
+          "asin": "1984881256",
+          "name": "2034: A Novel of the Next World War",
+          "url": null,
+          "query": "2034 a novel of the next world war"
+        }
+      ]
+    },
+    {
+      "site": "amputeenews.com",
+      "tag": "amputeenews-20",
+      "registry": "sites/amputeenews.com/site/src/lib/affiliate.ts",
+      "products": 40,
+      "asin_products": 40,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": false,
+      "sample": [
+        {
+          "id": "32-inch-grabber-reacher-2pack",
+          "asin": "B07PHKY2JW",
+          "name": "32\" Grabber Reacher (2-Pack)",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "ace-deluxe-ankle-stabilizer",
+          "asin": "B005YU8V0C",
+          "name": "Deluxe Ankle Stabilizer",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "amazon-basics-neoprene-hand-weights",
+          "asin": "B01LR5S6HK",
+          "name": "Neoprene Hand Weights (Pair)",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "arttogogh.com",
+      "tag": "arttogogh-20",
+      "registry": "sites/arttogogh.com/site/src/lib/catalog.ts",
+      "products": 48,
+      "asin_products": 0,
+      "search_products": 48,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "starry-night-print",
+          "asin": null,
+          "name": "The print, matte, large",
+          "url": null,
+          "query": "starry night van gogh matte poster print 24x36"
+        },
+        {
+          "id": "starry-night-framed",
+          "asin": null,
+          "name": "Framed and ready",
+          "url": null,
+          "query": "starry night van gogh framed wall art"
+        },
+        {
+          "id": "starry-night-book",
+          "asin": null,
+          "name": "The Van Gogh book",
+          "url": null,
+          "query": "van gogh complete paintings book taschen"
+        }
+      ]
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "tag": "blackmarketapparel-20",
+      "registry": "sites/blackmarketapparel.com/site/src/data/products.ts",
+      "products": 6,
+      "asin_products": 0,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "black-structured-blazer",
+          "asin": null,
+          "name": "The exacting black blazer",
+          "url": "https://www.anthropologie.com/shop/aligne-daphne-long-waisted-blazer3",
+          "query": null
+        },
+        {
+          "id": "silver-chain-necklace",
+          "asin": null,
+          "name": "The silver chain",
+          "url": "https://www.shinola.com/products/simple-curb-chain-necklace-sterling-silver",
+          "query": null
+        },
+        {
+          "id": "black-leather-loafers",
+          "asin": null,
+          "name": "The black loafer",
+          "url": "https://www.zappos.com/p/womens-madewell-the-dolli-glove-loafer-in-leather/product/10053653",
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "tag": "broadwayshowgirls-20",
+      "registry": "sites/broadwayshowgirls.com/ops/affiliate/products.json",
+      "products": 15,
+      "asin_products": 15,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "wicked-elphaba-glinda-tshirt",
+          "asin": "B0DHYKC62V",
+          "name": "Wicked \\u2014 Elphaba & Glinda Tonal T-Shirt",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "wicked-elphaba-glinda-poster",
+          "asin": "B0DPXWNRNL",
+          "name": "Wicked \\u2014 Elphaba and Glinda Upland Wall Poster, 34\\\" x 22.4\\\"",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "patti-lupone-a-memoir",
+          "asin": "0307460738",
+          "name": "Patti LuPone: A Memoir",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "deeppenetrations.com",
+      "tag": "deeppenetrations-20",
+      "registry": "sites/deeppenetrations.com/site/src/lib/affiliate.ts",
+      "products": 40,
+      "asin_products": 40,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "wd40-original",
+          "asin": "B00IOX8M0A",
+          "name": "WD-40 Multi-Use Product Original Formula",
+          "url": null,
+          "query": "WD-40 Multi-Use Product 12 oz"
+        },
+        {
+          "id": "wd40-specialist-penetrant",
+          "asin": "B085JZRKMY",
+          "name": "WD-40 Specialist Penetrant with EZ-REACH Flexible Straw",
+          "url": null,
+          "query": "WD-40 Specialist Penetrant EZ-REACH"
+        },
+        {
+          "id": "pb-blaster",
+          "asin": "B000I2079E",
+          "name": "PB B'laster Penetrating Catalyst",
+          "url": null,
+          "query": "PB Blaster Penetrating Catalyst 11 oz"
+        }
+      ]
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "tag": "eastcoastrappers-20",
+      "registry": "sites/eastcoastrappers.com/site/src/lib/affiliate.ts",
+      "products": 18,
+      "asin_products": 18,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "akai-mpk-mini",
+          "asin": "B0886ZPWC8",
+          "name": "Akai Professional MPK Mini MK3",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "audio-technica-at2020",
+          "asin": "B0006H92QK",
+          "name": "Audio-Technica AT2020",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "focusrite-scarlett",
+          "asin": "B0C5JSHP7M",
+          "name": "Focusrite Scarlett Solo (4th Gen)",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "fishhooklabs.com",
+      "tag": "fishhooklabs-20",
+      "registry": "sites/fishhooklabs.com/site/src/data/catalog/field.ts",
+      "products": 101,
+      "asin_products": 0,
+      "search_products": 101,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "plano-edge-3700",
+          "asin": null,
+          "name": "Edge 3700 Utility Box",
+          "url": null,
+          "query": "plano edge 3700 waterproof utility tackle box"
+        },
+        {
+          "id": "plano-guide-tackle-system",
+          "asin": null,
+          "name": "Guide Series Tackle System",
+          "url": null,
+          "query": "plano guide series tackle box system 3700"
+        },
+        {
+          "id": "kastking-tackle-bag",
+          "asin": null,
+          "name": "Karryall Tackle Bag",
+          "url": null,
+          "query": "kastking karryall fishing tackle bag"
+        }
+      ]
+    },
+    {
+      "site": "girlpain.com",
+      "tag": "girlpain-20",
+      "registry": "sites/girlpain.com/site/src/data/affiliate.ts",
+      "products": 14,
+      "asin_products": 14,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": false,
+      "sample": [
+        {
+          "id": "cooling-pillowcase",
+          "asin": "B0725WFLMB",
+          "name": "Bedsure Satin Pillowcase",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "period-pouch",
+          "asin": "B0CMLFBTHK",
+          "name": "HOTOR Hanging Travel Toiletry Bag",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "anti-chafe-stick",
+          "asin": "B007VC9DKI",
+          "name": "Gold Bond Friction Defense Stick",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "tag": "greatamericanlakes-20",
+      "registry": "sites/greatamericanlakes.com/site/src/lib/affiliate.ts",
+      "products": 93,
+      "asin_products": 0,
+      "search_products": 93,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "13-fishing-black-betty-ice-reel",
+          "asin": null,
+          "name": "Black Betty Inline Ice Reel",
+          "url": null,
+          "query": "13 fishing black betty inline ice reel freefall"
+        },
+        {
+          "id": "13-fishing-tickle-stick-ice-rod",
+          "asin": null,
+          "name": "Tickle Stick Ice Rod",
+          "url": null,
+          "query": "13 fishing tickle stick ice rod 28 inch ultra light"
+        },
+        {
+          "id": "abu-garcia-revo-toro-beast",
+          "asin": null,
+          "name": "Revo Toro Beast",
+          "url": null,
+          "query": "abu garcia revo toro beast 50 baitcast reel musky"
+        }
+      ]
+    },
+    {
+      "site": "marineactivity.com",
+      "tag": "marineactivity-20",
+      "registry": "sites/marineactivity.com/site/src/lib/affiliate.ts",
+      "products": 12,
+      "asin_products": 0,
+      "search_products": 12,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "ais-transponder-class-b",
+          "asin": null,
+          "name": "Class B AIS transponder",
+          "url": null,
+          "query": "class b ais transponder marine"
+        },
+        {
+          "id": "ais-receiver",
+          "asin": null,
+          "name": "AIS receiver",
+          "url": null,
+          "query": "ais receiver marine dual channel"
+        },
+        {
+          "id": "ais-splitter",
+          "asin": null,
+          "name": "VHF / AIS antenna splitter",
+          "url": null,
+          "query": "vhf ais antenna splitter marine"
+        }
+      ]
+    },
+    {
+      "site": "newmomshop.com",
+      "tag": "newmomshop-20",
+      "registry": "sites/newmomshop.com/site/src/lib/affiliate.ts",
+      "products": 19,
+      "asin_products": 16,
+      "search_products": 3,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "uppababy-vista",
+          "asin": "B0D9XRK8RM",
+          "name": "Vista V3 Stroller",
+          "url": null,
+          "query": "uppababy vista v3 stroller"
+        },
+        {
+          "id": "baby-jogger-city-mini",
+          "asin": "B08ZJTNY7Y",
+          "name": "City Mini GT2 Stroller",
+          "url": null,
+          "query": "baby jogger city mini gt2 stroller"
+        },
+        {
+          "id": "doona-car-seat-stroller",
+          "asin": "B07HML1BT5",
+          "name": "Doona+ Infant Car Seat & Stroller",
+          "url": null,
+          "query": "doona infant car seat stroller"
+        }
+      ]
+    },
+    {
+      "site": "offshorehookup.com",
+      "tag": "offshorehookup-20",
+      "registry": "sites/offshorehookup.com/site/src/lib/affiliate.ts",
+      "products": 24,
+      "asin_products": 24,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "penn-international-vi",
+          "asin": "B074WJB3W8",
+          "name": "International VI Two-Speed Lever Drag (80lb Class)",
+          "url": null,
+          "query": "penn international vi two speed lever drag reel 80"
+        },
+        {
+          "id": "shimano-tiagra",
+          "asin": "B001448T2W",
+          "name": "Tiagra 50A Two-Speed Lever Drag",
+          "url": null,
+          "query": "shimano tiagra 50a two speed lever drag reel"
+        },
+        {
+          "id": "trolling-rod-standup",
+          "asin": "B0814PF1PF",
+          "name": "50-80lb Standup Trolling Rod, Roller Guides",
+          "url": null,
+          "query": "fiblink 50 80lb standup trolling rod roller guides"
+        }
+      ]
+    },
+    {
+      "site": "oventoheaven.com",
+      "tag": "oventoheaven-20",
+      "registry": "sites/oventoheaven.com/site/src/data/affiliates.ts",
+      "products": 30,
+      "asin_products": 30,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "wood-adult-urn",
+          "asin": "B0BPF23C8D",
+          "name": "Handcrafted Rosewood Wooden Urn, 200 cu in",
+          "url": "https://www.amazon.com/dp/B0BPF23C8D",
+          "query": null
+        },
+        {
+          "id": "ceramic-adult-urn",
+          "asin": "B0DW91S72R",
+          "name": "Blue Flower Ceramic Urn, 200 cu in",
+          "url": "https://www.amazon.com/dp/B0DW91S72R",
+          "query": null
+        },
+        {
+          "id": "brass-adult-urn",
+          "asin": "B0BYN2XDK6",
+          "name": "Handcrafted Brass Urn, 200 cu in, tight-seal lid",
+          "url": "https://www.amazon.com/dp/B0BYN2XDK6",
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "reviewtattoo.com",
+      "tag": "reviewtattoo-20",
+      "registry": "sites/reviewtattoo.com/site/src/lib/affiliate.ts",
+      "products": 17,
+      "asin_products": 17,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "mad-rabbit-balm",
+          "asin": "B09GDT57B2",
+          "name": "Tattoo Balm",
+          "url": null,
+          "query": "mad rabbit tattoo balm"
+        },
+        {
+          "id": "saniderm-bandage",
+          "asin": "B09J7CW9L8",
+          "name": "Adhesive Bandage Roll (4\" \u00d7 8 yd)",
+          "url": null,
+          "query": "saniderm tattoo bandage roll 4 inch 8 yard"
+        },
+        {
+          "id": "hustle-butter",
+          "asin": "B00AEVIIYK",
+          "name": "Hustle Butter Deluxe",
+          "url": null,
+          "query": "hustle butter deluxe"
+        }
+      ]
+    },
+    {
+      "site": "rodhat.com",
+      "tag": "rodhat-20",
+      "registry": "sites/rodhat.com/site/src/data/affiliate.ts",
+      "products": 27,
+      "asin_products": 17,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "book-apue",
+          "asin": "0321637739",
+          "name": "Advanced Programming in the UNIX Environment, Stevens & Rago",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "book-tcpip",
+          "asin": "0321336313",
+          "name": "TCP/IP Illustrated, Volume 1, Stevens",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "book-tlpi",
+          "asin": "1593272200",
+          "name": "The Linux Programming Interface, Kerrisk",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "saveusfarms.com",
+      "tag": "saveusfarms-20",
+      "registry": "sites/saveusfarms.com/site/src/lib/affiliate.ts",
+      "products": 16,
+      "asin_products": 16,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "heirloom-seed-vault",
+          "asin": "B08S7S98L2",
+          "name": "Gardeners Basics Survival Seed Vault Kit",
+          "url": null,
+          "query": "heirloom vegetable seed vault non-gmo"
+        },
+        {
+          "id": "seed-starting-kit",
+          "asin": "B08XZSZC9N",
+          "name": "Jiffy Professional Greenhouse Seed Starter Kit (72-Cell)",
+          "url": null,
+          "query": "jiffy greenhouse seed starter kit 72 cell"
+        },
+        {
+          "id": "garden-planner-journal",
+          "asin": "1580174884",
+          "name": "The Vegetable Gardener's Bible \u2014 Complete Planting Guide",
+          "url": null,
+          "query": "vegetable gardener bible edward smith"
+        }
+      ]
+    },
+    {
+      "site": "seedstosauce.com",
+      "tag": "seedstosauce-20",
+      "registry": "sites/seedstosauce.com/site/src/data/products.json",
+      "products": 69,
+      "asin_products": 68,
+      "search_products": 1,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "mustard-seed-culinary",
+          "asin": "",
+          "name": "Whole Yellow Mustard Seed",
+          "url": null,
+          "query": "whole yellow mustard seed 1 lb food grade"
+        },
+        {
+          "id": "mustard-vinegar",
+          "asin": "B07NS85MLZ",
+          "name": "Organic Distilled White Vinegar, 128 fl oz, 5% acidity",
+          "url": null,
+          "query": "365 organic distilled white vinegar 128 fl oz 5% acidity"
+        },
+        {
+          "id": "garlic-bulbs",
+          "asin": "B0D3C243MT",
+          "name": "Siberian Hardneck Seed Garlic, 1 lb",
+          "url": null,
+          "query": "hardneck seed garlic bulbs for planting"
+        }
+      ]
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "tag": "shoppinkflamingo-20",
+      "registry": "sites/shoppinkflamingo.com/site/src/data/products.ts",
+      "products": 10,
+      "asin_products": 10,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": false,
+      "sample": [
+        {
+          "id": "classic-yard-flamingo",
+          "asin": "B0D3KSBZWS",
+          "name": "The Classic Yard Icon",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "solar-flamingo-lights",
+          "asin": "B0D3M4K2SP",
+          "name": "Solar Flamingo Glow-Up",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "flamingo-wall-art",
+          "asin": "B0DYD5GPJX",
+          "name": "Pink Bird, Big Wall",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "shoptopless.com",
+      "tag": null,
+      "registry": "sites/shoptopless.com/site/src/lib/affiliate.ts",
+      "products": 82,
+      "asin_products": 82,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "alocs-camping-cookware",
+          "asin": "B082KHK2XH",
+          "name": "Alocs Aluminum Camp Cookware Set (Pot, Pan, Mess Kit)",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "anggiko-40-jeep-ducks-cars",
+          "asin": "B0DG4RDVW7",
+          "name": "ANGGIKO 40-Pc Jeep Duck Assortment: 20 Ducks + 20 Cars",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "anggiko-summer-jeep-ducks",
+          "asin": "B0D8YGVZFN",
+          "name": "ANGGIKO Summer Jeep Ducks: 12 Ducks + 12 Cars",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "sinderella.org",
+      "tag": "sinderellaorg-20",
+      "registry": "sites/sinderella.org/site/src/lib/affiliate.ts",
+      "products": 27,
+      "asin_products": 27,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "yeti-roadie-cooler",
+          "asin": "B0GZS34SYJ",
+          "name": "YETI Roadie 8 Hard Cooler",
+          "url": null,
+          "query": "yeti roadie hard cooler"
+        },
+        {
+          "id": "jansport-cross-town-backpack",
+          "asin": "B0823VFB4C",
+          "name": "JanSport Cross Town Backpack",
+          "url": null,
+          "query": "jansport cross town backpack black"
+        },
+        {
+          "id": "bose-quietcomfort-headphones",
+          "asin": "B0CCZ26B5V",
+          "name": "Bose QuietComfort Headphones",
+          "url": null,
+          "query": "bose quietcomfort headphones bluetooth"
+        }
+      ]
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "tag": "stinkyleftfoot-20",
+      "registry": "sites/stinkyleftfoot.com/site/src/data/products.json",
+      "products": 25,
+      "asin_products": 25,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "xbox-elite-series-2",
+          "asin": "B07SFKTLZM",
+          "name": "Xbox Elite Wireless Controller Series 2",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "dualsense-edge",
+          "asin": "B0DSQQ1P8D",
+          "name": "PlayStation DualSense Edge Wireless Controller",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "scuf-instinct-pro",
+          "asin": "B0FQC36Y7Q",
+          "name": "SCUF Instinct Pro Performance Series Wireless Xbox Controller",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "totaljerks.com",
+      "tag": "totaljerks-20",
+      "registry": "sites/totaljerks.com/site/src/lib/affiliate.ts",
+      "products": 133,
+      "asin_products": 133,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "megabass-vision-110-jr",
+          "asin": "B00GR53BPI",
+          "name": "Vision 110 Jr.",
+          "url": null,
+          "query": "megabass vision 110 jr jerkbait"
+        },
+        {
+          "id": "rapala-husky-jerk-12",
+          "asin": "B005F08ELC",
+          "name": "Husky Jerk 12",
+          "url": null,
+          "query": "rapala husky jerk 12"
+        },
+        {
+          "id": "lucky-craft-pointer-100",
+          "asin": "B0CBQQB4FY",
+          "name": "Pointer 100SP",
+          "url": null,
+          "query": "lucky craft pointer 100 sp"
+        }
+      ]
+    },
+    {
+      "site": "trainingsharks.com",
+      "tag": "trainingsharks-20",
+      "registry": "sites/trainingsharks.com/site/src/lib/affiliate.ts",
+      "products": 7,
+      "asin_products": 7,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "chips",
+          "asin": "B0003I68RS",
+          "name": "Fat Cat 500ct Texas Hold'em Poker Chip Set",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "cards",
+          "asin": "B000SA5BJ2",
+          "name": "Copag 1546 100% Plastic Playing Cards, Poker Size (Jumbo Index)",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "mat",
+          "asin": "B09TYPXTC7",
+          "name": "70 \u00d7 35in 8-Player Poker Mat with Carrying Bag",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "ultrarough.com",
+      "tag": "ultrarough-20",
+      "registry": "sites/ultrarough.com/site/src/lib/affiliate.ts",
+      "products": 219,
+      "asin_products": 56,
+      "search_products": 163,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "3m-pro-grade-assorted",
+          "asin": "B0FC7C2CGP",
+          "name": "3M Pro Grade Precision Assorted Pack",
+          "url": null,
+          "query": "3m pro grade precision sandpaper assorted"
+        },
+        {
+          "id": "norton-3x-80",
+          "asin": "B000GT432Q",
+          "name": "Norton 3X Sheet Sandpaper, 80 Grit (20-pack)",
+          "url": null,
+          "query": "norton 3x sandpaper 80 grit 20 pack"
+        },
+        {
+          "id": "norton-3x-220",
+          "asin": "B001HWL98M",
+          "name": "Norton 3X Sheet Sandpaper, 220 Grit (20-pack)",
+          "url": null,
+          "query": "norton 3x sandpaper 220 grit 20 pack"
+        }
+      ]
+    },
+    {
+      "site": "weapontester.com",
+      "tag": null,
+      "registry": "sites/weapontester.com/site/src/lib/affiliate.ts",
+      "products": 31,
+      "asin_products": 0,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [],
+      "note": "Non-Amazon vendor catalog in private preview; registered Amazon ID exists but is not detected in product registry."
+    },
+    {
+      "site": "weirdassstuff.com",
+      "tag": "weirdassstuff-20",
+      "registry": "sites/weirdassstuff.com/site/src/lib/affiliate.ts",
+      "products": 309,
+      "asin_products": 309,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "3d-pink-bats-wall-decals-48-pack",
+          "asin": "B0CHM9LC8Z",
+          "name": "3D Pink Bats Wall Decals (48-Pack)",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "acacia-spurtle-set",
+          "asin": "B09KYLK9DY",
+          "name": "4-Piece Acacia Wood Spurtle Set",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "alchemical-symbols-metal-sign",
+          "asin": "B0BHT49CDR",
+          "name": "Retro Alchemical Symbols Metal Tin Sign",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "tag": "weirdgirlshop-20",
+      "registry": "sites/weirdgirlstore.com/site/src/lib/affiliate.ts",
+      "products": 142,
+      "asin_products": 142,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "skull-bloom-planter",
+          "asin": "B09PVK7JXY",
+          "name": null,
+          "url": null,
+          "query": "pink skull planter gothic decor"
+        },
+        {
+          "id": "hex-kit-bubblegum",
+          "asin": "B0CB7Q6QWR",
+          "name": null,
+          "url": null,
+          "query": "beginner witch kit spell kit"
+        },
+        {
+          "id": "glitter-blood-vial",
+          "asin": "B0B71K73WR",
+          "name": null,
+          "url": null,
+          "query": "potion vial necklace gothic"
+        }
+      ]
+    },
+    {
+      "site": "wetpages.com",
+      "tag": "wetpages-20",
+      "registry": "sites/wetpages.com/site/src/lib/affiliate.ts",
+      "products": 5,
+      "asin_products": 5,
+      "search_products": 0,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "fourth-wing",
+          "asin": "B0BGDM197Q",
+          "name": "Fourth Wing",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "acotar",
+          "asin": "B00OZP5VRS",
+          "name": "A Court of Thorns and Roses",
+          "url": null,
+          "query": null
+        },
+        {
+          "id": "haunting-adeline",
+          "asin": "B09CLVJJ77",
+          "name": "Haunting Adeline",
+          "url": null,
+          "query": null
+        }
+      ]
+    },
+    {
+      "site": "xxxtea.com",
+      "tag": "xxxtea-20",
+      "registry": "sites/xxxtea.com/site/src/lib/affiliate.ts",
+      "products": 93,
+      "asin_products": 46,
+      "search_products": 47,
+      "prefix": "/go/",
+      "has_cloak": true,
+      "sample": [
+        {
+          "id": "vahdam-imperial-earl-grey",
+          "asin": "B0186XTAUI",
+          "name": "Vahdam Imperial Earl Grey Loose Leaf",
+          "url": null,
+          "query": "vahdam imperial earl grey loose leaf tea"
+        },
+        {
+          "id": "harney-hot-cinnamon-spice",
+          "asin": "B00PO9NHES",
+          "name": "Harney & Sons Hot Cinnamon Spice (50 Sachets)",
+          "url": null,
+          "query": "harney sons hot cinnamon spice sachets 50"
+        },
+        {
+          "id": "twinings-lady-grey",
+          "asin": "B09R934Z1M",
+          "name": "Twinings Lady Grey Black Tea (100 ct)",
+          "url": null,
+          "query": "twinings lady grey black tea 100 count"
+        }
+      ]
+    }
+  ],
+  "live_route_samples": [
+    {
+      "site": "0xroulette.com",
+      "code_tag": "0xroulette-20",
+      "checks": [
+        {
+          "url": "https://0xroulette.com/go/taleb-fooled-by-randomness/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/0812975219?tag=0xroulette-20&ascsubtag=go%2Ftaleb-fooled-by-randomness",
+          "tag": "0xroulette-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://0xroulette.com/go/mlodinow-drunkards-walk/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/0307275175?tag=0xroulette-20&ascsubtag=go%2Fmlodinow-drunkards-walk",
+          "tag": "0xroulette-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "aliencouncil.com",
+      "code_tag": "aliencouncil-20",
+      "checks": [
+        {
+          "url": "https://aliencouncil.com/go/rtl-sdr-blog-v3/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0BMKZCKTF?tag=aliencouncil-20&ascsubtag=rtl-sdr-blog-v3",
+          "tag": "aliencouncil-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://aliencouncil.com/go/nooelec-smart-xtr-v2-hf-bundle/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0BBWK577H?tag=aliencouncil-20&ascsubtag=nooelec-smart-xtr-v2-hf-bundle",
+          "tag": "aliencouncil-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": false,
+      "access_gate": false
+    },
+    {
+      "site": "allthingsmasonic.com",
+      "code_tag": "allthingsmasonic-20",
+      "checks": [
+        {
+          "url": "https://allthingsmasonic.com/go/1-american-flag-with-masonic-square-and-compasses/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B00FRMB6U4?tag=allthingsmasonic-20&ascsubtag=1-american-flag-with-masonic-square-and-compasses",
+          "tag": "allthingsmasonic-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://allthingsmasonic.com/go/10-20-50-100pcs-masonic-lapel-pins-bulk/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0D2CK7N64?tag=allthingsmasonic-20&ascsubtag=10-20-50-100pcs-masonic-lapel-pins-bulk",
+          "tag": "allthingsmasonic-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "americastrikes.com",
+      "code_tag": "americastrikes-20",
+      "checks": [
+        {
+          "url": "https://americastrikes.com/go/all-quiet-iran/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/0199754101?tag=americastrikes-20",
+          "tag": "americastrikes-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://americastrikes.com/go/strait-of-hormuz-book/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/014312367X?tag=americastrikes-20",
+          "tag": "americastrikes-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "amputeenews.com",
+      "code_tag": "amputeenews-20",
+      "checks": [],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false,
+      "direct_amazon_links": []
+    },
+    {
+      "site": "arttogogh.com",
+      "code_tag": "arttogogh-20",
+      "checks": [
+        {
+          "url": "https://arttogogh.com/go/starry-night-print/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=starry%20night%20van%20gogh%20matte%20poster%20print%2024x36&tag=arttogogh-20",
+          "tag": "arttogogh-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://arttogogh.com/go/starry-night-framed/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=starry%20night%20van%20gogh%20framed%20wall%20art&tag=arttogogh-20",
+          "tag": "arttogogh-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "blackmarketapparel.com",
+      "code_tag": "blackmarketapparel-20",
+      "checks": [
+        {
+          "url": "https://blackmarketapparel.com/go/black-structured-blazer/",
+          "status": 302,
+          "destination": "https://www.anthropologie.com/shop/aligne-daphne-long-waisted-blazer3",
+          "tag": null,
+          "tag_registered": null,
+          "match_code": false
+        },
+        {
+          "url": "https://blackmarketapparel.com/go/silver-chain-necklace/",
+          "status": 302,
+          "destination": "https://www.shinola.com/products/simple-curb-chain-necklace-sterling-silver",
+          "tag": null,
+          "tag_registered": null,
+          "match_code": false
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "code_tag": "broadwayshowgirls-20",
+      "checks": [
+        {
+          "url": "https://broadwayshowgirls.com/go/wicked-elphaba-glinda-tshirt/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0DHYKC62V?tag=broadwayshowgirls-20",
+          "tag": "broadwayshowgirls-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://broadwayshowgirls.com/go/wicked-elphaba-glinda-poster/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0DPXWNRNL?tag=broadwayshowgirls-20",
+          "tag": "broadwayshowgirls-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "deeppenetrations.com",
+      "code_tag": "deeppenetrations-20",
+      "checks": [
+        {
+          "url": "https://deeppenetrations.com/go/wd40-original/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B00IOX8M0A?tag=deeppenetrations-20&ascsubtag=wd40-original",
+          "tag": "deeppenetrations-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://deeppenetrations.com/go/wd40-specialist-penetrant/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B085JZRKMY?tag=deeppenetrations-20&ascsubtag=wd40-specialist-penetrant",
+          "tag": "deeppenetrations-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "eastcoastrappers.com",
+      "code_tag": "eastcoastrappers-20",
+      "checks": [
+        {
+          "url": "https://eastcoastrappers.com/go/akai-mpk-mini/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0886ZPWC8?tag=eastcoastrappers-20&ascsubtag=akai-mpk-mini",
+          "tag": "eastcoastrappers-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://eastcoastrappers.com/go/audio-technica-at2020/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0006H92QK?tag=eastcoastrappers-20&ascsubtag=audio-technica-at2020",
+          "tag": "eastcoastrappers-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "fishhooklabs.com",
+      "code_tag": "fishhooklabs-20",
+      "checks": [
+        {
+          "url": "https://fishhooklabs.com/go/plano-edge-3700/",
+          "status": 302,
+          "destination": "https://www.amazon.com/s?k=plano%20edge%203700%20waterproof%20utility%20tackle%20box&tag=fishhooklabs-20",
+          "tag": "fishhooklabs-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://fishhooklabs.com/go/plano-guide-tackle-system/",
+          "status": 302,
+          "destination": "https://www.amazon.com/s?k=plano%20guide%20series%20tackle%20box%20system%203700&tag=fishhooklabs-20",
+          "tag": "fishhooklabs-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "girlpain.com",
+      "code_tag": "girlpain-20",
+      "checks": [],
+      "homepage_status": 200,
+      "disclosure_visible": false,
+      "access_gate": false,
+      "direct_amazon_links": [
+        "https://www.amazon.com/dp/B0725WFLMB?tag=girlpain-20",
+        "https://www.amazon.com/dp/B0CMLFBTHK?tag=girlpain-20",
+        "https://www.amazon.com/dp/B007VC9DKI?tag=girlpain-20",
+        "https://www.amazon.com/dp/B0798RWHC9?tag=girlpain-20",
+        "https://www.amazon.com/dp/B08616PS69?tag=girlpain-20"
+      ]
+    },
+    {
+      "site": "greatamericanlakes.com",
+      "code_tag": "greatamericanlakes-20",
+      "checks": [
+        {
+          "url": "https://greatamericanlakes.com/go/13-fishing-black-betty-ice-reel/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=13%20fishing%20black%20betty%20inline%20ice%20reel%20freefall&tag=greatamericanlakes-20&ascsubtag=13-fishing-black-betty-ice-reel",
+          "tag": "greatamericanlakes-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://greatamericanlakes.com/go/13-fishing-tickle-stick-ice-rod/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=13%20fishing%20tickle%20stick%20ice%20rod%2028%20inch%20ultra%20light&tag=greatamericanlakes-20&ascsubtag=13-fishing-tickle-stick-ice-rod",
+          "tag": "greatamericanlakes-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "marineactivity.com",
+      "code_tag": "marineactivity-20",
+      "checks": [
+        {
+          "url": "https://marineactivity.com/go/ais-transponder-class-b/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=class%20b%20ais%20transponder%20marine&tag=marineactivity-20",
+          "tag": "marineactivity-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://marineactivity.com/go/ais-receiver/",
+          "status": 200,
+          "destination": "https://www.amazon.com/s?k=ais%20receiver%20marine%20dual%20channel&tag=marineactivity-20",
+          "tag": "marineactivity-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "newmomshop.com",
+      "code_tag": "newmomshop-20",
+      "checks": [
+        {
+          "url": "https://newmomshop.com/go/uppababy-vista/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0D9XRK8RM?tag=newmomshop-20",
+          "tag": "newmomshop-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://newmomshop.com/go/baby-jogger-city-mini/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B08ZJTNY7Y?tag=newmomshop-20",
+          "tag": "newmomshop-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "offshorehookup.com",
+      "code_tag": "offshorehookup-20",
+      "checks": [
+        {
+          "url": "https://offshorehookup.com/go/penn-international-vi/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B074WJB3W8?tag=offshorehookup-20",
+          "tag": "offshorehookup-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://offshorehookup.com/go/shimano-tiagra/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B001448T2W?tag=offshorehookup-20",
+          "tag": "offshorehookup-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "oventoheaven.com",
+      "code_tag": "oventoheaven-20",
+      "checks": [
+        {
+          "url": "https://oventoheaven.com/go/wood-adult-urn/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0BPF23C8D?tag=oventoheaven-20",
+          "tag": "oventoheaven-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://oventoheaven.com/go/ceramic-adult-urn/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0DW91S72R?tag=oventoheaven-20",
+          "tag": "oventoheaven-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": false,
+      "access_gate": false
+    },
+    {
+      "site": "reviewtattoo.com",
+      "code_tag": "reviewtattoo-20",
+      "checks": [
+        {
+          "url": "https://reviewtattoo.com/go/mad-rabbit-balm/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B09GDT57B2?tag=reviewtattoo-20",
+          "tag": "reviewtattoo-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://reviewtattoo.com/go/saniderm-bandage/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B09J7CW9L8?tag=reviewtattoo-20",
+          "tag": "reviewtattoo-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "rodhat.com",
+      "code_tag": "rodhat-20",
+      "checks": [
+        {
+          "url": "https://rodhat.com/go/book-apue/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/0321637739?tag=rodhat-20&ascsubtag=book-apue",
+          "tag": "rodhat-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://rodhat.com/go/book-tcpip/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/0321336313?tag=rodhat-20&ascsubtag=book-tcpip",
+          "tag": "rodhat-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "saveusfarms.com",
+      "code_tag": "saveusfarms-20",
+      "checks": [
+        {
+          "url": "https://saveusfarms.com/go/heirloom-seed-vault/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B08S7S98L2?tag=saveusfarms-20",
+          "tag": "saveusfarms-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://saveusfarms.com/go/seed-starting-kit/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B08XZSZC9N?tag=saveusfarms-20",
+          "tag": "saveusfarms-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "seedstosauce.com",
+      "code_tag": "seedstosauce-20",
+      "checks": [
+        {
+          "url": "https://seedstosauce.com/go/mustard-seed-culinary/",
+          "status": 302,
+          "destination": "https://www.amazon.com/s?k=whole%20yellow%20mustard%20seed%201%20lb%20food%20grade&tag=seedstosauce-20",
+          "tag": "seedstosauce-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://seedstosauce.com/go/mustard-vinegar/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B07NS85MLZ?tag=seedstosauce-20",
+          "tag": "seedstosauce-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "shoppinkflamingo.com",
+      "code_tag": "shoppinkflamingo-20",
+      "checks": [],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false,
+      "direct_amazon_links": [
+        "https://www.amazon.com/dp/B0D3KSBZWS?tag=shoppinkflamingo-20",
+        "https://www.amazon.com/dp/B0D3M4K2SP?tag=shoppinkflamingo-20",
+        "https://www.amazon.com/dp/B0DYD5GPJX?tag=shoppinkflamingo-20",
+        "https://www.amazon.com/dp/B0CX8R37SC?tag=shoppinkflamingo-20"
+      ]
+    },
+    {
+      "site": "shoptopless.com",
+      "code_tag": null,
+      "checks": [
+        {
+          "url": "https://shoptopless.com/go/alocs-camping-cookware/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B082KHK2XH?tag=shoptopless-20",
+          "tag": "shoptopless-20",
+          "tag_registered": true,
+          "match_code": null
+        },
+        {
+          "url": "https://shoptopless.com/go/anggiko-40-jeep-ducks-cars/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0DG4RDVW7?tag=shoptopless-20",
+          "tag": "shoptopless-20",
+          "tag_registered": true,
+          "match_code": null
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "sinderella.org",
+      "code_tag": "sinderellaorg-20",
+      "checks": [
+        {
+          "url": "https://sinderella.org/go/yeti-roadie-cooler/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0GZS34SYJ?tag=sinderellaorg-20",
+          "tag": "sinderellaorg-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://sinderella.org/go/jansport-cross-town-backpack/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0823VFB4C?tag=sinderellaorg-20",
+          "tag": "sinderellaorg-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "stinkyleftfoot.com",
+      "code_tag": "stinkyleftfoot-20",
+      "checks": [
+        {
+          "url": "https://stinkyleftfoot.com/go/xbox-elite-series-2/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B07SFKTLZM?tag=stinkyleftfoot-20",
+          "tag": "stinkyleftfoot-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://stinkyleftfoot.com/go/dualsense-edge/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0DSQQ1P8D?tag=stinkyleftfoot-20",
+          "tag": "stinkyleftfoot-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "totaljerks.com",
+      "code_tag": "totaljerks-20",
+      "checks": [
+        {
+          "url": "https://totaljerks.com/go/megabass-vision-110-jr/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B00GR53BPI?tag=totaljerks-20",
+          "tag": "totaljerks-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://totaljerks.com/go/rapala-husky-jerk-12/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B005F08ELC?tag=totaljerks-20",
+          "tag": "totaljerks-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "trainingsharks.com",
+      "code_tag": "trainingsharks-20",
+      "checks": [
+        {
+          "url": "https://trainingsharks.com/go/chips/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0003I68RS?tag=trainingsharks-20",
+          "tag": "trainingsharks-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://trainingsharks.com/go/cards/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B000SA5BJ2?tag=trainingsharks-20",
+          "tag": "trainingsharks-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": false,
+      "access_gate": false
+    },
+    {
+      "site": "ultrarough.com",
+      "code_tag": "ultrarough-20",
+      "checks": [
+        {
+          "url": "https://ultrarough.com/go/3m-pro-grade-assorted/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0FC7C2CGP?tag=ultrarough-20&ascsubtag=3m-pro-grade-assorted",
+          "tag": "ultrarough-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://ultrarough.com/go/norton-3x-80/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B000GT432Q?tag=ultrarough-20&ascsubtag=norton-3x-80",
+          "tag": "ultrarough-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "weirdassstuff.com",
+      "code_tag": "weirdassstuff-20",
+      "checks": [
+        {
+          "url": "https://weirdassstuff.com/go/3d-pink-bats-wall-decals-48-pack/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0CHM9LC8Z?tag=weirdassstuff-20",
+          "tag": "weirdassstuff-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://weirdassstuff.com/go/acacia-spurtle-set/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B09KYLK9DY?tag=weirdassstuff-20",
+          "tag": "weirdassstuff-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "code_tag": "weirdgirlshop-20",
+      "checks": [
+        {
+          "url": "https://weirdgirlstore.com/go/skull-bloom-planter/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B09PVK7JXY?tag=weirdgirlshop-20",
+          "tag": "weirdgirlshop-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://weirdgirlstore.com/go/hex-kit-bubblegum/",
+          "status": 302,
+          "destination": "https://www.amazon.com/dp/B0CB7Q6QWR?tag=weirdgirlshop-20",
+          "tag": "weirdgirlshop-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "wetpages.com",
+      "code_tag": "wetpages-20",
+      "checks": [
+        {
+          "url": "https://wetpages.com/go/fourth-wing/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0BGDM197Q?tag=wetpages-20&ascsubtag=fourth-wing",
+          "tag": "wetpages-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://wetpages.com/go/acotar/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B00OZP5VRS?tag=wetpages-20&ascsubtag=acotar",
+          "tag": "wetpages-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    },
+    {
+      "site": "xxxtea.com",
+      "code_tag": "xxxtea-20",
+      "checks": [
+        {
+          "url": "https://xxxtea.com/go/vahdam-imperial-earl-grey/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B0186XTAUI?tag=xxxtea-20&ascsubtag=vahdam-imperial-earl-grey",
+          "tag": "xxxtea-20",
+          "tag_registered": true,
+          "match_code": true
+        },
+        {
+          "url": "https://xxxtea.com/go/harney-hot-cinnamon-spice/",
+          "status": 200,
+          "destination": "https://www.amazon.com/dp/B00PO9NHES?tag=xxxtea-20&ascsubtag=harney-hot-cinnamon-spice",
+          "tag": "xxxtea-20",
+          "tag_registered": true,
+          "match_code": true
+        }
+      ],
+      "homepage_status": 200,
+      "disclosure_visible": true,
+      "access_gate": false
+    }
+  ],
+  "additional_live_checks": [
+    {
+      "site": "amputeenews.com",
+      "path": "/gear/",
+      "status": 200,
+      "links": [],
+      "link_count": 0,
+      "paused_copy": true
+    },
+    {
+      "site": "howtofry.com",
+      "path": "/equipment/",
+      "status": 200,
+      "links": [
+        "https://www.amazon.com/s?k=cast+iron+skillet+for+frying&amp;tag=howtofry.com-20",
+        "https://www.amazon.com/s?k=deep+frying+oil+thermometer&amp;tag=howtofry.com-20",
+        "https://www.amazon.com/s?k=wire+cooling+rack+for+fried+food&amp;tag=howtofry.com-20",
+        "https://www.amazon.com/s?k=long+stainless+steel+cooking+tongs+spider+strainer&amp;tag=howtofry.com-20"
+      ],
+      "link_count": 4,
+      "paused_copy": false
+    },
+    {
+      "site": "saltwaternews.com",
+      "path": "/gear/",
+      "status": 200,
+      "links": [],
+      "link_count": 0,
+      "paused_copy": false
+    },
+    {
+      "site": "saltwaternews.com",
+      "path": "/go/circle-hooks/",
+      "status": 404,
+      "destination": null
+    },
+    {
+      "site": "saltwaternews.com",
+      "path": "/go/circle-hooks",
+      "status": 302,
+      "destination": "https://www.amazon.com/s?k=inline+circle+hooks+saltwater"
+    },
+    {
+      "site": "saltwaternews.com",
+      "path": "/gear/inline-circle-hooks/",
+      "status": 200,
+      "destination": null
+    }
+  ],
+  "bot_suppression_live": [
+    {
+      "site": "ultrarough.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 204,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 204,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 204,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": false
+        }
+      ]
+    },
+    {
+      "site": "reviewtattoo.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        }
+      ]
+    },
+    {
+      "site": "deeppenetrations.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        }
+      ]
+    },
+    {
+      "site": "xxxtea.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 200,
+          "has_amazon_location": false,
+          "interstitial_has_amazon": true
+        }
+      ]
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        }
+      ]
+    },
+    {
+      "site": "weirdassstuff.com",
+      "requests": [
+        {
+          "ua": "jscrawler/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "ShapBot/1.0",
+          "purpose": null,
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        },
+        {
+          "ua": "Mozilla/5.0",
+          "purpose": "prefetch",
+          "status": 302,
+          "has_amazon_location": true,
+          "interstitial_has_amazon": false
+        }
+      ]
+    }
+  ],
+  "product_samples": [
+    {
+      "site": "broadwayshowgirls.com",
+      "id": "wicked-elphaba-glinda-tshirt",
+      "asin": "B0DHYKC62V",
+      "expected_name": "Wicked \\u2014 Elphaba & Glinda Tonal T-Shirt",
+      "status": 200,
+      "title": "Wicked Elphaba & Glinda Tonal T-Shirt",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "broadwayshowgirls.com",
+      "id": "wicked-elphaba-glinda-poster",
+      "asin": "B0DPXWNRNL",
+      "expected_name": "Wicked \\u2014 Elphaba and Glinda Upland Wall Poster, 34\\\" x 22.4\\\"",
+      "status": 200,
+      "title": "Wicked - Elphaba and Glinda Upland Wall Poster, 34L\" x 22.4W\", Unframed Version",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "deeppenetrations.com",
+      "id": "wd40-original",
+      "asin": "B00IOX8M0A",
+      "expected_name": "WD-40 Multi-Use Product Original Formula",
+      "status": 200,
+      "title": "WD-40 Original Formula, Multi-Use Product with Smart Straw Sprays 2 Ways,12 OZ",
+      "availability": null,
+      "captcha": false
+    },
+    {
+      "site": "deeppenetrations.com",
+      "id": "wd40-specialist-penetrant",
+      "asin": "B085JZRKMY",
+      "expected_name": "WD-40 Specialist Penetrant with EZ-REACH Flexible Straw",
+      "status": 200,
+      "title": "WD-40 Specialist Penetrant with Flexible Straw, 13.5 oz.",
+      "availability": "",
+      "captcha": false
+    },
+    {
+      "site": "offshorehookup.com",
+      "id": "penn-international-vi",
+      "asin": "B074WJB3W8",
+      "expected_name": "International VI Two-Speed Lever Drag (80lb Class)",
+      "status": 200,
+      "title": "Reels Saltwater Lever Drag PENN INT80VISWS International Leverdrag Conventional 2-Speed Reel 80",
+      "availability": "Only 4 left in stock - order soon.",
+      "captcha": false
+    },
+    {
+      "site": "offshorehookup.com",
+      "id": "shimano-tiagra",
+      "asin": "B001448T2W",
+      "expected_name": "Tiagra 50A Two-Speed Lever Drag",
+      "status": 200,
+      "title": "TIAGRA",
+      "availability": "Only 20 left in stock - order soon.",
+      "captcha": false
+    },
+    {
+      "site": "reviewtattoo.com",
+      "id": "mad-rabbit-balm",
+      "asin": "B09GDT57B2",
+      "expected_name": "Tattoo Balm",
+      "status": 200,
+      "title": "Mad Rabbit Tattoo Balm & Aftercare Cream, Vanilla Coconut, 1.7 oz",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "reviewtattoo.com",
+      "id": "saniderm-bandage",
+      "asin": "B09J7CW9L8",
+      "expected_name": "Adhesive Bandage Roll (4\" \u00d7 8 yd)",
+      "status": 200,
+      "title": "Saniderm - Original Tattoo Aftercare Bandage Roll - 4 in x 8 yd Roll",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "ultrarough.com",
+      "id": "3m-pro-grade-assorted",
+      "asin": "B0FC7C2CGP",
+      "expected_name": "3M Pro Grade Precision Assorted Pack",
+      "status": 200,
+      "title": "3M Pro Grade Precision Faster Sanding Sheets, NO-Slip Grip Backing, Assorted Grits 220/320/400, 9\" x 11\", 3 Sheets Each, 9 Total",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "ultrarough.com",
+      "id": "norton-3x-80",
+      "asin": "B000GT432Q",
+      "expected_name": "Norton 3X Sheet Sandpaper, 80 Grit (20-pack)",
+      "status": 200,
+      "title": "Norton Sandpaper, ProSand Sand Paper for Wood, Metal and Fiberglass, 80 Grit Sanding Sheets, Coarse Sandpaper, Pack of 20",
+      "availability": "Only 20 left in stock (more on the way).",
+      "captcha": false
+    },
+    {
+      "site": "weirdassstuff.com",
+      "id": "3d-pink-bats-wall-decals-48-pack",
+      "asin": "B0CHM9LC8Z",
+      "expected_name": "3D Pink Bats Wall Decals (48-Pack)",
+      "status": 200,
+      "title": "3D Halloween Wall Bats Decor - 48 Pink PVC Bats Stickers & Decals for Home, Indoor Spooky Theme",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "weirdassstuff.com",
+      "id": "acacia-spurtle-set",
+      "asin": "B09KYLK9DY",
+      "expected_name": "4-Piece Acacia Wood Spurtle Set",
+      "status": 200,
+      "title": "As Seen On TV, WKA 51218, 4-Piece Premium Acacia Wood Spurtle Set - Natural",
+      "availability": "Only 2 left in stock - order soon.",
+      "captcha": false
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "id": "skull-bloom-planter",
+      "asin": "B09PVK7JXY",
+      "expected_name": null,
+      "status": 200,
+      "title": "Skull Candy Bowl, Plant Planter Pot with Hand | Goth Gothic Home Decoration, Extra Large Strong Resin, Skeleton Sweet Serving Tray Countertop Display, Skull and Bones D\u00e9cor (Pink)",
+      "availability": "Only 5 left in stock - order soon.",
+      "captcha": false
+    },
+    {
+      "site": "weirdgirlstore.com",
+      "id": "hex-kit-bubblegum",
+      "asin": "B0CB7Q6QWR",
+      "expected_name": null,
+      "status": 200,
+      "title": "LAVEVE Witchcraft Supplies Kit for Spells, 56 PCS Beginner Witch Box",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "xxxtea.com",
+      "id": "vahdam-imperial-earl-grey",
+      "asin": "B0186XTAUI",
+      "expected_name": "Vahdam Imperial Earl Grey Loose Leaf",
+      "status": 200,
+      "title": "VAHDAM Earl Grey Tea Loose Leaf (12oz|170+ Cups) Black Tea with Bergamot",
+      "availability": "In Stock",
+      "captcha": false
+    },
+    {
+      "site": "xxxtea.com",
+      "id": "harney-hot-cinnamon-spice",
+      "asin": "B00PO9NHES",
+      "expected_name": "Harney & Sons Hot Cinnamon Spice (50 Sachets)",
+      "status": 200,
+      "title": "Harney & Sons Hot Cinnamon Spice Black Tea Sachets, 50 Count",
+      "availability": "In Stock",
+      "captcha": false
+    }
+  ],
+  "cloudflare": {
+    "start": "2026-09-02T00:00:00Z",
+    "end_exclusive": "2026-10-02T00:00:00Z",
+    "rows": [
+      {
+        "site": "0xroulette.com",
+        "group_count": 46,
+        "totals": {
+          "affiliate-sentinel:302": 364,
+          "other_bot:302": 145,
+          "unclassified:302": 182,
+          "unclassified:404": 8
+        }
+      },
+      {
+        "site": "aliencouncil.com",
+        "group_count": 62,
+        "totals": {
+          "affiliate-sentinel:200": 304,
+          "jscrawler:200": 128,
+          "unclassified:200": 315,
+          "unclassified:404": 156,
+          "other_bot:200": 31,
+          "other_bot:307": 12,
+          "other_bot:404": 6,
+          "unclassified:307": 4
+        }
+      },
+      {
+        "site": "allthingsmasonic.com",
+        "group_count": 303,
+        "totals": {
+          "affiliate-sentinel:200": 6024,
+          "other_bot:200": 1877,
+          "ShapBot:307": 1408,
+          "ShapBot:200": 993,
+          "unclassified:200": 2298,
+          "unclassified:307": 555,
+          "unclassified:301": 691,
+          "ShapBot:404": 99,
+          "jscrawler:200": 30,
+          "unclassified:403": 8,
+          "other_bot:301": 5,
+          "unclassified:404": 2,
+          "other_bot:404": 1
+        }
+      },
+      {
+        "site": "americastrikes.com",
+        "group_count": 26,
+        "totals": {
+          "Gatus:302": 17297,
+          "affiliate-sentinel:302": 1785,
+          "other_bot:302": 1042,
+          "unclassified:302": 104,
+          "unclassified:301": 13
+        }
+      },
+      {
+        "site": "amputeenews.com",
+        "group_count": 1,
+        "totals": {
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "arttogogh.com",
+        "group_count": 181,
+        "totals": {
+          "Gatus:200": 8633,
+          "affiliate-sentinel:200": 1675,
+          "other_bot:200": 1568,
+          "unclassified:200": 2683,
+          "ShapBot:307": 192,
+          "ShapBot:200": 144,
+          "unclassified:301": 59,
+          "unclassified:307": 242,
+          "jscrawler:200": 47,
+          "other_bot:307": 8,
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "blackmarketapparel.com",
+        "group_count": 20,
+        "totals": {
+          "Gatus:302": 3228,
+          "unclassified:302": 65,
+          "jscrawler:302": 16,
+          "unclassified:404": 29,
+          "other_bot:302": 15
+        }
+      },
+      {
+        "site": "broadwayshowgirls.com",
+        "group_count": 41,
+        "totals": {
+          "affiliate-sentinel:302": 459,
+          "unclassified:302": 1168,
+          "ShapBot:302": 22,
+          "unclassified:301": 53,
+          "jscrawler:302": 16,
+          "other_bot:302": 13,
+          "jscrawler:301": 3
+        }
+      },
+      {
+        "site": "deeppenetrations.com",
+        "group_count": 106,
+        "totals": {
+          "Gatus:302": 17272,
+          "affiliate-sentinel:200": 1220,
+          "unclassified:302": 1184,
+          "jscrawler:302": 191,
+          "unclassified:200": 132,
+          "ShapBot:302": 65,
+          "jscrawler:301": 32,
+          "unclassified:301": 81,
+          "other_bot:302": 2,
+          "unclassified:404": 7,
+          "unclassified:307": 5
+        }
+      },
+      {
+        "site": "eastcoastrappers.com",
+        "group_count": 101,
+        "totals": {
+          "Gatus:200": 8004,
+          "other_bot:200": 1543,
+          "Gatus:404": 671,
+          "affiliate-sentinel:200": 493,
+          "unclassified:200": 550,
+          "other_bot:404": 186,
+          "affiliate-sentinel:404": 114,
+          "jscrawler:200": 37,
+          "unclassified:307": 52,
+          "unclassified:404": 27,
+          "other_bot:307": 11,
+          "unclassified:301": 1
+        }
+      },
+      {
+        "site": "fishhooklabs.com",
+        "group_count": 85,
+        "totals": {
+          "affiliate-sentinel:302": 3204,
+          "unclassified:302": 1260,
+          "jscrawler:302": 201,
+          "jscrawler:301": 92,
+          "unclassified:301": 98,
+          "ShapBot:302": 68,
+          "other_bot:302": 4
+        }
+      },
+      {
+        "site": "girlpain.com",
+        "group_count": 11,
+        "totals": {
+          "unclassified:200": 42,
+          "unclassified:404": 12,
+          "unclassified:301": 2
+        }
+      },
+      {
+        "site": "greatamericanlakes.com",
+        "group_count": 108,
+        "totals": {
+          "Gatus:200": 8651,
+          "affiliate-sentinel:200": 2762,
+          "unclassified:200": 980,
+          "ShapBot:307": 300,
+          "ShapBot:200": 214,
+          "other_bot:200": 171,
+          "unclassified:301": 46,
+          "unclassified:307": 81,
+          "unclassified:404": 2
+        }
+      },
+      {
+        "site": "marineactivity.com",
+        "group_count": 29,
+        "totals": {
+          "affiliate-sentinel:200": 368,
+          "ShapBot:307": 63,
+          "jscrawler:200": 47,
+          "ShapBot:200": 42,
+          "unclassified:200": 63,
+          "other_bot:200": 17,
+          "unclassified:307": 9,
+          "other_bot:404": 1
+        }
+      },
+      {
+        "site": "newmomshop.com",
+        "group_count": 49,
+        "totals": {
+          "affiliate-sentinel:302": 573,
+          "unclassified:302": 633,
+          "jscrawler:302": 36,
+          "unclassified:301": 21,
+          "ShapBot:302": 14,
+          "unclassified:404": 4,
+          "jscrawler:301": 2,
+          "other_bot:302": 2
+        }
+      },
+      {
+        "site": "offshorehookup.com",
+        "group_count": 83,
+        "totals": {
+          "affiliate-sentinel:302": 705,
+          "unclassified:302": 747,
+          "jscrawler:302": 76,
+          "ShapBot:302": 48,
+          "other_bot:302": 28,
+          "jscrawler:301": 5,
+          "unclassified:301": 4,
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "oventoheaven.com",
+        "group_count": 72,
+        "totals": {
+          "Gatus:200": 17263,
+          "affiliate-sentinel:200": 906,
+          "unclassified:200": 964,
+          "jscrawler:200": 52,
+          "unclassified:301": 16,
+          "unclassified:307": 45,
+          "ShapBot:307": 8,
+          "ShapBot:200": 6,
+          "other_bot:200": 6
+        }
+      },
+      {
+        "site": "reviewtattoo.com",
+        "group_count": 283,
+        "totals": {
+          "Gatus:302": 17290,
+          "unclassified:302": 4223,
+          "affiliate-sentinel:302": 720,
+          "jscrawler:302": 471,
+          "other_bot:302": 158,
+          "affiliate-sentinel:301": 34,
+          "ShapBot:302": 20,
+          "unclassified:301": 254,
+          "unclassified:404": 13,
+          "jscrawler:301": 2,
+          "unclassified:307": 7
+        }
+      },
+      {
+        "site": "rodhat.com",
+        "group_count": 106,
+        "totals": {
+          "Gatus:200": 17249,
+          "affiliate-sentinel:200": 797,
+          "other_bot:200": 304,
+          "jscrawler:200": 60,
+          "unclassified:200": 213,
+          "ShapBot:307": 36,
+          "ShapBot:200": 27,
+          "other_bot:307": 24,
+          "unclassified:307": 67,
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "saveusfarms.com",
+        "group_count": 88,
+        "totals": {
+          "Gatus:302": 17226,
+          "other_bot:302": 612,
+          "affiliate-sentinel:302": 484,
+          "unclassified:302": 167,
+          "ShapBot:404": 36,
+          "jscrawler:302": 16,
+          "unclassified:404": 41,
+          "other_bot:404": 9,
+          "unclassified:301": 30,
+          "jscrawler:301": 3,
+          "Gatus:404": 2,
+          "other_bot:301": 1,
+          "unclassified:307": 1
+        }
+      },
+      {
+        "site": "seedstosauce.com",
+        "group_count": 170,
+        "totals": {
+          "affiliate-sentinel:302": 2069,
+          "jscrawler:302": 270,
+          "unclassified:302": 591,
+          "ShapBot:302": 134,
+          "other_bot:302": 77,
+          "unclassified:404": 14,
+          "unclassified:301": 1,
+          "jscrawler:301": 1
+        }
+      },
+      {
+        "site": "shoppinkflamingo.com",
+        "group_count": 38,
+        "totals": {
+          "other_bot:200": 252,
+          "affiliate-sentinel:200": 60,
+          "unclassified:200": 68,
+          "jscrawler:200": 10,
+          "unclassified:301": 9,
+          "unclassified:307": 27,
+          "other_bot:404": 8,
+          "unclassified:404": 22
+        }
+      },
+      {
+        "site": "shoptopless.com",
+        "group_count": 91,
+        "totals": {
+          "Gatus:302": 8642,
+          "affiliate-sentinel:302": 2370,
+          "jscrawler:302": 444,
+          "unclassified:302": 1404,
+          "unclassified:301": 319,
+          "jscrawler:301": 109,
+          "ShapBot:302": 39,
+          "other_bot:302": 8,
+          "other_bot:301": 7,
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "sinderella.org",
+        "group_count": 27,
+        "totals": {
+          "Gatus:302": 8634,
+          "affiliate-sentinel:302": 808,
+          "unclassified:302": 229,
+          "jscrawler:302": 66,
+          "ShapBot:302": 59,
+          "jscrawler:301": 11
+        }
+      },
+      {
+        "site": "stinkyleftfoot.com",
+        "group_count": 63,
+        "totals": {
+          "Gatus:302": 17266,
+          "affiliate-sentinel:302": 491,
+          "unclassified:302": 268,
+          "jscrawler:302": 45,
+          "other_bot:302": 14,
+          "unclassified:301": 11,
+          "unclassified:404": 1
+        }
+      },
+      {
+        "site": "totaljerks.com",
+        "group_count": 51,
+        "totals": {
+          "Gatus:302": 17334,
+          "affiliate-sentinel:302": 3951,
+          "unclassified:302": 1877,
+          "jscrawler:302": 230,
+          "jscrawler:301": 55,
+          "ShapBot:302": 48,
+          "other_bot:302": 24,
+          "unclassified:301": 9,
+          "unclassified:404": 3
+        }
+      },
+      {
+        "site": "trainingsharks.com",
+        "group_count": 7,
+        "totals": {
+          "affiliate-sentinel:302": 210,
+          "other_bot:302": 10,
+          "unclassified:404": 2,
+          "unclassified:302": 1
+        }
+      },
+      {
+        "site": "ultrarough.com",
+        "group_count": 98,
+        "totals": {
+          "Gatus:302": 17291,
+          "affiliate-sentinel:200": 5245,
+          "jscrawler:302": 1134,
+          "ShapBot:302": 457,
+          "unclassified:302": 2667,
+          "jscrawler:301": 354,
+          "affiliate-sentinel:301": 198,
+          "affiliate-sentinel:404": 165,
+          "unclassified:301": 86,
+          "other_bot:302": 29,
+          "unclassified:404": 10,
+          "unclassified:307": 5
+        }
+      },
+      {
+        "site": "weapontester.com",
+        "group_count": 22,
+        "totals": {
+          "affiliate-sentinel:200": 921,
+          "other_bot:200": 5,
+          "unclassified:200": 20
+        }
+      },
+      {
+        "site": "weirdassstuff.com",
+        "group_count": 98,
+        "totals": {
+          "affiliate-sentinel:302": 6131,
+          "unclassified:302": 3501,
+          "other_bot:302": 198,
+          "unclassified:301": 44,
+          "unclassified:404": 2
+        }
+      },
+      {
+        "site": "weirdgirlstore.com",
+        "group_count": 140,
+        "totals": {
+          "affiliate-sentinel:302": 4113,
+          "unclassified:302": 2455,
+          "other_bot:302": 117,
+          "unclassified:301": 67,
+          "other_bot:301": 15,
+          "ShapBot:302": 4
+        }
+      },
+      {
+        "site": "wetpages.com",
+        "group_count": 37,
+        "totals": {
+          "Gatus:302": 17283,
+          "affiliate-sentinel:200": 165,
+          "jscrawler:302": 59,
+          "unclassified:302": 196,
+          "jscrawler:301": 29,
+          "unclassified:200": 27,
+          "ShapBot:302": 8,
+          "other_bot:302": 6,
+          "other_bot:200": 3,
+          "unclassified:404": 3
+        }
+      },
+      {
+        "site": "xxxtea.com",
+        "group_count": 61,
+        "totals": {
+          "Gatus:302": 17310,
+          "affiliate-sentinel:200": 2748,
+          "unclassified:302": 2438,
+          "jscrawler:302": 566,
+          "jscrawler:301": 189,
+          "unclassified:301": 81,
+          "other_bot:302": 38,
+          "unclassified:200": 26,
+          "unclassified:404": 7,
+          "unclassified:307": 5,
+          "ShapBot:302": 2
+        }
+      },
+      {
+        "site": "howtofry.com",
+        "group_count": 0,
+        "totals": {}
+      },
+      {
+        "site": "saltwaternews.com",
+        "group_count": 8,
+        "totals": {
+          "unclassified:302": 37,
+          "jscrawler:302": 7,
+          "other_bot:302": 2
+        }
+      }
+    ],
+    "caveats": [
+      "Adaptive counts may be estimated.",
+      "UTC window is not a verified match to Amazon reporting timezone.",
+      "Redirect responses are not matched to Amazon clicks.",
+      "Some /go/ routes go to non-Amazon merchants.",
+      "Unclassified requests are not verified humans."
+    ]
+  },
+  "analytics": {
+    "summaries": [
+      {
+        "site": "0daynews.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 90
+      },
+      {
+        "site": "0xroulette.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 31,
+        "users": 19,
+        "new_users": 14,
+        "views": 47,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 139
+      },
+      {
+        "site": "3boobs.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 8,
+        "users": 3,
+        "new_users": 1,
+        "views": 42,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 61
+      },
+      {
+        "site": "aliencouncil.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 3,
+        "users": 3,
+        "new_users": 3,
+        "views": 19,
+        "conversions": 0,
+        "clicks": 2,
+        "impressions": 699
+      },
+      {
+        "site": "allthingsmasonic.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 21,
+        "users": 16,
+        "new_users": 5,
+        "views": 39,
+        "conversions": 5,
+        "clicks": 0,
+        "impressions": 233
+      },
+      {
+        "site": "americastrikes.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 31,
+        "users": 18,
+        "new_users": 3,
+        "views": 56,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 52
+      },
+      {
+        "site": "amputeenews.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 20,
+        "users": 15,
+        "new_users": 4,
+        "views": 61,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 25
+      },
+      {
+        "site": "arttogogh.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 1
+      },
+      {
+        "site": "blackmarketapparel.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 4,
+        "users": 1,
+        "new_users": 1,
+        "views": 10,
+        "conversions": 2,
+        "clicks": 0,
+        "impressions": 0
+      },
+      {
+        "site": "broadwayshowgirls.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 9,
+        "new_users": 2,
+        "views": 24,
+        "conversions": 0,
+        "clicks": 6,
+        "impressions": 609
+      },
+      {
+        "site": "deeppenetrations.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 6,
+        "impressions": 3235
+      },
+      {
+        "site": "eastcoastrappers.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 64
+      },
+      {
+        "site": "fishhooklabs.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 10,
+        "users": 9,
+        "new_users": 5,
+        "views": 16,
+        "conversions": 0,
+        "clicks": 5,
+        "impressions": 808
+      },
+      {
+        "site": "girlpain.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 0
+      },
+      {
+        "site": "greatamericanlakes.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 66,
+        "users": 58,
+        "new_users": 52,
+        "views": 73,
+        "conversions": 1,
+        "clicks": 80,
+        "impressions": 4576
+      },
+      {
+        "site": "howfishthink.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 6
+      },
+      {
+        "site": "marineactivity.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 6,
+        "users": 5,
+        "new_users": 4,
+        "views": 12,
+        "conversions": 0,
+        "clicks": 17,
+        "impressions": 2413
+      },
+      {
+        "site": "newmomshop.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 8,
+        "new_users": 0,
+        "views": 19,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 145
+      },
+      {
+        "site": "offshorehookup.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 9,
+        "new_users": 1,
+        "views": 15,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 2
+      },
+      {
+        "site": "oventoheaven.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 20
+      },
+      {
+        "site": "rc-9.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 31,
+        "users": 22,
+        "new_users": 13,
+        "views": 42,
+        "conversions": 0,
+        "clicks": 2,
+        "impressions": 7
+      },
+      {
+        "site": "reviewtattoo.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 23,
+        "users": 14,
+        "new_users": 6,
+        "views": 42,
+        "conversions": 2,
+        "clicks": 0,
+        "impressions": 49
+      },
+      {
+        "site": "rodhat.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 12,
+        "users": 9,
+        "new_users": 1,
+        "views": 20,
+        "conversions": 0,
+        "clicks": 21,
+        "impressions": 1521
+      },
+      {
+        "site": "saltwaternews.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 1,
+        "users": 1,
+        "new_users": 1,
+        "views": 2,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 6
+      },
+      {
+        "site": "saveusfarms.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 20,
+        "users": 16,
+        "new_users": 3,
+        "views": 33,
+        "conversions": 0,
+        "clicks": 14,
+        "impressions": 2698
+      },
+      {
+        "site": "searchwoot.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 9
+      },
+      {
+        "site": "seedstosauce.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 1,
+        "impressions": 49
+      },
+      {
+        "site": "shoppinkflamingo.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 15,
+        "users": 11,
+        "new_users": 2,
+        "views": 29,
+        "conversions": 3,
+        "clicks": 0,
+        "impressions": 20
+      },
+      {
+        "site": "shoptopless.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 13,
+        "users": 10,
+        "new_users": 2,
+        "views": 18,
+        "conversions": 1,
+        "clicks": 0,
+        "impressions": 34
+      },
+      {
+        "site": "sinderella.org",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 8,
+        "new_users": 0,
+        "views": 13,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 8
+      },
+      {
+        "site": "stinkyleftfoot.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 8,
+        "new_users": 6,
+        "views": 23,
+        "conversions": 0,
+        "clicks": 13,
+        "impressions": 2304
+      },
+      {
+        "site": "totaljerks.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 11,
+        "users": 9,
+        "new_users": 2,
+        "views": 13,
+        "conversions": 1,
+        "clicks": 1,
+        "impressions": 6
+      },
+      {
+        "site": "trainingsharks.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 1
+      },
+      {
+        "site": "ultrarough.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 15,
+        "users": 11,
+        "new_users": 2,
+        "views": 18,
+        "conversions": 1,
+        "clicks": 13,
+        "impressions": 2131
+      },
+      {
+        "site": "unsupervisedmedia.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 12,
+        "users": 8,
+        "new_users": 0,
+        "views": 19,
+        "conversions": 0,
+        "clicks": 2,
+        "impressions": 11
+      },
+      {
+        "site": "weapontester.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 1,
+        "impressions": 30
+      },
+      {
+        "site": "weirdassstuff.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 18,
+        "users": 15,
+        "new_users": 7,
+        "views": 21,
+        "conversions": 1,
+        "clicks": 1,
+        "impressions": 14
+      },
+      {
+        "site": "weirdgirlstore.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 2,
+        "users": 2,
+        "new_users": 1,
+        "views": 2,
+        "conversions": 0,
+        "clicks": 0,
+        "impressions": 21
+      },
+      {
+        "site": "wetpages.com",
+        "window_days": 30,
+        "has_data": true,
+        "clicks": 0,
+        "impressions": 52
+      },
+      {
+        "site": "xxxtea.com",
+        "window_days": 30,
+        "has_data": true,
+        "sessions": 8,
+        "users": 8,
+        "new_users": 8,
+        "views": 18,
+        "conversions": 0,
+        "clicks": 141,
+        "impressions": 2841
+      }
+    ],
+    "caveats": [
+      "Consent-gated GA4 is a partial observation of visitors.",
+      "Missing metrics are unknown, not zero.",
+      "Stored daily coverage is incomplete.",
+      "GA4 conversions mean outbound affiliate_click events, not purchases."
+    ]
+  },
+  "saltwater_repair": {
+    "commit": "c55a15f27896d9dbfebbf3ba6509f2b0e081d81f",
+    "connected_build_uuid": "9585963d-0005-4cc4-aea2-25c90ecd1baa",
+    "connected_build_outcome": "success",
+    "local_build": "passed, 29 pages",
+    "live_after": [
+      {
+        "slug": "circle-hooks",
+        "status": 302,
+        "destination": "https://www.amazon.com/s?k=inline+circle+hooks+saltwater&tag=saltwaternews-20",
+        "tag": [
+          "saltwaternews-20"
+        ]
+      },
+      {
+        "slug": "pliers",
+        "status": 302,
+        "destination": "https://www.amazon.com/s?k=saltwater+fishing+pliers&tag=saltwaternews-20",
+        "tag": [
+          "saltwaternews-20"
+        ]
+      },
+      {
+        "slug": "dry-bag",
+        "status": 302,
+        "destination": "https://www.amazon.com/s?k=marine+dry+bag&tag=saltwaternews-20",
+        "tag": [
+          "saltwaternews-20"
+        ]
+      },
+      {
+        "slug": "pfd",
+        "status": 302,
+        "destination": "https://www.amazon.com/s?k=offshore+inflatable+pfd&tag=saltwaternews-20",
+        "tag": [
+          "saltwaternews-20"
+        ]
+      },
+      {
+        "slug": "leader",
+        "status": 302,
+        "destination": "https://www.amazon.com/s?k=fluorocarbon+leader+saltwater&tag=saltwaternews-20",
+        "tag": [
+          "saltwaternews-20"
+        ]
+      }
+    ]
+  }
+}
