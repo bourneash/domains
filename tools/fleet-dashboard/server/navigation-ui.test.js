@@ -3445,6 +3445,15 @@ test('fleet task tree separates site and stage expansion, prioritizing active wo
   assert.match(app, /\$\$\('\.tree-site, \.tree-stage'\)/);
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.tree-stage > summary \{ display: flex;/);
+  assert.match(
+    style,
+    /@media \(max-width: 700px\) \{\s*\.tree-task \{ grid-template-columns: 68px minmax\(0, 1fr\) auto; grid-template-areas: "priority title estimate" "type role role";/
+  );
+  assert.match(
+    style,
+    /\.tree-task \.tree-type \{ grid-area: type; min-width: 0; overflow-wrap: anywhere;/
+  );
+  assert.match(style, /\.tree-task \.tree-role \{ grid-area: role;[^}]*overflow-wrap: anywhere/);
 });
 
 test('large per-site task boards paginate each stage without discarding counts', () => {
