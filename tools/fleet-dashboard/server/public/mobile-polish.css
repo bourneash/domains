@@ -1,6 +1,11 @@
 /* Compact the persistent mobile header without removing its actions. The
    action strip remains horizontally scrollable when the viewport is narrow. */
 @media (max-width: 720px) {
+  body[data-view="workbench"] .wb-filter-control .wb-filter-label {
+    width: auto;
+    white-space: nowrap;
+  }
+
   body[data-view="delivery"] .seo-stats > .seo-stat:last-child:nth-child(odd) {
     grid-column: 1 / -1;
     display: flex;

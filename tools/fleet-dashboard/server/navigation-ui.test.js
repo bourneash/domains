@@ -22,6 +22,10 @@ test('light-mode secondary and danger button hover states keep legible ink', () 
 
 test('mobile header keeps the action strip to one horizontally scrollable row', () => {
   const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  assert.match(
+    mobile,
+    /body\[data-view="workbench"\] \.wb-filter-control \.wb-filter-label\s*\{[^}]*width:\s*auto;[^}]*white-space:\s*nowrap/
+  );
   assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*nowrap/);
   assert.match(mobile, /\.topbar \.actions\s*\{[^}]*overflow-x:\s*auto/);
   assert.match(mobile, /\.topbar \.actions > \*\s*\{\s*flex-shrink:\s*0;/);
