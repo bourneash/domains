@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T18:28:15.318Z",
+  "generated_at": "2026-10-02T19:30:23.469Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish gate03.com launch and measurement baseline before implementation admission",
-        "summary": "gate03.com is live in the registry and queue-ready, but analytics is not configured and the snapshot contains no site-specific page, SEO, health, monetization, or active-work evidence. Complete one bounded read-only repository and public-surface baseline before selecting an implementation.",
-        "requested_action": "Inspect the existing gate03.com homepage, navigation, metadata, consent/disclosure surfaces, repository entrypoints, and current queue state. Record exact candidate files, current behavior, evidence gaps, and one reversible implementation that can be admitted next. Do not deploy, add tracking, change credentials, alter configuration, or claim traffic, revenue, conversion, or performance results.",
+        "title": "Improve howtofry.com homepage entry clarity and accessibility",
+        "summary": "Queue one bounded, reversible homepage improvement for the queue-ready managed site howtofry.com. No deployment is authorized.",
+        "requested_action": "Engineer should update the homepage route `/` in `bourneash/howtofry.com`, editing only the existing homepage template and its directly imported global stylesheet. Add one clear primary heading, one visible primary action, a keyboard-accessible skip link, and preserve all existing links, disclosures, analytics behavior, and content intent.",
         "proposal_id": null
       }
     ]
