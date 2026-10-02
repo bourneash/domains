@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:52:08.598Z",
+  "generated_at": "2026-10-02T15:54:08.633Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Build a preview-only public homepage for deadlymaracas.com",
-        "summary": "Implement the smallest branded, preview-only public surface for the existing scaffold without publishing, adding tracking, monetization, credentials, dependencies, or production configuration.",
-        "requested_action": "Assign to engineer after the existing scaffold launch-readiness gate is verified. Keep the result preview-only until legal, security, analytics, measurement, and owner gates pass.",
+        "title": "Prepare driveford.net preview-build admission packet",
+        "summary": "Driveford.net is a scaffold with no verified audience brief, launch-readiness artifact, configured analytics, or site-specific content/file evidence. Create one bounded repository and preview inspection packet so the smallest safe homepage build can be admitted without inventing telemetry or publishing.",
+        "requested_action": "Inspect the existing driveford.net scaffold and produce a dated implementation packet identifying the exact homepage entry file, stylesheet, asset locations, available routes, current metadata, build command, preview URL or local preview path, and unresolved owner/legal/security/analytics gates. Define the next engineer task: implement only a preview-only homepage and metadata pass in the identified files; do not deploy or publish.",
         "proposal_id": null
       }
     ]

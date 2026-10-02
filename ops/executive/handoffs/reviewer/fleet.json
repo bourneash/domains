@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:52:08.588Z",
+  "generated_at": "2026-10-02T15:54:08.632Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the deadlymaracas.com preview build this cycle. Scaffold launch-readiness and analytics evidence are missing, while security and production-readiness evidence remain unavailable. Site-factory must complete the existing readiness artifact by 2026-10-02T17:00Z; unresolved launch, legal, security, measurement, or owner gates escalate to the owner. Retain one bounded read-only Save Us Farms inspection for the existing repair-disposition gap.",
+        "summary": "Reject the driveford.net preview-build admission and all new implementation or high-priority queue work this cycle. Scaffold launch-readiness, analytics, security, and measurement evidence are incomplete; production admission is unsupported. Retain the existing gate, approve only one bounded read-only Save Us Farms inspection, and require the canonical admission ledger plus repair disposition by 2026-10-02T17:00:00Z. Escalate unresolved blockers then.",
         "requested_action": null,
         "proposal_id": null
       }
