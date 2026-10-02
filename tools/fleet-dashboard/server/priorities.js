@@ -65,6 +65,37 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   } catch {
     /* surface remains useful */
   }
+  const lineage = tasks.reconcileLineages(allTasks);
+  for (const duplicate of lineage.duplicates) {
+    const canonical = duplicate.canonical;
+    const duplicatePaths = duplicate.tasks.map(task => `${task.column}/${task.file}`);
+    const canonicalPath = `${canonical.column}/${canonical.file}`;
+    items.push({
+      id: `task-lineage:${canonical.site}:${encodeURIComponent(duplicate.key)}`,
+      kind: 'maintenance',
+      site: canonical.site,
+      site_id: `site:${canonical.site}`,
+      title: 'Reconcile duplicate task records',
+      evidence: `Canonical ${canonicalPath} is ${canonical.column}; stale duplicate${duplicatePaths.length === 1 ? '' : 's'}: ${duplicatePaths.join(', ')}. This is queue cleanup, not a new ${canonical.type || 'task'} action.`,
+      score: 88,
+      confidence: 'high',
+      state: 'ready',
+      source: 'task-lineage-audit',
+      proxy_value: 0,
+      expected_profit_usd: null,
+      task: {
+        file: canonical.file,
+        column: canonical.column,
+        task_id: canonical.task_id,
+        canonical_path: canonicalPath,
+        duplicate_paths: duplicatePaths,
+      },
+    });
+  }
+  // Only authoritative lineage records drive task-owner alerts and completed
+  // work measurement. Duplicate copies remain visible above as data-quality
+  // work with a direct link to the canonical card.
+  allTasks = lineage.canonical;
   const installedRoles = new Map();
   const availableRoles = new Map();
   const rolesForSite = site => {
@@ -259,7 +290,7 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   const revenueBySite = Object.fromEntries(
     (revenue?.attribution || [])
       .filter(row => row.site)
-      .map(row => [row.site, Number(row.commission_income) || 0])
+      .map(row => [row.site, row.commission_income == null ? null : Number(row.commission_income)])
   );
   const seoBySite = Object.fromEntries((seo.sites || []).map(row => [row.site, row]));
   const scorecards = live

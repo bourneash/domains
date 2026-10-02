@@ -139,3 +139,66 @@ test('amazonSummary attributes a unique tracking ID to its site', () => {
   assert.equal(result.attribution[0].site, 'example.com');
   assert.equal(result.attributed_income, 2.5);
 });
+
+test('hidden Amazon metrics remain unknown through site attribution, while explicit zero remains zero', () => {
+  const dir = root();
+  const src = path.join(dir, 'sites', 'ultrarough.com', 'site', 'src');
+  fs.mkdirSync(src, { recursive: true });
+  fs.writeFileSync(path.join(src, 'affiliate.ts'), "'ultrarough-20'");
+  fs.writeFileSync(
+    path.join(dir, 'tools', 'amz-stats', 'out', 'earnings-latest.json'),
+    JSON.stringify({
+      pulled_at: '2026-09-21T11:33:33Z',
+      days: 30,
+      rows: [
+        {
+          tracking_id: 'ultrarough-20',
+          clicks: 667,
+          items_ordered: '-',
+          items_shipped: null,
+          total_earnings: '-',
+        },
+        {
+          tracking_id: 'Other',
+          clicks: 629,
+          items_ordered: 28,
+          items_shipped: 6,
+          total_earnings: 4.92,
+        },
+      ],
+    })
+  );
+  const summary = revenue.amazonSummary(dir);
+  const site = revenue.siteAttribution(summary, 'ultrarough.com');
+  assert.equal(site.clicks, 667);
+  assert.equal(site.ordered_items, null);
+  assert.equal(site.shipped_items, null);
+  assert.equal(site.commission_income, null);
+  assert.equal(site.reporting_complete, false);
+  assert.equal(site.site_level_revenue_complete, false);
+  assert.equal(site.pulled_at, '2026-09-21T11:33:33Z');
+  assert.equal(site.window_days, 30);
+  assert.equal(summary.commission_income, 4.92);
+  assert.equal(summary.reporting_complete, false);
+  assert.deepEqual(site.unavailable_metrics, [
+    'ordered_items',
+    'shipped_items',
+    'commission_income',
+  ]);
+
+  const zeroDir = root();
+  fs.mkdirSync(path.join(zeroDir, 'sites', 'zero.com', 'site', 'src'), { recursive: true });
+  fs.writeFileSync(
+    path.join(zeroDir, 'sites', 'zero.com', 'site', 'src', 'affiliate.ts'),
+    "'zero-20'"
+  );
+  fs.writeFileSync(
+    path.join(zeroDir, 'tools', 'amz-stats', 'out', 'earnings-latest.json'),
+    JSON.stringify([
+      { tracking_id: 'zero-20', clicks: 0, items_ordered: 0, items_shipped: 0, total_earnings: 0 },
+    ])
+  );
+  const zero = revenue.siteAttribution(revenue.amazonSummary(zeroDir), 'zero.com');
+  assert.equal(zero.commission_income, 0);
+  assert.equal(zero.reporting_complete, true);
+});

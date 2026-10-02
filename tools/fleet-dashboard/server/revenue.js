@@ -105,11 +105,14 @@ function amazonSummary(root) {
     if (!rows.length) return base;
     const number = (row, ...keys) => {
       for (const key of keys) {
+        if (!Object.hasOwn(row, key)) continue;
+        if (row[key] == null || String(row[key]).trim() === '') return null;
         const value = Number(row[key]);
-        if (Number.isFinite(value)) return value;
+        return Number.isFinite(value) ? value : null;
       }
-      return 0;
+      return null;
     };
+    const add = (current, value) => (current == null || value == null ? null : current + value);
     const dates = rows
       .map(row => row.date || row.report_date)
       .filter(Boolean)
@@ -135,17 +138,24 @@ function amazonSummary(root) {
         rows: 0,
         clicks: 0,
         ordered_items: 0,
+        shipped_items: 0,
         commission_income: 0,
       };
       cur.rows += 1;
-      cur.clicks += number(row, 'clicks');
-      cur.ordered_items += number(row, 'ordered_items', 'items_ordered');
-      cur.commission_income += number(
-        row,
-        'commission_income',
-        'total_earnings',
-        'items_shipped_earnings'
+      cur.clicks = add(cur.clicks, number(row, 'clicks'));
+      cur.ordered_items = add(cur.ordered_items, number(row, 'ordered_items', 'items_ordered'));
+      cur.shipped_items = add(cur.shipped_items, number(row, 'shipped_items', 'items_shipped'));
+      cur.commission_income = add(
+        cur.commission_income,
+        number(row, 'commission_income', 'total_earnings', 'items_shipped_earnings')
       );
+      cur.unavailable_metrics = [
+        'clicks',
+        'ordered_items',
+        'shipped_items',
+        'commission_income',
+      ].filter(metric => cur[metric] == null);
+      cur.reporting_complete = cur.unavailable_metrics.length === 0;
       attributed[key] = cur;
     }
     const attribution = Object.values(attributed);
@@ -162,8 +172,14 @@ function amazonSummary(root) {
       has_data: true,
       owner_action_required: null,
       message: null,
-      from: dates[0] || payload?.pulled_at?.slice?.(0, 10) || null,
-      through: dates.at(-1) || payload?.pulled_at?.slice?.(0, 10) || null,
+      pulled_at: payload?.pulled_at || null,
+      window_days: payload?.days || null,
+      reporting_complete: attribution.every(row => row.reporting_complete),
+      totals_note:
+        'Totals sum disclosed values only; hidden or missing values are unknown, not zero.',
+      // Pull time is not a report date range; tracking-ID exports have no daily dates.
+      from: dates[0] || null,
+      through: dates.at(-1) || null,
       clicks: rows.reduce((sum, row) => sum + number(row, 'clicks'), 0),
       ordered_items: rows.reduce(
         (sum, row) => sum + number(row, 'ordered_items', 'items_ordered'),
@@ -228,15 +244,20 @@ function siteAttribution(summary, site) {
     site: wanted,
     tracking_id: row.tracking_id || null,
     rows: Number(row.rows) || 0,
-    clicks: Number(row.clicks) || 0,
-    ordered_items: Number(row.ordered_items) || 0,
-    shipped_items: Number(row.shipped_items) || 0,
-    commission_income: Number(row.commission_income) || 0,
+    clicks: row.clicks ?? null,
+    ordered_items: row.ordered_items ?? null,
+    shipped_items: row.shipped_items ?? null,
+    commission_income: row.commission_income ?? null,
+    reporting_complete: row.reporting_complete === true,
+    unavailable_metrics: row.unavailable_metrics || [],
+    pulled_at: summary.pulled_at || null,
+    window_days: summary.window_days || null,
     attribution_scope: row.attribution_scope || 'site',
     attribution_status: summary.attribution_status || null,
     site_level_revenue_complete:
-      summary.attribution_status === 'complete' ||
-      (summary.attribution_status === 'partial_aggregate' && Number(row.commission_income) > 0),
+      row.reporting_complete === true &&
+      (summary.attribution_status === 'complete' ||
+        (summary.attribution_status === 'partial_aggregate' && Number(row.commission_income) > 0)),
     fetched_at: summary.fetched_at || null,
     has_data: true,
     attribution_complete: summary.attribution_complete === true,

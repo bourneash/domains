@@ -147,3 +147,25 @@ test('retries a transient telemetry failure and returns the recovered result', a
   assert.deepEqual(result, { has_data: true, sessions: 4 });
   assert.equal(calls, 2);
 });
+
+test('measurement observations preserve hidden Amazon revenue as unknown', () => {
+  const observation = measurement.compactObservation({
+    revenue: {
+      has_data: true,
+      clicks: 667,
+      ordered_items: null,
+      shipped_items: null,
+      commission_income: null,
+      reporting_complete: false,
+      unavailable_metrics: ['ordered_items', 'shipped_items', 'commission_income'],
+      pulled_at: '2026-09-21T11:33:33Z',
+      window_days: 30,
+    },
+  });
+  assert.equal(observation.revenue.clicks, 667);
+  assert.equal(observation.revenue.ordered_items, null);
+  assert.equal(observation.revenue.shipped_items, null);
+  assert.equal(observation.revenue.commission_income, null);
+  assert.equal(observation.revenue.reporting_complete, false);
+  assert.equal(observation.revenue.pulled_at, '2026-09-21T11:33:33Z');
+});

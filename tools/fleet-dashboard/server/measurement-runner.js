@@ -57,6 +57,8 @@ function daysSince(value, now) {
 function compactObservation(metrics = {}, { captured_at, new_impressions } = {}) {
   const analytics = metrics || {};
   const revenue = metrics.revenue || {};
+  const revenueNumber = key =>
+    revenue[key] != null && Number.isFinite(Number(revenue[key])) ? Number(revenue[key]) : null;
   return {
     captured_at: captured_at || new Date().toISOString(),
     new_impressions: new_impressions == null ? null : Number(new_impressions),
@@ -78,16 +80,14 @@ function compactObservation(metrics = {}, { captured_at, new_impressions } = {})
     revenue: {
       has_data: revenue.has_data === true,
       site: revenue.site || null,
-      clicks: Number.isFinite(Number(revenue.clicks)) ? Number(revenue.clicks) : null,
-      ordered_items: Number.isFinite(Number(revenue.ordered_items))
-        ? Number(revenue.ordered_items)
-        : null,
-      shipped_items: Number.isFinite(Number(revenue.shipped_items))
-        ? Number(revenue.shipped_items)
-        : null,
-      commission_income: Number.isFinite(Number(revenue.commission_income))
-        ? Number(revenue.commission_income)
-        : null,
+      clicks: revenueNumber('clicks'),
+      ordered_items: revenueNumber('ordered_items'),
+      shipped_items: revenueNumber('shipped_items'),
+      commission_income: revenueNumber('commission_income'),
+      reporting_complete: revenue.reporting_complete === true,
+      unavailable_metrics: revenue.unavailable_metrics || [],
+      pulled_at: revenue.pulled_at || null,
+      window_days: revenue.window_days || null,
       attribution_status: revenue.attribution_status || null,
       attribution_complete: revenue.attribution_complete === true,
       fetched_at: revenue.fetched_at || null,

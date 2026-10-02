@@ -165,3 +165,23 @@ test('analytics coverage counts successful sources only for live analytics-enabl
   assert.equal(out.coverage.analytics_sites, 0);
   assert.equal(out.coverage.analytics_expected_sites, 1);
 });
+
+test('suppressed revenue cannot produce a zero-revenue monetization repair allocation', () => {
+  const out = priorities.build({
+    root: fixture(),
+    discoveredSites: ['live.example'],
+    analyticsHealth: { sites: { 'live.example': { healthy: true } } },
+    revenue: {
+      connected: true,
+      has_data: true,
+      attribution: [{ site: 'live.example', commission_income: null }],
+    },
+    seo: { sites: [{ site: 'live.example', high: 4, sessions: 32 }] },
+    aiUsage: { by_site: [{ site: 'live.example', total_cost_usd: 12.42 }] },
+  });
+  const site = out.scorecards.find(row => row.site === 'live.example');
+  assert.equal(site.revenue_usd, null);
+  assert.equal(site.margin_usd, null);
+  assert.equal(site.profit_attributable, false);
+  assert.notEqual(site.allocation, 'repair-monetization');
+});
