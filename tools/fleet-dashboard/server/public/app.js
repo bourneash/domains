@@ -8858,15 +8858,31 @@ async function renderAnalytics() {
     if (!summary || summary.has_data === false) {
       summaryHtml = '<div class="muted">no data captured yet for this site</div>';
     } else {
-      const ga4Line =
-        'sessions' in summary
-          ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · affiliate clicks <b>${esc(String(summary.conversions))}</b> · click/session <b>${summary.sessions ? esc(`${((summary.conversions / summary.sessions) * 100).toFixed(2)}%`) : '—'}</b></div>`
-          : '<div class="muted">No GA4 data for this site. Choose another site above, or review Capture Freshness.</div>';
-      const gscLine =
-        'clicks' in summary
-          ? `<div>clicks <b>${esc(String(summary.clicks))}</b>${wow.gsc ? anDelta(wow.gsc.cur.clicks, wow.gsc.prev.clicks) : ''} · impressions <b>${esc(String(summary.impressions))}</b></div>`
-          : '<div class="muted">no Search Console data</div>';
-      summaryHtml = `${ga4Line}${gscLine}<div class="dh-sub-h">trailing 28 days</div>`;
+      const hasGA4 = 'sessions' in summary;
+      const hasGSC = 'clicks' in summary;
+      const deltaFor = (source, metric) => {
+        const change = wow?.[source];
+        if (change?.cur?.[metric] == null || change?.prev?.[metric] == null) return '';
+        return anDelta(change.cur[metric], change.prev[metric]);
+      };
+      const metricCard = (label, value, source, delta = '', note = '') => {
+        const displayValue =
+          value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toLocaleString();
+        return `<article class="an-kpi" role="listitem"><span class="an-kpi-label">${label}</span><strong>${esc(displayValue)}</strong><div class="an-kpi-foot"><span class="an-kpi-source">${source}</span>${delta}${note ? `<span class="an-kpi-note">${note}</span>` : ''}</div></article>`;
+      };
+      const clickRate =
+        hasGA4 && summary.sessions
+          ? `${((summary.conversions / summary.sessions) * 100).toFixed(2)}% click/session`
+          : 'click/session unavailable';
+      summaryHtml = `<div class="an-kpi-grid" role="list" aria-label="Performance summary for the trailing 28 days">
+        ${metricCard('Sessions', hasGA4 ? summary.sessions : null, 'GA4', deltaFor('ga4', 'sessions'))}
+        ${metricCard('Users', hasGA4 ? summary.users : null, 'GA4', deltaFor('ga4', 'users'))}
+        ${metricCard('Affiliate clicks', hasGA4 ? summary.conversions : null, 'GA4', deltaFor('ga4', 'conversions'), clickRate)}
+        ${metricCard('Search clicks', hasGSC ? summary.clicks : null, 'GSC', deltaFor('gsc', 'clicks'))}
+        ${metricCard('Impressions', hasGSC ? summary.impressions : null, 'GSC', deltaFor('gsc', 'impressions'))}
+      </div><div class="dh-sub-h">Trailing 28 days · comparison badges show week-over-week change</div>
+      ${!hasGA4 ? '<p class="muted">No GA4 data for this site. Choose another site above, or review Capture Freshness.</p>' : ''}
+      ${!hasGSC ? '<p class="muted">No Search Console data for this site.</p>' : ''}`;
     }
 
     const topRows = (label, rows, metric) =>
