@@ -15,6 +15,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from social_hub.platforms.base import (
     Adapter,
@@ -57,7 +58,7 @@ ADULT_LABELS = {"sexual", "nudity", "porn", "graphic-media"}
 _URL_RE = re.compile(rb"https?://[^\s\]\)]+")
 
 
-def link_facets(text: str) -> list:
+def link_facets(text: str, targets: dict[str, str] | None = None) -> list:
     """Byte-offset link facets for every URL in *text*.
 
     `send_post` builds these automatically, but a self-labeled post has to be
@@ -77,10 +78,21 @@ def link_facets(text: str) -> list:
                 index=models.AppBskyRichtextFacet.ByteSlice(
                     byte_start=match.start(), byte_end=match.start() + len(url.encode("utf-8"))
                 ),
-                features=[models.AppBskyRichtextFacet.Link(uri=url)],
+                features=[models.AppBskyRichtextFacet.Link(uri=(targets or {}).get(url, url))],
             )
         )
     return facets
+
+
+def display_link(link: str) -> str:
+    """Keep attribution in the facet target, rather than the visible text budget."""
+    parts = urlsplit(link)
+    query = parse_qsl(parts.query, keep_blank_values=True)
+    if not any(key.lower().startswith("utm_") for key, _ in query):
+        return link
+    return urlunsplit(parts._replace(query=urlencode([
+        (key, value) for key, value in query if not key.lower().startswith("utm_")
+    ])))
 
 
 class BlueskyAdapter(Adapter):
@@ -163,7 +175,7 @@ class BlueskyAdapter(Adapter):
         return {"handle": getattr(client.me, "handle", self.identifier())}
 
     # --- verbs ------------------------------------------------------------
-    def _send_labeled(self, text: str, label: str, reply_ref=None) -> PostRef:
+    def _send_labeled(self, text: str, label: str, reply_ref=None, targets=None) -> PostRef:
         """Post with a self-label (adult content).
 
         Bluesky's rules require adult material to be labeled by the poster, and
@@ -177,7 +189,7 @@ class BlueskyAdapter(Adapter):
         record = models.AppBskyFeedPost.Record(
             text=text,
             created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-            facets=link_facets(text) or None,
+            facets=link_facets(text, targets) or None,
             reply=reply_ref,
             labels=models.ComAtprotoLabelDefs.SelfLabels(
                 values=[models.ComAtprotoLabelDefs.SelfLabel(val=label)]
@@ -201,8 +213,9 @@ class BlueskyAdapter(Adapter):
         bonus.
         """
         label = str((out.options or {}).get("content_label") or "").strip()
+        targets = {display_link(out.link): out.link} if out.link else None
         if label:
-            return self._send_labeled(text, label, reply_ref)
+            return self._send_labeled(text, label, reply_ref, targets)
 
         client = self.client()
         image = next((i for i in out.images if i.data), None)
@@ -212,7 +225,7 @@ class BlueskyAdapter(Adapter):
             try:
                 resp = client.send_image(
                     text=text, image=image.data, image_alt=image.alt,
-                    facets=link_facets(text) or None, **kwargs
+                    facets=link_facets(text, targets) or None, **kwargs
                 )
             except Exception as exc:
                 resp = None
@@ -222,13 +235,13 @@ class BlueskyAdapter(Adapter):
                 # send_post only builds facets when given a TextBuilder — a
                 # plain str leaves facets=None and the URL renders as dead
                 # text, so we compute them ourselves here too.
-                resp = client.send_post(text=text, facets=link_facets(text) or None, **kwargs)
+                resp = client.send_post(text=text, facets=link_facets(text, targets) or None, **kwargs)
             except Exception as exc:
                 raise AdapterError(f"bluesky post failed: {exc}") from exc
         return PostRef(remote_id=resp.uri, url=_handle_to_url(self.identifier(), _rkey(resp.uri)))
 
     def publish(self, out: Outgoing) -> PostRef:
-        return self._send(self.fit(out.body, out.link if out.link else ""), out)
+        return self._send(self.fit(out.body, display_link(out.link) if out.link else ""), out)
 
     def reply(self, out: Outgoing) -> PostRef:
         if not out.reply_to_remote_id:
@@ -254,7 +267,7 @@ class BlueskyAdapter(Adapter):
             else parent_ref
         )
         return self._send(
-            self.fit(out.body, out.link if out.link else ""),
+            self.fit(out.body, display_link(out.link) if out.link else ""),
             out,
             reply_ref=models.AppBskyFeedPost.ReplyRef(parent=parent_ref, root=root_ref),
         )

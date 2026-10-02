@@ -150,3 +150,35 @@ def test_link_facets_use_utf8_byte_offsets():
 
     assert raw[facet.index.byte_start : facet.index.byte_end] == b"https://example.com/x"
     assert facet.features[0].uri == "https://example.com/x"
+
+
+def test_bluesky_tracking_link_preserves_copy_and_click_target(monkeypatch):
+    from types import SimpleNamespace
+    from social_hub.platforms.base import Outgoing
+    from social_hub.platforms.bluesky import BlueskyAdapter, display_link
+
+    body = (
+        "California farmworkers are getting to nearly $20/hr by 2027. "
+        "That's a real win — and a real squeeze on the small growers who "
+        "can't spread costs the way the big operations can."
+    )
+    canonical = "https://saveusfarms.com/articles/2026-10-02-california-ag-minimum-wage-twenty-dollars/"
+    tracked = canonical + "?utm_source=bluesky&utm_medium=organic_social&utm_campaign=always_on&utm_content=hub-4128"
+    calls = []
+
+    class Client:
+        def send_post(self, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(uri="at://did:example/app.bsky.feed.post/test")
+
+    adapter = BlueskyAdapter({"BLUESKY_HANDLE": "test.bsky.social"})
+    monkeypatch.setattr(adapter, "client", lambda: Client())
+    adapter.publish(Outgoing(body=body, link=tracked))
+    assert calls[0]["text"] == body + " " + canonical
+    assert len(calls[0]["text"]) <= 300
+    facet = calls[0]["facets"][0]
+    raw = calls[0]["text"].encode("utf-8")
+    assert raw[facet.index.byte_start:facet.index.byte_end].decode() == canonical
+    assert facet.features[0].uri == tracked
+    assert display_link("https://example.com/?page=2&utm_source=x#section") == "https://example.com/?page=2#section"
+    assert display_link("https://example.com/?token=a%20b") == "https://example.com/?token=a%20b"
