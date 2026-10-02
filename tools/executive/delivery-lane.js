@@ -5,6 +5,7 @@
 // production publication is separate.
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const eventstore = require('../fleet-dashboard/server/eventstore');
 const changequeue = require('../fleet-dashboard/server/changequeue');
 const { config } = require('./overwatch-alert');
@@ -52,6 +53,69 @@ function getRequests(store, site) {
   return store.listChangeRequests({ site, limit: 'all' });
 }
 
+function reconcilePublishedBranch(store, root, request) {
+  if (
+    request?.status !== 'blocked_infrastructure' ||
+    request.error !== 'cannot transition delivery_pending to committed' ||
+    request.delivery_mode !== 'pull_request' ||
+    !WORK.some(work => work.action_key === request.action_key && work.site === request.site)
+  )
+    return request;
+  const run = request.run_id ? store.getImprovement(request.run_id) : null;
+  const expected = path.join(root, 'tools', 'fleet-dashboard', 'data', 'improvement-worktrees');
+  const workspace = run?.workspace_path;
+  if (
+    !run ||
+    run.source_id !== request.request_id ||
+    run.validation?.passed !== true ||
+    run.agent?.phase !== 'reviewer' ||
+    run.agent?.status !== 'completed' ||
+    Number(run.agent?.exit_code) !== 0 ||
+    !workspace ||
+    !path.resolve(workspace).startsWith(`${expected}${path.sep}`) ||
+    !/^improvement\/[a-f0-9]+$/.test(String(run.branch || ''))
+  )
+    return request;
+  let commit;
+  try {
+    const log = fs.readFileSync(run.agent.log, 'utf8');
+    if (!/FD_REVIEW_RESULT:\s*PASS\b/.test(log)) return request;
+    const git = (...args) =>
+      execFileSync('git', ['-C', workspace, ...args], { encoding: 'utf8', timeout: 10000 }).trim();
+    if (git('status', '--porcelain') !== '') return request;
+    if (git('branch', '--show-current') !== run.branch) return request;
+    if (git('rev-parse', '--abbrev-ref', '@{upstream}') !== `origin/${run.branch}`) return request;
+    commit = git('rev-parse', 'HEAD');
+    if (git('rev-parse', '@{upstream}') !== commit) return request;
+  } catch {
+    return request;
+  }
+  const current = store.getChangeRequest(request.request_id);
+  if (current.status !== request.status || current.error !== request.error) return current;
+  // The dashboard pushed the branch before the old transition table rejected
+  // its final status update. This exact-evidence recovery does not publish or
+  // deploy anything; it only reconciles the already-pushed artifact.
+  return store.transaction(() => {
+    const updated = store.updateChangeRequest(request.request_id, {
+      status: 'committed',
+      error: null,
+      lease_owner: null,
+      lease_expires_at: null,
+      heartbeat_at: null,
+    });
+    store.record({
+      event_type: 'change-request.published-branch-reconciled',
+      source: 'owner-delivery-lane',
+      site_id: `site:${request.site}`,
+      entity_type: 'change-request',
+      entity_id: request.request_id,
+      correlation_id: `change-request:${request.request_id}`,
+      payload: { run_id: run.run_id, branch: run.branch, commit, reason: request.error },
+    });
+    return updated;
+  });
+}
+
 function reconcile(store, root, now = Date.now()) {
   if (store.getChangeQueueSettings()?.enabled !== true)
     return { state: 'queue-disabled', freeze_planning: false };
@@ -61,6 +125,7 @@ function reconcile(store, root, now = Date.now()) {
   }));
   for (let index = 0; index < rows.length; index++) {
     const row = rows[index];
+    if (row.request) row.request = reconcilePublishedBranch(store, root, row.request);
     if (index && !ACCEPTED.has(rows[index - 1].request?.status)) {
       return {
         state: 'waiting-on-first-artifact',
