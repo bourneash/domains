@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:10:12.344Z",
+  "generated_at": "2026-10-02T17:12:28.357Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Baseline 0daynews.com homepage CTA and content-path usability",
-        "summary": "A site-specific page-level baseline is not present in the authoritative snapshot, so no non-duplicative implementation can be safely selected without inspecting the existing homepage and navigation evidence.",
-        "requested_action": "Inspect only https://0daynews.com/ and the existing homepage source file in the 0daynews.com repository. Record heading hierarchy, primary CTA or first-click path, navigation destinations, disclosure placement, mobile/accessibility defects, metadata, and the exact source files controlling the surface. Do not request duplicate telemetry, add tracking, change production, or claim lift.",
+        "title": "Reconcile active SEO measurement before next aliencouncil.com change",
+        "summary": "aliencouncil.com is already in an active measurement window through 2026-10-10, so adding overlapping production work is blocked. Reconcile the existing improvement and prepare one non-duplicative next action for the page with the clearest recorded SEO opportunity.",
+        "requested_action": "Review the existing aliencouncil.com improvement record and the page /cases/00509-presidential-memorandum-uap-nda-abrogation-pursue-designee. Record the current title, meta description, canonical, internal links, and competing active-work status; do not modify production or telemetry. By 2026-10-10, either close the measurement gate with evidence or nominate exactly one reversible SEO implementation.",
         "proposal_id": null
       }
     ]

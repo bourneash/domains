@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:10:12.343Z",
+  "generated_at": "2026-10-02T17:12:28.357Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the proposed 0daynews.com report-only baseline and all new implementation admissions this cycle. No candidate is admissible: active measurement/review work, low-volume or incomplete attribution, unavailable operations/fleet-doctor evidence, and missing launch or release evidence block production work. Principal-engineer owns the canonical admission ledger and Save Us Farms repair disposition; document both by 2026-10-02T17:00Z and escalate unresolved blockers to the owner by that deadline. Site-factory owns scaffold launch-readiness evidence for complicated.work, deadlymaracas.com, and driveford.net; complete dated preview-only readiness artifacts by 2026-10-03T17:00Z or escalate. Preserve only the bounded research requests below; no deployment, spend, credential/configuration change, telemetry request, or financial claim is authorized.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and production claims. Affiliate earnings remain aggregate/unattributed; telemetry is low-volume or incomplete; operations and fleet-doctor evidence are unavailable. Route only the three bounded preview-only SEO implementations below. No deployment, spend, credential/configuration change, duplicate telemetry, or lift claim is authorized. Principal-engineer owns admission reconciliation by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
