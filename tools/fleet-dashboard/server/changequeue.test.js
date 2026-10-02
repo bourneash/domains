@@ -300,6 +300,24 @@ test('delivery states require the queue lifecycle to advance in order', () => {
   store.close();
 });
 
+test('a reviewed pull-request branch can commit from delivery_pending', () => {
+  const { store } = fixture();
+  const known = () => true;
+  const request = queue.create(
+    store,
+    {
+      site: 'example.com',
+      title: 'Publish review branch',
+      delivery_mode: 'pull_request',
+    },
+    known
+  );
+  for (const status of ['claimed', 'running', 'reviewing', 'delivery_pending', 'committed'])
+    queue.update(store, request.request_id, { status }, known);
+  assert.equal(store.getChangeRequest(request.request_id).status, 'committed');
+  store.close();
+});
+
 test('automatic review defaults on and can be disabled per request', () => {
   const { store } = fixture();
   const known = () => true;

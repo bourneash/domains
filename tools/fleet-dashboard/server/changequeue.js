@@ -70,6 +70,7 @@ const TRANSITIONS = {
     'cancelled',
   ],
   delivery_pending: [
+    'committed',
     'deployed',
     'blocked_infrastructure',
     'needs_repair',
