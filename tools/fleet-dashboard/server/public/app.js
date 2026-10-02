@@ -213,6 +213,22 @@ function applyFleetFilter() {
     const site = (el.dataset.site || '').toLowerCase();
     el.classList.toggle('fleet-hidden', Boolean(q) && !site.includes(q));
   });
+  if (STATE.view === 'domains') {
+    const jobRows = rows.filter(row => row.dataset.domJobRow === 'true');
+    const visibleJobs = jobRows.filter(row => !row.classList.contains('fleet-hidden')).length;
+    const filteredEmpty = Boolean(q && jobRows.length > 0 && visibleJobs === 0);
+    const noMatches = $('#dom-job-filter-empty');
+    const jobTable = $('#dom-job-table-wrap');
+    if (noMatches) {
+      noMatches.hidden = !filteredEmpty;
+      noMatches.textContent = noMatches.hidden
+        ? ''
+        : `No job history matches “${input.value.trim()}”. Clear the site filter to view recent jobs.`;
+    }
+    if (jobTable) jobTable.hidden = filteredEmpty;
+    const jobScrollHint = $('#dom-job-scroll-hint');
+    if (jobScrollHint) jobScrollHint.hidden = filteredEmpty;
+  }
   if (STATE.view === 'git') applyGitFilter();
   if (STATE.view === 'scheduler') {
     const siteRows = $$('#sch-sites-table tbody tr[data-fleet-row]');
@@ -341,6 +357,7 @@ function applyFleetFilter() {
   }
   globalThis.updateTaskBudgetPagination?.();
   if (STATE.view === 'domains') domRenderSitePage();
+  if (STATE.view === 'deploys') applyDeployFilter();
 }
 
 function updateHealthSummary() {
@@ -795,7 +812,7 @@ function applyThemeUI() {
   const next = theme === 'light' ? 'dark' : 'light';
   button.textContent = theme === 'light' ? '☾ Dark' : '☼ Light';
   button.title = `Switch to ${next} theme`;
-  button.setAttribute('aria-label', `Switch to ${next} theme`);
+  button.setAttribute('aria-label', `${button.textContent} — switch to ${next} theme`);
   button.removeAttribute('aria-pressed');
 }
 function toggleTheme() {
@@ -2998,16 +3015,17 @@ async function renderDeployHealth() {
 function applyDeployFilter() {
   const q = DEPLOY_FILTER.q.trim().toLowerCase();
   const rows = $$('.deploy-row');
+  const scopedRows = rows.filter(row => !row.classList.contains('fleet-hidden'));
   const visible = rows.filter(row => {
     const matchesQuery = !q || (row.dataset.deployName || '').includes(q);
     const matchesStatus =
       DEPLOY_FILTER.status === 'all' || row.dataset.deployStatus === DEPLOY_FILTER.status;
-    const show = matchesQuery && matchesStatus;
+    const show = !row.classList.contains('fleet-hidden') && matchesQuery && matchesStatus;
     row.classList.toggle('deploy-filter-hidden', !show);
     return show;
   });
   const count = $('#deploy-filter-count');
-  if (count) count.textContent = `${visible.length}/${rows.length} shown`;
+  if (count) count.textContent = `${visible.length}/${scopedRows.length} shown`;
 }
 
 /* ===================== CLOUDFLARE BUILDS ===================== */
@@ -10340,7 +10358,7 @@ async function renderDomains() {
             ? fmtAge((Date.now() - new Date(j.startedAt)) / 1000) + '…'
             : '—';
       const detailId = `dom-detail-${j.id}`;
-      return `<tr data-fleet-row data-site="${esc(j.domain)}">
+      return `<tr data-fleet-row data-dom-job-row="true" data-site="${esc(j.domain)}">
         <td class="site"><button type="button" class="table-link dom-open" data-id="${esc(j.id)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${esc(detailId)}" aria-label="${open ? 'Close' : 'Open'} ${esc(j.command)} job details for ${esc(j.domain)}" title="${open ? 'Close' : 'Open'} job details">${esc(j.domain)}</button></td>
         <td class="mono muted"><time datetime="${created && !Number.isNaN(created.getTime()) ? esc(created.toISOString()) : ''}" title="${created && !Number.isNaN(created.getTime()) ? esc(created.toLocaleString()) : 'Creation time unavailable'}">${esc(createdLabel)}</time></td>
         <td class="mono">${esc(j.command)}${j.flags && j.flags.length ? ` <span class="muted">${esc(j.flags.join(' '))}</span>` : ''}</td>
@@ -10391,8 +10409,9 @@ async function renderDomains() {
     </section>
 
     <section class="card dom-panel">
-      <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recent</span></div>
-      <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions</div><div class="table-wrap" tabindex="0" role="region" aria-label="Domain command job history"><table>
+      <div class="dom-panel-head"><div><h3>Job history</h3><p class="muted">Open a domain to inspect its live or completed command output.</p></div><span class="muted">${jobs.length} recent across fleet</span></div>
+      <p id="dom-job-filter-empty" class="empty dom-job-filter-empty" role="status" aria-live="polite" hidden></p>
+      <div id="dom-job-scroll-hint" class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions</div><div id="dom-job-table-wrap" class="table-wrap" tabindex="0" role="region" aria-label="Domain command job history"><table>
         <caption class="sr-only">Domain command job history</caption>
         <thead><tr><th>Domain</th><th>Created</th><th>Command</th><th>Status</th><th>Duration</th><th>Exit</th><th>Actions</th></tr></thead>
         <tbody>${jobRows || '<tr><td colspan="7" class="muted">No domain jobs have run on this host yet.</td></tr>'}</tbody>
@@ -15736,6 +15755,20 @@ async function moveWorkflowItem(source, id, column, data) {
   throw new Error('This transition must use its approval-aware action');
 }
 
+function dataQualityCoverageLabel(observedValue, expectedValue) {
+  const observed = Number(observedValue);
+  const expected = Number(expectedValue);
+  if (!Number.isFinite(expected) || expected <= 0)
+    return `${Number.isFinite(observed) ? observed : 0} observed · no baseline`;
+  return `${observedValue} / ${expectedValue}`;
+}
+
+function dataQualityCompletenessLabel(completenessValue, expectedValue) {
+  const expected = Number(expectedValue);
+  if (!Number.isFinite(expected) || expected <= 0) return '—';
+  return `${Math.round(completenessValue * 100)}%`;
+}
+
 async function renderDataQuality() {
   if (FRESH)
     app.innerHTML =
@@ -15768,7 +15801,7 @@ async function renderDataQuality() {
   const rows = contracts
     .map(
       row =>
-        `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${row.observed} / ${row.expected}</td><td>${Math.round(row.completeness * 100)}%</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
+        `<tr><td><strong>${esc(row.source)}</strong></td><td><span class="badge ${row.status === 'green' ? 'b-green' : row.status === 'yellow' ? 'b-yellow' : 'b-red'}">${esc(row.status)}</span></td><td>${dataQualityCoverageLabel(row.observed, row.expected)}</td><td>${dataQualityCompletenessLabel(row.completeness, row.expected)}</td><td>${row.freshest_at ? esc(fmtDate(row.freshest_at)) : '—'}</td><td class="muted">${esc(row.error || '')}</td></tr>`
     )
     .join('');
   app.innerHTML = `<div class="page-head"><div><h2 class="page-title">Data Quality</h2><div class="crumbs">Freshness, completeness, and attribution contracts</div></div><button type="button" class="btn" id="dataquality-refresh">↻ Refresh</button></div><section class="seo-stats dq-stats" aria-label="Contract health summary"><div class="seo-stat dq-healthy"><div class="seo-stat-value">${totals.green}</div><div class="seo-stat-label">Healthy</div></div><div class="seo-stat dq-partial"><div class="seo-stat-value">${totals.yellow}</div><div class="seo-stat-label">Partial</div></div><div class="seo-stat dq-broken"><div class="seo-stat-value">${totals.red}</div><div class="seo-stat-label">Broken</div></div></section><section class="card dq-contracts"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare coverage, freshness, and error details</div><div class="table-wrap" tabindex="0" role="region" aria-label="Data quality contract status"><table class="tbl"><caption class="sr-only">Data quality contract status</caption><thead><tr><th>Source</th><th>Status</th><th>Coverage</th><th>Complete</th><th>Freshest</th><th>Error / boundary</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">No data quality contracts have been recorded yet.</td></tr>'}</tbody></table></div></section>`;

@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:52:15.810Z",
+  "generated_at": "2026-10-02T21:57:03.987Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete the existing 0xroulette.com primary CTA clarity review",
-        "summary": "Finish the already-active review for the existing primary entry surface without creating overlapping work. Clarify the primary CTA hierarchy and destination using only the existing page structure, styles, and assets.",
-        "requested_action": "Route the existing review to engineer. Inspect the current primary entry route, record the exact route/component/style file paths before editing, implement only the CTA-label, hierarchy, focus-state, and destination-clarity changes, and return the review with evidence. Do not add tracking, change analytics, alter credentials, deploy directly, or modify unrelated routes.",
+        "title": "Reconcile blackmarketapparel.com active work before admitting the next homepage change",
+        "summary": "Do not add overlapping production work while blackmarketapparel.com has two active delivery items and an improvement measuring through 2026-10-07. Record the canonical status, measurement boundary, and next non-overlapping implementation slot using existing evidence only.",
+        "requested_action": "Create docs/queue/blackmarketapparel-active-work-reconciliation-2026-10-03.md. Record the two active items, their owners and states, the 2026-10-07 measurement deadline, the compliance fetch-failure evidence, and the exact terminal or pause disposition for each. After the measurement window clears, the smallest next implementation is one isolated homepage (/) merchandising/CTA adjustment in the existing homepage-rendering file, identified from the repository tree before coding; no second site item may be admitted.",
         "proposal_id": null
       }
     ]

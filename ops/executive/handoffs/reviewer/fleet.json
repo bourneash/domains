@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T21:55:22.683Z",
+  "generated_at": "2026-10-02T21:57:03.986Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, financial, and high-priority queue work. Preserve unattributed revenue and incomplete telemetry gates. Approve only three low-priority, isolated preview implementations with no publication, deployment, telemetry activation, monetization, spend, credential/configuration changes, dependency additions, or production claims. Principal-engineer must reconcile the admission ledger and repair dispositions by 2026-10-03T17:00:00Z; CTO must repair the invalid-status handoff by the same deadline. Escalate unresolved blockers to the owner.",
+        "summary": "Reject the report-only blackmarketapparel.com proposal as routine overlap reconciliation; do not admit new production work there while two delivery items and measurement remain active through 2026-10-07. Route only three isolated preview-only scaffold implementations on complicated.work, deadlymaracas.com, and driveford.net. Production, deployment, telemetry activation, monetization, spend, credentials, configuration, dependencies, and launch or financial claims remain blocked. Principal-engineer owns the canonical admission ledger and repair dispositions by 2026-10-03T17:00:00Z; CTO owns release/security evidence by the same deadline. Escalate unresolved blockers to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
