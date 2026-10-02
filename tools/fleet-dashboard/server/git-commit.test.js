@@ -67,6 +67,26 @@ test('commit() rejects an empty/invalid path list without touching git', async (
   }
 });
 
+test('publish preflight restores only deleted Astro-generated declarations', async () => {
+  const { root, cwd } = makeRepo();
+  try {
+    const generated = path.join(cwd, 'site', '.astro');
+    fs.mkdirSync(generated, { recursive: true });
+    fs.writeFileSync(path.join(generated, 'types.d.ts'), 'export {};\n');
+    fs.writeFileSync(path.join(cwd, 'unrelated.txt'), 'keep this tracked\n');
+    sh(cwd, ['add', '--', 'site/.astro/types.d.ts', 'unrelated.txt']);
+    sh(cwd, ['commit', '-q', '-m', 'track files']);
+    fs.unlinkSync(path.join(generated, 'types.d.ts'));
+    fs.unlinkSync(path.join(cwd, 'unrelated.txt'));
+    const restored = await git.restoreDeletedAstroTypes(cwd);
+    assert.deepEqual(restored, ['site/.astro/types.d.ts']);
+    assert.equal(fs.existsSync(path.join(generated, 'types.d.ts')), true);
+    assert.equal(fs.existsSync(path.join(cwd, 'unrelated.txt')), false);
+  } finally {
+    cleanup(root);
+  }
+});
+
 test('commit() requires a non-empty message', async () => {
   const { root, cwd } = makeRepo();
   try {
@@ -206,9 +226,18 @@ test('createBranch() creates an isolated branch and refuses a dirty tree', async
   try {
     const result = await git.createBranch(root, 'example.com', 'improvement/12345678');
     assert.equal(result.created, true);
-    assert.equal(execFileSync('git', ['-C', cwd, 'branch', '--show-current'], { encoding: 'utf8', env: CLEAN_ENV }).trim(), 'improvement/12345678');
+    assert.equal(
+      execFileSync('git', ['-C', cwd, 'branch', '--show-current'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).trim(),
+      'improvement/12345678'
+    );
     fs.writeFileSync(path.join(cwd, 'unrelated.txt'), 'do not sweep me\n');
-    await assert.rejects(() => git.createBranch(root, 'example.com', 'improvement/other'), e => e.httpStatus === 409);
+    await assert.rejects(
+      () => git.createBranch(root, 'example.com', 'improvement/other'),
+      e => e.httpStatus === 409
+    );
   } finally {
     cleanup(root);
   }
@@ -221,8 +250,15 @@ test('improvement worktree stays isolated, deploys by fast-forward, and rolls ba
     sh(root, ['init', '--bare', '-q', remote]);
     sh(cwd, ['remote', 'add', 'origin', remote]);
     sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
-    const worktree = await git.createWorktree(root, 'example.com', '12345678-abcd-1234-abcd-123456789012');
-    const canonicalBranch = execFileSync('git', ['-C', cwd, 'branch', '--show-current'], { encoding: 'utf8', env: CLEAN_ENV }).trim();
+    const worktree = await git.createWorktree(
+      root,
+      'example.com',
+      '12345678-abcd-1234-abcd-123456789012'
+    );
+    const canonicalBranch = execFileSync('git', ['-C', cwd, 'branch', '--show-current'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    }).trim();
     assert.notEqual(canonicalBranch, worktree.branch);
     fs.writeFileSync(path.join(worktree.path, 'improved.txt'), 'better\n');
     const committed = await git.commitWorktree(worktree.path, 'feat: improve');
@@ -233,7 +269,11 @@ test('improvement worktree stays isolated, deploys by fast-forward, and rolls ba
     const rolledBack = await git.rollbackCommit(root, 'example.com', deployed.commit);
     assert.equal(rolledBack.needsPush, false);
     assert.equal(fs.existsSync(path.join(cwd, 'improved.txt')), false);
-    const removed = await git.removeWorktree(root, 'example.com', '12345678-abcd-1234-abcd-123456789012');
+    const removed = await git.removeWorktree(
+      root,
+      'example.com',
+      '12345678-abcd-1234-abcd-123456789012'
+    );
     assert.equal(removed.removed, true);
   } finally {
     cleanup(root);

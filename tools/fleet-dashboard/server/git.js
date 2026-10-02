@@ -690,7 +690,25 @@ async function deployWorktree(root, slug, workspacePath, branch) {
 // Publish an isolated improvement branch without merging it. This is the
 // delivery primitive for pull-request mode; callers may use GitHub CLI when
 // available, while the compare URL remains useful in locked-down workers.
+async function restoreDeletedAstroTypes(workspacePath) {
+  const deleted = await git(workspacePath, ['ls-files', '--deleted', '-z', '--', 'site/.astro']);
+  if (!deleted.ok) throw httpErr(500, deleted.err.trim() || 'generated type check failed');
+  const generated = new Set([
+    'site/.astro/content.d.ts',
+    'site/.astro/integrations/_astrojs_cloudflare/cloudflare.d.ts',
+    'site/.astro/types.d.ts',
+  ]);
+  const targets = deleted.out.split('\0').filter(file => generated.has(file));
+  if (!targets.length) return [];
+  // Astro can remove these tracked generated declarations during verification.
+  // Restore deletions only; all other worktree changes still block publication.
+  const restored = await git(workspacePath, ['restore', '--', ...targets]);
+  if (!restored.ok) throw httpErr(500, restored.err.trim() || 'generated type restore failed');
+  return targets;
+}
+
 async function publishWorktree(root, slug, workspacePath, branch) {
+  await restoreDeletedAstroTypes(workspacePath);
   const work = await worktreeSnapshot(workspacePath);
   if (work.dirty) throw httpErr(409, 'improvement worktree has uncommitted changes');
   if (work.branch !== branch) throw httpErr(409, 'improvement worktree is on an unexpected branch');
@@ -892,6 +910,7 @@ module.exports = {
   commitWorktree,
   deployWorktree,
   publishWorktree,
+  restoreDeletedAstroTypes,
   rollbackCommit,
   removeWorktree,
   commit,
