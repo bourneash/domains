@@ -33,6 +33,7 @@ test('hard-codes executive scope and satire/meme portfolio classification', asyn
   assert.deepEqual(brief.portfolio_policy.excluded_sites, ['3boobs.com']);
   assert.equal(brief.site_context[0].portfolio_class, 'satire_or_meme');
   assert.equal(brief.site_context[0].description, 'Meme property');
+  assert.deepEqual(brief.site_context[0].installed_roles, ['engineer']);
   assert.deepEqual(brief.specialist_inputs.cro_github_trends, []);
   assert.match(brief.specialist_inputs.cro_contract, /license fit, security/);
   assert.deepEqual(brief.task_queue, { engineer: [], principal_engineer: [] });
@@ -53,6 +54,7 @@ test('model prompts hide excluded-domain identifiers while preserving the safety
   assert.equal(prompt.includes('3boobs.com'), false);
   assert.match(prompt, /\[excluded-site\]/);
   assert.match(prompt, /Do not target, analyze, or mention/);
+  assert.match(prompt, /installed_roles=\[\].*no worker/);
 });
 
 test('compacts repeated executive evidence before sending it to model passes', () => {

@@ -389,6 +389,7 @@ function buildSiteContext(root = ROOT) {
       description: descriptions[domain] || null,
       portfolio_class: 'satire_or_meme',
       executive_scope: allowed.has(domain) ? 'managed' : 'excluded',
+      installed_roles: installedSiteRoles(root, domain),
     };
   });
 }
@@ -634,12 +635,14 @@ async function buildBrief(store, root = ROOT) {
     ...launchReadinessCandidates,
     ...siteBuildCandidates,
   ];
+  const rolesBySite = new Map(sites.map(site => [site, installedSiteRoles(root, site)]));
   const executableActionCandidates = [
     ...new Map(
       combinedActionCandidates
         .filter(candidate => {
           const site = String(candidate.site || '').toLowerCase();
           return (
+            (rolesBySite.get(site)?.length || 0) > 0 &&
             !activeSites.has(site) &&
             !measuredCategories.get(site)?.has(candidateQueueCategory(candidate))
           );
@@ -651,6 +654,7 @@ async function buildBrief(store, root = ROOT) {
     .filter(candidate => {
       const site = String(candidate.site || '').toLowerCase();
       return (
+        (rolesBySite.get(site)?.length || 0) === 0 ||
         activeSites.has(site) ||
         measuredCategories.get(site)?.has(candidateQueueCategory(candidate))
       );
@@ -658,7 +662,10 @@ async function buildBrief(store, root = ROOT) {
     .slice(0, 12)
     .map(candidate => ({
       ...candidate,
-      deferred_reason: 'site already has queued, active, deployed, or measuring work',
+      deferred_reason:
+        (rolesBySite.get(String(candidate.site || '').toLowerCase())?.length || 0) === 0
+          ? 'no installed site worker role; site-factory must install an owner before direct work'
+          : 'site already has queued, active, deployed, or measuring work',
     }));
   return {
     generated_at: new Date().toISOString(),
@@ -1414,6 +1421,7 @@ Rules:
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. When slots are open, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites and lanes. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
 - A queued request blocked by measurement or an execution gate is not an executable handoff. Inspect delivery_readiness; if your preferred site is blocked, select a distinct queue-ready candidate instead. Do not recreate the same blocked task with a new title. Advance a currently eligible request or create a non-overlapping direct implementation request; planning notes and blocked queue rows do not satisfy throughput.
+- A site with site_context.installed_roles=[] has no worker to claim a direct or report-only request. Do not describe it as queue-ready or issue change_requests for it. Record the site-factory owner gap, then choose a distinct action_mandate.candidates site with an installed role for executable delivery.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
