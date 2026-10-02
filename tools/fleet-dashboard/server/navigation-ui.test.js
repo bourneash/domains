@@ -3042,12 +3042,14 @@ test('Data Hub presents privacy and freshness state as a summary strip', () => {
 
 test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   const start = app.indexOf('async function renderDataHubImages()');
   const end = app.indexOf('// Toggle a data-hub-images source', start);
   assert.ok(start >= 0 && end > start);
   const view = app.slice(start, end);
   assert.match(view, /class="loading">Loading Data Hub Images/);
   assert.match(view, /class="page-head"><h2 class="page-title">Data Hub Images/);
+  assert.match(style, /\.dhi-grid \{[^}]*align-items: start/);
   assert.match(view, /type="button" class="btn" id="datahub-images-refresh"/);
   assert.match(
     view,
@@ -3075,7 +3077,6 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   assert.match(view, /dhiBindCountControls\(app\)/);
   assert.match(view, /dhiBindLedgerControls\(app\)/);
   assert.match(view, /dhiBindImageActions\(imageGallery\)/);
-  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(style, /\.dhi-pagination \{/);
   assert.match(
     style,

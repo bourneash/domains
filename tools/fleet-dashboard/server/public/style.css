@@ -1247,7 +1247,7 @@ body[data-view="builds"] main { max-width: none; }
 @media (max-width: 560px) { .an-site-position { display: none; } .an-site-nav select { min-width: 0; flex: 1; } .an-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; } .an-kpi { padding: 10px; } .an-kpi > strong { font-size: 21px; } }
 
 /* ===== Data Hub Images ===== */
-.dhi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.dhi-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 14px; }
 .dhi-panel { background: var(--panel, #161a22); border: 1px solid var(--border, #2a2f3a); border-radius: 8px; padding: 12px 14px; }
 .dhi-panel h3 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, #8a93a6); }
 .dhi-wide { grid-column: 1 / -1; }
