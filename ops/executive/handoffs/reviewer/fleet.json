@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:31:23.855Z",
+  "generated_at": "2026-10-02T14:38:20.836Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the report-only greatamericanlakes.com plan and all unsupported or overlapping production work. Routed two bounded SEO implementations: saveusfarms.com and stinkyleftfoot.com. No revenue, ROI, causal-lift, or production-readiness claims are supported. Other candidates remain blocked: greatamericanlakes.com owner=domain-manager, reconcile measurement by 2026-10-16, escalate unresolved overlap then; xxxtea.com owner=domain-manager, complete current measurement by 2026-10-16, escalate; broadwayshowgirls.com owner=principal-engineer, retain measurement through 2026-10-15, escalate; deeppenetrations.com owner=principal-engineer, resolve infrastructure review by 2026-10-02T17:00Z, escalate; scaffold candidates owner=site-factory, attach launch-readiness evidence before admission, escalate by 2026-10-02T17:00Z.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and high-priority queue claims. Route only one preview-only, reversible SEO implementation for saveusfarms.com; all other candidates remain blocked by active work, low-volume evidence, missing readiness artifacts, or infrastructure review. Preserve existing gates and escalate unresolved blockers by 2026-10-02T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
