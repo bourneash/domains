@@ -1062,6 +1062,13 @@ body[data-density="compact"] .stat-grid { gap: 8px; }
 .wb-badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 .wb-summary { max-width: 860px; margin: 11px 0; color: var(--text); line-height: 1.5; }
 .wb-next { padding: 9px 11px; color: var(--muted); background: rgba(94,169,255,.055); border-left: 2px solid var(--a1); font-size: 12px; }
+.wb-next-preview { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.wb-more { margin-top: 8px; }
+.wb-more > summary { width: fit-content; color: var(--a1); font-size: 11px; font-weight: 650; cursor: pointer; }
+.wb-more > summary:focus-visible { outline: 2px solid var(--a1); outline-offset: 3px; border-radius: 2px; }
+.wb-more-content { display: grid; gap: 8px; margin-top: 8px; }
+.wb-more-content .wb-summary { margin: 0; }
+.wb-next-full { white-space: pre-wrap; }
 .wb-label { margin-right: 8px; color: var(--a1); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
 .wb-item-foot { align-items: center; margin-top: 11px; }
 .wb-actions { display: flex; gap: 7px; }
