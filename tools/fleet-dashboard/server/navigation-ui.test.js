@@ -1832,6 +1832,19 @@ test('fleet filter counter resets on empty views and counts named site groups', 
   assert.equal(count.attrs['aria-label'], '1 of 2 matching sites');
   assert.equal(rows[1].classList.hidden, true);
 
+  context.STATE.view = 'change-queue';
+  rows.splice(
+    0,
+    rows.length,
+    ...Array.from({ length: 10 }, (_, index) =>
+      makeRow(index < 4 ? 'marineactivity.com' : 'other-site.com')
+    )
+  );
+  input.value = 'marineactivity.com';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, '4/10 rows on page');
+  assert.equal(count.attrs['aria-label'], '4 of 10 rows on this page match the site filter');
+
   rows.length = 0;
   input.value = '';
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);

@@ -230,6 +230,7 @@ function applyFleetFilter() {
         : units.size === 1
           ? units.values().next().value
           : 'items';
+    const pagedQueue = STATE.view === 'change-queue';
     const total = STATE.view === 'errors' ? ERRORS_UI.siteTotal : rows.length;
     const matching = STATE.view === 'errors' ? ERRORS_UI.siteMatches : visible;
     count.textContent =
@@ -238,9 +239,13 @@ function applyFleetFilter() {
           ? `${matching}/${total} ${unit}`
           : `${matching} ${unit}`
         : rows.length
-          ? q
-            ? `${visible}/${rows.length} ${unit}`
-            : `${rows.length} ${unit}`
+          ? pagedQueue
+            ? q
+              ? `${visible}/${rows.length} rows on page`
+              : `${rows.length} rows on page`
+            : q
+              ? `${visible}/${rows.length} ${unit}`
+              : `${rows.length} ${unit}`
           : q && STATE.view === 'agents'
             ? 'Site pages only'
             : '';
@@ -255,8 +260,12 @@ function applyFleetFilter() {
             ? 'Site filters apply on site-level pages; use Find an agent to search this directory'
             : 'No filterable items on this view'
           : q
-            ? `${visible} of ${rows.length} matching ${unit}`
-            : `All ${unit} shown`
+            ? pagedQueue
+              ? `${visible} of ${rows.length} rows on this page match the site filter`
+              : `${visible} of ${rows.length} matching ${unit}`
+            : pagedQueue
+              ? `${rows.length} change-request rows on this page`
+              : `All ${unit} shown`
     );
     if (STATE.view === 'builds' && CF_BUILDS.cache?.data && q) {
       const datasets = [
