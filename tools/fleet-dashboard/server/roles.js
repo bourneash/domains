@@ -169,7 +169,7 @@ function cadenceClass(expr) {
 // Newest run signal for a role: the engineer pulse for engineers, else the
 // newest ops/logs/<prefix>-<date>… file (the `-\d` boundary keeps news-writer
 // from matching news-writer-local).
-function lastRun(cwd, role) {
+function lastRun(cwd, role, getLogNames = () => readLogNames(cwd)) {
   if (role === 'engineer') {
     try {
       return fs.statSync(path.join(cwd, 'ops', '.locks', 'engineer-status.json')).mtimeMs;
@@ -193,7 +193,7 @@ function lastRun(cwd, role) {
   const dir = path.join(cwd, 'ops', 'logs');
   let newest = 0;
   try {
-    for (const f of fs.readdirSync(dir)) {
+    for (const f of getLogNames()) {
       if (!re.test(f)) continue;
       try {
         const mt = fs.statSync(path.join(dir, f)).mtimeMs;
@@ -208,17 +208,26 @@ function lastRun(cwd, role) {
   return newest || null;
 }
 
+function readLogNames(cwd) {
+  try {
+    return fs.readdirSync(path.join(cwd, 'ops', 'logs'));
+  } catch {
+    return [];
+  }
+}
+
 // Publishing evidence is deliberately derived from the site's existing logs
 // and deploy markers. It gives operators a useful editorial signal without
 // inventing a second state store that could drift from the site runner.
-function editorialTelemetry(cwd, role) {
+function editorialTelemetry(cwd, role, getLogNames = () => readLogNames(cwd)) {
   if (!familyForRole(role)) return null;
   const dir = path.join(cwd, 'ops', 'logs');
   const log = logRe(role);
+  const logNames = getLogNames();
   let latest = null;
   let publication = null;
   try {
-    for (const name of fs.readdirSync(dir)) {
+    for (const name of logNames) {
       if (!log.test(name)) continue;
       const file = path.join(dir, name);
       const stat = fs.statSync(file);
@@ -241,7 +250,7 @@ function editorialTelemetry(cwd, role) {
   const deployDir = path.join(cwd, 'ops', 'logs');
   let deploy = null;
   try {
-    for (const name of fs.readdirSync(deployDir)) {
+    for (const name of logNames) {
       if (!/^deployer-/.test(name)) continue;
       const file = path.join(deployDir, name);
       const stat = fs.statSync(file);
@@ -349,11 +358,13 @@ async function matrix(root, slugs) {
     .map(slug => {
       const cwd = siteDir(root, slug);
       const parsed = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true });
+      let logNames;
+      const getLogNames = () => (logNames ||= readLogNames(cwd));
       const cells = {};
       for (const { role, schedule, worker, commented } of parsed) {
         if (cells[role]) continue; // first schedule wins on dupes
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
-        const last = enabled ? lastRun(cwd, role) : null;
+        const last = enabled ? lastRun(cwd, role, getLogNames) : null;
         let { state, age } = commented
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);
@@ -441,7 +452,7 @@ async function matrix(root, slugs) {
           commented,
           deploy,
           cadence: cadenceClass(schedule),
-          editorial: editorialTelemetry(cwd, role),
+          editorial: editorialTelemetry(cwd, role, getLogNames),
         };
         freq[role] = (freq[role] || 0) + 1;
       }

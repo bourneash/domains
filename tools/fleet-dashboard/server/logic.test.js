@@ -82,6 +82,39 @@ test('the 3boobs Principal Engineer schedule is represented as paused enrollment
   assert.ok(matrix.allSites.includes('3boobs.com'));
 });
 
+test('roles.matrix reuses one log-directory listing across each site snapshot', async () => {
+  const root = tmpdir('roles-log-index-');
+  const site = path.join(root, 'sites', 'example.test');
+  const cronDir = path.join(site, 'ops', 'docker');
+  const logsDir = path.join(site, 'ops', 'logs');
+  fs.mkdirSync(cronDir, { recursive: true });
+  fs.mkdirSync(logsDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(cronDir, 'crontab.docker'),
+    [
+      '* * * * * bash ops/scripts/run-worker.sh engineer',
+      '* * * * * bash ops/scripts/run-worker.sh content-writer',
+    ].join('\n') + '\n'
+  );
+  fs.writeFileSync(path.join(logsDir, 'engineer-2026-10-02.log'), 'ok\n');
+  fs.writeFileSync(path.join(logsDir, 'content-writer-2026-10-02.log'), 'exit=0\n');
+
+  const readdirSync = fs.readdirSync;
+  let logDirectoryReads = 0;
+  fs.readdirSync = function (directory, ...args) {
+    if (String(directory) === logsDir) logDirectoryReads++;
+    return readdirSync.call(this, directory, ...args);
+  };
+  try {
+    const matrix = await roles.matrix(root, ['example.test']);
+    assert.equal(matrix.sites[0]?.site, 'example.test');
+    assert.equal(matrix.sites[0]?.cells?.['content-writer']?.editorial?.outcome, 'success');
+  } finally {
+    fs.readdirSync = readdirSync;
+  }
+  assert.equal(logDirectoryReads, 1);
+});
+
 /* ---- B9: safeRel rejects a `..` component but allows `..` in a name ---- */
 test('safeRel guards traversal without over-rejecting', () => {
   assert.equal(git.safeRel('ops/notes..draft.md'), 'ops/notes..draft.md'); // B9: dots in a name are fine
