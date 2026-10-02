@@ -1,6 +1,25 @@
 /* Compact the persistent mobile header without removing its actions. The
    action strip remains horizontally scrollable when the viewport is narrow. */
 @media (max-width: 720px) {
+  body[data-view="workflow-board"] .wb-head {
+    gap: 10px;
+    padding: 14px 16px;
+  }
+  body[data-view="workflow-board"] .wb-head-actions {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  body[data-view="workflow-board"] .wb-head-actions .muted {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  body[data-view="workflow-board"] .wb-head-actions .btn {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+  }
+
   body[data-view="workbench"] .wb-filter-control .wb-filter-label {
     width: auto;
     white-space: nowrap;

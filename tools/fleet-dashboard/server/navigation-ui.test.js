@@ -24,6 +24,10 @@ test('mobile header keeps the action strip to one horizontally scrollable row', 
   const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(
     mobile,
+    /body\[data-view="workflow-board"\] \.wb-head-actions \.btn\s*\{[^}]*width:\s*auto;[^}]*flex:\s*0 0 auto/
+  );
+  assert.match(
+    mobile,
     /body\[data-view="workbench"\] \.wb-filter-control \.wb-filter-label\s*\{[^}]*width:\s*auto;[^}]*white-space:\s*nowrap/
   );
   assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*nowrap/);
