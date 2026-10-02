@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:01:06.036Z",
+  "generated_at": "2026-10-02T23:03:13.203Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the report-only oventoheaven.com baseline because it does not satisfy the delivery mandate. Revenue, production, and high-priority queue work remain blocked by unattributed affiliate income, low-volume/incomplete telemetry, active measurement overlap, and missing operations/security evidence. Routed only three isolated low-priority preview implementations on scaffold sites; no publication, deployment, telemetry activation, monetization, spend, credential/configuration change, dependency addition, or production claim is authorized. Unresolved blockers escalate by 2026-10-03T17:00:00Z.",
+        "summary": "Reviewer disposition: reject the shoppinkflamingo.com report-only checkpoint because it does not satisfy the delivery mandate and the site remains in an active measurement window through 2026-10-12. Route only three isolated, low-priority preview artifacts for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, credentials/configuration, dependencies, spend, schedules, and financial or readiness claims remain blocked. Site-factory must attach dated preview QA and readiness artifacts by 2026-10-03T17:00:00Z; unresolved compliance, reachability, ownership, or security blockers escalate to the owner by that deadline.",
         "requested_action": null,
         "proposal_id": null
       }

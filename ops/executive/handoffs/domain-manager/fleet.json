@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:01:06.037Z",
+  "generated_at": "2026-10-02T23:03:13.204Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Capture oventoheaven.com homepage baseline and route one reversible UX improvement",
-        "summary": "Site-specific implementation evidence is insufficient to safely choose an exact homepage change. Capture the current public homepage state using existing telemetry and repository files, then nominate one bounded reversible improvement without requesting new instrumentation.",
-        "requested_action": "Inspect `/` and the homepage entrypoint, stylesheet, and metadata files in the oventoheaven.com repository. Record current heading hierarchy, primary CTA destination, mobile layout, metadata, accessibility issues, and available GA4/GSC baseline. Select exactly one implementation candidate or document the blocker.",
+        "title": "Reconcile shoppinkflamingo.com active measurement gate before next implementation",
+        "summary": "Existing shoppinkflamingo.com work is measuring through 2026-10-12, with overlapping active delivery items. Do not admit a competing production change until the current improvement has a measured result or documented blocker.",
+        "requested_action": "Attach the existing improvement’s result, baseline, rollback point, and disposition by 2026-10-13. If the gate clears, route exactly one bounded homepage or commercial-surface UX improvement; otherwise record the blocker and keep production unchanged.",
         "proposal_id": null
       }
     ]
