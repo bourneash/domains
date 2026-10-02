@@ -5014,6 +5014,10 @@ test('light theme is wired into the shell and shared route surfaces', () => {
     /:root\[data-theme="light"\] \.cq-switch input:checked \+ span \{[^}]*background: rgba\(22,118,79,\.18\)/
   );
   assert.match(theme, /:root\[data-theme="light"\] \.cq-working-card/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.cq-view\.is-active \{[^}]*background: var\(--control-bg-active\);[^}]*color: #174f92/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.ui-collapsible\.is-collapsed/);
   assert.match(theme, /:root\[data-theme="light"\] \.soc-sub/);
   assert.match(theme, /:root\[data-theme="light"\] \.col-head/);
