@@ -241,7 +241,9 @@ function applyFleetFilter() {
           ? q
             ? `${visible}/${rows.length} ${unit}`
             : `${rows.length} ${unit}`
-          : '';
+          : q && STATE.view === 'agents'
+            ? 'Site pages only'
+            : '';
     count.setAttribute(
       'aria-label',
       STATE.view === 'errors'
@@ -249,7 +251,9 @@ function applyFleetFilter() {
           ? `${matching} of ${total} matching ${unit}`
           : `${matching} ${unit} match the current filters`
         : !rows.length
-          ? 'No filterable items on this view'
+          ? q && STATE.view === 'agents'
+            ? 'Site filters apply on site-level pages; use Find an agent to search this directory'
+            : 'No filterable items on this view'
           : q
             ? `${visible} of ${rows.length} matching ${unit}`
             : `All ${unit} shown`

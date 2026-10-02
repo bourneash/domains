@@ -1827,6 +1827,15 @@ test('fleet filter counter resets on empty views and counts named site groups', 
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
   assert.equal(count.textContent, '');
   assert.equal(count.attrs['aria-label'], 'No filterable items on this view');
+
+  context.STATE.view = 'agents';
+  input.value = 'marineactivity.com';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, 'Site pages only');
+  assert.equal(
+    count.attrs['aria-label'],
+    'Site filters apply on site-level pages; use Find an agent to search this directory'
+  );
 });
 
 test('fleet site filtering keeps task-view counts scoped to visible task groups or records', () => {
