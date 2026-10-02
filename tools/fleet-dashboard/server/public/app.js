@@ -15319,12 +15319,13 @@ async function renderWorkflowBoard(cachedData = null) {
     const counts = WORK_BOARD_COLUMNS.map(
       ([key]) => items.filter(item => workBoardColumn(item) === key).length
     );
-    const activity = groupWorkflowBoardActions((data.actions || []).slice(0, 12))
-      .map(
-        ({ action, count }) =>
-          `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}${count > 1 ? ` <span class="badge b-gray" aria-label="${count} similar updates within one minute" title="${count} matching audit events">${count} similar updates</span>` : ''}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`
-      )
-      .join('');
+    const activityEvents = (data.actions || []).slice(0, 12);
+    const activityGroups = groupWorkflowBoardActions(activityEvents);
+    const renderActivityGroup = ({ action, count }) =>
+      `<div class="wb-activity"><span class="badge ${action.status === 'failed' ? 'b-red' : action.status === 'started' ? 'b-yellow' : 'b-green'}">${esc(action.status)}</span><div><strong>${esc(action.summary)}${count > 1 ? ` <span class="badge b-gray" aria-label="${count} similar updates within one minute" title="${count} matching audit events">${count} similar updates</span>` : ''}</strong><small>${esc(action.actor)} · ${esc(fmtDate(action.started_at))}</small></div></div>`;
+    const visibleActivity = activityGroups.slice(0, 3).map(renderActivityGroup).join('');
+    const earlierActivity = activityGroups.slice(3).map(renderActivityGroup).join('');
+    const activity = `${visibleActivity}${earlierActivity ? `<details class="wb-gates wb-more-activity"><summary>Show ${activityGroups.length - 3} earlier activity groups</summary>${earlierActivity}</details>` : ''}`;
     const diagnosticGroups = [];
     const diagnosticIndex = new Map();
     (data.diagnostics || []).forEach(item => {
@@ -15339,13 +15340,11 @@ async function renderWorkflowBoard(cachedData = null) {
         diagnosticGroups.push(group);
       }
     });
-    const diagnostics = diagnosticGroups
-      .slice(0, 8)
-      .map(
-        item =>
-          `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}${item.count > 1 ? ` <span class="badge b-gray">${item.count} matches</span>` : ''}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`
-      )
-      .join('');
+    const renderDiagnostic = item =>
+      `<div class="wb-activity"><span class="badge ${item.status === 'failed' || item.status === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(item.status)}</span><div><strong>${esc(item.title)}${item.count > 1 ? ` <span class="badge b-gray">${item.count} matches</span>` : ''}</strong><small>waiting on ${esc(item.waiting_on || 'none')} · ${esc(item.next_action)}</small></div></div>`;
+    const visibleDiagnostics = diagnosticGroups.slice(0, 3).map(renderDiagnostic).join('');
+    const remainingDiagnostics = diagnosticGroups.slice(3).map(renderDiagnostic).join('');
+    const diagnostics = `${visibleDiagnostics}${remainingDiagnostics ? `<details class="wb-gates wb-more-diagnostics"><summary>Show ${diagnosticGroups.length - 3} more diagnostic groups</summary>${remainingDiagnostics}</details>` : ''}`;
     const filterButtons = WORK_BOARD_COLUMNS.map(
       ([key, label]) =>
         `<button type="button" class="btn sm ${WORK_BOARD_INCLUDE.has(key) ? 'primary' : ''}" data-wb-include="${key}" aria-label="Show only ${esc(label)}" aria-pressed="${WORK_BOARD_INCLUDE.has(key)}">${label}</button>`
@@ -15364,7 +15363,7 @@ async function renderWorkflowBoard(cachedData = null) {
         )
     ).join(
       ''
-    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique · showing ${Math.min(3, diagnosticGroups.length)}</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded · ${activityGroups.length ? `latest ${Math.min(3, activityGroups.length)} groups shown` : 'no recent events'}</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
     $('#wb-board-refresh').onclick = () => renderWorkflowBoard();
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
     $('#wb-board-search').oninput = event => {

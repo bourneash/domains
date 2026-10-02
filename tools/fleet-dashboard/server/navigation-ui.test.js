@@ -2636,6 +2636,23 @@ test('Work Board keeps one authoritative renderer', () => {
   assert.match(app, /const diagnosticGroups = \[\]/);
   assert.match(app, /diagnosticIndex\.get\(key\)/);
   assert.match(app, /\$\{item\.count\} matches/);
+  assert.match(app, /const visibleDiagnostics = diagnosticGroups\.slice\(0, 3\)/);
+  assert.match(app, /const remainingDiagnostics = diagnosticGroups\.slice\(3\)/);
+  assert.match(
+    app,
+    /class="wb-gates wb-more-diagnostics"><summary>Show \$\{diagnosticGroups\.length - 3\} more diagnostic groups/
+  );
+  assert.match(
+    app,
+    /flagged · \$\{diagnosticGroups\.length\} unique · showing \$\{Math\.min\(3, diagnosticGroups\.length\)\}/
+  );
+  assert.match(app, /const activityEvents = \(data\.actions \|\| \[\]\)\.slice\(0, 12\)/);
+  assert.match(app, /const visibleActivity = activityGroups\.slice\(0, 3\)/);
+  assert.match(app, /const earlierActivity = activityGroups\.slice\(3\)/);
+  assert.match(
+    app,
+    /class="wb-gates wb-more-activity"><summary>Show \$\{activityGroups\.length - 3\} earlier activity groups/
+  );
   assert.match(app, /\$\('#wb-board-refresh'\)\.onclick = \(\) => renderWorkflowBoard\(\)/);
   assert.doesNotMatch(app, /<span>in progress<\/span>/);
 });
