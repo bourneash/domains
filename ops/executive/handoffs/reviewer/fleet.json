@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:00:07.773Z",
+  "generated_at": "2026-10-02T17:02:10.946Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the report-only hold as insufficient for the execution mandate. Routed two preview-only, reversible SEO implementations supported by existing evidence: saveusfarms.com CTR repair and xxxtea.com branded-query consolidation. No deployment or causal/revenue claim is authorized until validation passes. Other candidates remain blocked by active measurement, queued/review work, unavailable release evidence, or insufficient telemetry; owners must document dated unblock evidence by 2026-10-03T17:00:00Z or escalate.",
+        "summary": "Reviewer disposition: no new implementation candidate is admissible this cycle. Existing work is blocked by active measurement/review, unavailable operations/security evidence, low-volume telemetry, or incomplete attribution. Retain the rc-9.com request only; principal-engineer must review the retained diagnosis and record a requeue-or-close decision by 2026-10-03T17:00:00Z, with unresolved blockers escalated to the owner at that deadline. CTO must preserve the production gate and document missing release evidence by 2026-10-02T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
