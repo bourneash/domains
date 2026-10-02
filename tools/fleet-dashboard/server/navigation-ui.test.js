@@ -20,6 +20,13 @@ test('light-mode secondary and danger button hover states keep legible ink', () 
   );
 });
 
+test('mobile header keeps the action strip to one horizontally scrollable row', () => {
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*nowrap/);
+  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*overflow-x:\s*auto/);
+  assert.match(mobile, /\.topbar \.actions > \*\s*\{\s*flex-shrink:\s*0;/);
+});
+
 function routeFor(hash) {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = source.indexOf('function topViews()');
@@ -348,6 +355,8 @@ test('light theme table headers keep the same contrast contract', () => {
     style,
     /\.ag-enrollment-gap \.ag-missing-toggle \{[\s\S]*background: var\(--control-bg\);/
   );
+  assert.match(style, /\.ag-missing-list \{[^}]*minmax\(250px, 1fr\)/);
+  assert.match(style, /\.ag-missing-list \.ag-enroll \{ flex: 0 0 auto; \}/);
   assert.match(theme, /:root\[data-theme="light"\] \.b-gray \{[^}]*color: #59677f/);
   assert.match(
     theme,
