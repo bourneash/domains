@@ -279,6 +279,10 @@ const API_TIMEOUT_MS = 60000;
 async function api(method, url, body) {
   const requestEpoch = ROUTE_EPOCH;
   const opt = { method, headers: {} };
+  // Dashboard APIs are live operational state, not static assets. Avoid
+  // conditional GETs that can return a bodyless 304 and get mistaken for an
+  // API failure by this helper (silently producing empty bootstrap data).
+  if (method === 'GET') opt.cache = 'no-store';
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timeout = setTimeout(() => controller?.abort(), API_TIMEOUT_MS);
   if (controller) opt.signal = controller.signal;

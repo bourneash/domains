@@ -134,6 +134,14 @@ test('optional API reads do not hide authentication failures as empty data', () 
   assert.match(helper, /throw error/);
 });
 
+test('dashboard GET requests bypass HTTP cache validation for live API data', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function api(method, url, body)');
+  const end = app.indexOf('\n// Optional panels', start);
+  assert.ok(start >= 0 && end > start);
+  assert.match(app.slice(start, end), /if \(method === 'GET'\) opt\.cache = 'no-store'/);
+});
+
 test('executive inbox and run history are bounded and disclose degraded telemetry', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /optional\(\s*'GET',\s*`\/api\/executive\/inbox\?limit=50/);
