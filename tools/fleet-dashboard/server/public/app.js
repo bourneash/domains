@@ -14582,6 +14582,18 @@ function workBoardItems(data) {
 let ACTIVE_DELIVERY_ATTENTION_PAGE = 1;
 const ACTIVE_DELIVERY_ATTENTION_PAGE_SIZE = 12;
 
+function formatDeliveryWaitMinutes(value) {
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes < 0) return '—';
+  const wholeMinutes = Math.floor(minutes);
+  const days = Math.floor(wholeMinutes / 1440);
+  const hours = Math.floor((wholeMinutes % 1440) / 60);
+  const remainder = wholeMinutes % 60;
+  if (days) return `${days}d ${hours}h`;
+  if (hours) return `${hours}h ${remainder}m`;
+  return `${remainder}m`;
+}
+
 async function renderActiveDelivery() {
   if (FRESH)
     app.innerHTML =
@@ -14638,9 +14650,10 @@ async function renderActiveDelivery() {
               <div class="cq-eyebrow">DELIVERY FLOW</div>
               <h3>Work crossing the delivery boundary</h3>
             </div>
+            <a href="#change-queue" class="btn sm">Review queue →</a>
           </div>
           <p class="muted">
-            ${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${Number(flow.oldest_queued_minutes)} min`}
+            ${Number(flow.queued_implementation_requests || 0)} queued implementation requests${flow.oldest_queued_minutes == null ? '' : ` · oldest waiting ${formatDeliveryWaitMinutes(flow.oldest_queued_minutes)}`}
             · ${Number(flow.blocked_reviews || 0)} infrastructure-blocked reviews
             · ${Number(flow.validated_today || 0)} validated today
             · ${Number(flow.measured_today || 0)} measured today.

@@ -3395,3 +3395,7 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .priority-scorecard[open] > summary::before { transform: translateY(-50%) rotate(90deg); }
 .priority-scorecard > summary strong { color: var(--text-hi); }
 .priority-scorecard > summary .muted { flex: 1 1 240px; min-width: 0; line-height: 1.4; }
+
+@media (max-width: 650px) {
+  .cq-delivery-flow .cq-section-head { align-items: flex-start; flex-direction: column; gap: 8px; }
+}

@@ -2925,6 +2925,28 @@ test('Active Delivery flow card is inset and avoids repeating its deployment KPI
   assert.match(flow, /class="card cq-delivery-flow"/);
   assert.doesNotMatch(flow, /flow\.deployed_today/);
   assert.match(theme, /\.cq-delivery-flow \{[^}]*padding:\s*14px 16px/);
+  assert.match(flow, /href="#change-queue" class="btn sm">Review queue →/);
+  assert.match(
+    flow,
+    /oldest waiting \$\{formatDeliveryWaitMinutes\(flow\.oldest_queued_minutes\)\}/
+  );
+  assert.match(theme, /\.cq-delivery-flow \.cq-section-head \{[^}]*flex-direction: column/);
+});
+
+test('Active Delivery formats long queue waits in readable day/hour units', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function formatDeliveryWaitMinutes(');
+  const end = app.indexOf('\n}', start) + 2;
+  assert.ok(start >= 0 && end > start);
+  const context = {};
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.format = formatDeliveryWaitMinutes;`,
+    context
+  );
+  assert.equal(context.format(6142), '4d 6h');
+  assert.equal(context.format(75), '1h 15m');
+  assert.equal(context.format(19), '19m');
+  assert.equal(context.format(-1), '—');
 });
 
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
