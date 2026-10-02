@@ -1,5 +1,5 @@
-/* Compact the persistent mobile header without removing its actions. The
-   action strip remains horizontally scrollable when the viewport is narrow. */
+/* Compact the persistent mobile header without hiding controls behind a
+   horizontally scrolling action strip. */
 @media (max-width: 720px) {
   body[data-view="workflow-board"] .wb-head {
     gap: 10px;
@@ -43,14 +43,12 @@
 
   .topbar .actions {
     flex: 1 1 100%;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-content: center;
     justify-content: flex-start;
     min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 3px;
-    scrollbar-width: thin;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .topbar .actions > * {
@@ -61,12 +59,13 @@
   .topbar .actions #density-toggle { order: 1; }
   .topbar .actions #refresh { order: 2; }
   .topbar .actions .auto { order: 3; }
-  .topbar .actions .view-saves { order: 4; }
-  .topbar .actions .access-badge { order: 5; }
-  .topbar .actions::-webkit-scrollbar { height: 3px; }
-  .topbar .actions::-webkit-scrollbar-track { background: transparent; }
-  .topbar .actions::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: var(--border-hi);
+  .topbar .actions .access-badge { order: 4; }
+  .topbar .actions .view-saves { order: 5; }
+  .topbar .actions .theme-toggle,
+  .topbar .actions .density-toggle,
+  .topbar .actions #refresh {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 }

@@ -20,7 +20,7 @@ test('light-mode secondary and danger button hover states keep legible ink', () 
   );
 });
 
-test('mobile header keeps the action strip to one horizontally scrollable row', () => {
+test('mobile header keeps all action controls visible without horizontal scrolling', () => {
   const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(
     mobile,
@@ -30,9 +30,13 @@ test('mobile header keeps the action strip to one horizontally scrollable row', 
     mobile,
     /body\[data-view="workbench"\] \.wb-filter-control \.wb-filter-label\s*\{[^}]*width:\s*auto;[^}]*white-space:\s*nowrap/
   );
-  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*nowrap/);
-  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*overflow-x:\s*auto/);
+  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*flex-wrap:\s*wrap/);
+  assert.match(mobile, /\.topbar \.actions\s*\{[^}]*overflow:\s*visible/);
   assert.match(mobile, /\.topbar \.actions > \*\s*\{\s*flex-shrink:\s*0;/);
+  assert.match(
+    mobile,
+    /\.topbar \.actions \.theme-toggle,[\s\S]*?\.topbar \.actions #refresh \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/
+  );
   assert.match(
     mobile,
     /body\[data-view="delivery"\] \.seo-stats > \.seo-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
