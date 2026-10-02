@@ -2,15 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T02:33:13.527Z",
-  "summary": "security checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-02T02:53:02.007Z",
+  "summary": "security checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Disposition: evidence_needed. Severity: high for security-sensitive releases and new public exposure; no known exploit, credential exposure, or incident is evidenced. Fleet-doctor has no last run or checks, and operations deploy, uptime, and error sweeps have no results. Across 61 sites, authentication boundaries, secrets handling, container isolation, dependency provenance, release controls, monitoring, incident readiness, TLS evidence beyond the compliance baseline, data-exposure controls, and security.txt/disclosure readiness remain unevidenced. Compliance is technical-only: 37 pass, 18 fail, 6 unknown. Exact decision: retain private-launch and security-sensitive release gates; approve only the bounded read-only public-surface inspection; allow ordinary reversible growth only when it adds no credentials, permissions, dependencies, configuration, tracking, data collection, or cross-site behavior. Do not deploy, change credentials or permissions, add dependencies, access private containers, exploit targets, or claim clearance. Reassess after dated control evidence is available.",
+        "summary": "Disposition: evidence_needed. Fleet security clearance is unsupported because fleet-doctor has no run or findings, operations deploy/uptime/error sweeps have no results, and security sitefacts are unknown across 61 sites. Authentication and access boundaries, secrets handling, container isolation, dependency provenance, release controls, monitoring, incident readiness, TLS detail, data exposure, and disclosure readiness are therefore unevidenced. No credential exposure or exploit is evidenced; missing telemetry is not clearance. Exact decision: retain security-sensitive release and launch gates, do not approve deployments or configuration, credential, dependency, or exposure changes, and allow the prepared saveusfarms.com SEO change only after the existing admission ledger and repair disposition clear. Severity: high for security-sensitive exposure; low-to-medium for the narrow metadata-only change.",
         "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "proposal",
+        "title": "Retain evidence-needed security gate and conditionally permit narrow SEO work",
+        "summary": "Fleet security disposition remains evidence_needed because material control evidence is unavailable. Preserve security-sensitive release and launch gates while permitting the prepared reversible SEO change only after the canonical admission ledger and repair disposition are documented and all non-security execution gates pass.",
+        "requested_action": "Do not approve public launches, gated-product exposure, monetization expansion, deployments, credential or configuration changes, dependency additions, or security-sensitive production work. Keep the saveusfarms.com change out of the queue until principal-engineer clears the admission gate by 2026-10-02T12:00Z. If cleared, permit only the stated metadata/content diff with no tracking, new data collection, permissions, dependencies, or cross-site behavior; require focused tests, unchanged disclosures and canonical/indexability behavior, exact diff evidence, and metadata-only rollback. Continue read-only evidence capture for access boundaries, secrets, isolation, release controls, dependencies, TLS, data exposure, monitoring, incident response, and security.txt/disclosure readiness.",
         "proposal_id": null
       }
     ]
