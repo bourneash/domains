@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:51:24.559Z",
+  "generated_at": "2026-10-02T16:52:04.705Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production and high-priority queue admissions this cycle. Aggregate affiliate revenue remains unattributed, telemetry is low-volume or incomplete, operations and fleet-doctor evidence are unavailable, and active measurement or review blocks duplicate work. Preserve the admission gate. Principal-engineer must document the canonical ledger and Save Us Farms repair disposition by 2026-10-02T17:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Reviewer disposition: reject the proposed weirdassstuff.com production admission. The click baseline is measurable, but site-level orders and commission are unavailable, operations/fleet-doctor evidence is absent, and production release controls remain unevidenced. CTO must document release, security, monitoring, and rollback evidence by 2026-10-03T17:00:00Z; principal-engineer must reconcile the admission ledger and nominate at most one fully gated candidate by the same deadline, escalating unresolved blockers to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

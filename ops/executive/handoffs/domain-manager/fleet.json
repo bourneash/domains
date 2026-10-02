@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:50:10.872Z",
+  "generated_at": "2026-10-02T16:52:04.707Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Identify and scope the first reversible homepage UX improvement for weapontester.com",
-        "summary": "A site-specific implementation cannot be safely selected until the public homepage structure, repository route, existing CTA hierarchy, and active-work status are evidenced. Perform one bounded inspection to identify the smallest reversible homepage improvement.",
-        "requested_action": "Inspect only the weapontester.com homepage and its repository homepage entry point. Record the exact page and files that would change, current visible hierarchy and primary action, accessibility issues, disclosure surfaces, and any active-work overlap. Do not modify production, credentials, configuration, tracking, schedules, dependencies, or deployment.",
+        "title": "Improve weirdassstuff.com homepage affiliate CTA clarity",
+        "summary": "Ship one reversible homepage-only UX improvement using the existing affiliate destination and disclosure. The site has 584 clicks attributed to tracking ID weirdassstuff-20 in the available 30-day revenue window; orders and commission are unavailable at site level.",
+        "requested_action": "Queue an engineer to modify only the homepage CTA presentation and existing disclosure, without adding tracking, changing destinations, adding dependencies, or deploying directly.",
         "proposal_id": null
       }
     ]
