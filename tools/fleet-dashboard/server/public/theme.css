@@ -3439,12 +3439,16 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   .cq-register-toolbar #cq-search { grid-column: 1 / -1; }
   .cq-register-toolbar .cm-input { width: 100%; min-width: 0; }
 }
+
 /* The conversation layout has a more-specific legacy selector than the
    general component overrides above, so explicitly out-rank it here. */
 :root[data-theme="light"] .ex-shell[data-workspace="conversation"] .ex-requests { background: var(--grad-panel), var(--panel); border-color: var(--border); box-shadow: var(--sh-2); }
-
 :root[data-theme="light"] .cfb-stat {
   background: var(--grad-panel), var(--panel);
   border-color: var(--border);
   box-shadow: var(--sh-2);
+}
+
+@media (min-width: 381px) and (max-width: 440px) {
+  .cfb-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

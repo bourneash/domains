@@ -1731,6 +1731,10 @@ test('Build Usage exposes a scoped refresh control', () => {
     theme,
     /:root\[data-theme="light"\] \.cfb-stat \{\s*background: var\(--grad-panel\), var\(--panel\);\s*border-color: var\(--border\);/
   );
+  assert.match(
+    theme,
+    /@media \(min-width: 381px\) and \(max-width: 440px\)\s*\{\s*\.cfb-stats \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/
+  );
   assert.match(app, /type="button" class="btn" id="cfb-refresh"/);
   assert.match(
     app,
