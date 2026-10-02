@@ -2376,6 +2376,10 @@ test('Errors presents scan severity as a readable KPI strip', () => {
     /class="card error-card error-table"><div class="table-wrap"><table><caption class="sr-only">Container error summary and retained log actions<\/caption>/
   );
   assert.match(theme, /\.error-summary \{[^}]*grid-template-columns/);
+  assert.match(
+    theme,
+    /@media \(max-width: 560px\) \{\s*\.error-summary \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: 8px; \}\s*\.error-stat-meta \{ grid-column: 1 \/ -1; flex-direction: row; align-items: center; justify-content: space-between/
+  );
   assert.match(theme, /\.error-banner-bad \{[^}]*border-left/);
 });
 
