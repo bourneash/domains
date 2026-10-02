@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T14:31:23.856Z",
+  "generated_at": "2026-10-02T15:47:13.587Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Prepare the next organic-growth change for greatamericanlakes.com after current measurement clears",
-        "summary": "Existing greatamericanlakes.com work is measuring through 2026-10-15, so a new implementation would overlap active delivery. Prepare one non-duplicative follow-on change for /fishing/yellow-perch/st-clair using the existing SEO baseline.",
-        "requested_action": "By 2026-10-16, reconcile the active improvement, confirm the page remains eligible, and produce an engineer-ready implementation brief. Do not modify production or request duplicate telemetry.",
+        "title": "Establish seedstosauce.com homepage conversion baseline and smallest reversible improvement",
+        "summary": "A site-specific implementation cannot be safely selected from the available snapshot because no seedstosauce.com page-level performance, SEO opportunity, revenue attribution, or repository file evidence is exposed. Produce one bounded evidence artifact identifying the highest-value homepage or first-entry improvement without requesting duplicate telemetry.",
+        "requested_action": "Inspect the existing seedstosauce.com repository and public homepage read-only. Record the exact page and files, current CTA/content/disclosure state, available baseline metrics, one reversible implementation candidate, acceptance tests, metric threshold, due date, and rollback point. Do not modify production, credentials, configuration, tracking, spend, schedules, or other sites.",
         "proposal_id": null
       }
     ]

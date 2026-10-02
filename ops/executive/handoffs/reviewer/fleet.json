@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:11:54.210Z",
+  "generated_at": "2026-10-02T15:50:14.642Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue admissions this cycle. No candidate has complete non-duplicative baseline, threshold, tests, attribution boundary, rollback, and release evidence. Production and financial claims remain blocked by unattributed affiliate revenue, low-volume or incomplete telemetry, and unavailable operations/security evidence. Preserve only the existing capacity reconciliation and escalate unresolved blockers by 2026-10-02T17:00Z.",
+        "summary": "Reject all new implementation and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Production and financial claims remain blocked by low-volume or incomplete telemetry, unattributed affiliate revenue, and unavailable operations/security evidence. Retain the capacity gate. Principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z; release at most one candidate only if every gate passes, otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       }

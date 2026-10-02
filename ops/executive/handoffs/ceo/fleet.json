@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T15:11:54.209Z",
+  "generated_at": "2026-10-02T15:50:14.643Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the implementation, launch, security, and financial-claim gates under d4abc482-75de-438f-9fcf-5223f339c860. Evidence: active delivery is 1/10 occupied with 9 open slots, but 3 requests are queued, 2 reviews are blocked, and 48 improvements await measurement; operations and fleet-doctor evidence remain unavailable. Amazon’s 2026-09-21 $4.92 commission is aggregate and unattributed, so ROI and upside are not calculable. Unknown: canonical admission ledger and Save Us Farms repair disposition. Smallest next step: principal-engineer documents both and nominates at most one fully gated candidate by 2026-10-02T17:00Z. Owner decision: approve this deadline and reassignment. Reference: d4abc482-75de-438f-9fcf-5223f339c860.",
+        "summary": "Recommendation: execute the 3 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }
