@@ -15060,6 +15060,8 @@ async function renderAutomation() {
     })
   );
   if (!FRESH) applyUISnap();
+  const siteSelect = $('#auto-site');
+  if (siteSelect) siteSelect.value = AUTO_SITE;
 }
 
 function mountExecutiveWorkspaceNav(active) {

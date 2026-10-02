@@ -3358,4 +3358,8 @@ test('automation exposes a site-scoped refresh and loading state', () => {
     route,
     /\$\('#auto-refresh'\)\.addEventListener\('click', \(\) => renderAutomation\(\)\)/
   );
+  assert.match(
+    route,
+    /if \(!FRESH\) applyUISnap\(\);\s+const siteSelect = \$\('#auto-site'\);\s+if \(siteSelect\) siteSelect\.value = AUTO_SITE;/
+  );
 });
