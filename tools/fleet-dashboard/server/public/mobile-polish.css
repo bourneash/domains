@@ -1,6 +1,11 @@
 /* Compact the persistent mobile header without hiding controls behind a
    horizontally scrolling action strip. */
 @media (max-width: 720px) {
+  body[data-view="workbench"] .wb-pagination-top {
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
   body[data-view="workflow-board"] .wb-head {
     gap: 10px;
     padding: 14px 16px;

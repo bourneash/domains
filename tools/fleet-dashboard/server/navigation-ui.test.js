@@ -601,6 +601,9 @@ test('executive workbench is a first-class operator route', () => {
   assert.match(app, /linked records/);
   assert.match(app, /duplicate set/);
   assert.match(app, /aria-label="Workbench case pages"/);
+  assert.match(app, /aria-label="Quick workbench case pages"/);
+  assert.match(app, /class="wb-pagination wb-pagination-top"/);
+  assert.match(app, /\$\$\('\[data-wb-page-direction\]'\)/);
   assert.match(app, /Workbench cases per page/);
   assert.match(
     app,
