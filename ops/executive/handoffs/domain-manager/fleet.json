@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:54:04.789Z",
+  "generated_at": "2026-10-02T16:58:18.314Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish weirdgirlstore.com homepage baseline before UX implementation",
-        "summary": "Site-specific homepage telemetry and public-surface evidence are not present in the authoritative snapshot, so a reversible UX change cannot be safely scoped without inventing a baseline.",
-        "requested_action": "Run one bounded read-only inspection of the homepage route `/` and existing repository implementation. Record the exact homepage entry file, shared stylesheet/component files, visible hierarchy, primary CTA destination, accessibility issues, and available GA4/GSC baseline. Then nominate one reversible homepage improvement or document the blocker.",
+        "title": "Hold xxxtea.com branded-query SEO change until current measurement closes",
+        "summary": "xxxtea.com already has an active branded-query cannibalization improvement in measurement through 2026-10-16. Creating another SEO change would overlap active work and invalidate comparison.",
+        "requested_action": "Keep the current improvement as the sole active SEO work. On 2026-10-16, reconcile the existing result and, if measurement is complete, admit exactly one next change affecting only the competing branded-query surfaces: /, /gallery, /technique, /leaves/mixed, and /about. The next implementation must be limited to canonical/internal-link/snippet alignment, with no new tracking or deployment by this plan.",
         "proposal_id": null
       }
     ]

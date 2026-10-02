@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T16:56:03.710Z",
+  "generated_at": "2026-10-02T16:58:18.313Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reviewer disposition: reject all new production and high-priority queue work this cycle. Unattributed affiliate revenue, low-volume or incomplete telemetry, unavailable operations evidence, active measurement/review, and missing launch-readiness artifacts prevent defensible implementation or financial claims. Preserve two bounded public-surface inspections for scaffold evidence only. Principal-engineer must reconcile the admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z; unresolved blockers escalate to the CEO.",
+        "summary": "Reviewer disposition: reject unsupported revenue, ROI, causal-lift, launch-readiness, security-clearance, and production claims. Queue only three preview-only scaffold implementations on distinct sites; publication, analytics activation, affiliate setup, spending, credentials, schedules, and production deployment remain blocked pending readiness evidence. Principal-engineer must reconcile the admission ledger and Save Us Farms repair disposition by 2026-10-02T17:00:00Z and escalate unresolved blockers.",
         "requested_action": null,
         "proposal_id": null
       }
