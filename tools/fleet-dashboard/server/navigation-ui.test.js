@@ -2603,6 +2603,7 @@ test('wide rendered tables receive consistent scroll affordances', () => {
   assert.match(app, /hint\.classList\.add\('is-overflowing'\)/);
   assert.match(app, /const hintSelector = '\[role="note"\]\[class\*="scroll-hint"\]'/);
   assert.match(app, /panel\?\.querySelectorAll\(hintSelector\)/);
+  assert.match(app, /Boolean\(relation & 2\) && node\.contains\(hint\)/);
   assert.match(app, /\.\.\.root\.children/);
   assert.match(
     app,

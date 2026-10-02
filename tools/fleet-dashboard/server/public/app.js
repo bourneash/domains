@@ -17806,7 +17806,10 @@ function enhanceScrollableTables(root) {
     wrap.tabIndex = 0;
     wrap.setAttribute('role', 'region');
     wrap.setAttribute('aria-label', label);
-    const precedes = (hint, node) => Boolean(hint.compareDocumentPosition(node) & 4);
+    const precedes = (hint, node) => {
+      const relation = hint.compareDocumentPosition(node);
+      return Boolean(relation & 4) || (Boolean(relation & 2) && node.contains(hint));
+    };
     const panel = wrap.closest('.card, section, article');
     const hintSelector = '[role="note"][class*="scroll-hint"]';
     const existingHints = [
