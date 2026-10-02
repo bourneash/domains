@@ -1618,6 +1618,22 @@ test('Analytics provides route context, local refresh, and accessible loading st
   assert.match(route, /Top search queries by clicks/);
 });
 
+test('Analytics freshness matrix is collapsed only for a first-time preference state', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('const UI_COLLAPSE_KEY =');
+  const end = app.indexOf('\n\nfunction uiSaveCollapsed', start);
+  assert.ok(start >= 0 && end > start);
+  const initializer = app.slice(start, end);
+  const collapsedFor = saved =>
+    JSON.parse(
+      vm.runInNewContext(`${initializer}\nJSON.stringify([...UI_COLLAPSED])`, {
+        localStorage: { getItem: () => saved },
+      })
+    );
+  assert.deepEqual(collapsedFor(null), ['analytics.health']);
+  assert.deepEqual(collapsedFor('["analytics.amazon"]'), ['analytics.amazon']);
+});
+
 test('shared table wrappers keep headers visible while scanning long views', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /\.table-wrap \{[\s\S]*overflow: auto/);

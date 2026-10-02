@@ -522,8 +522,13 @@ function watchSystemTheme() {
 const UI_COLLAPSE_KEY = 'fd.ui.collapsed-panels.v1';
 const UI_COLLAPSED = (() => {
   try {
-    const saved = JSON.parse(localStorage.getItem(UI_COLLAPSE_KEY) || '[]');
-    return new Set(Array.isArray(saved) ? saved : []);
+    const savedValue = localStorage.getItem(UI_COLLAPSE_KEY);
+    const saved = JSON.parse(savedValue || '[]');
+    const collapsed = new Set(Array.isArray(saved) ? saved : []);
+    // The all-sites Analytics freshness matrix is useful on demand, but would
+    // push the selected-site report far below the fold on a first visit.
+    if (savedValue === null) collapsed.add('analytics.health');
+    return collapsed;
   } catch {
     return new Set();
   }
