@@ -3050,6 +3050,10 @@ test('Data Hub Images uses shared loading and bounded ledger patterns', () => {
   assert.match(view, /class="loading">Loading Data Hub Images/);
   assert.match(view, /class="page-head"><h2 class="page-title">Data Hub Images/);
   assert.match(style, /\.dhi-grid \{[^}]*align-items: start/);
+  assert.match(
+    style,
+    /@media \(max-width: 980px\) \{[\s\S]*?\.dhi-grid > \[data-rk="dhi-images"\] \{ order: 2; \}[\s\S]*?\.dhi-grid > \[data-rk="dhi-stats"\] \{ order: 3; \}/
+  );
   assert.match(view, /type="button" class="btn" id="datahub-images-refresh"/);
   assert.match(
     view,
