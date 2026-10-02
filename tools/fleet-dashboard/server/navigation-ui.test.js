@@ -1784,6 +1784,18 @@ test('Scheduler surfaces sites needing adoption before already adopted sites', (
   assert.match(scheduler, /const sites = schSiteOrder\(st\.sites \|\| \[\]\)/);
 });
 
+test('Priorities scorecard disclosure separates its title and supporting label', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    app,
+    /<details class="card priority-scorecard"><summary><strong>Portfolio allocation scorecard/
+  );
+  assert.match(theme, /\.priority-scorecard > summary \{[^}]*flex-wrap:\s*wrap/);
+  assert.match(theme, /\.priority-scorecard > summary::before \{[^}]*content:\s*'›'/);
+  assert.match(theme, /.priority-scorecard\[open\] > summary::before/);
+});
+
 test('Git Hygiene keeps actions and long review tables bounded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

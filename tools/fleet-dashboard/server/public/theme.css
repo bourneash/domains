@@ -3327,3 +3327,52 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
     max-width: calc(100% - 44px);
   }
 }
+
+.priority-duplicates {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.priority-duplicates > summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 650;
+}
+.priority-duplicates > summary:hover,
+.priority-duplicates > summary:focus-visible {
+  color: var(--accent);
+}
+.priority-duplicates ul {
+  margin: 5px 0 0;
+  padding-left: 18px;
+}
+.priority-duplicates code {
+  overflow-wrap: anywhere;
+}
+
+.priority-scorecard > summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-height: 46px;
+  padding: 11px 14px 11px 38px;
+  cursor: pointer;
+  list-style: none;
+}
+.priority-scorecard > summary::-webkit-details-marker { display: none; }
+.priority-scorecard > summary::before {
+  content: '›';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  color: var(--a1);
+  font-size: 20px;
+  line-height: 1;
+  transform: translateY(-50%);
+  transition: transform .16s ease;
+}
+.priority-scorecard[open] > summary::before { transform: translateY(-50%) rotate(90deg); }
+.priority-scorecard > summary strong { color: var(--text-hi); }
+.priority-scorecard > summary .muted { flex: 1 1 240px; min-width: 0; line-height: 1.4; }
