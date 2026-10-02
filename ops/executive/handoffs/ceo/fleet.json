@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T03:00:58.326Z",
+  "generated_at": "2026-10-02T03:10:49.122Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the implementation gate under d4abc482-75de-438f-9fcf-522fcdf330c860 and release no new production work this cycle. Evidence: 0/10 active slots occupied but queued/review work remains; 49 improvements await measurement; operations and fleet-doctor evidence are unavailable; Amazon’s 2026-09-21 $4.92 commission is aggregate and unattributed. The smallest next step is principal-engineer documenting the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then releasing at most one fully gated candidate or escalating. Owner decision: approve this deadline and reassignment.",
+        "summary": "Recommendation: retain the implementation gate under d4abc482-75de-438f-9fcf-5223f339c860. Evidence: active_delivery reports 0/10 occupied slots, 3 queued requests, 2 blocked reviews, and 49 improvements awaiting measurement; operations and fleet-doctor evidence remain unavailable. Unknown: the canonical admission ledger and Save Us Farms repair disposition. Smallest next step: principal-engineer documents both by 2026-10-02T12:00Z, then releases at most one candidate only if all baseline, threshold, test, attribution, rollback, and release gates pass. Owner decision: approve this deadline and reassignment.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T03:00:58.328Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-02T03:10:49.122Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation and high-priority queue work this cycle. No candidate has complete non-duplicative baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Retain the capacity reconciliation; principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if every gate passes, otherwise escalate. Revenue, ROI, causal-lift, launch-readiness, and production-readiness claims remain unsupported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain one bounded, read-only Save Us Farms public-surface inspection to resolve the existing repair-disposition evidence gap. It must not request telemetry or alter credentials, configuration, spending, schedules, tracking, or production.",
+        "summary": "Reject all new implementation and high-priority queue work this cycle. No candidate has complete baseline, measurable threshold, tests, attribution boundary, rollback, and release evidence. Retain the capacity gate; principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if every gate passes or escalate.",
         "requested_action": null,
         "proposal_id": null
       }
