@@ -11822,7 +11822,7 @@ function shRenderOverview(data) {
       ([platform, m]) => `<tr>
         <td>${esc(shPlatformLabel(platform))}</td><td class="mono">${m.posts}</td><td class="mono">${m.likes}</td>
         <td class="mono">${m.reposts}</td><td class="mono">${m.replies}</td><td class="mono">${m.clicks || 0}</td>
-        <td class="mono">${m.conversions || 0}</td><td class="mono">${m.ctr || 0}%</td><td class="mono">${m.avg_engagement}</td>
+        <td class="mono">${m.conversions || 0}</td><td class="mono">${m.ctr == null ? '—' : `${m.ctr}%`}</td><td class="mono">${m.avg_engagement}</td>
       </tr>`
     )
     .join('');

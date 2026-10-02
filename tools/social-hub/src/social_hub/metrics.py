@@ -146,7 +146,11 @@ def summary(site: str | None = None, days: int = 30) -> dict:
         measured = bucket["measured"] or 1
         total = bucket["likes"] + bucket["reposts"] + bucket["replies"]
         bucket["avg_engagement"] = round(total / measured, 2)
-        bucket["ctr"] = round(100 * bucket["clicks"] / (bucket["impressions"] or 1), 2)
+        bucket["ctr"] = (
+            round(100 * bucket["clicks"] / bucket["impressions"], 2)
+            if bucket["impressions"] > 0
+            else None
+        )
     return {"days": days, "platforms": out}
 
 

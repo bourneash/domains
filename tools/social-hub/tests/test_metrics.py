@@ -78,6 +78,18 @@ def test_summary_and_top_posts_rank_by_total_engagement():
     assert summary["avg_engagement"] == 5.5
 
 
+def test_summary_ctr_is_unavailable_without_impressions():
+    _posted(remote="unmeasured", metrics_age=0, clicks=43, impressions=0)
+    summary = metrics.summary("alpha.com", days=30)["platforms"]["fake"]
+    assert summary["ctr"] is None
+
+
+def test_summary_ctr_uses_impressions_as_denominator():
+    _posted(remote="measured", metrics_age=0, clicks=43, impressions=1000)
+    summary = metrics.summary("alpha.com", days=30)["platforms"]["fake"]
+    assert summary["ctr"] == 4.3
+
+
 def test_metrics_are_skipped_for_platforms_that_cannot_report(synced, monkeypatch):
     from social_hub.platforms import Capabilities
 
