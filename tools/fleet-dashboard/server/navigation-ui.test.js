@@ -1814,6 +1814,23 @@ test('Priorities scorecard disclosure separates its title and supporting label',
   assert.match(theme, /.priority-scorecard\[open\] > summary::before/);
 });
 
+test('Priorities uses one contextual result count instead of repeating the queue total', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const priorities = app.slice(
+    app.indexOf('async function renderPriorities()'),
+    app.indexOf('let IMPROVEMENT_STATE', app.indexOf('async function renderPriorities()'))
+  );
+  assert.match(
+    priorities,
+    /Showing \$\{rows\.length \? pageStart \+ 1 : 0\}–\$\{Math\.min\(pageStart \+ PRIORITY_PAGE_SIZE, rows\.length\)\} of \$\{rows\.length\}/
+  );
+  assert.match(
+    priorities,
+    /id="priority-page-status" role="status">Page \$\{PRIORITY_PAGE\} of \$\{pageCount\}/
+  );
+  assert.doesNotMatch(priorities, /\$\{rows\.length\} total actions/);
+});
+
 test('Git Hygiene keeps actions and long review tables bounded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
