@@ -50,6 +50,14 @@ test('failed executive tick retries after ten minutes, not every calendar minute
   );
 });
 
+test('cooldown aligns with the fleet cron minute boundary', () => {
+  const due = Date.parse('2026-10-02T20:30:00Z');
+  const previous = '2026-10-02T20:20:19Z';
+  assert.equal(shouldRunPlanning(store(previous, [], 'failed'), { now: due - 60_000 }).run, false);
+  assert.equal(shouldRunPlanning(store(previous, [], 'failed'), { now: due }).run, true);
+  assert.equal(shouldRunPlanning(store('2026-10-02T19:30:56Z'), { now: due }).run, true);
+});
+
 test('approved work drains before planning cooldown can skip the model pass', () => {
   const shell = fs.readFileSync(path.join(__dirname, 'run-scheduled.sh'), 'utf8');
   assert.ok(shell.indexOf('run-approved-work.sh') < shell.indexOf('scheduler-cadence'));

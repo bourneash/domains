@@ -14,14 +14,18 @@ function shouldRunPlanning(store, { now = Date.now(), minimumMinutes = 60 } = {}
   if (newOwnerRequest) return { run: true, reason: 'new owner request' };
   const cooldownMinutes =
     latest.status === 'failed' ? Math.min(minimumMinutes, 10) : minimumMinutes;
-  if (now - lastStarted >= cooldownMinutes * 60 * 1000)
+  // Fleet cron polls on whole-minute boundaries. Anchor cooldown to the
+  // start minute so a tick that begins seconds into a poll does not miss its
+  // next due poll and wait another full interval.
+  const lastStartMinute = Math.floor(lastStarted / 60_000) * 60_000;
+  if (now - lastStartMinute >= cooldownMinutes * 60 * 1000)
     return {
       run: true,
       reason: latest.status === 'failed' ? 'failed tick retry due' : 'hourly delivery triage due',
     };
   return {
     run: false,
-    reason: `planning cooldown; next triage at ${new Date(lastStarted + cooldownMinutes * 60 * 1000).toISOString()}`,
+    reason: `planning cooldown; next triage at ${new Date(lastStartMinute + cooldownMinutes * 60 * 1000).toISOString()}`,
   };
 }
 
