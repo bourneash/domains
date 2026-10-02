@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:21:50.542Z",
+  "generated_at": "2026-10-02T17:23:13.936Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Complete SearchWoot launch-gate evidence packet",
-        "summary": "SearchWoot remains private because source rights, data-flow retention, consent analytics, security, accuracy, and measurement evidence are incomplete. Existing authorized evidence identifies four open launch-readiness tasks; no duplicate telemetry or production change is needed.",
-        "requested_action": "Route one bounded read-only evidence packet covering the four open tasks. Do not publish, deploy, add tracking, change credentials or configuration, send external outreach, or alter the private gate.",
+        "title": "Resume the blocked Trainingsharks homepage UX improvement after diagnosis release",
+        "summary": "Continue the existing blocked_owner implementation for trainingsharks.com without creating overlapping work. The retained diagnosis 1ef2c5ad-296b-47f5-afdc-f1a9b0eaedd8 requires explicit release before implementation.",
+        "requested_action": "Release the existing engineer request for bounded implementation only after the diagnosis is reviewed. Do not create a duplicate request or change production directly.",
         "proposal_id": null
       }
     ]

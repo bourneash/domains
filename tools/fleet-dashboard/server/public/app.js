@@ -14953,6 +14953,24 @@ function wbItems(data) {
     })),
   ];
 }
+async function workflowBoardEvents(source, id) {
+  const eventReads = await Promise.allSettled(
+    [
+      new URLSearchParams({ entity_id: id, limit: '20' }),
+      new URLSearchParams({ correlation_id: `${source}:${id}`, limit: '20' }),
+    ].map(query => api('GET', `/api/events?${query}`))
+  );
+  return [
+    ...new Map(
+      eventReads
+        .filter(result => result.status === 'fulfilled')
+        .flatMap(result => result.value.events || [])
+        .map(event => [event.event_id, event])
+    ).values(),
+  ]
+    .sort((a, b) => Date.parse(b.occurred_at) - Date.parse(a.occurred_at))
+    .slice(0, 20);
+}
 async function openWorkflowItem(source, id, data) {
   const item = wbItems(data).find(x => x.source === source && x.id === id);
   if (!item) return;
@@ -14972,26 +14990,73 @@ async function openWorkflowItem(source, id, data) {
       return `<div class="wb-link-row"><span class="badge ${link.relation === 'blocks' || link.relation === 'blocked_by' ? 'b-yellow' : 'b-blue'}">${esc(outgoing ? link.relation : link.relation === 'blocks' ? 'blocked by' : link.relation)}</span><strong>${esc(other?.title || `${link.to_type}:${link.to_id}`)}</strong><button class="btn sm" data-wb-delete-link="${esc(link.link_id)}">Remove</button></div>`;
     })
     .join('');
-  const options = wbItems(data)
+  const targets = wbItems(data)
     .filter(x => !(x.source === source && x.id === id))
-    .map(
-      x =>
-        `<option value="${esc(x.source + '|' + x.id)}">${esc(x.title)} · ${esc(typeLabels[x.source])}</option>`
-    )
-    .join('');
-  const events = (data.events || [])
-    .filter(x => x.entity_id === id || x.correlation_id === `${source}:${id}`)
-    .slice(0, 20)
+    .map(x => {
+      const label = [x.title, typeLabels[x.source], x.site, String(x.id).slice(0, 8)]
+        .filter(Boolean)
+        .join(' · ');
+      return {
+        value: `${x.source}|${x.id}`,
+        label,
+        search: [x.title, x.source_label, typeLabels[x.source], x.site, x.owner, x.status, x.id]
+          .filter(Boolean)
+          .join(' ')
+          .toLocaleLowerCase(),
+      };
+    });
+  const events = (await workflowBoardEvents(source, id))
     .map(
       x =>
         `<tr><td class="muted">${esc(fmtDate(x.occurred_at))}</td><td>${esc(x.event_type)}</td><td class="muted">${esc(x.payload?.error || x.source || '')}</td></tr>`
     )
     .join('');
   $('#modal-title').textContent = item.title;
-  $('#modal-body').innerHTML =
-    `<div class="wb-detail"><div class="wb-detail-chips"><span class="badge b-blue">${esc(typeLabels[source])}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || 'unassigned')}</span></div><p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p><h4>Lifecycle and gate</h4><pre>${esc(wbGate(item))}\nUpdated: ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}${item.run_id ? `\nRun: ${item.run_id}` : ''}${item.next_attempt_at ? `\nNext attempt: ${fmtDate(item.next_attempt_at)}` : ''}${item.due_at ? `\nDue: ${fmtDate(item.due_at)}` : ''}</pre><h4>Dependencies and related work</h4><div class="wb-link-list">${linkRows || '<span class="muted">No links yet.</span>'}</div><div class="wb-link-form"><select id="wb-link-relation"><option value="blocks">Blocks</option><option value="blocked_by">Blocked by</option><option value="related_to">Related to</option></select><select id="wb-link-target">${options}</select><button class="btn sm primary" id="wb-add-link">Link</button></div><h4>Timeline</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${events || '<tr><td colspan="3" class="muted">No recorded events for this item.</td></tr>'}</tbody></table></div></div><div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
+  $('#modal-body').innerHTML = `<div class="wb-detail">
+      <div class="wb-detail-chips"><span class="badge b-blue">${esc(typeLabels[source])}</span><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.owner || 'unassigned')}</span></div>
+      <p>${esc(item.summary || item.body || item.rationale || 'No summary')}</p>
+      <h3 class="wb-detail-heading">Lifecycle and gate</h3>
+      <pre>${esc(wbGate(item))}\nUpdated: ${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}${item.run_id ? `\nRun: ${item.run_id}` : ''}${item.next_attempt_at ? `\nNext attempt: ${fmtDate(item.next_attempt_at)}` : ''}${item.due_at ? `\nDue: ${fmtDate(item.due_at)}` : ''}</pre>
+      <h3 class="wb-detail-heading">Dependencies and related work</h3>
+      <div class="wb-link-list">${linkRows || '<span class="muted">No links yet.</span>'}</div>
+      <div class="wb-link-form">
+        <label class="wb-link-search"><span>Find related work</span><input id="wb-link-search" class="cm-input" type="search" placeholder="Search title, site, owner, or type…" autocomplete="off"></label>
+        <div class="wb-link-controls">
+          <select id="wb-link-relation" aria-label="Relationship type"><option value="blocks">Blocks</option><option value="blocked_by">Blocked by</option><option value="related_to">Related to</option></select>
+          <select id="wb-link-target" aria-label="Related work item" disabled><option value="">Type to search for work…</option></select>
+          <button class="btn sm primary" id="wb-add-link" disabled>Link</button>
+        </div>
+        <div class="wb-link-status muted" id="wb-link-status" role="status" aria-live="polite">Enter at least 2 characters to search.</div>
+      </div>
+      <h3 class="wb-detail-heading">Timeline</h3>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Notes</th></tr></thead><tbody>${events || '<tr><td colspan="3" class="muted">No recorded events for this item.</td></tr>'}</tbody></table></div>
+    </div>
+    <div class="modal-actions"><button class="btn" id="wb-detail-close">Close</button></div>`;
   $('#modal').classList.remove('hidden');
   $('#wb-detail-close').onclick = closeModal;
+  const linkSearch = $('#wb-link-search');
+  const linkTarget = $('#wb-link-target');
+  const linkStatus = $('#wb-link-status');
+  const addLink = $('#wb-add-link');
+  linkSearch.addEventListener('input', () => {
+    const query = linkSearch.value.trim().toLocaleLowerCase();
+    const matches =
+      query.length >= 2 ? targets.filter(target => target.search.includes(query)) : [];
+    const shown = matches.slice(0, 40);
+    linkTarget.replaceChildren(new Option(shown.length ? 'Choose a work item…' : 'No results', ''));
+    shown.forEach(target => linkTarget.add(new Option(target.label, target.value)));
+    linkTarget.disabled = shown.length === 0;
+    addLink.disabled = true;
+    linkStatus.textContent =
+      query.length < 2
+        ? 'Enter at least 2 characters to search.'
+        : matches.length === 0
+          ? 'No related work matches that search.'
+          : `Showing ${shown.length} of ${matches.length} matches. Refine your search if needed.`;
+  });
+  linkTarget.addEventListener('change', () => {
+    addLink.disabled = !linkTarget.value;
+  });
   $('#wb-add-link').onclick = async () => {
     try {
       const [to_type, to_id] = $('#wb-link-target').value.split('|');
@@ -15099,15 +15164,17 @@ function workBoardColumn(item) {
   return 'done';
 }
 
+function wbGate(item) {
+  if (item.source === 'request')
+    return `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}`;
+  if (item.source === 'proposal')
+    return `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`;
+  return item.next_action || 'PM triage pending';
+}
+
 function workBoardCard(item) {
   const column = workBoardColumn(item);
-  const gate =
-    item.source === 'request'
-      ? `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}`
-      : item.source === 'proposal'
-        ? `owner decision · legal ${item.implementation?.legal_review?.status || 'n/a'} · security ${item.implementation?.security_review?.status || 'n/a'}`
-        : item.next_action || 'PM triage pending';
-  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(gate)}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button type="button" class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}" aria-label="Open ${esc(item.title)} details" title="Open ${esc(item.title)} details">Open</button></div></article>`;
+  return `<article class="wb-card" draggable="true" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}"><div class="wb-card-top"><span class="badge ${item.priority === 'urgent' || item.priority === 'high' ? 'b-red' : item.priority === 'medium' ? 'b-yellow' : 'b-blue'}">${esc(item.priority || 'normal')}</span><span class="wb-source">${esc(item.source_label)}</span>${item.critical ? '<span class="badge b-yellow">critical path</span>' : ''}</div><strong>${esc(item.title)}</strong><div class="wb-meta">${esc(item.site || 'fleet')} · ${esc(item.owner || item.assigned_role || item.created_by || 'unassigned')}</div><p>${esc(item.summary || item.body || item.rationale || 'No brief recorded yet.')}</p><div class="wb-gate"><span>◆</span>${esc(wbGate(item))}</div><div class="wb-card-foot"><time>${esc(fmtDate(item.updated_at || item.created_at || item.started_at))}</time><button type="button" class="btn sm wb-open" data-wb-source="${esc(item.source)}" data-wb-id="${esc(item.id)}" aria-label="Open ${esc(item.title)} details" title="Open ${esc(item.title)} details">Open</button></div></article>`;
 }
 
 function workBoardItems(data) {
@@ -15363,7 +15430,7 @@ async function renderWorkflowBoard(cachedData = null) {
         )
     ).join(
       ''
-    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique · showing ${Math.min(3, diagnosticGroups.length)}</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${(data.actions || []).length} recorded · ${activityGroups.length ? `latest ${Math.min(3, activityGroups.length)} groups shown` : 'no recent events'}</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted">${(data.diagnostics || []).length} flagged · ${diagnosticGroups.length} unique · showing ${Math.min(3, diagnosticGroups.length)}</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${activityEvents.length} recent events · ${activityGroups.length ? `latest ${Math.min(3, activityGroups.length)} groups shown` : 'no recent events'}</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
     $('#wb-board-refresh').onclick = () => renderWorkflowBoard();
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
     $('#wb-board-search').oninput = event => {

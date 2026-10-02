@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T17:21:50.542Z",
+  "generated_at": "2026-10-02T17:23:13.934Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the SearchWoot report-only proposal as duplicate evidence work. Route only three bounded, preview-only scaffold implementations across distinct sites. Production launch remains blocked pending owner, legal, security, analytics, measurement, and rollback evidence; no revenue, ROI, causal-lift, or production-readiness claims are supported.",
+        "summary": "Reject unsupported revenue, ROI, causal-lift, security-clearance, and production-readiness claims. Most candidates remain blocked by active measurement or review overlap, missing release evidence, low-volume telemetry, unattributed affiliate revenue, or unavailable operations evidence. Route only the single non-overlapping, reversible SEO implementation below; escalate unresolved admission blockers to the owner by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
