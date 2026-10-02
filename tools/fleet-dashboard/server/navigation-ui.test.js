@@ -2463,8 +2463,9 @@ test('Activity presents audit volume and outcome hierarchy', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="activity-summary"/);
   assert.match(app, /Actions loaded<\/span>/);
+  assert.doesNotMatch(app, /<span>Mutations<\/span>/);
   assert.match(app, /type="button" class="btn" id="activity-refresh"/);
-  assert.match(app, /Latest event · \$\{filtered\.length\} matching/);
+  assert.match(app, /<span>Latest event<\/span>/);
   assert.match(
     app,
     /class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters"/

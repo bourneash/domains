@@ -3423,9 +3423,6 @@ async function renderActivity() {
   const pageRows = filtered.slice(start, start + ACTIVITY_UI.pageSize);
   const failed = rows.filter(a => !a.ok).length;
   const succeeded = rows.length - failed;
-  const writes = rows.filter(a =>
-    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(String(a.method || '').toUpperCase())
-  ).length;
   const latest = rows[0]?.ts
     ? fmtAge((Date.now() - new Date(rows[0].ts).getTime()) / 1000) + ' ago'
     : 'none yet';
@@ -3452,8 +3449,7 @@ async function renderActivity() {
       <div class="activity-stat"><strong>${rows.length}</strong><span>Actions loaded</span></div>
       <div class="activity-stat activity-stat-good"><strong>${succeeded}</strong><span>Succeeded</span></div>
       <div class="activity-stat ${failed ? 'activity-stat-bad' : 'activity-stat-good'}"><strong>${failed}</strong><span>Failed</span></div>
-      <div class="activity-stat"><strong>${writes}</strong><span>Mutations</span></div>
-      <div class="activity-stat activity-stat-meta"><strong>${esc(latest)}</strong><span>Latest event · ${filtered.length} matching</span></div>
+      <div class="activity-stat activity-stat-meta"><strong>${esc(latest)}</strong><span>Latest event</span></div>
     </section>
     <div class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters">
       <label>Search<input id="activity-q" class="cm-input" type="search" placeholder="Path, actor, site…" value="${esc(ACTIVITY_UI.q)}" autocomplete="off"></label>
