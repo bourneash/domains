@@ -8244,8 +8244,23 @@ async function pollComplianceProgress() {
   COMPLIANCE_PROGRESS_TIMER = setTimeout(pollComplianceProgress, 750);
 }
 
-let ANALYTICS_SITE = null; // persists across soft-refreshes
+const ANALYTICS_SITE_KEY = 'fd.analytics.site.v1';
+let ANALYTICS_SITE = (() => {
+  try {
+    return localStorage.getItem(ANALYTICS_SITE_KEY);
+  } catch {
+    return null;
+  }
+})();
 let ANALYTICS_SCROLL_TO_DETAIL = false;
+
+function setAnalyticsSite(site) {
+  ANALYTICS_SITE = site;
+  try {
+    if (site) localStorage.setItem(ANALYTICS_SITE_KEY, site);
+    else localStorage.removeItem(ANALYTICS_SITE_KEY);
+  } catch {}
+}
 
 let SEO_PRIORITY = 'all';
 let SEO_TYPE = 'all';
@@ -8740,7 +8755,7 @@ async function renderAnalytics() {
       const ga4Line =
         'sessions' in summary
           ? `<div>sessions <b>${esc(String(summary.sessions))}</b>${wow.ga4 ? anDelta(wow.ga4.cur.sessions, wow.ga4.prev.sessions) : ''} · users <b>${esc(String(summary.users))}</b> · affiliate clicks <b>${esc(String(summary.conversions))}</b> · click/session <b>${summary.sessions ? esc(`${((summary.conversions / summary.sessions) * 100).toFixed(2)}%`) : '—'}</b></div>`
-          : '<div class="muted">no GA4 data</div>';
+          : '<div class="muted">No GA4 data for this site. Choose another site above, or review Capture Freshness.</div>';
       const gscLine =
         'clicks' in summary
           ? `<div>clicks <b>${esc(String(summary.clicks))}</b>${wow.gsc ? anDelta(wow.gsc.cur.clicks, wow.gsc.prev.clicks) : ''} · impressions <b>${esc(String(summary.impressions))}</b></div>`
@@ -8797,7 +8812,7 @@ async function renderAnalytics() {
   $('#analytics-refresh').addEventListener('click', () => renderAnalytics());
   if (picked)
     picked.addEventListener('change', () => {
-      ANALYTICS_SITE = picked.value;
+      setAnalyticsSite(picked.value);
       softRender();
     });
 
@@ -8807,14 +8822,14 @@ async function renderAnalytics() {
       const next =
         (siteNames.indexOf(ANALYTICS_SITE) + Number(button.dataset.step) + siteNames.length) %
         siteNames.length;
-      ANALYTICS_SITE = siteNames[next];
+      setAnalyticsSite(siteNames[next]);
       ANALYTICS_SCROLL_TO_DETAIL = true;
       softRender();
     })
   );
 
   const selectHealthSite = row => {
-    ANALYTICS_SITE = row.dataset.anSite;
+    setAnalyticsSite(row.dataset.anSite);
     ANALYTICS_SCROLL_TO_DETAIL = true;
     softRender();
   };

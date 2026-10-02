@@ -1613,9 +1613,35 @@ test('Analytics provides route context, local refresh, and accessible loading st
     /\$\('#analytics-refresh'\)\.addEventListener\('click', \(\) => renderAnalytics\(\)\)/
   );
   assert.match(route, /Analytics capture freshness by site/);
+  assert.match(
+    route,
+    /No GA4 data for this site\. Choose another site above, or review Capture Freshness\./
+  );
   assert.match(route, /Top pages by sessions/);
   assert.match(route, /Affiliate click origin pages/);
   assert.match(route, /Top search queries by clicks/);
+});
+
+test('Analytics remembers the operator-selected site across page reloads', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('const ANALYTICS_SITE_KEY =');
+  const end = app.indexOf('\n\nlet SEO_PRIORITY', start);
+  assert.ok(start >= 0 && end > start);
+  const state = app.slice(start, end);
+  const values = new Map([['fd.analytics.site.v1', '0xroulette.com']]);
+  const result = JSON.parse(
+    vm.runInNewContext(
+      `${state}\nsetAnalyticsSite('marineactivity.com'); JSON.stringify({site: ANALYTICS_SITE, stored: localStorage.getItem(ANALYTICS_SITE_KEY)})`,
+      {
+        localStorage: {
+          getItem: key => values.get(key) ?? null,
+          setItem: (key, value) => values.set(key, String(value)),
+          removeItem: key => values.delete(key),
+        },
+      }
+    )
+  );
+  assert.deepEqual(result, { site: 'marineactivity.com', stored: 'marineactivity.com' });
 });
 
 test('Analytics freshness matrix is collapsed only for a first-time preference state', () => {
