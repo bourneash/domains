@@ -8,7 +8,10 @@ pointer that runs `WIRING.md` against a target site, using the archetype's
 - `handoff-protocol.md` — how roles hand work to each other through the task board.
 - `validate-install.sh` — pass/fail gate; run after every install.
 - `validate-deployer.sh` — cron-direct deployer gate; rejects worker entrypoint
-  overrides and verifies the worker has an explicit `deployer` dispatch.
+  overrides, checks shell syntax, and verifies an active cron schedule and
+  explicit worker `deployer` dispatch. It checks static wiring without running
+  Docker or deploying; commented lines do not satisfy the contract, and shell
+  command continuations are supported.
 - `repo-mutation-lock.sh` — shared host/container lock for any role that can
   edit, build, commit, push, or deploy a site checkout.
 - `content-writer-policy.sh` — centralized task capability policy for writer
@@ -48,6 +51,17 @@ rigor, anti-slop guardrails, reusability), then parameterized.
 Roles hand work to each other ONLY through the task board, and awareness is generated
 **dynamically per site** at install time (a role learns which siblings actually exist;
 absent targets degrade to a Slack alert + `human-triage` task). See `handoff-protocol.md`.
+
+The deployer unit tests render the canonical scripts into a temporary site, so
+they do not depend on a mutable live-site checkout. Validate an installed site's
+wiring separately, from the monorepo root:
+
+```bash
+bash tools/cron-roles/validate-deployer.sh sites/marineactivity.com
+```
+
+This integration check reads the installed files; checking the running cron
+container and performing a supervised deployment remain installer steps.
 
 **`cron-direct` kind (watchdog).** Most archetypes are worker-dispatched (cron →
 `run-worker.sh <role>` → `run-role.sh`). The `watchdog` is the exception: its crontab
