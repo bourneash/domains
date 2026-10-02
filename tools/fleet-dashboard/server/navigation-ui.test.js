@@ -2317,6 +2317,10 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
   );
   assert.match(app, /seo-vitals-panel[\s\S]*class="table-wrap"><table class="dh-sources"/);
   assert.match(app, /Web vitals by site/);
+  assert.match(
+    app,
+    /<time datetime="\$\{esc\(vitals\.generated_at\)\}">\$\{esc\(fmtDate\(vitals\.generated_at\)\)\}<\/time>/
+  );
   assert.match(app, /SEO opportunity map by site/);
   assert.match(
     app,
