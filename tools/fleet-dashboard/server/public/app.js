@@ -962,14 +962,22 @@ function agentHealthOverview(data, currentRows = []) {
     row => row.enabled !== false && ['stale', 'overdue', 'never'].includes(row.state)
   ).length;
   const paused = rows.filter(row => row.enabled === false || row.state === 'paused').length;
-  const current = attention ? `${attention} need attention` : `${fresh}/${enrolled} healthy now`;
+  const current =
+    enrolled === 0
+      ? 'No sites enrolled'
+      : attention
+        ? `${attention} need attention`
+        : `${fresh}/${enrolled} healthy now`;
   const history = [];
   if (summary.failed) history.push(`${summary.failed} historical failures`);
   if (summary.missed) history.push(`${summary.missed} missed slots`);
   if (summary.drifted) history.push(`${summary.drifted} prompt/runner drifted`);
   return {
     current,
-    currentDetail: `${fresh} healthy · ${attention} need attention${paused ? ` · ${paused} paused` : ''}`,
+    currentDetail:
+      enrolled === 0
+        ? 'Enroll sites to see current health'
+        : `${fresh} healthy · ${attention} need attention${paused ? ` · ${paused} paused` : ''}`,
     history: history.length ? history.join(' · ') : 'no issues recorded',
   };
 }
@@ -5431,7 +5439,7 @@ async function renderGenericAgent(role) {
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
   const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
-  const healthPanel = healthData ? agentHealthPanel(healthData, rows) : '';
+  const healthPanel = healthData && rows.length ? agentHealthPanel(healthData, rows) : '';
 
   const body = rows
     .map(r => {
@@ -5475,7 +5483,7 @@ async function renderGenericAgent(role) {
 
   app.innerHTML = `
     ${breadcrumb(role)}
-    <div class="page-head"><div><h2 class="page-title">${esc(agentLabel(role))}</h2><span class="muted">${rows.length} sites run this agent</span></div><button type="button" class="btn" id="agent-refresh">↻ Refresh</button></div>
+    <div class="page-head"><h2 class="page-title">${esc(agentLabel(role))}</h2><button type="button" class="btn" id="agent-refresh">↻ Refresh</button></div>
     <div class="task-toolbar">
       <strong>${rows.length} sites</strong>
       <span class="muted">${enabled} enabled · ${paused} paused${issues ? ` · <span class="flag">${issues} overdue</span>` : ''}${editorialAlerts.length ? ` · <span class="flag">${editorialAlerts.length} publishing alert${editorialAlerts.length === 1 ? '' : 's'}</span>` : ''}</span>

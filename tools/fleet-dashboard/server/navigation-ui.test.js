@@ -3726,6 +3726,22 @@ test('agent pages expose enrollment actions that open the automation editor', ()
   assert.match(app, /Rerun historical failures/);
 });
 
+test('agent health uses an enrollment state instead of reporting zero sites as healthy', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function agentHealthOverview(');
+  const end = app.indexOf('\nfunction agentHealthPanel(', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {};
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.empty = agentHealthOverview({ summary: { enrolled: 0 } });\nglobalThis.active = agentHealthOverview({ summary: { enrolled: 2 } }, [{ enabled: true, state: 'fresh' }, { enabled: true, state: 'fresh' }]);`,
+    context
+  );
+  assert.equal(context.empty.current, 'No sites enrolled');
+  assert.equal(context.empty.currentDetail, 'Enroll sites to see current health');
+  assert.equal(context.active.current, '2/2 healthy now');
+  assert.doesNotMatch(app, /<span class="muted">\$\{rows\.length\} sites run this agent<\/span>/);
+});
+
 test('agent enrollment site filter narrows results and reports an accessible empty state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function wireMissingSiteFilter()');
