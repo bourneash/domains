@@ -2,28 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-02T00:54:07.890Z",
-  "summary": "reviewer checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T01:04:15.985Z",
+  "summary": "reviewer checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, high-priority queue, financial, ROI, causal-lift, launch-readiness, and security-clearance claims. Retain only the existing principal-engineer capacity reconciliation through 2026-10-02T12:00Z and one bounded public-surface research request. Aggregate affiliate revenue is unattributed, telemetry is low-volume or incomplete, and operations evidence is unavailable; release at most one candidate only after baseline, threshold, tests, attribution boundary, rollback, and release evidence are documented, otherwise escalate to the owner.",
+        "summary": "Reject new implementation, high-priority queue, financial, causal-lift, launch-readiness, production-readiness, and security-clearance claims this cycle. Retain only the existing capacity reconciliation and one bounded public-surface research request. Aggregate affiliate revenue remains unattributed, telemetry is low-volume or incomplete, and operations evidence is unavailable. Principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z; release at most one candidate only if all baseline, threshold, tests, attribution, rollback, and release gates pass, otherwise escalate.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new implementation, high-priority queue, financial, ROI, causal-lift, launch-readiness, production-readiness, and security-clearance claims this cycle. Retain only the existing capacity reconciliation and one bounded public-surface research request. Principal-engineer must document the canonical admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z; release at most one candidate only if baseline, threshold, tests, attribution boundary, rollback, and release evidence pass; otherwise escalate.",
+        "summary": "Retain the bounded Save Us Farms public-surface inspection because it is read-only, reversible, uses a public URL, answers a specific repair-disposition evidence gap, and does not request telemetry or alter production.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "The surfaced candidates remain unqueued: 0xroulette.com is in review, broadwayshowgirls.com is measuring existing work, and deeppenetrations.com is in review with an infrastructure-blocked repair. Low-volume telemetry, unattributed aggregate revenue, and unavailable operations evidence prevent defensible production admission.",
+        "summary": "Reject unsupported financial, causal-lift, launch-readiness, production-readiness, security-clearance, and high-priority queue claims. Route only two low-risk, reversible SEO candidates with sufficient existing evidence. Keep other candidates unqueued where active work, infrastructure review, or missing readiness evidence blocks admission. Principal-engineer must reconcile the admission ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z; unresolved blockers escalate to the owner.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Owner concern: Amazon aggregate commission remains unattributed, AI cost coverage is incomplete and period-misaligned, and operations/fleet-doctor evidence is unavailable. Do not claim revenue, ROI, margin, forecasts, causal lift, or production readiness.",
         "requested_action": null,
         "proposal_id": null
       }

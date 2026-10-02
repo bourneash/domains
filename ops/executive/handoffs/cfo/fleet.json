@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-02T00:54:07.888Z",
+  "generated_at": "2026-10-02T01:04:15.983Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain the implementation and financial-claim gate. Do not approve revenue, contribution-margin, ROI, causal-lift, forecast, or budget-exposure claims this cycle. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but all commission is on aggregate tracking_id other and cannot be assigned to a site. AI spend is $34.69846565 across 223 calls on 2026-10-01, with only 20 observed sites versus 38 expected. Contribution margin and cost-to-learn are not calculable because revenue and AI costs are not period-aligned, infrastructure/domain costs are absent, site attribution is incomplete, and the 30-day outcome set cannot be causally matched to one-day spend. Minimum measurement: period-aligned site/content revenue by registered tracking ID, AI cost allocation by site/work item, infrastructure and domain invoices, and dated exposure-to-outcome links. The only supported unit metric is AI cost per call: $0.1556, which is not cost-to-learn. Retain principal-engineer capacity reconciliation through 2026-10-02T12:00Z; release at most one candidate only after baseline, threshold, tests, rollback, attribution, and release evidence pass.",
+        "summary": "Recommendation: retain the financial-claim and implementation gates. Reject revenue, contribution-margin, ROI, cost-to-learn, causal-lift, forecast, and budget-exposure claims this cycle. Amazon reports 6,219 clicks, 28 ordered items, 6 shipped items, and $4.92 commission for 2026-09-21, but the full commission is on aggregate tracking_id other and cannot be assigned to a site. AI spend is $34.69846565 across 223 calls on 2026-10-01, with only 20 observed sites versus 38 expected. Contribution margin and cost-to-learn are not calculable because revenue and AI spend are not period-aligned, infrastructure/domain costs and budgets are absent, AI attribution is incomplete, and the 30-day outcome set cannot be causally matched to one-day spend. Minimum measurement: period-aligned site/content revenue by registered tracking ID, AI cost allocation by site/work item, infrastructure and domain costs, dated exposures and control/treatment outcomes, and explicit monthly budget limits. Retain only the existing capacity reconciliation and bounded read-only research; release at most one candidate only after all operational and measurement gates pass.",
         "requested_action": null,
         "proposal_id": null
       }

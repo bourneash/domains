@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-02T00:54:07.888Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-02T01:04:15.984Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve retaining the implementation and financial-claim gates. Do not admit production implementation this cycle. Principal-engineer must reconcile the canonical active-delivery ledger and Save Us Farms repair disposition by 2026-10-02T12:00Z, then release at most one candidate only if site-specific baseline, measurable threshold, tests, rollback, attribution boundary, and release evidence are documented. Operations and fleet-doctor evidence remain unavailable; no production-readiness or security-clearance claim is supported.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The bounded Save Us Farms public-surface research request is technically feasible and isolated. Approve read-only inspection only; it must not request telemetry, modify production, credentials, configuration, schedules, spending, or tracking, and must not claim revenue, conversion, attribution, readiness, or causal lift.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Retain the CFO report-only finance ledger as a measurement-boundary task. It is feasible with existing authorized evidence, but contribution margin, ROI, cost-to-learn, and forecasts remain unsupported until periods, attribution, and cost sources are aligned. Do not request duplicate telemetry or change billing.",
+        "summary": "Retain the implementation and financial-claim gates. Approve only the bounded read-only public-surface research request because it is isolated, reversible, and requires no telemetry or production mutation. Retain both report-only work items using existing evidence; do not admit implementation until canonical capacity, repair disposition, site-specific baseline, threshold, tests, attribution boundary, rollback, and release evidence are documented. Do not make revenue, ROI, causal-lift, profitability, forecast, budget, or production-readiness claims.",
         "requested_action": null,
         "proposal_id": null
       }
