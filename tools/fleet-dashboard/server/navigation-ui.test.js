@@ -287,6 +287,7 @@ test('Agents landing cards omit repeated filler when site coverage is unavailabl
       agents: [
         { role: 'ceo', label: 'CEO' },
         { role: 'engineer', label: 'Engineer', sites: 4 },
+        { role: 'growth-manager', label: 'Growth Manager' },
       ],
     },
     $: (selector, parent = app) => (selector === '#app' ? app : parent.querySelector(selector)),
@@ -300,6 +301,12 @@ test('Agents landing cards omit repeated filler when site coverage is unavailabl
   assert.doesNotMatch(app.innerHTML, /undefined/);
   assert.doesNotMatch(app.innerHTML, /Automated role available across the fleet/);
   assert.match(app.innerHTML, /4 sites run this agent/);
+  assert.match(
+    app.innerHTML,
+    /Set fleet priorities and align executive decisions with measurable outcomes/
+  );
+  assert.match(app.innerHTML, /Own SEO, content, acquisition, and measurable growth improvements/);
+  assert.match(app.innerHTML, /data-root-search="growth-manager growth manager own seo/);
 });
 
 test('optional API reads do not hide authentication failures as empty data', () => {

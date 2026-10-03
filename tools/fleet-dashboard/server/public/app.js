@@ -18954,14 +18954,18 @@ function renderCategoryRoot(id) {
           'Executive Overview',
           'CEO/CTO/CRO/CFO leadership plus product strategy, approvals, costs, and audit history',
         ],
-        ...(STATE.agents || []).map(a => [
-          a.role,
-          a.label || agentLabel(a.role),
-          a.description ||
-            (a.sites != null && Number.isFinite(Number(a.sites))
+        ...(STATE.agents || []).map(a => {
+          const roleSummary = AGENT_ROLE_SUMMARIES[a.role];
+          const siteCoverage =
+            a.sites != null && Number.isFinite(Number(a.sites))
               ? `${Number(a.sites)} site${Number(a.sites) === 1 ? '' : 's'} run this agent`
-              : ''),
-        ]),
+              : '';
+          return [
+            a.role,
+            a.label || agentLabel(a.role),
+            a.description || roleSummary || siteCoverage,
+          ];
+        }),
       ]
     : group.items.map(([view, label]) => [
         view,
@@ -19017,6 +19021,31 @@ function renderCategoryRoot(id) {
   }
   stamp();
 }
+
+// Keep role cards useful even when an older agent record has no description.
+// API-provided descriptions remain authoritative; these summaries cover the
+// built-in fleet roles and also make responsibility search meaningful.
+const AGENT_ROLE_SUMMARIES = Object.freeze({
+  ceo: 'Set fleet priorities and align executive decisions with measurable outcomes.',
+  cfo: 'Track portfolio economics, operating costs, and budget trade-offs.',
+  cro: 'Turn market evidence into focused revenue experiments and product opportunities.',
+  cto: 'Set technical direction and improve platform reliability and engineering quality.',
+  'delivery-lead': 'Move approved priorities through the queue to verified delivery.',
+  'design-director': 'Prioritize high-impact UX, accessibility, and visual improvements.',
+  'design-manager': 'Own design quality, accessibility, UX, and conversion improvements.',
+  'engineering-manager': 'Own implementation, defects, platform work, and release readiness.',
+  'exec-overwatch': 'Audit execution, repair gaps, and verify real downstream outcomes.',
+  'growth-director': 'Drive evidence-led SEO, content, acquisition, and measurable growth.',
+  'growth-manager': 'Own SEO, content, acquisition, and measurable growth improvements.',
+  legal: 'Review legal exposure, privacy obligations, and launch requirements.',
+  'operations-manager': 'Turn owner and executive decisions into owned, dispatched work.',
+  'project-manager': 'Coordinate scope, milestones, dependencies, and project follow-through.',
+  'revenue-ops': 'Find affiliate, attribution, disclosure, and conversion issues.',
+  reviewer: 'Verify completed work against its acceptance criteria before delivery.',
+  security: 'Identify security risks and verify safeguards across the fleet.',
+  'site-factory': 'Build a gated, repeatable path from validated opportunity to launch.',
+  'site-factory-manager': 'Own new-site onboarding, build completion, previews, and launch gates.',
+});
 
 function renderAgent(role) {
   if (role === 'executive') return renderExecutive();
