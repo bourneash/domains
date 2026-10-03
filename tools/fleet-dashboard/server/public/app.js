@@ -22,8 +22,63 @@ let STATE = {
   controlSort: null,
 };
 let AGENT_HEALTH = null;
+const AGENT_HEALTH_TTL_MS = 15000;
+const AGENT_HEALTH_CACHE = new Map();
+const AGENT_HEALTH_PENDING = new Map();
+const AGENT_HEALTH_ERRORS = new Map();
+const AGENT_HEALTH_GENERATION = new Map();
 let ACCESS_LEVEL = 'operator';
 const EXEC_RUN = { poller: null };
+
+function cachedAgentHealth(role) {
+  return AGENT_HEALTH_CACHE.get(role)?.data || null;
+}
+
+function agentHealthLoading(role) {
+  const error = AGENT_HEALTH_ERRORS.get(role);
+  return `<div class="card muted" role="status">${error ? `Seven-day health unavailable: ${esc(error)} <button class="btn sm agent-health-retry" type="button" data-role="${esc(role)}">Retry</button>` : 'Loading seven-day health…'}</div>`;
+}
+
+function loadAgentHealth(role, { force = false } = {}) {
+  const cached = AGENT_HEALTH_CACHE.get(role);
+  if (!force && cached && Date.now() - cached.at < AGENT_HEALTH_TTL_MS)
+    return Promise.resolve(cached.data);
+  const existing = AGENT_HEALTH_PENDING.get(role);
+  if (existing) return existing;
+  AGENT_HEALTH_ERRORS.delete(role);
+  const generation = AGENT_HEALTH_GENERATION.get(role) || 0;
+  const pending = api('GET', `/api/agents/${encodeURIComponent(role)}/health`)
+    .then(data => {
+      if ((AGENT_HEALTH_GENERATION.get(role) || 0) === generation) {
+        AGENT_HEALTH_CACHE.set(role, { at: Date.now(), data });
+        if (STATE.view === 'agent' && STATE.agent === role) softRender();
+      }
+      return data;
+    })
+    .catch(error => {
+      if ((AGENT_HEALTH_GENERATION.get(role) || 0) === generation) {
+        AGENT_HEALTH_ERRORS.set(role, error.message);
+        if (STATE.view === 'agent' && STATE.agent === role) softRender();
+      }
+      return null;
+    })
+    .finally(() => {
+      if (AGENT_HEALTH_PENDING.get(role) === pending) AGENT_HEALTH_PENDING.delete(role);
+    });
+  AGENT_HEALTH_PENDING.set(role, pending);
+  return pending;
+}
+
+function invalidateAgentRole(role) {
+  ROLEMATRIX_AT = 0;
+  ROLEMATRIX_EPOCH++;
+  ROLEMATRIX_PENDING = null;
+  AGENT_HEALTH_CACHE.delete(role);
+  AGENT_HEALTH_ERRORS.delete(role);
+  AGENT_HEALTH_GENERATION.set(role, (AGENT_HEALTH_GENERATION.get(role) || 0) + 1);
+  AGENT_HEALTH_PENDING.delete(role);
+}
+
 const EXEC_RUN_UI = {
   q: '',
   status: 'all',
@@ -536,12 +591,12 @@ async function renderEngineers() {
     roleData,
     healthData;
   try {
-    [rows, hist, roleData, healthData] = await Promise.all([
+    [rows, hist, roleData] = await Promise.all([
       api('GET', '/api/fleet'),
       api('GET', '/api/fleet/history?days=3').catch(() => []),
-      api('GET', '/api/roles').catch(() => ({ sites: [] })),
-      api('GET', '/api/agents/engineer/health').catch(() => null),
+      loadRoleMatrix().catch(() => ({ sites: [] })),
     ]);
+    healthData = cachedAgentHealth('engineer');
   } catch (e) {
     renderViewError(app, `Audit failed: ${e.message}`);
     return;
@@ -697,7 +752,7 @@ async function renderEngineers() {
       <span class="ag-enrollment-gap">· ${notEnrolled.length} not enrolled <button class="crumb-link ag-missing-toggle" type="button" aria-expanded="false">show sites</button></span>
       <button id="fleet-help-toggle" class="btn sm" style="margin-left:auto" title="Show / hide the column key">? Help</button>
     </div>
-    ${engineerHealthPanel(healthData)}
+    ${engineerHealthPanel(healthData) || agentHealthLoading('engineer')}
     <div class="card ag-missing-panel hidden" id="ag-missing-panel">
       <div class="ag-missing-head"><strong>Sites not enrolled in Engineer</strong><span class="muted">${notEnrolled.length} sites</span></div>
       ${
@@ -762,6 +817,9 @@ async function renderEngineers() {
     b.addEventListener('click', () => runAgent(b.dataset.site, 'engineer', b))
   );
   $$('.ag-health-details').forEach(b => b.addEventListener('click', () => toggleHealthDetail(b)));
+  $$('.agent-health-retry').forEach(button =>
+    button.addEventListener('click', () => loadAgentHealth(button.dataset.role, { force: true }))
+  );
   $('.ag-health-pause')?.addEventListener('click', () =>
     bulkAgentHealthAction('engineer', 'pause')
   );
@@ -771,6 +829,9 @@ async function renderEngineers() {
   wireCrumbs();
   if (!FRESH) applyUISnap();
   stamp();
+  const healthCache = AGENT_HEALTH_CACHE.get('engineer');
+  if ((!healthCache || Date.now() - healthCache.at >= AGENT_HEALTH_TTL_MS) && !AGENT_HEALTH_ERRORS.has('engineer'))
+    loadAgentHealth('engineer');
 }
 
 // Jump from an engineer row straight to that site's task board.
@@ -882,6 +943,7 @@ async function removeRoleEnrollment(site, role, btn) {
     toast(`${agentLabel(role)} removed from ${site}; rebuilding cron…`);
     await rebuildCronForSite(site);
     toast(`${agentLabel(role)} removed from ${site}`);
+    invalidateAgentRole(role);
     softRender();
   } catch (e) {
     toast(`Remove failed: ${e.message}`, 'err');
@@ -925,7 +987,10 @@ async function bulkAgentHealthAction(role, action) {
     `${verb}d ${rows.length - failed.length}/${rows.length} ${role}${failed.length ? ` · failed: ${failed.join('; ')}` : ''}`,
     failed.length ? 'err' : undefined
   );
-  if (!failed.length) softRender();
+  if (!failed.length) {
+    invalidateAgentRole(role);
+    softRender();
+  }
 }
 
 async function runEngineerNow(site, btn) {
@@ -3729,7 +3794,29 @@ function fmtAge(secs) {
 }
 const STATE_RANK = { overdue: 3, stale: 2, never: 1, fresh: 0, paused: -1 };
 let ROLEMATRIX = null;
+let ROLEMATRIX_AT = 0;
+let ROLEMATRIX_PENDING = null;
+let ROLEMATRIX_EPOCH = 0;
 let ROLE_OPEN = null; // {site, role} while the role-log modal is open (for live-follow)
+
+function loadRoleMatrix() {
+  if (ROLEMATRIX && Date.now() - ROLEMATRIX_AT < 10000) return Promise.resolve(ROLEMATRIX);
+  if (ROLEMATRIX_PENDING) return ROLEMATRIX_PENDING;
+  const epoch = ROLEMATRIX_EPOCH;
+  const pending = api('GET', '/api/roles')
+    .then(data => {
+      if (ROLEMATRIX_EPOCH === epoch) {
+        ROLEMATRIX = data;
+        ROLEMATRIX_AT = Date.now();
+      }
+      return data;
+    })
+    .finally(() => {
+      if (ROLEMATRIX_PENDING === pending) ROLEMATRIX_PENDING = null;
+    });
+  ROLEMATRIX_PENDING = pending;
+  return pending;
+}
 
 // Live-follow: every few seconds, re-tail any open log surface (container log
 // panels on the Containers tab, and the role-log modal). Stops itself when the
@@ -3801,12 +3888,11 @@ async function renderControl() {
   if (FRESH) app.innerHTML = '<div class="loading">Reading role status…</div>';
   let data;
   try {
-    data = await api('GET', '/api/roles');
+    data = await loadRoleMatrix();
   } catch (e) {
     renderViewError(app, `Roles read failed: ${e.message}`);
     return;
   }
-  ROLEMATRIX = data;
   CONTROL.filter = ['all', 'fresh', 'attention', 'paused'].includes(STATE.controlFilter)
     ? STATE.controlFilter
     : 'all';
@@ -4408,6 +4494,7 @@ async function toggleRole(site, role, currentlyEnabled) {
       'POST',
       `/api/roles/${encodeURIComponent(site)}/${encodeURIComponent(role)}/${action}`
     );
+    invalidateAgentRole(role);
     toast(`${action === 'pause' ? 'Paused' : 'Resumed'} ${role} on ${site}`);
     FRESH = false;
     UISNAP = captureUI();
@@ -4505,10 +4592,8 @@ async function renderGenericAgent(role) {
   if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(agentLabel(role))} agent…</div>`;
   let data, healthData;
   try {
-    [data, healthData] = await Promise.all([
-      api('GET', '/api/roles'),
-      api('GET', `/api/agents/${encodeURIComponent(role)}/health`).catch(() => null),
-    ]);
+    data = await loadRoleMatrix();
+    healthData = cachedAgentHealth(role);
   } catch (e) {
     renderViewError(app, e.message);
     return;
@@ -4537,7 +4622,7 @@ async function renderGenericAgent(role) {
     r => r.enabled && (r.state === 'stale' || r.state === 'overdue')
   ).length;
   const suggestedSchedule = rows[0]?.schedule || '0 */2 * * *';
-  const healthPanel = healthData ? agentHealthPanel(healthData, rows) : '';
+  const healthPanel = healthData ? agentHealthPanel(healthData, rows) : agentHealthLoading(role);
 
   const body = rows
     .map(r => {
@@ -4640,12 +4725,18 @@ async function renderGenericAgent(role) {
     $('.ag-health-pause')?.addEventListener('click', () => bulkAgentHealthAction(role, 'pause'));
     $('.ag-health-rerun')?.addEventListener('click', () => bulkAgentHealthAction(role, 'run'));
   }
+  $$('.agent-health-retry').forEach(button =>
+    button.addEventListener('click', () => loadAgentHealth(button.dataset.role, { force: true }))
+  );
   $$('.ag-run').forEach(b =>
     b.addEventListener('click', () => runAgent(b.dataset.site, b.dataset.role || role, b))
   );
   if (!FRESH) applyUISnap();
   applyFleetFilter();
   stamp();
+  const healthCache = AGENT_HEALTH_CACHE.get(role);
+  if ((!healthCache || Date.now() - healthCache.at >= AGENT_HEALTH_TTL_MS) && !AGENT_HEALTH_ERRORS.has(role))
+    loadAgentHealth(role);
 }
 
 // Fire a worker role now on one site (detached run-worker.sh, work-lock safe).
@@ -13372,12 +13463,14 @@ async function renderAutomation() {
     const btn = e.currentTarget;
     btn.disabled = true;
     try {
+      const role = $('#auto-new-role').value;
       await api('POST', `/api/automation/${encodeURIComponent(AUTO_SITE)}/roles`, {
-        role: $('#auto-new-role').value,
+        role,
         schedule: $('#auto-new-schedule').value,
         enabled: $('#auto-new-enabled').value === 'true',
         prompt: $('#auto-new-prompt').value,
       });
+      invalidateAgentRole(role);
       toast('Worker role added');
       renderAutomation();
     } catch (err) {
@@ -13400,6 +13493,7 @@ async function renderAutomation() {
             prompt: card.querySelector('.auto-role-prompt').value,
           }
         );
+        invalidateAgentRole(btn.dataset.role);
         toast(`${btn.dataset.role} saved`);
         renderAutomation();
       } catch (err) {

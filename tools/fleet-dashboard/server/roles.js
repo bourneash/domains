@@ -739,6 +739,7 @@ function agents(root, slugs) {
 
 module.exports = {
   matrix,
+  invalidateMatrix,
   health,
   roleLog,
   setEnabled,

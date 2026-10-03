@@ -7252,21 +7252,27 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.patch('/api/automation/:slug/roles/:role', requireSite, (req, res) => {
     try {
-      res.json(automation.updateRole(root, req.params.slug, req.params.role, req.body || {}));
+      const result = automation.updateRole(root, req.params.slug, req.params.role, req.body || {});
+      roles.invalidateMatrix(root);
+      res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   app.post('/api/automation/:slug/roles', requireSite, (req, res) => {
     try {
-      res.json(automation.createRole(root, req.params.slug, req.body || {}));
+      const result = automation.createRole(root, req.params.slug, req.body || {});
+      roles.invalidateMatrix(root);
+      res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
   app.delete('/api/automation/:slug/roles/:role', requireSite, (req, res) => {
     try {
-      res.json(automation.removeRole(root, req.params.slug, req.params.role));
+      const result = automation.removeRole(root, req.params.slug, req.params.role);
+      roles.invalidateMatrix(root);
+      res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
