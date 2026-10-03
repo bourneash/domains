@@ -401,16 +401,16 @@ function cellState(enabled, last, schedule, now) {
 
 // Build the site × role matrix from what's on disk: scheduled (crontab),
 // enabled (no ops/.<role>-disabled flag), and last-run (logs / pulse).
-async function matrix(root, slugs, onlyRoles = null) {
+async function matrix(root, slugs, onlyRoles = null, { includeEditorial = true } = {}) {
   const roleFilter = onlyRoles ? [...new Set(onlyRoles.map(String))].sort() : null;
-  const key = `${root}\0${slugs.join('\0')}\0${roleFilter ? roleFilter.join('\0') : '*'}`;
+  const key = `${root}\0${slugs.join('\0')}\0${roleFilter ? roleFilter.join('\0') : '*'}\0${includeEditorial ? 'editorial' : 'status'}`;
   const cached = matrixCache.get(key);
   if (cached && Date.now() - cached.at < MATRIX_CACHE_TTL_MS) return cached.data;
   const pending = matrixPending.get(key);
   if (pending) return pending;
 
   const epoch = matrixEpoch.get(root) || 0;
-  const refresh = buildMatrix(root, slugs, roleFilter)
+  const refresh = buildMatrix(root, slugs, roleFilter, includeEditorial)
     .then(data => {
       if ((matrixEpoch.get(root) || 0) === epoch) matrixCache.set(key, { at: Date.now(), data });
       return data;
@@ -422,7 +422,7 @@ async function matrix(root, slugs, onlyRoles = null) {
   return refresh;
 }
 
-async function buildMatrix(root, slugs, onlyRoles = null) {
+async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = true) {
   const now = Date.now();
   const freq = {};
   const parsedBySlug = new Map();
@@ -519,7 +519,7 @@ async function buildMatrix(root, slugs, onlyRoles = null) {
           commented,
           deploy,
           cadence: cadenceClass(schedule),
-          editorial: editorialTelemetry(cwd, role, logIndex, schedule),
+          editorial: includeEditorial ? editorialTelemetry(cwd, role, logIndex, schedule) : null,
         };
         freq[role] = (freq[role] || 0) + 1;
       }
@@ -535,7 +535,7 @@ async function buildMatrix(root, slugs, onlyRoles = null) {
 
 function agentMatrix(root, slugs, role) {
   const profiles = ROLE_FAMILIES[role]?.roles || [role];
-  return matrix(root, slugs, profiles);
+  return matrix(root, slugs, profiles, { includeEditorial: true });
 }
 
 // Tail of a role's newest log (for the cell drill-down).

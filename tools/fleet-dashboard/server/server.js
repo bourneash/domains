@@ -7197,7 +7197,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Roles matrix: site × role status from crontab + disabled flags + logs.
   app.get('/api/roles', async (_req, res) => {
     try {
-      res.json(await roles.matrix(root, discoverSites(root)));
+      res.json(await roles.matrix(root, discoverSites(root), null, { includeEditorial: false }));
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
