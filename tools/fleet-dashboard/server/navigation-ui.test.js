@@ -4487,6 +4487,11 @@ test('Guardrails uses bounded tables and shared panel controls', () => {
   assert.doesNotMatch(view, /style="(?:margin-top:0|margin-top:8px|max-width:)/);
   assert.match(style, /\.gr-panel \{ margin-bottom: 14px; \}/);
   assert.match(style, /\.gr-term-input \{ max-width: 280px; \}/);
+  assert.match(
+    style,
+    /\.gr-chip \{[^}]*background: var\(--panel-2\);[^}]*border: 1px solid var\(--border\);[^}]*color: var\(--text\);/
+  );
+  assert.doesNotMatch(style, /\.gr-chip \{[^}]*#1c1f26/);
 });
 
 test('operational inventory tables stay bounded on narrow viewports', () => {
