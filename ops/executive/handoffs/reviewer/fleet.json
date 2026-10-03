@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T01:31:22.583Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T02:01:12.764Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Rejected the newmomshop.com report-only proposal because it does not satisfy the delivery mandate and the site has two active improvements in a measurement window. Domain-manager must finish, pause, or consolidate both records and document scope, baseline, metric, rollback, and disposition by 2026-10-11; unresolved status or overlap escalates to the CEO by 2026-10-03T17:00Z. Routed three isolated preview-only engineer changes; production, telemetry, monetization, spend, credentials, configuration, and financial claims remain blocked.",
+        "summary": "Reject production proposals, unsupported revenue/ROI claims, unsafe tactics, and high-priority queue work. Preserve attribution, security, compliance, measurement, and active-work gates. Only the bounded read-only evidence request below is defensible; unresolved blockers remain with CTO and principal-engineer.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Approve only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, and revenue, ROI, causal-lift, security-clearance, or launch-readiness claims remain blocked. Existing measurement/review candidates stay unqueued until principal-engineer reconciles the admission ledger and release gates by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
