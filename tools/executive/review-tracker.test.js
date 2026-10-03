@@ -364,20 +364,31 @@ test('post-merge verification must pass even when the PR and connected build pas
     store.updateChangeRequest(request.request_id, { run_id: run.run_id });
     let conclusion = null;
     const api = async (_root, _repo, endpoint) =>
-      endpoint.startsWith('/pulls/')
-        ? {
-            state: 'closed',
-            merged_at: '2026-10-03T02:00:00Z',
-            merge_commit_sha: 'merge',
-            html_url: run.approval.pull_request.url,
-            head: { sha: 'head' },
-          }
-        : {
-            check_runs: [
-              { name: 'verify', conclusion: endpoint.includes('/merge/') ? conclusion : 'success' },
-              { name: 'Workers Builds: example-com', conclusion: 'success' },
-            ],
-          };
+      endpoint.startsWith('/check-runs/')
+        ? [
+            {
+              annotation_level: 'failure',
+              message: 'Failed to CreateArtifact: Artifact storage quota has been hit.',
+            },
+          ]
+        : endpoint.startsWith('/pulls/')
+          ? {
+              state: 'closed',
+              merged_at: '2026-10-03T02:00:00Z',
+              merge_commit_sha: 'merge',
+              html_url: run.approval.pull_request.url,
+              head: { sha: 'head' },
+            }
+          : {
+              check_runs: [
+                {
+                  name: 'verify',
+                  id: 42,
+                  conclusion: endpoint.includes('/merge/') ? conclusion : 'success',
+                },
+                { name: 'Workers Builds: example-com', conclusion: 'success' },
+              ],
+            };
     const options = {
       api,
       cache: {
@@ -402,7 +413,23 @@ test('post-merge verification must pass even when the PR and connected build pas
       store.getExecutiveWorkItem(`delivery-recovery:${request.request_id}`).status,
       'ready'
     );
-    assert.equal(store.getChangeRequest(request.request_id).status, 'committed');
+    assert.equal(store.getChangeRequest(request.request_id).status, 'failed');
+    assert.equal(store.getImprovement(run.run_id).state, 'failed');
+    assert.equal(
+      busyImplementationSites(
+        store.listImprovements({ site: request.site }),
+        store.listChangeRequests({ site: request.site })
+      ).has(request.site),
+      false
+    );
+    assert.match(
+      store.getImprovement(run.run_id).approval.production_checks.failure_evidence,
+      /Artifact storage quota/
+    );
+    assert.match(
+      store.getExecutiveWorkItem(`delivery-recovery:${request.request_id}`).summary,
+      /Artifact storage quota/
+    );
     conclusion = 'success';
     assert.equal((await reconcile(store, root, options))[0].release, 'verified');
     assert.equal(store.getChangeRequest(request.request_id).status, 'deployed');

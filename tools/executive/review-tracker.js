@@ -51,10 +51,11 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
     if (
       !request.run_id ||
       request.delivery_mode !== 'pull_request' ||
-      !['committed', 'deployed', 'verified'].includes(request.status)
+      !['committed', 'deployed', 'verified', 'failed'].includes(request.status)
     )
       continue;
     const run = store.getImprovement(request.run_id);
+    if (request.status === 'failed' && run?.outcome?.phase !== 'production-verification') continue;
     const number = run?.approval?.pull_request?.number;
     const url = run?.approval?.pull_request?.url;
     const match = String(url || '').match(
@@ -85,6 +86,15 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         : productionVerification?.conclusion === 'success'
           ? 'passed'
           : 'pending';
+    const annotations =
+      productionGate === 'failed' && productionVerification?.id
+        ? await api(root, repo, `/check-runs/${productionVerification.id}/annotations?per_page=10`)
+        : [];
+    const productionFailure = (Array.isArray(annotations) ? annotations : [])
+      .filter(row => row.annotation_level === 'failure')
+      .slice(0, 2)
+      .map(row => String(row.message || '').slice(0, 1200))
+      .join('\n');
     const build = buildFor(builds, work.site, mergeSha, repo);
     const gate =
       pr.mergeable === false && pr.mergeable_state === 'dirty'
@@ -127,6 +137,7 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         verify: productionVerification?.conclusion || null,
         gate: productionGate,
         commit: mergeSha,
+        failure_evidence: productionFailure || null,
       },
       release: {
         status: release,
@@ -139,10 +150,10 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
     // A successful connected production build completes the review run as
     // well as its request. Leaving the run in `review` keeps the site busy in
     // the queue scheduler and strands the next approved implementation.
-    if (approvalChanged || (release === 'verified' && run.state === 'review'))
+    if (approvalChanged || (release === 'verified' && ['review', 'failed'].includes(run.state)))
       store.updateImprovement(run.run_id, {
         ...(approvalChanged ? { approval: next } : {}),
-        ...(release === 'verified' && run.state === 'review'
+        ...(release === 'verified' && ['review', 'failed'].includes(run.state)
           ? {
               state: 'deployed',
               deployment_id: mergeSha,
@@ -150,8 +161,44 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
             }
           : {}),
       });
-    if (release === 'verified' && request.status === 'committed')
-      store.updateChangeRequest(request.request_id, { status: 'deployed' });
+    if (release === 'verified' && ['committed', 'failed'].includes(request.status))
+      store.updateChangeRequest(request.request_id, { status: 'deployed', error: null });
+    // A finished, merged delivery with failing production verification owns
+    // no live implementation slot. Preserve the failure and source work;
+    // a bounded successor can repair its infrastructure without duplicating it.
+    if (mergeSha && productionGate === 'failed' && request.status !== 'failed') {
+      const error = `Production GitHub verification failed for merged commit ${mergeSha}; preserve the shipped source and inspect its failed check before creating a bounded repair. ${productionFailure}`;
+      store.updateImprovement(run.run_id, {
+        state: 'failed',
+        outcome: {
+          ...run.outcome,
+          phase: 'production-verification',
+          error,
+          failed_at: new Date().toISOString(),
+        },
+      });
+      store.updateChangeRequest(request.request_id, {
+        status: 'failed',
+        error,
+        lease_owner: null,
+        lease_expires_at: null,
+        heartbeat_at: null,
+        next_attempt_at: null,
+      });
+      store.record?.({
+        event_type: 'delivery.production_verification_failed',
+        source: 'review-tracker',
+        entity_type: 'change-request',
+        entity_id: request.request_id,
+        site_id: `site:${request.site}`,
+        payload: {
+          run_id: run.run_id,
+          merge_sha: mergeSha,
+          check_url: productionVerification?.details_url || null,
+          original_pr: url,
+        },
+      });
+    }
     const workId = `delivery-recovery:${request.request_id}`;
     const existing = store.getExecutiveWorkItem?.(workId);
     // Close the original incident only on verified production evidence and
@@ -191,7 +238,7 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         site: request.site,
         source_type: 'change-request',
         source_id: request.request_id,
-        summary: `Original PR ${number} at ${pr.head.sha} failed ${gate === 'failed' ? 'GitHub verification' : productionGate === 'failed' ? 'production GitHub verification' : 'the connected production build'}. Preserve its request, run, branch and workspace.`,
+        summary: `Original PR ${number} at ${pr.head.sha} failed ${gate === 'failed' ? 'GitHub verification' : productionGate === 'failed' ? 'production GitHub verification' : 'the connected production build'}. Preserve its request, run, branch and workspace. ${productionFailure}`,
         next_action:
           'Inspect the failed check logs; repair the original isolated PR workspace and run the exact CI checks. Do not duplicate the implementation, disable checks, or merge a failed head.',
         due_at: new Date(Date.now() + 3600000).toISOString(),
