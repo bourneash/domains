@@ -201,6 +201,13 @@ test('fleet vitals use a compact role summary outside Domain Control', () => {
   assert.match(shell, /\/api\/roles\/vitals/);
 });
 
+test('direct Agent pages start their scoped matrix before the nav catalog resolves', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const needsAgents = \['control', 'agents'\]\.includes\(STATE\.view\)/);
+  assert.match(app, /if \(agentView && !AGENT_CATALOG_READY\) loadAgentCatalog\(\)/);
+  assert.match(app, /const profiles = data\.profiles \|\| agentDef\?\.profiles \|\| \[role\]/);
+});
+
 test('sidebar supports persistent favorites and reordering', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

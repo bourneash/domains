@@ -222,7 +222,7 @@ function loadAgentCatalog() {
       AGENT_CATALOG_READY = true;
       AGENT_CATALOG_PENDING = null;
       buildAgentsMenu();
-      if (['agent', 'agents'].includes(STATE.view)) render();
+      if (['control', 'agents'].includes(STATE.view)) render();
       return agents;
     });
   AGENT_CATALOG_PENDING = pending;
@@ -4747,7 +4747,7 @@ async function renderGenericAgent(role) {
   }
   AGENT_HEALTH = healthData;
   const agentDef = (STATE.agents || []).find(a => a.role === role);
-  const profiles = agentDef?.profiles || [role];
+  const profiles = data.profiles || agentDef?.profiles || [role];
   const rows = data.sites.flatMap(s =>
     profiles
       .filter(profile => s.cells[profile])
@@ -4773,7 +4773,7 @@ async function renderGenericAgent(role) {
   const body = rows
     .map(r => {
       const actualRole = r.profileRole || role;
-      const secondary = agentDef?.secondaryRoles?.includes(actualRole) || false;
+      const secondary = (data.secondaryRoles || agentDef?.secondaryRoles || []).includes(actualRole);
       const h = healthBy[`${r.site}:${actualRole}`];
       const runBtn = r.worker
         ? `<button class="btn sm ag-run" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">▶ Run</button>`
@@ -15779,7 +15779,8 @@ async function renderSiteDetail() {
 function render() {
   const agentView = STATE.view === 'agent';
   const needsSites = SITE_CATALOG_VIEWS.has(STATE.view) && !SITE_CATALOG_READY && !agentView;
-  const needsAgents = ['agent', 'agents'].includes(STATE.view) && !AGENT_CATALOG_READY;
+  const needsAgents = ['control', 'agents'].includes(STATE.view) && !AGENT_CATALOG_READY;
+  if (agentView && !AGENT_CATALOG_READY) loadAgentCatalog();
   if (agentView && STATE.agent === 'engineer' && !SITE_CATALOG_READY) loadSiteCatalog();
   if (needsSites || needsAgents) {
     const catalogs = [needsSites && 'site', needsAgents && 'agent'].filter(Boolean).join(' and ');

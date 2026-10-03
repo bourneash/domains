@@ -36,6 +36,8 @@ test('editorial Agent matrix includes each installed family profile', async () =
   );
   try {
     const matrix = await roles.agentMatrix(root, ['example.test'], 'update');
+    assert.deepEqual(matrix.profiles, roles.ROLE_FAMILIES.update.roles);
+    assert.deepEqual(matrix.secondaryRoles, roles.ROLE_FAMILIES.update.secondaryRoles);
     assert.deepEqual(matrix.roles, ['news-writer', 'update']);
     assert.deepEqual(Object.keys(matrix.sites[0].cells).sort(), ['news-writer', 'update']);
   } finally {

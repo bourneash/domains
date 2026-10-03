@@ -612,8 +612,13 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
 }
 
 function agentMatrix(root, slugs, role) {
-  const profiles = ROLE_FAMILIES[role]?.roles || [role];
-  return matrix(root, slugs, profiles, { includeEditorial: true });
+  const family = ROLE_FAMILIES[role];
+  const profiles = family?.roles || [role];
+  return matrix(root, slugs, profiles, { includeEditorial: true }).then(data => ({
+    ...data,
+    profiles,
+    secondaryRoles: family?.secondaryRoles || [],
+  }));
 }
 
 // Tail of a role's newest log (for the cell drill-down).
