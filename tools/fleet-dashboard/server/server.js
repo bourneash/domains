@@ -5012,6 +5012,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 400).json({ error: e.message });
     }
   });
+  app.get('/api/agent-runtime/summary', (_req, res) => {
+    try {
+      const limit = 100;
+      res.json({
+        agents: { agents: events.listAgents({ limit }) },
+        runs: { runs: events.listAgentRuns({ limit }) },
+        budgets: { budgets: events.listBudgetPolicies({ limit }) },
+        routines: { routines: events.listAgentRoutines({ limit }) },
+        watchdogs: { watchdogs: events.listAgentWatchdogs({ limit }) },
+        evals: { evaluations: events.listAgentEvals({ limit }) },
+        grants: { grants: events.listAgentToolGrants({ limit }) },
+        workspaces: { workspaces: events.listAgentWorkspaces({ limit }) },
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/agents', (req, res) => {
     try {
       res.json({ agents: events.listAgents(req.query) });

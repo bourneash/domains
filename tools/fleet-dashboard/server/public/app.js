@@ -13693,18 +13693,7 @@ async function renderAgentRuntime() {
         ? AGENT_RUNTIME_PRIMARY_CACHE.data
         : null;
     if (!primary) {
-      const [agents, runs, budgets, routines, watchdogs, evals, grants, workspaces] =
-        await Promise.all([
-          api('GET', '/api/agents?limit=100'),
-          api('GET', '/api/agent-runs?limit=100'),
-          api('GET', '/api/budgets?limit=100'),
-          api('GET', '/api/agent-routines?limit=100'),
-          api('GET', '/api/agent-watchdogs?limit=100'),
-          api('GET', '/api/agent-evals?limit=100'),
-          api('GET', '/api/agent-tools?limit=100'),
-          api('GET', '/api/agent-workspaces?limit=100'),
-        ]);
-      primary = { agents, runs, budgets, routines, watchdogs, evals, grants, workspaces };
+      primary = await api('GET', '/api/agent-runtime/summary');
       AGENT_RUNTIME_PRIMARY_CACHE = { at: Date.now(), data: primary };
     }
     const { agents, runs, budgets, routines, watchdogs, evals, grants, workspaces } = primary;
