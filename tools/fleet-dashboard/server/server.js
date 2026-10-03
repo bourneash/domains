@@ -7203,6 +7203,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // Agent overview pages need one role's site rows, not the full role matrix.
+  app.get('/api/agents/:role/matrix', async (req, res) => {
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/i.test(req.params.role))
+      return res.status(400).json({ error: 'invalid role' });
+    try {
+      res.json(await roles.agentMatrix(root, discoverSites(root), req.params.role));
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Repeated content-writer sandbox, quality-gate, and build failures. This
   // is read-only and derives its 24-hour window from site-owned logs.
   app.get('/api/content-writer/health', (_req, res) => {

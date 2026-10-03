@@ -111,6 +111,9 @@ function invalidateAgentRole(role) {
   ROLEMATRIX_AT = 0;
   ROLEMATRIX_EPOCH++;
   ROLEMATRIX_PENDING = null;
+  AGENT_MATRIX_CACHE.clear();
+  AGENT_MATRIX_PENDING.clear();
+  for (const [key, epoch] of AGENT_MATRIX_EPOCH) AGENT_MATRIX_EPOCH.set(key, epoch + 1);
   AGENT_HEALTH_CACHE.delete(role);
   AGENT_HEALTH_ERRORS.delete(role);
   AGENT_HEALTH_GENERATION.set(role, (AGENT_HEALTH_GENERATION.get(role) || 0) + 1);
@@ -3882,6 +3885,9 @@ let ROLEMATRIX_AT = 0;
 let ROLEMATRIX_PENDING = null;
 let ROLEMATRIX_EPOCH = 0;
 let ROLE_OPEN = null; // {site, role} while the role-log modal is open (for live-follow)
+const AGENT_MATRIX_CACHE = new Map();
+const AGENT_MATRIX_PENDING = new Map();
+const AGENT_MATRIX_EPOCH = new Map();
 
 function loadRoleMatrix() {
   if (ROLEMATRIX && Date.now() - ROLEMATRIX_AT < 30000) return Promise.resolve(ROLEMATRIX);
@@ -3902,6 +3908,26 @@ function loadRoleMatrix() {
   return pending;
 }
 globalThis.fleetLoadRoleMatrix = loadRoleMatrix;
+
+function loadAgentRoleMatrix(role) {
+  const cached = AGENT_MATRIX_CACHE.get(role);
+  if (cached && Date.now() - cached.at < 30000) return Promise.resolve(cached.data);
+  const existing = AGENT_MATRIX_PENDING.get(role);
+  if (existing) return existing;
+  const epoch = AGENT_MATRIX_EPOCH.get(role) || 0;
+  let pending;
+  pending = api('GET', `/api/agents/${encodeURIComponent(role)}/matrix`)
+    .then(data => {
+      if ((AGENT_MATRIX_EPOCH.get(role) || 0) === epoch)
+        AGENT_MATRIX_CACHE.set(role, { at: Date.now(), data });
+      return data;
+    })
+    .finally(() => {
+      if (AGENT_MATRIX_PENDING.get(role) === pending) AGENT_MATRIX_PENDING.delete(role);
+    });
+  AGENT_MATRIX_PENDING.set(role, pending);
+  return pending;
+}
 
 let FLEET_CONTAINERS_PENDING = null;
 function loadFleetContainers() {
@@ -4688,13 +4714,12 @@ async function renderGenericAgent(role) {
   if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(agentLabel(role))} agent…</div>`;
   let data, healthData;
   try {
-    data = await loadRoleMatrix();
+    data = await loadAgentRoleMatrix(role);
     healthData = cachedAgentHealth(role);
   } catch (e) {
     renderViewError(app, e.message);
     return;
   }
-  ROLEMATRIX = data;
   AGENT_HEALTH = healthData;
   const agentDef = (STATE.agents || []).find(a => a.role === role);
   const profiles = agentDef?.profiles || [role];
@@ -15730,20 +15755,13 @@ function render() {
   const agentView = STATE.view === 'agent';
   const needsSites = SITE_CATALOG_VIEWS.has(STATE.view) && !SITE_CATALOG_READY && !agentView;
   const needsAgents = ['agent', 'agents'].includes(STATE.view) && !AGENT_CATALOG_READY;
-  if (agentView && !SITE_CATALOG_READY) loadSiteCatalog();
+  if (agentView && STATE.agent === 'engineer' && !SITE_CATALOG_READY) loadSiteCatalog();
   if (needsSites || needsAgents) {
     const catalogs = [needsSites && 'site', needsAgents && 'agent'].filter(Boolean).join(' and ');
     const noun = needsSites && needsAgents ? 'catalogs' : 'catalog';
     if (FRESH) $('#app').innerHTML = `<div class="loading">Loading ${catalogs} ${noun}…</div>`;
     if (needsSites) loadSiteCatalog();
     if (needsAgents) loadAgentCatalog();
-    if (
-      STATE.view === 'agent' &&
-      STATE.agent !== 'engineer' &&
-      !['executive', 'product-manager-fleet', 'product-manager-sites'].includes(STATE.agent)
-    ) {
-      loadRoleMatrix().catch(() => {});
-    }
     return;
   }
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));

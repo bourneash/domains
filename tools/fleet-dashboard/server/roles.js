@@ -401,15 +401,16 @@ function cellState(enabled, last, schedule, now) {
 
 // Build the site × role matrix from what's on disk: scheduled (crontab),
 // enabled (no ops/.<role>-disabled flag), and last-run (logs / pulse).
-async function matrix(root, slugs) {
-  const key = `${root}\0${slugs.join('\0')}`;
+async function matrix(root, slugs, onlyRoles = null) {
+  const roleFilter = onlyRoles ? [...new Set(onlyRoles.map(String))].sort() : null;
+  const key = `${root}\0${slugs.join('\0')}\0${roleFilter ? roleFilter.join('\0') : '*'}`;
   const cached = matrixCache.get(key);
   if (cached && Date.now() - cached.at < MATRIX_CACHE_TTL_MS) return cached.data;
   const pending = matrixPending.get(key);
   if (pending) return pending;
 
   const epoch = matrixEpoch.get(root) || 0;
-  const refresh = buildMatrix(root, slugs)
+  const refresh = buildMatrix(root, slugs, roleFilter)
     .then(data => {
       if ((matrixEpoch.get(root) || 0) === epoch) matrixCache.set(key, { at: Date.now(), data });
       return data;
@@ -421,11 +422,12 @@ async function matrix(root, slugs) {
   return refresh;
 }
 
-async function buildMatrix(root, slugs) {
+async function buildMatrix(root, slugs, onlyRoles = null) {
   const now = Date.now();
   const freq = {};
   const parsedBySlug = new Map();
   const deployerSlugs = [];
+  const selected = onlyRoles ? new Set(onlyRoles) : null;
   for (const slug of slugs) {
     const cwd = siteDir(root, slug);
     const parsed = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true });
@@ -433,6 +435,7 @@ async function buildMatrix(root, slugs) {
     const deployer = parsed.find(entry => entry.role === 'deployer');
     if (
       deployer &&
+      (!selected || selected.has('deployer')) &&
       !deployer.commented &&
       !fs.existsSync(path.join(cwd, 'ops', '.deployer-disabled'))
     ) {
@@ -452,6 +455,7 @@ async function buildMatrix(root, slugs) {
       const logIndex = createLogIndex(cwd);
       const cells = {};
       for (const { role, schedule, worker, commented } of parsed) {
+        if (selected && !selected.has(role)) continue;
         if (cells[role]) continue; // first schedule wins on dupes
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
         const last = enabled ? lastRun(cwd, role, logIndex) : null;
@@ -527,6 +531,11 @@ async function buildMatrix(root, slugs) {
   // intentionally omits sites with no scheduled roles, but agent pages need
   // the full set to distinguish "not enrolled" from "not discovered".
   return { roles, sites, allSites: [...slugs] };
+}
+
+function agentMatrix(root, slugs, role) {
+  const profiles = ROLE_FAMILIES[role]?.roles || [role];
+  return matrix(root, slugs, profiles);
 }
 
 // Tail of a role's newest log (for the cell drill-down).
@@ -842,6 +851,7 @@ function agents(root, slugs) {
 
 module.exports = {
   matrix,
+  agentMatrix,
   invalidateMatrix,
   health,
   compactHealth,

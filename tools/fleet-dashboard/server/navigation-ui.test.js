@@ -328,7 +328,19 @@ test('Engineer overview loads enrollment controls without waiting for the full r
   assert.doesNotMatch(engineerView, /loadRoleMatrix\(/);
   const renderStart = source.indexOf('function render() {');
   const renderEnd = source.indexOf('const NAV_ITEM_DESCRIPTIONS', renderStart);
-  assert.match(source.slice(renderStart, renderEnd), /STATE\.agent !== 'engineer'/);
+  assert.doesNotMatch(source.slice(renderStart, renderEnd), /loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
+});
+
+test('generic Agent pages load only their role-scoped matrix', () => {
+  const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = source.indexOf('async function renderGenericAgent(role)');
+  const end = source.indexOf('// Fire a worker role now', start);
+  const agentView = source.slice(start, end);
+  assert.match(agentView, /loadAgentRoleMatrix\(role\)/);
+  assert.doesNotMatch(agentView, /loadRoleMatrix\(\)/);
+  assert.match(source, /\/api\/agents\/\$\{encodeURIComponent\(role\)\}\/matrix/);
+  const routeRender = source.slice(source.indexOf('function render() {'), source.indexOf('const NAV_ITEM_DESCRIPTIONS'));
+  assert.doesNotMatch(routeRender, /loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
 });
 
 test('Agent health details are inserted on first expansion, not during initial rendering', () => {
@@ -1116,10 +1128,10 @@ test('dashboard boot loads site and agent catalogs only when a view needs them',
   const render = app.slice(app.indexOf('function render()'), app.indexOf('const NAV_ITEM_DESCRIPTIONS'));
   assert.match(render, /const agentView = STATE\.view === 'agent'/);
   assert.match(render, /SITE_CATALOG_VIEWS\.has\(STATE\.view\) && !SITE_CATALOG_READY && !agentView/);
-  assert.match(render, /if \(agentView && !SITE_CATALOG_READY\) loadSiteCatalog\(\)/);
+  assert.match(render, /if \(agentView && STATE\.agent === 'engineer' && !SITE_CATALOG_READY\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsSites\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsAgents\) loadAgentCatalog\(\)/);
-  assert.match(render, /STATE\.view === 'agent'[\s\S]*?!\['executive', 'product-manager-fleet', 'product-manager-sites'\]\.includes\(STATE\.agent\)[\s\S]*?loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
+  assert.doesNotMatch(render, /loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
   const roleMatrix = app.slice(app.indexOf('function loadRoleMatrix()'), app.indexOf('// Live-follow:'));
   assert.match(roleMatrix, /Date\.now\(\) - ROLEMATRIX_AT < 30000/);
   assert.match(boot, /if \(!AGENT_CATALOG_READY\) loadAgentCatalog\(\)/);
