@@ -115,9 +115,7 @@ function classifyLighthouseResult(lh, report) {
     failingSeoAudits.includes('is-crawlable') &&
     failingSeoAudits.every(id => ['is-crawlable', 'robots-txt'].includes(id)) &&
     noindexEvidence &&
-    ['performance', 'accessibility', 'best-practices'].every(
-      key => scores[key] >= thresholds[key]
-    );
+    ['performance', 'accessibility', 'best-practices'].every(key => scores[key] >= thresholds[key]);
   // A missing or incomplete report is not a measured zero. It means the
   // isolated browser did not provide usable scores, regardless of stderr.
   const infrastructureWarning = !reportAvailable;
@@ -721,9 +719,13 @@ async function devLogs(site, n) {
 // Run deterministic delivery gates inside the per-site sandbox. Commands are
 // fixed here (never supplied by the browser), and docker receives each argument
 // separately; the site's package scripts remain its source of truth.
-async function validate(site) {
+async function validate(site, { run = docker } = {}) {
   const checks = [
     ['diff', 'git diff --check'],
+    [
+      'ci',
+      `if [ -f site/package.json ]; then cd site; fi; if node -e 'process.exit(require("./package.json").scripts?.["ci:verify"] ? 0 : 1)' 2>/dev/null; then npm run ci:verify; elif node -e 'process.exit(require("./package.json").scripts?.["security:audit:prod"] ? 0 : 1)' 2>/dev/null; then npm run security:audit:prod; fi`,
+    ],
     // Keep the command runner portable across site-owned test scripts. The
     // sandbox environment caps auxiliary thread pools; passing framework-
     // specific worker flags here breaks Vitest versions that do not support
@@ -734,7 +736,7 @@ async function validate(site) {
   const results = {};
   for (const [name, command] of checks) {
     const started = Date.now();
-    const r = await docker(sandboxExecCommand(site, ['sh', '-lc', command]), {
+    const r = await run(sandboxExecCommand(site, ['sh', '-lc', command]), {
       timeout: 10 * 60 * 1000,
       maxBuffer: 4 * 1024 * 1024,
     });

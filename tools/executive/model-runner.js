@@ -217,6 +217,7 @@ async function main() {
         defaultActor: role,
         defaultSite: brief.domain_manager?.site || '',
         sanitize: true,
+        rejectDroppedRequests: true,
       });
       plan = mergeProviderPlan(nextPlan);
     } catch (error) {
@@ -224,7 +225,7 @@ async function main() {
       // Allow one bounded correction attempt, then fail closed.
       repaired = true;
       output = await runTracked(
-        `${prompt}\n\nYour previous response failed validation (${error.message}). Correct that exact validation error and return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined. Proposals must include created_by, title, summary, and requested_action; created_by must be ceo|cto|cro|cfo|legal|security|domain-manager|researcher.`,
+        `${prompt}\n\nPREVIOUS RESPONSE TO CORRECT:\n${output.slice(0, 65536)}\n\nYour previous response failed validation (${error.message}). Correct that exact validation error and return the same plan again as strict JSON only. Messages may only use the role actors allowed by the contract; do not include owner or system, markdown, or commentary. Proposal reviews must use an existing proposal_id, reviewed_by ceo|cto|cfo|legal|security|domain-manager|reviewer, and status accepted_research|escalate_owner|declined. Proposals must include created_by, title, summary, and requested_action; created_by must be ceo|cto|cro|cfo|legal|security|domain-manager|researcher.`,
         usage,
         role,
         true,
@@ -236,6 +237,7 @@ async function main() {
           defaultActor: role,
           defaultSite: brief.domain_manager?.site || '',
           sanitize: true,
+          rejectDroppedRequests: true,
         });
       } catch (repairError) {
         // A provider can fail twice on formatting even after the bounded
@@ -285,6 +287,7 @@ async function main() {
       repairedPlan = runner.parseOutput(repairedOutput, {
         defaultActor: 'reviewer',
         sanitize: true,
+        rejectDroppedRequests: true,
       });
     } catch (repairError) {
       transcript.push({
@@ -329,6 +332,7 @@ async function main() {
         finalPlan = runner.parseOutput(finalRepairOutput, {
           defaultActor: 'ceo',
           sanitize: true,
+          rejectDroppedRequests: true,
         });
       } catch (repairError) {
         transcript.push({

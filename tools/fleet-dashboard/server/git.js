@@ -599,9 +599,27 @@ async function createWorktree(root, slug, runId) {
       '--quiet',
       `refs/heads/${branch}`,
     ]);
+    let baseCommit = null;
+    if (!branchExists.ok) {
+      const baseBranch = await defaultBranch(cwd);
+      const fetched = await git(cwd, [
+        'fetch',
+        '--no-tags',
+        'origin',
+        `${baseBranch}:refs/remotes/origin/${baseBranch}`,
+      ]);
+      if (!fetched.ok)
+        throw httpErr(
+          502,
+          'could not refresh the worker base from origin: ' + (fetched.err || fetched.out).trim()
+        );
+      const resolved = await git(cwd, ['rev-parse', `refs/remotes/origin/${baseBranch}^{commit}`]);
+      if (!resolved.ok) throw httpErr(500, 'fresh worker base could not be resolved');
+      baseCommit = resolved.out.trim();
+    }
     const args = branchExists.ok
       ? ['worktree', 'add', target, branch]
-      : ['worktree', 'add', '-b', branch, target, 'HEAD'];
+      : ['worktree', 'add', '-b', branch, target, baseCommit];
     const result = await git(cwd, args);
     if (!result.ok)
       throw httpErr(500, (result.err || result.out).trim() || 'git worktree add failed');
@@ -610,7 +628,7 @@ async function createWorktree(root, slug, runId) {
     // checkout and mutate the wrong repository. Fail closed at creation time.
     if (!fs.existsSync(path.join(target, '.git')))
       throw httpErr(500, 'git worktree was created without isolated metadata');
-    return { branch, path: target, created: true };
+    return { branch, path: target, created: true, base_commit: baseCommit };
   });
 }
 

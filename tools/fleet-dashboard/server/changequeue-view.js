@@ -33,7 +33,9 @@ function measurementScope(value = {}) {
   const paths = Array.isArray(explicit?.paths)
     ? explicit.paths.map(String).map(path => path.toLowerCase())
     : [];
-  return [...new Set([...paths, ...extractPaths(textOf(value))])];
+  return [
+    ...new Set([...paths, ...extractPaths(`${textOf(value)}\n${value.baseline?.evidence || ''}`)]),
+  ];
 }
 
 function measurementCategory(value = {}) {

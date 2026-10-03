@@ -279,3 +279,57 @@ test('improvement worktree stays isolated, deploys by fast-forward, and rolls ba
     cleanup(root);
   }
 });
+
+test('new workers start from refreshed remote default branch without changing dirty host checkout', async () => {
+  const { root, cwd } = makeRepo();
+  const remote = path.join(root, 'origin.git');
+  const peer = path.join(root, 'peer');
+  try {
+    sh(root, ['init', '--bare', '-q', remote]);
+    sh(cwd, ['remote', 'add', 'origin', remote]);
+    sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
+    const branch = execFileSync('git', ['-C', cwd, 'branch', '--show-current'], {
+      env: CLEAN_ENV,
+      encoding: 'utf8',
+    }).trim();
+    sh(root, ['clone', '-q', '--branch', branch, remote, peer]);
+    sh(peer, ['config', 'user.name', 'Peer']);
+    sh(peer, ['config', 'user.email', 'peer@example.com']);
+    fs.writeFileSync(path.join(peer, 'production-fix.txt'), 'already shipped\n');
+    sh(peer, ['add', 'production-fix.txt']);
+    sh(peer, ['commit', '-qm', 'production fix']);
+    sh(peer, ['push', '-q', 'origin', 'HEAD']);
+    const prior = execFileSync('git', ['-C', cwd, 'rev-parse', 'HEAD'], {
+      env: CLEAN_ENV,
+      encoding: 'utf8',
+    }).trim();
+    fs.writeFileSync(path.join(cwd, 'README.md'), 'unrelated dirty work\n');
+    const result = await git.createWorktree(
+      root,
+      'example.com',
+      '87654321-abcd-1234-abcd-123456789012'
+    );
+    assert.equal(
+      fs.readFileSync(path.join(result.path, 'production-fix.txt'), 'utf8'),
+      'already shipped\n'
+    );
+    assert.equal(fs.readFileSync(path.join(cwd, 'README.md'), 'utf8'), 'unrelated dirty work\n');
+    assert.equal(
+      execFileSync('git', ['-C', cwd, 'rev-parse', 'HEAD'], {
+        env: CLEAN_ENV,
+        encoding: 'utf8',
+      }).trim(),
+      prior
+    );
+    assert.match(result.base_commit, /^[a-f0-9]{40}$/);
+    const resumed = await git.createWorktree(
+      root,
+      'example.com',
+      '87654321-abcd-1234-abcd-123456789012'
+    );
+    assert.equal(resumed.created, false);
+    assert.equal(resumed.path, result.path);
+  } finally {
+    cleanup(root);
+  }
+});

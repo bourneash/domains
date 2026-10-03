@@ -418,3 +418,33 @@ test('delivery metrics count deployed work by explicit rolling windows', () => {
   assert.equal(metrics.windows.month_to_date.shipped, 2);
   assert.match(metrics.definition, /deployed/);
 });
+
+test('measurement path scope includes the durable implementation baseline', () => {
+  const { measurementConflict } = require('./changequeue-view');
+  const measured = {
+    site: 'example.com',
+    category: 'engineering',
+    title: 'Recipe search',
+    baseline: {
+      request_category: 'engineering',
+      evidence: 'Implement recipe search on /recipes/.',
+    },
+  };
+  assert.equal(
+    measurementConflict(
+      {
+        category: 'engineering',
+        body: 'Create troubleshooting index at /guides/troubleshooting/ and link it from /guides/.',
+      },
+      measured
+    ),
+    false
+  );
+  assert.equal(
+    measurementConflict(
+      { category: 'engineering', body: 'Change recipe filters on /recipes/.' },
+      measured
+    ),
+    true
+  );
+});

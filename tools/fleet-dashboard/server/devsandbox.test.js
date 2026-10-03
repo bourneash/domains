@@ -126,7 +126,9 @@ test('private noindex exception requires explicit Lighthouse audit evidence', ()
     audits: {
       'is-crawlable': {
         score: 0,
-        details: { items: [{ source: { snippet: '<meta name="robots" content="noindex,nofollow">' } }] },
+        details: {
+          items: [{ source: { snippet: '<meta name="robots" content="noindex,nofollow">' } }],
+        },
       },
       'robots-txt': { score: 0 },
       'meta-description': { score: 1 },
@@ -209,4 +211,21 @@ test('improvement sandboxes mount only the site Git admin directory', () => {
   assert.equal(mount.containerPath, '/git-store/example.com');
   assert.equal(mount.gitDir, '/git-store/example.com/worktrees/example.com--123456789abc');
   assert.equal(mount.workTree, worktree);
+});
+
+test('canonical CI verification failure cannot be hidden by passing tests and build', async () => {
+  const commands = [];
+  const result = await devsandbox.validate('imp-test', {
+    run: async args => {
+      const command = args.at(-1);
+      commands.push(command);
+      return command.includes('npm run ci:verify')
+        ? { code: 1, stdout: 'production audit failed', stderr: '' }
+        : { code: 0, stdout: '', stderr: '' };
+    },
+  });
+  assert.equal(result.passed, false);
+  assert.equal(result.checks.ci.status, 'fail');
+  assert.equal(commands.length, 2);
+  assert.match(commands[1], /security:audit:prod/);
 });

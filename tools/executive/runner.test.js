@@ -3059,3 +3059,64 @@ test('assigned operating case uses bounded site context and retains policy and b
   assert.deepEqual(compact.portfolio_policy.excluded_sites, ['excluded.example']);
   assert.match(compact.operating_manager_task.evidence[0].url, /pull\/4/);
 });
+
+test('domain managers receive bounded source evidence and focused context', () => {
+  const { root, store } = db();
+  const prior = process.env.EXECUTIVE_DOMAIN;
+  try {
+    process.env.EXECUTIVE_DOMAIN = 'example.com';
+    fs.mkdirSync(path.join(root, 'sites/example.com/site/src/pages'), { recursive: true });
+    fs.writeFileSync(
+      path.join(root, 'sites/example.com/site/src/pages/index.astro'),
+      '<h1>Real homepage</h1>'
+    );
+    const manager = runner.buildDomainManagerContext(root);
+    assert.equal(manager.source_documents[0].path, 'site/src/pages/index.astro');
+    assert.match(manager.source_documents[0].sha256, /^[a-f0-9]{64}$/);
+    const compact = runner.compactModelBrief({ intelligence: {}, domain_manager: manager });
+    assert.deepEqual(compact.sites, ['example.com']);
+    assert.equal(compact.domain_manager.source_documents[0].excerpts[0], '<h1>Real homepage</h1>');
+  } finally {
+    if (prior === undefined) delete process.env.EXECUTIVE_DOMAIN;
+    else process.env.EXECUTIVE_DOMAIN = prior;
+    store.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('every executive pass receives the explicit queue JSON contract', () => {
+  for (const role of ['domain-manager', 'reviewer', 'cto', 'security', 'delivery-lead']) {
+    const prompt = runner.buildPassPrompt({ intelligence: {} }, role);
+    assert.ok(prompt.includes('"change_requests": [{"site":'));
+    assert.ok(prompt.includes('"body":"..."'));
+    assert.ok(prompt.includes('priority MUST be medium or low'));
+    assert.ok(!prompt.includes('same valid JSON plan shape required by the CEO'));
+  }
+});
+
+test('controlled model parsing reports dropped implementation requests for repair', () => {
+  const output = JSON.stringify({
+    change_requests: [{ site: 'example.com', title: 'Repair', priority: 'medium' }],
+  });
+  assert.throws(
+    () => runner.parseOutput(output, { sanitize: true, rejectDroppedRequests: true }),
+    /implementation requests failed validation.*missing=body/
+  );
+  const valid = JSON.stringify({
+    change_requests: [
+      {
+        site: 'example.com',
+        title: 'Repair',
+        body: 'Scoped implementation with tests and rollback',
+        priority: 'medium',
+        requested_by: 'domain-manager',
+        assigned_role: 'engineer',
+      },
+    ],
+  });
+  assert.equal(
+    runner.parseOutput(valid, { sanitize: true, rejectDroppedRequests: true }).change_requests
+      .length,
+    1
+  );
+});

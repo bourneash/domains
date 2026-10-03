@@ -471,6 +471,32 @@ function buildDomainManagerContext(root = ROOT) {
   return {
     site: focus,
     role: 'domain-manager',
+    source_documents: [
+      'CLAUDE.md',
+      'site/src/pages/index.astro',
+      'site/src/pages/reviews/index.astro',
+      'site/src/layouts/BaseLayout.astro',
+    ].flatMap(relative => {
+      const file = path.join(root, 'sites', focus, relative);
+      try {
+        const source = fs.readFileSync(file, 'utf8');
+        return [
+          {
+            path: relative,
+            sha256: crypto.createHash('sha256').update(source).digest('hex'),
+            bytes: Buffer.byteLength(source),
+            truncated: source.length > 10800,
+            excerpts: Array.from(
+              { length: Math.min(12, Math.ceil(source.length / 900)) },
+              (_, index) => source.slice(index * 900, (index + 1) * 900)
+            ),
+          },
+        ];
+      } catch (error) {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+      }
+    }),
     instruction:
       'Focus deeply on this managed site while preserving fleet-wide policy. Return site-specific observations and proposals to fleet leadership; do not act outside this site.',
   };
@@ -1501,8 +1527,9 @@ function compactModelBrief(brief) {
   }));
   compact.model_context_note =
     'Large historical arrays, raw repository listings, and duplicate report bodies are compacted here. The control plane retains the authoritative artifacts and source timestamps; do not treat omitted context as zero or proof of absence.';
-  if (brief.operating_manager_task?.site && brief.operating_manager_task.site !== 'fleet') {
-    const site = String(brief.operating_manager_task.site).toLowerCase();
+  const assignedSite = brief.operating_manager_task?.site || brief.domain_manager?.site;
+  if (assignedSite && assignedSite !== 'fleet') {
+    const site = String(assignedSite).toLowerCase();
     const belongs = row => String(row.site || row.domain || '').toLowerCase() === site;
     const focused = {
       generated_at: compact.generated_at,
@@ -1511,6 +1538,7 @@ function compactModelBrief(brief) {
       owner_strategy: compact.owner_strategy,
       tool_contract: compact.tool_contract,
       operating_manager_task: compact.operating_manager_task,
+      domain_manager: compact.domain_manager,
       site_context: (compact.site_context || []).filter(belongs),
       action_mandate: {
         ...compact.action_mandate,
@@ -1571,6 +1599,21 @@ function sanitizeExcludedPlanItems(plan = {}) {
   return sanitized;
 }
 
+const PLAN_OUTPUT_CONTRACT = `Return ONLY valid JSON with this shape:
+{
+  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
+  "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
+  "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
+  "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
+  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","owner_action_required":true,"implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
+  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
+  "work_items": [{"work_id":"omit for a new durable case; existing ids are only for materially changed high-priority blockers","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","actionability":"blocker for an owner-bound delivery escalation","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "tracking_updates": [{"work_id":"existing work item id","actor":"role","summary":"brief status/evidence change for the separate tracking stream","status":"optional status","next_action":"optional next action","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
+  "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
+}
+
+Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.`;
+
 function buildPrompt(brief) {
   const modelBriefJson = modelBriefForPrompt(brief);
   return `You are the autonomous CEO of a domain portfolio working with a CTO, CRO, CFO, Legal/Compliance lead, and on-demand domain managers. Your mission is attributable revenue growth and durable enterprise value across the fleet. You are proactive: inspect the evidence, identify the next best actions, delegate research when useful, and do not wait for a human prompt. The owner remains principal and must approve material decisions.
@@ -1621,20 +1664,7 @@ Rules:
 - When an owner request leads to a proposal or queued implementation, include its work_id as source_work_id so the control plane links the request to the downstream outcome automatically.
 - Use knowledge as a bounded learning queue, not a link dump. Prefer primary, official, open-licensed, or clearly attributed sources; record publisher, jurisdiction, date, license, and why the source is relevant. Create an education work_item when a role needs to apply the material, and never treat a book or course as legal advice or a substitute for counsel. When completing a source, record a concise takeaway and where it was applied so future roles can reuse the learning.
 
-Return ONLY valid JSON with this shape:
-{
-  "messages": [{"actor":"ceo|cto|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|cfo|legal|security|domain-manager|reviewer","body":"concise owner update","work_id":"optional work item id","reply_to":"optional message id","message_type":"update|question|decision_request|handoff","metadata":{"to":"role"}}],
-  "proposal_reviews": [{"proposal_id":"existing CRO/research proposal id","reviewed_by":"ceo|cto|cfo|legal|security|domain-manager|reviewer","status":"accepted_research|escalate_owner|declined","decision_note":"why this lead was accepted, escalated, or declined"}],
-  "data_requests": [{"requested_by":"ceo|cto|cro|product-manager-fleet|product-manager-sites|cfo|legal|domain-manager","question":"specific missing read-only data question","sources":["analytics"],"sites":["existing domain"]}],
-  "research_requests": [{"url":"https://public.example/","question":"specific question to answer"}],
-  "proposals": [{"created_by":"ceo|cto|cfo|legal|security|domain-manager","source_work_id":"optional owner request/workbench case id","title":"...","proposal_type":"business|growth|product|engineering|site-redesign|hiring|spend|report-only","summary":"...","rationale":"...","expected_upside":{"metric":"...","estimate":"...","source":"...","measurement_window":"..."},"risks":["..."],"requested_action":"...","owner_action_required":true,"implementation":{"site":"existing domain or fleet","launch_gate":"go_live when proposing production launch","legal_review":{"status":"approved","reviewed_by":"legal","decision_note":"evidence-backed risk disposition"},"security_review":{"status":"approved","reviewed_by":"security","decision_note":"evidence-backed risk disposition"},"action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","title":"optional task","body":"implementation body with acceptance criteria and rollback","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"engineer|principal-engineer","provider":"chatgpt|claude","max_turns":20,"auto_review":true}}],
-  "change_requests": [{"site":"existing domain or fleet","source_work_id":"optional owner request/workbench case id","action_key":"publish-fleet-operating-baseline when site is fleet","delivery_mode":"fleet_report for the fleet operation","requested_by":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|domain-manager|researcher","title":"...","body":"...","category":"engineering|content|marketing|sales|seo|design|other","priority":"high|medium|low","assigned_role":"...","provider":"chatgpt|claude","max_turns":20,"auto_review":true}],
-  "work_items": [{"work_id":"omit for a new durable case; existing ids are only for materially changed high-priority blockers","title":"...","kind":"decision|research|incident|legal|security|education|evidence|implementation","status":"open|ready|in_progress|blocked|waiting","priority":"urgent|high|normal|low","owner":"ceo|cto|cfo|legal|security|cro|product-manager-fleet|product-manager-sites|delivery-lead|design-director|growth-director|revenue-ops|site-factory|project-manager|domain-manager|principal-engineer|engineer|owner","actionability":"blocker for an owner-bound delivery escalation","goal_id":"optional durable goal id","parent_work_id":"optional parent work item id","site":"existing domain or fleet","summary":"concise context","next_action":"smallest next action","due_at":"optional ISO timestamp","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
-  "tracking_updates": [{"work_id":"existing work item id","actor":"role","summary":"brief status/evidence change for the separate tracking stream","status":"optional status","next_action":"optional next action","evidence":[{"type":"source|artifact|test|measurement|decision|diff|preview","label":"source or artifact","url":"https://...","note":"what it proves"}]}],
-  "knowledge": [{"knowledge_id":"existing id to update, or omit to create","title":"...","resource_type":"official|book|course|checklist|paper|reference","audience":"all|ceo|cto|cfo|cro|product-manager-fleet|product-manager-sites|legal|security|domain-manager|engineer","status":"candidate|queued|in_progress|complete|rejected","url":"https://...","publisher":"...","jurisdiction":"...","license":"...","published_at":"optional date","summary":"why this is useful","tags":["..."],"source_work_id":"optional work id","takeaway":"what the role learned","applied_to":"case, decision, or implementation where it was used","reviewed_by":"role"}]
-}
-
-Only create a change_request for low-risk, reversible work that can safely enter the existing review queue. Its priority MUST be medium or low; never use high priority. Use proposals for everything material. Keep the response concise.
+${PLAN_OUTPUT_CONTRACT}
 
 FLEET BRIEF:
 ${modelBriefJson}`;
@@ -1678,7 +1708,7 @@ function buildPassPrompt(brief, role, candidate = null) {
                               : role === 'domain-manager'
                                 ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
                                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\nReturn ONLY the same valid JSON plan shape required by the CEO. Do not mention or target any [excluded-site]. Do not invent telemetry.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
+  return `${base}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
@@ -1760,7 +1790,10 @@ function parseProviderJson(raw) {
   throw lastError || new Error('provider output is empty');
 }
 
-function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = false } = {}) {
+function parseOutput(
+  text,
+  { defaultActor = '', defaultSite = '', sanitize = false, rejectDroppedRequests = false } = {}
+) {
   const raw = String(text || '')
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
@@ -1801,6 +1834,11 @@ function parseOutput(text, { defaultActor = '', defaultSite = '', sanitize = fal
   };
   normalizeProviderProposalTypes(plan, { defaultActor, defaultSite });
   const sanitization = sanitize ? sanitizePlan(plan) : [];
+  const droppedRequests = sanitization.filter(item => item.key === 'change_requests');
+  if (rejectDroppedRequests && droppedRequests.length)
+    throw new Error(
+      `implementation requests failed validation: ${droppedRequests.map(item => `item ${item.index}: ${item.reason}`).join('; ')}`
+    );
   if (sanitize)
     Object.defineProperty(plan, '__sanitization', {
       value: sanitization,
