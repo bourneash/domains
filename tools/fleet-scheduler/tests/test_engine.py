@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -58,6 +59,52 @@ async def settle():
 
 
 class FireTests(unittest.IsolatedAsyncioTestCase):
+    def central(self, root, status="running", state="building", mode="pull_request", site="a.com", overlay=False):
+        target = root / ("sites/a.com/.monorepo-tools" if overlay else "tools") / "fleet-dashboard/data/fleet-events.sqlite"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(target) as d:
+            d.executescript("CREATE TABLE change_requests(request_id TEXT,site TEXT,status TEXT,delivery_mode TEXT,run_id TEXT); CREATE TABLE improvement_runs(run_id TEXT,state TEXT);")
+            d.execute("INSERT INTO change_requests VALUES ('original',?,?,?,'run')", (site,status,mode))
+            d.execute("INSERT INTO improvement_runs VALUES ('run',?)", (state,))
+        return target
+
+    async def test_central_delivery_blocks_scheduled_and_manual_heavy_work_but_keeps_probes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); self.central(root, overlay=True)
+            c = Clock(); g = Gate(); db,e = mk(c,g,root=root)
+            heavy = add(db,name="engineer",cls="heavy"); add(db,name="probe")
+            db.set_adopted("a.com",True); e.start(); c.t += 300; e.tick(); e.dispatch(); await settle()
+            self.assertEqual(g.started, [("a.com","probe")])
+            self.assertEqual([r["status"] for r in db.runs()].count("skipped_delivery"),1)
+            with self.assertRaisesRegex(SchedError,"central delivery owns site"):
+                e.trigger_manual(heavy,"test")
+            g.release_all(); await settle()
+
+    async def test_ownership_is_rechecked_after_queueing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); c = Clock(); g = Gate(); db,e = mk(c,g,root=root)
+            add(db,cls="heavy"); db.set_adopted("a.com",True); e.start()
+            c.t += 300; e.tick(); self.assertEqual(len(e.pending),1)
+            self.central(root); e.dispatch(); await settle()
+            self.assertEqual(g.started,[]); self.assertEqual(e.pending,[])
+            self.assertEqual(db.runs()[0]["status"],"skipped_delivery")
+
+    async def test_completed_and_report_work_does_not_own_site(self):
+        from fleetsched.delivery_owner import central_owner
+        for status,state,mode,site in [("verified","deployed","pull_request","a.com"),("running","building","report_only","a.com"),("committed","deployed","pull_request","a.com"),("running","building","pull_request","b.com")]:
+            with tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp); self.central(root,status,state,mode,site)
+                self.assertIsNone(central_owner(root,"a.com"))
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); self.central(root,"committed","review")
+            self.assertIn("original",central_owner(root,"a.com"))
+
+    async def test_existing_unreadable_owner_database_blocks_heavy_work(self):
+        from fleetsched.delivery_owner import central_owner
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); p=self.central(root); p.write_text("invalid SQLite")
+            self.assertIn("unavailable",central_owner(root,"a.com"))
+
     async def test_fires_only_when_adopted_and_enabled(self):
         c = Clock(); g = Gate(); db, e = mk(c, g)
         add(db, name="on"); add(db, name="off", enabled=0)

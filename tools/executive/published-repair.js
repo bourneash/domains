@@ -45,7 +45,12 @@ function begin(
   const fingerprint = `${headSha}:${baseSha}${observationSha ? ':' + observationSha : ''}`;
   if ((item.labels || []).includes(`repair-observation:${fingerprint}`))
     throw conflict('unchanged delivery evidence has already received a bounded repair');
-  if (Number(item.attempts || 0) >= 3)
+  // Pre-publication implementation attempts remain in the aggregate history.
+  // This separate bounded phase tracks attempts to repair an already published PR.
+  const publishedAttempts = (item.labels || []).filter(label =>
+    label.startsWith('repair-observation:')
+  ).length;
+  if (publishedAttempts >= 3)
     throw conflict('published delivery exhausted its bounded recovery attempts');
   const claimed = store.claimExecutiveWorkItem(workId, leaseOwner, 1800);
   if (!claimed) throw conflict('delivery recovery is owned by another run');

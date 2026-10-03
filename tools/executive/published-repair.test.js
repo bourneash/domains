@@ -158,3 +158,36 @@ test('new persisted failure evidence permits a different bounded observation wit
     'c'.repeat(64)
   );
 });
+
+test('published repair has its own three-attempt budget and preserves earlier implementation failures', t => {
+  const f = fixture(t);
+  f.store.updateExecutiveWorkItem(f.workId, {
+    attempts: 3,
+    last_error: 'earlier implementation failed',
+  });
+  for (let i = 0; i < 3; i++) {
+    repair.begin(f.store, {
+      ...f,
+      observationSha: String(i + 1).repeat(64),
+      leaseOwner: `owner-${i}`,
+    });
+    repair.finish(f.store, {
+      ...f,
+      leaseOwner: `owner-${i}`,
+      passed: true,
+      evidence: {
+        canonical_ci_passed: true,
+        validation: { passed: true, checks: { ci: { status: 'pass' } } },
+      },
+    });
+  }
+  const item = f.store.getExecutiveWorkItem(f.workId);
+  assert.equal(item.attempts, 6);
+  assert.equal(item.labels.filter(label => label.startsWith('repair-observation:')).length, 3);
+  assert.throws(
+    () =>
+      repair.begin(f.store, { ...f, observationSha: '4'.repeat(64), leaseOwner: 'fourth-owner' }),
+    /exhausted/
+  );
+  assert.equal(f.store.getExecutiveWorkItem(f.workId).attempts, 6);
+});

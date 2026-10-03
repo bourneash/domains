@@ -50,6 +50,8 @@ elif staged_path == "site/package.json":
     # The shared Git directory preserves site identity for isolated worktrees.
     common = os.path.abspath(os.path.join(os.environ["REPO_ROOT"], os.environ["COMMON_DIR"]))
     match = re.search(r"/modules/sites/([^/]+)(?:/|$)", common)
+    if not match:
+        match = re.search(r"/sites/([^/]+)/\.git$", common)
     site = match[1] if match else os.path.basename(os.environ["REPO_ROOT"])
 if site in cfg.get("exempt", {}):
     sys.exit(0)

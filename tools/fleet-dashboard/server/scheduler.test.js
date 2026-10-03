@@ -214,3 +214,45 @@ test('fleet-tools instance routes to its own upstream and never exposes adopt/re
     fleet.srv.close();
   }
 });
+
+test('central pickup checks actual running heavy ownership for the same site', async () => {
+  const { activeSiteWork } = require('./scheduler');
+  const env = { FLEET_SCHEDULER_TOKEN: 'test' };
+  const call = async (method, path, query) => {
+    assert.equal(method, 'GET');
+    assert.equal(path, 'runs');
+    assert.equal(query.site, 'a.com');
+    assert.equal(query.status, 'running');
+    return {
+      status: 200,
+      data: [
+        { id: 1, site: 'a.com', status: 'running', class: 'heavy' },
+        { id: 2, site: 'a.com', status: 'running', class: 'light' },
+        { id: 3, site: 'b.com', status: 'running', class: 'heavy' },
+        { id: 4, site: 'a.com', status: 'queued', class: 'heavy' },
+      ],
+    };
+  };
+  assert.deepEqual(
+    (await activeSiteWork('a.com', { env, call })).map(r => r.id),
+    [1]
+  );
+  assert.deepEqual(await activeSiteWork('fleet', { env, call }), []);
+  assert.deepEqual(
+    await activeSiteWork('a.com', {
+      env: {},
+      call: () => {
+        throw Error('must not call');
+      },
+    }),
+    []
+  );
+  await assert.rejects(
+    activeSiteWork('a.com', { env, call: async () => ({ status: 503, data: { error: 'down' } }) }),
+    /could not be verified/
+  );
+  await assert.rejects(
+    activeSiteWork('a.com', { env, call: async () => ({ status: 200, data: {} }) }),
+    /could not be verified/
+  );
+});

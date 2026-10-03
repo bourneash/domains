@@ -30,6 +30,13 @@ class PinHookTests(unittest.TestCase):
             self.stage(root, 'site/package.json', '^4.92.0')
             r = self.check(root)
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+    def test_existing_exemption_uses_standalone_common_git_directory(self):
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d); root = base / "improvement-worktrees" / "opaque-run"
+            self.init(root, base / "sites" / "rc-9.com" / ".git")
+            self.stage(root, "site/package.json", "^4.92.0")
+            r = self.check(root)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
     def test_non_exempt_site_still_requires_exact_pin(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d) / 'example.com'; self.init(root)

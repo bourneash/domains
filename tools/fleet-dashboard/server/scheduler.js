@@ -167,6 +167,19 @@ async function runNow(site, role, actor, call = makeClient()) {
   return `fleet-scheduler (run #${r.data.run_id})`;
 }
 
+// Call after a central request is claimed: the scheduler observes that claim
+// before dispatch, while this check catches site workers already running.
+async function activeSiteWork(site, { call = makeClient(), env = process.env } = {}) {
+  if (site === 'fleet') return [];
+  if (!env.FLEET_SCHEDULER_TOKEN && !env.FLEET_SCHEDULER_TOKEN_FILE) return [];
+  const result = await call('GET', 'runs', { site, status: 'running', limit: 1000 });
+  if (result.status !== 200 || !Array.isArray(result.data))
+    throw new Error('scheduled site ownership could not be verified');
+  return result.data.filter(
+    run => run.site === site && run.status === 'running' && run.class === 'heavy'
+  );
+}
+
 const ADOPTED_MSG =
   'this site is managed by the fleet-scheduler — use Ops ▸ Scheduler (a legacy cron container would double-fire every job)';
 
@@ -179,4 +192,5 @@ module.exports = {
   isAdopted,
   runNow,
   ADOPTED_MSG,
+  activeSiteWork,
 };

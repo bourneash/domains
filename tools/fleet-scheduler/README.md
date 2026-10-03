@@ -111,3 +111,13 @@ recreates, then resumes. `FS_NO_DRAIN=1` forces. Ticks/dispatch batch their DB w
   DB remains the live execution source; the crontab is kept synchronized for rollback, dashboard
   role/expected-run views, and legacy release. Mirror failures are returned as warnings and should be
   investigated before releasing a site.
+
+### Central delivery ownership
+
+Before a heavy site job is queued or dispatched, the scheduler reads the central
+fleet dashboard delivery database in read-only mode. Claimed implementations,
+active reviews and published PRs awaiting release reserve their site. Competing
+scheduled jobs record `skipped_delivery`; manual triggers return 409. Light
+monitoring jobs and the separate fleet-tools scheduler keep running. An existing
+unreadable ownership database blocks heavy work until it can be checked. The
+dashboard reciprocally defers pickup if a heavy site job is already running.

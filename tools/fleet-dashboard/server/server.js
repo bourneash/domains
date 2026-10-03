@@ -815,6 +815,37 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       throw Object.assign(new Error('request was already claimed or is no longer due'), {
         httpStatus: 409,
       });
+    if (claimed.delivery_mode !== 'report_only' && claimed.site !== 'fleet') {
+      let ownershipError = null;
+      try {
+        const active = await require('./scheduler').activeSiteWork(claimed.site);
+        if (active.length)
+          ownershipError = `scheduled site work owns ${claimed.site}: ${active.map(row => row.id).join(', ')}`;
+      } catch (error) {
+        ownershipError = String(error.message || error);
+      }
+      if (ownershipError) {
+        // Preserve this request; ownership contention is a deferral, not a
+        // failed implementation or a second worker on the same backlog card.
+        events.updateChangeRequest(claimed.request_id, {
+          status: 'queued',
+          lease_owner: null,
+          lease_expires_at: null,
+          heartbeat_at: null,
+          next_attempt_at: new Date(Date.now() + 60000).toISOString(),
+          error: ownershipError,
+        });
+        events.record({
+          event_type: 'change-request.ownership_deferred',
+          source: 'fleet-dashboard',
+          site_id: `site:${claimed.site}`,
+          entity_type: 'change-request',
+          entity_id: claimed.request_id,
+          payload: { reason: ownershipError },
+        });
+        throw Object.assign(new Error(ownershipError), { httpStatus: 409 });
+      }
+    }
     const deferred = changequeue.blockDeferredExecution(events, claimed);
     if (deferred)
       throw Object.assign(new Error(deferred.error), { httpStatus: 409, request: deferred });

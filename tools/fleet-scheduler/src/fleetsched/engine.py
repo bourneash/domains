@@ -32,13 +32,14 @@ from typing import Any, Callable
 
 from . import cronexpr
 from .db import DB
+from .delivery_owner import central_owner
 
 log = logging.getLogger("fleetsched")
 
 SITE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.-]{0,80}$")
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,80}$")
 TERMINAL = {"ok", "failed", "timeout", "killed", "missed", "lost",
-            "skipped_overlap", "skipped_queue"}
+            "skipped_overlap", "skipped_queue", "skipped_delivery"}
 
 ENVFILE_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
@@ -255,6 +256,12 @@ class Engine:
         if self._active(job.id):
             self._record_terminal(job, scheduled_ts, "skipped_overlap", "previous run still queued/running")
             return None
+        owner = self._delivery_owner(r["site"], r["class"])
+        if owner:
+            if trigger == "manual":
+                raise SchedError(owner, 409)
+            self._record_terminal(job, scheduled_ts, "skipped_delivery", owner)
+            return None
         now = self.now()
         jitter = random.uniform(0, r["jitter_s"]) if r["jitter_s"] and trigger == "schedule" else 0.0
         run_id = self.db.insert_run(job_id=job.id, site=r["site"], name=r["name"], **{"class": r["class"]},
@@ -283,6 +290,12 @@ class Engine:
         run_id = self._fire(job, self.now(), trigger="manual", note=f"manual by {actor}")
         self.db.audit(actor, "run", job_id, {"run_id": run_id})
         return run_id  # type: ignore[return-value]
+
+    def _delivery_owner(self, site: str, cls: str) -> str | None:
+        # Read-only probes and the separate fleet-tools group keep running.
+        if cls != "heavy" or self.cfg.cwd is not None:
+            return None
+        return central_owner(self.cfg.root, site)
 
     def _active(self, job_id: int) -> bool:
         return any(p.job_id == job_id for p in self.pending) or \
@@ -333,6 +346,15 @@ class Engine:
         if self.stopping or self.settings.get("paused") == "1":
             return
         now = self.now()
+        keep = []
+        for p in self.pending:
+            owner = self._delivery_owner(p.site, p.cls)
+            if owner:
+                self.db.update_run(p.run_id, status="skipped_delivery", finished_at=int(now), note=owner)
+                self._count("skipped_delivery")
+            else:
+                keep.append(p)
+        self.pending = keep
         light_cap, heavy_cap, site_cap = self._caps()
         n_class = {"light": 0, "heavy": 0}
         n_site_heavy: dict[str, int] = {}
