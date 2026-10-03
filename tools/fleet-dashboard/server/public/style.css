@@ -1399,7 +1399,7 @@ table.dhi-counts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .dhi-ovr { background: rgba(167,139,250,.16); color: #a78bfa; border-radius: 4px; padding: 0 5px; font-size: 10px; font-weight: 600; vertical-align: middle; }
 .dhi-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .dhi-thumb { background: var(--panel-2, #12151c); border: 1px solid var(--border, #2a2f3a); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-.dhi-thumb img { width: 100%; height: 120px; object-fit: cover; display: block; background: #0a0d12; }
+.dhi-thumb img { width: 100%; height: 120px; object-fit: cover; display: block; background: var(--panel-2, #12151c); }
 .dhi-thumb-meta { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
 .dhi-thumb-credit { font-size: 11.5px; color: var(--text, #e6e9ef); }
 .dhi-thumb-sub { font-size: 11px; color: var(--muted, #8a93a6); }

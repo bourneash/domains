@@ -5478,6 +5478,7 @@ test('the shell exposes the authenticated access level', () => {
 test('light theme is wired into the shell and shared route surfaces', () => {
   const index = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(index, /id="theme-toggle"/);
   assert.match(index, /id="refresh" class="btn" type="button" aria-label="Refresh dashboard data"/);
@@ -5543,6 +5544,7 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.wb-summary > div/);
   assert.match(theme, /:root\[data-theme="light"\] \.dh-panel/);
   assert.match(theme, /:root\[data-theme="light"\] \.dhi-panel/);
+  assert.match(style, /\.dhi-thumb img\s*\{[^}]*background: var\(--panel-2, #12151c\)/);
   assert.match(theme, /:root\[data-theme="light"\] \.seo-action/);
   assert.match(theme, /:root\[data-theme="light"\] \.seo-evidence/);
   assert.match(theme, /:root\[data-theme="light"\] \.empty/);
