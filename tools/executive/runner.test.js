@@ -3411,3 +3411,68 @@ test('manager implementation evidence reads refreshed remote source without chan
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('every planning and review role receives concrete implementation evidence rules', () => {
+  const brief = {
+    intelligence: {},
+    domain_manager: {
+      site: 'owned.example',
+      source_documents: [],
+      source_revision: { status: 'fresh-remote-source', commit: 'actual' },
+      route_inventory: ['site/src/pages/shipped.astro'],
+    },
+  };
+  for (const role of ['ceo', 'domain-manager', 'reviewer', 'principal-engineer']) {
+    const prompt = runner.buildPassPrompt(brief, role);
+    assert.match(
+      prompt,
+      /A merged request with failed production verification already shipped source/,
+      role
+    );
+    assert.match(prompt, /guessed or unlinked URL returning 404/, role);
+    assert.match(prompt, /nonmodal consent banner/, role);
+  }
+});
+test('owned release failures and recovery cases survive unrelated fleet history limits', () => {
+  const brief = {
+    intelligence: {},
+    domain_manager: { site: 'owned.example', source_documents: [] },
+    improvements: [
+      ...Array.from({ length: 60 }, (_, i) => ({ site: 'other.example', run_id: 'other-' + i })),
+      {
+        site: 'owned.example',
+        run_id: 'original',
+        approval: {
+          production_checks: { gate: 'failed', failure_evidence: 'Artifact storage quota' },
+          pull_request: { merged_at: 'actual', merge_sha: 'actual' },
+        },
+      },
+    ],
+    work_items: [
+      ...Array.from({ length: 40 }, (_, i) => ({
+        site: 'other.example',
+        work_id: 'other-' + i,
+        status: 'ready',
+      })),
+      {
+        site: 'owned.example',
+        work_id: 'original-recovery',
+        status: 'waiting',
+        owner: 'engineering-manager',
+        source_id: 'original',
+        next_action: 'Repair failed production check',
+      },
+    ],
+  };
+  const compact = runner.compactModelBrief(brief);
+  assert.equal(compact.improvements.length, 1);
+  assert.equal(
+    compact.improvements[0].approval.production_checks.failure_evidence,
+    'Artifact storage quota'
+  );
+  assert.equal(compact.work_items.length, 1);
+  assert.equal(compact.work_items[0].work_id, 'original-recovery');
+  const prompt = runner.buildPassPrompt(brief, 'domain-manager');
+  assert.match(prompt, /Artifact storage quota/);
+  assert.match(prompt, /original-recovery/);
+});

@@ -1642,6 +1642,62 @@ function compactResearchRow(row) {
   };
 }
 
+function compactScopedImprovement(row) {
+  return {
+    run_id: row.run_id,
+    site: row.site,
+    title: row.title,
+    state: row.state,
+    measurement_due: row.measurement_due,
+    source_diff: row.source_diff,
+    approval: compactModelValue({
+      review_gate: row.approval?.review_gate,
+      production_checks: row.approval?.production_checks,
+      release: row.approval?.release,
+      pull_request: row.approval?.pull_request,
+    }),
+    baseline: compactModelValue({
+      request_category: row.baseline?.request_category,
+      evidence: row.baseline?.evidence,
+      measurement_scope: row.baseline?.measurement_scope,
+    }),
+    outcome: compactModelValue(
+      Object.fromEntries(
+        Object.entries(row.outcome || {}).filter(
+          ([key]) =>
+            ![
+              'measurement_observations',
+              'analytics',
+              'revenue',
+              'log',
+              'stdout',
+              'stderr',
+            ].includes(key)
+        )
+      )
+    ),
+  };
+}
+function compactScopedWorkItem(item) {
+  return {
+    work_id: item.work_id,
+    title: item.title,
+    kind: item.kind,
+    status: item.status,
+    priority: item.priority,
+    owner: item.owner,
+    source_type: item.source_type,
+    source_id: item.source_id,
+    request_ref: item.request_ref,
+    site: item.site,
+    summary: item.summary,
+    next_action: item.next_action,
+    due_at: item.due_at,
+    waiting_on: item.waiting_on,
+    evidence: (item.evidence || []).slice(0, 3),
+  };
+}
+
 function compactModelBrief(brief) {
   const compact = compactModelValue(brief);
   // Preserve the complete owner-ready allowlist even when historical context
@@ -1902,8 +1958,18 @@ function compactModelBrief(brief) {
           .filter(belongs)
           .map(row => compactModelValue(row)),
       },
-      improvements: compact.improvements.filter(belongs),
-      work_items: compact.work_items.filter(row => belongs(row) || isPendingOwnerRequest(row)),
+      improvements: (brief.improvements || [])
+        .filter(belongs)
+        .slice(0, 15)
+        .map(compactScopedImprovement),
+      work_items: (brief.work_items || [])
+        .filter(
+          row =>
+            (belongs(row) || isPendingOwnerRequest(row)) &&
+            !['done', 'cancelled', 'complete'].includes(row.status)
+        )
+        .slice(0, 30)
+        .map(compactScopedWorkItem),
       handoffs: compact.handoffs.filter(belongs),
       delivery_readiness: {
         ...compact.delivery_readiness,
@@ -1951,6 +2017,10 @@ function sanitizeExcludedPlanItems(plan = {}) {
   }
   return sanitized;
 }
+
+const IMPLEMENTATION_EVIDENCE_RULES = `- Use source_revision and route_inventory to identify the actual remote implementation. Local-source-unverified documents may be stale and cannot establish a missing live feature. A merged request with failed production verification already shipped source; inspect its exact failed check and repair the release prerequisite instead of duplicating the original feature. Preserve original failed attempt evidence and link any bounded successor to its recovery case.
+- A guessed or unlinked URL returning 404 is not a reproduced user defect. Before proposing a route repair, establish an actual inbound site link, promised route, published sitemap entry, or specific user report pointing to that URL. Preserve deliberate not-found behavior for unknown paths; a successful fetch observation alone does not prove the path should exist. Do not turn a single probe into a population failure rate.
+- For accessibility tasks, identify the current interaction pattern and the actual broken user path before prescribing changes. A nonmodal consent banner may allow page navigation and does not require aria-modal or a focus trap. Do not convert optional consent into a blocking modal to manufacture a failure. Check existing accessible names and complete markup; absence of one preferred attribute or a guessed scripted completion rate is not a reproduced defect. Preserve working semantics and consent behavior; distinguish a verified failure from an optional enhancement.`;
 
 const PLAN_OUTPUT_CONTRACT = `Return ONLY valid JSON with this shape:
 {
@@ -2064,7 +2134,7 @@ function buildPassPrompt(brief, role, candidate = null) {
                               : role === 'domain-manager'
                                 ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Prioritize a demonstrated functional defect, accessibility failure, broken user path, missing useful capability, or a documented backlog task. Cosmetic label churn without an evidenced problem is not qualifying work. When source excerpts are truncated, do not claim complete-file counts or absence; require the worker to verify the complete file before editing. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
                                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry blocks unsupported financial claims. A bounded functional repair or usability improvement may proceed with a testable nonfinancial metric, source evidence, rollback, and a non-overlapping scope. Do not treat paused automatic pickup as a ban on an explicitly authorized controlled run. Preserve host safety and measurement gates. When implementation is genuinely blocked: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. For an existing backlog task, copy its supplied candidate_key as action_key so the host advances the original task card. Omit action_key and source_work_id when no actual identifier is supplied; descriptive schema placeholders are not identifiers. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
+  return `${base}\n\n${IMPLEMENTATION_EVIDENCE_RULES}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. For an existing backlog task, copy its supplied candidate_key as action_key so the host advances the original task card. Omit action_key and source_work_id when no actual identifier is supplied; descriptive schema placeholders are not identifiers. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
