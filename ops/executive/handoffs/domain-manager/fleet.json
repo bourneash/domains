@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:16:24.106Z",
+  "generated_at": "2026-10-03T22:32:14.107Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queueing one bounded fix for the verified /tools/ 404 path; it is separate from the currently measuring /how-it-works/ link work.",
+        "summary": "Queue the failed coin-trick-guide task as a bounded, reversible engineer implementation on magicescorts.com; preserve truthful coming-soon and no-booking constraints.",
         "requested_action": null,
         "proposal_id": null
       }

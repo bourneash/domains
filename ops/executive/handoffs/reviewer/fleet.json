@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:12:35.235Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T22:23:03.575Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved one bounded implementation for seedstosauce.com. The scoped pass exposes one executable site; the fix has public browser evidence, no financial claim, no telemetry dependency, and a reversible rollback.",
+        "summary": "No new production or high-priority queue work is admissible. Analytics is unavailable, affiliate revenue is aggregate/unattributed, operations and fleet-doctor evidence are missing, and active measurement/review windows block overlapping changes. CTO must repair the invalid-status handoff and document requeue-or-close; preserve existing safety and measurement gates.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route only two non-overlapping, low-risk preview repairs. No third eligible site is defensible: remaining candidates are measuring, queued, review-blocked, or lack complete evidence. Production publication remains gated by unavailable analytics, operations, and fleet-doctor evidence. CTO must repair the invalid-status handoff and record requeue-or-close by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }
