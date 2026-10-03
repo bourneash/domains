@@ -1326,7 +1326,10 @@ body[data-view="priorities"] .seo-stats { grid-template-columns: repeat(4, minma
 .seo-action-site { font-size: 12px; }
 .seo-action p { margin: 10px 0 0; font-size: 12px; line-height: 1.5; }
 .seo-evidence { padding: 8px 10px; border-radius: 7px; }
-.seo-plan { margin: 11px 0 0; padding-left: 22px; font-size: 11px; line-height: 1.45; }
+.seo-plan-disclosure { margin-top: 10px; }
+.seo-plan-disclosure > summary { width: fit-content; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
+.seo-plan-disclosure > summary:hover, .seo-plan-disclosure > summary:focus-visible { color: var(--accent); }
+.seo-plan { margin: 7px 0 0; padding-left: 22px; font-size: 11px; line-height: 1.45; }
 .seo-plan li + li { margin-top: 4px; }
 .seo-action-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; padding-top: 13px; font-size: 11px; }
 .seo-action-foot b { font-size: 15px; }

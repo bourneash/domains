@@ -9051,7 +9051,7 @@ async function renderSeoIntelligence() {
       <div class="seo-action-site">${siteLink(action.site)}</div>
       <p class="seo-evidence">${esc(action.evidence)}</p>
       <p>${esc(action.recommendation)}</p>
-      <ol class="seo-plan">${(action.plan || []).map(step => `<li>${esc(step)}</li>`).join('')}</ol>
+      ${(action.plan || []).length ? `<details class="seo-plan-disclosure"><summary>Implementation steps · ${action.plan.length}</summary><ol class="seo-plan">${action.plan.map(step => `<li>${esc(step)}</li>`).join('')}</ol></details>` : ''}
       <div class="seo-action-foot"><span><b>${seoNum(action.metric && action.metric.value)}</b> ${esc(action.metric && action.metric.label)}</span><button type="button" class="btn sm ${action.filed ? '' : 'primary'} seo-file-task" data-site="${esc(action.site)}" data-key="${esc(action.key)}" ${action.filed ? 'disabled' : ''}>${action.filed ? '✓ Filed' : '＋ File task'}</button></div>
     </article>`
       )

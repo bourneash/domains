@@ -5806,6 +5806,12 @@ test('SEO Intelligence makes stale-source fallback visible and theme-aware', () 
   assert.match(app, /Search data unavailable/);
   assert.match(app, /showing stored technical evidence/);
   assert.match(
+    app,
+    /class="seo-plan-disclosure"><summary>Implementation steps · \$\{action\.plan\.length\}/
+  );
+  assert.match(app, /<ol class="seo-plan">\$\{action\.plan\.map/);
+  assert.match(style, /\.seo-plan-disclosure > summary \{[^}]*cursor: pointer/);
+  assert.match(
     style,
     /\.seo-source-status\.unavailable \{ --seo-source-tone: var\(--red\); background: rgba\(248,81,73,\.06\); \}/
   );
