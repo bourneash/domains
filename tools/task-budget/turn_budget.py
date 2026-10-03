@@ -105,17 +105,20 @@ def _load_task(path):
     return data if data else None
 
 
-def _scan_dir(task_dir, role, skip_types=frozenset()):
-    candidates = []
+def _load_task_rows(task_dir):
+    rows = []
     for path in glob.glob(os.path.join(task_dir, "*.md")):
         data = _load_task(path)
-        if not data:
-            continue
-        if data.get("assigned_role") != role:
-            continue
-        if data.get("blocked_on"):
-            continue
-        if data.get("type") in skip_types:
+        if data:
+            rows.append((path, data))
+    return rows
+
+
+def _ranked_candidates(rows, skip_types=frozenset()):
+    by_role = {}
+    for path, data in rows:
+        role = data.get("assigned_role")
+        if not role or data.get("blocked_on") or data.get("type") in skip_types:
             continue
         priority = data.get("priority", 5)
         try:
@@ -123,9 +126,14 @@ def _scan_dir(task_dir, role, skip_types=frozenset()):
         except (TypeError, ValueError):
             priority = 5
         created = str(data.get("created", "9999-99-99"))
-        candidates.append((priority, created, data, path))
-    candidates.sort(key=lambda c: (c[0], c[1]))
-    return candidates
+        by_role.setdefault(role, []).append((priority, created, data, path))
+    for candidates in by_role.values():
+        candidates.sort(key=lambda candidate: (candidate[0], candidate[1]))
+    return by_role
+
+
+def _scan_dir(task_dir, role, skip_types=frozenset()):
+    return _ranked_candidates(_load_task_rows(task_dir), skip_types).get(role, [])
 
 
 def pick_next_task(backlog_dir, role, skip_types=frozenset()):
@@ -268,7 +276,7 @@ def find_wrapper_scripts(site_dir, real_roles):
     return out
 
 
-def _find_stale_in_progress(site_dir, stale_days):
+def _find_stale_in_progress(site_dir, stale_days, task_rows=None):
     """Any ops/tasks/in-progress/*.md whose `created` date is more than
     `stale_days` old. Age is a proxy for 'is anyone actually iterating on
     this', not proof of staleness — a task can legitimately sit while its
@@ -280,10 +288,8 @@ def _find_stale_in_progress(site_dir, stale_days):
         return []
     today = datetime.date.today()
     stale = []
-    for path in glob.glob(os.path.join(in_progress_dir, "*.md")):
-        data = _load_task(path)
-        if not data:
-            continue
+    rows = task_rows if task_rows is not None else _load_task_rows(in_progress_dir)
+    for path, data in rows:
         created = data.get("created")
         try:
             created_date = datetime.date.fromisoformat(str(created))
@@ -315,23 +321,28 @@ def audit_site(site_dir, hard_cap, floor, buffer_, stale_days=STALE_IN_PROGRESS_
         if turns is not None:
             static_turns[role] = turns
 
+    # The previous per-role selector reread every backlog and in-progress task
+    # once for each role. Index each board once and reuse it for all audit rows.
+    backlog_rows = _load_task_rows(backlog_dir) if os.path.isdir(backlog_dir) else []
+    in_progress_dir = os.path.join(os.path.dirname(os.path.normpath(backlog_dir)), "in-progress")
+    in_progress_rows = _load_task_rows(in_progress_dir) if os.path.isdir(in_progress_dir) else []
+    backlog_candidates = _ranked_candidates(backlog_rows, skip_types={"ops"})
+    in_progress_candidates = _ranked_candidates(in_progress_rows, skip_types={"ops"})
+
     roles_in_backlog = set()
     dead_role_tasks = []
-    if os.path.isdir(backlog_dir):
-        for path in glob.glob(os.path.join(backlog_dir, "*.md")):
-            data = _load_task(path)
-            if not data:
-                continue
-            ar = data.get("assigned_role")
-            if not ar:
-                continue
-            roles_in_backlog.add(ar)
-            if real_roles and ar not in real_roles:
-                dead_role_tasks.append({"file": os.path.basename(path), "assigned_role": ar})
+    for path, data in backlog_rows:
+        ar = data.get("assigned_role")
+        if not ar:
+            continue
+        roles_in_backlog.add(ar)
+        if real_roles and ar not in real_roles:
+            dead_role_tasks.append({"file": os.path.basename(path), "assigned_role": ar})
 
     role_rows = []
     for role in sorted(roles_in_backlog | (real_roles & set(static_turns))):
-        task = pick_next_task(backlog_dir, role, skip_types={"ops"}) if os.path.isdir(backlog_dir) else None
+        candidates = in_progress_candidates.get(role) or backlog_candidates.get(role) or []
+        task = candidates[0] if candidates else None
         computed = None
         next_task_title = None
         if task:
@@ -352,7 +363,9 @@ def audit_site(site_dir, hard_cap, floor, buffer_, stale_days=STALE_IN_PROGRESS_
         "site": slug,
         "roles": role_rows,
         "dead_role_tasks": dead_role_tasks,
-        "stale_in_progress_tasks": _find_stale_in_progress(site_dir, stale_days),
+        "stale_in_progress_tasks": _find_stale_in_progress(
+            site_dir, stale_days, in_progress_rows
+        ),
         "run_role_sh_present": os.path.isfile(run_role_path),
     }
 

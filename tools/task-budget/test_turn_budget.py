@@ -4,7 +4,7 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from turn_budget import compute_budget
+from turn_budget import audit_site, compute_budget
 
 
 class ComputeBudgetTests(unittest.TestCase):
@@ -63,6 +63,38 @@ class NextTaskTests(unittest.TestCase):
             _, _, data, selected_again = pick_next_task(str(backlog), "content-writer")
             self.assertEqual(Path(selected_again), claimed)
             self.assertEqual(compute_budget(data["estimated_turns"], 40, 10, 10), 23)
+
+
+class AuditTests(unittest.TestCase):
+    def test_audit_reuses_task_rows_without_changing_selection_or_drift(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp) / "example.test"
+            roles = site / "ops" / "roles"
+            scripts = site / "ops" / "scripts"
+            backlog = site / "ops" / "tasks" / "backlog"
+            in_progress = site / "ops" / "tasks" / "in-progress"
+            for directory in (roles, scripts, backlog, in_progress):
+                directory.mkdir(parents=True, exist_ok=True)
+            (roles / "writer.md").write_text("role\n")
+            (scripts / "run-role.sh").write_text('writer) MAX_TURNS=30 ;;\n')
+            (backlog / "backlog.md").write_text(
+                "---\nassigned_role: writer\npriority: 1\nestimated_turns: 2\n"
+                "title: Backlog\n---\n"
+            )
+            (backlog / "dead-role.md").write_text(
+                "---\nassigned_role: removed-writer\npriority: 1\n---\n"
+            )
+            (in_progress / "resume.md").write_text(
+                "---\nassigned_role: writer\npriority: 5\nestimated_turns: 12\n"
+                "created: 2020-01-01\ntitle: Resume\n---\n"
+            )
+
+            report = audit_site(str(site), 40, 10, 8, stale_days=0)
+            writer = next(row for row in report["roles"] if row["role"] == "writer")
+            self.assertEqual(writer["next_task"], "Resume")
+            self.assertEqual(writer["computed_max_turns"], 21)
+            self.assertEqual(report["dead_role_tasks"][0]["assigned_role"], "removed-writer")
+            self.assertEqual(report["stale_in_progress_tasks"][0]["file"], "resume.md")
 
 
 if __name__ == "__main__":
