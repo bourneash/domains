@@ -3875,7 +3875,7 @@ let ROLEMATRIX_EPOCH = 0;
 let ROLE_OPEN = null; // {site, role} while the role-log modal is open (for live-follow)
 
 function loadRoleMatrix() {
-  if (ROLEMATRIX && Date.now() - ROLEMATRIX_AT < 10000) return Promise.resolve(ROLEMATRIX);
+  if (ROLEMATRIX && Date.now() - ROLEMATRIX_AT < 30000) return Promise.resolve(ROLEMATRIX);
   if (ROLEMATRIX_PENDING) return ROLEMATRIX_PENDING;
   const epoch = ROLEMATRIX_EPOCH;
   const pending = api('GET', '/api/roles')

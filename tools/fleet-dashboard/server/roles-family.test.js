@@ -38,7 +38,7 @@ test('editorial family exposes exact profiles and preserves site-level health ro
   assert.ok(Array.isArray(health.alerts));
 });
 
-test('role matrix shares scans for ten seconds and still honors explicit invalidation', async () => {
+test('role matrix shares scans for thirty seconds and still honors explicit invalidation', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-cache-'));
   const ops = path.join(root, 'sites', 'example.test', 'ops');
   const logs = path.join(ops, 'logs');
@@ -68,6 +68,11 @@ test('role matrix shares scans for ten seconds and still honors explicit invalid
     now += 1000;
     const invalidated = await roles.matrix(root, ['example.test']);
     assert.notEqual(invalidated, first);
+    assert.equal(logDirectoryReads, 2);
+
+    now += 20000;
+    const stillCached = await roles.matrix(root, ['example.test']);
+    assert.equal(stillCached, invalidated);
     assert.equal(logDirectoryReads, 2);
 
     now += 10001;

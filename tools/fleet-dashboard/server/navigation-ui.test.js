@@ -1041,6 +1041,8 @@ test('dashboard boot loads site and agent catalogs only when a view needs them',
   assert.match(render, /if \(needsSites\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsAgents\) loadAgentCatalog\(\)/);
   assert.match(render, /STATE\.view === 'agent'[\s\S]*?!\['executive', 'product-manager-fleet', 'product-manager-sites'\]\.includes\(STATE\.agent\)[\s\S]*?loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
+  const roleMatrix = app.slice(app.indexOf('function loadRoleMatrix()'), app.indexOf('// Live-follow:'));
+  assert.match(roleMatrix, /Date\.now\(\) - ROLEMATRIX_AT < 30000/);
   assert.match(boot, /if \(!AGENT_CATALOG_READY\) loadAgentCatalog\(\)/);
 });
 
