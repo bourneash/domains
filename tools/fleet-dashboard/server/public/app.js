@@ -13618,65 +13618,118 @@ function applyExecutiveWorkspace(page) {
   }
 }
 
+let AGENT_RUNTIME_PRIMARY_CACHE = null;
+let AGENT_RUNTIME_AUX_CACHE = null;
+let AGENT_RUNTIME_AUX_LOAD = null;
+
+async function loadAgentRuntimeAux() {
+  const [
+    actor,
+    users,
+    issues,
+    policies,
+    decisions,
+    suites,
+    evalRuns,
+    blobs,
+    plugins,
+    connectors,
+    providers,
+    adapters,
+    delegations,
+    dispatches,
+    artifacts,
+    skills,
+    memories,
+    productivityPilots,
+  ] = await Promise.all([
+    api('GET', '/api/platform/actor'),
+    api('GET', '/api/platform/users?limit=100'),
+    api('GET', '/api/agent-issues?limit=100'),
+    api('GET', '/api/execution-policies?limit=100'),
+    api('GET', '/api/governance-decisions?limit=100'),
+    api('GET', '/api/eval-suites?limit=100'),
+    api('GET', '/api/eval-runs?limit=100'),
+    api('GET', '/api/object-blobs?limit=100'),
+    api('GET', '/api/runtime-plugins?limit=100'),
+    api('GET', '/api/runtime-connectors?limit=100'),
+    api('GET', '/api/runtime-providers?limit=100'),
+    api('GET', '/api/runtime-adapters?limit=100'),
+    api('GET', '/api/agent-delegations?limit=100'),
+    api('GET', '/api/agent-dispatches?limit=100'),
+    api('GET', '/api/agent-artifacts?limit=100'),
+    api('GET', '/api/agent-skills?limit=100'),
+    api('GET', '/api/agent-memories?limit=100'),
+    api('GET', '/api/productivity/pilots?limit=20'),
+  ]);
+  return {
+    actor,
+    users,
+    issues,
+    policies,
+    decisions,
+    suites,
+    evalRuns,
+    blobs,
+    plugins,
+    connectors,
+    providers,
+    adapters,
+    delegations,
+    dispatches,
+    artifacts,
+    skills,
+    memories,
+    productivityPilots,
+  };
+}
+
 async function renderAgentRuntime() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
   try {
-    const [
-      agents,
-      runs,
-      budgets,
-      routines,
-      watchdogs,
-      evals,
-      grants,
-      workspaces,
-      actor,
-      users,
-      issues,
-      policies,
-      decisions,
-      suites,
-      evalRuns,
-      blobs,
-      plugins,
-      connectors,
-      providers,
-      adapters,
-      delegations,
-      dispatches,
-      artifacts,
-      skills,
-      memories,
-      productivityPilots,
-    ] = await Promise.all([
-      api('GET', '/api/agents?limit=100'),
-      api('GET', '/api/agent-runs?limit=100'),
-      api('GET', '/api/budgets?limit=100'),
-      api('GET', '/api/agent-routines?limit=100'),
-      api('GET', '/api/agent-watchdogs?limit=100'),
-      api('GET', '/api/agent-evals?limit=100'),
-      api('GET', '/api/agent-tools?limit=100'),
-      api('GET', '/api/agent-workspaces?limit=100'),
-      api('GET', '/api/platform/actor'),
-      api('GET', '/api/platform/users?limit=100'),
-      api('GET', '/api/agent-issues?limit=100'),
-      api('GET', '/api/execution-policies?limit=100'),
-      api('GET', '/api/governance-decisions?limit=100'),
-      api('GET', '/api/eval-suites?limit=100'),
-      api('GET', '/api/eval-runs?limit=100'),
-      api('GET', '/api/object-blobs?limit=100'),
-      api('GET', '/api/runtime-plugins?limit=100'),
-      api('GET', '/api/runtime-connectors?limit=100'),
-      api('GET', '/api/runtime-providers?limit=100'),
-      api('GET', '/api/runtime-adapters?limit=100'),
-      api('GET', '/api/agent-delegations?limit=100'),
-      api('GET', '/api/agent-dispatches?limit=100'),
-      api('GET', '/api/agent-artifacts?limit=100'),
-      api('GET', '/api/agent-skills?limit=100'),
-      api('GET', '/api/agent-memories?limit=100'),
-      api('GET', '/api/productivity/pilots?limit=20'),
-    ]);
+    let primary =
+      AGENT_RUNTIME_PRIMARY_CACHE && Date.now() - AGENT_RUNTIME_PRIMARY_CACHE.at < 10000
+        ? AGENT_RUNTIME_PRIMARY_CACHE.data
+        : null;
+    if (!primary) {
+      const [agents, runs, budgets, routines, watchdogs, evals, grants, workspaces] =
+        await Promise.all([
+          api('GET', '/api/agents?limit=100'),
+          api('GET', '/api/agent-runs?limit=100'),
+          api('GET', '/api/budgets?limit=100'),
+          api('GET', '/api/agent-routines?limit=100'),
+          api('GET', '/api/agent-watchdogs?limit=100'),
+          api('GET', '/api/agent-evals?limit=100'),
+          api('GET', '/api/agent-tools?limit=100'),
+          api('GET', '/api/agent-workspaces?limit=100'),
+        ]);
+      primary = { agents, runs, budgets, routines, watchdogs, evals, grants, workspaces };
+      AGENT_RUNTIME_PRIMARY_CACHE = { at: Date.now(), data: primary };
+    }
+    const { agents, runs, budgets, routines, watchdogs, evals, grants, workspaces } = primary;
+    const aux =
+      AGENT_RUNTIME_AUX_CACHE && Date.now() - AGENT_RUNTIME_AUX_CACHE.at < 10000
+        ? AGENT_RUNTIME_AUX_CACHE.data
+        : null;
+    const actor = aux?.actor || { actor: null };
+    const users = aux?.users || { users: [] };
+    const issues = aux?.issues || { issues: [] };
+    const policies = aux?.policies || { policies: [] };
+    const decisions = aux?.decisions || { decisions: [] };
+    const suites = aux?.suites || { suites: [] };
+    const evalRuns = aux?.evalRuns || { runs: [] };
+    const blobs = aux?.blobs || { blobs: [] };
+    const plugins = aux?.plugins || { plugins: [] };
+    const connectors = aux?.connectors || { connectors: [] };
+    const providers = aux?.providers || { providers: [] };
+    const adapters = aux?.adapters || { adapters: [] };
+    const delegations = aux?.delegations || { delegations: [] };
+    const dispatches = aux?.dispatches || { dispatches: [] };
+    const artifacts = aux?.artifacts || { artifacts: [] };
+    const skills = aux?.skills || { skills: [] };
+    const memories = aux?.memories || { memories: [] };
+    const productivityPilots = aux?.productivityPilots || { pilots: [] };
     const agentRows = agents.agents || [];
     const runRows = runs.runs || [];
     const budgetRows = budgets.budgets || [];
@@ -13757,7 +13810,7 @@ async function renderAgentRuntime() {
           `<tr><td>${esc(row.entity_type)}<div class="muted">${esc(row.entity_id)}</div></td><td>${statusBadge(row.decision)}</td><td>${esc(row.actor_id)}</td></tr>`
       )
       .join('');
-    const platformInventory = `<section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">PLATFORM COVERAGE</div><h3>Paperclip-compatible control plane</h3></div><span class="muted">actor: ${esc(actor.actor?.actor_id || 'operator')}</span></div><div class="ex-inventory-grid">${inventory('human users', (users.users || []).length)}${inventory('issues', issueRows.length, `${issueRows.filter(x => x.status === 'in_progress').length} checked out`)}${inventory('execution policies', policyRows.length)}${inventory('governance decisions', decisionRows.length)}${inventory('evaluation suites', suiteRows.length, `${evalRunRows.length} runs`)}${inventory('object blobs', blobRows.length)}${inventory('plugins', pluginRows.length, `${pluginRows.filter(x => x.status === 'active').length} active`)}${inventory('connectors / MCP', connectorRows.length)}${inventory('runtime providers', providerRows.length)}${inventory('adapters', adapterRows.length, `${adapterRows.filter(x => x.status === 'online').length} online`)}${inventory('productivity pilots', productivityPilotRows.length, productivityPilotRows.map(x => x.status).join(', ') || 'none')}${inventory('delegations', delegationRows.length)}${inventory('dispatches', dispatchRows.length)}${inventory('artifacts', artifactRows.length)}${inventory('skills', skillRows.length)}${inventory('memories', memoryRows.length)}</div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">ISSUE QUEUE</div><h3>Atomic task checkout and dependencies</h3></div><span class="muted">${issueRows.length} issues</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Issue</th><th>Status</th><th>Owner</th><th></th></tr></thead><tbody>${issueTable || '<tr><td colspan="4" class="muted">No issues configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">GOVERNANCE</div><h3>Decisions and approval trail</h3></div><span class="muted">${policyRows.length} policies</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Entity</th><th>Decision</th><th>Actor</th></tr></thead><tbody>${governanceTable || '<tr><td colspan="3" class="muted">No governance decisions.</td></tr>'}</tbody></table></div></section></aside></section>`;
+    const platformInventory = `<section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">PLATFORM COVERAGE</div><h3>Paperclip-compatible control plane</h3></div><span class="muted">${aux ? `actor: ${esc(actor.actor?.actor_id || 'operator')}` : '<span id="agent-runtime-inventory-status" role="status">Loading extended inventory…</span>'}</span></div><div class="ex-inventory-grid">${inventory('human users', (users.users || []).length)}${inventory('issues', issueRows.length, `${issueRows.filter(x => x.status === 'in_progress').length} checked out`)}${inventory('execution policies', policyRows.length)}${inventory('governance decisions', decisionRows.length)}${inventory('evaluation suites', suiteRows.length, `${evalRunRows.length} runs`)}${inventory('object blobs', blobRows.length)}${inventory('plugins', pluginRows.length, `${pluginRows.filter(x => x.status === 'active').length} active`)}${inventory('connectors / MCP', connectorRows.length)}${inventory('runtime providers', providerRows.length)}${inventory('adapters', adapterRows.length, `${adapterRows.filter(x => x.status === 'online').length} online`)}${inventory('productivity pilots', productivityPilotRows.length, productivityPilotRows.map(x => x.status).join(', ') || 'none')}${inventory('delegations', delegationRows.length)}${inventory('dispatches', dispatchRows.length)}${inventory('artifacts', artifactRows.length)}${inventory('skills', skillRows.length)}${inventory('memories', memoryRows.length)}</div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">ISSUE QUEUE</div><h3>Atomic task checkout and dependencies</h3></div><span class="muted">${issueRows.length} issues</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Issue</th><th>Status</th><th>Owner</th><th></th></tr></thead><tbody>${issueTable || '<tr><td colspan="4" class="muted">No issues configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">GOVERNANCE</div><h3>Decisions and approval trail</h3></div><span class="muted">${policyRows.length} policies</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Entity</th><th>Decision</th><th>Actor</th></tr></thead><tbody>${governanceTable || '<tr><td colspan="3" class="muted">No governance decisions.</td></tr>'}</tbody></table></div></section></aside></section>`;
     const pilotTable = productivityPilotRows
       .map(
         row =>
@@ -13768,13 +13821,18 @@ async function renderAgentRuntime() {
     app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell"><header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE / RUNTIME</div><h2 class="page-title">Agent runtime</h2><p class="muted">One operator surface for identity, resumable runs, atomic budgets, heartbeats, watchdogs, evaluations, grants, isolated workspaces, issues, governance, plugins, connectors, providers, artifacts, skills, and memory.</p></div><div class="task-toolbar"><button class="btn" id="agent-runtime-refresh">↻ Refresh</button><button class="btn primary" id="agent-runtime-heartbeat">Run heartbeat</button><button class="btn" id="agent-runtime-audit">Audit watchdogs</button></div></header><section class="ex-kpis">${stat(agentRows.filter(row => row.status === 'active').length, 'active agents', 'good')}${stat(activeRuns, 'active runs', activeRuns ? 'warn' : '')}${stat(`$${spent.toFixed(2)} / $${limits.toFixed(2)}`, 'reserved / limits')}${stat(fired, 'fired watchdogs', fired ? 'warn' : 'good')}${stat(`${grantRows.length} / ${workspaceRows.length}`, 'grants / workspaces')}</section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">AGENT REGISTRY</div><h3>Identity and operating state</h3></div><span class="muted">${agentRows.length} registered agents</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent</th><th>Status</th><th>Runs / evaluation</th><th>Operator action</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No agents registered.</td></tr>'}</tbody></table></div></section><section class="ex-layout"><div class="ex-primary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RESUMABLE RUNS</div><h3>Execution history</h3></div><span class="muted">${runRows.length} recorded</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Agent / run</th><th>Status</th><th>Usage</th><th>Result</th></tr></thead><tbody>${runTable || '<tr><td colspan="4" class="muted">No agent runs recorded.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HEARTBEAT QUEUE</div><h3>Routines</h3></div><span class="muted">${routineRows.length} configured</span></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Routine</th><th>Status</th><th>Next due</th></tr></thead><tbody>${routineTable || '<tr><td colspan="3" class="muted">No routines configured.</td></tr>'}</tbody></table></div></section></div><aside class="ex-secondary"><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">HARD STOPS</div><h3>Budget policies</h3></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Scope</th><th>Spend / limit</th><th>Policy</th></tr></thead><tbody>${budgetTable || '<tr><td colspan="3" class="muted">No budgets configured.</td></tr>'}</tbody></table></div></section><section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RECOVERY</div><h3>Watchdogs</h3></div><span class="badge ${fired ? 'b-red' : 'b-green'}">${fired ? `${fired} fired` : 'clear'}</span></div><p class="muted">${watchdogRows.length} watchdogs are persisted against active and completed runs. Fired watchdogs require operator review.</p></section></aside></section>${platformInventory}</div>`;
     document.querySelector('#app .ex-shell')?.insertAdjacentHTML('beforeend', platformOps);
     wireCrumbs();
-    $('#agent-runtime-refresh').onclick = () => softRender();
+    const refreshAgentRuntime = () => {
+      AGENT_RUNTIME_PRIMARY_CACHE = null;
+      AGENT_RUNTIME_AUX_CACHE = null;
+      softRender();
+    };
+    $('#agent-runtime-refresh').onclick = refreshAgentRuntime;
     $('#agent-runtime-heartbeat').onclick = async event => {
       event.currentTarget.disabled = true;
       try {
         await api('POST', '/api/agent-heartbeat/tick', {});
         toast('Heartbeat dispatched');
-        softRender();
+        refreshAgentRuntime();
       } catch (e) {
         toast(e.message, 'err');
       } finally {
@@ -13786,7 +13844,7 @@ async function renderAgentRuntime() {
       try {
         const result = await api('POST', '/api/agent-watchdogs/audit', {});
         toast(`${result.fired?.length || 0} watchdogs fired`);
-        softRender();
+        refreshAgentRuntime();
       } catch (e) {
         toast(e.message, 'err');
       } finally {
@@ -13803,7 +13861,7 @@ async function renderAgentRuntime() {
             pause_reason: paused ? 'operator pause from runtime console' : null,
           });
           toast(paused ? 'Agent paused' : 'Agent resumed');
-          softRender();
+          refreshAgentRuntime();
         } catch (e) {
           toast(e.message, 'err');
         } finally {
@@ -13821,7 +13879,7 @@ async function renderAgentRuntime() {
             { owner: 'operator-console' }
           );
           toast('Issue checked out');
-          softRender();
+          refreshAgentRuntime();
         } catch (e) {
           toast(e.message, 'err');
           button.disabled = false;
@@ -13838,13 +13896,31 @@ async function renderAgentRuntime() {
             { status: 'online' }
           );
           toast('Adapter heartbeat recorded');
-          softRender();
+          refreshAgentRuntime();
         } catch (e) {
           toast(e.message, 'err');
           button.disabled = false;
         }
       };
     });
+    if (!aux && !AGENT_RUNTIME_AUX_LOAD) {
+      const pending = loadAgentRuntimeAux();
+      AGENT_RUNTIME_AUX_LOAD = pending;
+      pending.then(data => {
+        if (AGENT_RUNTIME_AUX_LOAD !== pending) return;
+        AGENT_RUNTIME_AUX_CACHE = { at: Date.now(), data };
+        if (AGENT_RUNTIME_PRIMARY_CACHE) AGENT_RUNTIME_PRIMARY_CACHE.at = Date.now();
+        AGENT_RUNTIME_AUX_LOAD = null;
+        if (STATE.view === 'agent' && STATE.agent === 'executive' && STATE.agentPage === 'runtime') {
+          softRender();
+        }
+      }).catch(error => {
+        if (AGENT_RUNTIME_AUX_LOAD !== pending) return;
+        AGENT_RUNTIME_AUX_LOAD = null;
+        const status = $('#agent-runtime-inventory-status');
+        if (status) status.textContent = `Extended inventory unavailable: ${error.message}. Use Refresh to retry.`;
+      });
+    }
   } catch (e) {
     renderViewError(app, `Agent runtime failed: ${e.message}`);
   }
