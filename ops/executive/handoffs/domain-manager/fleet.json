@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T06:30:23.064Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T16:10:00.238Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Reconcile deeppenetrations.com active review before new admission",
-        "summary": "Do not create overlapping SEO or performance work while deeppenetrations.com remains in active review and release evidence is incomplete.",
-        "requested_action": "Inspect the existing review artifact and changed-file manifest only; record the exact files, current baseline, acceptance threshold, focused tests, rollback point, and either release or closure disposition by 2026-10-03T17:00:00Z. Do not request telemetry, deploy, modify production, add tracking, change credentials, or create duplicate work.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "5f6e4254-cbf0-4018-a060-7254c97610bc",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 0,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
