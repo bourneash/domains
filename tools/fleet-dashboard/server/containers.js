@@ -3,6 +3,16 @@
 const { execFile } = require('node:child_process');
 const { siteDir } = require('./sites');
 const scheduler = require('./scheduler');
+const LIST_CACHE_TTL_MS = 5000;
+const listCache = new Map();
+const listPending = new Map();
+const listEpoch = new Map();
+
+function invalidateList(root) {
+  listEpoch.set(root, (listEpoch.get(root) || 0) + 1);
+  listCache.delete(root);
+  listPending.delete(root);
+}
 
 // Resolve both streams regardless of exit code (docker logs exits non-zero in
 // some states but still prints useful output).
@@ -43,6 +53,28 @@ const FIELDS = [
 // ones, plus legacy cron containers even if down; adopted-site legacy cron rows
 // are filtered below because fleet-scheduler owns those schedules.
 async function list(root) {
+  const cached = listCache.get(root);
+  if (cached && Date.now() - cached.at < LIST_CACHE_TTL_MS) return cached.rows;
+  if (cached) listCache.delete(root);
+  const pending = listPending.get(root);
+  if (pending) return pending;
+
+  const epoch = listEpoch.get(root) || 0;
+  let refresh;
+  refresh = scanList(root)
+    .then(rows => {
+      if ((listEpoch.get(root) || 0) === epoch)
+        listCache.set(root, { at: Date.now(), rows });
+      return rows;
+    })
+    .finally(() => {
+      if (listPending.get(root) === refresh) listPending.delete(root);
+    });
+  listPending.set(root, refresh);
+  return refresh;
+}
+
+async function scanList(root) {
   const r = await sh('docker', ['ps', '-a', '--no-trunc', '--format', FIELDS]);
   if (r.err) throw httpErr(500, dockerErr(r));
   const inRepo = w => w && (w === root || w.startsWith(root + '/'));
@@ -127,6 +159,7 @@ async function action(root, id, act) {
   await assertDomains(root, id);
   const r = await sh('docker', [act, id], { timeout: 60000 });
   if (r.err) throw httpErr(500, dockerErr(r));
+  invalidateList(root);
   return { ok: true, action: act };
 }
 
@@ -155,6 +188,7 @@ async function bounce(root, slug) {
     timeout: 120000,
   });
   if (up.err) throw httpErr(500, `recreate failed: ${dockerErr(up)}`);
+  invalidateList(root);
   return { ok: true, out: (up.stderr || up.stdout || '').trim() };
 }
 
@@ -173,7 +207,8 @@ async function restartCrons(root) {
     const r = await sh('docker', ['restart', c.id], { timeout: 60000 });
     results.push({ site: c.slug, name: c.name, ok: !r.err, error: r.err ? dockerErr(r) : null });
   }
+  invalidateList(root);
   return { ok: true, restarted: results.filter(x => x.ok).length, total: results.length, results };
 }
 
-module.exports = { list, action, logs, bounce, restartCrons };
+module.exports = { list, invalidateList, action, logs, bounce, restartCrons };
