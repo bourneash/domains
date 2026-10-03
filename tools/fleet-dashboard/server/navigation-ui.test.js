@@ -3754,7 +3754,8 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   );
   assert.match(app, /const pageRows = filtered\.slice\(start, start \+ ERRORS_UI\.pageSize\);/);
   assert.match(app, /ERRORS_UI\.fleetFilterTimer = setTimeout\(\(\) => renderErrors\(\), 180\)/);
-  assert.match(app, /Reporting errors · 1h<\/span>/);
+  assert.match(app, /Containers with errors · 1h<\/span>/);
+  assert.match(app, /Containers with events · 24h<\/span>/);
   assert.match(app, /Critical lines · 24h<\/span>/);
   assert.match(
     app,
