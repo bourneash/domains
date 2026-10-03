@@ -2,6 +2,10 @@
 
 const path = require('node:path');
 const { execFile } = require('node:child_process');
+const CACHE_TTL_MS = 15000;
+const CACHE_MAX_ENTRIES = 32;
+const reportCache = new Map();
+const reportPending = new Map();
 
 // Keep the aggregation logic in one place. The dashboard consumes the same
 // JSON emitted by the CLI instead of maintaining a second JavaScript rollup.
@@ -19,10 +23,18 @@ function fleet(root, filters = {}) {
   const from = day(filters.from, 'from');
   const to = day(filters.to, 'to');
   if (from && to && from > to) throw new Error('from must not be after to');
+  const key = JSON.stringify([path.resolve(root), from, to]);
+  const now = Date.now();
+  const cached = reportCache.get(key);
+  if (cached && now - cached.at < CACHE_TTL_MS) return Promise.resolve(cached.report);
+  if (cached) reportCache.delete(key);
+  const existing = reportPending.get(key);
+  if (existing) return existing;
+
   const args = [scriptPath(root), '--root', root, '--json'];
   if (from) args.push('--from', from);
   if (to) args.push('--to', to);
-  return new Promise((resolve, reject) => {
+  const request = new Promise((resolve, reject) => {
     execFile(
       'python3',
       args,
@@ -38,6 +50,24 @@ function fleet(root, filters = {}) {
       }
     );
   });
+  let shared;
+  shared = request
+    .then(report => {
+      const storedAt = Date.now();
+      for (const [entryKey, entry] of reportCache) {
+        if (storedAt - entry.at >= CACHE_TTL_MS) reportCache.delete(entryKey);
+      }
+      while (reportCache.size >= CACHE_MAX_ENTRIES) {
+        reportCache.delete(reportCache.keys().next().value);
+      }
+      reportCache.set(key, { at: storedAt, report });
+      return report;
+    })
+    .finally(() => {
+      if (reportPending.get(key) === shared) reportPending.delete(key);
+    });
+  reportPending.set(key, shared);
+  return shared;
 }
 
 module.exports = { fleet, scriptPath };
