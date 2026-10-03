@@ -175,6 +175,24 @@ test('executive UI loads compact telemetry instead of the model brief', () => {
   assert.doesNotMatch(app, /loadExecutiveBrief\(\)/);
 });
 
+test('executive setup loads decision and report history only when expanded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderExecutiveSetup()');
+  const end = app.indexOf('function executiveTranscriptRow', start);
+  assert.ok(start >= 0 && end > start);
+  const setup = app.slice(start, end);
+  const initialLoad = setup.slice(setup.indexOf('await Promise.all'), setup.indexOf('const s ='));
+  assert.match(initialLoad, /\/api\/executive\/settings/);
+  assert.match(initialLoad, /\/api\/revops\/summary/);
+  assert.match(initialLoad, /\/api\/experiments/);
+  assert.match(initialLoad, /\/api\/campaigns\/summary/);
+  assert.doesNotMatch(initialLoad, /\/api\/executive\/(?:reports|proposals|actions|cro-lab)/);
+  assert.match(setup, /id="ex-setup-performance"/);
+  assert.match(setup, /id="ex-setup-decisions"/);
+  assert.match(setup, /addEventListener\('toggle',[\s\S]*?loadSetupPerformance\(\)/);
+  assert.match(setup, /addEventListener\('toggle',[\s\S]*?loadSetupDecisions\(\)/);
+});
+
 test('change queue filters reuse fresh data and mutations invalidate it', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const CHANGE_QUEUE_DATA_TTL_MS = 15000/);

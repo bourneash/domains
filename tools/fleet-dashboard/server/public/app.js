@@ -14277,19 +14277,14 @@ async function renderAgentRuntime() {
 async function renderExecutiveSetup() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive setup…</div>';
-  let settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns;
+  let settings, revops, experiments, campaigns;
   try {
-    [settings, revops, experiments, campaigns, reports, proposals, actions, croLabRuns] =
-      await Promise.all([
-        api('GET', '/api/executive/settings'),
-        api('GET', '/api/revops/summary'),
-        api('GET', '/api/experiments'),
-        api('GET', '/api/campaigns/summary'),
-        api('GET', '/api/executive/reports?limit=20'),
-        api('GET', '/api/executive/proposals?limit=100'),
-        api('GET', '/api/executive/actions?limit=200&preview=1'),
-        apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
-      ]);
+    [settings, revops, experiments, campaigns] = await Promise.all([
+      api('GET', '/api/executive/settings'),
+      api('GET', '/api/revops/summary'),
+      api('GET', '/api/experiments'),
+      api('GET', '/api/campaigns/summary'),
+    ]);
   } catch (e) {
     renderViewError(app, `Executive setup failed: ${e.message}`);
     return;
@@ -14298,50 +14293,15 @@ async function renderExecutiveSetup() {
   const revopsSummary = revops.summary || {};
   const experimentRows = experiments.experiments || [];
   const campaignSummary = campaigns.summary || {};
-  const reportRows = reports.reports || [];
-  const latestReport = reportRows[0];
-  const croRuns = croLabRuns?.runs || [];
   const stat = (value, label, tone = '') =>
     `<div class="ex-kpi ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span></div>`;
-  const croLabRows = croRuns
-    .slice(0, 6)
-    .map(run => {
-      const candidate = run.candidate?.full_name || 'unknown repository';
-      const decision = run.recommendation?.decision || run.status || 'unresolved';
-      const checks = (run.checks || []).filter(check => check.status === 'passed').length;
-      return `<tr><td><b>${esc(candidate)}</b><div class="muted">${esc(run.candidate?.purpose || 'fleet capability')}</div></td><td><span class="badge ${decision === 'research' ? 'b-green' : decision === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(decision)}</span></td><td>${esc(checks)} passed<div class="muted">${esc(run.repository?.file_count || 0)} files inspected</div></td><td><a href="/api/executive/cro-lab/runs/${encodeURIComponent(run.run_id)}" target="_blank" rel="noreferrer">evidence ↗</a><div class="muted">${esc(fmtDate(run.generated_at))}</div></td></tr>`;
-    })
-    .join('');
-  const proposalRows = (proposals.proposals || [])
-    .map(p => {
-      const pending = ['proposed', 'feedback'].includes(p.status);
-      const badge =
-        p.status === 'approved'
-          ? 'b-green'
-          : p.status === 'declined'
-            ? 'b-red'
-            : p.status === 'feedback'
-              ? 'b-yellow'
-              : 'b-blue';
-      const decision = pending
-        ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
-        : esc(p.decision_note || '');
-      return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(p.status)}</span></td><td>${decision}</td></tr>`;
-    })
-    .join('');
-  const actionRows = (actions.actions || [])
-    .map(
-      a =>
-        `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(executiveActorLabel(a.actor))}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
-    )
-    .join('');
   app.innerHTML = `${breadcrumb('executive')}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">EXECUTIVE OVERVIEW / SETUP</div><h2 class="page-title">Executive setup</h2><p class="muted">Configure the strategy contract, review operating systems, and inspect executive decision history.</p></div><div class="task-toolbar"><button class="btn" id="ex-back-overview">← Executive overview</button></div></header>
     <section class="ex-kpis">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</section>
     <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">SETUP</div><h3>Details &amp; configuration</h3><p class="muted">Strategy contract, performance settings, and decision history.</p></div><button class="btn primary" id="ex-open-setup">Open setup →</button></div></section>
     <details class="ex-disclosure" open><summary><span><b>Strategy contract</b><small>Targets, limits, risk tolerance, and recurring ticks</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><p class="muted">These settings are included in every CEO/CTO brief and constrain prioritization.</p><div class="form-grid"><label>Monthly revenue target<input id="ex-revenue-target" class="cm-input" value="${esc(s.revenue_target_monthly || '')}" placeholder="e.g. 5000"></label><label>Fixed monthly costs<input id="ex-fixed-costs" class="cm-input" value="${esc(s.fixed_costs_monthly || '')}" placeholder="optional"></label><label>Marketing budget<input id="ex-marketing-budget" class="cm-input" value="${esc(s.marketing_budget_monthly || '')}" placeholder="optional"></label><label>Revenue floor<input id="ex-revenue-floor" class="cm-input" value="${esc(s.revenue_floor_monthly || '')}" placeholder="optional"></label><label>Monthly spend limit<input id="ex-spend-limit" class="cm-input" value="${esc(s.monthly_spend_limit || '')}" placeholder="optional"></label><label>Attribution threshold<input id="ex-attribution-threshold" class="cm-input" value="${esc(s.attribution_materiality_threshold || '')}" placeholder="e.g. 100"></label><label>Risk tolerance<select id="ex-risk" class="cm-input"><option value="">Choose risk tolerance</option><option value="low" ${s.risk_tolerance === 'low' ? 'selected' : ''}>Low — conservative</option><option value="medium" ${s.risk_tolerance === 'medium' ? 'selected' : ''}>Medium — balanced</option><option value="high" ${s.risk_tolerance === 'high' ? 'selected' : ''}>High — exploratory</option></select></label><label>Check-in hours<input id="ex-checkin" class="cm-input" value="${esc(s.checkin_hours || '24')}" type="number" min="1" max="168"></label></div><label class="ex-operating-modes">Operating modes / notes<textarea id="ex-notes" class="cm-input" rows="6" placeholder="What should the executive optimize for? Describe priorities, guardrails, and when to escalate.">${esc(s.operating_notes || '')}</textarea></label><label class="ex-check"><input id="ex-tick-enabled" type="checkbox" ${s.tick_enabled === true ? 'checked' : ''}> Enable recurring executive ticks</label><div class="ex-disclosure-actions"><span class="muted">No spend or deployment authority is granted here.</span><button class="btn primary" id="ex-save-settings">Save strategy</button></div></div></details>
-    <details class="ex-disclosure"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection"><h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table></div></div></div></details>
-    <details class="ex-disclosure"><summary><span><b>Decision history</b><small>${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div></div></details>
+    <details class="ex-disclosure" id="ex-setup-performance"><summary><span><b>Performance &amp; revenue</b><small>Funnel, campaigns, experiments, reports, and exceptions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="ex-subsection"><h4>Revenue operating system</h4><div class="ex-mini-grid">${stat(revopsSummary.total_leads ?? 0, 'tracked leads')}${stat(revopsSummary.mqls ?? 0, 'MQLs')}${stat(revopsSummary.opportunities ?? 0, 'opportunities')}${stat(experimentRows.filter(row => row.state === 'running').length, 'running experiments')}${stat(campaignSummary.active ?? 0, 'active campaigns')}</div><p class="muted">Campaigns are planning and attribution records until an owner-approved provider, audience, consent, and unsubscribe path exist.</p></div><div class="ex-subsection" id="ex-setup-reports"><div class="muted" role="status">Expand to load recent reports.</div></div><div class="ex-subsection"><div class="ex-panel-head"><div><h4>CRO repo lab</h4><p class="muted">CRO candidates are tested in disposable workspaces before CEO/CTO review.</p></div><button class="btn sm" id="ex-run-cro-lab">Run CRO lab</button></div><div class="table-wrap" id="ex-setup-cro-runs"><div class="muted" role="status">Expand to load CRO lab results.</div></div></div></div></details>
+    <details class="ex-disclosure" id="ex-setup-decisions"><summary><span><b>Decision history</b><small id="ex-setup-decision-count">Expand to load proposals and audited actions</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body" id="ex-setup-decision-body"><div class="muted" role="status">Decision history loads when expanded.</div></div></details>
   </div>`;
   mountExecutiveWorkspaceNav('setup');
   $('#ex-save-settings')
@@ -14429,6 +14389,88 @@ async function renderExecutiveSetup() {
   $$('.ex-approve').forEach(b => (b.onclick = () => decide(b, 'approved')));
   $$('.ex-feedback').forEach(b => (b.onclick = () => decide(b, 'feedback')));
   $$('.ex-decline').forEach(b => (b.onclick = () => decide(b, 'declined')));
+  let performanceLoaded = false;
+  let decisionsLoaded = false;
+  const loadSetupPerformance = async () => {
+    if (performanceLoaded) return;
+    const reportsPanel = $('#ex-setup-reports');
+    const croPanel = $('#ex-setup-cro-runs');
+    reportsPanel.innerHTML = '<div class="muted" role="status">Loading reports…</div>';
+    croPanel.innerHTML = '<div class="muted" role="status">Loading CRO lab results…</div>';
+    try {
+      const [reports, croLabRuns] = await Promise.all([
+        api('GET', '/api/executive/reports?limit=20'),
+        apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+      ]);
+      const reportRows = reports.reports || [];
+      const latestReport = reportRows[0];
+      reportsPanel.innerHTML = `<h4>Domain-manager reports</h4><div class="ex-mini-grid">${stat(reportRows.length, 'recent reports')}${stat(latestReport?.summary?.sites_considered ?? 0, 'sites considered')}${stat(latestReport?.summary?.exceptions ?? 0, 'latest exceptions')}${stat(latestReport?.summary?.deep_dive_candidates ?? 0, 'deep-dive candidates')}</div><p class="muted">${latestReport ? `Latest: ${esc(latestReport.cadence)} · ${esc(fmtDate(latestReport.generated_at))}.` : 'No reports generated yet.'}</p>`;
+      const croLabRows = (croLabRuns.runs || [])
+        .slice(0, 6)
+        .map(run => {
+          const candidate = run.candidate?.full_name || 'unknown repository';
+          const decision = run.recommendation?.decision || run.status || 'unresolved';
+          const checks = (run.checks || []).filter(check => check.status === 'passed').length;
+          return `<tr><td><b>${esc(candidate)}</b><div class="muted">${esc(run.candidate?.purpose || 'fleet capability')}</div></td><td><span class="badge ${decision === 'research' ? 'b-green' : decision === 'blocked' ? 'b-red' : 'b-yellow'}">${esc(decision)}</span></td><td>${esc(checks)} passed<div class="muted">${esc(run.repository?.file_count || 0)} files inspected</div></td><td><a href="/api/executive/cro-lab/runs/${encodeURIComponent(run.run_id)}" target="_blank" rel="noreferrer">evidence ↗</a><div class="muted">${esc(fmtDate(run.generated_at))}</div></td></tr>`;
+        })
+        .join('');
+      croPanel.innerHTML = `<table class="tbl"><thead><tr><th>Repository</th><th>Decision</th><th>Evidence</th><th>Report</th></tr></thead><tbody>${croLabRows || '<tr><td colspan="4" class="muted">No repo-lab runs yet.</td></tr>'}</tbody></table>`;
+      performanceLoaded = true;
+    } catch (error) {
+      const message = `<div class="error-text">Unable to load this panel: ${esc(error.message)}. Collapse and reopen to retry.</div>`;
+      reportsPanel.innerHTML = message;
+      croPanel.innerHTML = message;
+    }
+  };
+  const loadSetupDecisions = async () => {
+    if (decisionsLoaded) return;
+    const body = $('#ex-setup-decision-body');
+    const count = $('#ex-setup-decision-count');
+    body.innerHTML = '<div class="muted" role="status">Loading proposals and action history…</div>';
+    try {
+      const [proposals, actions] = await Promise.all([
+        api('GET', '/api/executive/proposals?limit=100'),
+        api('GET', '/api/executive/actions?limit=200&preview=1'),
+      ]);
+      const proposalRows = (proposals.proposals || [])
+        .map(p => {
+          const pending = ['proposed', 'feedback'].includes(p.status);
+          const badge =
+            p.status === 'approved'
+              ? 'b-green'
+              : p.status === 'declined'
+                ? 'b-red'
+                : p.status === 'feedback'
+                  ? 'b-yellow'
+                  : 'b-blue';
+          const decision = pending
+            ? `<button class="btn sm primary ex-approve" data-id="${esc(p.proposal_id)}">Approve</button> <button class="btn sm ex-feedback" data-id="${esc(p.proposal_id)}">Reply / request changes</button> <button class="btn sm danger ex-decline" data-id="${esc(p.proposal_id)}">Decline</button>`
+            : esc(p.decision_note || '');
+          return `<tr><td><b>${esc(p.title)}</b><div class="muted">${esc(p.proposal_type)} · ${esc(executiveActorLabel(p.created_by))}</div></td><td>${esc(p.summary)}</td><td><span class="badge ${badge}">${esc(p.status)}</span></td><td>${decision}</td></tr>`;
+        })
+        .join('');
+      const actionRows = (actions.actions || [])
+        .map(
+          a =>
+            `<tr><td class="muted">${esc(fmtDate(a.started_at))}</td><td><b>${esc(executiveActorLabel(a.actor))}</b><div class="muted">${esc(a.action_type)}</div></td><td>${esc(a.summary)}</td><td><span class="badge ${a.status === 'completed' ? 'b-green' : a.status === 'failed' ? 'b-red' : 'b-blue'}">${esc(a.status)}</span>${a.error ? `<div class="error-text">${esc(a.error)}</div>` : ''}</td></tr>`
+        )
+        .join('');
+      count.textContent = `${(proposals.proposals || []).length} proposals · ${actions.actions?.length ?? 0} audited actions`;
+      body.innerHTML = `<div class="table-wrap">${proposalRows ? `<table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Decision</th></tr></thead><tbody>${proposalRows}</tbody></table>` : '<div class="ex-empty">No proposals yet.</div>'}</div><h4 class="ex-history-title">Action audit log</h4><div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Status</th></tr></thead><tbody>${actionRows || '<tr><td colspan="4" class="muted">No executive actions recorded yet.</td></tr>'}</tbody></table></div>`;
+      body.querySelectorAll('.ex-approve').forEach(button => (button.onclick = () => decide(button, 'approved')));
+      body.querySelectorAll('.ex-feedback').forEach(button => (button.onclick = () => decide(button, 'feedback')));
+      body.querySelectorAll('.ex-decline').forEach(button => (button.onclick = () => decide(button, 'declined')));
+      decisionsLoaded = true;
+    } catch (error) {
+      body.innerHTML = `<div class="error-text">Unable to load decision history: ${esc(error.message)}. Collapse and reopen to retry.</div>`;
+    }
+  };
+  $('#ex-setup-performance').addEventListener('toggle', event => {
+    if (event.currentTarget.open) loadSetupPerformance();
+  });
+  $('#ex-setup-decisions').addEventListener('toggle', event => {
+    if (event.currentTarget.open) loadSetupDecisions();
+  });
   wireCrumbs();
   stamp();
 }
