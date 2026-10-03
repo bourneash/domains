@@ -175,6 +175,15 @@ test('executive UI loads compact telemetry instead of the model brief', () => {
   assert.doesNotMatch(app, /loadExecutiveBrief\(\)/);
 });
 
+test('change queue filters reuse fresh data and mutations invalidate it', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /const CHANGE_QUEUE_DATA_TTL_MS = 15000/);
+  assert.match(app, /function loadChangeQueueData\(\)/);
+  assert.match(app, /data = await loadChangeQueueData\(\)/);
+  assert.match(app, /if \(method !== 'GET' && \/\^\\\/api\\\/change-requests/);
+  assert.match(app, /CHANGE_QUEUE_DATA_EPOCH\+\+/);
+});
+
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

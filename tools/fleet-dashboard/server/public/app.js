@@ -413,6 +413,8 @@ async function api(method, url, body) {
       data = txt;
     }
     if (!r.ok) throw new Error((data && data.error) || `HTTP ${r.status}`);
+    if (method !== 'GET' && /^\/api\/change-requests(?:\/|$)/.test(url))
+      invalidateChangeQueueData();
     return data;
   } catch (e) {
     if (e?.name === 'AbortError')
@@ -12224,6 +12226,41 @@ let CHANGE_QUEUE_CHUNKS = [];
 let CHANGE_QUEUE_FILTER = { q: '', status: 'all', site: 'all', priority: 'all', provider: 'all' };
 let CHANGE_QUEUE_DETAIL = null;
 let CHANGE_QUEUE_RENDERING = false;
+const CHANGE_QUEUE_DATA_TTL_MS = 15000;
+let CHANGE_QUEUE_DATA_CACHE = null;
+let CHANGE_QUEUE_DATA_CACHE_AT = 0;
+let CHANGE_QUEUE_DATA_PENDING = null;
+let CHANGE_QUEUE_DATA_EPOCH = 0;
+
+function invalidateChangeQueueData() {
+  CHANGE_QUEUE_DATA_EPOCH++;
+  CHANGE_QUEUE_DATA_CACHE = null;
+  CHANGE_QUEUE_DATA_PENDING = null;
+}
+
+function loadChangeQueueData() {
+  if (
+    CHANGE_QUEUE_DATA_CACHE &&
+    Date.now() - CHANGE_QUEUE_DATA_CACHE_AT < CHANGE_QUEUE_DATA_TTL_MS
+  )
+    return Promise.resolve(CHANGE_QUEUE_DATA_CACHE);
+  if (CHANGE_QUEUE_DATA_PENDING) return CHANGE_QUEUE_DATA_PENDING;
+  const epoch = CHANGE_QUEUE_DATA_EPOCH;
+  let pending;
+  pending = api('GET', '/api/change-requests')
+    .then(data => {
+      if (CHANGE_QUEUE_DATA_EPOCH === epoch) {
+        CHANGE_QUEUE_DATA_CACHE = data;
+        CHANGE_QUEUE_DATA_CACHE_AT = Date.now();
+      }
+      return data;
+    })
+    .finally(() => {
+      if (CHANGE_QUEUE_DATA_PENDING === pending) CHANGE_QUEUE_DATA_PENDING = null;
+    });
+  CHANGE_QUEUE_DATA_PENDING = pending;
+  return pending;
+}
 let CHANGE_QUEUE_PAGE = 1;
 let CHANGE_QUEUE_PAGE_SIZE = 10;
 let CHANGE_QUEUE_SORT = 'urgency';
@@ -12369,7 +12406,7 @@ async function renderChangeQueue({ background = false } = {}) {
   if (FRESH && !background) app.innerHTML = '<div class="loading">Loading change queue…</div>';
   let data;
   try {
-    data = await api('GET', '/api/change-requests');
+    data = await loadChangeQueueData();
   } catch (e) {
     if (!background) renderViewError(app, e.message);
     CHANGE_QUEUE_RENDERING = false;
@@ -16469,6 +16506,7 @@ async function boot() {
   });
   $('#refresh').addEventListener('click', () => {
     if (STATE.view === 'agent' && STATE.agent === 'engineer') invalidateEngineerOverviewData();
+    if (STATE.view === 'change-queue') invalidateChangeQueueData();
     softRender();
   });
   $('#density-toggle').addEventListener('click', toggleDensity);
