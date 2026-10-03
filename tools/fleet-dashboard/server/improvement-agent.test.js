@@ -137,3 +137,11 @@ test('agent log writes ignore chunks after the stream has ended', () => {
   assert.equal(agent.appendOutput(output, 'late provider output'), false);
   assert.equal(writes, 0);
 });
+
+test('agent completion is fenced to its exact execution attempt', () => {
+  assert.equal(agent.ownsAttempt({ agent: { attempt_id: 'new-attempt' } }, 'new-attempt'), true);
+  assert.equal(agent.ownsAttempt({ agent: { attempt_id: 'new-attempt' } }, 'old-attempt'), false);
+  assert.equal(agent.ownsAttempt({ agent: { status: 'running' } }, 'old-attempt'), false);
+  assert.equal(agent.ownsAttempt(null, 'old-attempt'), false);
+  assert.equal(agent.ownsAttempt({ agent: { attempt_id: '' } }, ''), false);
+});

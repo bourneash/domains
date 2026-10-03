@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { randomUUID } = require('node:crypto');
 const improvements = require('./improvements');
 
 const AUTOMATIC_RETRY_ATTEMPTS = 3;
@@ -169,6 +170,7 @@ function launch({
   provider = resolved.provider;
   model = resolved.model;
   if (run.state !== 'building') throw httpErr(409, 'agent can only run while building');
+  const attemptId = randomUUID();
   if (!run.workspace_path || !run.sandbox?.instance)
     throw httpErr(409, 'start the isolated sandbox first');
   if (ACTIVE.has(run.run_id)) throw httpErr(409, 'agent is already running');
@@ -256,6 +258,7 @@ function launch({
   store.updateImprovement(run.run_id, {
     agent: {
       status: 'running',
+      attempt_id: attemptId,
       phase,
       provider,
       model: selectedModel || null,
@@ -294,6 +297,16 @@ function launch({
     output.end(() => {
       const finishedAt = new Date().toISOString();
       try {
+        if (!ownsAttempt(store.getImprovement(run.run_id), attemptId)) {
+          store.record({
+            event_type: 'improvement.stale_agent_callback_ignored',
+            source: 'improvement-workbench',
+            entity_type: 'improvement',
+            entity_id: run.run_id,
+            payload: { attempt_id: attemptId, phase, exit_code: code },
+          });
+          return;
+        }
         let result = null;
         try {
           result = phase === 'reviewer' ? reviewResult(fs.readFileSync(file, 'utf8')) : null;
@@ -305,6 +318,7 @@ function launch({
           agent: {
             status: timedOut ? 'timed-out' : code === 0 ? 'completed' : 'failed',
             phase,
+            attempt_id: attemptId,
             started_at: startedAt,
             finished_at: finishedAt,
             exit_code: code,
@@ -362,7 +376,7 @@ function launch({
           entity_type: 'improvement',
           entity_id: run.run_id,
           correlation_id: run.correlation_id,
-          payload: { exit_code: code },
+          payload: { exit_code: code, attempt_id: attemptId },
         });
         if (typeof onFinished === 'function') onFinished({ code, timedOut, result, log: file });
       } catch {
@@ -371,7 +385,11 @@ function launch({
     });
   });
   child.on('error', error => appendOutput(output, `\n${error.message}\n`));
-  return { status: 'running', started_at: startedAt };
+  return { status: 'running', started_at: startedAt, attempt_id: attemptId };
+}
+
+function ownsAttempt(run, attemptId) {
+  return Boolean(run && attemptId && run.agent?.attempt_id === attemptId);
 }
 
 function start(options) {
@@ -467,6 +485,7 @@ module.exports = {
   workerStartupGraceActive,
   WORKER_START_GRACE_MS,
   REVIEWER_TIMEOUT_MS,
+  ownsAttempt,
   defaultProvider,
   defaultModel,
   resolveWorkerProvider,
