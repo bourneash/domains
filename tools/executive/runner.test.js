@@ -3525,3 +3525,50 @@ test('Overwatch recovery mandate requires a same-site original-case implementati
     );
   assert.equal(runner.actionMandateSatisfied({ messages: [{ body: 'recovered' }] }, brief), false);
 });
+
+test('scoped managers can discover bounded current-source implementation beyond candidate titles', () => {
+  const sha = 'a'.repeat(40),
+    path = 'site/src/pages/index.astro';
+  const brief = {
+    domain_manager: {
+      site: 'example.com',
+      source_revision: { status: 'fresh-remote-source', commit: sha },
+      source_documents: [{ path, source_commit: sha }],
+    },
+    action_mandate: {
+      candidates: [
+        { site: 'example.com', type: 'engineering', key: 'old', title: 'Unrelated old candidate' },
+      ],
+    },
+  };
+  const request = {
+    site: 'example.com',
+    assigned_role: 'engineer',
+    delivery_mode: 'direct',
+    title: 'Repair observed accessible label',
+    body: `Source ${sha}: ${path}. Acceptance: visible label matches accessible name. Tests: actual rendered link names. Metric: affected link count. Rollback: revert this small attribute correction.`,
+  };
+  const plan = { change_requests: [request] };
+  assert.equal(runner.actionMandateSatisfied(plan, brief), true);
+  assert.equal(runner.buildActionMandateFallback(plan, brief), plan);
+  for (const patch of [
+    { site: 'other.com' },
+    { delivery_mode: 'report_only' },
+    { assigned_role: 'ceo' },
+    { body: 'Guess a new feature' },
+  ])
+    assert.equal(
+      runner.actionMandateSatisfied({ change_requests: [{ ...request, ...patch }] }, brief),
+      false
+    );
+  assert.equal(
+    runner.actionMandateSatisfied(plan, {
+      ...brief,
+      domain_manager: {
+        ...brief.domain_manager,
+        source_revision: { status: 'local-source-unverified', commit: sha },
+      },
+    }),
+    false
+  );
+});

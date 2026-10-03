@@ -2142,7 +2142,7 @@ function buildPassPrompt(brief, role, candidate = null) {
                               : role === 'domain-manager'
                                 ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Prioritize a demonstrated functional defect, accessibility failure, broken user path, missing useful capability, or a documented backlog task. Cosmetic label churn without an evidenced problem is not qualifying work. When source excerpts are truncated, do not claim complete-file counts or absence; require the worker to verify the complete file before editing. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
                                 : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry blocks unsupported financial claims. A bounded functional repair or usability improvement may proceed with a testable nonfinancial metric, source evidence, rollback, and a non-overlapping scope. Do not treat paused automatic pickup as a ban on an explicitly authorized controlled run. Preserve host safety and measurement gates. When implementation is genuinely blocked: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\n${IMPLEMENTATION_EVIDENCE_RULES}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. For an existing backlog task, copy its supplied candidate_key as action_key so the host advances the original task card. Omit action_key and source_work_id when no actual identifier is supplied; descriptive schema placeholders are not identifiers. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
+  return `${base}\n\n${IMPLEMENTATION_EVIDENCE_RULES}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. For independently discovered implementation, cite the exact source_revision.commit and at least one existing source_documents.path in its body, alongside acceptance criteria, tests, metric and rollback; this allows source-backed discovery through the ordinary host gates. For an existing backlog task, copy its supplied candidate_key as action_key so the host advances the original task card. Omit action_key and source_work_id when no actual identifier is supplied; descriptive schema placeholders are not identifiers. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
@@ -3064,6 +3064,33 @@ function isDirectActionCandidate(item = {}, brief = {}) {
   );
 }
 
+function scopedDiscoveryHandoffs(requests = [], brief = {}) {
+  const manager = brief.domain_manager;
+  const commit = manager?.source_revision?.commit;
+  if (
+    !manager?.site ||
+    !/^[a-f0-9]{40}$/i.test(commit || '') ||
+    manager.source_revision.status !== 'fresh-remote-source'
+  )
+    return [];
+  const paths = (manager.source_documents || [])
+    .filter(doc => doc.source_commit === commit && doc.path.startsWith('site/'))
+    .map(doc => doc.path);
+  return requests.filter(
+    request =>
+      request.site === manager.site &&
+      ['engineer', 'principal-engineer'].includes(request.assigned_role) &&
+      ['direct', 'pull_request'].includes(request.delivery_mode || 'direct') &&
+      typeof request.body === 'string' &&
+      request.body.includes(commit) &&
+      paths.some(path => request.body.includes(path)) &&
+      /acceptance/i.test(request.body) &&
+      /tests?\b/i.test(request.body) &&
+      /metric/i.test(request.body) &&
+      /rollback/i.test(request.body)
+  );
+}
+
 function recoveryHandoffs(requests = [], brief = {}) {
   const cases = brief.overwatch_directive?.delivery_recovery_cases || [];
   return requests.filter(
@@ -3081,6 +3108,21 @@ function recoveryHandoffs(requests = [], brief = {}) {
 function actionMandateSatisfied(plan = {}, brief = {}) {
   if (brief.overwatch_directive?.delivery_recovery_cases?.length)
     return recoveryHandoffs(plan.change_requests || [], brief).length > 0;
+  if (scopedDiscoveryHandoffs(plan.change_requests || [], brief).length) return true;
+  if (
+    brief.domain_manager?.site &&
+    planHasDirectImplementation(plan) &&
+    !(plan.change_requests || []).some(
+      request =>
+        request.site === brief.domain_manager.site &&
+        (brief.action_mandate?.candidates || []).some(
+          candidate =>
+            candidate.site === request.site &&
+            normalizeActionTitle(candidate.title) === normalizeActionTitle(request.title)
+        )
+    )
+  )
+    return false;
   const candidates = brief.action_mandate?.candidates || [];
   const hasDirect = planHasDirectImplementation(plan);
   const hasBoundedBlocker = (plan.work_items || []).some(item =>
@@ -4269,7 +4311,11 @@ function drainFailureDiagnostics(store, { root = ROOT, maxQueue = 3 } = {}) {
 // silent no-op. This fallback uses only candidates already present in the
 // trusted brief and creates bounded, reversible queue work.
 function buildActionMandateFallback(plan = {}, brief = {}) {
-  if (recoveryHandoffs(plan.change_requests || [], brief).length) return plan;
+  if (
+    recoveryHandoffs(plan.change_requests || [], brief).length ||
+    scopedDiscoveryHandoffs(plan.change_requests || [], brief).length
+  )
+    return plan;
   const basePlan = {
     messages: [],
     proposal_reviews: [],
