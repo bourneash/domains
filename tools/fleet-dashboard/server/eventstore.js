@@ -858,6 +858,9 @@ function open(root, { file } = {}) {
   ensureColumn(db, 'executive_messages', 'work_id', 'TEXT');
   ensureColumn(db, 'executive_messages', 'reply_to', 'TEXT');
   ensureColumn(db, 'executive_messages', 'message_type', "TEXT NOT NULL DEFAULT 'update'");
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS executive_messages_transcript ON executive_messages(conversation_id, message_type, created_at DESC)'
+  );
   ensureColumn(db, 'executive_work_items', 'waiting_on', 'TEXT');
   ensureColumn(db, 'executive_work_items', 'lifecycle_state', "TEXT NOT NULL DEFAULT 'open'");
   ensureColumn(db, 'executive_work_items', 'acknowledged_at', 'TEXT');
@@ -1601,6 +1604,80 @@ function open(root, { file } = {}) {
     return db
       .prepare(`SELECT COUNT(*) AS count FROM executive_messages WHERE ${clauses.join(' AND ')}`)
       .get(...args).count;
+  }
+
+  const executiveTranscriptTypes = [
+    'model-prompt',
+    'model-response',
+    'background',
+    'tool-call',
+    'tool-result',
+  ];
+
+  function listExecutiveTranscript({
+    beforeCreatedAt,
+    beforeMessageId,
+    limit = 5,
+    previewChars = 1200,
+    messageTypes = executiveTranscriptTypes,
+  } = {}) {
+    const types = (Array.isArray(messageTypes) ? messageTypes : []).filter(
+      (type) => executiveTranscriptTypes.includes(type),
+    );
+    if (!types.length) return [];
+    const n = Math.max(1, Math.min(Number(limit) || 5, 21));
+    const preview = Math.max(100, Math.min(Number(previewChars) || 1200, 4000));
+    const cursor =
+      beforeCreatedAt && beforeMessageId
+        ? ' AND (created_at < ? OR (created_at = ? AND message_id < ?))'
+        : '';
+    const args = [preview, ...types];
+    if (cursor)
+      args.push(
+        String(beforeCreatedAt),
+        String(beforeCreatedAt),
+        String(beforeMessageId),
+      );
+    args.push(n);
+    return db
+      .prepare(
+        `
+        SELECT message_id, conversation_id, actor, substr(body, 1, ?) AS body,
+          length(body) AS body_length, work_id, reply_to, message_type, created_at, metadata_json
+        FROM executive_messages
+        WHERE conversation_id = 'executive' AND message_type IN (${types.map(() => '?').join(', ')})${cursor}
+        ORDER BY created_at DESC, message_id DESC LIMIT ?
+      `,
+      )
+      .all(...args)
+      .map((row) => ({
+        ...row,
+        metadata: safeJson(row.metadata_json),
+        metadata_json: undefined,
+      }));
+  }
+
+  function countExecutiveTranscript(messageTypes = executiveTranscriptTypes) {
+    const types = (Array.isArray(messageTypes) ? messageTypes : []).filter(
+      (type) => executiveTranscriptTypes.includes(type),
+    );
+    if (!types.length) return 0;
+    return db
+      .prepare(
+        `
+        SELECT COUNT(*) AS count FROM executive_messages
+        WHERE conversation_id = 'executive' AND message_type IN (${types.map(() => '?').join(', ')})
+      `,
+      )
+      .get(...types).count;
+  }
+
+  function getExecutiveTranscriptMessage(id) {
+    const row = db.prepare(`
+      SELECT * FROM executive_messages
+      WHERE conversation_id = 'executive' AND message_id = ? AND message_type IN (?, ?, ?, ?, ?)
+    `).get(String(id), ...executiveTranscriptTypes);
+    return row ? { ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined } : null;
   }
 
   function purgeExecutiveTranscriptBefore(cutoff) {
@@ -5960,6 +6037,9 @@ function open(root, { file } = {}) {
     createExecutiveMessage,
     listExecutiveMessages,
     countExecutiveMessages,
+    listExecutiveTranscript,
+    countExecutiveTranscript,
+    getExecutiveTranscriptMessage,
     purgeExecutiveTranscriptBefore,
     updateExecutiveMessage,
     createExecutiveNotification,

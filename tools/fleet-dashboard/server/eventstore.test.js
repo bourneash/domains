@@ -77,6 +77,55 @@ test('filters executive messages and proposals by Product Manager role', () => {
   store.close();
 });
 
+test('pages transcript messages in SQLite and returns only a bounded body preview', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-transcript-page-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const old = store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'older transcript '.repeat(1000),
+    message_type: 'model-prompt',
+    created_at: '2026-10-01T12:00:00.000Z',
+  });
+  const background = store.createExecutiveMessage({
+    actor: 'system',
+    body: 'Run milestone',
+    message_type: 'background',
+    created_at: '2026-10-01T11:00:00.000Z',
+  });
+  const latest = store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'latest transcript '.repeat(1000),
+    message_type: 'model-response',
+    created_at: '2026-10-02T12:00:00.000Z',
+  });
+  store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'unrelated large message '.repeat(1000),
+    message_type: 'update',
+    created_at: '2026-10-03T12:00:00.000Z',
+  });
+
+  const firstPage = store.listExecutiveTranscript({ limit: 1, previewChars: 100 });
+  assert.equal(store.countExecutiveTranscript(), 3);
+  assert.equal(firstPage.length, 1);
+  assert.equal(firstPage[0].message_id, latest.message_id);
+  assert.equal(firstPage[0].body.length, 100);
+  assert.equal(firstPage[0].body_length, latest.body.length);
+  const olderPage = store.listExecutiveTranscript({
+    beforeCreatedAt: firstPage[0].created_at,
+    beforeMessageId: firstPage[0].message_id,
+    limit: 1,
+  });
+  assert.equal(olderPage[0].message_id, old.message_id);
+  assert.equal(
+    store.listExecutiveTranscript({ messageTypes: ['background'] })[0].message_id,
+    background.message_id
+  );
+  assert.equal(store.getExecutiveTranscriptMessage(latest.message_id).body, latest.body);
+  assert.equal(store.getExecutiveTranscriptMessage('unrelated'), null);
+  store.close();
+});
+
 test('rejects unbounded event vocabulary', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-events-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });

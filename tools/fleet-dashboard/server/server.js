@@ -3592,21 +3592,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
-  app.get('/api/executive/transcript', (_req, res) => {
+  app.get('/api/executive/transcript', (req, res) => {
     try {
       const settings = events.getExecutiveSettings();
-      const days = Math.max(1, Math.min(3650, Number(settings.conversation_retention_days) || 90));
+      const days = Math.max(
+        1,
+        Math.min(3650, Number(settings.conversation_retention_days) || 90),
+      );
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-      const retentionResult = events.purgeExecutiveTranscriptBefore(new Date(cutoff));
-      const messages = events
-        .listExecutiveMessages({ conversation_id: 'executive', limit: 1000 })
-        .filter(message =>
-          ['model-prompt', 'model-response', 'background', 'tool-call', 'tool-result'].includes(
-            message.message_type
-          )
-        );
+      const retentionResult = events.purgeExecutiveTranscriptBefore(
+        new Date(cutoff),
+      );
+      const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 5, 20));
+      const page = events.listExecutiveTranscript({
+        beforeCreatedAt: req.query.before_at,
+        beforeMessageId: req.query.before_id,
+        limit: limit + 1,
+      });
+      const hasMore = page.length > limit;
+      const messages = page.slice(0, limit);
       res.json({
         messages,
+        background_messages: events.listExecutiveTranscript({
+          messageTypes: ['background'],
+          limit: 20,
+        }),
+        total_count: events.countExecutiveTranscript(),
+        has_more: hasMore,
         retention_days: days,
         cutoff: new Date(cutoff).toISOString(),
         retention: retentionResult,
@@ -3615,6 +3627,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/transcript/:id', (req, res) => {
+    try {
+      const settings = events.getExecutiveSettings();
+      const days = Math.max(
+        1,
+        Math.min(3650, Number(settings.conversation_retention_days) || 90),
+      );
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      const message = events.getExecutiveTranscriptMessage(req.params.id);
+      if (!message || Date.parse(message.created_at) < cutoff)
+        return res.status(404).json({ error: 'transcript event not found' });
+      res.json({ body: message.body });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
+
   app.get('/api/executive/health', (_req, res) => {
     try {
       const status = executive.health(events);

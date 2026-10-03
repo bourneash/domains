@@ -96,6 +96,15 @@ test('product managers are first-class Agents pages with durable queues', () => 
   assert.doesNotMatch(productManager, /\/api\/executive\/(?:messages|proposals|actions)\?/);
 });
 
+test('executive transcript loads bounded pages and fetches full text on demand', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /\/api\/executive\/transcript\?limit=5/);
+  assert.match(app, /class="btn sm ex-transcript-older"/);
+  assert.match(app, /class="btn sm ex-transcript-full"/);
+  assert.match(app, /\/api\/executive\/transcript\/\$\{encodeURIComponent\(button\.dataset\.messageId\)\}/);
+  assert.match(app, /transcript\.has_more/);
+});
+
 test('executive workbench is a first-class operator route', () => {
   assert.equal(routeFor('#workbench').view, 'workbench');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

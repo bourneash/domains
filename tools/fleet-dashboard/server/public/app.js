@@ -14199,6 +14199,30 @@ async function renderExecutiveSetup() {
   stamp();
 }
 
+function executiveTranscriptRow(item) {
+  const kind =
+    item.message_type === 'background'
+      ? 'background'
+      : item.message_type === 'model-prompt'
+        ? 'prompt'
+        : 'response';
+  const label =
+    kind === 'background'
+      ? item.metadata?.label || 'Background work'
+      : kind === 'prompt'
+        ? item.metadata?.label || 'Model request'
+        : 'Model response';
+  const run = item.metadata?.run_id
+    ? ` · run ${String(item.metadata.run_id).slice(0, 8)}`
+    : '';
+  const hasMoreText = Number(item.body_length) > String(item.body || '').length;
+  const body =
+    kind === 'background'
+      ? `<div class="ex-transcript-summary ex-transcript-body">${esc(item.body)}${hasMoreText ? `<button class="btn sm ex-transcript-full" type="button" data-message-id="${esc(item.message_id)}">Load full text (${Number(item.body_length).toLocaleString()} characters)</button>` : ''}</div>`
+      : `<details><summary>View ${kind === 'prompt' ? 'request context' : 'structured response'}${hasMoreText ? ` · ${Number(item.body_length).toLocaleString()} characters` : ''}</summary><pre class="ex-transcript-body">${esc(item.body)}</pre>${hasMoreText ? `<button class="btn sm ex-transcript-full" type="button" data-message-id="${esc(item.message_id)}">Load full text</button>` : ''}</details>`;
+  return `<article class="ex-transcript-event ex-transcript-${kind}"><div class="ex-transcript-meta"><span class="ex-transcript-dot"></span><b>${esc(label)}</b><span class="muted">${esc(executiveActorLabel(item.actor))} · ${esc(fmtDate(item.created_at))}${esc(run)}</span></div>${body}</article>`;
+}
+
 async function renderExecutive() {
   if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
@@ -14247,7 +14271,11 @@ async function renderExecutive() {
       api('GET', '/api/executive/messages?limit=100'),
       conversationOnly
         ? Promise.resolve({ messages: [], retention_days: 90 })
-        : apiOptional('GET', '/api/executive/transcript', { messages: [], retention_days: 90 }),
+        : apiOptional('GET', '/api/executive/transcript?limit=5', {
+            messages: [],
+            retention_days: 90,
+            total_count: 0,
+          }),
       api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
       api('GET', '/api/executive/inbox?limit=50'),
       conversationOnly
@@ -14340,30 +14368,17 @@ async function renderExecutive() {
     )
     .join('');
   const transcriptMessages = (transcript.messages || []).slice().reverse();
-  const transcriptRows = transcriptMessages
-    .map(item => {
-      const kind =
-        item.message_type === 'background'
-          ? 'background'
-          : item.message_type === 'model-prompt'
-            ? 'prompt'
-            : 'response';
-      const label =
-        kind === 'background'
-          ? item.metadata?.label || 'Background work'
-          : kind === 'prompt'
-            ? item.metadata?.label || 'Model request'
-            : 'Model response';
-      const run = item.metadata?.run_id ? ` · run ${String(item.metadata.run_id).slice(0, 8)}` : '';
-      const body =
-        kind === 'background'
-          ? `<div class="ex-transcript-summary">${esc(item.body)}</div>`
-          : `<details><summary>View ${kind === 'prompt' ? 'request context' : 'structured response'}</summary><pre>${esc(item.body)}</pre></details>`;
-      return `<article class="ex-transcript-event ex-transcript-${kind}"><div class="ex-transcript-meta"><span class="ex-transcript-dot"></span><b>${esc(label)}</b><span class="muted">${esc(executiveActorLabel(item.actor))} · ${esc(fmtDate(item.created_at))}${esc(run)}</span></div>${body}</article>`;
-    })
-    .join('');
-  const backgroundRows = transcriptMessages
+  const transcriptRows = transcriptMessages.map(executiveTranscriptRow).join('');
+  const oldestTranscriptEvent = transcriptMessages[0];
+  const transcriptOlderButton =
+    transcript.has_more && oldestTranscriptEvent
+      ? `<button class="btn sm ex-transcript-older" type="button" data-before-at="${esc(oldestTranscriptEvent.created_at)}" data-before-id="${esc(oldestTranscriptEvent.message_id)}">Load older events</button>`
+      : '';
+  const backgroundMessages = (transcript.background_messages || transcriptMessages)
     .filter(item => item.message_type === 'background')
+    .slice()
+    .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+  const backgroundRows = backgroundMessages
     .slice(-20)
     .map(
       item =>
@@ -14703,7 +14718,7 @@ async function renderExecutive() {
         ${casePanel}
         <section class="ex-panel ex-requests"><div class="ex-panel-head"><div><div class="ex-eyebrow">OWNER INBOX</div><h3>Requests you’re tracking</h3><p class="muted">Select a request to open its full conversation and next actions.</p></div><span class="badge ${unreadNotifications.length ? 'b-yellow' : 'b-green'}">${unreadNotifications.length} unread · ${allOwnerRequests.length} total</span></div><div class="ex-inbox-toolbar"><input id="ex-inbox-search" class="cm-input" placeholder="Search requests…" value="${esc(EXEC_INBOX_UI.q)}"><select id="ex-inbox-filter" class="cm-input"><option value="all" ${EXEC_INBOX_UI.status === 'all' ? 'selected' : ''}>All requests</option><option value="unread" ${EXEC_INBOX_UI.status === 'unread' ? 'selected' : ''}>Unread replies</option><option value="overdue" ${EXEC_INBOX_UI.status === 'overdue' ? 'selected' : ''}>Overdue</option>${['submitted', 'acknowledged', 'answered', 'actioned', 'measured', 'snoozed', 'closed'].map(state => `<option value="${state}" ${EXEC_INBOX_UI.status === state ? 'selected' : ''}>${state}</option>`).join('')}</select><span class="muted">${filteredOwnerRequests.length} matching · page ${EXEC_INBOX_UI.page} of ${inboxPageCount}</span></div>${notificationGroup}<div class="ex-request-split"><div class="ex-request-list">${ownerRequestList || '<div class="ex-empty">No Owner requests match this view.</div>'}</div><div class="ex-request-detail-pane">${ownerRequestDetail}</div></div><div class="activity-pagination"><button class="btn sm" id="ex-inbox-prev" type="button" ${EXEC_INBOX_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><button class="btn sm" id="ex-inbox-next" type="button" ${EXEC_INBOX_UI.page >= inboxPageCount ? 'disabled' : ''}>Next →</button></div></section>
         <details class="ex-disclosure"><summary><span><b>Recent conversation</b><small>${latestMessage ? `${esc(executiveActorLabel(latestMessage.actor))} · ${esc(fmtDate(latestMessage.created_at))}` : 'No messages yet'}</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive messages yet.</div>'}</div></details>
-        <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue">${transcriptMessages.length} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}</div></section>
+        <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue" id="ex-transcript-count">${transcriptMessages.length} of ${Number(transcript.total_count ?? transcriptMessages.length).toLocaleString()} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list" id="ex-transcript-list" data-total-count="${Number(transcript.total_count ?? transcriptMessages.length)}">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}${transcriptOlderButton}</div></section>
       </div>
       <aside class="ex-secondary">
         <section class="ex-panel" id="ex-fleet-signals"><div class="ex-panel-head"><div><div class="ex-eyebrow">FLEET SIGNALS</div><h3>At a glance</h3></div><span class="muted" id="ex-fleet-signals-at">Loading telemetry…</span></div><div class="ex-mini-grid"><div class="ex-kpi"><b>—</b><span>analytics sites</span></div><div class="ex-kpi"><b>—</b><span>commission income</span></div><div class="ex-kpi"><b>—</b><span>AI tokens</span></div><div class="ex-kpi"><b>—</b><span>telemetry cost</span></div></div><p class="muted ex-footnote">Telemetry only; no per-run executive cost is inferred.</p></section>
@@ -15168,18 +15183,77 @@ async function renderExecutive() {
   };
   // Delegate from the stable app root so controls remain live if a background
   // refresh replaces the approval cards between paint and the user's click.
-  app.onclick = event => {
+  app.onclick = (event) => {
     const button = event.target.closest(
-      '.ex-approve, .ex-quick-approve, .ex-feedback, .ex-decline, .ex-open-thread'
+      '.ex-approve, .ex-quick-approve, .ex-feedback, .ex-decline, .ex-open-thread, .ex-transcript-older, .ex-transcript-full',
     );
     if (!button || !app.contains(button)) return;
     event.preventDefault();
     if (button.classList.contains('ex-open-thread')) go('workbench');
-    else if (button.classList.contains('ex-quick-approve')) quickApprove(button);
+    else if (button.classList.contains('ex-transcript-older')) {
+      button.disabled = true;
+      button.textContent = 'Loading older events…';
+      const cursor = `before_at=${encodeURIComponent(button.dataset.beforeAt)}&before_id=${encodeURIComponent(button.dataset.beforeId)}`;
+      api('GET', `/api/executive/transcript?limit=5&${cursor}`)
+        .then((page) => {
+          const list = $('#ex-transcript-list');
+          if (!list) return;
+          const messages = page.messages || [];
+          if (!messages.length) {
+            button.remove();
+            return;
+          }
+          list.insertAdjacentHTML(
+            'afterbegin',
+            messages.slice().reverse().map(executiveTranscriptRow).join(''),
+          );
+          const oldest = messages.at(-1);
+          if (page.has_more && oldest) {
+            button.dataset.beforeAt = oldest.created_at;
+            button.dataset.beforeId = oldest.message_id;
+            button.disabled = false;
+            button.textContent = 'Load older events';
+          } else button.remove();
+          const loaded = list.querySelectorAll('.ex-transcript-event').length;
+          const total = Number(
+            page.total_count ?? list.dataset.totalCount ?? loaded,
+          );
+          list.dataset.totalCount = String(total);
+          const count = $('#ex-transcript-count');
+          if (count)
+            count.textContent = `${loaded} of ${total.toLocaleString()} events`;
+        })
+        .catch((error) => {
+          button.disabled = false;
+          button.textContent = 'Load older events';
+          toast(error.message, 'err');
+        });
+    } else if (button.classList.contains('ex-transcript-full')) {
+      button.disabled = true;
+      button.textContent = 'Loading full text…';
+      api(
+        'GET',
+        `/api/executive/transcript/${encodeURIComponent(button.dataset.messageId)}`,
+      )
+        .then((data) => {
+          const body =
+            button.closest('.ex-transcript-body') ||
+            button.parentElement.querySelector('.ex-transcript-body');
+          if (body) body.textContent = data.body || '';
+          button.remove();
+        })
+        .catch((error) => {
+          button.disabled = false;
+          button.textContent = 'Load full text';
+          toast(error.message, 'err');
+        });
+    } else if (button.classList.contains('ex-quick-approve'))
+      quickApprove(button);
     else if (button.classList.contains('ex-feedback')) decide(button, 'feedback');
     else if (button.classList.contains('ex-decline')) decide(button, 'declined');
     else decide(button, 'approved');
   };
+
   wireCrumbs();
   stamp();
   if (!conversationOnly) {

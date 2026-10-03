@@ -145,3 +145,49 @@ test('Product Manager summary returns role messages and proposals in one scoped 
   assert.equal(response.body.proposals[0].title, 'Fleet proposal');
   assert.ok(Buffer.byteLength(JSON.stringify(response.body)) < 5000);
 });
+
+test('executive transcript pages events and loads full text only on request', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-transcript-page-e2e-'));
+  const server = createApp({ root }).listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => new Promise(resolve => server.close(resolve)));
+
+  const store = eventstore.open(root);
+  const older = store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'older prompt '.repeat(2000),
+    message_type: 'model-prompt',
+    created_at: '2026-10-01T12:00:00.000Z',
+  });
+  const latest = store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'latest response '.repeat(2000),
+    message_type: 'model-response',
+    created_at: '2026-10-02T12:00:00.000Z',
+  });
+  store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'unrelated message '.repeat(2000),
+    message_type: 'update',
+    created_at: '2026-10-03T12:00:00.000Z',
+  });
+  store.close();
+
+  const response = await request(server, 'GET', '/api/executive/transcript?limit=1');
+  assert.equal(response.status, 200);
+  assert.equal(response.body.total_count, 2);
+  assert.equal(response.body.has_more, true);
+  assert.equal(response.body.messages.length, 1);
+  assert.equal(response.body.messages[0].message_id, latest.message_id);
+  assert.equal(response.body.messages[0].body_length, latest.body.length);
+  assert.equal(response.body.messages[0].body.length, 1200);
+  const olderPage = await request(
+    server,
+    'GET',
+    `/api/executive/transcript?limit=1&before_at=${encodeURIComponent(latest.created_at)}&before_id=${latest.message_id}`
+  );
+  assert.equal(olderPage.body.messages[0].message_id, older.message_id);
+  const fullText = await request(server, 'GET', `/api/executive/transcript/${latest.message_id}`);
+  assert.equal(fullText.body.body, latest.body);
+  assert.equal((await request(server, 'GET', '/api/executive/transcript/unrelated')).status, 404);
+});
