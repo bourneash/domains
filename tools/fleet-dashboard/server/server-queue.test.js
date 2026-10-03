@@ -14,6 +14,7 @@ const {
   validationInfrastructureBlock,
   shouldRepairDeliveryQualityFailure,
   authoritativeTaskBody,
+  boundedReviewFeedback,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,
@@ -647,4 +648,29 @@ test('updated request scope is authoritative over historical backlog prose', () 
     authoritativeTaskBody({ body: 'Original implementation' }, null),
     'Original implementation'
   );
+});
+
+test('repair feedback retains actual failing CI before long passing reviewer logs', () => {
+  const validation = {
+    passed: false,
+    checks: {
+      ci: {
+        status: 'fail',
+        excerpt: 'http-cache-semantics: high vulnerability, no patched version',
+      },
+      build: { status: 'pass', excerpt: 'build output '.repeat(10000) },
+    },
+    preview: { passed: true },
+    browser: { passed: true },
+  };
+  const feedback = boundedReviewFeedback(
+    validation,
+    'quality gates did not pass',
+    'FD_REVIEW_RESULT: PASS\n'.repeat(4000)
+  );
+  assert.match(feedback, /quality gates did not pass/);
+  assert.match(feedback, /http-cache-semantics: high vulnerability, no patched version/);
+  assert.ok(feedback.indexOf('http-cache-semantics') < feedback.indexOf('Recent worker'));
+  assert.ok(!feedback.includes('build output'));
+  assert.ok(feedback.length < 18000);
 });

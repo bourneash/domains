@@ -271,6 +271,26 @@ function hasDeterministicQualityFailure(validation) {
   );
 }
 
+function boundedReviewFeedback(validation, message, log) {
+  const failures = {};
+  for (const [name, check] of Object.entries(validation?.checks || {}))
+    if (check?.status === 'fail')
+      failures[name] = {
+        status: 'fail',
+        excerpt: String(check.excerpt || check.error || '').slice(-4000),
+      };
+  const detail = {
+    passed: validation?.passed,
+    failed_checks: failures,
+    preview: validation?.preview?.passed === false ? validation.preview : undefined,
+    browser: validation?.browser?.passed === false ? validation.browser : undefined,
+    policy: validation?.policy,
+  };
+  // Keep the failure FIRST. A long successful reviewer transcript previously
+  // displaced the actual failed CI check when the whole string was tail sliced.
+  return `${String(message || 'automatic review failed').slice(0, 1500)}\nValidation failures:\n${JSON.stringify(detail).slice(0, 12000)}\nRecent worker/reviewer transcript:\n${String(log || '').slice(-4000)}`;
+}
+
 function authoritativeTaskBody(request, task) {
   return String(request?.body || task?.body || '');
 }
@@ -3032,12 +3052,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const status = run ? improvementAgent.status(rootPath, run) : null;
     const log = String(status?.log_tail || '').trim();
     const validation = error?.validation || run?.validation || null;
-    const validationEvidence = validation
-      ? `\nValidation evidence:\n${JSON.stringify(validation).slice(-12000)}`
-      : '';
-    return `${String(error?.message || error || 'automatic review failed')}${validationEvidence}\n${log}`.slice(
-      -20000
-    );
+    return boundedReviewFeedback(validation, error?.message || error, log);
   }
 
   function reviewTaskBodyForRequest(request, task) {
@@ -9205,6 +9220,7 @@ module.exports = {
   validationInfrastructureBlock,
   shouldRepairDeliveryQualityFailure,
   authoritativeTaskBody,
+  boundedReviewFeedback,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,
