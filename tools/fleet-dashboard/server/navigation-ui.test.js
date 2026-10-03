@@ -31,10 +31,23 @@ test('light-mode navigation and selected controls do not retain dark-theme ink o
     theme,
     /:root\[data-theme="light"\] \.pill\.active\s*\{[^}]*background:\s*#d7e6fa[^}]*color:\s*#174f92/
   );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.rl-fold\s*\{[^}]*border-color:\s*rgba\(61,86,120,.2\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.rail-folded \.rl-sec\[data-sec="pinned"\]\s*\{[^}]*border-bottom-color:\s*rgba\(61,86,120,.14\)/
+  );
 });
 
 test('mobile header keeps all action controls visible without horizontal scrolling', () => {
   const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /\.wb-filter-control > \.wb-filter-label\s*\{[^}]*width:\s*auto;[^}]*white-space:\s*nowrap/
+  );
   assert.match(
     mobile,
     /body\[data-view="workflow-board"\] \.wb-head-actions \.btn\s*\{[^}]*width:\s*auto;[^}]*flex:\s*0 0 auto/
@@ -54,7 +67,7 @@ test('mobile header keeps all action controls visible without horizontal scrolli
     mobile,
     /\.topbar \.actions #update-pill:not\(\.hidden\) \{[^}]*width: 44px;[^}]*font-size: 0;/
   );
-  assert.match(mobile, /#update-pill:not\(\.hidden\)::before \{ content: '↻';/);
+  assert.match(mobile, /#update-pill:not\(\.hidden\)::before \{ content: '↑';/);
   assert.match(
     mobile,
     /\.topbar \.actions \.theme-toggle,[\s\S]*?\.topbar \.actions #refresh \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/
@@ -66,6 +79,22 @@ test('mobile header keeps all action controls visible without horizontal scrolli
   assert.match(
     mobile,
     /body\[data-view="aiusage"\] \.aiu-summary > \.aiu-stat:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*display:\s*flex/
+  );
+});
+
+test('Data Quality keeps source identity visible during mobile table scrolling', () => {
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  assert.match(
+    mobile,
+    /body\[data-view="dataquality"\] \.dq-contracts \.tbl th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
+  );
+  assert.match(
+    mobile,
+    /body\[data-view="domains"\] \.table-wrap\[aria-label="Checked-out domains and available actions"\] th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
+  );
+  assert.match(
+    mobile,
+    /body\[data-view="site"\] \.table-wrap\[aria-label="Installed roles"\] th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
   );
 });
 
@@ -243,12 +272,32 @@ test('site command centers are shareable first-class routes', () => {
   const siteStart = app.indexOf('function renderSiteDetail()');
   const siteEnd = app.indexOf('function renderSiteDetail', siteStart + 1);
   const siteView = app.slice(siteStart, siteEnd > siteStart ? siteEnd : siteStart + 20000);
+  const loadingShell = siteView.indexOf('class="site-command-loading"');
+  const reads = siteView.indexOf('const [fleetRead, rolesRead, deployRead, gatusRead');
+  assert.ok(
+    loadingShell >= 0 && loadingShell < reads,
+    'show site identity before awaiting telemetry'
+  );
+  assert.match(
+    siteView,
+    /class="loading" role="status" aria-live="polite">Loading operational snapshot/
+  );
   assert.ok((siteView.match(/class="table-wrap"><table/g) || []).length >= 2);
-  assert.match(siteView, /engineerCell\?\.state \|\| engineerCell\?\.status/);
+  assert.match(
+    siteView,
+    /engineerPulse = siteStatusLabel\([\s\S]*engineerCell\?\.state[\s\S]*engineerCell\?\.status/
+  );
   assert.match(siteView, /siteLastRun\(cell\.last_run \|\| cell\.last\)/);
   assert.match(siteView, /id="site-back-control">← All sites/);
-  assert.match(siteView, /apiOptional\('GET', '\/api\/roles', \{ sites: null \}\)/);
+  assert.match(siteView, /readSecondary\('\/api\/roles', \{ sites: null \}\)/);
   assert.match(siteView, /Role inventory is temporarily unavailable/);
+  assert.match(siteView, /const tasksRead = readSecondary\(`/);
+  assert.match(siteView, /id="site-open-work-count">—<\/strong>/);
+  assert.match(siteView, /Task queue unavailable · refresh to retry/);
+  assert.match(siteView, /id="site-error-count">—<\/strong>/);
+  assert.match(siteView, /Repository status unavailable · refresh to retry/);
+  assert.match(siteView, /Activity evidence unavailable · refresh to retry/);
+  assert.match(siteView, /if \(!isCurrentSiteRender\(\)\) return;/);
 });
 
 test('site command center open-work count excludes completed and cancelled task columns', () => {
@@ -387,6 +436,10 @@ test('async route renders surface failures without unhandled promise rejections'
   );
   assert.match(app, /renderViewError\(\$\('#app'\), error\)/);
   assert.doesNotMatch(app, /window\.addEventListener\('hashchange',[\s\S]*?\n\s*render\(\);/);
+  assert.match(
+    app,
+    /window\.addEventListener\('hashchange',[\s\S]*?closeErrorDrawer\(false\);[\s\S]*?ROUTE_EPOCH \+= 1;[\s\S]*?renderRoute\(\);/
+  );
 });
 
 test('stale route renders retry the current route after a rapid return', () => {
@@ -530,7 +583,7 @@ test('executive visible button labels match their accessible names', () => {
     /id="ex-notify-read"[^>]*aria-label="\$\{unreadNotifications\.length \? `Mark \$\{unreadNotifications\.length\} alert/
   );
   assert.match(app, /id="ex-refresh"[^>]*aria-label="Refresh"/);
-  assert.match(app, /id="ex-calendar-new"[^>]*aria-label="Schedule event"/);
+  assert.match(app, /id="ex-calendar-new"[^>]*aria-label="＋ Schedule event"/);
 });
 
 test('fleet vitals ignore stale route-scoped container responses', () => {
@@ -690,6 +743,8 @@ test('executive workbench is a first-class operator route', () => {
   const styles = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /Executive Workbench/);
   assert.match(app, /Decisions, evidence gaps, reviews, incidents, and learning in one queue/);
+  assert.match(app, /<span>open cases<\/span><\/div><div><b>\$\{count\('blocked'\)\}/);
+  assert.match(app, /Blocked and waiting cases are included in the open count\./);
   assert.match(
     styles,
     /@media \(max-width: 720px\)\s*\{\s*\.wb-shell > \.wb-head \{ gap: 12px; padding: 14px 16px; \}/
@@ -812,10 +867,15 @@ test('Site Command Center mobile hero does not inherit a desktop flex height', (
     theme,
     /@media \(max-width: 820px\) \{[\s\S]*?\.site-command-head > div:first-child \{ flex: 0 1 auto; width: 100%; \}/
   );
+  assert.match(
+    theme,
+    /@media \(max-width: 500px\)[^\n]*\.site-facts \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[^}]*\}[^\n]*\.site-facts dd \{ overflow-wrap: anywhere; \}/
+  );
 });
 
 test('Data Quality keeps its source table bounded on narrow screens', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(
     app,
     /role="status" aria-live="polite"><div class="loading">Checking data contracts…<\/div>/
@@ -851,6 +911,25 @@ test('Data Quality keeps its source table bounded on narrow screens', () => {
   );
   assert.match(app, /No data quality contracts have been recorded yet/);
   assert.match(app, /caption class="sr-only">Data quality contract status<\/caption>/);
+  assert.match(
+    style,
+    /@media \(min-width: 1100px\) \{[\s\S]*?\.dq-contracts \.tbl \{ width: 100%; table-layout: fixed; \}[\s\S]*?\.dq-contracts \.tbl th:nth-child\(6\), \.dq-contracts \.tbl td:nth-child\(6\) \{ width: 36%; overflow-wrap: anywhere; \}/
+  );
+});
+
+test('Data Quality does not turn a missing baseline into a zero-percent measurement', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function dataQualityCoverageLabel(');
+  const end = app.indexOf('\nasync function renderDataQuality()', start);
+  const context = {};
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.coverage = dataQualityCoverageLabel; globalThis.completeness = dataQualityCompletenessLabel;`,
+    context
+  );
+  assert.equal(context.coverage(0, 0), '0 observed · no baseline');
+  assert.equal(context.completeness(0, 0), '—');
+  assert.equal(context.coverage(4, 8), '4 / 8');
+  assert.equal(context.completeness(0.5, 8), '50%');
 });
 
 test('Retention exposes a primary loading state before reading policy data', () => {
@@ -1333,6 +1412,21 @@ test('Social Hub channel register explains its wide mobile layout', () => {
   assert.match(style, /\.sh-scroll-hint \{ display: none; \}/);
 });
 
+test('Social Hub queue explains public-only empty results and enhances async table scrolling', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function shRenderQueue()');
+  const end = app.indexOf('function shCalendarDayKey(', start);
+  assert.ok(start >= 0 && end > start);
+  const queue = app.slice(start, end);
+  assert.match(queue, /No \$\{esc\(SH\.status\)\} posts\$\{emptyScope\}/);
+  assert.match(queue, /Console local preview is excluded/);
+  assert.match(
+    queue,
+    /class="sh-scroll-hint" role="note">Swipe horizontally to inspect post content, links, and actions/
+  );
+  assert.match(queue, /enhanceScrollableTables\(list\)/);
+});
+
 test('Social Hub exposes local refresh and accessible initial loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const route = app.slice(
@@ -1723,18 +1817,16 @@ test('focused interactive rows retain Enter and Space activation', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(shell, /function normalizeKeyboardActions\(root = document\)/);
-  assert.match(
-    shell,
-    /\[role="button"\]\[tabindex="0"\]:not\(.vt\):not\(.an-site-row\), tr\.err-row\[tabindex="0"\]/
-  );
+  assert.match(shell, /\[role="button"\]\[tabindex="0"\]:not\(.vt\):not\(.an-site-row\)/);
   assert.match(shell, /action\.setAttribute\('role', 'button'\)/);
   assert.match(shell, /event\.key !== 'Enter' && event\.key !== ' '/);
   assert.match(shell, /action\.click\(\)/);
   assert.match(shell, /normalizeKeyboardActions\(\$\('#app'\)\)/);
   assert.match(
     app,
-    /class="err-row"[^>]*role="button" tabindex="0" title="Click to view retained logs"/
+    /<tr class="err-row"[^>]*data-error-id=[^>]*>\s*<td class="mono"><button class="err-open"[^>]*type="button" aria-label="Open retained logs for \$\{esc\(r\.name\)\}"/
   );
+  assert.doesNotMatch(app, /class="err-row"[^>]*role="button"|class="err-toggle"/);
 });
 
 test('error log drawer supports focus return and async announcements', () => {
@@ -1781,7 +1873,20 @@ test('Domains route separates command queueing from operational inventory', () =
   assert.match(app, /<span class="muted">\$\{\(d\.sites \|\| \[\]\)\.length\} total<\/span>/);
   assert.match(app, /<th>Created<\/th>/);
   assert.match(app, /createdLabel/);
-  assert.match(app, /\$\{jobs\.length\} recent<\/span>/);
+  assert.match(app, /\$\{jobs\.length\} recent across fleet<\/span>/);
+  assert.match(app, /data-dom-job-row="true"/);
+  assert.match(
+    app,
+    /id="dom-job-filter-empty" class="empty dom-job-filter-empty" role="status" aria-live="polite" hidden/
+  );
+  assert.match(
+    app,
+    /id="dom-job-scroll-hint" class="matrix-scroll-hint" role="note">Swipe horizontally to inspect command status and actions/
+  );
+  assert.match(
+    theme,
+    /body\[data-view="domains"\] \.dom-job-filter-empty \{ display: block; min-height: 0; margin: 0 0 10px; padding: 12px 14px; text-align: left; \}/
+  );
   assert.match(app, /type="button" class="btn" id="domains-refresh"/);
   assert.match(
     app,
@@ -1875,7 +1980,7 @@ test('fleet filtering reports live match counts', () => {
   );
   assert.match(
     index,
-    /id="update-pill"[^>]*aria-label="↻ Update ready — new dashboard version available"/
+    /id="update-pill"[^>]*aria-label="↑ Update ready — reload for the latest dashboard version"/
   );
   assert.match(theme, /\.fleet-filter-count/);
   assert.match(app, /ff\.addEventListener\('keydown'/);
@@ -1910,6 +2015,9 @@ test('fleet filter counter resets on empty views and counts named site groups', 
     setAttribute(k, v) {
       this.attrs[k] = v;
     },
+    removeAttribute(k) {
+      delete this.attrs[k];
+    },
   };
   const context = {
     STATE: { view: 'tasks' },
@@ -1934,6 +2042,11 @@ test('fleet filter counter resets on empty views and counts named site groups', 
       makeRow(index < 4 ? 'marineactivity.com' : 'other-site.com')
     )
   );
+  input.value = '';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(count.textContent, '');
+  assert.equal(count.attrs['aria-label'], undefined);
+
   input.value = 'marineactivity.com';
   vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
   assert.equal(count.textContent, '4/10');
@@ -1972,6 +2085,114 @@ test('fleet filter counter resets on empty views and counts named site groups', 
     count.attrs['aria-label'],
     'Site filters apply on site-level pages; use Find an agent to search this directory'
   );
+});
+
+test('Social Hub overview count follows global site filtering and its own site-state subset', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function applyFleetFilter()');
+  const end = app.indexOf('\nfunction clearFleetFilter()', start);
+  assert.ok(start >= 0 && end > start);
+  const makeCard = site => ({
+    dataset: { site },
+    classList: {
+      hidden: false,
+      toggle(name, value) {
+        if (name === 'fleet-hidden') this.hidden = value;
+      },
+      contains(name) {
+        return name === 'fleet-hidden' && this.hidden;
+      },
+    },
+  });
+  const cards = [makeCard('marineactivity.com'), makeCard('other.example')];
+  const input = { value: 'marineactivity.com' };
+  const clear = { hidden: false };
+  const fleetCount = { textContent: '', setAttribute() {} };
+  const overviewCount = {
+    dataset: { shStatusCount: '2', shTotalCount: '4', shInboxCount: '3' },
+    textContent: '',
+  };
+  const context = {
+    STATE: { view: 'socialhub' },
+    TASK: {},
+    ERRORS_UI: {},
+    CF_BUILDS: {},
+    WORK_BOARD_CACHE: null,
+    $: selector =>
+      ({
+        '#fleet-filter': input,
+        '#fleet-filter-clear': clear,
+        '#fleet-filter-count': fleetCount,
+        '#sh-overview-count': overviewCount,
+      })[selector],
+    $$: selector =>
+      selector === '[data-fleet-row]' || selector === '.sh-cards > .sh-site' ? cards : [],
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(overviewCount.textContent, '1 shown of 2 sites (4 total) · 3 unread inbox');
+  assert.equal(cards[1].classList.hidden, true);
+  input.value = '';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(overviewCount.textContent, '2 of 4 sites · 3 unread inbox');
+});
+
+test('Domains explains when the site filter hides every recent job', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function applyFleetFilter()');
+  const end = app.indexOf('\nfunction clearFleetFilter()', start);
+  const makeRow = (site, isJob = false) => ({
+    dataset: { site, fleetUnit: isJob ? 'jobs' : 'sites', domJobRow: isJob ? 'true' : undefined },
+    hidden: false,
+    classList: {
+      toggle(name, value) {
+        if (name === 'fleet-hidden') this.hidden = value;
+      },
+      contains(name) {
+        return name === 'fleet-hidden' && this.hidden;
+      },
+    },
+  });
+  const rows = [makeRow('other-site.com', true), makeRow('marineactivity.com')];
+  const input = { value: 'marineactivity.com' };
+  const clear = { hidden: false };
+  const count = { textContent: '', setAttribute() {} };
+  const status = { hidden: true, textContent: '' };
+  const jobTable = { hidden: false };
+  const jobScrollHint = { hidden: false };
+  const context = {
+    STATE: { view: 'domains' },
+    domRenderSitePage() {},
+    $: selector =>
+      ({
+        '#fleet-filter': input,
+        '#fleet-filter-clear': clear,
+        '#fleet-filter-count': count,
+        '#dom-job-filter-empty': status,
+        '#dom-job-table-wrap': jobTable,
+        '#dom-job-scroll-hint': jobScrollHint,
+      })[selector],
+    $$: selector => (selector === '[data-fleet-row]' ? rows : []),
+  };
+
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(rows[0].classList.hidden, true);
+  assert.equal(status.hidden, false);
+  assert.equal(jobTable.hidden, true);
+  assert.equal(jobScrollHint.hidden, true);
+  assert.match(status.textContent, /No job history matches “marineactivity\.com”/);
+
+  input.value = '';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(status.hidden, true);
+  assert.equal(jobTable.hidden, false);
+  assert.equal(jobScrollHint.hidden, false);
+
+  rows[0].dataset.site = 'marineactivity.com';
+  input.value = 'marineactivity.com';
+  vm.runInNewContext(`${app.slice(start, end)}\napplyFleetFilter();`, context);
+  assert.equal(status.hidden, true);
+  assert.equal(jobTable.hidden, false);
+  assert.equal(jobScrollHint.hidden, false);
 });
 
 test('fleet site filtering keeps task-view counts scoped to visible task groups or records', () => {
@@ -2124,7 +2345,7 @@ test('Engineer summary and stale warnings follow the global site filter', () => 
   assert.equal(missingRows[0].classList.hidden, false);
   assert.equal(missingRows[1].classList.hidden, true);
   assert.equal(missingCount.textContent, '1 of 2 sites');
-  assert.equal(missing.firstChild.textContent, '· 1 not enrolled ');
+  assert.equal(missing.firstChild.textContent, '1 not enrolled ');
 });
 
 test('Engineer health summary aggregates only sites matched by the global filter', () => {
@@ -2242,7 +2463,7 @@ test('generic agent counts and alerts recalculate from visible site rows', () =>
     '1 enabled · 0 paused · <span class="flag">2 publishing alerts</span>'
   );
   assert.equal(missingCount.textContent, '1 of 1 sites');
-  assert.equal(missing.firstChild.textContent, '· 1 not enrolled ');
+  assert.equal(missing.firstChild.textContent, '1 not enrolled ');
 });
 
 test('fleet site filters synchronize across tabs and refresh the active Work Board', () => {
@@ -2490,6 +2711,7 @@ test('dashboard includes a keyboard skip link to the current page content', () =
 test('Build Usage exposes a scoped refresh control', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(
     theme,
     /:root\[data-theme="light"\] \.cfb-stat \{\s*background: var\(--grad-panel\), var\(--panel\);\s*border-color: var\(--border\);/
@@ -2497,6 +2719,10 @@ test('Build Usage exposes a scoped refresh control', () => {
   assert.match(
     theme,
     /@media \(min-width: 381px\) and \(max-width: 440px\)\s*\{\s*\.cfb-stats \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \}/
+  );
+  assert.match(
+    style,
+    /@media \(max-width: 440px\) \{ \.cfb-stats \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); gap: 8px; \} \}/
   );
   assert.match(app, /type="button" class="btn" id="cfb-refresh"/);
   assert.match(
@@ -3207,19 +3433,7 @@ test('Containers provides scoped search and operational filters', () => {
 test('Errors presents scan severity as a readable KPI strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
-  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(app, /class="error-summary"/);
-  assert.match(app, /class="activity-pagination error-pagination"/);
-  assert.match(
-    mobile,
-    /\.error-pagination \{\s*display: grid;\s*grid-template-columns: auto minmax\(0, 1fr\) auto;/
-  );
-  assert.match(
-    mobile,
-    /\.error-pagination > \.muted \{\s*grid-column: 1 \/ -1;[\s\S]*?white-space: nowrap;/
-  );
-  assert.match(mobile, /\.error-pagination \.activity-page-count \{[\s\S]*?width: max-content;/);
-  assert.match(mobile, /\.error-pagination \.btn \{ min-height: 40px; \}/);
   assert.match(
     app,
     /function filterErrorRows\(rows, \{ query = '', level = '', scope = '', siteQuery = '' \} = \{\}\)/
@@ -3248,6 +3462,7 @@ test('Errors presents scan severity as a readable KPI strip', () => {
     /failed Slack post\(s\) across \$\{postFailureGroups\.length\} failure pattern/
   );
   assert.match(app, /aria-label="Open retained logs for \$\{esc\(r\.name\)\}"/);
+  assert.match(app, /\$\{r\.lastLine \? `<button class="btn sm err-copy"/);
   assert.match(
     app,
     /title="\$\{esc\(f\.textPreview \|\| ''\)\}"\>\$\{esc\(formatErrorPostPreview\(f\.textPreview\)\)\}/
@@ -3356,6 +3571,50 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
   assert.match(theme, /\.deploy-filter-hidden \{ display: none; \}/);
 });
 
+test('Deploys local filter counts only rows allowed by the global site filter', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function applyDeployFilter()');
+  const end = app.indexOf('\n/* =====', start);
+  assert.ok(start >= 0 && end > start);
+  const makeRow = (name, status, fleetHidden = false) => ({
+    dataset: { deployName: name, deployStatus: status },
+    classes: new Set(fleetHidden ? ['fleet-hidden'] : []),
+    classList: {
+      contains(name) {
+        return this.row.classes.has(name);
+      },
+      toggle(name, value) {
+        if (value) this.row.classes.add(name);
+        else this.row.classes.delete(name);
+      },
+      row: null,
+    },
+  });
+  const rows = [makeRow('marineactivity.com', 'live'), makeRow('other-site.com', 'error')];
+  rows.forEach(row => (row.classList.row = row));
+  const count = { textContent: '' };
+  const context = {
+    DEPLOY_FILTER: { q: '', status: 'all' },
+    $: selector => (selector === '#deploy-filter-count' ? count : undefined),
+    $$: selector => (selector === '.deploy-row' ? rows : []),
+  };
+  const code = `${app.slice(start, end)}\napplyDeployFilter();`;
+  vm.runInNewContext(code, context);
+  assert.equal(count.textContent, '2/2 shown');
+
+  rows[1].classes.add('fleet-hidden');
+  vm.runInNewContext(code, context);
+  assert.equal(count.textContent, '1/1 shown');
+  assert.equal(rows[1].classes.has('deploy-filter-hidden'), true);
+
+  rows.push(makeRow('marineactivity-stage.com', 'error'));
+  rows[2].classList.row = rows[2];
+  context.DEPLOY_FILTER.status = 'live';
+  vm.runInNewContext(code, context);
+  assert.equal(count.textContent, '1/2 shown');
+  assert.equal(rows[2].classes.has('deploy-filter-hidden'), true);
+});
+
 test('Site Facts presents coverage and freshness as a summary strip', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
@@ -3458,6 +3717,19 @@ test('Domain Control keeps unique health context beside the role filters', () =>
     /class="ctl-count muted">\$\{rows\.length\} of \$\{sites\.length\} sites/
   );
   assert.match(app, /matrix-scroll-hint/);
+  assert.match(app, /role="group" aria-label="Role status legend"/);
+  assert.match(
+    app,
+    /Fresh · within cadence[\s\S]*Stale · &gt;1 cadence[\s\S]*Overdue · &gt;2 cadences[\s\S]*Not installed/
+  );
+  assert.ok(
+    app.indexOf('aria-label="Role status legend"') < app.indexOf('<div id="ctl-matrix"></div>'),
+    'the cell legend should appear before the wide matrix it explains'
+  );
+  assert.match(
+    theme,
+    /\.ctl-status-key \{[\s\S]*background: var\(--panel-2\); color: var\(--muted\)/
+  );
   assert.match(app, /class="rmatrix-tools"><summary aria-label="More tools for/);
   assert.match(app, /Parked domain inventory and renewal exposure/);
   assert.doesNotMatch(app, /Fresh role cells<\/span>/);
@@ -3529,6 +3801,10 @@ test('Agents landing cards use light surfaces in light theme', () => {
 test('Agents landing supports live role search with an accessible result count', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    app,
+    /\$\{isAgents \? '' : `<span class="nav-root-count">\$\{items\.length\} tools<\/span>`\}/
+  );
   assert.match(app, /id="agent-root-search" aria-label="Find an agent"/);
   assert.match(app, /data-root-search="\$\{esc\(`/);
   assert.match(app, /search\.addEventListener\('input', updateAgentFilter\)/);
@@ -3766,7 +4042,7 @@ test('Social Accounts keeps matrix, inventory, and persona tables contextual', (
   assert.match(app, /Social personas and account coverage/);
   assert.equal(
     (app.match(/class="sh-scroll-hint" role="note">Swipe horizontally/g) || []).length,
-    3
+    4
   );
   assert.match(app, /role="region" aria-label="Social account matrix by site and platform"/);
   assert.match(app, /role="region" aria-label="Social account inventory"/);
@@ -3806,6 +4082,10 @@ test('SEO Intelligence keeps evidence tables bounded and live actions explicit',
   assert.match(app, /id="seo-prev"/);
   assert.match(app, /id="seo-next"/);
   assert.match(style, /body\[data-view="seointelligence"\] \.seo-stats/);
+  assert.match(
+    style,
+    /body\[data-view="seointelligence"\] \.seo-vitals-panel \+ \.seo-stats \{ margin-top: 14px; \}/
+  );
   assert.match(style, /\.seo-vitals-panel, \.seo-sites \{[^}]*overflow: hidden/);
 });
 
@@ -5017,7 +5297,13 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(index, /id="theme-toggle"/);
   assert.match(index, /id="refresh" class="btn" type="button" aria-label="Refresh dashboard data"/);
   assert.match(index, /id="density-toggle"[^>]*aria-pressed="false"/);
-  assert.match(index, /id="theme-toggle"[^>]*aria-label="Switch color theme"/);
+  assert.match(index, /id="theme-toggle"[^>]*aria-label="☼ Light — switch to dark theme"/);
+  assert.match(index, /id="login-overlay"[^>]*role="dialog"[^>]*aria-labelledby="login-title"/);
+  assert.match(index, /<h2 id="login-title">Domain Fleet Manager<\/h2>/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.login-overlay \{[^}]*background: rgba\(31,50,76,\.28\)/
+  );
   assert.match(index, /<main id="app" aria-busy="true">/);
   assert.doesNotMatch(index, /<button(?![^>]*\btype=)[^>]*>/);
   assert.match(index, /localStorage\.getItem\('fd\.theme'\)/);
@@ -5030,6 +5316,10 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(app, /function watchSystemTheme\(\)/);
   assert.match(app, /prefers-color-scheme: light/);
   assert.match(app, /button\.removeAttribute\('aria-pressed'\)/);
+  assert.match(
+    app,
+    /button\.setAttribute\('aria-label', `\$\{button\.textContent\} — switch to \$\{next\} theme`\)/
+  );
   assert.match(app, /aria-pressed', String\(density === 'compact'\)/);
   assert.match(theme, /:root\[data-theme="light"\] \.ex-kpi/);
   assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background: #fff/);
@@ -5163,6 +5453,14 @@ test('agent health uses an enrollment state instead of reporting zero sites as h
   assert.equal(context.empty.currentDetail, 'Enroll sites to see current health');
   assert.equal(context.active.current, '2/2 healthy now');
   assert.doesNotMatch(app, /<span class="muted">\$\{rows\.length\} sites run this agent<\/span>/);
+  assert.match(
+    app,
+    /class="ag-enrollment-gap" data-agent-role-missing>\$\{notEnrolled\.length\} not enrolled/
+  );
+  assert.match(
+    app,
+    /class="ag-enrollment-gap" data-agent-engineer-missing>\$\{notEnrolled\.length\} not enrolled/
+  );
 });
 
 test('agent enrollment site filter narrows results and reports an accessible empty state', () => {
@@ -5223,5 +5521,48 @@ test('automation exposes a site-scoped refresh and loading state', () => {
   assert.match(
     route,
     /if \(!FRESH\) applyUISnap\(\);\s+const siteSelect = \$\('#auto-site'\);\s+if \(siteSelect\) siteSelect\.value = AUTO_SITE;/
+  );
+});
+
+test('Data Quality status badges use health language instead of color names', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function dataQualityStatusLabel(');
+  const end = app.indexOf('\nasync function renderDataQuality()', start);
+  const context = {};
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.label = dataQualityStatusLabel;`,
+    context
+  );
+  assert.equal(context.label('green'), 'Healthy');
+  assert.equal(context.label('yellow'), 'Partial');
+  assert.equal(context.label('red'), 'Broken');
+  assert.match(app, /\$\{esc\(dataQualityStatusLabel\(row\.status\)\)\}/);
+});
+
+test('SEO Intelligence makes stale-source fallback visible and theme-aware', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    app,
+    /class="seo-source-status \$\{sourceStatus\}" role="status" aria-live="polite"/
+  );
+  assert.match(app, /Search data unavailable/);
+  assert.match(app, /showing stored technical evidence/);
+  assert.match(
+    style,
+    /\.seo-source-status\.unavailable \{ --seo-source-tone: var\(--red\); background: rgba\(248,81,73,\.06\); \}/
+  );
+});
+
+test('Change Queue gives mobile row actions larger targets and quantifies stale attention', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
+  assert.match(
+    mobile,
+    /body\[data-view="change-queue"\] \.cq-table \.btn \{\s*min-height: 40px;\s*padding-block: 8px;/
+  );
+  assert.match(
+    app,
+    /staleQueued\.length\s*\?\s*\[`Attention · \$\{staleQueued\.length\} stale`, 'warn'\]/
   );
 });

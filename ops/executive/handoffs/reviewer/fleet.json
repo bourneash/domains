@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T00:22:09.893Z",
+  "generated_at": "2026-10-03T00:30:07.276Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject the report-only homepage baseline because it does not satisfy the execution mandate. Route only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, credentials/configuration changes, dependencies, spending, revenue claims, and high-priority queue work remain blocked. Principal-engineer and CTO must document launch, security, compliance, attribution, and release blockers by 2026-10-03T17:00:00Z or escalate them to the owner.",
+        "summary": "Reject newmomshop.com report-only reconciliation as routine pass-through work. Approve only three isolated preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credentials, configuration, dependencies, high-priority queue work, and financial or launch-readiness claims remain blocked. Unresolved reachability, compliance, security, ownership, and measurement gates must be recorded and escalated by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
