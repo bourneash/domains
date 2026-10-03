@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T15:52:32.676Z",
+  "generated_at": "2026-10-03T18:48:06.239Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject revenue, ROI, attribution, causal-lift, security-clearance, launch-readiness, and production claims. Analytics coverage is zero across expected sites, affiliate income is aggregate and unattributed, and operations/fleet-doctor evidence is unavailable. Retain only isolated preview validation for three scaffold sites and the existing Broadway Showgirls revalidation. Production publication, deployment, telemetry activation, monetization, spend, credential/configuration changes, dependency additions, and high-priority queue work remain blocked. Site-factory owns dated preview artifacts by 2026-10-03T17:00:00Z; unresolved blockers escalate to the owner at that deadline.",
+        "summary": "Approved one bounded accessibility improvement for unsupervisedmedia.com. It has source evidence, reversible scope, testable nonfinancial measurement, and no revenue claim or production-risk expansion.",
         "requested_action": null,
         "proposal_id": null
       }
