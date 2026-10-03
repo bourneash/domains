@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T05:01:46.288Z",
+  "generated_at": "2026-10-03T12:01:12.745Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain only the five reversible task-routing metadata repairs. Reject the deeppenetrations.com SEO implementation because the site is already in review and release evidence is incomplete. Preserve financial, attribution, security, compliance, telemetry, production, and deployment gates; no revenue, ROI, causal-lift, readiness, or security-clearance claims are supported. Existing security evidence work may continue read-only without duplicate telemetry.",
+        "summary": "Reject all new production, high-priority queue, financial, revenue, ROI, causal-lift, and forecast work this cycle. Analytics coverage is zero, operations and fleet-doctor evidence are unavailable, site-attributed commission is unsupported, and 11 queued items are blocked. Existing research and reconciliation work already cover the evidence gaps; no non-duplicative safe action is admissible. Owner action: preserve the gates and require principal-engineer/CTO to document the canonical admission ledger and failed-handoff repair disposition before any new implementation is considered.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Route six isolated, reversible ownership-metadata repairs to engineer across six sites. Preserve all financial, production, security, launch, and telemetry gates: aggregate affiliate earnings remain unattributed, site revenue and ROI are unsupported, and no production or SEO implementation is admissible. The deeppenetrations.com SEO candidate remains blocked because the site is in review and release evidence is incomplete; principal-engineer must reconcile the admission ledger and release evidence by 2026-10-03T17:00Z or escalate to the owner.",
+        "summary": "Retain the financial, production, security, and high-priority queue gates. Analytics coverage is zero, operations and fleet-doctor evidence are unavailable, and affiliate commission is aggregate/unattributed, so revenue, ROI, margin, forecast, and causal-lift claims remain unsupported. Queue only six isolated low-priority task-routing metadata repairs across six sites; each changes ownership metadata only, requires no credentials, telemetry, deployment, spend, or production behavior change, and has deterministic validation and rollback. Principal-engineer/CTO must continue the canonical admission ledger and failed-handoff repair disposition, escalating unresolved evidence gaps by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }

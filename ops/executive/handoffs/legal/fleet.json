@@ -2,21 +2,28 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-03T05:01:46.288Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-03T11:53:13.910Z",
+  "summary": "legal checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for the five reversible task-routing metadata repairs; blocked for the deeppenetrations.com SEO implementation and any production, monetization, analytics activation, or public launch. Exact decision: retain only the five ownership-metadata repairs because they change no site behavior, data collection, credentials, configuration, dependencies, spending, or external systems. Do not block ordinary growth solely for incomplete telemetry. Evidence: compliance is technical-only with 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor sweeps have no results; security site facts are unknown; AI-usage coverage is incomplete; Amazon reported $5.20 aggregate unattributed commission, so site revenue, ROI, margin, forecasts, and causal lift are unsupported. The SEO item remains inadmissible because the site is already in review and lacks complete release evidence. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and future affiliate or advertising use. Launch-readiness remains keep_private; 0 of 4 legal tasks are evidenced complete and none may close.",
+        "summary": "Risk disposition: conditional for the two isolated LCP candidates; blocked for go-live, monetization expansion, analytics activation, or production admission where existing measurement windows prohibit queueing. Recommendation: retain both candidates deferred and do not create or admit change requests this cycle. Evidence: aliencouncil.com mobile LCP 3501ms and newmomshop.com mobile LCP 3599ms from the 2026-10-03 web-vitals snapshot; authoritative queue state shows active measurement blockers, with newmomshop.com also in an active pilot measurement. Legal does not block ordinary reversible growth merely because analytics coverage is incomplete, but no claims of revenue, ROI, attribution, causal lift, or compliance certification are supported. Compliance is a technical baseline only: 38 pass, 22 fail, 1 unknown; site-specific launch clearance is not evidenced. Data quality has red analytics coverage with 0 of 38 expected sites observed, and operations/fleet-doctor evidence is unavailable. Exact decision: keep both LCP fixes deferred, avoid duplicate requests, and reassess after each site’s measurement blocker clears using the recorded baseline, focused build/link/accessibility/performance evidence, isolated rollback, and existing measurement boundary. Human counsel is not required for these ordinary performance fixes unless scope changes to new tracking, data collection, monetization, claims, or regulated/age-sensitive functionality. Launch-readiness remains active and no go-live decision is supported.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active. Progress: 0/4 legal tasks closed; existing API documentation confirms access mechanics only, not redistribution, storage, derivative, display, alert, affiliate, or advertising rights. Next evidence action: attach one read-only bundle containing the data-flow/retention table, consent and GA4 configuration capture, and log/vendor inventory; separately prepare but do not send the upstream permission request pending owner authorization and human-counsel review.",
+        "summary": "Launch-readiness progress: 0 of 4 SearchWoot legal tasks are evidenced complete; close none. The four open tasks remain source rights/data-use limits, alert-data flow and retention, GA4 consent/configuration, and logs/vendors/incident handling. Next evidence action: attach one dated read-only bundle covering backend/api/main.py, backend/services/fetcher.py, config.yml, privacy.html, cookie-policy.html, terms.html, and available vendor/configuration records, with field inventory, retention/deletion/correction/access behavior, consent and withdrawal behavior, GA4 settings, vendor/DPA status, incident/request handling, and exact unknowns. Prepare but do not send any upstream permission request pending owner authorization and human counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "SearchWoot data-use dispositions: Woot API deal and price-history data — blocked because current terms do not establish public redistribution, storage, historical derivatives, display, caching, alerts, affiliate, or advertising rights; smallest next action is obtain and attach a current written permission or API agreement plus field-level terms. User alert rules and sync results — evidence_needed because data inventory, retention, deletion/correction, processor terms, notification consent, and unsubscribe behavior are not evidenced; smallest next action is complete the read-only data-flow and retention table. GA4 analytics — evidence_needed because deployed consent behavior, GA4 property/data-sharing settings, retention, and jurisdictional treatment are not evidenced; smallest next action is capture current consent/configuration evidence without enabling tracking. Operational logs and Cloudflare hosting data — evidence_needed because log fields, retention/access controls, vendor terms/DPA coverage, and incident/request procedures are not evidenced; smallest next action is complete the operator/vendor inventory. Human counsel is required for upstream rights, privacy/jurisdiction treatment, and any affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       }

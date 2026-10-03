@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-03T05:01:46.287Z",
+  "generated_at": "2026-10-03T11:53:13.909Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only the five reversible task-routing repairs and reject the deeppenetrations.com SEO implementation. The SEO item is not financially admissible while the site is already in active review and operations evidence is unavailable. For the 30-day Amazon window pulled 2026-10-02, reported activity was $5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items; commission is aggregate and unattributed, so site revenue, contribution margin, ROI, causal lift, and forecasts are unsupported. AI usage for 2026-10-01 to 2026-10-02 was $54.5828597 across 359 calls with 22 errors, but only 28 of 40 expected sites are instrumented. Cost-to-learn is not calculable because period-aligned attributable outcomes and labor rates are absent. Budget exposure is not calculable because monthly limits, infrastructure/domain costs, and labor costs are blank. Minimum measurement is a period-aligned ledger linking registered affiliate IDs, attributable commission, AI/infrastructure spend, and labor effort to site/content changes; retain aggregate earnings as unattributed and require registered tracking IDs for future links. No spending, billing, credentials, contracts, deployment, or new telemetry is authorized.",
+        "summary": "Recommendation: retain both reversible LCP fixes, with no spending, telemetry changes, deployment authorization, or financial claims. Evidence: 2026-10-03 mobile LCP is 3501ms for aliencouncil.com and 3599ms for newmomshop.com; both are queue-eligible with no listed active-work conflict. Revenue claims remain unsupported: the 30-day Amazon window pulled 2026-10-02 reports 5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items, but all commission is aggregate and unattributed, so site revenue is not calculable. Contribution margin is not calculable because attributable revenue, infrastructure/domain costs, labor costs, and complete AI allocation are absent. Cost-to-learn is not calculable because period-aligned attributable outcomes and labor time/rates are absent. AI usage from 2026-10-01 through 2026-10-03 is $80.9743339 across 441 calls with 25 errors; the ledger covers 29 instrumented sites while the data-quality contract observes 28 of 40 expected sites. Budget exposure is not calculable because monthly spend, marketing, revenue, and fixed-cost limits are blank. Measure only LCP and deterministic quality gates; do not claim revenue, ROI, margin, causal lift, or forecast upside.",
         "requested_action": null,
         "proposal_id": null
       }
