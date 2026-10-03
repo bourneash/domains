@@ -3176,6 +3176,46 @@ test('page-level failures do not fall back to generic empty markup', () => {
   assert.doesNotMatch(scheduler, /class="empty"[^>]*(?:failed|Failed|unreachable)/);
 });
 
+test('Work Board opens on a populated mobile lane and respects lane filters', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function preferredWorkBoardColumn(items)');
+  const end = app.indexOf('\nfunction wbGate(item)', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {
+    WORK_BOARD_COLUMNS: [
+      ['backlog', 'Backlog'],
+      ['ready', 'Ready'],
+      ['active', 'In progress'],
+      ['blocked', 'Blocked'],
+      ['done', 'Done'],
+    ],
+    WORK_BOARD_INCLUDE: new Set(),
+    WORK_BOARD_EXCLUDE: new Set(),
+    workBoardColumn: item => item.column,
+  };
+  vm.runInNewContext(
+    `${app.slice(start, end)}\nglobalThis.selectPreferredLane = preferredWorkBoardColumn;`,
+    context
+  );
+  assert.equal(
+    context.selectPreferredLane([{ column: 'backlog' }, { column: 'ready' }]),
+    'backlog'
+  );
+  context.WORK_BOARD_INCLUDE.add('ready');
+  assert.equal(context.selectPreferredLane([{ column: 'ready' }]), 'ready');
+  context.WORK_BOARD_INCLUDE.add('active');
+  assert.equal(context.selectPreferredLane([{ column: 'active' }]), 'active');
+  context.WORK_BOARD_INCLUDE.clear();
+  context.WORK_BOARD_EXCLUDE.add('ready');
+  assert.equal(context.selectPreferredLane([{ column: 'ready' }, { column: 'done' }]), 'done');
+  context.WORK_BOARD_EXCLUDE.add('done');
+  assert.equal(context.selectPreferredLane([{ column: 'ready' }]), 'backlog');
+  context.WORK_BOARD_EXCLUDE.add('backlog');
+  context.WORK_BOARD_EXCLUDE.add('active');
+  context.WORK_BOARD_EXCLUDE.add('blocked');
+  assert.equal(context.selectPreferredLane([]), null);
+});
+
 test('Work Board keeps one authoritative renderer', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.equal(
@@ -3219,6 +3259,12 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(app, /const WORK_BOARD_PAGE_SIZE = 20/);
   assert.match(app, /function renderWorkflowBoardLane\(key, label, items, total\)/);
+  assert.match(app, /priorBoard && priorFilterSignature === filterSignature/);
+  assert.match(app, /board\.scrollLeft = priorBoardScrollLeft/);
+  assert.match(
+    app,
+    /board\.scrollLeft = lane\.getBoundingClientRect\(\)\.left - board\.getBoundingClientRect\(\)\.left/
+  );
   assert.match(app, /aria-label="\$\{esc\(label\)\} work items pages"/);
   assert.match(app, /data-wb-page="\$\{key\}"/);
   assert.match(app, /\$\$\('\[data-wb-page\]'\)/);

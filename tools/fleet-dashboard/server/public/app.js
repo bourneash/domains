@@ -15432,6 +15432,15 @@ function workBoardColumn(item) {
   return 'done';
 }
 
+function preferredWorkBoardColumn(items) {
+  const selectable = WORK_BOARD_COLUMNS.filter(
+    ([key]) =>
+      !WORK_BOARD_EXCLUDE.has(key) && (!WORK_BOARD_INCLUDE.size || WORK_BOARD_INCLUDE.has(key))
+  );
+  const populated = selectable.find(([key]) => items.some(item => workBoardColumn(item) === key));
+  return (populated || selectable[0])?.[0] || null;
+}
+
 function wbGate(item) {
   if (item.source === 'request')
     return `${item.auto_review === false ? 'manual review' : 'auto review'} · ${item.delivery_mode || 'direct'}`;
@@ -15641,6 +15650,10 @@ function groupAgentRuntimeRuns(runs, deliveryState) {
 }
 
 async function renderWorkflowBoard(cachedData = null) {
+  const priorBoard = document.querySelector('#app .wb-board');
+  const priorBoardScrollLeft = priorBoard?.scrollLeft || 0;
+  const priorFilterSignature = priorBoard?.dataset.filterSignature || null;
+  const filterSignature = `${[...WORK_BOARD_INCLUDE].sort().join(',')}|${[...WORK_BOARD_EXCLUDE].sort().join(',')}`;
   if (FRESH)
     app.innerHTML =
       '<div role="status" aria-live="polite"><div class="loading">Loading fleet workflow…</div></div>';
@@ -15699,6 +15712,18 @@ async function renderWorkflowBoard(cachedData = null) {
     ).join(
       ''
     )}</section><aside class="card wb-activity-panel"><div class="cq-section-head"><div><div class="cq-eyebrow">WHY IS WORK WAITING?</div><h3>Diagnostics</h3></div><span class="muted" title="At most 100 diagnostic records are loaded; the group count is calculated from this sample.">${(data.diagnostics || []).length} loaded · ${diagnosticGroups.length} groups · ${Math.min(3, diagnosticGroups.length)} shown</span></div>${diagnostics || '<div class="muted">No blocked or waiting work.</div>'}<div class="cq-section-head" style="margin-top:16px"><div><div class="cq-eyebrow">AUDIT STREAM</div><h3>Latest actions</h3></div><span class="muted">${activityEvents.length} recent events · ${activityGroups.length ? `latest ${Math.min(3, activityGroups.length)} groups shown` : 'no recent events'}</span></div>${activity || '<div class="muted">No executive actions recorded yet.</div>'}<details class="wb-gates"><summary>What the gates mean</summary><p><b>Ready</b> means queued but not running. <b>Approval / review</b> means a human, executive, or automated reviewer must decide before delivery. <b>Done</b> is terminal evidence, not merely a completed model response.</p></details></aside></div>`;
+    const board = document.querySelector('#app .wb-board');
+    if (board) board.dataset.filterSignature = filterSignature;
+    if (board && window.matchMedia?.('(max-width: 720px)').matches) {
+      if (priorBoard && priorFilterSignature === filterSignature) {
+        board.scrollLeft = priorBoardScrollLeft;
+      } else {
+        const preferred = preferredWorkBoardColumn(items);
+        const lane = preferred && board.querySelector(`[data-wb-drop="${preferred}"]`);
+        if (lane)
+          board.scrollLeft = lane.getBoundingClientRect().left - board.getBoundingClientRect().left;
+      }
+    }
     $('#wb-board-refresh').onclick = () => renderWorkflowBoard();
     $('#wb-new').onclick = () => showWorkflowBacklogForm();
     $('#wb-board-search').oninput = event => {
