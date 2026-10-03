@@ -169,6 +169,22 @@ test('a newly queued direct request is a handoff, not verified delivery', () => 
   store.close();
 });
 
+test('a recently committed review branch is visible in Overwatch delivery evidence', () => {
+  const { store } = fixture();
+  const baseline = captureSnapshot(store);
+  store.createChangeRequest({
+    site: 'example.test',
+    title: 'Reviewed site feature',
+    delivery_mode: 'pull_request',
+    status: 'committed',
+  });
+  const evidence = collectEvidence(store, { baseline, since: Date.now() - 1000 });
+  assert.equal(evidence.real_work.verified_deliveries, 1);
+  assert.equal(evidence.real_work.recent_verified_deliveries, 1);
+  assert.equal(evidence.real_work.actionable, true);
+  store.close();
+});
+
 test('fleet reports do not count as site delivery handoffs', () => {
   const { store } = fixture();
   const baseline = captureSnapshot(store);

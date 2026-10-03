@@ -34,10 +34,21 @@ test('queues only HowToFry first and never duplicates the request', () => {
   store.close();
 });
 
-test('advances MagicEscorts only after a reviewer-passed branch artifact', () => {
+test('advances MagicEscorts only after a real review pull request', () => {
   const { root, store } = fixture();
   const first = lane.reconcile(store, root);
   store.updateChangeRequest(first.request_id, { status: 'committed' });
+  assert.equal(lane.reconcile(store, root).state, 'waiting-on-review-pr');
+  const run = store.createImprovement({
+    site: 'howtofry.com',
+    source: 'test',
+    source_id: first.request_id,
+    title: 'Review',
+    approval: {
+      pull_request: { number: 1, url: 'https://github.com/bourneash/howtofry.com/pull/1' },
+    },
+  });
+  store.updateChangeRequest(first.request_id, { run_id: run.run_id });
   const second = lane.reconcile(store, root);
   assert.equal(second.state, 'queued');
   assert.equal(second.site, 'magicescorts.com');

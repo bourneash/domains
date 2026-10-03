@@ -10,6 +10,7 @@ const os = require('node:os');
 const { discoverSites, isKnownSite } = require('./sites');
 const audit = require('./audit');
 const git = require('./git');
+const githubPr = require('./github-pr');
 const roleScope = require('./role-scope');
 const githygiene = require('./githygiene');
 const tasks = require('./tasks');
@@ -2889,6 +2890,17 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         reviewRun.workspace_path,
         reviewRun.branch
       );
+      const pullRequest = await githubPr.ensure(
+        root,
+        published.compare_url?.split('/compare/')[0],
+        published.branch,
+        reviewRequest.title,
+        `Automated review delivery for change request ${reviewRequest.request_id}.\n\n${reviewRequest.body || ''}`
+      );
+      published.number = pullRequest.number;
+      published.url = pullRequest.url;
+      published.state = pullRequest.state;
+      published.head_sha = pullRequest.head_sha;
       const committed = changequeue.update(
         events,
         reviewRequest.request_id,

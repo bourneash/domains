@@ -7,6 +7,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 MAX_QUEUE="${EXECUTIVE_MAX_APPROVED_QUEUE_ACTIONS:-6}"
 
+# PR/check/connected-build state is authoritative for review and release.
+# A telemetry outage must not strand local queue accounting, but it is logged.
+timeout 90s node "$ROOT/tools/executive/review-tracker.js" || \
+  echo "[$(date -Is)] review/release reconciliation failed" >&2
+
 # Reconcile the owner lane before any historical proposal drain. A live named
 # implementation takes priority over more queue activity from old plans.
 DELIVERY_LANE_STATE="$(node "$ROOT/tools/executive/delivery-lane.js")"

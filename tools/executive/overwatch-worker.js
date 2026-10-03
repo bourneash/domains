@@ -108,7 +108,8 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       row =>
         parseDate(row.updated_at) >= windowStart &&
         DELIVERY_MODES.has(row.delivery_mode) &&
-        ['deployed', 'verified'].includes(row.status)
+        (['deployed', 'verified'].includes(row.status) ||
+          (row.status === 'committed' && row.delivery_mode === 'pull_request'))
     );
   const activeDirectRequests = requests.filter(
     row =>

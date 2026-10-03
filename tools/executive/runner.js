@@ -758,6 +758,14 @@ async function buildBrief(store, root = ROOT) {
       rule: 'Maintain ten meaningful active implementation slots. When slots are open, queue bounded reversible work to fill them across site improvements, growth/revenue, new-site factory, and fleet tooling. A recommendation, proposal, research request, or report-only request does not fill a slot; explain rejection only when the candidate is genuinely blocked or lacks an implementable next step.',
       candidates: executableActionCandidates,
       deferred_candidates: deferredActionCandidates,
+      executable_sites: [...new Set(executableActionCandidates.map(row => row.site))],
+      missing_owner_sites: [
+        ...new Set(
+          deferredActionCandidates
+            .filter(row => String(row.deferred_reason).startsWith('no installed'))
+            .map(row => row.site)
+        ),
+      ],
     },
     intelligence: intel,
     launch_readiness: launchReadiness.read(root),
@@ -1245,6 +1253,14 @@ function compactResearchRow(row) {
 
 function compactModelBrief(brief) {
   const compact = compactModelValue(brief);
+  // Preserve the complete owner-ready allowlist even when historical context
+  // is compacted. The model should spend implementation planning only on
+  // claimable targets; the host still enforces the same rule at apply time.
+  compact.action_mandate = {
+    ...compact.action_mandate,
+    executable_sites: brief?.action_mandate?.executable_sites || [],
+    missing_owner_sites: brief?.action_mandate?.missing_owner_sites || [],
+  };
   const inputs = brief?.specialist_inputs || {};
   compact.tool_contract = {
     ...compact.tool_contract,
@@ -1421,7 +1437,7 @@ Rules:
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. When slots are open, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites and lanes. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
 - A queued request blocked by measurement or an execution gate is not an executable handoff. Inspect delivery_readiness; if your preferred site is blocked, select a distinct queue-ready candidate instead. Do not recreate the same blocked task with a new title. Advance a currently eligible request or create a non-overlapping direct implementation request; planning notes and blocked queue rows do not satisfy throughput.
-- A site with site_context.installed_roles=[] has no worker to claim a direct or report-only request. Do not describe it as queue-ready or issue change_requests for it. Record the site-factory owner gap, then choose a distinct action_mandate.candidates site with an installed role for executable delivery.
+- Before proposing any site implementation, use action_mandate.executable_sites as the implementation target allowlist. Sites in action_mandate.missing_owner_sites have no claimable worker: route their setup to site-factory and do not spend a change_request slot on them. The host will reject ownerless requests even if you propose one.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.

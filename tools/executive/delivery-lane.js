@@ -1,8 +1,7 @@
 'use strict';
 
-// Two owner-priority implementation slices, advanced by artifact rather than
-// executive prose. A reviewer-passed, pushed branch is the milestone;
-// production publication is separate.
+// Owner-approved, bounded implementation backlog. Advance by a real review
+// pull request, not by an executive report or an unreviewed branch push.
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
@@ -33,6 +32,33 @@ const WORK = Object.freeze([
       'This uses the queue pull_request mode to publish a reviewable branch, not production authorization. Do not push or deploy from the worker. Do not add affiliate links, analytics, intake, or booking.',
     ].join('\n\n'),
   },
+  {
+    site: 'howtofry.com',
+    action_key: 'owner-delivery-lane:howtofry-print-recipe-v1',
+    title: 'Make HowToFry recipes printable and kitchen-friendly',
+    body: [
+      'Add a clearly labeled Print recipe control on individual recipe pages and a compact print stylesheet that retains the title, ingredients, steps, timing, serving count, and safety note while omitting navigation and decorative imagery.',
+      'Acceptance: keyboard-accessible control, no broken no-JavaScript state, focused automated or snapshot coverage for the required print content, and npm run ci:verify. No new affiliate, analytics, or social integration. Use a review pull request; no direct deployment.',
+    ].join('\n\n'),
+  },
+  {
+    site: 'magicescorts.com',
+    action_key: 'owner-delivery-lane:magicescorts-trick-finder-v1',
+    title: 'Help MagicEscorts visitors choose a real trick to learn',
+    body: [
+      'Make /tricks/ a practical starting point: label each existing guide by props, difficulty, and practice time, and provide clear links to the card and coin guides. Keep the theatrical voice and truthful coming-soon/no-booking status.',
+      'Acceptance: route and link coverage, accessible presentation, npm run ci:verify, and a review pull request. Do not add booking, leads, fake service availability, or affiliate links.',
+    ].join('\n\n'),
+  },
+  {
+    site: 'howtofry.com',
+    action_key: 'owner-delivery-lane:howtofry-troubleshooting-finder-v1',
+    title: 'Add a useful frying troubleshooting index',
+    body: [
+      'Create a compact troubleshooting index that routes common frying problems (soggy coating, oil too hot, undercooked center, splatter) to existing evidence-based guides and safety advice. Do not invent cooking temperatures or promise safe doneness without thermometer guidance.',
+      'Acceptance: working navigation from the guides page, accessible problem/solution links, automated route/link coverage, npm run ci:verify, and a review pull request. No affiliate, analytics, or social credentials are needed.',
+    ].join('\n\n'),
+  },
 ]);
 
 const ACCEPTED = new Set(['committed', 'deployed', 'verified']);
@@ -51,6 +77,15 @@ function siteHasOwner(root, site) {
 
 function getRequests(store, site) {
   return store.listChangeRequests({ site, limit: 'all' });
+}
+
+function hasReviewPr(store, request) {
+  if (!request || request.status !== 'committed') return true;
+  const run = request.run_id ? store.getImprovement(request.run_id) : null;
+  return (
+    Number.isInteger(run?.approval?.pull_request?.number) &&
+    /^https:\/\/github\.com\//.test(run.approval.pull_request.url || '')
+  );
 }
 
 function reconcilePublishedBranch(store, root, request) {
@@ -126,11 +161,26 @@ function reconcile(store, root, now = Date.now()) {
   for (let index = 0; index < rows.length; index++) {
     const row = rows[index];
     if (row.request) row.request = reconcilePublishedBranch(store, root, row.request);
-    if (index && !ACCEPTED.has(rows[index - 1].request?.status)) {
+    const run = row.request?.run_id ? store.getImprovement(row.request.run_id) : null;
+    if (run?.approval?.review_gate === 'failed' || run?.approval?.release?.status === 'failed')
       return {
-        state: 'waiting-on-first-artifact',
+        state: 'blocked',
+        site: row.site,
+        request_id: row.request.request_id,
+        status:
+          run.approval.review_gate === 'failed' ? 'review-check-failed' : 'connected-build-failed',
+        freeze_planning: true,
+      };
+    if (
+      index &&
+      (!ACCEPTED.has(rows[index - 1].request?.status) ||
+        !hasReviewPr(store, rows[index - 1].request))
+    ) {
+      return {
+        state: 'waiting-on-review-pr',
         site: row.site,
         prior_status: rows[index - 1].request?.status || null,
+        prior_request_id: rows[index - 1].request?.request_id || null,
         freeze_planning: true,
       };
     }
@@ -185,8 +235,10 @@ function reconcile(store, root, now = Date.now()) {
     }
   }
   return {
-    state: 'two-reviewable-artifacts',
+    state: 'backlog-exhausted',
     freeze_planning: false,
+    backlog_total: WORK.length,
+    backlog_remaining: 0,
     requests: rows.map(row => ({
       site: row.site,
       request_id: row.request.request_id,
@@ -196,18 +248,26 @@ function reconcile(store, root, now = Date.now()) {
 }
 
 async function alert(store, root, state, { env = process.env, fetchImpl = fetch } = {}) {
-  if (!['blocked', 'stalled', 'missing-site-owner'].includes(state.state))
+  if (
+    ![
+      'blocked',
+      'stalled',
+      'missing-site-owner',
+      'waiting-on-review-pr',
+      'backlog-exhausted',
+    ].includes(state.state)
+  )
     return { attempted: false };
   // Repeat a continuing blocker at most once per two hours, not every poll.
   const bucket = Math.floor(Date.now() / (2 * 60 * 60 * 1000));
-  const dedupe_key = `owner-delivery-lane:${state.site}:${state.state}:${state.request_id || 'owner'}:${bucket}`;
+  const dedupe_key = `owner-delivery-lane:${state.site || 'fleet'}:${state.state}:${state.request_id || state.prior_request_id || 'owner'}:${bucket}`;
   if (
     store
       .listExecutiveNotifications({ recipient: 'owner', limit: 1000 })
       .some(row => row.dedupe_key === dedupe_key)
   )
     return { attempted: false, reason: 'already-alerted' };
-  const message = `🚨 Owner delivery lane ${state.state}: ${state.site}; request ${state.request_id || 'not queued'}; status ${state.status || 'n/a'}; age ${state.age_minutes ?? 'n/a'} min. Inspect the request and name a human owner for the blocker. No new speculative planning is needed.`;
+  const message = `🚨 Owner delivery lane ${state.state}: ${state.site || 'fleet'}; request ${state.request_id || state.prior_request_id || 'not queued'}; status ${state.status || state.prior_status || 'n/a'}; age ${state.age_minutes ?? 'n/a'} min. ${state.state === 'backlog-exhausted' ? 'The approved implementation backlog is empty; replenish it with bounded owner-ready tasks.' : 'Inspect the request and name a human owner for the blocker.'}`;
   store.createExecutiveNotification({
     recipient: 'owner',
     notification_type: 'owner-delivery-lane',
@@ -251,4 +311,4 @@ if (require.main === module) {
     .finally(() => store.close());
 }
 
-module.exports = { WORK, reconcile, alert, siteHasOwner };
+module.exports = { WORK, reconcile, alert, siteHasOwner, hasReviewPr };
