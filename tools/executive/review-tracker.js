@@ -132,6 +132,33 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
       store.updateChangeRequest(request.request_id, { status: 'deployed' });
     const workId = `delivery-recovery:${request.request_id}`;
     const existing = store.getExecutiveWorkItem?.(workId);
+    // Close the original incident only on verified production evidence and
+    // after its repair owner has released the lease.
+    if (
+      release === 'verified' &&
+      existing &&
+      existing.status !== 'done' &&
+      !(existing.lease_owner && Date.parse(existing.lease_expires_at || '') > Date.now())
+    ) {
+      store.updateExecutiveWorkItem?.(workId, {
+        status: 'done',
+        expected_updated_at: existing.updated_at,
+        resolution_note: `Original PR ${number} shipped as ${mergeSha}; connected build ${build.uuid} succeeded.`,
+        next_action: 'Resolved; retain the original request and production build evidence.',
+        evidence: [
+          ...(existing.evidence || []),
+          {
+            type: 'source',
+            label: 'Verified original production release',
+            url,
+            commit: mergeSha,
+            build_id: build.uuid,
+            verified_at: build.stoppedOn || null,
+          },
+        ],
+      });
+    }
+
     if ((gate === 'failed' || release === 'failed') && (approvalChanged || !existing)) {
       const patch = {
         title: `Repair delivery verification: ${request.title}`,

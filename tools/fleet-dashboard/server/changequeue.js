@@ -97,9 +97,13 @@ const REPORT_ONLY_MARKER =
 function inferredDeliveryMode(input = {}) {
   const explicit = String(input.delivery_mode || '').trim();
   if (explicit) return explicit;
-  return REPORT_ONLY_MARKER.test(`${input.title || ''}\n${input.body || ''}`)
-    ? 'report_only'
-    : 'direct';
+  // Conditional release gates still describe implementation work. A blanket
+  // prohibition remains report-only; an explicit delivery mode is authoritative.
+  const prose = `${input.title || ''}\n${input.body || ''}`.replace(
+    /\bdo not deploy(?:\s+automatically)?\s+(?:if|unless)\b[^\n.!?]*(?:[.!?]|$)/gi,
+    ''
+  );
+  return REPORT_ONLY_MARKER.test(prose) ? 'report_only' : 'direct';
 }
 
 function normalizeInput(input = {}) {

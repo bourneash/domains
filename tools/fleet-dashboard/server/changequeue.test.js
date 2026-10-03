@@ -544,3 +544,38 @@ test('queued and expired claims are atomic', () => {
   assert.equal(duplicateRecovery, null);
   store.close();
 });
+
+test('conditional release gates preserve implementation delivery while blanket prohibitions remain report-only', () => {
+  assert.equal(
+    queue.inferredDeliveryMode({
+      body: 'Add two links. Do not deploy automatically if any quality gate fails.',
+    }),
+    'direct'
+  );
+  assert.equal(
+    queue.inferredDeliveryMode({ body: 'Fix the source; do not deploy unless build passes.' }),
+    'direct'
+  );
+  assert.equal(
+    queue.inferredDeliveryMode({
+      body: 'Read-only audit. Do not deploy automatically if tests fail.',
+    }),
+    'report_only'
+  );
+  assert.equal(
+    queue.inferredDeliveryMode({ body: 'Do not deploy. Produce a report.' }),
+    'report_only'
+  );
+  assert.equal(queue.inferredDeliveryMode({ body: 'Do not deploy automatically.' }), 'report_only');
+  assert.equal(
+    queue.inferredDeliveryMode({ body: 'Do not deploy unless tests pass. Do not push.' }),
+    'report_only'
+  );
+  assert.equal(
+    queue.inferredDeliveryMode({
+      body: 'Do not deploy if tests fail.',
+      delivery_mode: 'pull_request',
+    }),
+    'pull_request'
+  );
+});

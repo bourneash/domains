@@ -263,3 +263,81 @@ test('registered worker names and merge conflicts block ordinary delivery correc
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('verified release resolves the original recovery case after its owner releases the lease', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-case-'));
+  const store = eventstore.open(root, { file: path.join(root, 'events.sqlite') });
+  try {
+    const request = store.createChangeRequest({
+      site: 'example.com',
+      title: 'Original repair',
+      delivery_mode: 'pull_request',
+      status: 'committed',
+    });
+    const run = store.createImprovement({
+      site: request.site,
+      title: request.title,
+      source: 'test',
+      source_id: request.request_id,
+      state: 'review',
+      validation: { passed: true, commit: 'head' },
+      approval: { pull_request: { number: 1, url: 'https://github.com/bourneash/example/pull/1' } },
+    });
+    store.updateChangeRequest(request.request_id, { run_id: run.run_id });
+    const workId = `delivery-recovery:${request.request_id}`;
+    store.createExecutiveWorkItem({
+      work_id: workId,
+      title: 'Repair original delivery',
+      kind: 'incident',
+      status: 'ready',
+      priority: 'high',
+      owner: 'engineering-manager',
+      site: request.site,
+      source_type: 'change-request',
+      source_id: request.request_id,
+    });
+    const owned = store.claimExecutiveWorkItem(workId, 'repair-owner', 1800);
+    assert.ok(owned);
+    const api = async (_root, _repo, endpoint) =>
+      endpoint.startsWith('/pulls/')
+        ? {
+            state: 'closed',
+            merged_at: '2026-10-03T02:00:00Z',
+            merge_commit_sha: 'merge',
+            html_url: run.approval.pull_request.url,
+            head: { sha: 'head' },
+          }
+        : {
+            check_runs: [
+              { name: 'verify', conclusion: 'success' },
+              { name: 'Workers Builds: example-com', conclusion: 'success' },
+            ],
+          };
+    const cache = {
+      builds: [
+        {
+          repo: request.site,
+          branch: 'main',
+          commitHash: 'merge',
+          outcome: 'success',
+          uuid: 'build-1',
+          stoppedOn: '2026-10-03T02:01:00Z',
+        },
+      ],
+    };
+    await reconcile(store, root, { api, cache, alert: async () => {} });
+    assert.notEqual(store.getExecutiveWorkItem(workId).status, 'done');
+    store.releaseExecutiveWorkItem(workId, 'repair-owner');
+    await reconcile(store, root, { api, cache, alert: async () => {} });
+    const resolved = store.getExecutiveWorkItem(workId);
+    assert.equal(resolved.status, 'done');
+    assert.match(resolved.resolution_note, /merge.*build-1/);
+    assert.equal(resolved.evidence.at(-1).verified_at, '2026-10-03T02:01:00Z');
+    const before = resolved.updated_at;
+    await reconcile(store, root, { api, cache, alert: async () => {} });
+    assert.equal(store.getExecutiveWorkItem(workId).updated_at, before);
+  } finally {
+    store.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
