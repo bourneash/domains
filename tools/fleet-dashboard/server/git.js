@@ -292,6 +292,35 @@ async function status(root, slug) {
   };
 }
 
+// Minimal repository state for the fleet role matrix. That view only needs
+// branch, dirty-path count, and ahead/behind values for deployer roles; the
+// full status endpoint also reads commit metadata, remote URLs, and stash
+// lists for the Git pages.
+async function roleStatus(root, slug) {
+  const cwd = siteDir(root, slug);
+  const result = await git(cwd, ['status', '--porcelain=v1', '--branch', '-z']);
+  if (!result.ok && !result.out) {
+    return {
+      slug,
+      isRepo: false,
+      error: result.err.trim() || 'not a git repository',
+      dirty: 0,
+      ahead: 0,
+      behind: 0,
+      branch: null,
+    };
+  }
+  const parsed = parsePorcelain(result.out);
+  return {
+    slug,
+    isRepo: true,
+    branch: parsed.branch,
+    ahead: parsed.ahead,
+    behind: parsed.behind,
+    dirty: parsed.files.filter(file => file.kind !== 'ignored').length,
+  };
+}
+
 // ---- safe write ops ---------------------------------------------------------
 
 // Stage exactly the given paths and commit ONLY those (path-limited commit, so
@@ -834,6 +863,7 @@ async function summaries(root, slugs) {
 
 module.exports = {
   status,
+  roleStatus,
   summaries,
   parsePorcelain,
   computeSyncState,

@@ -365,15 +365,31 @@ async function matrix(root, slugs) {
 async function buildMatrix(root, slugs) {
   const now = Date.now();
   const freq = {};
-  // Per-site git state (branch / ahead / dirty), computed once and reused for
-  // the deployer cell. Cheap: reads the local origin/main tracking ref (no
-  // fetch) — and it's the same clone the crons push from, so it's current.
+  const parsedBySlug = new Map();
+  const deployerSlugs = [];
+  for (const slug of slugs) {
+    const cwd = siteDir(root, slug);
+    const parsed = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true });
+    parsedBySlug.set(slug, parsed);
+    const deployer = parsed.find(entry => entry.role === 'deployer');
+    if (
+      deployer &&
+      !deployer.commented &&
+      !fs.existsSync(path.join(cwd, 'ops', '.deployer-disabled'))
+    ) {
+      deployerSlugs.push(slug);
+    }
+  }
+  // The role matrix only needs three git fields for active deployer roles.
+  // Avoid the full Git-page summary (commit metadata, remotes, and stash scans)
+  // and avoid touching repositories with no active deployer.
   const gitBySlug = {};
-  for (const g of await gitMod.summaries(root, slugs)) gitBySlug[g.slug] = g;
+  const gitRows = await Promise.all(deployerSlugs.map(slug => gitMod.roleStatus(root, slug)));
+  for (const g of gitRows) gitBySlug[g.slug] = g;
   const sites = slugs
     .map(slug => {
       const cwd = siteDir(root, slug);
-      const parsed = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true });
+      const parsed = parsedBySlug.get(slug) || [];
       const cells = {};
       for (const { role, schedule, worker, commented } of parsed) {
         if (cells[role]) continue; // first schedule wins on dupes
