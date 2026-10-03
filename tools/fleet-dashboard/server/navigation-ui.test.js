@@ -1037,6 +1037,7 @@ test('dashboard boot loads site and agent catalogs only when a view needs them',
   const render = app.slice(app.indexOf('function render()'), app.indexOf('const NAV_ITEM_DESCRIPTIONS'));
   assert.match(render, /if \(needsSites\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsAgents\) loadAgentCatalog\(\)/);
+  assert.match(render, /STATE\.view === 'agent'[\s\S]*?!\['executive', 'product-manager-fleet', 'product-manager-sites'\]\.includes\(STATE\.agent\)[\s\S]*?loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
   assert.match(boot, /if \(!AGENT_CATALOG_READY\) loadAgentCatalog\(\)/);
 });
 

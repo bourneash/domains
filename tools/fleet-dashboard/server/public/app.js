@@ -15698,6 +15698,12 @@ function render() {
     if (FRESH) $('#app').innerHTML = `<div class="loading">Loading ${catalogs} ${noun}…</div>`;
     if (needsSites) loadSiteCatalog();
     if (needsAgents) loadAgentCatalog();
+    if (
+      STATE.view === 'agent' &&
+      !['executive', 'product-manager-fleet', 'product-manager-sites'].includes(STATE.agent)
+    ) {
+      loadRoleMatrix().catch(() => {});
+    }
     return;
   }
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
