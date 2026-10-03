@@ -145,3 +145,19 @@ test('agent completion is fenced to its exact execution attempt', () => {
   assert.equal(agent.ownsAttempt(null, 'old-attempt'), false);
   assert.equal(agent.ownsAttempt({ agent: { attempt_id: '' } }, ''), false);
 });
+
+test('review compares the whole original diff against its immutable fresh workspace base', () => {
+  const { reviewDiffInstructions } = require('./improvement-agent');
+  const sha = 'abcde'.repeat(8),
+    prompt = reviewDiffInstructions({ baseline: { workspace_base_commit: sha } });
+  assert.match(prompt, new RegExp(`git diff ${sha}\\.\\.\\.HEAD`));
+  assert.match(prompt, /uncommitted git diff HEAD/);
+  assert.doesNotMatch(prompt, /git diff main|HEAD\^ HEAD/);
+  const legacy = reviewDiffInstructions({});
+  assert.match(legacy, /refs\/remotes\/origin/);
+  assert.match(legacy, /Never compare against the local main/);
+  assert.doesNotMatch(
+    reviewDiffInstructions({ baseline: { workspace_base_commit: 'main; malicious' } }),
+    /malicious/
+  );
+});

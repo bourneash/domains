@@ -1120,6 +1120,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       );
       const runWithSandbox = events.updateImprovement(created.run.run_id, {
         workspace_path: worktree.path,
+        baseline: {
+          ...created.run.baseline,
+          workspace_base_commit:
+            worktree.base_commit || created.run.baseline?.workspace_base_commit || null,
+        },
         sandbox: { ...sandbox, workspace_path: worktree.path },
       });
       createdRun = runWithSandbox;

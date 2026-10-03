@@ -191,7 +191,8 @@ function launch({
     phase === 'reviewer'
       ? `You are the automated release reviewer for a site improvement in an isolated git worktree.\n\n` +
         `Read and obey AGENTS.md and CLAUDE.md in the workspace. Review the requested change and the actual diff. ` +
-        `Inspect the complete improvement against its merge base with the site's default branch (git diff main...HEAD, or master...HEAD where applicable), plus any uncommitted git diff HEAD. The work may span multiple commits; do not judge only HEAD^ HEAD. ` +
+        reviewDiffInstructions(run) +
+        `The work may span multiple commits; do not judge only HEAD^ HEAD. ` +
         `The dashboard may move the linked ops/tasks file as workflow bookkeeping. Do not reject that move alone; flag unrequested task-content edits or unrelated production changes. ` +
         `Run focused checks when useful. Do not edit files, commit, push, deploy, switch branches, or modify ops/tasks. ` +
         `Check that the request is actually satisfied, that site instructions are respected, and that the change is safe to ship. ` +
@@ -392,6 +393,13 @@ function ownsAttempt(run, attemptId) {
   return Boolean(run && attemptId && run.agent?.attempt_id === attemptId);
 }
 
+function reviewDiffInstructions(run) {
+  const base = String(run?.baseline?.workspace_base_commit || '');
+  if (/^[a-f0-9]{40}$/i.test(base))
+    return `Inspect the complete improvement from its recorded starting commit with git diff ${base}...HEAD, plus any uncommitted git diff HEAD. This immutable base was fetched when the isolated workspace was created. `;
+  return `Resolve the improvement merge base against refs/remotes/origin/HEAD (or refs/remotes/origin/main/master when remote HEAD is absent), inspect git diff <resolved-merge-base>...HEAD, plus any uncommitted git diff HEAD. Never compare against the local main/master branch; it may be older than production. `;
+}
+
 function start(options) {
   return launch(options);
 }
@@ -471,6 +479,7 @@ function httpErr(status, message) {
 }
 
 module.exports = {
+  reviewDiffInstructions,
   start,
   startReview,
   status,
