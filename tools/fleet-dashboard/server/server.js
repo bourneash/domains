@@ -4175,7 +4175,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const [analyticsResult, revenueResult, usageResult] = await Promise.allSettled([
       analytics.health(),
       Promise.resolve().then(() => revenue.amazonSummary(root)),
-      aiusage.fleet(root, { from, to }),
+      aiusage.fleet(root, { from, to, summaryOnly: true }),
     ]);
     const analyticsData = analyticsResult.status === 'fulfilled' ? analyticsResult.value : null;
     const revenueData = revenueResult.status === 'fulfilled' ? revenueResult.value : null;

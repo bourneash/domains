@@ -95,7 +95,10 @@ test('owner and executive team can complete a durable request/reply conversation
     assert.equal(previews.status, 200);
     const preview = previews.body.messages.find(message => message.work_id === workId);
     assert.ok(preview);
-    assert.equal(preview.body, 'Please include licensing, deployment, security, and a small proof-of-concept plan in the recommendation.');
+    assert.equal(
+      preview.body,
+      'Please include licensing, deployment, security, and a small proof-of-concept plan in the recommendation.'
+    );
     assert.deepEqual(Object.keys(preview).sort(), ['actor', 'body', 'created_at', 'work_id']);
 
     const thread = await request(
@@ -155,6 +158,18 @@ test('Product Manager summary returns role messages and proposals in one scoped 
 
 test('executive telemetry summary stays compact and degrades missing sources safely', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-telemetry-e2e-'));
+  const aggregator = path.join(root, 'tools', 'ai-usage', 'aggregate.py');
+  const argsFile = path.join(root, 'aggregate-args');
+  fs.mkdirSync(path.dirname(aggregator), { recursive: true });
+  fs.writeFileSync(
+    aggregator,
+    [
+      'import json, sys',
+      `open(${JSON.stringify(argsFile)}, "w").write(" ".join(sys.argv[1:]))`,
+      'print(json.dumps({"summary": {"calls": 3, "total_cost_usd": 0.25}, "by_site": []}))',
+      '',
+    ].join('\n')
+  );
   const server = createApp({ root }).listen(0, '127.0.0.1');
   await once(server, 'listening');
   t.after(() => new Promise(resolve => server.close(resolve)));
@@ -172,6 +187,7 @@ test('executive telemetry summary stays compact and degrades missing sources saf
   assert.ok(response.body.ai_tokens === null || typeof response.body.ai_tokens === 'number');
   assert.ok(response.body.ai_cost === null || typeof response.body.ai_cost === 'number');
   assert.ok(Buffer.byteLength(JSON.stringify(response.body)) < 1000);
+  assert.match(fs.readFileSync(argsFile, 'utf8'), /--summary-only/);
 });
 
 test('executive transcript pages events and loads full text only on request', async t => {
