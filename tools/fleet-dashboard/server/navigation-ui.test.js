@@ -1427,6 +1427,38 @@ test('Social Hub overview bounds platform engagement tables', () => {
   assert.match(overview, /Social platform engagement over the selected period/);
 });
 
+test('Social Hub drafts do not link missing post or article URLs to the dashboard root', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const safeStart = app.indexOf('function safeHref(u)');
+  const safeEnd = app.indexOf('\nconst API_TIMEOUT_MS', safeStart);
+  const rowStart = app.indexOf('function shPostRow(p)');
+  const rowEnd = app.indexOf('\nfunction shSiteOptions', rowStart);
+  assert.ok(safeStart >= 0 && safeEnd > safeStart && rowStart >= 0 && rowEnd > rowStart);
+  const context = vm.createContext({
+    URL,
+    location: { origin: 'http://fleet.example' },
+    esc: value => String(value ?? ''),
+    shActions: () => [],
+    shWhenCell: () => '',
+    shBadgeStatus: status => status,
+    shTrunc: value => String(value ?? ''),
+  });
+  const render = vm.runInContext(
+    `${app.slice(safeStart, safeEnd)}\n${app.slice(rowStart, rowEnd)}\nshPostRow`,
+    context
+  );
+  const row = render({
+    id: 'draft-1',
+    site: 'example.com',
+    platform: 'bluesky',
+    status: 'needs_rewrite',
+    body: 'Draft copy',
+  });
+  assert.doesNotMatch(row, /view on bluesky/);
+  assert.doesNotMatch(row, /href="http:\/\/fleet\.example\/"/);
+  assert.match(row, /Draft copy/);
+});
+
 test('Social Hub overview filters expose state and contextual queue jumps', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function shRenderOverview(data)');

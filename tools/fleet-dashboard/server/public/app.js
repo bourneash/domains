@@ -573,6 +573,7 @@ function clearFleetFilter() {
 // urlTemplate is operator-supplied, so `javascript:` could otherwise reach the
 // DOM through the derived link. esc() stops attribute-breakout, not the scheme.
 function safeHref(u) {
+  if (u == null || !String(u).trim()) return '';
   try {
     const p = new URL(u, location.origin);
     return p.protocol === 'http:' || p.protocol === 'https:' ? p.href : '';
