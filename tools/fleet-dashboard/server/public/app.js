@@ -15690,8 +15690,10 @@ async function renderSiteDetail() {
 }
 
 function render() {
-  const needsSites = SITE_CATALOG_VIEWS.has(STATE.view) && !SITE_CATALOG_READY;
+  const agentView = STATE.view === 'agent';
+  const needsSites = SITE_CATALOG_VIEWS.has(STATE.view) && !SITE_CATALOG_READY && !agentView;
   const needsAgents = ['agent', 'agents'].includes(STATE.view) && !AGENT_CATALOG_READY;
+  if (agentView && !SITE_CATALOG_READY) loadSiteCatalog();
   if (needsSites || needsAgents) {
     const catalogs = [needsSites && 'site', needsAgents && 'agent'].filter(Boolean).join(' and ');
     const noun = needsSites && needsAgents ? 'catalogs' : 'catalog';

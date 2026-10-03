@@ -1035,6 +1035,9 @@ test('dashboard boot loads site and agent catalogs only when a view needs them',
   assert.match(app, /const SITE_CATALOG_VIEWS = new Set\(\[[\s\S]*'agent'[\s\S]*'tasks'[\s\S]*'automation'/);
   assert.doesNotMatch(app.match(/const SITE_CATALOG_VIEWS = new Set\(\[([\s\S]*?)\]\);/)?.[1] || '', /socialhub/);
   const render = app.slice(app.indexOf('function render()'), app.indexOf('const NAV_ITEM_DESCRIPTIONS'));
+  assert.match(render, /const agentView = STATE\.view === 'agent'/);
+  assert.match(render, /SITE_CATALOG_VIEWS\.has\(STATE\.view\) && !SITE_CATALOG_READY && !agentView/);
+  assert.match(render, /if \(agentView && !SITE_CATALOG_READY\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsSites\) loadSiteCatalog\(\)/);
   assert.match(render, /if \(needsAgents\) loadAgentCatalog\(\)/);
   assert.match(render, /STATE\.view === 'agent'[\s\S]*?!\['executive', 'product-manager-fleet', 'product-manager-sites'\]\.includes\(STATE\.agent\)[\s\S]*?loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);
