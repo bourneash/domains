@@ -5089,25 +5089,98 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/agent-runtime/inventory-summary', (req, res) => {
     try {
       const limit = { limit: 100 };
+      const count = rows => rows.length;
+      const users = events.listHumanUsers(limit);
+      const issues = events.listAgentIssues(limit);
+      const policies = events.listExecutionPolicies(limit);
+      const decisions = events.listGovernanceDecisions(limit);
+      const suites = events.listEvalSuites(limit);
+      const evalRuns = events.listEvalRuns(limit);
+      const blobs = events.listObjectBlobs(limit);
+      const plugins = events.listRuntimePlugins(limit);
+      const connectors = events.listRuntimeConnectors(limit);
+      const delegations = events.listAgentDelegations(limit);
+      const dispatches = events.listAgentDispatches(limit);
+      const artifacts = events.listAgentArtifacts(limit);
+      const skills = events.listAgentSkills(limit);
+      const memories = events.listAgentMemories(limit);
       res.json({
         actor: req.platformActor ? { actor: req.platformActor } : { actor: null },
-        users: { users: events.listHumanUsers(limit) },
-        issues: { issues: events.listAgentIssues(limit) },
-        policies: { policies: events.listExecutionPolicies(limit) },
-        decisions: { decisions: events.listGovernanceDecisions(limit) },
-        suites: { suites: events.listEvalSuites(limit) },
-        evalRuns: { runs: events.listEvalRuns(limit) },
-        blobs: { blobs: events.listObjectBlobs(limit) },
-        plugins: { plugins: events.listRuntimePlugins(limit) },
-        connectors: { connectors: events.listRuntimeConnectors(limit) },
-        providers: { providers: events.listRuntimeProviders(limit) },
-        adapters: { adapters: events.listRuntimeAdapters(limit) },
-        delegations: { delegations: events.listAgentDelegations(limit) },
-        dispatches: { dispatches: events.listAgentDispatches(limit) },
-        artifacts: { artifacts: events.listAgentArtifacts(limit) },
-        skills: { skills: events.listAgentSkills(limit) },
-        memories: { memories: events.listAgentMemories(limit) },
-        productivityPilots: { pilots: events.listProductivityPilots({ limit: 20 }) },
+        counts: {
+          users: count(users),
+          issues: count(issues),
+          policies: count(policies),
+          decisions: count(decisions),
+          suites: count(suites),
+          blobs: count(blobs),
+          plugins: count(plugins),
+          connectors: count(connectors),
+          delegations: count(delegations),
+          dispatches: count(dispatches),
+          artifacts: count(artifacts),
+          skills: count(skills),
+          memories: count(memories),
+        },
+        users: { users: [], count: count(users) },
+        issues: {
+          issues: issues.map(({ issue_id, title, status, checkout_owner }) => ({
+            issue_id,
+            title,
+            status,
+            checkout_owner,
+          })),
+        },
+        policies: { policies: [], count: count(policies) },
+        decisions: {
+          decisions: decisions.map(({ entity_type, entity_id, decision, actor_id }) => ({
+            entity_type,
+            entity_id,
+            decision,
+            actor_id,
+          })),
+        },
+        suites: {
+          suites: suites.map(({ suite_id, name, cases }) => ({
+            suite_id,
+            name,
+            caseCount: Array.isArray(cases) ? cases.length : 0,
+          })),
+        },
+        evalRuns: { runs: evalRuns.map(({ suite_id, status }) => ({ suite_id, status })) },
+        blobs: { blobs: [], count: count(blobs) },
+        plugins: {
+          plugins: plugins.map(({ slug, status, manifest }) => ({
+            slug,
+            status,
+            capabilityCount: manifest?.capabilities?.length || 0,
+          })),
+        },
+        connectors: { connectors: [], count: count(connectors) },
+        providers: {
+          providers: events
+            .listRuntimeProviders(limit)
+            .map(({ slug, kind, status, capabilities }) => ({ slug, kind, status, capabilities })),
+        },
+        adapters: {
+          adapters: events
+            .listRuntimeAdapters(limit)
+            .map(({ adapter_id, slug, kind, status }) => ({ adapter_id, slug, kind, status })),
+        },
+        delegations: { delegations: [], count: count(delegations) },
+        dispatches: { dispatches: [], count: count(dispatches) },
+        artifacts: { artifacts: [], count: count(artifacts) },
+        skills: { skills: [], count: count(skills) },
+        memories: { memories: [], count: count(memories) },
+        productivityPilots: {
+          pilots: events.listProductivityPilots({ limit: 20 }).map(pilot => ({
+            name: pilot.name,
+            status: pilot.status,
+            treatment_sites: pilot.treatment_sites,
+            control_sites: pilot.control_sites,
+            baseline: pilot.baseline,
+            evaluation: pilot.evaluation,
+          })),
+        },
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });

@@ -53,12 +53,31 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
   const inventory = await request(server, 'GET', '/api/agent-runtime/inventory-summary');
   assert.equal(inventory.status, 200);
   for (const key of [
-    'actor', 'users', 'issues', 'policies', 'decisions', 'suites', 'evalRuns', 'blobs',
-    'plugins', 'connectors', 'providers', 'adapters', 'delegations', 'dispatches',
-    'artifacts', 'skills', 'memories', 'productivityPilots',
-  ]) assert.ok(inventory.body[key], `inventory summary includes ${key}`);
+    'actor',
+    'users',
+    'issues',
+    'policies',
+    'decisions',
+    'suites',
+    'evalRuns',
+    'blobs',
+    'plugins',
+    'connectors',
+    'providers',
+    'adapters',
+    'delegations',
+    'dispatches',
+    'artifacts',
+    'skills',
+    'memories',
+    'productivityPilots',
+  ])
+    assert.ok(inventory.body[key], `inventory summary includes ${key}`);
   assert.ok(Array.isArray(inventory.body.issues.issues));
   assert.ok(Array.isArray(inventory.body.productivityPilots.pilots));
+  assert.equal(inventory.body.memories.memories.length, 0);
+  assert.equal(inventory.body.counts.memories, 0);
+  assert.equal(inventory.body.users.count, 0);
 
   const created = await request(server, 'POST', '/api/agents', {
     slug: 'runtime-ceo',
@@ -69,6 +88,23 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
   });
   assert.equal(created.status, 201);
   const agent = created.body.agent;
+
+  const issueResponse = await request(server, 'POST', '/api/agent-issues', {
+    title: 'Inventory projection check',
+    status: 'in_progress',
+    checkout_owner: 'runtime-e2e',
+  });
+  assert.equal(issueResponse.status, 201);
+  const projectedInventory = await request(server, 'GET', '/api/agent-runtime/inventory-summary');
+  assert.deepEqual(projectedInventory.body.issues.issues, [
+    {
+      issue_id: issueResponse.body.issue.issue_id,
+      title: 'Inventory projection check',
+      status: 'in_progress',
+      checkout_owner: null,
+    },
+  ]);
+  assert.equal(projectedInventory.body.counts.issues, 1);
 
   const budget = await request(server, 'POST', '/api/budgets', {
     scope_type: 'agent',
