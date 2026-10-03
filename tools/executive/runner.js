@@ -690,7 +690,7 @@ async function collectIntel(root, sites) {
       by_site: Array.isArray(usage.by_site) ? usage.by_site.slice(0, 100) : [],
       error: usage.error || null,
     },
-    research: research.recent(root),
+    research: research.recent(root, 10, { sites }),
     intelligence,
     intelligence_snapshot: cached
       ? {
