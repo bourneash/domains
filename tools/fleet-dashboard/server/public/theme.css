@@ -3679,6 +3679,12 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .priority-duplicates code {
   overflow-wrap: anywhere;
 }
+.priority-task-groups { max-width: 320px; }
+.priority-task-groups ul { display: grid; gap: 8px; padding-left: 0; list-style: none; }
+.priority-task-groups li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px 8px; }
+.priority-task-groups li code { grid-column: 1 / -1; color: var(--text); font-size: 10px; }
+.priority-task-groups li .muted { align-self: center; font-size: 10px; }
+.priority-task-groups li .btn { justify-self: end; }
 
 .priority-scorecard > summary {
   position: relative;

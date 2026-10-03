@@ -13627,6 +13627,40 @@ let PRIORITY_STATE = 'ready';
 let PRIORITY_PAGE = 1;
 const PRIORITY_PAGE_SIZE = 25;
 
+function groupPriorityLineageActions(items) {
+  const groups = [];
+  const byKey = new Map();
+  for (const item of items) {
+    if (item.source !== 'task-lineage-audit' || item.title !== 'Reconcile duplicate task records') {
+      groups.push(item);
+      continue;
+    }
+    const key = JSON.stringify([item.site, item.state, item.kind, item.title]);
+    let group = byKey.get(key);
+    if (!group) {
+      group = { ...item, groupedItems: [item] };
+      byKey.set(key, group);
+      groups.push(group);
+    } else {
+      group.groupedItems.push(item);
+    }
+  }
+  return groups.map(group => {
+    if (!group.groupedItems || group.groupedItems.length < 2) {
+      const { groupedItems, ...item } = group;
+      return item;
+    }
+    const staleCopies = group.groupedItems.reduce(
+      (total, item) => total + (item.task?.duplicate_paths?.length || 0),
+      0
+    );
+    return {
+      ...group,
+      evidence: `${group.groupedItems.length} duplicate task sets · ${staleCopies} stale copies`,
+    };
+  });
+}
+
 async function renderPriorities() {
   const app = $('#app');
   if (FRESH)
@@ -13645,11 +13679,18 @@ async function renderPriorities() {
   const omittedActions = Number.isFinite(reportedTotal)
     ? Math.max(0, reportedTotal - all.length)
     : 0;
-  const rows = all.filter(item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE);
+  const filteredItems = all.filter(
+    item => PRIORITY_STATE === 'all' || item.state === PRIORITY_STATE
+  );
+  const rows = groupPriorityLineageActions(filteredItems);
   const pageCount = Math.max(1, Math.ceil(rows.length / PRIORITY_PAGE_SIZE));
   PRIORITY_PAGE = Math.min(Math.max(1, PRIORITY_PAGE), pageCount);
   const pageStart = (PRIORITY_PAGE - 1) * PRIORITY_PAGE_SIZE;
   const pageRows = rows.slice(pageStart, pageStart + PRIORITY_PAGE_SIZE);
+  const pageRecommendationCount = pageRows.reduce(
+    (total, item) => total + (item.groupedItems?.length || 1),
+    0
+  );
   const tiles = [
     ['Recommendations', data.totals?.recommendations || 0, 'joined work queue'],
     ['Ready', data.totals?.ready || 0, 'can be filed now'],
@@ -13681,16 +13722,30 @@ async function renderPriorities() {
     )
     .join('');
   const body = pageRows
-    .map(
-      item => `<tr data-fleet-row data-site="${esc(item.site)}">
+    .map(item => {
+      const lineageItems = item.groupedItems || [];
+      const lineageActions =
+        lineageItems.length > 1
+          ? `<details class="priority-duplicates priority-task-groups"><summary>Review ${lineageItems.length} canonical tasks</summary><ul>${lineageItems
+              .map(
+                taskItem =>
+                  `<li><code>${esc(taskItem.task?.canonical_path || `${taskItem.task?.column || ''}/${taskItem.task?.file || ''}`)}</code><span class="muted">${taskItem.task?.duplicate_paths?.length || 0} stale copies</span><button type="button" class="btn sm priority-open-task" data-site="${esc(taskItem.site)}" data-column="${esc(taskItem.task?.column || '')}" data-file="${esc(taskItem.task?.file || '')}" aria-label="Open canonical task on ${esc(taskItem.site)}: ${esc(taskItem.task?.canonical_path || taskItem.task?.file || 'task')}">Open task</button></li>`
+              )
+              .join('')}</ul></details>`
+          : item.source === 'task-lineage-audit' && item.task?.file
+            ? `<button type="button" class="btn sm priority-open-task" data-site="${esc(item.site)}" data-column="${esc(item.task.column)}" data-file="${esc(item.task.file)}" aria-label="Open canonical task on ${esc(item.site)}: ${esc(item.task.canonical_path || item.task.file)}">Open canonical task</button>`
+            : item.action_key && item.state === 'ready'
+              ? `<button type="button" class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>`
+              : '';
+      return `<tr data-fleet-row data-site="${esc(item.site)}">
     <td><b>${esc(item.score)}</b></td><td>${siteLink(item.site)}</td>
     <td><span class="badge ${item.state === 'blocked' ? 'b-red' : item.state === 'filed' ? 'b-green' : 'b-blue'}">${esc(item.state)}</span></td>
     <td><span class="badge b-gray">${esc(item.kind)}</span></td>
-    <td><strong>${esc(item.title)}</strong><div class="muted">${esc(item.evidence || '')}</div>${item.duplicate_count > 1 ? `<details class="priority-duplicates"><summary>${item.duplicate_count} identical tasks grouped</summary><ul>${(item.task?.files || []).map(file => `<li><code>${esc(file)}</code></li>`).join('')}</ul></details>` : ''}</td>
+    <td><strong>${esc(item.title)}${lineageItems.length > 1 ? ` <span class="badge b-gray">${lineageItems.length} sets</span>` : ''}</strong><div class="muted">${esc(item.evidence || '')}</div>${item.duplicate_count > 1 ? `<details class="priority-duplicates"><summary>${item.duplicate_count} identical tasks grouped</summary><ul>${(item.task?.files || []).map(file => `<li><code>${esc(file)}</code></li>`).join('')}</ul></details>` : ''}</td>
     <td>${esc(item.confidence)}</td><td>${item.expected_profit_usd == null ? '<span class="muted">not attributable</span>' : fmtUSD(item.expected_profit_usd)}</td>
-    <td>${item.source === 'task-lineage-audit' && item.task?.file ? `<button class="btn sm priority-open-task" data-site="${esc(item.site)}" data-column="${esc(item.task.column)}" data-file="${esc(item.task.file)}">Open canonical task</button>` : item.action_key && item.state === 'ready' ? `<button class="btn sm primary priority-start" data-site="${esc(item.site)}" data-key="${esc(item.action_key)}">Start improvement</button>` : ''}</td>
-  </tr>`
-    )
+    <td>${lineageActions}</td>
+  </tr>`;
+    })
     .join('');
   const scorecards = (data.scorecards || [])
     .map(
@@ -13703,7 +13758,7 @@ async function renderPriorities() {
     ${omittedActions ? `<div class="fd-stale-banner priority-truncated" role="alert"><strong>Incomplete queue</strong><span>The API reports ${reportedTotal} recommendations but returned ${all.length}; ${omittedActions} actions are not available in this view yet.</span></div>` : ''}
     <section class="seo-stats">${tiles}</section>
     <details class="card priority-scorecard"><summary><strong>Portfolio allocation scorecard</strong><span class="muted">Value, direct AI cost, and attributable margin by live site</span></summary><div class="matrix-scroll-hint priority-scroll-hint" role="note">Swipe horizontally to inspect all scorecard columns</div><div class="table-wrap" tabindex="0" role="region" aria-label="Portfolio allocation scorecard by live site"><table class="tbl"><caption class="sr-only">Portfolio allocation scorecard by live site</caption><thead><tr><th>Site</th><th>Allocation</th><th>Opportunity</th><th>Sessions</th><th>Conversions</th><th>AI cost</th><th>Revenue</th><th>Margin</th></tr></thead><tbody>${scorecards}</tbody></table></div></details>
-    <div class="task-toolbar"><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)} of ${rows.length}</span><select id="priority-state" class="cm-input" aria-label="Filter prioritized actions by state"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
+    <div class="task-toolbar"><span class="muted">Showing ${rows.length ? pageStart + 1 : 0}–${Math.min(pageStart + PRIORITY_PAGE_SIZE, rows.length)} of ${rows.length} action groups · ${pageRecommendationCount} recommendations on this page</span><select id="priority-state" class="cm-input" aria-label="Filter prioritized actions by state"><option value="all">All states</option><option value="ready">Ready</option><option value="blocked">Blocked</option><option value="filed">Filed</option></select></div>
     ${pageCount > 1 ? `<nav class="priority-pagination" aria-label="Priority action pages"><button type="button" class="btn sm" id="priority-prev" ${PRIORITY_PAGE === 1 ? 'disabled' : ''}>← Previous</button><span class="muted" id="priority-page-status" role="status">Page ${PRIORITY_PAGE} of ${pageCount}</span><button type="button" class="btn sm" id="priority-next" ${PRIORITY_PAGE === pageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
     <section class="card"><div class="matrix-scroll-hint priority-scroll-hint" role="note">Swipe horizontally to inspect all recommendation columns</div><div class="table-wrap" tabindex="0" role="region" aria-label="Prioritized recommended actions"><table class="tbl"><caption class="sr-only">Prioritized recommended actions</caption><thead><tr><th scope="col">Score</th><th scope="col">Site</th><th scope="col">State</th><th scope="col">Kind</th><th scope="col">Recommended action</th><th scope="col">Confidence</th><th scope="col">Expected profit</th><th scope="col">Action</th></tr></thead><tbody>${body || '<tr><td colspan="8" class="muted">No actions in this slice.</td></tr>'}</tbody></table></div></section>`;
   $('#priorities-refresh').addEventListener('click', () => renderPriorities());

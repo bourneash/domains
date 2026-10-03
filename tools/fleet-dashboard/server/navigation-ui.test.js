@@ -4748,6 +4748,52 @@ test('Active Delivery formats long queue waits in readable day/hour units', () =
   assert.equal(context.format(-1), '—');
 });
 
+test('priority lineage cleanup is grouped per site without losing individual canonical tasks', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function groupPriorityLineageActions(');
+  const end = app.indexOf('\nasync function renderPriorities()', start);
+  assert.ok(start >= 0 && end > start);
+  const group = vm.runInNewContext(`${app.slice(start, end)}\ngroupPriorityLineageActions`, {});
+  const grouped = JSON.parse(
+    JSON.stringify(
+      group([
+        {
+          site: 'alpha.example',
+          state: 'ready',
+          kind: 'maintenance',
+          title: 'Reconcile duplicate task records',
+          evidence: 'old evidence A',
+          source: 'task-lineage-audit',
+          task: { file: 'a.md', column: 'done', duplicate_paths: ['hold/a.md', 'todo/a.md'] },
+        },
+        {
+          site: 'alpha.example',
+          state: 'ready',
+          kind: 'maintenance',
+          title: 'Reconcile duplicate task records',
+          evidence: 'old evidence B',
+          source: 'task-lineage-audit',
+          task: { file: 'b.md', column: 'hold', duplicate_paths: ['todo/b.md'] },
+        },
+        {
+          site: 'beta.example',
+          title: 'Keep this evidence',
+          evidence: 'preserve me',
+          source: 'analytics',
+        },
+      ])
+    )
+  );
+  assert.equal(grouped.length, 2);
+  assert.equal(grouped[0].groupedItems.length, 2);
+  assert.equal(grouped[0].evidence, '2 duplicate task sets · 3 stale copies');
+  assert.deepEqual(
+    grouped[0].groupedItems.map(item => item.task.file),
+    ['a.md', 'b.md']
+  );
+  assert.equal(grouped[1].evidence, 'preserve me');
+});
+
 test('Site Facts and executive evidence tables stay bounded when expanded', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
@@ -4791,6 +4837,15 @@ test('Site Facts and executive evidence tables stay bounded when expanded', () =
   assert.match(priorities, /caption class="sr-only">Prioritized recommended actions<\/caption>/);
   assert.match(priorities, /class="fd-stale-banner priority-notice" role="note"/);
   assert.match(priorities, /class="priority-duplicates"/);
+  assert.match(app, /function groupPriorityLineageActions\(items\)/);
+  assert.match(app, /group\.groupedItems\.push\(item\)/);
+  assert.match(app, /if \(!group\.groupedItems \|\| group\.groupedItems\.length < 2\)/);
+  assert.match(priorities, /Review \$\{lineageItems\.length\} canonical tasks/);
+  assert.match(
+    priorities,
+    /action groups · \$\{pageRecommendationCount\} recommendations on this page/
+  );
+  assert.match(theme, /\.priority-task-groups li \{ display: grid;/);
   assert.match(priorities, /identical tasks grouped/);
   assert.match(priorities, /\(item\.task\?\.files \|\| \[\]\)\.map/);
   assert.match(priorities, /class="fd-stale-banner priority-truncated" role="alert"/);
