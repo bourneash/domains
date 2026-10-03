@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T12:01:12.745Z",
+  "generated_at": "2026-10-03T13:01:06.623Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, high-priority queue, financial, revenue, ROI, causal-lift, and forecast work this cycle. Analytics coverage is zero, operations and fleet-doctor evidence are unavailable, site-attributed commission is unsupported, and 11 queued items are blocked. Existing research and reconciliation work already cover the evidence gaps; no non-duplicative safe action is admissible. Owner action: preserve the gates and require principal-engineer/CTO to document the canonical admission ledger and failed-handoff repair disposition before any new implementation is considered.",
+        "summary": "Reject new production, high-priority, financial, revenue, ROI, margin, forecast, budget, and causal-lift work. Analytics coverage is zero; operations and fleet-doctor evidence are unavailable; revenue is aggregate/unattributed; and active measurement/review work blocks defensible comparison. Retain existing read-only security evidence and one bounded public inspection for the unresolved repair-disposition gap. No telemetry or production mutation is authorized.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Retain the financial, production, security, and high-priority queue gates. Analytics coverage is zero, operations and fleet-doctor evidence are unavailable, and affiliate commission is aggregate/unattributed, so revenue, ROI, margin, forecast, and causal-lift claims remain unsupported. Queue only six isolated low-priority task-routing metadata repairs across six sites; each changes ownership metadata only, requires no credentials, telemetry, deployment, spend, or production behavior change, and has deterministic validation and rollback. Principal-engineer/CTO must continue the canonical admission ledger and failed-handoff repair disposition, escalating unresolved evidence gaps by 2026-10-03T17:00:00Z.",
+        "summary": "Reject production, high-priority queue, financial, revenue, ROI, margin, forecast, budget, and causal-lift work. Analytics coverage is zero; operations and fleet-doctor evidence are unavailable; affiliate revenue is aggregate/unattributed; and active measurement/review blocks defensible production comparison. Retain only six low-priority, metadata-only routing repairs plus one bounded public inspection. No telemetry, credentials, configuration, spend, deployment, or production mutation is authorized.",
         "requested_action": null,
         "proposal_id": null
       }
