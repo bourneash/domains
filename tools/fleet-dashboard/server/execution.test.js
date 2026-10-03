@@ -47,6 +47,26 @@ test('execution history distinguishes successful, missed, and failed expected sl
   assert.equal(history.missed, 1);
 });
 
+test('execution history keeps nearest-run matching within the cron tolerance window', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-execution-window-'));
+  const logs = path.join(root, 'sites', 'example.com', 'ops', 'logs');
+  fs.mkdirSync(logs, { recursive: true });
+  fs.writeFileSync(
+    path.join(logs, 'promoter-2026-09-19-1003.log'),
+    '=== role=promoter started at 2026-09-19T10:03:00Z ===\n=== role=promoter finished at 2026-09-19T10:03:02Z (exit=0) ===\n'
+  );
+  const history = executionHistory(root, 'example.com', 'promoter', '*/5 * * * *', {
+    from: new Date('2026-09-19T10:00:00Z'),
+    to: new Date('2026-09-19T10:05:00Z'),
+  });
+  assert.equal(history.expected, 2);
+  assert.equal(history.succeeded, 1);
+  assert.equal(history.missed, 1);
+  assert.equal(history.slots[0].status, 'ok');
+  assert.equal(history.slots[1].status, 'missed');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test('paused roles do not create missed execution slots', () => {
   const history = executionHistory('/does-not-exist', 'example.com', 'promoter', '*/5 * * * *', {
     from: new Date('2026-09-19T10:00:00Z'),

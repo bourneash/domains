@@ -179,17 +179,22 @@ function executionHistory(
     5 * MINUTE,
     expected.length > 1 ? Math.min(30 * MINUTE, (expected[1] - expected[0]) * 0.45) : 15 * MINUTE
   );
+  let windowStart = 0;
   for (const at of expected) {
+    while (windowStart < observed.length && observed[windowStart].at < at - tolerance)
+      windowStart++;
     let best = -1;
     let distance = Infinity;
-    observed.forEach((row, index) => {
-      if (used.has(index)) return;
+    for (let index = windowStart; index < observed.length; index++) {
+      const row = observed[index];
+      if (row.at > at + tolerance) break;
+      if (used.has(index)) continue;
       const d = Math.abs(row.at - at);
       if (d <= tolerance && d < distance) {
         best = index;
         distance = d;
       }
-    });
+    }
     if (best === -1) slots.push({ at, status: 'missed' });
     else {
       used.add(best);
