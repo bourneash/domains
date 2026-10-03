@@ -775,7 +775,10 @@ async function health(
       failed: stats.failed,
       unknown: stats.unknown,
       failures: stats.failures.slice(0, 3),
-      editorial: editorialTelemetry(cwd, role, context.logIndex, cell.schedule),
+      editorial:
+        Object.hasOwn(cell, 'editorial')
+          ? cell.editorial
+          : editorialTelemetry(cwd, role, context.logIndex, cell.schedule),
       costUsd: spend.get(site.site)?.total_cost_usd || 0,
       calls: spend.get(site.site)?.calls || 0,
       promptHash: prompt,
