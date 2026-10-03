@@ -9,8 +9,10 @@ const DAY = 86400000;
 const MINUTE = 60000;
 const SCHEDULE_CACHE_LIMIT = 256;
 const EXPECTED_RUN_CACHE_LIMIT = 64;
+const OBSERVED_RUN_CACHE_LIMIT = 20000;
 const scheduleCache = new Map();
 const expectedRunCache = new Map();
+const observedRunCache = new Map();
 
 function values(field, min, max) {
   const out = new Set();
@@ -141,9 +143,7 @@ function collectObservedRuns(root, slug, role, from, to, { logIndex, lastRuns } 
   const logMtimeCutoff = from.getTime() - DAY;
   let files = [];
   if (logIndex) {
-    files = logIndex
-      .matching(file => isRunLog(role, file), logMtimeCutoff)
-      .map(entry => entry.name);
+    files = logIndex.matching(file => isRunLog(role, file), logMtimeCutoff);
   } else {
     try {
       files = fs
@@ -160,9 +160,27 @@ function collectObservedRuns(root, slug, role, from, to, { logIndex, lastRuns } 
       files = [];
     }
   }
-  for (const file of files) {
+  for (const item of files) {
+    const entry = typeof item === 'string' ? null : item;
+    const file = entry?.name || item;
     if (!isRunLog(role, file)) continue;
     const full = path.join(dir, file);
+    const cacheKey =
+      entry && entry.mtime != null && entry.ctime != null && entry.size != null
+        ? `${full}\0${role}`
+        : null;
+    const cached = cacheKey ? observedRunCache.get(cacheKey) : null;
+    if (
+      cached &&
+      cached.mtime === entry.mtime &&
+      cached.ctime === entry.ctime &&
+      cached.size === entry.size
+    ) {
+      observedRunCache.delete(cacheKey);
+      observedRunCache.set(cacheKey, cached);
+      records.push(...cached.rows.map(row => ({ ...row })));
+      continue;
+    }
     let text;
     try {
       text = logIndex ? logIndex.read(file) : fs.readFileSync(full, 'utf8');
@@ -170,7 +188,19 @@ function collectObservedRuns(root, slug, role, from, to, { logIndex, lastRuns } 
       continue;
     }
     if (text === null) continue;
-    records.push(...recordsFromText(text, filenameTimestamp(file), file));
+    const rows = recordsFromText(text, filenameTimestamp(file), file);
+    records.push(...rows);
+    if (cacheKey) {
+      if (observedRunCache.has(cacheKey)) observedRunCache.delete(cacheKey);
+      observedRunCache.set(cacheKey, {
+        mtime: entry.mtime,
+        ctime: entry.ctime,
+        size: entry.size,
+        rows,
+      });
+      while (observedRunCache.size > OBSERVED_RUN_CACHE_LIMIT)
+        observedRunCache.delete(observedRunCache.keys().next().value);
+    }
   }
   const latestRuns = lastRuns || readLastRuns(path.join(cwd, 'ops'));
   const latest = latestRuns[role];

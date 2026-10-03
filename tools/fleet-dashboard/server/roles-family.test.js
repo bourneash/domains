@@ -274,9 +274,13 @@ test('Agent health reuses unchanged log contents across reports and reloads edit
     assert.equal(first.rows[0].observed, second.rows[0].observed);
     assert.equal(logReads, 1);
 
-    fs.writeFileSync(logPath, `${originalRead.call(fs, logPath, 'utf8')}updated contents\n`);
+    const changedLog = originalRead.call(fs, logPath, 'utf8').replace('(exit=0)', '(exit=1)');
+    fs.writeFileSync(logPath, changedLog);
+    const changedTime = new Date(Date.now() + 2000);
+    fs.utimesSync(logPath, changedTime, changedTime);
     const edited = await roles.health(root, 'update', ['example.test'], {}, false, matrix);
     assert.equal(edited.rows[0].observed, 1);
+    assert.equal(edited.rows[0].failed, 1);
     assert.equal(logReads, 2);
   } finally {
     fs.readFileSync = originalRead;
