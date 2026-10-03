@@ -80,3 +80,17 @@ test('failed preview shutdown cannot reach restore or publication', async () => 
   await assert.rejects(preparePublication(f.store, f.run, f.controls), /shutdown failed/);
   assert.deepEqual(f.calls, []);
 });
+
+test('already-running sandbox flag never substitutes for a recorded shutdown', async () => {
+  const f = fixture();
+  f.run.sandbox.started = false;
+  await preparePublication(f.store, f.run, f.controls);
+  assert.equal(f.calls[0], 'stop');
+  assert.ok(f.run.sandbox.quiesced_at);
+  f.calls.length = 0;
+  f.run.validation.recorded_at = new Date(
+    Date.parse(f.run.sandbox.quiesced_at) + 1000
+  ).toISOString();
+  await preparePublication(f.store, f.run, f.controls);
+  assert.equal(f.calls[0], 'stop');
+});

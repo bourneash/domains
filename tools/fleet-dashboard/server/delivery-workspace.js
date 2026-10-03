@@ -26,9 +26,17 @@ async function preparePublication(
   if (!run.workspace_path || !run.branch)
     throw conflict('publication requires the original isolated branch');
   let current = run;
-  if (run.sandbox?.instance && run.sandbox.started !== false) {
+  const quiescedAt = Date.parse(run.sandbox?.quiesced_at || '') || 0;
+  const lastWriter = Math.max(
+    Date.parse(run.agent?.finished_at || '') || 0,
+    Date.parse(run.validation?.recorded_at || '') || 0
+  );
+  // startImprovement.started=false means the container was already running.
+  if (run.sandbox?.instance && (!quiescedAt || lastWriter > quiescedAt)) {
     await stop(run.sandbox.instance);
-    current = store.updateImprovement(run.run_id, { sandbox: { ...run.sandbox, started: false } });
+    current = store.updateImprovement(run.run_id, {
+      sandbox: { ...run.sandbox, started: false, quiesced_at: new Date().toISOString() },
+    });
   }
   const restored = await restore(run.workspace_path);
   const work = await snapshot(run.workspace_path);

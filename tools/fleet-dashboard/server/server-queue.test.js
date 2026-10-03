@@ -13,6 +13,7 @@ const {
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRepairDeliveryQualityFailure,
+  authoritativeTaskBody,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,
@@ -631,4 +632,19 @@ test('delivery quality failures get bounded repair while infrastructure and exha
     false
   );
   assert.equal(shouldRepairDeliveryQualityFailure(request, run, { message: 'push failed' }), false);
+});
+
+test('updated request scope is authoritative over historical backlog prose', () => {
+  assert.equal(
+    authoritativeTaskBody(
+      { body: 'Approved footer and compatible dependency repair' },
+      { body: 'Old footer-only task' }
+    ),
+    'Approved footer and compatible dependency repair'
+  );
+  assert.equal(authoritativeTaskBody({}, { body: 'Legacy task fallback' }), 'Legacy task fallback');
+  assert.equal(
+    authoritativeTaskBody({ body: 'Original implementation' }, null),
+    'Original implementation'
+  );
 });

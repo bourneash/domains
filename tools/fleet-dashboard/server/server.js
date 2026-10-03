@@ -271,6 +271,10 @@ function hasDeterministicQualityFailure(validation) {
   );
 }
 
+function authoritativeTaskBody(request, task) {
+  return String(request?.body || task?.body || '');
+}
+
 function shouldRepairDeliveryQualityFailure(request, run, error) {
   return (
     request?.status === 'delivery_pending' &&
@@ -3007,7 +3011,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function reviewTaskBodyForRequest(request, task) {
     const taskBody = task?.body || request.body;
-    if (!String(request.action_key || '').startsWith('task-routing:')) return taskBody;
+    if (!String(request.action_key || '').startsWith('task-routing:'))
+      return authoritativeTaskBody(request, task);
     // A routing request intentionally changes assignment metadata on an
     // existing board item; its underlying task may describe a much larger
     // future implementation. The reviewer must validate the routing request,
@@ -9168,6 +9173,7 @@ module.exports = {
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
   shouldRepairDeliveryQualityFailure,
+  authoritativeTaskBody,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,
