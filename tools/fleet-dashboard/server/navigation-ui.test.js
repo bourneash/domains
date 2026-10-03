@@ -100,6 +100,14 @@ test('wide mobile tables keep row identity visible while scrolling', () => {
     mobile,
     /body\[data-view="aiinventory"\] #aii-inventory-table th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
   );
+  for (const table of ['sch-sites-table', 'sch-jobs-table', 'sch-runs-table']) {
+    assert.match(
+      mobile,
+      new RegExp(
+        `body\\[data-view="scheduler"\\] #${table} th:first-child,[\\s\\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\\(--panel\\)`
+      )
+    );
+  }
   assert.match(
     mobile,
     /body\[data-view="errors"\] \.error-table \.table-wrap th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
