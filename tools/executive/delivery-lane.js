@@ -169,6 +169,8 @@ function reconcile(store, root, now = Date.now()) {
         request_id: row.request.request_id,
         status:
           run.approval.review_gate === 'failed' ? 'review-check-failed' : 'connected-build-failed',
+        detail_url:
+          run.approval.review_checks?.worker_build_url || run.approval.pull_request?.url || null,
         freeze_planning: true,
       };
     if (
@@ -267,7 +269,11 @@ async function alert(store, root, state, { env = process.env, fetchImpl = fetch 
       .some(row => row.dedupe_key === dedupe_key)
   )
     return { attempted: false, reason: 'already-alerted' };
-  const message = `🚨 Owner delivery lane ${state.state}: ${state.site || 'fleet'}; request ${state.request_id || state.prior_request_id || 'not queued'}; status ${state.status || state.prior_status || 'n/a'}; age ${state.age_minutes ?? 'n/a'} min. ${state.state === 'backlog-exhausted' ? 'The approved implementation backlog is empty; replenish it with bounded owner-ready tasks.' : 'Inspect the request and name a human owner for the blocker.'}`;
+  const message =
+    `🚨 Owner delivery lane ${state.state}: ${state.site || 'fleet'}; request ${state.request_id || state.prior_request_id || 'not queued'}; status ${state.status || state.prior_status || 'n/a'}; age ${state.age_minutes ?? 'n/a'} min. ${state.detail_url || ''} ${state.state === 'backlog-exhausted' ? 'The approved implementation backlog is empty; replenish it with bounded owner-ready tasks.' : 'Inspect the request and name a human owner for the blocker.'}`.replace(
+      / +/g,
+      ' '
+    );
   store.createExecutiveNotification({
     recipient: 'owner',
     notification_type: 'owner-delivery-lane',

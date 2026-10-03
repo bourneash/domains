@@ -86,6 +86,7 @@ async function reconcile(store, root, { api = githubPr.github, cache } = {}) {
         site: work.site,
         request_id: request.request_id,
         status: gate === 'failed' ? 'GitHub review check failed' : 'connected build failed',
+        detail_url: workerCheck?.details_url || pr.html_url,
       });
     results.push({ site: work.site, request_id: request.request_id, pr: number, gate, release });
   }

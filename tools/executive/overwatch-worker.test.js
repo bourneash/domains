@@ -185,6 +185,32 @@ test('a recently committed review branch is visible in Overwatch delivery eviden
   store.close();
 });
 
+test('delivery funnel separates branch, PR, merge, and connected live release', () => {
+  const { store } = fixture();
+  store.createImprovement({
+    site: 'example.test',
+    source: 'test',
+    title: 'A delivered feature',
+    approval: {
+      pull_request: {
+        pushed: true,
+        number: 12,
+        state: 'closed',
+        merged_at: new Date().toISOString(),
+      },
+      release: { status: 'verified', build_id: 'connected-build' },
+    },
+  });
+  const evidence = collectEvidence(store);
+  assert.deepEqual(evidence.delivery_funnel, {
+    review_branches: 1,
+    open_prs: 0,
+    merged_prs: 1,
+    connected_live_releases: 1,
+  });
+  store.close();
+});
+
 test('fleet reports do not count as site delivery handoffs', () => {
   const { store } = fixture();
   const baseline = captureSnapshot(store);

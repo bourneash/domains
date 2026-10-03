@@ -117,6 +117,18 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       (eligibleQueuedIds.has(row.request_id) ||
         ['claimed', 'running', 'reviewing', 'review', 'delivery_pending'].includes(row.status))
   );
+  const reviewRuns = store.listImprovements({ limit: 1000 });
+  const deliveryFunnel = {
+    review_branches: reviewRuns.filter(run => Boolean(run.approval?.pull_request?.pushed)).length,
+    open_prs: reviewRuns.filter(
+      run =>
+        Number.isInteger(run.approval?.pull_request?.number) &&
+        run.approval.pull_request.state === 'open'
+    ).length,
+    merged_prs: reviewRuns.filter(run => Boolean(run.approval?.pull_request?.merged_at)).length,
+    connected_live_releases: reviewRuns.filter(run => run.approval?.release?.status === 'verified')
+      .length,
+  };
   return {
     window_start: iso(windowStart),
     window_end: iso(now),
@@ -129,6 +141,7 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
       error: row.error || null,
       result: row.result || {},
     })),
+    delivery_funnel: deliveryFunnel,
     real_work: {
       new_work_items: workItems.length,
       new_executable_work_items: executableWorkItems.length,
