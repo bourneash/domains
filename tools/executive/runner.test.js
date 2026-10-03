@@ -3275,3 +3275,63 @@ test('executive accessibility guidance requires actual broken interaction eviden
   assert.match(prompt, /Do not convert optional consent into a blocking modal/);
   assert.match(prompt, /guessed scripted completion rate is not a reproduced defect/);
 });
+
+test('site-scoped model evidence retains actual fresh research and production failure receipts', () => {
+  const researchRows = Array.from({ length: 20 }, (_, i) => ({
+    id: 'other-' + i,
+    url: 'https://other.example/',
+    text_preview: 'unrelated',
+  }));
+  researchRows.push({
+    id: 'actual-observation',
+    url: 'https://owned.example/',
+    fetched_at: '2026-10-03T21:00:00Z',
+    status: 'completed',
+    http_status: 200,
+    text_preview: 'Actual body and focus loss',
+    observation_kind: 'host-browser',
+    limitations: 'One route only',
+  });
+  const brief = {
+    intelligence: {
+      research: researchRows,
+      analytics: {
+        ok: false,
+        sites: {
+          'owned.example': { configured: true, error: 'metrics unavailable' },
+          'other.example': { secret: 'unrelated' },
+        },
+      },
+    },
+    domain_manager: { site: 'owned.example', source_documents: [] },
+    queue: [
+      { site: 'other.example', title: 'Unrelated' },
+      { site: 'owned.example', request_id: 'original', status: 'failed' },
+    ],
+    improvements: [
+      {
+        site: 'owned.example',
+        run_id: 'run',
+        state: 'failed',
+        approval: {
+          production_checks: { gate: 'failed', failure_evidence: 'Artifact storage quota' },
+          pull_request: { url: 'https://github.com/owner/repo/pull/1', merged_at: 'now' },
+        },
+      },
+    ],
+  };
+  const compact = runner.compactModelBrief(brief);
+  assert.equal(compact.intelligence.research.length, 1);
+  assert.equal(compact.intelligence.research[0].id, 'actual-observation');
+  assert.match(compact.intelligence.research[0].text_preview, /focus loss/);
+  assert.equal(compact.intelligence.research[0].observation_kind, 'host-browser');
+  assert.equal(compact.intelligence.research[0].limitations, 'One route only');
+  assert.equal(compact.intelligence.analytics.sites['owned.example'].error, 'metrics unavailable');
+  assert.equal(compact.queue.length, 1);
+  assert.equal(compact.queue[0].status, 'failed');
+  assert.equal(
+    compact.improvements[0].approval.production_checks.failure_evidence,
+    'Artifact storage quota'
+  );
+  assert.doesNotMatch(JSON.stringify(compact), /other.example|unrelated/);
+});

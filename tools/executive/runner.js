@@ -690,7 +690,11 @@ async function collectIntel(root, sites) {
       by_site: Array.isArray(usage.by_site) ? usage.by_site.slice(0, 100) : [],
       error: usage.error || null,
     },
-    research: research.recent(root, 10, { sites }),
+    research: research.recent(root, 10, {
+      sites: sites.includes(String(process.env.EXECUTIVE_DOMAIN || '').toLowerCase())
+        ? [String(process.env.EXECUTIVE_DOMAIN).toLowerCase()]
+        : sites,
+    }),
     intelligence,
     intelligence_snapshot: cached
       ? {
@@ -1669,6 +1673,12 @@ function compactModelBrief(brief) {
     state: row.state,
     measurement_due: row.measurement_due,
     source_diff: row.source_diff,
+    approval: compactModelValue({
+      review_gate: row.approval?.review_gate,
+      production_checks: row.approval?.production_checks,
+      release: row.approval?.release,
+      pull_request: row.approval?.pull_request,
+    }),
     baseline: compactModelValue({
       request_category: row.baseline?.request_category,
       evidence: row.baseline?.evidence,
@@ -1725,6 +1735,42 @@ function compactModelBrief(brief) {
       tool_contract: compact.tool_contract,
       operating_manager_task: compact.operating_manager_task,
       domain_manager: compact.domain_manager,
+      intelligence: {
+        research: (brief.intelligence?.research || [])
+          .filter(row => {
+            try {
+              return new URL(row.url).hostname.toLowerCase() === site;
+            } catch {
+              return false;
+            }
+          })
+          .slice(0, 6)
+          .map(row => ({
+            id: row.id,
+            url: row.url,
+            question: String(row.question || '').slice(0, 600),
+            status: row.status,
+            http_status: row.http_status,
+            fetched_at: row.fetched_at,
+            observation_kind: row.observation_kind,
+            limitations: row.limitations,
+            document: compactModelValue(row.document),
+            text_preview: String(row.text_preview || '').slice(0, 2200),
+          })),
+        intelligence_snapshot: compactModelValue(brief.intelligence?.intelligence_snapshot || {}),
+        analytics: {
+          ok: brief.intelligence?.analytics?.ok,
+          sites: {
+            [site]: compactModelValue(
+              brief.intelligence?.analytics?.sites?.[site] || { configured: false }
+            ),
+          },
+        },
+      },
+      queue: (brief.queue || [])
+        .filter(belongs)
+        .slice(0, 15)
+        .map(row => compactModelValue(row)),
       site_context: (compact.site_context || []).filter(belongs),
       action_mandate: {
         ...compact.action_mandate,
