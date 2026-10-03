@@ -3771,6 +3771,10 @@ function activitySiteFromPath(p) {
 const ACTIVITY_UI = { q: '', status: '', method: '', sort: 'ts', dir: -1, page: 1, pageSize: 50 };
 let activityFilterTimer = null;
 
+function activityActorLabel(actor) {
+  return actor === 'anon' ? 'Anonymous' : actor || 'Unknown';
+}
+
 function activitySortValue(a, key) {
   if (key === 'ts') return new Date(a.ts || 0).getTime() || 0;
   if (key === 'site') return activitySiteFromPath(a.path) || '';
@@ -3801,7 +3805,17 @@ async function renderActivity() {
   const rows = (data.actions || []).map(a => ({ ...a, site: activitySiteFromPath(a.path) || '' }));
   const q = ACTIVITY_UI.q.trim().toLowerCase();
   const filtered = rows.filter(a => {
-    const haystack = [a.actor, a.method, a.path, a.site, a.status, a.ip].join(' ').toLowerCase();
+    const haystack = [
+      a.actor,
+      activityActorLabel(a.actor),
+      a.method,
+      a.path,
+      a.site,
+      a.status,
+      a.ip,
+    ]
+      .join(' ')
+      .toLowerCase();
     return (
       (!q || haystack.includes(q)) &&
       (!ACTIVITY_UI.status || (a.ok ? 'ok' : 'failed') === ACTIVITY_UI.status) &&
@@ -3832,7 +3846,7 @@ async function renderActivity() {
       const site = a.site;
       return `<tr${site ? ` data-fleet-row data-site="${esc(site)}"` : ''}>
       <td class="mono muted">${esc((a.ts || '').replace('T', ' ').slice(0, 19))}</td>
-      <td class="mono">${esc(a.actor)}</td>
+      <td class="mono"${a.actor === 'anon' ? ' title="No caller credential was present for this request."' : ''}>${esc(activityActorLabel(a.actor))}</td>
       <td class="mono">${esc(a.method)}</td>
       <td class="mono">${esc(a.path)}</td>
       <td>${site ? esc(site) : '<span class="muted">—</span>'}</td>

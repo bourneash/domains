@@ -4294,6 +4294,12 @@ test('Activity presents audit volume and outcome hierarchy', () => {
   assert.match(app, /<span>Latest event<\/span>/);
   assert.match(
     app,
+    /function activityActorLabel\(actor\) \{\s*return actor === 'anon' \? 'Anonymous' : actor \|\| 'Unknown';/
+  );
+  assert.match(app, /activityActorLabel\(a\.actor\), a\.method/);
+  assert.match(app, /No caller credential was present for this request\./);
+  assert.match(
+    app,
     /class="task-toolbar activity-toolbar" role="group" aria-label="Activity filters"/
   );
   assert.match(app, /class="card activity-table"><div class="table-wrap"><table/);
