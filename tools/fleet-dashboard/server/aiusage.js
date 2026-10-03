@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const { execFile } = require('node:child_process');
-const CACHE_TTL_MS = 15000;
+const CACHE_TTL_MS = 30000;
 const CACHE_MAX_ENTRIES = 32;
 const reportCache = new Map();
 const reportPending = new Map();
