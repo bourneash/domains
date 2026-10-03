@@ -135,6 +135,43 @@ function listCases(events, { limit = 300, state, owner, q, enrichRequests } = {}
     .sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0));
 }
 
+function listCaseSummaries(events, { limit = 300, state, owner, q, enrichRequests } = {}) {
+  const needle = String(q || '').trim().toLowerCase();
+  const requestRows = typeof enrichRequests === 'function'
+    ? enrichRequests(events.listChangeRequests({ limit: 1000 }))
+    : events.listChangeRequests({ limit: 1000 });
+  const improvementRows = events.listImprovements({ limit: 1000 });
+  const workItems = events.listExecutiveWorkItems({ owner, limit: Math.min(1000, Math.max(1, Number(limit) || 300)) });
+  const summaries = workItems.map(work => {
+    const proposal = work.source_type === 'executive-proposal' && work.source_id
+      ? events.getExecutiveProposal(work.source_id)
+      : null;
+    const requests = relatedRequests(events, work, proposal, requestRows);
+    const requestIds = new Set(requests.map(request => request.request_id));
+    const runs = improvementRows.filter(run => run.source_id && requestIds.has(run.source_id));
+    const current = currentState(work, requests, runs);
+    const latestRequest = [...requests].sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0))[0] || null;
+    const latestRun = [...runs].sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0))[0] || null;
+    return {
+      case_id: `work:${work.work_id}`,
+      title: work.title,
+      site: work.site || proposal?.implementation?.site || latestRequest?.site || null,
+      owner: work.owner,
+      priority: work.priority,
+      state: current,
+      created_at: work.created_at,
+      updated_at: work.updated_at,
+      due_at: work.due_at,
+      waiting_on: work.waiting_on,
+      next_action: work.next_action,
+    };
+  });
+  return summaries
+    .filter(item => !state || item.state.key === state)
+    .filter(item => !needle || `${item.title} ${item.site || ''} ${item.owner} ${item.state.label} ${item.state.detail}`.toLowerCase().includes(needle))
+    .sort((a, b) => (Date.parse(b.updated_at) || 0) - (Date.parse(a.updated_at) || 0));
+}
+
 function getCase(events, id, { enrichRequests } = {}) {
   const value = String(id || '');
   const workId = value.startsWith('work:') ? value.slice(5) : value;
@@ -145,4 +182,4 @@ function getCase(events, id, { enrichRequests } = {}) {
   return work ? buildCase(events, work, requestRows) : null;
 }
 
-module.exports = { buildCase, listCases, getCase, currentState, timeline };
+module.exports = { buildCase, listCases, listCaseSummaries, getCase, currentState, timeline };

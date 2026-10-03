@@ -4652,7 +4652,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           events.getChangeQueueSettings(),
           events.listImprovements({ limit: 1000 })
         );
-      res.json({ cases: caseview.listCases(events, { ...req.query, enrichRequests }) });
+      const list = req.query.summary === '1' ? caseview.listCaseSummaries : caseview.listCases;
+      res.json({ cases: list(events, { ...req.query, enrichRequests }) });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

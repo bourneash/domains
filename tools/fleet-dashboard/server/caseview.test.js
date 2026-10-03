@@ -56,3 +56,27 @@ test('surfaces blocked queue state and measurement outcome state', () => {
   assert.equal(measuring.state.key, 'measuring');
   assert.match(measuring.state.detail, /2026-10-10/);
 });
+
+test('lists case summaries without loading messages or timelines and reads runs once', () => {
+  const events = store();
+  let improvementReads = 0;
+  let messageReads = 0;
+  const listExecutiveWorkItems = () => [
+    { work_id: 'w1', title: 'Homepage', owner: 'pm', status: 'in_progress', source_type: 'executive-proposal', source_id: 'p1', updated_at: '2026-09-26T11:00:00.000Z' },
+    { work_id: 'w2', title: 'Second item', owner: 'pm', status: 'open', source_type: 'other', source_id: null, updated_at: '2026-09-26T10:00:00.000Z' },
+  ];
+  const summaryStore = {
+    ...events,
+    listExecutiveWorkItems,
+    listExecutiveMessages: () => { messageReads += 1; throw new Error('summary must not load messages'); },
+    listImprovements: (...args) => { improvementReads += 1; return events.listImprovements(...args); },
+  };
+  const summaries = caseview.listCaseSummaries(summaryStore);
+  assert.equal(summaries.length, 2);
+  assert.equal(summaries[0].case_id, 'work:w1');
+  assert.equal(summaries[0].state.key, 'working');
+  assert.equal('timeline' in summaries[0], false);
+  assert.equal('requests' in summaries[0], false);
+  assert.equal(improvementReads, 1);
+  assert.equal(messageReads, 0);
+});

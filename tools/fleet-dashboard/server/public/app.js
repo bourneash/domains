@@ -14305,7 +14305,7 @@ async function renderExecutive() {
         : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
       conversationOnly
         ? Promise.resolve({ cases: [] })
-        : apiOptional('GET', '/api/cases?limit=300', { cases: [] }),
+        : apiOptional('GET', '/api/cases?limit=300&summary=1', { cases: [] }),
       conversationOnly
         ? Promise.resolve({ events: [], calendar: { events: [] } })
         : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
