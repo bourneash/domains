@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T21:22:48.500Z",
+  "generated_at": "2026-10-03T21:30:16.772Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "rc-9.com mobile-performance repair remains the strongest evidenced implementation task. Principal engineer should inspect the retained diagnosis, verify complete source files before editing, run focused validation/build checks, and record an explicit requeue-or-close disposition.",
+        "summary": "Queued a bounded accessibility fix for the cookie-consent dialog on seedstosauce.com.",
         "requested_action": null,
         "proposal_id": null
       }
