@@ -1,13 +1,35 @@
 'use strict';
 
+process.env.NODE_ENV = 'test';
+
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
+const { once } = require('node:events');
 const eventstore = require('./eventstore');
 const improvements = require('./improvements');
 const tasks = require('./tasks');
+const { createApp } = require('./server');
+
+function get(server, pathname) {
+  return new Promise((resolve, reject) => {
+    http
+      .get({ host: '127.0.0.1', port: server.address().port, path: pathname }, response => {
+        const chunks = [];
+        response.on('data', chunk => chunks.push(chunk));
+        response.on('end', () =>
+          resolve({
+            status: response.statusCode,
+            body: JSON.parse(Buffer.concat(chunks).toString()),
+          })
+        );
+      })
+      .on('error', reject);
+  });
+}
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'improvement-workbench-'));
@@ -56,6 +78,89 @@ test('starts one correlated improvement with a task and baseline', () => {
   assert.equal(again.duplicate, true);
   assert.equal(store.listImprovements().length, 1);
   store.close();
+});
+
+test('improvement list summaries keep card fields and omit deferred evidence payloads', () => {
+  const summary = improvements.summaryRun({
+    run_id: 'run-1',
+    site: 'example.com',
+    title: 'Improve page',
+    state: 'review',
+    stale: false,
+    task_file: 'improve-page.md',
+    task_column: 'in-progress',
+    task_drift: true,
+    expected_task_column: 'in-progress',
+    branch: 'improvement/run-1',
+    measurement_due: '2026-11-01',
+    agent: { assigned_role: 'engineer', log_tail: 'large log' },
+    sandbox: { ttydUrl: 'https://shell.example.com', artifacts: ['large'] },
+    baseline: {
+      captured_at: '2026-10-01T00:00:00Z',
+      analytics: { has_data: false },
+      evidence: 'large evidence',
+    },
+    validation: { browser: { screenshots: { preview: 'large' } } },
+    outcome: { classification: 'proven' },
+  });
+
+  assert.equal(summary.task_column, 'in-progress');
+  assert.equal(summary.task_drift, true);
+  assert.equal(summary.agent.assigned_role, 'engineer');
+  assert.equal(summary.sandbox.ttydUrl, 'https://shell.example.com');
+  assert.equal(summary.baseline.analytics.has_data, false);
+  assert.equal('validation' in summary, false);
+  assert.equal('outcome' in summary, false);
+  assert.equal('evidence' in summary.baseline, false);
+  assert.equal('log_tail' in summary.agent, false);
+});
+
+test('improvements summary endpoint preserves cards and defers detailed evidence', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'improvement-list-summary-'));
+  const taskFile = 'large-evidence.md';
+  const taskPath = path.join(root, 'sites', 'example.com', 'ops', 'tasks', 'backlog', taskFile);
+  fs.mkdirSync(path.dirname(taskPath), { recursive: true });
+  fs.writeFileSync(taskPath, '---\ntitle: Large task\n---\n' + 'Detailed task body.\n'.repeat(200));
+  const store = eventstore.open(root);
+  store.createImprovement({
+    run_id: 'large-run',
+    site: 'example.com',
+    source: 'improvement-workbench',
+    source_id: 'large-evidence',
+    task_file: taskFile,
+    title: 'Large evidence run',
+    state: 'proposed',
+    baseline: {
+      captured_at: new Date().toISOString(),
+      analytics: { has_data: true },
+      evidence: 'evidence '.repeat(5000),
+    },
+    validation: { checks: { content: { status: 'pass', evidence: 'validation '.repeat(5000) } } },
+    agent: { assigned_role: 'engineer', log_tail: 'agent '.repeat(5000) },
+  });
+  store.close();
+
+  const server = createApp({ root }).listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => {
+    server.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  const [summary, full] = await Promise.all([
+    get(server, '/api/improvements?summary=1'),
+    get(server, '/api/improvements'),
+  ]);
+  assert.equal(summary.status, 200);
+  assert.equal(full.status, 200);
+  assert.equal(summary.body.runs[0].task_column, 'backlog');
+  assert.equal(summary.body.runs[0].agent.assigned_role, 'engineer');
+  assert.equal(summary.body.runs[0].baseline.evidence, undefined);
+  assert.ok(full.body.runs[0].baseline.evidence.length > 1000);
+  assert.ok(
+    Buffer.byteLength(JSON.stringify(summary.body)) <
+      Buffer.byteLength(JSON.stringify(full.body)) / 2
+  );
 });
 
 test('keeps queue runtime configuration out of site task instructions', () => {

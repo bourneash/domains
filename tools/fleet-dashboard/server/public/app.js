@@ -12012,11 +12012,22 @@ function improvementChecks(validation) {
   );
 }
 
+function improvementEvidenceMarkup(run) {
+  const validation = run.validation || {};
+  const outcome = run.outcome || {};
+  return `
+    <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
+    <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
+    <h4>Quality gates</h4><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table>
+    ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot" style="width:100%;border:1px solid var(--line)"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot" style="width:100%;border:1px solid var(--line)"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:480px"><div><b>Production</b><iframe title="Production before improvement" src="https://${esc(run.site)}/" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" src="${esc(run.preview_url)}" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div></div>` : ''}
+    <p><b>Outcome:</b> ${outcome.classification ? `<span class="badge ${outcome.classification === 'proven' ? 'b-green' : outcome.classification === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(outcome.classification)}</span> · confidence ${esc(outcome.confidence || '—')}` : '<span class="muted">not measured</span>'}</p>`;
+}
+
 async function renderImprovements() {
   if (FRESH) app.innerHTML = '<div class="loading">Loading improvement runs…</div>';
   let data;
   try {
-    data = await api('GET', '/api/improvements');
+    data = await api('GET', '/api/improvements?summary=1');
   } catch (e) {
     renderViewError(app, e.message);
     return;
@@ -12032,8 +12043,6 @@ async function renderImprovements() {
   const cards = runs
     .map(run => {
       const baseline = run.baseline?.analytics || {};
-      const validation = run.validation || {};
-      const outcome = run.outcome || {};
       return `<article class="card" data-fleet-row data-site="${esc(run.site)}" style="margin-bottom:12px">
       <div class="page-head"><div><h3>${esc(run.title)}</h3><div>${siteLink(run.site)} · <span class="badge b-blue">${esc(run.state)}</span>${run.stale ? ' · <span class="badge b-yellow">stale</span>' : ''} · owner ${esc(run.agent?.assigned_role || 'unassigned')} · <span class="mono muted">${esc(run.run_id.slice(0, 8))}</span></div></div><div>${improvementActions(run, data.transitions || {})}</div></div>
       <div class="seo-stats">
@@ -12043,11 +12052,7 @@ async function renderImprovements() {
         <div class="seo-stat"><div class="seo-stat-label">Measure</div><div class="seo-stat-value" style="font-size:14px">${esc(run.measurement_due || '—')}</div><div class="seo-stat-sub">28-day outcome window</div></div>
       </div>
       <details class="improvement-detail" data-id="${esc(run.run_id)}" data-rk="improvement:${esc(run.run_id)}"><summary>Evidence and delivery record</summary>
-        <p><b>Original evidence:</b> ${esc(run.baseline?.evidence || '—')}</p>
-        <p><b>Preview:</b> ${run.preview_url ? `<a href="${esc(run.preview_url)}" target="_blank" rel="noopener">${esc(run.preview_url)}</a>` : '—'} · <b>Deployment:</b> ${esc(run.deployment_id || '—')}</p>
-        <h4>Quality gates</h4><table class="tbl"><thead><tr><th>Check</th><th>Result</th><th>Evidence</th></tr></thead><tbody>${improvementChecks(validation)}</tbody></table>
-        ${validation?.browser?.screenshots?.['production.png']?.status === 'pass' && validation?.browser?.screenshots?.['preview.png']?.status === 'pass' ? `<h4>Captured visual comparison</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><figure><figcaption>Production baseline</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/production.png" alt="Production screenshot" style="width:100%;border:1px solid var(--line)"></figure><figure><figcaption>Improvement preview</figcaption><img src="/api/improvements/${esc(run.run_id)}/artifacts/preview.png" alt="Improvement preview screenshot" style="width:100%;border:1px solid var(--line)"></figure></div>` : run.preview_url && ['review', 'building'].includes(run.state) ? `<h4>Live visual review</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:480px"><div><b>Production</b><iframe title="Production before improvement" src="https://${esc(run.site)}/" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div><div><b>Improvement preview</b><iframe title="Improvement preview" src="${esc(run.preview_url)}" style="width:100%;height:450px;border:1px solid var(--line);background:white"></iframe></div></div>` : ''}
-        <p><b>Outcome:</b> ${outcome.classification ? `<span class="badge ${outcome.classification === 'proven' ? 'b-green' : outcome.classification === 'regressed' ? 'b-red' : 'b-yellow'}">${esc(outcome.classification)}</span> · confidence ${esc(outcome.confidence || '—')}` : '<span class="muted">not measured</span>'}</p>
+        <div class="improvement-record muted">Evidence and quality gate details load when expanded.</div>
         <div class="improvement-live muted">Open to load worktree diff, agent log, and event timeline.</div>
       </details>
     </article>`;
@@ -12256,6 +12261,12 @@ async function renderImprovements() {
           'GET',
           `/api/improvements/${encodeURIComponent(details.dataset.id)}`
         );
+        const run = detail.run || {};
+        const record = $('.improvement-record', details);
+        if (record) {
+          record.classList.remove('muted');
+          record.innerHTML = improvementEvidenceMarkup(run);
+        }
         const files =
           (detail.workspace?.files || []).map(f => `${f.code || ''} ${f.path}`).join('\n') ||
           '(clean worktree)';

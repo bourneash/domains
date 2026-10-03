@@ -229,6 +229,16 @@ function get(root, slug, column, file) {
   return { file, column, meta, body, raw };
 }
 
+// Locate a task without reading and parsing its full body. List views that only
+// need the current board column should not load task instructions for every row.
+function locate(root, slug, file) {
+  if (!isValidFilename(file)) return null;
+  for (const column of COLUMNS) {
+    if (fs.existsSync(path.join(tasksDir(root, slug), column, file))) return { file, column };
+  }
+  return null;
+}
+
 // Slugify a title into a filename stem.
 function slugify(s) {
   return (
@@ -359,6 +369,7 @@ module.exports = {
   findAllBySourceId,
   findBySourceId,
   get,
+  locate,
   create,
   update,
   move,

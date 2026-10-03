@@ -372,6 +372,30 @@ function summary(runs) {
   return { runs, totals, states: Object.keys(TRANSITIONS), transitions: TRANSITIONS };
 }
 
+function summaryRun(run) {
+  return {
+    run_id: run.run_id,
+    site: run.site,
+    title: run.title,
+    state: run.state,
+    stale: run.stale,
+    task_file: run.task_file,
+    task_column: run.task_column,
+    task_drift: run.task_drift,
+    expected_task_column: run.expected_task_column,
+    branch: run.branch,
+    measurement_due: run.measurement_due,
+    agent: run.agent ? { assigned_role: run.agent.assigned_role || null } : null,
+    sandbox: run.sandbox ? { ttydUrl: run.sandbox.ttydUrl || null } : null,
+    baseline: run.baseline
+      ? {
+          captured_at: run.baseline.captured_at || null,
+          analytics: { has_data: run.baseline.analytics?.has_data },
+        }
+      : null,
+  };
+}
+
 function expectedTaskColumn(state) {
   if (state === 'proposed') return 'backlog';
   if (['building', 'review'].includes(state)) return 'in-progress';
@@ -477,6 +501,7 @@ module.exports = {
   taskRoutingTarget,
   transition,
   summary,
+  summaryRun,
   compareOutcome,
   expectedTaskColumn,
   measurementDate,

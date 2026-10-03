@@ -6564,8 +6564,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           },
         });
       }
+      const summaryOnly = req.query.summary === '1';
       rows = events.listImprovements(req.query).map(item => {
-        const task = findImprovementTask(root, item);
+        const task = summaryOnly
+          ? tasks.locate(root, item.site, item.task_file)
+          : findImprovementTask(root, item);
         const expected = improvements.expectedTaskColumn(item.state);
         return {
           ...item,
@@ -6574,7 +6577,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           expected_task_column: expected,
         };
       });
-      res.json(improvements.summary(rows));
+      const result = improvements.summary(rows);
+      if (summaryOnly) result.runs = result.runs.map(improvements.summaryRun);
+      res.json(result);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: String(e.message || e) });
     }

@@ -753,6 +753,17 @@ test('domain lifecycle and improvement workflows use shared modal prompts', () =
   assert.doesNotMatch(improvements, /\bprompt\(/);
 });
 
+test('improvement list defers detailed evidence until a run is expanded', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const improvements = app.slice(
+    app.indexOf('async function renderImprovements'),
+    app.indexOf('function cqAge')
+  );
+  assert.match(improvements, /api\('GET', '\/api\/improvements\?summary=1'\)/);
+  assert.match(improvements, /improvementEvidenceMarkup\(run\)/);
+  assert.match(improvements, /details\.dataset\.loaded === '1'/);
+});
+
 test('dynamic loading and error regions expose announcement semantics', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   assert.match(shell, /function normalizeStatusRegions\(root = document\)/);

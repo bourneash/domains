@@ -85,3 +85,18 @@ test('fleet task response contains only the fields used by its table and filters
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('locate resolves a task board column without reading the task body', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-task-locate-'));
+  const file = 'run-task.md';
+  const taskPath = path.join(root, 'sites', 'example.test', 'ops', 'tasks', 'in-progress', file);
+  fs.mkdirSync(path.dirname(taskPath), { recursive: true });
+  fs.writeFileSync(taskPath, '---\ntitle: Task\n---\n' + 'Long instructions.\n'.repeat(100));
+  try {
+    assert.deepEqual(tasks.locate(root, 'example.test', file), { file, column: 'in-progress' });
+    assert.equal(tasks.locate(root, 'example.test', '../outside.md'), null);
+    assert.equal(tasks.locate(root, 'example.test', 'missing.md'), null);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
