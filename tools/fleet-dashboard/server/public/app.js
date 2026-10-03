@@ -3955,7 +3955,10 @@ async function renderDevSandbox() {
   DS.dockerAvailable = d.dockerAvailable !== false;
 
   const running = DS.sites.filter(s => s.status === 'running').length;
-  const exists = DS.sites.filter(s => s.status !== 'absent').length;
+  const stopped = DS.sites.filter(s => s.status === 'stopped').length;
+  const absent = DS.sites.filter(s => s.status === 'absent').length;
+  const canStopAll = DS.dockerAvailable && running > 0;
+  const canRemoveStopped = DS.dockerAvailable && stopped > 0;
 
   const warn = !DS.dockerAvailable
     ? `<div class="alert" style="margin-bottom:12px">Docker daemon unreachable — every site below shows "absent" because sandbox state can't be queried, not because containers were removed. Start is disabled until Docker is back.</div>`
@@ -4005,15 +4008,15 @@ async function renderDevSandbox() {
     <section class="ds-summary" aria-label="Dev sandbox summary">
       <div class="ds-stat"><strong>${DS.sites.length}</strong><span>Sites in inventory</span></div>
       <div class="ds-stat ds-stat-good"><strong>${running}</strong><span>Running</span></div>
-      <div class="ds-stat ${exists - running ? 'ds-stat-warn' : 'ds-stat-good'}"><strong>${exists - running}</strong><span>Stopped</span></div>
-      <div class="ds-stat"><strong>${DS.sites.length - exists}</strong><span>Not provisioned</span></div>
+      <div class="ds-stat ${stopped ? 'ds-stat-warn' : 'ds-stat-good'}"><strong>${stopped}</strong><span>Stopped</span></div>
+      <div class="ds-stat"><strong>${absent}</strong><span>Not provisioned</span></div>
       <div class="ds-stat ${DS.dockerAvailable ? 'ds-stat-good' : 'ds-stat-bad'}"><strong>${DS.dockerAvailable ? 'Ready' : 'Offline'}</strong><span>Docker control plane</span></div>
     </section>
     <div class="task-toolbar">
       <span class="cm-spacer"></span>
       <button class="btn sm" id="ds-stats">📊 Stats</button>
-      <button class="btn sm" id="ds-stop-all">⏹ Stop all</button>
-      <button class="btn sm" id="ds-remove-stopped">🧹 Remove stopped</button>
+      <button class="btn sm" id="ds-stop-all" ${canStopAll ? '' : 'disabled'} title="${canStopAll ? 'Stop all running sandboxes' : 'No running sandboxes to stop'}">⏹ Stop all</button>
+      <button class="btn sm" id="ds-remove-stopped" ${canRemoveStopped ? '' : 'disabled'} title="${canRemoveStopped ? 'Remove stopped sandboxes' : 'No stopped sandboxes to remove'}">🧹 Remove stopped</button>
       <button class="btn sm" id="ds-clean-orphans">🗑 Clean orphans</button>
     </div>
     <div class="ds-controls" role="group" aria-label="Filter dev sandboxes">

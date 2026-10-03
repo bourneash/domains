@@ -1743,6 +1743,22 @@ test('Dev Sandbox destructive actions use the shared confirmation surface', () =
   assert.doesNotMatch(sandbox, /confirm\(/);
 });
 
+test('Dev Sandbox bulk actions are disabled when their target set is empty', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderDevSandbox()');
+  const end = app.indexOf('\nfunction applyDevSandboxFilter()', start);
+  assert.ok(start >= 0 && end > start);
+  const view = app.slice(start, end);
+  assert.match(view, /const running = DS\.sites\.filter\(s => s\.status === 'running'\)\.length;/);
+  assert.match(view, /const stopped = DS\.sites\.filter\(s => s\.status === 'stopped'\)\.length;/);
+  assert.match(view, /const canStopAll = DS\.dockerAvailable && running > 0;/);
+  assert.match(view, /const canRemoveStopped = DS\.dockerAvailable && stopped > 0;/);
+  assert.match(view, /id="ds-stop-all" \$\{canStopAll \? '' : 'disabled'\}/);
+  assert.match(view, /id="ds-remove-stopped" \$\{canRemoveStopped \? '' : 'disabled'\}/);
+  assert.match(view, /No running sandboxes to stop/);
+  assert.match(view, /No stopped sandboxes to remove/);
+});
+
 test('container lifecycle actions use the shared confirmation surface', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const containers = app.slice(
