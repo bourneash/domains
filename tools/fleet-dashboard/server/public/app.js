@@ -582,7 +582,13 @@ function safeHref(u) {
 }
 
 const API_TIMEOUT_MS = 60000;
-async function api(method, url, body, timeoutMs = API_TIMEOUT_MS) {
+const API_READ_TIMEOUT_MS = 20000;
+async function api(
+  method,
+  url,
+  body,
+  timeoutMs = method === 'GET' ? API_READ_TIMEOUT_MS : API_TIMEOUT_MS
+) {
   const requestEpoch = ROUTE_EPOCH;
   const opt = { method, headers: {} };
   // Dashboard APIs are live operational state, not static assets. Avoid

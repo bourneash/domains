@@ -251,7 +251,7 @@ test('optional API reads do not hide authentication failures as empty data', () 
 
 test('dashboard GET requests bypass HTTP cache validation for live API data', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  const start = app.indexOf('async function api(method, url, body, timeoutMs = API_TIMEOUT_MS)');
+  const start = app.indexOf('async function api(');
   const end = app.indexOf('\n// Optional panels', start);
   assert.ok(start >= 0 && end > start);
   assert.match(app.slice(start, end), /if \(method === 'GET'\) opt\.cache = 'no-store'/);
@@ -4968,6 +4968,11 @@ test('Guides route provides queue context, summary, and keyboard access', () => 
 test('primary API requests fail clearly instead of loading forever', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const API_TIMEOUT_MS = 60000/);
+  assert.match(app, /const API_READ_TIMEOUT_MS = 20000/);
+  assert.match(
+    app,
+    /async function api\(\s*method,\s*url,\s*body,\s*timeoutMs = method === 'GET' \? API_READ_TIMEOUT_MS : API_TIMEOUT_MS\s*\)/
+  );
   assert.match(app, /new AbortController\(\)/);
   assert.match(app, /Request timed out after/);
   assert.match(app, /clearTimeout\(timeout\)/);
