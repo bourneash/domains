@@ -171,6 +171,24 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual([row["calls"] for row in report["by_hour"]], [2, 1])
         self.assertEqual(report["by_hour_site_role"][0]["role"], "engineer")
 
+    def test_selected_granularity_omits_the_unused_timeseries(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(role="engineer", recorded_at_unix=1785330900),
+            record(role="watchdog", recorded_at_unix=1785333600),
+        ])
+
+        full = aggregate.collect(root)
+        hourly = aggregate.collect(root, granularity="hour")
+        daily = aggregate.collect(root, granularity="day")
+
+        self.assertEqual(hourly["by_hour_site_role"], full["by_hour_site_role"])
+        self.assertEqual(hourly["by_day_site_role"], [])
+        self.assertEqual(daily["by_day_site_role"], full["by_day_site_role"])
+        self.assertEqual(daily["by_hour_site_role"], [])
+        self.assertEqual(hourly["by_site_role"], full["by_site_role"])
+        self.assertEqual(daily["summary"], full["summary"])
+
     def test_exposes_runtime_model_and_turn_limit_alerts(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [record(

@@ -1862,6 +1862,7 @@ async function renderAIUsage() {
   const params = new URLSearchParams();
   if (AI_USAGE.from) params.set('from', AI_USAGE.from);
   if (AI_USAGE.to) params.set('to', AI_USAGE.to);
+  params.set('granularity', AI_USAGE.granularity);
   try {
     data = await api('GET', `/api/ai-usage${params.size ? `?${params}` : ''}`);
   } catch (e) {

@@ -201,6 +201,14 @@ test('fleet vitals use a compact role summary outside Domain Control', () => {
   assert.match(shell, /\/api\/roles\/vitals/);
 });
 
+test('AI usage loads only the active chart resolution', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderAIUsage()');
+  const end = app.indexOf('/* ===================== DEPLOYS', start);
+  const usageView = app.slice(start, end);
+  assert.match(usageView, /params\.set\('granularity', AI_USAGE\.granularity\)/);
+});
+
 test('direct Agent pages start their scoped matrix before the nav catalog resolves', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const needsAgents = \['control', 'agents'\]\.includes\(STATE\.view\)/);

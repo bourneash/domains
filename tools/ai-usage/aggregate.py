@@ -163,10 +163,14 @@ def read_ledger_records(ledger: Path) -> list[dict]:
 
 
 def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
-            end_day: str | None = None) -> dict:
+            end_day: str | None = None, granularity: str | None = None) -> dict:
     """Build a report, optionally limited to inclusive UTC ledger dates."""
     if start_day and end_day and start_day > end_day:
         raise ValueError("start_day must not be after end_day")
+    if granularity not in (None, "day", "hour"):
+        raise ValueError("granularity must be day or hour")
+    include_day = granularity in (None, "day")
+    include_hour = granularity in (None, "hour")
     sites_dir = root / "sites"
     by_site: dict[str, dict] = {}
     by_site_role: dict[tuple[str, str], dict] = {}
@@ -209,12 +213,14 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
 
                 _add(by_site.setdefault(site, _empty_totals()), record)
                 _add(by_site_role.setdefault((site, role), _empty_totals()), record)
-                _add(by_day.setdefault(day, _empty_totals()), record)
-                _add(by_day_site_role.setdefault((day, site, role), _empty_totals()), record)
-                hour = _utc_hour(record)
-                if hour:
-                    _add(by_hour.setdefault(hour, _empty_totals()), record)
-                    _add(by_hour_site_role.setdefault((hour, site, role), _empty_totals()), record)
+                if include_day:
+                    _add(by_day.setdefault(day, _empty_totals()), record)
+                    _add(by_day_site_role.setdefault((day, site, role), _empty_totals()), record)
+                if include_hour:
+                    hour = _utc_hour(record)
+                    if hour:
+                        _add(by_hour.setdefault(hour, _empty_totals()), record)
+                        _add(by_hour_site_role.setdefault((hour, site, role), _empty_totals()), record)
                 provider = record.get("provider") or "Anthropic / Claude Code CLI"
                 model = record.get("model") or "unresolved"
                 _add(by_model.setdefault((provider, model), _empty_totals()), record)
@@ -347,10 +353,10 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         },
         "by_site": site_rows,
         "by_site_role": role_rows,
-        "by_day": day_rows,
-        "by_day_site_role": day_site_role_rows,
-        "by_hour": hour_rows,
-        "by_hour_site_role": hour_site_role_rows,
+        "by_day": day_rows if include_day else [],
+        "by_day_site_role": day_site_role_rows if include_day else [],
+        "by_hour": hour_rows if include_hour else [],
+        "by_hour_site_role": hour_site_role_rows if include_hour else [],
         "by_model": model_rows,
         "by_requested_model": requested_model_rows,
         "by_site_role_model_drift": model_drift_rows,
@@ -380,12 +386,14 @@ def main(argv: list[str] | None = None) -> None:
                         help="inclusive UTC ledger date (YYYY-MM-DD)")
     parser.add_argument("--to", dest="end_day", type=date.fromisoformat,
                         help="inclusive UTC ledger date (YYYY-MM-DD)")
+    parser.add_argument("--granularity", choices=("day", "hour"),
+                        help="include only one time-series resolution")
     args = parser.parse_args(argv)
     start_day = args.start_day.isoformat() if args.start_day else None
     end_day = args.end_day.isoformat() if args.end_day else None
     if start_day and end_day and start_day > end_day:
         parser.error("--from must not be after --to")
-    report = collect(args.root.resolve(), start_day, end_day)
+    report = collect(args.root.resolve(), start_day, end_day, args.granularity)
 
     if args.json:
         print(json.dumps(report, indent=2))

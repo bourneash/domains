@@ -33,6 +33,21 @@ test('fleet accepts an inclusive UTC date range for dashboard time-frame control
   assert.ok(Array.isArray(data.by_day_site_role));
 });
 
+test('fleet can return only the time-series granularity requested by the usage page', async () => {
+  const filters = { from: '2026-09-27', to: '2026-10-03' };
+  const full = await aiusage.fleet(ROOT, filters);
+  const data = await aiusage.fleet(ROOT, {
+    ...filters,
+    granularity: 'hour',
+  });
+  assert.deepEqual(data.by_hour_site_role, full.by_hour_site_role);
+  assert.deepEqual(data.by_day_site_role, []);
+  assert.throws(
+    () => aiusage.fleet(ROOT, { granularity: 'week' }),
+    /granularity must be day or hour/
+  );
+});
+
 test('fleet report cache covers two dashboard refreshes and expires after thirty seconds', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aiusage-cache-'));
   const script = path.join(root, 'tools', 'ai-usage', 'aggregate.py');

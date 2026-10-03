@@ -7372,7 +7372,13 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // calls, listed under summary.sites_uninstrumented, not as an error.
   app.get('/api/ai-usage', async (req, res) => {
     try {
-      res.json(await aiusage.fleet(root, { from: req.query.from, to: req.query.to }));
+      res.json(
+        await aiusage.fleet(root, {
+          from: req.query.from,
+          to: req.query.to,
+          granularity: req.query.granularity,
+        })
+      );
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
