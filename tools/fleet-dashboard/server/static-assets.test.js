@@ -17,12 +17,19 @@ function request(server, asset, headers = {}) {
       {
         host: '127.0.0.1',
         port: server.address().port,
-        path: `/${asset}`,
+        path: asset.startsWith('/') ? asset : `/${asset}`,
         headers,
       },
       res => {
-        res.resume();
-        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers }));
+        const chunks = [];
+        res.on('data', chunk => chunks.push(chunk));
+        res.on('end', () =>
+          resolve({
+            status: res.statusCode,
+            headers: res.headers,
+            body: Buffer.concat(chunks).toString(),
+          })
+        );
       }
     );
     req.on('error', reject);
@@ -30,7 +37,7 @@ function request(server, asset, headers = {}) {
   });
 }
 
-test('static dashboard assets revalidate cached bytes after a restart', async t => {
+test('static dashboard assets use immutable versioned URLs and revalidate stable URLs', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-static-assets-'));
   const server = createApp({ root }).listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -48,5 +55,15 @@ test('static dashboard assets revalidate cached bytes after a restart', async t 
     const revalidated = await request(server, asset, { 'If-None-Match': first.headers.etag });
     assert.equal(revalidated.status, 304, asset);
     assert.equal(revalidated.headers['cache-control'], 'private, no-cache', asset);
+  }
+
+  const index = await request(server, '/');
+  const version = index.body.match(/app\.js\?v=([a-f0-9]{12})/)?.[1];
+  assert.ok(version, 'document points at versioned assets');
+  for (const asset of ['app.js', 'shell.js', 'scheduler-view.js', 'style.css', 'theme.css']) {
+    const cached = await request(server, `${asset}?v=${version}`);
+    assert.equal(cached.status, 200, asset);
+    assert.equal(cached.headers['cache-control'], 'private, max-age=31536000, immutable', asset);
+    assert.ok(index.body.includes(`${asset}?v=${version}`), `${asset} is versioned in HTML`);
   }
 });

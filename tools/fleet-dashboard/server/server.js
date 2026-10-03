@@ -591,11 +591,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     next();
   });
 
-  // Revalidate the stable asset URLs on each load so a restart never serves a
-  // stale SPA, while allowing browsers to reuse unchanged cached bytes on 304.
+  // Keep the HTML fresh so it can point at the current immutable asset URLs.
+  // Versioned assets can then be served from the browser cache without a
+  // conditional request on every full document load.
   app.use((req, res, next) => {
-    if (['/index.html', '/app.js', '/shell.js', '/style.css', '/theme.css'].includes(req.path)) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const indexPath = req.path === '/' || req.path === '/index.html';
+    const assetPaths = ['/app.js', '/shell.js', '/scheduler-view.js', '/style.css', '/theme.css'];
+    if (!indexPath && !assetPaths.includes(req.path)) return next();
+    const version = assetVersion();
+    if (indexPath) {
       res.setHeader('Cache-Control', 'private, no-cache');
+      return fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, html) => {
+        if (err) return next(err);
+        const versioned = html
+          .toString()
+          .replace(
+            /((?:src|href)=['"])(?:\/)?(scheduler-view\.js|app\.js|shell\.js|style\.css|theme\.css)(['"])/g,
+            (_match, attr, asset, quote) => `${attr}/${asset}?v=${version}${quote}`
+          );
+        res.type('html').send(versioned);
+      });
+    }
+    if (assetPaths.includes(req.path)) {
+      res.setHeader(
+        'Cache-Control',
+        req.query.v === version ? 'private, max-age=31536000, immutable' : 'private, no-cache'
+      );
     }
     next();
   });
@@ -6393,7 +6415,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // keep running stale JS.
   function assetVersion() {
     const h = crypto.createHash('sha1');
-    for (const f of ['index.html', 'app.js', 'style.css', 'theme.css', 'shell.js']) {
+    for (const f of [
+      'index.html',
+      'app.js',
+      'style.css',
+      'theme.css',
+      'shell.js',
+      'scheduler-view.js',
+    ]) {
       try {
         const st = fs.statSync(path.join(__dirname, 'public', f));
         h.update(`${f}:${st.mtimeMs}:${st.size};`);
