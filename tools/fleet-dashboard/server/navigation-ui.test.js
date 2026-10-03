@@ -1023,6 +1023,16 @@ test('live version changes never force a document reload', () => {
   assert.match(app, /#update-pill.*location\.reload\(\)/s);
 });
 
+test('dashboard boot loads sites and agents concurrently after the auth gate', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const boot = app.slice(app.indexOf('async function boot()'));
+  const auth = boot.indexOf("api('GET', '/api/auth')");
+  const startupReads = boot.indexOf('const [sites, agents] = await Promise.all([');
+  assert.ok(auth >= 0 && startupReads > auth);
+  assert.match(boot.slice(startupReads, startupReads + 240), /api\('GET', '\/api\/sites'\)\.catch\(\(\) => \[\]\)/);
+  assert.match(boot.slice(startupReads, startupReads + 240), /api\('GET', '\/api\/agents'\)\.then\(normalizeAgentList\)\.catch\(\(\) => \[\]\)/);
+});
+
 test('the self-update action confirms before reloading the workspace', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /title: 'Reload dashboard\?'/);

@@ -16182,16 +16182,12 @@ async function boot() {
     /* /api/auth is exempt; ignore transient errors */
   }
 
-  try {
-    STATE.sites = await api('GET', '/api/sites');
-  } catch {
-    STATE.sites = [];
-  }
-  try {
-    STATE.agents = normalizeAgentList(await api('GET', '/api/agents'));
-  } catch {
-    STATE.agents = [];
-  }
+  const [sites, agents] = await Promise.all([
+    api('GET', '/api/sites').catch(() => []),
+    api('GET', '/api/agents').then(normalizeAgentList).catch(() => []),
+  ]);
+  STATE.sites = sites;
+  STATE.agents = agents;
   const r = parseHash();
   STATE.view = r.view;
   STATE.agent = r.agent;
