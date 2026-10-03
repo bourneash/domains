@@ -4274,6 +4274,8 @@ test('Dev Sandboxes presents runtime readiness and scoped filters', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(app, /class="ds-summary"/);
+  assert.match(app, /<span>Sites in inventory<\/span>/);
+  assert.doesNotMatch(app, /<span>Sites provisioned<\/span>/);
   assert.match(app, /id="ds-search"/);
   assert.match(app, /id="ds-status"/);
   assert.match(app, /type="button" class="btn" id="ds-refresh"/);
@@ -4296,7 +4298,7 @@ test('Activity presents audit volume and outcome hierarchy', () => {
     app,
     /function activityActorLabel\(actor\) \{\s*return actor === 'anon' \? 'Anonymous' : actor \|\| 'Unknown';/
   );
-  assert.match(app, /activityActorLabel\(a\.actor\), a\.method/);
+  assert.match(app, /activityActorLabel\(a\.actor\),\s*a\.method/);
   assert.match(app, /No caller credential was present for this request\./);
   assert.match(
     app,

@@ -4003,7 +4003,7 @@ async function renderDevSandbox() {
   app.innerHTML = `
     <div class="page-head"><div><h2 class="page-title">Dev Sandboxes</h2><span class="muted">per-site sandboxed Claude + ttyd dev containers — folded in from domain-developer</span></div><button type="button" class="btn" id="ds-refresh">↻ Refresh</button></div>
     <section class="ds-summary" aria-label="Dev sandbox summary">
-      <div class="ds-stat"><strong>${DS.sites.length}</strong><span>Sites provisioned</span></div>
+      <div class="ds-stat"><strong>${DS.sites.length}</strong><span>Sites in inventory</span></div>
       <div class="ds-stat ds-stat-good"><strong>${running}</strong><span>Running</span></div>
       <div class="ds-stat ${exists - running ? 'ds-stat-warn' : 'ds-stat-good'}"><strong>${exists - running}</strong><span>Stopped</span></div>
       <div class="ds-stat"><strong>${DS.sites.length - exists}</strong><span>Not provisioned</span></div>
