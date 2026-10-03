@@ -895,7 +895,7 @@ async function pullAll(root, slugs) {
 async function summaries(root, slugs) {
   const rows = new Array(slugs.length);
   let next = 0;
-  const workers = Array.from({ length: Math.min(10, slugs.length) }, async () => {
+  const workers = Array.from({ length: Math.min(15, slugs.length) }, async () => {
     while (next < slugs.length) {
       const index = next++;
       rows[index] = await summaryStatus(root, slugs[index]);
