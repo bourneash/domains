@@ -47,6 +47,25 @@ test('light-mode navigation and selected controls do not retain dark-theme ink o
   );
 });
 
+test('Agents controls and health details inherit light-theme surfaces', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    style,
+    /\.ag-enrollment-gap \.ag-missing-toggle\s*\{[^}]*background:\s*var\(--control-bg\)/
+  );
+  assert.match(style, /\.ag-health-detail td\s*\{[^}]*background:\s*var\(--panel-2\)/);
+  assert.match(style, /\.ag-missing-panel\s*\{[^}]*padding:/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.card,\s*:root\[data-theme="light"\] \.vt,[\s\S]*?background:\s*var\(--grad-panel\),\s*#fff/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\]\s*\{[\s\S]*?--panel-2:\s*#f0f4fa;[\s\S]*?--control-bg:\s*#edf3fb;/
+  );
+});
+
 test('automatic refresh control names its current-view scope', () => {
   const html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
   assert.match(html, /title="Automatic refresh for this view/);
