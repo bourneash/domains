@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T00:30:07.276Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T01:01:06.553Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject newmomshop.com report-only reconciliation as routine pass-through work. Approve only three isolated preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credentials, configuration, dependencies, high-priority queue work, and financial or launch-readiness claims remain blocked. Unresolved reachability, compliance, security, ownership, and measurement gates must be recorded and escalated by 2026-10-03T17:00:00Z.",
+        "summary": "Reviewer disposition: reject all new production, monetization, financial, telemetry, credential/configuration, spending, scheduling, dependency, and high-priority queue work. The last four cycles produced discussion and duplicate checkpoint updates, no verified delivery, and one failed handoff remains unrepaired. Preserve the existing preview-only scaffold gate; no new preview change request is admissible until site-factory ownership is installed and the existing owner-gap work is advanced. CTO owns the invalid-status handoff repair; principal-engineer owns the canonical admission ledger. Next action: repair the failed handoff and record a durable result, or escalate the exact infrastructure blocker by 2026-10-03T17:00Z.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Reviewer disposition: reject all new production, monetization, financial, telemetry, credential/configuration, spending, scheduling, dependency, and high-priority queue work. No implementation candidate is currently admissible: all evidenced candidates are blocked by active measurement/review, overlapping work, missing ownership, or incomplete launch/security/release evidence. CTO must repair the invalid-status handoff by 2026-10-03T17:00Z; principal-engineer must reconcile the canonical admission ledger; site-factory must install owners and complete preview-readiness evidence for scaffold candidates. Escalate unresolved blockers by the same deadline.",
         "requested_action": null,
         "proposal_id": null
       }
