@@ -403,7 +403,12 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
   const keys = ['sessions', 'conversions', 'clicks', 'impressions'];
   const deltas = {};
   for (const key of keys) {
-    if (!Number.isFinite(Number(baseline?.[key])) || !Number.isFinite(Number(current?.[key])))
+    if (
+      baseline?.[key] == null ||
+      current?.[key] == null ||
+      !Number.isFinite(Number(baseline[key])) ||
+      !Number.isFinite(Number(current[key]))
+    )
       continue;
     const before = Number(baseline[key]),
       after = Number(current[key]);
@@ -434,15 +439,28 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
     };
   }
   const conversion = deltas.conversions;
-  const traffic = deltas.sessions || deltas.clicks;
-  const sample = Math.max(Number(baseline?.sessions) || 0, Number(baseline?.impressions) || 0);
-  const enoughTraffic =
-    (deltas.sessions && Number(baseline.sessions) >= 100) ||
-    (deltas.clicks && Number(baseline.impressions) >= 500);
-  const enoughConversions = conversion && Number(baseline.conversions) >= 5;
+  const traffic =
+    deltas.sessions && Number(baseline.sessions) >= 100
+      ? deltas.sessions
+      : deltas.clicks && Number(baseline.clicks) >= 30 && Number(baseline.impressions) >= 500
+        ? deltas.clicks
+        : null;
+  const sample =
+    traffic === deltas.sessions ? Number(baseline.sessions) : traffic ? Number(baseline.clicks) : 0;
+  const enoughTraffic = Boolean(traffic) && current?.has_data === true;
+  const enoughConversions =
+    current?.has_data === true && conversion && Number(baseline.conversions) >= 5;
   const commission = deltas.commission_income;
   const enoughRevenue =
     Boolean(revenueBaseline.has_data && revenueCurrent.has_data) &&
+    revenueBaseline.attribution_complete === true &&
+    revenueCurrent.attribution_complete === true &&
+    revenueBaseline.attribution_status !== 'partial_aggregate' &&
+    revenueCurrent.attribution_status !== 'partial_aggregate' &&
+    Boolean(revenueBaseline.fetched_at && revenueCurrent.fetched_at) &&
+    Date.parse(revenueCurrent.fetched_at) > Date.parse(revenueBaseline.fetched_at) &&
+    Date.parse(revenueCurrent.fetched_at) <= Date.parse(measuredAt) &&
+    Date.parse(measuredAt) - Date.parse(revenueCurrent.fetched_at) <= 3 * 86400000 &&
     (Number(revenueBaseline.ordered_items) >= 3 || Number(revenueBaseline.commission_income) >= 25);
   let classification = 'inconclusive';
   if (
@@ -458,22 +476,35 @@ function compareOutcome(baseline, current, measuredAt = new Date().toISOString()
   )
     classification = 'regressed';
   return {
+    measurement_contract: 'measurement-evidence/v2',
+    causal_attribution: 'unverified',
+    interpretation: 'Observed before/after change; this comparison does not establish causal lift.',
+    evaluated_metric: enoughConversions
+      ? 'conversions'
+      : enoughRevenue
+        ? 'commission_income'
+        : traffic === deltas.sessions && traffic
+          ? 'sessions'
+          : traffic
+            ? 'clicks'
+            : null,
     measured_at: measuredAt,
     window_days: current?.window_days || 28,
     has_data:
-      (current?.has_data !== false || current?.revenue?.has_data === true) &&
+      (current?.has_data === true || current?.revenue?.has_data === true) &&
       Object.keys(deltas).length > 0,
     deltas,
     confidence: sample >= 1000 ? 'high' : sample >= 100 ? 'medium' : 'low',
     thresholds: {
       minimum_sessions: 100,
       minimum_impressions: 500,
+      minimum_clicks: 30,
       minimum_ordered_items: 3,
       minimum_commission_income: 25,
       material_change_percent: 10,
     },
     classification:
-      !(current?.has_data !== false || current?.revenue?.has_data === true) ||
+      !(current?.has_data === true || current?.revenue?.has_data === true) ||
       !Object.keys(deltas).length
         ? 'inconclusive'
         : classification,

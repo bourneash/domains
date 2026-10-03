@@ -8,7 +8,9 @@ function storeFixture() {
   const created = [];
   return {
     created,
-    getExecutiveSettings: () => ({ performance_contract: { enabled: true } }),
+    getExecutiveSettings: () => ({
+      performance_contract: { enabled: true, automatic_recovery: true },
+    }),
     listExecutiveActions: () => [
       { action_type: 'tick', status: 'completed', started_at: '2026-09-30T00:00:00.000Z' },
       { action_type: 'tick', status: 'completed', started_at: '2026-09-30T00:15:00.000Z' },
@@ -17,7 +19,26 @@ function storeFixture() {
       { created_at: '2026-09-30T00:05:00.000Z', created_by: 'growth-director', status: 'approved' },
     ],
     listChangeRequests: () => [
-      { created_at: '2026-09-30T00:06:00.000Z', requested_by: 'delivery-lead', status: 'verified' },
+      {
+        request_id: 'release',
+        run_id: 'run-release',
+        delivery_mode: 'pull_request',
+        created_at: '2026-09-30T00:06:00.000Z',
+        requested_by: 'delivery-lead',
+        status: 'deployed',
+      },
+    ],
+    listImprovements: () => [
+      {
+        run_id: 'run-release',
+        deployment_id: 'build-release',
+        validation: { passed: true, commit: 'abc' },
+        approval: {
+          approved_at: '2026-09-30T00:10:00Z',
+          release: { status: 'verified', build_id: 'build-release', commit: 'build-release' },
+        },
+        outcome: { deployment_verified_at: '2026-09-30T00:10:00Z' },
+      },
     ],
     listExecutiveWorkItems: () => [],
     listExecutiveMessages: () => [],
@@ -42,6 +63,26 @@ test('performance contract normalizes bounded settings and weights', () => {
     Object.values(contract.weights).reduce((sum, value) => sum + value, 0),
     100
   );
+});
+
+test('legacy zero outcome targets cannot earn credit from reports or proposals', () => {
+  const store = storeFixture();
+  store.listChangeRequests = () => [
+    {
+      created_at: '2026-09-30T00:06:00Z',
+      requested_by: 'ceo',
+      status: 'verified',
+      delivery_mode: 'report_only',
+    },
+  ];
+  store.listImprovements = () => [];
+  store.getExecutiveSettings = () => ({
+    performance_contract: { enabled: true, roles: { ceo: { verified_outcomes: 0 } } },
+  });
+  const result = performance.buildPerformance(store, { now: new Date('2026-09-30T00:30:00Z') });
+  assert.equal(result.roles.find(row => row.role === 'ceo').score, 0);
+  assert.equal(result.roles.find(row => row.role === 'growth-director').score, 0);
+  assert.equal(performance.applyPerformanceRecovery(store).created.length, 0);
 });
 
 test('performance scores durable outputs and verified outcomes, not messages', () => {
@@ -89,6 +130,7 @@ test('active recovery remains measurable after leaving the score window', () => 
     now: new Date('2026-09-30T00:45:00.000Z'),
     contract: {
       enabled: true,
+      automatic_recovery: true,
       window_ticks: 2,
       restricted_after_windows: 1,
       escalation_after_windows: 2,
@@ -97,4 +139,29 @@ test('active recovery remains measurable after leaving the score window', () => 
   const ceo = result.roles.find(row => row.role === 'ceo');
   assert.equal(ceo.recovery_windows, 3);
   assert.equal(ceo.status, 'escalated');
+});
+
+test('report-only activity and zero outcome targets grant no delivery points or automatic recovery', () => {
+  const store = storeFixture();
+  store.getExecutiveSettings = () => ({ performance_contract: { enabled: true } });
+  store.listChangeRequests = () => [
+    {
+      request_id: 'report',
+      run_id: 'report-run',
+      requested_by: 'delivery-lead',
+      delivery_mode: 'report_only',
+      status: 'verified',
+      created_at: '2026-09-30T00:10:00Z',
+    },
+  ];
+  store.listImprovements = () => [
+    { run_id: 'report-run', state: 'reported', updated_at: '2026-09-30T00:10:00Z' },
+  ];
+  const result = performance.buildPerformance(store, { now: new Date('2026-09-30T00:30:00Z') });
+  const role = result.roles.find(row => row.role === 'delivery-lead');
+  assert.equal(role.score, 0);
+  assert.equal(role.reports, 1);
+  assert.equal(role.verified_outcomes, 0);
+  assert.equal(result.contract.automatic_recovery, false);
+  assert.equal(performance.applyPerformanceRecovery(store, result).created.length, 0);
 });

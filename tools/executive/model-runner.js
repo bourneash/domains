@@ -360,6 +360,13 @@ async function main() {
   // The host owns action keys. Restore a trusted task-routing key when a
   // provider restates the exact candidate without carrying that metadata.
   runner.attachKnownActionKeys(plan, brief);
+  if (brief.operating_manager_task?.work_id) {
+    const task = brief.operating_manager_task;
+    if (task.site && (plan.change_requests || []).some(request => request.site !== task.site))
+      throw new Error('operating manager attempted work outside its assigned site');
+    for (const request of plan.change_requests || [])
+      request.body = `${request.body || ''}\n\nOperating task: ${brief.operating_manager_task.work_id}`;
+  }
   runner.sanitizePlan(plan);
   // Later review passes are allowed to revise an earlier conclusion, but a
   // pass that simply omits a CRO handoff must not reopen it for the owner.

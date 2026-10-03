@@ -605,6 +605,9 @@ test('records attributed affiliate deltas without treating unmapped revenue as s
         has_data: true,
         ordered_items: 4,
         commission_income: 30,
+        attribution_complete: true,
+        attribution_status: 'site_attributed',
+        fetched_at: '2026-09-15T00:00:00Z',
       },
     },
     {
@@ -613,6 +616,9 @@ test('records attributed affiliate deltas without treating unmapped revenue as s
         has_data: true,
         ordered_items: 5,
         commission_income: 36,
+        attribution_complete: true,
+        attribution_status: 'site_attributed',
+        fetched_at: '2026-09-21T00:00:00Z',
       },
     },
     '2026-09-22T00:00:00Z'
@@ -627,4 +633,36 @@ test('records attributed affiliate deltas without treating unmapped revenue as s
   );
   assert.equal(unavailable.has_data, false);
   assert.equal(unavailable.classification, 'inconclusive');
+});
+
+test('impressions cannot turn one extra session into a proven business outcome', () => {
+  const result = improvements.compareOutcome(
+    { sessions: 5, impressions: 1500, clicks: 13 },
+    { has_data: true, sessions: 6, impressions: 1365, clicks: 14 }
+  );
+  assert.equal(result.classification, 'inconclusive');
+  assert.equal(result.evaluated_metric, null);
+  assert.equal(result.causal_attribution, 'unverified');
+  const missing = improvements.compareOutcome(
+    { sessions: 100 },
+    { has_data: true, sessions: null }
+  );
+  assert.equal(missing.deltas.sessions, undefined);
+});
+
+test('stale partially attributed revenue never proves lift', () => {
+  const revenue = {
+    has_data: true,
+    ordered_items: 4,
+    commission_income: 30,
+    attribution_complete: true,
+    attribution_status: 'partial_aggregate',
+    fetched_at: '2026-09-21T00:00:00Z',
+  };
+  const result = improvements.compareOutcome(
+    { revenue },
+    { has_data: false, revenue: { ...revenue, commission_income: 60 } },
+    '2026-10-03T00:00:00Z'
+  );
+  assert.equal(result.classification, 'inconclusive');
 });

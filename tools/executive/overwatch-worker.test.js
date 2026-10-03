@@ -13,6 +13,7 @@ const {
   classifyOutcome,
   repairHandoffs,
   repairStuckManagerTasks,
+  reconcileRecoveryResults,
 } = require('./overwatch-worker');
 
 test('monitoring an active executive handoff succeeds without claiming delivery', () => {
@@ -169,7 +170,7 @@ test('a newly queued direct request is a handoff, not verified delivery', () => 
   store.close();
 });
 
-test('a recently committed review branch is visible in Overwatch delivery evidence', () => {
+test('a recently committed review branch is not a confirmed Overwatch delivery', () => {
   const { store } = fixture();
   const baseline = captureSnapshot(store);
   store.createChangeRequest({
@@ -179,9 +180,9 @@ test('a recently committed review branch is visible in Overwatch delivery eviden
     status: 'committed',
   });
   const evidence = collectEvidence(store, { baseline, since: Date.now() - 1000 });
-  assert.equal(evidence.real_work.verified_deliveries, 1);
-  assert.equal(evidence.real_work.recent_verified_deliveries, 1);
-  assert.equal(evidence.real_work.actionable, true);
+  assert.equal(evidence.real_work.verified_deliveries, 0);
+  assert.equal(evidence.real_work.recent_verified_deliveries, 0);
+  assert.equal(evidence.real_work.actionable, false);
   store.close();
 });
 
@@ -198,7 +199,7 @@ test('delivery funnel separates branch, PR, merge, and connected live release', 
         state: 'closed',
         merged_at: new Date().toISOString(),
       },
-      release: { status: 'verified', build_id: 'connected-build' },
+      release: { status: 'verified', build_id: 'connected-build', commit: 'connected-build' },
     },
   });
   const evidence = collectEvidence(store);
@@ -261,13 +262,79 @@ test('stale manager tasks are requeued and eventually escalated', () => {
     last_error: 'manager plan produced no executable work product',
   });
   const second = repairStuckManagerTasks(store, { max: 1, staleMs: -1 });
-  assert.equal(second[0].action, 'requeued_stuck_manager');
+  assert.equal(second.length, 0);
+  store.updateExecutiveWorkItem(task.work_id, {
+    waiting_on: 'downstream-queue',
+    evidence: [{ type: 'test', label: 'Remediation', note: 'Dependency installed' }],
+  });
+  assert.equal(
+    repairStuckManagerTasks(store, { max: 1, staleMs: -1 })[0].action,
+    'requeued_stuck_manager'
+  );
   store.updateExecutiveWorkItem(task.work_id, {
     waiting_on: 'downstream-queue',
     last_error: 'manager plan produced no executable work product',
+    evidence: [{ type: 'test', label: 'Remediation', note: 'Second environment repair' }],
   });
   const third = repairStuckManagerTasks(store, { max: 1, staleMs: -1 });
   assert.equal(third[0].action, 'escalated_after_retries');
   assert.equal(store.getExecutiveWorkItem(task.work_id).status, 'blocked');
+  store.close();
+});
+
+test('Overwatch credits only repaired original work reaching connected release', () => {
+  const { store } = fixture();
+  const agent = store.createAgent({
+    slug: 'fleet-operations-manager',
+    role: 'operations-manager',
+    name: 'Ops',
+    title: 'Ops',
+    provider: 'chatgpt',
+    adapter: 'codex',
+    workspace: {
+      overwatch_recovery: {
+        original: { fingerprint: 'f', status: 'attempted', attempted_at: '2026-09-01T00:00:00Z' },
+      },
+    },
+  });
+  const task = store.createExecutiveWorkItem({
+    work_id: 'original',
+    title: 'Original work',
+    owner: 'operations-manager',
+    source_type: 'operating-task',
+  });
+  const request = store.createChangeRequest({
+    site: 'example.test',
+    title: 'Original worker',
+    delivery_mode: 'pull_request',
+    status: 'committed',
+  });
+  store.createWorkflowLink({
+    from_type: 'work-item',
+    from_id: task.work_id,
+    to_type: 'request',
+    to_id: request.request_id,
+    relation: 'related_to',
+  });
+  assert.equal(reconcileRecoveryResults(store).length, 0);
+  const run = store.createImprovement({
+    site: 'example.test',
+    title: 'Original worker',
+    source: 'test',
+    deployment_id: 'build',
+    validation: { passed: true, commit: 'abc' },
+    approval: {
+      review_gate: 'passed',
+      release: { status: 'verified', build_id: 'build', commit: 'build' },
+    },
+    outcome: { deployment_verified_at: '2026-10-03T00:00:00Z' },
+  });
+  store.updateChangeRequest(request.request_id, { run_id: run.run_id, status: 'deployed' });
+  assert.equal(reconcileRecoveryResults(store).length, 1);
+  assert.equal(reconcileRecoveryResults(store).length, 0);
+  assert.equal(
+    store.getAgent(agent.agent_id).workspace.overwatch_recovery.original.status,
+    'verified'
+  );
   store.close();
 });

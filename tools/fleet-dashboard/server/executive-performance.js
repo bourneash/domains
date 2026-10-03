@@ -1,5 +1,7 @@
 'use strict';
 
+const workEvidence = require('./work-evidence');
+
 const ROLES = [
   'product-manager-fleet',
   'product-manager-sites',
@@ -71,6 +73,7 @@ function normalizeContract(input = {}) {
   }
   return {
     enabled: source.enabled !== false,
+    automatic_recovery: source.automatic_recovery === true,
     window_ticks: number(source.window_ticks, DEFAULT_CONTRACT.window_ticks, 1, 20),
     minimum_score: number(source.minimum_score, DEFAULT_CONTRACT.minimum_score, 0, 100),
     recovery_after_windows: number(
@@ -117,6 +120,10 @@ function emptyMetrics(role) {
     work_items: 0,
     owner_handoffs: 0,
     verified_outcomes: 0,
+    accepted_work: 0,
+    committed_work: 0,
+    reports: 0,
+    measured_outcomes: 0,
     failed_outputs: 0,
     stale_owned_work: 0,
     messages: 0,
@@ -142,8 +149,9 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
   const proposals = (store.listExecutiveProposals?.({ limit: 2000 }) || []).filter(row =>
     inWindow(row, cutoff)
   );
-  const changes = (store.listChangeRequests?.({ limit: 2000 }) || []).filter(row =>
-    inWindow(row, cutoff)
+  const changes = store.listChangeRequests?.({ limit: 2000 }) || [];
+  const runs = new Map(
+    (store.listImprovements?.({ limit: 1000 }) || []).map(row => [row.run_id, row])
   );
   const allWork = store.listExecutiveWorkItems?.({ limit: 3000, quiet: '0' }) || [];
   const work = allWork.filter(row => inWindow(row, cutoff));
@@ -159,10 +167,24 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
   for (const change of changes) {
     const role = ownerRole(change);
     if (!role) continue;
-    metrics[role].change_requests += 1;
-    if (['verified', 'deployed', 'committed'].includes(change.status))
-      metrics[role].verified_outcomes += 1;
-    if (['failed', 'cancelled'].includes(change.status)) metrics[role].failed_outputs += 1;
+    if (inWindow(change, cutoff)) metrics[role].change_requests += 1;
+    const run = runs.get(change.run_id) || {};
+    const evidence = workEvidence.delivery(change, run);
+    const recentlyAccepted =
+      Date.parse(run.approval?.approved_at || run.updated_at || '') >= cutoff;
+    const recentlyDeployed = Date.parse(run.outcome?.deployment_verified_at || '') >= cutoff;
+    if (evidence.accepted && recentlyAccepted) metrics[role].accepted_work += 1;
+    if (evidence.committed && recentlyAccepted) metrics[role].committed_work += 1;
+    if (evidence.stage === 'reported' && Date.parse(run.updated_at || '') >= cutoff)
+      metrics[role].reports += 1;
+    if (evidence.measured && Date.parse(run.outcome?.measured_at || '') >= cutoff)
+      metrics[role].measured_outcomes += 1;
+    if (evidence.verified_outcome && recentlyDeployed) metrics[role].verified_outcomes += 1;
+    if (
+      ['failed', 'cancelled'].includes(change.status) &&
+      Date.parse(change.updated_at || change.created_at || '') >= cutoff
+    )
+      metrics[role].failed_outputs += 1;
   }
   for (const item of work) {
     const role = ownerRole(item);
@@ -196,19 +218,25 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     const goal = contract.roles[role];
     metric.durable_outputs =
       metric.proposals + metric.change_requests + metric.work_items + metric.owner_handoffs;
-    const outputRatio = goal.durable_outputs
-      ? Math.min(1, metric.durable_outputs / goal.durable_outputs)
-      : 1;
-    const outcomeRatio = goal.verified_outcomes
-      ? Math.min(1, metric.verified_outcomes / goal.verified_outcomes)
-      : metric.durable_outputs > 0
-        ? 1
-        : 0;
-    const qualityRatio = metric.durable_outputs
-      ? Math.max(0, 1 - metric.failed_outputs / Math.max(1, metric.durable_outputs))
+    // Administrative output remains visible, but earns no delivery points.
+    // Legacy zero targets cannot grant free outcome credit.
+    const outputRatio = Math.min(1, metric.accepted_work / Math.max(1, goal.durable_outputs));
+    const outcomeRatio = Math.min(
+      1,
+      metric.verified_outcomes / Math.max(1, goal.verified_outcomes)
+    );
+    const qualityRatio = metric.accepted_work
+      ? Math.max(
+          0,
+          1 - metric.failed_outputs / Math.max(1, metric.accepted_work + metric.failed_outputs)
+        )
       : 0;
     const progressRatio =
-      metric.stale_owned_work === 0 ? 1 : Math.max(0, 1 - metric.stale_owned_work / 10);
+      metric.accepted_work === 0
+        ? 0
+        : metric.stale_owned_work === 0
+          ? 1
+          : Math.max(0, 1 - metric.stale_owned_work / 10);
     const weights = contract.weights;
     metric.score = Math.round(
       outputRatio * weights.output +
@@ -239,6 +267,11 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
       metric.recovery = 'not-configured';
       metric.recovery_reason =
         'Performance contract is in preview; save the contract to arm recovery.';
+    } else if (!contract.automatic_recovery) {
+      metric.status = metric.score >= contract.minimum_score ? 'on-track' : 'needs-attention';
+      metric.recovery = 'disabled';
+      metric.recovery_reason =
+        'Delivery evidence is reported without creating productivity reviews or restricting continuation. Use a scoped recovery task for a concrete stopped execution path.';
     } else if (
       activeDelivery >= 10 &&
       ['delivery-lead', 'cto', 'site-factory'].includes(role) &&
@@ -271,7 +304,8 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
     }
   }
   return {
-    schema: 'executive-performance/v1',
+    schema: 'executive-performance/v2',
+    evidence_contract: workEvidence.CONTRACT,
     generated_at: now.toISOString(),
     configured,
     contract,
@@ -300,7 +334,12 @@ function buildPerformance(store, { now = new Date(), windowTicks, contract: inpu
 
 function applyPerformanceRecovery(store, { now = new Date() } = {}) {
   const performance = buildPerformance(store, { now });
-  if (!performance.configured || !performance.contract.enabled) return { performance, created: [] };
+  if (
+    !performance.configured ||
+    !performance.contract.enabled ||
+    !performance.contract.automatic_recovery
+  )
+    return { performance, created: [], reason: 'Automatic productivity reviews are disabled.' };
   const created = [];
   for (const metric of performance.roles) {
     if (metric.status === 'escalated') {

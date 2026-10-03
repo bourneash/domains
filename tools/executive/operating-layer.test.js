@@ -16,6 +16,46 @@ function fixture() {
   return store;
 }
 
+test('a deployment denial never creates a site factory job', () => {
+  const store = fixture();
+  const result = executive.ownerRequest(store, {
+    body: 'Deny deployment: website build passes but preview failed; preserve for revalidation.',
+  });
+  assert.equal(result.execution.task.kind, 'implementation');
+  assert.equal(result.execution.task.owner, 'engineering-manager');
+  assert.ok(result.execution.task.labels.includes('intent:revalidation'));
+  assert.match(result.execution.task.next_action, /Preserve the existing implementation/);
+  const denial = executive.ownerRequest(store, { body: 'Deny deployment of the website.' });
+  assert.equal(denial.execution.dispatch, null);
+  assert.equal(denial.work_item.status, 'waiting');
+  assert.equal(store.listChangeRequests({ limit: 100 }).length, 0);
+  store.close();
+});
+
+test('historical denial is reclassified without restarting or authorizing work', () => {
+  const store = fixture();
+  const source = store.createExecutiveWorkItem({
+    title: 'Owner hold',
+    source_type: 'owner-request',
+    summary: 'Deny deployment of the site.',
+    owner: 'ceo',
+  });
+  const task = store.createExecutiveWorkItem({
+    title: 'Execute owner request',
+    source_type: 'operating-task',
+    parent_work_id: source.work_id,
+    summary: source.summary,
+    kind: 'implementation',
+    owner: 'site-factory-manager',
+    status: 'in_progress',
+  });
+  const changed = operating.reconcileIntake(store, source, task);
+  assert.equal(changed.kind, 'decision');
+  assert.equal(changed.status, 'blocked');
+  assert.equal(operating.reconcileIntake(store, source, changed).updated_at, changed.updated_at);
+  store.close();
+});
+
 test('owner request creates manager task, run, and real dispatch', () => {
   const store = fixture();
   const result = executive.ownerRequest(store, {

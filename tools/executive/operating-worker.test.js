@@ -17,6 +17,68 @@ function fixture() {
   return { root, store: eventstore.open(root, { file: path.join(root, 'events.sqlite') }) };
 }
 
+test('manager follows the same linked worker through review and confirmed release', () => {
+  const { store } = fixture();
+  const owner = executive.ownerRequest(store, { body: 'Fix the search input.' });
+  const request = store.createChangeRequest({
+    site: 'example.test',
+    title: 'Fix search',
+    delivery_mode: 'pull_request',
+    status: 'committed',
+  });
+  store.createWorkflowLink({
+    from_type: 'work-item',
+    from_id: owner.execution.task.work_id,
+    to_type: 'request',
+    to_id: request.request_id,
+    relation: 'related_to',
+  });
+  worker.reconcileManagerDelivery(store);
+  assert.equal(store.getExecutiveWorkItem(owner.execution.task.work_id).status, 'in_progress');
+  const improvement = store.createImprovement({
+    site: 'example.test',
+    title: 'Fix search',
+    source: 'fleet-dashboard',
+    source_id: request.request_id,
+    state: 'measuring',
+    deployment_id: 'build',
+    validation: { passed: true, commit: 'abc' },
+    approval: {
+      approved_at: new Date().toISOString(),
+      release: { status: 'verified', build_id: 'build', commit: 'build' },
+    },
+    outcome: { deployment_verified_at: new Date().toISOString() },
+  });
+  store.updateChangeRequest(request.request_id, { status: 'deployed', run_id: improvement.run_id });
+  worker.reconcileManagerDelivery(store);
+  assert.equal(store.getExecutiveWorkItem(owner.execution.task.work_id).status, 'done');
+  assert.equal(store.getExecutiveWorkItem(owner.work_item.work_id).lifecycle_state, 'closed');
+  assert.equal(worker.reconcileManagerDelivery(store).length, 0);
+  store.close();
+});
+
+test('revalidation preserves release hold and invokes no model or replacement worker', async () => {
+  const { root, store } = fixture();
+  const owner = executive.ownerRequest(store, {
+    body: 'Deny deployment: site preview failed; preserve for revalidation.',
+  });
+  const result = await worker.processOperatingManager(
+    store,
+    root,
+    { owner: 'engineering-manager', slug: 'fleet-engineering-manager', promptRole: 'cto' },
+    {
+      sandboxRunner: () => {
+        throw new Error('must not invoke model');
+      },
+    }
+  );
+  assert.ok(result.result, JSON.stringify({ result, owner }));
+  assert.equal(result.result.delivery_status, 'blocked_with_owner');
+  assert.equal(store.getExecutiveWorkItem(owner.execution.task.work_id).status, 'blocked');
+  assert.equal(store.listChangeRequests({ limit: 100 }).length, 0);
+  store.close();
+});
+
 test('site factory consumer turns a manager dispatch into a host onboarding job', async () => {
   const { root, store } = fixture();
   const request = executive.ownerRequest(store, {

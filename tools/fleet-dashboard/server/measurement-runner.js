@@ -1,8 +1,8 @@
 'use strict';
 
 // Closes the loop for deployed improvement work without requiring a dashboard
-// page to be opened. A result is eligible after 14 days or 100 new GSC
-// impressions, whichever comes first. Missing telemetry remains inconclusive;
+// page to be opened. A result needs a full 14-day observation window; the
+// impression threshold is an interim sample, not permission to close early.
 // it is never coerced to zero or treated as a success.
 
 const analyticsDefault = require('./analytics');
@@ -63,18 +63,27 @@ function compactObservation(metrics = {}, { captured_at, new_impressions } = {})
     captured_at: captured_at || new Date().toISOString(),
     new_impressions: new_impressions == null ? null : Number(new_impressions),
     analytics: {
-      has_data: analytics.has_data !== false,
-      sessions: Number.isFinite(Number(analytics.sessions)) ? Number(analytics.sessions) : null,
-      impressions: Number.isFinite(Number(analytics.impressions))
-        ? Number(analytics.impressions)
-        : null,
-      clicks: Number.isFinite(Number(analytics.clicks)) ? Number(analytics.clicks) : null,
-      conversions: Number.isFinite(Number(analytics.conversions))
-        ? Number(analytics.conversions)
-        : null,
-      window_days: Number.isFinite(Number(analytics.window_days))
-        ? Number(analytics.window_days)
-        : null,
+      has_data: analytics.has_data === true,
+      sessions:
+        analytics.sessions != null && Number.isFinite(Number(analytics.sessions))
+          ? Number(analytics.sessions)
+          : null,
+      impressions:
+        analytics.impressions != null && Number.isFinite(Number(analytics.impressions))
+          ? Number(analytics.impressions)
+          : null,
+      clicks:
+        analytics.clicks != null && Number.isFinite(Number(analytics.clicks))
+          ? Number(analytics.clicks)
+          : null,
+      conversions:
+        analytics.conversions != null && Number.isFinite(Number(analytics.conversions))
+          ? Number(analytics.conversions)
+          : null,
+      window_days:
+        analytics.window_days != null && Number.isFinite(Number(analytics.window_days))
+          ? Number(analytics.window_days)
+          : null,
       error: analytics.error || null,
     },
     revenue: {
@@ -191,7 +200,7 @@ async function run({
       const newImpressions = await newImpressionsSince(current.site, deployedAt, now, analytics);
       const due = !current.measurement_due || current.measurement_due <= dateOnly(now);
       const thresholdReached = newImpressions != null && newImpressions >= IMPRESSION_THRESHOLD;
-      if (!due && !thresholdReached) {
+      if (!due || elapsedDays < MEASUREMENT_DAYS) {
         // Capture a bounded, read-only interim sample every measurement tick.
         // This gives the executive team immediate evidence about freshness,
         // attribution, and direction without prematurely declaring success.
@@ -222,7 +231,7 @@ async function run({
         now.toISOString()
       );
       outcome.measurement_gate = {
-        ready_reason: thresholdReached ? '100_new_impressions' : '14_days',
+        ready_reason: '14_days',
         elapsed_days: Math.round(elapsedDays * 10) / 10,
         new_impressions: newImpressions,
         impression_threshold: IMPRESSION_THRESHOLD,

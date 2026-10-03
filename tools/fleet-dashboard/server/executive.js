@@ -184,6 +184,12 @@ function ownerRequest(store, input = {}) {
       title: execution.task.title,
       site: execution.task.site,
     });
+    if (!execution.dispatch)
+      store.updateExecutiveWorkItem(workItem.work_id, {
+        status: 'waiting',
+        waiting_on: execution.task.waiting_on,
+        next_action: execution.task.next_action,
+      });
     return {
       message: ownerMessage,
       work_item: store.getExecutiveWorkItem(workItem.work_id),

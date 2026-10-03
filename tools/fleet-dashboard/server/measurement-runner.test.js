@@ -57,7 +57,7 @@ test('measures after the day gate and preserves the gate evidence', async () => 
   const store = eventstore.open(root);
   const run = store.getImprovement('run-1');
   assert.equal(run.state, 'proven');
-  assert.equal(run.outcome.measurement_gate.ready_reason, '100_new_impressions');
+  assert.equal(run.outcome.measurement_gate.ready_reason, '14_days');
   assert.equal(run.outcome.measurement_gate.new_impressions, 100);
   assert.equal(run.measurement_due, null);
   store.close();
@@ -79,6 +79,22 @@ test('does not measure before either gate', async () => {
   assert.equal(run.state, 'measuring');
   assert.equal(run.outcome.measurement_observations.length, 1);
   assert.equal(run.outcome.measurement_observations[0].analytics.sessions, 100);
+  store.close();
+});
+
+test('100 impressions cannot close a short overlapping observation window', async () => {
+  const root = fixture();
+  const result = await measurement.run({
+    root,
+    now: new Date('2026-09-05T00:00:00Z'),
+    analytics: {
+      gscSeries: async () => ({ records: [{ date: '2026-09-04', impressions: 1000 }] }),
+      summary: async () => ({ has_data: true, sessions: 200, impressions: 1000, window_days: 14 }),
+    },
+  });
+  assert.equal(result.results[0].status, 'waiting');
+  const store = eventstore.open(root);
+  assert.equal(store.getImprovement('run-1').state, 'measuring');
   store.close();
 });
 

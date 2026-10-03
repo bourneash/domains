@@ -5,6 +5,7 @@
 // common identity, run, budget, session, and artifact lifecycle beneath them.
 
 const crypto = require('node:crypto');
+const workEvidence = require('../fleet-dashboard/server/work-evidence');
 
 const DEFAULT_AGENTS = [
   ['fleet-ceo', 'Fleet CEO', 'Chief Executive Officer', 'ceo', 'chatgpt', 'codex'],
@@ -328,6 +329,12 @@ function finish(
     throw new Error('finish status must be terminal');
   const current = store.getAgentRun(runId);
   if (!current) throw new Error('agent run not found');
+  const verifiedDelivery = (result?.change_request_ids || []).some(id => {
+    const request = store.getChangeRequest(id);
+    const run = request?.run_id && store.getImprovement(request.run_id);
+    return request && run && workEvidence.delivery(request, run).deployed;
+  });
+  if (result?.delivery_status) result = { ...result, verified_delivery: Boolean(verifiedDelivery) };
   const finished = store.updateAgentRun(runId, {
     status,
     result,
@@ -339,10 +346,16 @@ function finish(
   });
   const hasDeliverySignal =
     status !== 'succeeded' || Object.prototype.hasOwnProperty.call(result || {}, 'delivery_status');
-  const isDeferred = result?.delivery_status === 'deferred';
+  const isDeferred = [
+    'deferred',
+    'handoff_pending',
+    'delivered_to_downstream',
+    'blocked_with_owner',
+    'observing_active_delivery',
+  ].includes(result?.delivery_status);
   if (hasDeliverySignal && !isDeferred) {
     recordAccountabilityOutcome(store, current, {
-      delivered: status === 'succeeded' && result?.delivery_status !== 'failed_to_deliver',
+      delivered: status === 'succeeded' && result?.verified_delivery === true,
       reason: error || result?.delivery_error || (status === 'failed' ? `Run ${status}.` : null),
     });
   }

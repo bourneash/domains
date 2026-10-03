@@ -25,14 +25,32 @@ function fakeStore() {
       { status: 'proposed', proposal_type: 'engineering', created_at: '2026-09-22T00:00:00.000Z' },
     ],
     listChangeRequests: () => [
-      { status: 'verified', created_at: '2026-09-22T00:01:00.000Z' },
+      {
+        request_id: 'release',
+        run_id: 'run-release',
+        status: 'deployed',
+        delivery_mode: 'pull_request',
+        created_at: '2026-09-22T00:01:00.000Z',
+      },
       { status: 'queued', created_at: '2026-09-22T00:04:00.000Z' },
     ],
     listImprovements: () => [
       {
+        run_id: 'run-release',
+        site: 'example.test',
+        deployment_id: 'build-release',
+        validation: { passed: true, commit: 'abc' },
+        approval: {
+          approved_at: '2026-09-21T00:00:00Z',
+          release: { status: 'verified', build_id: 'build-release', commit: 'build-release' },
+        },
         state: 'proven',
         created_at: '2026-09-20T00:00:00.000Z',
-        outcome: { deltas: { conversions: { absolute: 4 } } },
+        outcome: {
+          measurement_contract: 'measurement-evidence/v2',
+          deployment_verified_at: '2026-09-21T00:00:00Z',
+          deltas: { conversions: { absolute: 4 } },
+        },
       },
     ],
     list: () => [],

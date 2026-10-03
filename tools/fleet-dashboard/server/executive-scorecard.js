@@ -8,6 +8,7 @@ const TERMINAL_REQUESTS = new Set(['verified', 'failed', 'cancelled']);
 const DELIVERED_REQUESTS = new Set(['committed', 'deployed', 'verified']);
 const MEASURED_IMPROVEMENTS = new Set(['proven', 'regressed', 'inconclusive']);
 const executivePerformance = require('./executive-performance');
+const workEvidence = require('./work-evidence');
 
 function countBy(rows, key) {
   return rows.reduce((counts, row) => {
@@ -23,7 +24,7 @@ function inWindow(value, cutoff) {
 }
 
 function finiteNumber(value) {
-  return Number.isFinite(Number(value)) ? Number(value) : null;
+  return value != null && Number.isFinite(Number(value)) ? Number(value) : null;
 }
 
 function median(values) {
@@ -35,7 +36,22 @@ function median(values) {
 
 function metricDeltas(improvements) {
   const totals = {};
-  for (const improvement of improvements) {
+  // Fleet analytics are usually site aggregates. Multiple simultaneous page
+  // changes share the same traffic; summing every run double-counts it.
+  const latestBySite = new Map();
+  for (const row of improvements.filter(
+    row => row.outcome?.measurement_contract === 'measurement-evidence/v2'
+  )) {
+    const key = row.site || row.run_id;
+    const prior = latestBySite.get(key);
+    if (
+      !prior ||
+      Date.parse(row.outcome.measured_at || row.updated_at || '') >
+        Date.parse(prior.outcome.measured_at || prior.updated_at || '')
+    )
+      latestBySite.set(key, row);
+  }
+  for (const improvement of latestBySite.values()) {
     for (const [metric, delta] of Object.entries(improvement.outcome?.deltas || {})) {
       const absolute = finiteNumber(delta?.absolute);
       if (absolute === null) continue;
@@ -206,9 +222,19 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
     row => row.action_type === 'queue-work' && row.target_type === 'approved-executive-work'
   );
   const failedTicks = ticks.filter(row => row.status === 'failed');
-  const deliveredRequests = requests.filter(row => DELIVERED_REQUESTS.has(row.status));
-  const measured = improvements.filter(row => MEASURED_IMPROVEMENTS.has(row.state));
-  const proven = improvements.filter(row => row.state === 'proven');
+  const runsById = new Map(allImprovements.map(row => [row.run_id, row]));
+  const stages = requests.map(request => ({
+    request,
+    evidence: workEvidence.delivery(request, runsById.get(request.run_id) || {}),
+  }));
+  const deliveredRequests = stages.filter(row => row.evidence.deployed).map(row => row.request);
+  const measured = improvements.filter(
+    row =>
+      MEASURED_IMPROVEMENTS.has(row.state) &&
+      workEvidence.delivery(allRequests.find(request => request.run_id === row.run_id) || {}, row)
+        .measured
+  );
+  const proven = measured.filter(row => row.state === 'proven');
   const isLiveImprovement = row => {
     if (row.source !== 'fleet-dashboard' || !row.source_id) return true;
     const request = requestsById.get(String(row.source_id));
@@ -335,6 +361,12 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       by_type: countBy(proposals, 'proposal_type'),
     },
     execution: {
+      evidence_contract: workEvidence.CONTRACT,
+      reports_completed: stages.filter(row => row.evidence.stage === 'reported').length,
+      implementations_validated: stages.filter(row => row.evidence.validated).length,
+      implementations_accepted: stages.filter(row => row.evidence.accepted).length,
+      review_branches_committed: stages.filter(row => row.evidence.committed).length,
+      confirmed_releases: deliveredRequests.length,
       audited_actions: actions.length,
       queue_actions: queueActions.length,
       approved_work_drain_runs: approvedWorkDrains.length,
@@ -351,8 +383,12 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       blocked_reviews: blockedReviews.length,
       median_queue_to_claim_minutes: median(deliveryLatencies),
       validated_improvements: improvements.filter(row => row.validation?.passed === true).length,
-      deployed_improvements: improvements.filter(row =>
-        Boolean(row.outcome?.deployment_verified_at)
+      deployed_improvements: improvements.filter(
+        row =>
+          workEvidence.delivery(
+            allRequests.find(request => request.run_id === row.run_id) || {},
+            row
+          ).deployed
       ).length,
       delivered_requests: deliveredRequests.length,
       failed_requests: failedRequests.length,
@@ -377,8 +413,16 @@ function buildScorecard(store, { now = new Date(), windowDays = 30 } = {}) {
       pending_measurement: pendingMeasurement.length,
       measured: measured.length,
       proven: proven.length,
-      regressed: improvements.filter(row => row.state === 'regressed').length,
-      inconclusive: improvements.filter(row => row.state === 'inconclusive').length,
+      interpretation:
+        'Observed trends, not causal business lift. Site metric deltas are deduplicated.',
+      causal_business_results: stages.filter(row => row.evidence.business_result).length,
+      legacy_unverified: improvements.filter(
+        row =>
+          MEASURED_IMPROVEMENTS.has(row.state) &&
+          row.outcome?.measurement_contract !== 'measurement-evidence/v2'
+      ).length,
+      regressed: measured.filter(row => row.state === 'regressed').length,
+      inconclusive: measured.filter(row => row.state === 'inconclusive').length,
       metric_deltas: metricDeltas(measured),
     },
     attention: [

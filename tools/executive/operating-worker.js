@@ -14,6 +14,7 @@ const dispatcher = require('./agent-dispatcher');
 const runtime = require('./agent-runtime');
 const domains = require('../fleet-dashboard/server/domains');
 const operatingLayer = require('./operating-layer');
+const workEvidence = require('../fleet-dashboard/server/work-evidence');
 
 const DOMAIN_RE = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)\b/gi;
 const IGNORED_DOMAINS = new Set(['github.com', 'example.com', 'localhost']);
@@ -85,6 +86,9 @@ function runSandbox(root, role, task) {
       attempts: task.attempts || 0,
       labels: task.labels || [],
       last_error: task.last_error || null,
+      intent:
+        (task.labels || []).find(label => label.startsWith('intent:')) || 'intent:implementation',
+      linked_requests: task.linked_requests || [],
     }),
     { mode: 0o600 }
   );
@@ -318,7 +322,7 @@ async function processOperatingManager(
   store,
   root,
   role,
-  { workerId = `operating-worker:${process.pid}` } = {}
+  { workerId = `operating-worker:${process.pid}`, sandboxRunner = runSandbox } = {}
 ) {
   const agent = store.getAgent(role.slug);
   if (!agent) throw new Error(`${role.slug} operating agent is not provisioned`);
@@ -330,13 +334,47 @@ async function processOperatingManager(
         const task = currentStore.getExecutiveWorkItem(run.work_id);
         if (!task || task.owner !== role.owner)
           throw new Error(`dispatch task is not owned by ${role.owner}`);
+        const existingRequests = workEvidence.linkedRequests(currentStore, task);
+        if ((task.labels || []).includes('intent:revalidation')) {
+          // A validation hold cannot authorize a new implementation. Continue
+          // the original release only through its reviewed retry endpoint.
+          currentStore.updateExecutiveWorkItem(task.work_id, {
+            status: 'blocked',
+            waiting_on: 'validation-recovery',
+            next_action: existingRequests.length
+              ? `Revalidate original request ${existingRequests[0].request_id} through its existing review/retry gate. Preserve the worker, workspace and release hold.`
+              : 'Attach the original failed request/run before revalidation. Preserve the implementation and release hold; no replacement or deployment is authorized.',
+          });
+          return {
+            lane: role.owner,
+            task_id: task.work_id,
+            actionable: false,
+            delivery_status: 'blocked_with_owner',
+            verified_delivery: false,
+            change_request_ids: existingRequests.map(row => row.request_id),
+          };
+        }
+        if (existingRequests.some(item => !['failed', 'cancelled'].includes(item.status))) {
+          reconcileManagerDelivery(currentStore);
+          return {
+            lane: role.owner,
+            task_id: task.work_id,
+            actionable: true,
+            delivery_status: 'handoff_pending',
+            change_request_ids: existingRequests.map(item => item.request_id),
+            verified_delivery: false,
+          };
+        }
         const beforeChangeRequests = new Set(
           currentStore.listChangeRequests({ limit: 2000 }).map(item => item.request_id)
         );
         const beforeWorkItems = new Set(
           currentStore.listExecutiveWorkItems({ limit: 2000 }).map(item => item.work_id)
         );
-        const sandbox = await runSandbox(root, role, task);
+        const sandbox = await sandboxRunner(root, role, {
+          ...task,
+          linked_requests: existingRequests,
+        });
         if (sandbox.code === 75) {
           const error = new Error('executive sandbox is busy; manager dispatch deferred');
           error.defer = true;
@@ -344,15 +382,33 @@ async function processOperatingManager(
         }
         const changeRequests = currentStore
           .listChangeRequests({ limit: 2000 })
-          .filter(item => !beforeChangeRequests.has(item.request_id));
+          .filter(
+            item =>
+              !beforeChangeRequests.has(item.request_id) &&
+              String(item.body || '').includes(`Operating task: ${task.work_id}`) &&
+              (!task.site || item.site === task.site)
+          );
         const workItems = currentStore
           .listExecutiveWorkItems({ limit: 2000 })
           .filter(item => !beforeWorkItems.has(item.work_id) && item.work_id !== task.work_id);
         const executableWorkItems = workItems.filter(isExecutableWork);
         const directRequests = changeRequests.filter(item => item.delivery_mode !== 'report_only');
         const ownedBlockers = workItems.filter(isOwnedBlocker);
-        const delivered = sandbox.code === 0 && directRequests.length > 0;
-        const actionable = delivered || (sandbox.code === 0 && ownedBlockers.length > 0);
+        const research = (task.labels || []).includes('intent:research');
+        const handoff =
+          sandbox.code === 0 && (research ? changeRequests.length : directRequests.length) > 0;
+        const actionable = handoff || (sandbox.code === 0 && ownedBlockers.length > 0);
+        for (const request of changeRequests)
+          workEvidence.linkRequest(currentStore, task.work_id, request.request_id);
+        for (const blocker of ownedBlockers)
+          currentStore.createWorkflowLink({
+            from_type: 'work-item',
+            from_id: blocker.work_id,
+            to_type: 'work-item',
+            to_id: task.work_id,
+            relation: 'blocks',
+            created_by: 'operating-worker',
+          });
         const result = {
           lane: role.owner,
           task_id: task.work_id,
@@ -365,8 +421,9 @@ async function processOperatingManager(
           created_work_item_ids: workItems.map(item => item.work_id),
           change_request_ids: changeRequests.map(item => item.request_id),
           actionable,
-          delivery_status: delivered
-            ? 'delivered_to_downstream'
+          verified_delivery: false,
+          delivery_status: handoff
+            ? 'handoff_pending'
             : actionable
               ? 'blocked_with_owner'
               : 'failed_to_deliver',
@@ -401,10 +458,10 @@ async function processOperatingManager(
           metadata: result,
         });
         currentStore.updateExecutiveWorkItem(task.work_id, {
-          status: actionable ? 'in_progress' : 'blocked',
-          waiting_on: delivered ? 'downstream-queue' : role.owner,
+          status: handoff ? 'in_progress' : 'blocked',
+          waiting_on: handoff ? 'downstream-queue' : role.owner,
           next_action: actionable
-            ? delivered
+            ? handoff
               ? `Downstream queue must execute and evidence the ${role.owner} work products before this task closes.`
               : `Resolve the dated ${role.owner} blocker and attach the promised evidence before this task closes.`
             : `${role.owner} must repair this no-op plan; the manager produced no executable work product.`,
@@ -415,7 +472,7 @@ async function processOperatingManager(
               type: 'artifact',
               label: `${role.owner} execution report`,
               uri: reportPath,
-              note: delivered
+              note: handoff
                 ? 'Direct downstream work was created.'
                 : actionable
                   ? 'A dated, evidenced blocker was recorded.'
@@ -427,6 +484,98 @@ async function processOperatingManager(
       },
     },
   });
+}
+
+function reconcileManagerDelivery(store) {
+  const changes = [];
+  for (const task of store.listExecutiveWorkItems({
+    source_type: 'operating-task',
+    quiet: 0,
+    limit: 1000,
+  })) {
+    if (task.owner === 'site-factory-manager' || ['done', 'cancelled'].includes(task.status))
+      continue;
+    const requests = workEvidence.linkedRequests(store, task);
+    if (!requests.length) continue;
+    for (const request of requests)
+      workEvidence.linkRequest(store, task.work_id, request.request_id);
+    const stages = requests.map(request => ({
+      request,
+      evidence: workEvidence.delivery(
+        request,
+        request.run_id ? store.getImprovement(request.run_id) || {} : {}
+      ),
+    }));
+    const research = (task.labels || []).includes('intent:research');
+    const complete = stages.every(({ request, evidence }) =>
+      research ? request.status === 'verified' && evidence.stage === 'reported' : evidence.deployed
+    );
+    const failed = stages.find(({ request }) =>
+      ['failed', 'cancelled', 'blocked_owner', 'blocked_infrastructure'].includes(request.status)
+    );
+    const status = complete ? 'done' : failed ? 'blocked' : 'in_progress';
+    const waitingOn = complete
+      ? null
+      : failed
+        ? failed.request.status === 'blocked_owner'
+          ? 'owner'
+          : task.owner
+        : 'downstream-queue';
+    const nextAction = complete
+      ? 'Linked work satisfied its delivery contract.'
+      : failed
+        ? `Continue the existing request ${failed.request.request_id} with its original worker and workspace: ${failed.request.error || failed.request.status}. Preserve all release holds; do not create a replacement request.`
+        : 'The original specialist must continue the linked request through review, validation and confirmed release. A commit or pending review is not completion.';
+    if (task.status === status && task.waiting_on === waitingOn && task.next_action === nextAction)
+      continue;
+    const evidence = [
+      ...(task.evidence || []),
+      ...stages
+        .filter(row => row.evidence.deployed || row.evidence.stage === 'reported')
+        .map(({ request, evidence: verified }) => ({
+          type: 'artifact',
+          label: `Accepted ${verified.stage} evidence for ${request.request_id}`,
+          detail: {
+            request_id: request.request_id,
+            run_id: request.run_id,
+            contract: verified.contract,
+            stage: verified.stage,
+          },
+        })),
+    ];
+    store.updateExecutiveWorkItem(task.work_id, {
+      status,
+      waiting_on: waitingOn,
+      next_action: nextAction,
+      evidence,
+      ...(complete
+        ? {
+            outcome: 'Linked work accepted with durable delivery evidence.',
+            resolved_at: new Date().toISOString(),
+          }
+        : {}),
+    });
+    const parent = task.parent_work_id && store.getExecutiveWorkItem(task.parent_work_id);
+    if (parent && !['done', 'cancelled'].includes(parent.status))
+      store.updateExecutiveWorkItem(parent.work_id, {
+        status,
+        waiting_on: waitingOn,
+        next_action: nextAction,
+        ...(complete
+          ? {
+              lifecycle_state: 'closed',
+              outcome: 'Linked specialist work delivered and verified.',
+              evidence,
+            }
+          : {}),
+      });
+    changes.push({
+      work_id: task.work_id,
+      status,
+      request_ids: requests.map(row => row.request_id),
+    });
+  }
+  return changes;
 }
 
 function queuedManagerCandidate(store) {
@@ -457,13 +606,19 @@ async function runOnce(root, { workerId } = {}) {
   const store = eventstore.open(root);
   try {
     const reconciled = reconcileSiteFactory(store, root);
+    const managerDelivery = reconcileManagerDelivery(store);
     const candidate = queuedManagerCandidate(store);
     const processed = candidate
       ? candidate.role.owner === 'site-factory-manager'
         ? await processSiteFactory(store, root, { workerId })
         : await processOperatingManager(store, root, candidate.role, { workerId })
       : { processed: false };
-    return { ...processed, reconciled, lane: candidate?.role.owner || null };
+    return {
+      ...processed,
+      reconciled,
+      manager_delivery: managerDelivery,
+      lane: candidate?.role.owner || null,
+    };
   } finally {
     store.close();
   }
@@ -488,6 +643,7 @@ module.exports = {
   processOperatingManager,
   queuedManagerCandidate,
   reconcileSiteFactory,
+  reconcileManagerDelivery,
   processSiteFactory,
   runOnce,
 };

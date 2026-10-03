@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const changequeue = require('../fleet-dashboard/server/changequeue');
 const { briefHash } = require('../fleet-dashboard/server/site-build-contract');
+const intake = require('./work-intake');
 
 const OPERATING_ROLES = Object.freeze([
   {
@@ -111,9 +112,70 @@ function findExistingTask(store, sourceWorkId) {
     .find(item => item.source_type === 'operating-task');
 }
 
+function reconcileIntake(store, source, task) {
+  const classification = intake.classify(source.summary);
+  if (
+    classification.intent === 'implementation' ||
+    ['done', 'cancelled'].includes(task.status) ||
+    (task.labels || []).includes(`intent:${classification.intent}`)
+  )
+    return task;
+  const runs = store.listAgentRuns({ work_id: task.work_id, limit: 1000 });
+  if (
+    runs.some(
+      run => run.status === 'running' && store.getAgentDispatch(run.run_id)?.status === 'leased'
+    )
+  )
+    return task;
+  // Reclassify only undispatched/terminal historical manager work. Never
+  // interrupt a live worker or clear the original release policy.
+  for (const run of runs) {
+    const dispatch = store.getAgentDispatch(run.run_id);
+    if (dispatch?.status === 'queued') {
+      store.completeAgentDispatch(dispatch.dispatch_id, {
+        status: 'cancelled',
+        error: 'Owner intent reclassified; replacement implementation is not authorized.',
+      });
+      store.updateAgentRun(run.run_id, {
+        status: 'cancelled',
+        error: 'Owner intent reclassified; queued execution was cancelled.',
+      });
+    }
+  }
+  const updated = store.updateExecutiveWorkItem(task.work_id, {
+    kind: classification.kind,
+    status: 'blocked',
+    waiting_on:
+      classification.intent === 'research'
+        ? task.owner
+        : classification.intent === 'revalidation'
+          ? 'validation-recovery'
+          : 'owner-decision-application',
+    next_action: classification.next_action,
+    labels: [
+      ...(task.labels || []).filter(label => !label.startsWith('intent:')),
+      `intent:${classification.intent}`,
+    ],
+  });
+  store.record({
+    event_type: 'executive.intake.reclassified',
+    source: 'operating-layer',
+    entity_type: 'work-item',
+    entity_id: task.work_id,
+    correlation_id: `executive-work-item:${source.work_id}`,
+    payload: {
+      intent: classification.intent,
+      previous_kind: task.kind,
+      release_hold_preserved: true,
+    },
+  });
+  return updated;
+}
+
 function enqueueOwnerRequest(store, source) {
   if (!source || source.source_type !== 'owner-request') return null;
-  const existing = findExistingTask(store, source.work_id);
+  const found = findExistingTask(store, source.work_id);
+  const existing = found ? reconcileIntake(store, source, found) : null;
   if (existing) {
     const run = existing.run_id ? store.getAgentRun(existing.run_id) : null;
     const dispatch = run ? store.getAgentDispatch(run.run_id) : null;
@@ -121,15 +183,21 @@ function enqueueOwnerRequest(store, source) {
   }
 
   ensureOperatingTeam(store);
-  const spec = roleForRequest(source.summary);
+  const classification = intake.classify(source.summary);
+  const spec =
+    classification.intent === 'revalidation'
+      ? OPERATING_ROLES.find(item => item.queue === 'engineering')
+      : classification.intent === 'implementation'
+        ? roleForRequest(source.summary)
+        : OPERATING_ROLES[0];
   const agent = store.getAgent(spec.slug);
   if (!agent) throw new Error(`operating manager unavailable: ${spec.slug}`);
   const taskId = `operating-task:${source.work_id}`;
   const task = store.createExecutiveWorkItem({
     work_id: taskId,
-    title: `Execute owner request: ${source.summary.slice(0, 90)}`,
-    kind: 'implementation',
-    status: 'ready',
+    title: `${classification.intent === 'implementation' ? 'Execute' : classification.intent} owner request: ${source.summary.slice(0, 90)}`,
+    kind: classification.kind,
+    status: classification.dispatch ? 'ready' : 'waiting',
     priority: source.priority === 'normal' ? 'high' : source.priority,
     owner: spec.role,
     source_type: 'operating-task',
@@ -137,12 +205,14 @@ function enqueueOwnerRequest(store, source) {
     parent_work_id: source.work_id,
     site: source.site || null,
     summary: source.summary,
-    next_action: `Manager must claim this task, decompose it if needed, and dispatch the smallest executable specialist work with an artifact requirement.`,
-    waiting_on: spec.role,
+    next_action: classification.next_action,
+    waiting_on: classification.dispatch ? spec.role : 'owner-decision-application',
     due_at: source.due_at,
     created_by: 'operating-layer',
-    labels: ['operating-layer', spec.queue, 'owner-request'],
+    labels: ['operating-layer', spec.queue, 'owner-request', `intent:${classification.intent}`],
   });
+
+  if (!classification.dispatch) return { task, run: null, dispatch: null, reused: false };
 
   let started;
   try {
@@ -166,7 +236,7 @@ function enqueueOwnerRequest(store, source) {
   if (!dispatch) throw new Error(`operating manager run ${run.run_id} has no dispatch`);
   store.updateExecutiveWorkItem(task.work_id, {
     status: 'in_progress',
-    next_action: `Dispatch ${dispatch.dispatch_id} is queued for ${spec.name}. The manager must produce an artifact or an explicit blocker.`,
+    next_action: `${classification.next_action} Dispatch ${dispatch.dispatch_id} is queued for ${spec.name}.`,
     waiting_on: spec.role,
     evidence: [
       {
@@ -366,22 +436,27 @@ function reconcileOwnerRequests(store) {
     limit: 1000,
   })) {
     if (['closed', 'done', 'cancelled'].includes(item.lifecycle_state)) continue;
-    const task = findExistingTask(store, item.work_id);
+    const existing = findExistingTask(store, item.work_id);
+    const task = existing ? reconcileIntake(store, item, existing) : null;
     if (task && !['closed', 'done', 'cancelled'].includes(item.lifecycle_state)) {
       const run = store.listAgentRuns({ work_id: task.work_id, limit: 1 })[0];
       const dispatch = run ? store.getAgentDispatch(run.run_id) : null;
-      const siteFactory = task.owner === 'site-factory-manager';
-      const expectedWaitingOn = siteFactory ? task.waiting_on || task.owner : task.owner;
-      const expectedAction =
-        siteFactory && task.next_action
-          ? task.next_action
-          : `Operating manager dispatch ${dispatch?.dispatch_id || 'pending'} is ${dispatch?.status || 'unknown'}; wait for an artifact or explicit blocker.`;
-      const expectedStatus = siteFactory && task.status === 'blocked' ? 'blocked' : 'in_progress';
+      const expectedWaitingOn = task.waiting_on || task.owner;
+      const expectedAction = task.next_action
+        ? task.next_action
+        : `Operating manager dispatch ${dispatch?.dispatch_id || 'pending'} is ${dispatch?.status || 'unknown'}; wait for an artifact or explicit blocker.`;
+      const expectedStatus = ['blocked', 'waiting', 'done', 'cancelled'].includes(task.status)
+        ? task.status
+        : 'in_progress';
       if (
-        dispatch &&
+        (dispatch ||
+          (task.labels || []).some(label =>
+            ['intent:decision', 'intent:rejection', 'intent:revalidation'].includes(label)
+          )) &&
         (item.lifecycle_state !== 'actioned' ||
           item.waiting_on !== expectedWaitingOn ||
-          (siteFactory && (item.next_action !== expectedAction || item.status !== expectedStatus)))
+          item.next_action !== expectedAction ||
+          item.status !== expectedStatus)
       ) {
         const updated = store.updateExecutiveWorkItem(item.work_id, {
           status: expectedStatus,
@@ -399,10 +474,10 @@ function reconcileOwnerRequests(store) {
         const current = store.getExecutiveWorkItem(item.work_id);
         if (current && !['closed', 'done', 'cancelled'].includes(current.lifecycle_state)) {
           store.updateExecutiveWorkItem(item.work_id, {
-            status: 'in_progress',
+            status: execution.dispatch ? 'in_progress' : 'waiting',
             lifecycle_state: 'actioned',
-            waiting_on: execution.task.owner,
-            next_action: `Operating manager dispatch ${execution.dispatch.dispatch_id} is queued; wait for an artifact or explicit blocker.`,
+            waiting_on: execution.task.waiting_on || execution.task.owner,
+            next_action: execution.task.next_action,
           });
         }
         results.push({ ...execution, repaired: true });
@@ -419,6 +494,7 @@ module.exports = {
   roleForRequest,
   ensureOperatingTeam,
   enqueueOwnerRequest,
+  reconcileIntake,
   ensureSiteBuildRequest,
   reopenOnboardingOnlySiteBuild,
   reconcileOwnerRequests,

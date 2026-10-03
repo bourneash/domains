@@ -6700,6 +6700,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
   const queuePulse = setInterval(() => {
+    try {
+      require('./work-evidence').recordConnectedReleases(events);
+    } catch (error) {
+      console.error('Connected release evidence:', error.message);
+    }
     operatingLayer.reconcileOwnerRequests(events);
     executive.escalateOverdueOwnerRequests(events);
     executive.escalateOverdueWorkItems(events);
