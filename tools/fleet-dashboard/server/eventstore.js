@@ -2078,6 +2078,30 @@ function open(root, { file } = {}) {
       .map(decodeExecutiveAction);
   }
 
+  function listExecutiveActionPreviews({ actor, status, action_type, limit = 200 } = {}) {
+    const clauses = [],
+      args = [];
+    if (actor) {
+      clauses.push('actor = ?');
+      args.push(String(actor));
+    }
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (action_type) {
+      clauses.push('action_type = ?');
+      args.push(String(action_type));
+    }
+    const n = Math.max(1, Math.min(Number(limit) || 200, 5000));
+    return db
+      .prepare(
+        `SELECT actor, action_type, summary, status, started_at, error FROM executive_actions${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''}
+        ORDER BY started_at DESC LIMIT ?`
+      )
+      .all(...args, n);
+  }
+
   function decodeProductivityPilot(row) {
     if (!row) return null;
     return {
@@ -6068,6 +6092,7 @@ function open(root, { file } = {}) {
     reviewExecutiveProposal,
     createExecutiveAction,
     listExecutiveActions,
+    listExecutiveActionPreviews,
     getExecutiveAction,
     createProductivityPilot,
     getProductivityPilot,

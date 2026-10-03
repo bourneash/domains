@@ -173,6 +173,28 @@ test('preserves a completed executive tick when handoff check-in needs retry', (
   store.close();
 });
 
+test('projects executive action history without its unused result payload', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-action-preview-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  const action = store.createExecutiveAction({
+    actor: 'ceo',
+    action_type: 'other',
+    summary: 'Completed executive review',
+    status: 'completed',
+    result: { full_report: 'large result payload '.repeat(1000) },
+  });
+
+  const preview = store.listExecutiveActionPreviews({ limit: 1 })[0];
+  assert.deepEqual(
+    Object.keys(preview).sort(),
+    ['action_type', 'actor', 'error', 'started_at', 'status', 'summary']
+  );
+  assert.equal(preview.summary, action.summary);
+  assert.equal(store.listExecutiveActions({ limit: 1 })[0].result.full_report.length, 21000);
+  assert.ok(Buffer.byteLength(JSON.stringify(preview)) < 500);
+  store.close();
+});
+
 test('persists and updates improvement runs', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-improvements-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });

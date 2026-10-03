@@ -172,6 +172,13 @@ test('executive transcript pages events and loads full text only on request', as
     message_type: 'model-response',
     created_at: '2026-10-02T12:00:00.000Z',
   });
+  const action = store.createExecutiveAction({
+    actor: 'ceo',
+    action_type: 'other',
+    summary: 'Executive review completed',
+    status: 'completed',
+    result: { full_report: 'large action result '.repeat(1000) },
+  });
   store.createExecutiveMessage({
     actor: 'ceo',
     body: 'unrelated message '.repeat(2000),
@@ -197,4 +204,9 @@ test('executive transcript pages events and loads full text only on request', as
   const fullText = await request(server, 'GET', `/api/executive/transcript/${latest.message_id}`);
   assert.equal(fullText.body.body, latest.body);
   assert.equal((await request(server, 'GET', '/api/executive/transcript/unrelated')).status, 404);
+  const actionPreviews = await request(server, 'GET', '/api/executive/actions?limit=5&preview=1');
+  const actionPreview = actionPreviews.body.actions.find(row => row.summary === action.summary);
+  assert.ok(actionPreview);
+  assert.equal('result' in actionPreview, false);
+  assert.equal(actionPreviews.status, 200);
 });

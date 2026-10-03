@@ -14053,7 +14053,7 @@ async function renderExecutiveSetup() {
         api('GET', '/api/campaigns/summary'),
         api('GET', '/api/executive/reports?limit=20'),
         api('GET', '/api/executive/proposals?limit=100'),
-        api('GET', '/api/executive/actions?limit=200'),
+        api('GET', '/api/executive/actions?limit=200&preview=1'),
         apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
       ]);
   } catch (e) {
@@ -14283,7 +14283,7 @@ async function renderExecutive() {
         : api('GET', '/api/executive/proposals?limit=100'),
       conversationOnly
         ? Promise.resolve({ actions: [] })
-        : api('GET', '/api/executive/actions?limit=200'),
+        : api('GET', '/api/executive/actions?limit=200&preview=1'),
       conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
       conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
       conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),

@@ -75,7 +75,7 @@ test('executive decisions workspace opens its decision history', () => {
   assert.match(decisionsWorkspace, /show\(decisions\)/);
   assert.match(decisionsWorkspace, /decisions\.open\s*=\s*true/);
   assert.match(app, /api\('GET', '\/api\/executive\/proposals\?limit=100'\)/);
-  assert.match(app, /api\('GET', '\/api\/executive\/actions\?limit=200'\)/);
+  assert.match(app, /api\('GET', '\/api\/executive\/actions\?limit=200&preview=1'\)/);
 });
 
 test('product managers are first-class Agents pages with durable queues', () => {
@@ -108,6 +108,11 @@ test('executive transcript loads bounded pages and fetches full text on demand',
 test('executive conversation list requests only fields it renders', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /\/api\/executive\/messages\?limit=100&preview=1/);
+});
+
+test('executive audit tables request action summaries without result payloads', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.equal((app.match(/\/api\/executive\/actions\?limit=200&preview=1/g) || []).length, 2);
 });
 
 test('executive workbench is a first-class operator route', () => {

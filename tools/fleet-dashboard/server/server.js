@@ -4578,7 +4578,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/actions', (req, res) => {
     try {
       res.json({
-        actions: events.listExecutiveActions(req.query),
+        actions:
+          req.query.preview === '1'
+            ? events.listExecutiveActionPreviews(req.query)
+            : events.listExecutiveActions(req.query),
         action_types: executive.ACTION_TYPES,
       });
     } catch (e) {
