@@ -281,6 +281,12 @@ cat > "${TMPSCAFFOLD}/.github/workflows/security-and-build.yml" << 'CIEOF'
 name: Security and Build
 
 on:
+  workflow_dispatch:
+    inputs:
+      archive_build:
+        description: 'Export an optional build archive (uses GitHub artifact storage)'
+        type: boolean
+        default: false
   pull_request:
   push:
     branches:
@@ -309,13 +315,32 @@ jobs:
         run: npm run security:audit:prod
       - name: Build
         run: npm run build
-      - name: Upload build artifact
-        if: github.ref == 'refs/heads/main'
+  archive:
+    name: Optional build archive
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.archive_build }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build archive
+        run: npm run build
+      - name: Upload requested archive
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: manual-dist-${{ github.sha }}
           path: site/dist/client
-          retention-days: 7
+          retention-days: 1
+          if-no-files-found: error
 CIEOF
 
 # ── 2. npm install + build ─────────────────────────────────────────────────
