@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T21:37:37.123Z",
+  "generated_at": "2026-10-03T21:39:20.064Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "howtofry.com has one valid committed implementation already covering the strongest evidenced gap: a troubleshooting index at /guides/troubleshooting/ linked from /guides/. I am preserving it and not adding overlapping work while it is in delivery.",
+        "summary": "Queued one reversible homepage trust/compliance fix: add the required affiliate disclosure near the primary above-the-fold conversion path.",
         "requested_action": null,
         "proposal_id": null
       }
