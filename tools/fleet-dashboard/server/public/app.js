@@ -15661,7 +15661,7 @@ async function renderWorkbench() {
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive workbench…</div>';
   let data;
   try {
-    data = await api('GET', '/api/executive/work-items?limit=300');
+    data = await api('GET', '/api/executive/work-items?limit=300&summary=1');
   } catch (e) {
     renderViewError(app, `Workbench failed to load: ${e.message}`);
     return;
@@ -15684,7 +15684,7 @@ async function renderWorkbench() {
     <div class="wb-item-head"><div><div class="wb-item-title">${esc(item.title)}</div><div class="muted">${esc(item.site || 'fleet')} · ${esc(item.owner)}${item.source_type ? ` · ${esc(item.source_type)}` : ''}</div></div><div class="wb-badges">${workItemBadge(item.priority, 'priority')}${workItemBadge(item.status)}</div></div>
     <p class="wb-summary">${esc(item.summary || 'No context recorded.')}</p>${item.waiting_on ? `<div class="wb-next"><span class="wb-label">WAITING ON</span>${esc(item.waiting_on)}</div>` : ''}
     <div class="wb-next"><span class="wb-label">NEXT</span>${esc(item.next_action || 'No next action recorded.')}</div>
-    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence?.length ? ` · ${item.evidence.length} evidence item${item.evidence.length === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" data-thread="${esc(item.work_id)}"></div>
+    <div class="wb-item-foot"><span class="muted">${esc(item.kind)}${item.evidence_count ? ` · ${item.evidence_count} evidence item${item.evidence_count === 1 ? '' : 's'}` : ''}${item.due_at ? ` · due ${esc(fmtDate(item.due_at))}` : ''}</span><div class="wb-actions"><button class="btn sm wb-thread-toggle" data-id="${esc(item.work_id)}">Thread</button><select class="cm-input wb-status" data-id="${esc(item.work_id)}" aria-label="Status for ${esc(item.title)}">${options(['open', 'in_progress', 'blocked', 'waiting', 'done', 'cancelled'], item.status, 'Change status')}</select><select class="cm-input wb-owner" data-id="${esc(item.work_id)}" aria-label="Owner for ${esc(item.title)}">${options(['ceo', 'cto', 'cfo', 'legal', 'security', 'cro', 'domain-manager', 'principal-engineer', 'engineer', 'owner'], item.owner, 'Change owner')}</select></div></div><div class="wb-thread hidden" data-thread="${esc(item.work_id)}"></div>
   </article>`
     )
     .join('');

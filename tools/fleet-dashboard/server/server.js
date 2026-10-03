@@ -4628,13 +4628,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/work-items', (req, res) => {
     try {
       if (req.query.source_type === 'owner-request') executive.ensureOwnerRequests(events);
+      const workItems = events.listExecutiveWorkItems({
+        ...req.query,
+        // Owner-facing UI is quiet by default. Auditors and role tooling can
+        // request quiet system follow-through explicitly with quiet=0.
+        quiet: req.query.quiet === undefined ? '1' : req.query.quiet,
+      });
       res.json({
-        work_items: events.listExecutiveWorkItems({
-          ...req.query,
-          // Owner-facing UI is quiet by default. Auditors and role tooling can
-          // request quiet system follow-through explicitly with quiet=0.
-          quiet: req.query.quiet === undefined ? '1' : req.query.quiet,
-        }),
+        work_items:
+          req.query.summary === '1'
+            ? workItems.map(item => ({
+                work_id: item.work_id,
+                title: item.title,
+                kind: item.kind,
+                status: item.status,
+                priority: item.priority,
+                owner: item.owner,
+                source_type: item.source_type,
+                site: item.site,
+                summary: item.summary,
+                next_action: item.next_action,
+                waiting_on: item.waiting_on,
+                due_at: item.due_at,
+                created_at: item.created_at,
+                updated_at: item.updated_at,
+                evidence_count: Array.isArray(item.evidence) ? item.evidence.length : 0,
+              }))
+            : workItems,
       });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
