@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:12:35.234Z",
+  "generated_at": "2026-10-03T22:16:24.106Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queued a bounded accessibility fix for the consent-dismissal keyboard path on seedstosauce.com. Browser evidence shows focus falls to BODY and restarts at the skip link after dismissal.",
+        "summary": "Queueing one bounded fix for the verified /tools/ 404 path; it is separate from the currently measuring /how-it-works/ link work.",
         "requested_action": null,
         "proposal_id": null
       }
