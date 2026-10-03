@@ -111,6 +111,30 @@ test('parsePorcelain handles normal, fresh, and detached headers', () => {
   assert.equal(detached.detached, true);
 });
 
+test('parseSummaryPorcelain reads compact branch, dirty-path, stash, and SHA fields', () => {
+  const status = [
+    '# branch.oid abcdef0123456789abcdef0123456789abcdef01',
+    '# branch.head main',
+    '# branch.upstream origin/main',
+    '# branch.ab +2 -1',
+    '# stash 3',
+    '1 M. N... 100644 100644 100644 aaaaaaa bbbbbbb src/staged.js',
+    '2 .M N... 100644 100644 100644 aaaaaaa bbbbbbb R100 dst/renamed.js',
+    'src/old-name.js',
+    '? new file.txt',
+    '! ignored.txt',
+  ].join('\0');
+  const parsed = git.parseSummaryPorcelain(status);
+  assert.equal(parsed.branch, 'main');
+  assert.equal(parsed.upstream, 'origin/main');
+  assert.equal(parsed.ahead, 2);
+  assert.equal(parsed.behind, 1);
+  assert.equal(parsed.localSha, 'abcdef0');
+  assert.equal(parsed.detached, false);
+  assert.equal(parsed.dirty, 3);
+  assert.equal(parsed.stashCount, 3);
+});
+
 /* ---- sync-state color classification ---- */
 test('computeSyncState classifies upstream sync correctly', () => {
   assert.equal(git.computeSyncState({ ahead: 0, behind: 0, upstream: 'origin/main' }), 'synced');

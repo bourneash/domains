@@ -61,7 +61,7 @@ test('summaries returns the compact fields used by the fleet Git table', async (
     assert.equal(row.ahead, 0);
     assert.equal(row.behind, 0);
     assert.match(row.localSha, /^[a-f0-9]+$/);
-    assert.equal(row.remoteSha, null);
+    assert.equal(row.remoteSha, row.localSha);
     assert.equal(row.syncState, 'synced');
     assert.equal(row.stashCount, 0);
     assert.equal(row.remoteWebUrl, null);

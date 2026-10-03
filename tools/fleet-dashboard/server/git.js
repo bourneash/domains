@@ -165,6 +165,49 @@ function parsePorcelain(out) {
   return { branch, upstream, ahead, behind, files, detached };
 }
 
+function parseSummaryPorcelain(out) {
+  const result = {
+    branch: null,
+    upstream: null,
+    ahead: 0,
+    behind: 0,
+    localSha: null,
+    detached: false,
+    dirty: 0,
+    stashCount: 0,
+  };
+  const records = String(out || '').split('\0');
+  for (let index = 0; index < records.length; index++) {
+    const record = records[index];
+    for (const line of record.split('\n')) {
+      if (line.startsWith('# branch.oid ')) {
+        const oid = line.slice('# branch.oid '.length).trim();
+        result.localSha = /^[a-f0-9]{7,}$/i.test(oid) ? oid.slice(0, 7) : null;
+      } else if (line.startsWith('# branch.head ')) {
+        result.branch = line.slice('# branch.head '.length).trim();
+        result.detached = result.branch === '(detached)';
+        if (result.detached) result.branch = null;
+      } else if (line.startsWith('# branch.upstream ')) {
+        result.upstream = line.slice('# branch.upstream '.length).trim() || null;
+      } else if (line.startsWith('# branch.ab ')) {
+        const match = line.match(/\+([0-9]+)\s+-([0-9]+)/);
+        if (match) {
+          result.ahead = Number(match[1]);
+          result.behind = Number(match[2]);
+        }
+      } else if (line.startsWith('# stash ')) {
+        result.stashCount = Number.parseInt(line.slice('# stash '.length), 10) || 0;
+      } else if (line.startsWith('? ')) {
+        result.dirty++;
+      } else if (/^(?:1 |2 |u )/.test(line)) {
+        result.dirty++;
+        if (line.startsWith('2 ')) index++; // the following NUL record is the old path
+      }
+    }
+  }
+  return result;
+}
+
 // Parse `git for-each-ref --format='%(refname:short)%09%(upstream:short)%09%(HEAD)' refs/heads`.
 function parseLocalBranches(out) {
   return out
@@ -325,7 +368,7 @@ async function roleStatus(root, slug) {
 // last commit and changed-file details for each repo; the table needs neither.
 async function summaryStatus(root, slug) {
   const cwd = siteDir(root, slug);
-  const result = await git(cwd, ['status', '--porcelain=v1', '--branch', '-z']);
+  const result = await git(cwd, ['status', '--porcelain=v2', '--branch', '--show-stash', '-z']);
   if (!result.ok && !result.out) {
     return {
       slug,
@@ -345,34 +388,40 @@ async function summaryStatus(root, slug) {
     };
   }
 
-  const parsed = parsePorcelain(result.out);
-  const [shas, originUrl, stashRows] = await Promise.all([
-    git(cwd, ['rev-parse', '--short', 'HEAD', ...(parsed.upstream ? ['@{u}'] : [])]),
+  const parsed = parseSummaryPorcelain(result.out);
+  const syncState = computeSyncState({
+    ahead: parsed.ahead,
+    behind: parsed.behind,
+    upstream: parsed.upstream,
+  });
+  const [localShaResult, remoteShaResult, originUrl] = await Promise.all([
+    git(cwd, ['rev-parse', '--short', 'HEAD']),
+    parsed.upstream && syncState !== 'synced'
+      ? git(cwd, ['rev-parse', '--short', '@{u}'])
+      : Promise.resolve(null),
     git(cwd, ['remote', 'get-url', 'origin']),
-    stashes(root, slug),
   ]);
-  let [localSha = null, remoteSha = null] = shas.ok ? shas.out.trim().split('\n') : [];
-  if (!localSha) {
-    const local = await git(cwd, ['rev-parse', '--short', 'HEAD']);
-    if (local.ok) localSha = local.out.trim() || null;
-  }
+  const localSha = localShaResult.ok ? localShaResult.out.trim() || null : parsed.localSha;
+  const remoteSha = parsed.upstream
+    ? syncState === 'synced'
+      ? localSha
+      : remoteShaResult?.ok
+        ? remoteShaResult.out.trim() || null
+        : null
+    : null;
   return {
     slug,
     isRepo: true,
     branch: parsed.branch,
-    dirty: parsed.files.filter(file => file.kind !== 'ignored').length,
+    dirty: parsed.dirty,
     ahead: parsed.ahead,
     behind: parsed.behind,
     needsPush: parsed.ahead > 0,
     needsPull: parsed.behind > 0,
     localSha,
     remoteSha,
-    syncState: computeSyncState({
-      ahead: parsed.ahead,
-      behind: parsed.behind,
-      upstream: parsed.upstream,
-    }),
-    stashCount: stashRows.length,
+    syncState,
+    stashCount: parsed.stashCount,
     remoteWebUrl: originUrl.ok ? remoteToWebUrl(originUrl.out.trim()) : null,
   };
 }
@@ -910,6 +959,7 @@ module.exports = {
   roleStatus,
   summaries,
   parsePorcelain,
+  parseSummaryPorcelain,
   computeSyncState,
   remoteToWebUrl,
   parseLocalBranches,
