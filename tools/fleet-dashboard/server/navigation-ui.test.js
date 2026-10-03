@@ -3544,6 +3544,8 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(theme, /\.error-banner-warn tbody \{ display: grid; gap: 8px;/);
   assert.match(theme, /\.error-banner-warn tbody td::before \{\s*content: attr\(data-label\)/);
   assert.match(app, /type="button" class="btn" id="errors-refresh"/);
+  assert.match(app, /const ERROR_SCAN_TIMEOUT_MS = 15000/);
+  assert.match(app, /api\('GET', '\/api\/errors', undefined, ERROR_SCAN_TIMEOUT_MS\)/);
   assert.match(
     app,
     /\$\('#errors-refresh'\)\.addEventListener\('click', \(\) => renderErrors\(\)\)/

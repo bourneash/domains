@@ -3534,6 +3534,7 @@ function filterErrorRows(rows, { query = '', level = '', scope = '', siteQuery =
   });
 }
 
+const ERROR_SCAN_TIMEOUT_MS = 15000;
 async function renderErrors() {
   const app = $('#app');
   const deliveryDetailsWasOpen = $('.err-delivery-details')?.open;
@@ -3546,7 +3547,7 @@ async function renderErrors() {
   }
   let d;
   try {
-    d = await api('GET', '/api/errors');
+    d = await api('GET', '/api/errors', undefined, ERROR_SCAN_TIMEOUT_MS);
   } catch (e) {
     renderViewError(app, `Error scan failed: ${e.message}`);
     return;
