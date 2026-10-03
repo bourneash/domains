@@ -588,11 +588,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     next();
   });
 
-  // Prevent browsers from retaining an older SPA after a restart. Without this,
-  // new controls can be present on disk but invisible in an already-open tab.
+  // Revalidate the stable asset URLs on each load so a restart never serves a
+  // stale SPA, while allowing browsers to reuse unchanged cached bytes on 304.
   app.use((req, res, next) => {
     if (['/index.html', '/app.js', '/shell.js', '/style.css', '/theme.css'].includes(req.path)) {
-      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      res.setHeader('Cache-Control', 'private, no-cache');
     }
     next();
   });
