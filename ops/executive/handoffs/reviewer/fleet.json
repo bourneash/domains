@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T21:37:37.124Z",
+  "generated_at": "2026-10-03T21:50:55.780Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation request is admitted for howtofry.com. The site-scoped lane permits one candidate, and the existing troubleshooting-index task is already committed and high priority. Delivery-lead must complete review, validation, and rollback checks by 2026-10-10; escalate to CTO by 2026-10-08 if it is not in validation. Do not queue overlapping work until the committed task exits delivery and its measurement scope clears.",
+        "summary": "No new implementation is safely queueable for howtofry.com. The only managed site has one committed high-priority task and one measuring print task through 2026-10-17; both block non-overlapping capacity. Delivery-lead must reclassify or resolve the committed task by 2026-10-04T21:50:00Z; escalate to CTO at that deadline if unresolved.",
         "requested_action": null,
         "proposal_id": null
       }
