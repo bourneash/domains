@@ -38,6 +38,49 @@ test('editorial family exposes exact profiles and preserves site-level health ro
   assert.ok(Array.isArray(health.alerts));
 });
 
+test('role matrix shares scans for ten seconds and still honors explicit invalidation', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-cache-'));
+  const ops = path.join(root, 'sites', 'example.test', 'ops');
+  const logs = path.join(ops, 'logs');
+  fs.mkdirSync(path.join(ops, 'docker'), { recursive: true });
+  fs.mkdirSync(logs, { recursive: true });
+  fs.writeFileSync(
+    path.join(ops, 'docker', 'crontab'),
+    '*/10 * * * * bash ops/scripts/run-worker.sh planner\n'
+  );
+  const originalNow = Date.now;
+  const originalReaddir = fs.readdirSync;
+  let now = 1_000_000;
+  let logDirectoryReads = 0;
+  Date.now = () => now;
+  fs.readdirSync = function (directory, ...args) {
+    if (String(directory) === logs) logDirectoryReads++;
+    return originalReaddir.call(this, directory, ...args);
+  };
+  try {
+    const first = await roles.matrix(root, ['example.test']);
+    now += 3000;
+    const cached = await roles.matrix(root, ['example.test']);
+    assert.equal(cached, first);
+    assert.equal(logDirectoryReads, 1);
+
+    roles.invalidateMatrix(root);
+    now += 1000;
+    const invalidated = await roles.matrix(root, ['example.test']);
+    assert.notEqual(invalidated, first);
+    assert.equal(logDirectoryReads, 2);
+
+    now += 10001;
+    const expired = await roles.matrix(root, ['example.test']);
+    assert.notEqual(expired, invalidated);
+    assert.equal(logDirectoryReads, 3);
+  } finally {
+    Date.now = originalNow;
+    fs.readdirSync = originalReaddir;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('role matrix reads only newest run, publication, and deploy logs', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-perf-'));
   const site = path.join(root, 'sites', 'example.test');

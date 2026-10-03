@@ -24,7 +24,9 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
-const MATRIX_CACHE_TTL_MS = 2000;
+// Match the browser's matrix cache window; role and automation mutations
+// invalidate this snapshot immediately.
+const MATRIX_CACHE_TTL_MS = 10000;
 const matrixCache = new Map();
 const matrixPending = new Map();
 const matrixEpoch = new Map();
