@@ -394,14 +394,15 @@ async function summaryStatus(root, slug) {
     behind: parsed.behind,
     upstream: parsed.upstream,
   });
-  const [localShaResult, remoteShaResult, originUrl] = await Promise.all([
-    git(cwd, ['rev-parse', '--short', 'HEAD']),
+  const [remoteShaResult, originUrl] = await Promise.all([
     parsed.upstream && syncState !== 'synced'
       ? git(cwd, ['rev-parse', '--short', '@{u}'])
       : Promise.resolve(null),
     git(cwd, ['remote', 'get-url', 'origin']),
   ]);
-  const localSha = localShaResult.ok ? localShaResult.out.trim() || null : parsed.localSha;
+  // Porcelain v2 already includes branch.oid; parseSummaryPorcelain abbreviates
+  // it to the same seven-character value returned by rev-parse --short.
+  const localSha = parsed.localSha;
   const remoteSha = parsed.upstream
     ? syncState === 'synced'
       ? localSha
