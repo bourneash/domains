@@ -61,7 +61,7 @@ test('executive leadership is a first-class Agents page', () => {
   assert.match(style, /\.ex-workspace-nav \{[^}]*grid-template-columns: repeat\(9, minmax\(0, 1fr\)\)/);
   assert.match(app, /id="ex-notes" class="cm-input" rows="6"/);
   assert.match(app, /\$\('#ex-open-setup'\)\?\.addEventListener\('click'/);
-  assert.match(app, /apiOptional\('GET', '\/api\/cases\?limit=300'/);
+  assert.match(app, /apiOptional\('GET', '\/api\/cases\?limit=300&summary=1'/);
   assert.match(app, /UNIFIED CASE/);
 });
 
@@ -158,7 +158,7 @@ test('executive conversation route skips unrelated control-plane requests', () =
   );
   assert.match(
     app,
-    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300'/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300&summary=1'/
   );
 });
 
