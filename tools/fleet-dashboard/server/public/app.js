@@ -27,6 +27,10 @@ const AGENT_HEALTH_CACHE = new Map();
 const AGENT_HEALTH_PENDING = new Map();
 const AGENT_HEALTH_ERRORS = new Map();
 const AGENT_HEALTH_GENERATION = new Map();
+const ENGINEER_HISTORY_TTL_MS = 30000;
+let ENGINEER_HISTORY_CACHE = null;
+let ENGINEER_HISTORY_PENDING = null;
+let ENGINEER_RENDER_GENERATION = 0;
 let ACCESS_LEVEL = 'operator';
 let AGENT_CATALOG_READY = false;
 let SITE_CATALOG_READY = false;
@@ -70,6 +74,23 @@ function loadExecutiveBrief() {
 
 function cachedAgentHealth(role) {
   return AGENT_HEALTH_CACHE.get(role)?.data || null;
+}
+
+function loadEngineerHistory() {
+  if (ENGINEER_HISTORY_CACHE && Date.now() - ENGINEER_HISTORY_CACHE.at < ENGINEER_HISTORY_TTL_MS)
+    return Promise.resolve(ENGINEER_HISTORY_CACHE.data);
+  if (ENGINEER_HISTORY_PENDING) return ENGINEER_HISTORY_PENDING;
+  let pending;
+  pending = api('GET', '/api/fleet/history?days=3')
+    .then(data => {
+      ENGINEER_HISTORY_CACHE = { at: Date.now(), data: Array.isArray(data) ? data : [] };
+      return ENGINEER_HISTORY_CACHE.data;
+    })
+    .finally(() => {
+      if (ENGINEER_HISTORY_PENDING === pending) ENGINEER_HISTORY_PENDING = null;
+    });
+  ENGINEER_HISTORY_PENDING = pending;
+  return pending;
 }
 
 function agentHealthLoading(role) {
@@ -666,15 +687,21 @@ function editorialTelemetryCell(e, role = '', secondary = false) {
 
 async function renderEngineers() {
   const app = $('#app');
+  const generation = ++ENGINEER_RENDER_GENERATION;
   if (FRESH) app.innerHTML = '<div class="loading">Loading fleet audit…</div>';
   let rows,
-    hist = [],
+    hist = ENGINEER_HISTORY_CACHE?.data || [],
     roleData,
     healthData;
+  const refreshHistory =
+    !ENGINEER_HISTORY_CACHE ||
+    Date.now() - ENGINEER_HISTORY_CACHE.at >= ENGINEER_HISTORY_TTL_MS;
+  const historyPromise = refreshHistory
+    ? loadEngineerHistory().then(() => true, () => false)
+    : null;
   try {
-    [rows, hist, roleData] = await Promise.all([
+    [rows, roleData] = await Promise.all([
       api('GET', '/api/fleet'),
-      api('GET', '/api/fleet/history?days=3').catch(() => []),
       api('GET', '/api/agents/engineer/enrollment').catch(() => ({ sites: [] })),
     ]);
     healthData = cachedAgentHealth('engineer');
@@ -913,6 +940,16 @@ async function renderEngineers() {
   const healthCache = AGENT_HEALTH_CACHE.get('engineer');
   if ((!healthCache || Date.now() - healthCache.at >= AGENT_HEALTH_TTL_MS) && !AGENT_HEALTH_ERRORS.has('engineer'))
     loadAgentHealth('engineer');
+  if (historyPromise)
+    historyPromise.then(updated => {
+      if (
+        updated &&
+        ENGINEER_RENDER_GENERATION === generation &&
+        STATE.view === 'agent' &&
+        STATE.agent === 'engineer'
+      )
+        softRender();
+    });
 }
 
 // Jump from an engineer row straight to that site's task board.

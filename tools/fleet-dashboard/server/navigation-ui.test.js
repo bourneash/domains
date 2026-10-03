@@ -341,6 +341,9 @@ test('Engineer overview loads enrollment controls without waiting for the full r
   const end = source.indexOf('// Jump from an engineer row', start);
   const engineerView = source.slice(start, end);
   assert.match(engineerView, /\/api\/agents\/engineer\/enrollment/);
+  assert.match(engineerView, /const historyPromise = refreshHistory/);
+  assert.match(engineerView, /ENGINEER_RENDER_GENERATION === generation/);
+  assert.doesNotMatch(engineerView, /\[rows, hist, roleData\] = await Promise\.all/);
   assert.doesNotMatch(engineerView, /loadRoleMatrix\(/);
   const renderStart = source.indexOf('function render() {');
   const renderEnd = source.indexOf('const NAV_ITEM_DESCRIPTIONS', renderStart);
