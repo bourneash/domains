@@ -66,6 +66,26 @@ test('Agents controls and health details inherit light-theme surfaces', () => {
   );
 });
 
+test('sidebar fold target clears the visible skip link and meets touch sizing', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /\.rl-fold\s*\{[^}]*width:\s*36px;\s*min-width:\s*36px;\s*height:\s*36px;\s*min-height:\s*36px;/
+  );
+  assert.match(
+    theme,
+    /body\.has-rail \.skip-link\s*\{\s*left:\s*calc\(var\(--rail-w\) \+ 14px\);\s*\}/
+  );
+  assert.match(
+    theme,
+    /body\.has-rail\.rail-folded \.skip-link\s*\{\s*left:\s*calc\(var\(--rail-w-fold\) \+ 14px\);\s*\}/
+  );
+  assert.match(
+    theme,
+    /@media \(max-width: 720px\)\s*\{\s*body\.has-rail \.skip-link\s*\{\s*left:\s*14px;/
+  );
+});
+
 test('automatic refresh control names its current-view scope', () => {
   const html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
   assert.match(html, /title="Automatic refresh for this view/);

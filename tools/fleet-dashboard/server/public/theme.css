@@ -306,6 +306,12 @@ body::after {
   transform: translateY(-150%); transition: transform var(--dur) var(--ease);
 }
 .skip-link:focus { transform: translateY(0); text-decoration: none; }
+/* Keep the visible skip link clear of the rail's top-right fold control. */
+body.has-rail .skip-link { left: calc(var(--rail-w) + 14px); }
+body.has-rail.rail-folded .skip-link { left: calc(var(--rail-w-fold) + 14px); }
+@media (max-width: 720px) {
+  body.has-rail .skip-link { left: 14px; }
+}
 
 .fd-error-actions {
   display: flex;
@@ -2473,7 +2479,8 @@ body.has-rail .tabs { display: none; }
 }
 .rl-fold {
   margin-left: auto; flex: none;
-  width: 26px; height: 26px; display: grid; place-items: center;
+  width: 36px; min-width: 36px; height: 36px; min-height: 36px;
+  display: grid; place-items: center;
   background: transparent; border: 1px solid rgba(255,255,255,.08); border-radius: 7px;
   color: var(--faint); cursor: pointer;
   transition: all var(--dur) var(--ease);
