@@ -8,11 +8,14 @@ const eventstore = require('../fleet-dashboard/server/eventstore');
 const githubPr = require('../fleet-dashboard/server/github-pr');
 const lane = require('./delivery-lane');
 
-function buildFor(cache, site, sha) {
+function buildFor(cache, site, sha, repository = null) {
   if (!sha) return null;
   return (
     (cache.builds || []).find(
-      row => row.repo === site && row.branch === 'main' && row.commitHash === sha
+      row =>
+        (row.repo === site || (repository && row.repo === repository.split('/').at(-1))) &&
+        row.branch === 'main' &&
+        row.commitHash === sha
     ) || null
   );
 }
@@ -82,7 +85,7 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         : productionVerification?.conclusion === 'success'
           ? 'passed'
           : 'pending';
-    const build = buildFor(builds, work.site, mergeSha);
+    const build = buildFor(builds, work.site, mergeSha, repo);
     const gate =
       pr.mergeable === false && pr.mergeable_state === 'dirty'
         ? 'failed'

@@ -411,3 +411,21 @@ test('post-merge verification must pass even when the PR and connected build pas
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('connected release matches the actual repository when its name differs from the site', () => {
+  const cache = {
+    builds: [
+      {
+        repo: 'rc-9',
+        branch: 'main',
+        commitHash: 'merge',
+        outcome: 'success',
+        uuid: 'actual-build',
+      },
+    ],
+  };
+  assert.equal(buildFor(cache, 'rc-9.com', 'merge'), null);
+  assert.equal(buildFor(cache, 'rc-9.com', 'merge', 'bourneash/rc-9').uuid, 'actual-build');
+  assert.equal(buildFor(cache, 'rc-9.com', 'other', 'bourneash/rc-9'), null);
+  assert.equal(buildFor(cache, 'rc-9.com', 'merge', 'bourneash/different'), null);
+});
