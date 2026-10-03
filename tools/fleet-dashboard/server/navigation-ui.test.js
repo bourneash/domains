@@ -114,6 +114,10 @@ test('wide mobile tables keep row identity visible while scrolling', () => {
   );
   assert.match(
     mobile,
+    /body\[data-view="aiusage"\] :is\(\.aiu-panel, \.aiu-diagnostics\) \.table-wrap th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
+  );
+  assert.match(
+    mobile,
     /body\[data-view="errors"\] \.error-table \.table-wrap th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
   );
   assert.match(
