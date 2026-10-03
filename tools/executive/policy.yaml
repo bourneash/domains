@@ -159,6 +159,8 @@ action_mandate:
   cadence: hourly
   active_delivery_slots: 10
   minimum_evidence_backed_action_when_candidate_exists: 1
+  target_actionable_items_per_run: 6
+  require_all_executable_candidates_below_target: true
   reporting_policy: report_only_for_blocker_evidence_or_owner_decision
   fallback: explain_rejection_with_evidence
   routing: engineer_for_normal_work_principal_engineer_for_urgent_technical_work

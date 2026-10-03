@@ -231,7 +231,8 @@ function actionCandidates(
   const ordered = scorecards
     .filter(row => allowed.has(row.site) && row.lifecycle === 'live')
     .sort((a, b) => String(a.site).localeCompare(String(b.site)));
-  for (let offset = 0; offset < ordered.length && bySite.size < 12; offset++) {
+  const candidateLimit = Math.max(12, Number(limit) || 12);
+  for (let offset = 0; offset < ordered.length && bySite.size < candidateLimit; offset++) {
     const row = ordered[(rotation + offset) % ordered.length];
     if (!row || bySite.has(row.site)) continue;
     const baselineKey = `site-baseline:${row.site}`;
@@ -597,6 +598,7 @@ async function buildBrief(store, root = ROOT) {
     completedActions
   );
   const siteBuildCandidates = siteFactoryBuildCandidates(portfolioInventory, completedActions);
+  const launchReadinessState = launchReadiness.read(root);
   // A candidate is only actionable when its site has capacity. The previous
   // brief exposed already-queued or measuring sites as fresh candidates, then
   // required the model to cover them again. That created needless mandate
@@ -650,6 +652,17 @@ async function buildBrief(store, root = ROOT) {
         .map(candidate => [String(candidate.site || '').toLowerCase(), candidate])
     ).values(),
   ];
+  const directCandidateCount = executableActionCandidates.filter(candidate =>
+    isDirectActionCandidate(candidate, { launch_readiness: launchReadinessState })
+  ).length;
+  const deliveryPolicy = activeDeliverySnapshot.policy || {};
+  const availableDeliverySlots = Math.max(
+    0,
+    (Number(deliveryPolicy.max_active_slots) || activeDelivery.MAX_ACTIVE_SLOTS) -
+      Number(deliveryPolicy.active_slots || 0) -
+      Number(deliveryPolicy.overflow_count || 0)
+  );
+  const requiredActionCount = Math.min(6, directCandidateCount, availableDeliverySlots);
   const deferredActionCandidates = combinedActionCandidates
     .filter(candidate => {
       const site = String(candidate.site || '').toLowerCase();
@@ -754,8 +767,10 @@ async function buildBrief(store, root = ROOT) {
     action_mandate: {
       cadence: 'hourly',
       minimum_evidence_backed_action: 1,
+      target_actionable_items: 6,
+      required_action_count: requiredActionCount,
       maximum_queued_actions: 6,
-      rule: 'Maintain ten meaningful active implementation slots. When slots are open, queue bounded reversible work to fill them across site improvements, growth/revenue, new-site factory, and fleet tooling. A recommendation, proposal, research request, or report-only request does not fill a slot; explain rejection only when the candidate is genuinely blocked or lacks an implementable next step.',
+      rule: `Target six distinct executable change requests each cycle. The verified minimum for this brief is ${requiredActionCount}: queue all available evidence-backed candidates up to six and available capacity. Never count messages, proposals, research, report-only tasks, blocked/ownerless candidates, or duplicate-site requests as executable output. Maintain ten meaningful active implementation slots.`,
       candidates: executableActionCandidates,
       deferred_candidates: deferredActionCandidates,
       executable_sites: [...new Set(executableActionCandidates.map(row => row.site))],
@@ -768,7 +783,7 @@ async function buildBrief(store, root = ROOT) {
       ],
     },
     intelligence: intel,
-    launch_readiness: launchReadiness.read(root),
+    launch_readiness: launchReadinessState,
     specialist_inputs: {
       cro_github_trends: croResearch.recent(root),
       cro_repo_lab_runs: croLab.recent(root, 12),
@@ -1435,7 +1450,7 @@ Rules:
 - Lead with a recommendation, not a questionnaire. Every material owner update must state "Recommendation:", the decision or action you recommend now, the evidence and numbers supporting it, what is genuinely unknown or not calculable, and the smallest next step that resolves the uncertainty. Ask the owner only for the one decision that remains after giving that recommendation.
 - Treat owner requests as a live back-and-forth, not a one-time ticket. Use the human reference (for example EXEC_CONV_12) in every owner-facing reply. Inspect the latest message, not just historical replies. If the owner pushes back, explicitly acknowledge the objection, state what changes in your recommendation, answer the specific objection, and give one concrete next action with an owner and date. Never repeat an earlier refusal without explaining what new evidence or constraint supports it. If the request is safe and reversible, propose the smallest bounded implementation; if a gate remains, name the exact gate and the evidence needed to clear it.
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
-- Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. When slots are open, select a small portfolio batch of up to six highest-confidence, low-risk, reversible improvements as direct change_requests for the engineer across distinct sites and lanes. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
+- Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. Queue exactly action_mandate.required_action_count direct, engineer-routable change_requests, up to the six-item target, across distinct queue-ready sites. This count already excludes missing-owner sites, active work, private launch gates, reports, and unavailable capacity. If six executable candidates are available, queue all six; if fewer are available, queue each one and name the concrete shortfall with its owner and due date. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
 - A queued request blocked by measurement or an execution gate is not an executable handoff. Inspect delivery_readiness; if your preferred site is blocked, select a distinct queue-ready candidate instead. Do not recreate the same blocked task with a new title. Advance a currently eligible request or create a non-overlapping direct implementation request; planning notes and blocked queue rows do not satisfy throughput.
 - Before proposing any site implementation, use action_mandate.executable_sites as the implementation target allowlist. Sites in action_mandate.missing_owner_sites have no claimable worker: route their setup to site-factory and do not spend a change_request slot on them. The host will reject ownerless requests even if you propose one.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
@@ -2421,6 +2436,22 @@ function planHasDirectImplementation(plan = {}) {
   );
 }
 
+function isDirectActionCandidate(item = {}, brief = {}) {
+  const site = String(item.site || '')
+    .trim()
+    .toLowerCase();
+  const type = String(item.type || '').toLowerCase();
+  return (
+    Boolean(site) &&
+    site !== 'fleet' &&
+    !EXECUTIVE_EXCLUDED_SITES.has(site) &&
+    type !== 'portfolio-baseline' &&
+    type !== 'site-factory' &&
+    item.delivery_mode !== 'report_only' &&
+    !isPrivateLaunchGate(item.site, brief.launch_readiness)
+  );
+}
+
 function actionMandateSatisfied(plan = {}, brief = {}) {
   const candidates = brief.action_mandate?.candidates || [];
   const hasDirect = planHasDirectImplementation(plan);
@@ -2435,12 +2466,7 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
   ) {
     return hasDirect || hasBoundedBlocker;
   }
-  const actionableCandidates = candidates.filter(
-    item =>
-      String(item.type || '').toLowerCase() !== 'portfolio-baseline' &&
-      String(item.type || '').toLowerCase() !== 'site-factory' &&
-      !isPrivateLaunchGate(item.site, brief.launch_readiness)
-  );
+  const actionableCandidates = candidates.filter(item => isDirectActionCandidate(item, brief));
   // Baseline-only or explicitly gated cohorts can remain report/research
   // work. Concrete SEO/content/design/engineering candidates must create
   // actual work for the engineer, not merely a recommendation.
@@ -2462,7 +2488,12 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
       )
       .filter(site => site && site !== 'fleet' && !EXECUTIVE_EXCLUDED_SITES.has(site))
   );
-  const requiredSites = Math.min(3, candidateSites.size);
+  const maxSlots = Number(deliveryPolicy.max_active_slots) || activeDelivery.MAX_ACTIVE_SLOTS;
+  const availableSlots = Math.max(
+    0,
+    maxSlots - Number(deliveryPolicy.active_slots || 0) - Number(deliveryPolicy.overflow_count || 0)
+  );
+  const requiredActions = Math.min(6, actionableCandidates.length, availableSlots);
   const boundedSites = new Set(
     (plan.change_requests || [])
       .filter(item => String(item.delivery_mode || '').toLowerCase() !== 'report_only')
@@ -2473,15 +2504,10 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
       )
   );
   const coveredSites = [...candidateSites].filter(site => boundedSites.has(site)).length;
-  // A single material owner decision (for example a gated launch) may remain
-  // a question after a recommendation. Once the brief contains a portfolio
-  // of three or more site candidates, however, a question alone is not enough
-  // and the plan must cover at least three sites.
-  const portfolioSpread = candidateSites.size < 3 || coveredSites >= requiredSites;
-  const hasImplementationRequest = (plan.change_requests || []).some(
-    item => String(item.delivery_mode || '').toLowerCase() !== 'report_only'
-  );
-  return hasImplementationRequest && portfolioSpread;
+  // Requests count only when they map to distinct trusted implementation
+  // candidates. Six is the batch ceiling; when fewer candidates or slots are
+  // available, require every available one rather than manufacturing work.
+  return coveredSites >= requiredActions && requiredActions > 0;
 }
 
 // A proposal owns exactly one case for its entire lifecycle. Older runs used
@@ -3629,6 +3655,28 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
   const candidates = Array.isArray(brief.action_mandate?.candidates)
     ? brief.action_mandate.candidates
     : [];
+  const directCandidateSites = new Set(
+    candidates
+      .filter(candidate => isDirectActionCandidate(candidate, brief))
+      .map(candidate =>
+        String(candidate.site || '')
+          .trim()
+          .toLowerCase()
+      )
+  );
+  // A provider's report-only placeholder must not reserve a site and prevent
+  // deterministic recovery into the trusted executable candidate.
+  basePlan.change_requests = basePlan.change_requests.filter(
+    item =>
+      !(
+        String(item.delivery_mode || '').toLowerCase() === 'report_only' &&
+        directCandidateSites.has(
+          String(item.site || '')
+            .trim()
+            .toLowerCase()
+        )
+      )
+  );
   const readiness = brief.productivity || {};
   const hasFullFleetBlock =
     Array.isArray(readiness.blocked_fleet_sites) &&
@@ -3670,7 +3718,11 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       Number(brief.active_delivery?.policy?.overflow_count || 0)
   );
   const selected = [];
-  for (const candidate of candidates) {
+  const prioritizedCandidates = [
+    ...candidates.filter(candidate => isDirectActionCandidate(candidate, brief)),
+    ...candidates.filter(candidate => !isDirectActionCandidate(candidate, brief)),
+  ];
+  for (const candidate of prioritizedCandidates) {
     if (deliveryCapacity <= 0) break;
     const site = String(candidate.site || '')
       .trim()

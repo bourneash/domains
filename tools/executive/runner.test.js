@@ -747,6 +747,32 @@ test('supports over-sampling candidates before capacity filtering', () => {
   );
 });
 
+test('fills the requested candidate pool after sparse recommendations are expanded', () => {
+  const sites = Array.from({ length: 16 }, (_, index) => `ready-${index}.example.com`);
+  const candidates = runner.actionCandidates(
+    {
+      generated_at: '2026-10-03T03:00:00.000Z',
+      decision_support: {
+        seo: {
+          actions: [{ site: 'busy.example.com', title: 'Fix evidenced metadata', score: 95 }],
+        },
+        priorities: {
+          scorecards: sites.map((site, index) => ({
+            site,
+            lifecycle: 'live',
+            opportunity_score: 90 - index,
+          })),
+        },
+      },
+    },
+    ['busy.example.com', ...sites],
+    { keys: new Set(), titles: new Set() },
+    20
+  );
+  assert.equal(candidates.length, 17);
+  assert.equal(new Set(candidates.map(item => item.site)).size, 17);
+});
+
 test('a verified rotating site baseline is not proposed again on the next cycle', () => {
   const candidates = runner.actionCandidates(
     {
@@ -2628,6 +2654,65 @@ test('enforces a bounded action or an explicit evidence-based rejection', () => 
     ),
     true
   );
+});
+
+test('requires up to six distinct executable candidates instead of treating three as enough', () => {
+  const candidates = Array.from({ length: 6 }, (_, index) => ({
+    site: `site-${index}.example.com`,
+    key: `seo-${index}`,
+    type: 'seo',
+    title: `Evidence-backed SEO improvement ${index}`,
+    evidence: { impressions: 100 + index },
+  }));
+  const brief = {
+    active_delivery: { policy: { max_active_slots: 10, active_slots: 0, overflow_count: 0 } },
+    action_mandate: { candidates },
+  };
+  const requests = count => ({
+    change_requests: candidates.slice(0, count).map(candidate => ({ site: candidate.site })),
+  });
+  assert.equal(runner.actionMandateSatisfied(requests(5), brief), false);
+  assert.equal(runner.actionMandateSatisfied(requests(6), brief), true);
+
+  const fallback = runner.buildActionMandateFallback({ messages: [], change_requests: [] }, brief);
+  assert.equal(fallback.change_requests.length, 6);
+  assert.equal(new Set(fallback.change_requests.map(item => item.site)).size, 6);
+  assert.equal(runner.actionMandateSatisfied(fallback, brief), true);
+});
+
+test('fallback replaces report-only placeholders for executable candidates', () => {
+  const brief = {
+    active_delivery: { policy: { max_active_slots: 10, active_slots: 0, overflow_count: 0 } },
+    action_mandate: {
+      candidates: [
+        {
+          site: 'evidence.example.com',
+          type: 'seo',
+          key: 'seo:evidence',
+          title: 'Repair the evidenced title mismatch',
+          evidence: { query: 'test', impressions: 250 },
+          recommendation: 'Align the title to the page intent.',
+        },
+      ],
+    },
+  };
+  const plan = runner.buildActionMandateFallback(
+    {
+      messages: [],
+      change_requests: [
+        {
+          site: 'evidence.example.com',
+          title: 'Review SEO evidence',
+          delivery_mode: 'report_only',
+        },
+      ],
+    },
+    brief
+  );
+  assert.equal(plan.change_requests.length, 1);
+  assert.equal(plan.change_requests[0].delivery_mode, undefined);
+  assert.equal(plan.change_requests[0].action_key, 'seo:evidence');
+  assert.equal(runner.actionMandateSatisfied(plan, brief), true);
 });
 
 test('surfaces a rotating multi-site portfolio batch from priorities and scorecards', () => {
