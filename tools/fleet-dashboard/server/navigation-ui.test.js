@@ -249,6 +249,45 @@ test('optional API reads do not hide authentication failures as empty data', () 
   assert.match(helper, /throw error/);
 });
 
+test('optional API deadlines abort the underlying read before returning fallback data', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function apiOptional(');
+  const end = app.indexOf('/* ---- auth gate', start);
+  assert.ok(start >= 0 && end > start);
+  const calls = [];
+  const context = {
+    ROUTE_EPOCH: 7,
+    StaleRouteError: class StaleRouteError extends Error {},
+    api: (...args) => {
+      calls.push(args);
+      return Promise.reject(new Error('Request timed out after 1.5s'));
+    },
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nglobalThis.run = apiOptional;`, context);
+
+  const fallback = { rows: [] };
+  assert.equal(await context.run('GET', '/api/optional-panel', fallback, 1500), fallback);
+  assert.deepEqual(calls, [['GET', '/api/optional-panel', undefined, 1500]]);
+});
+
+test('optional API deadlines still propagate authentication failures', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('function apiOptional(');
+  const end = app.indexOf('/* ---- auth gate', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {
+    ROUTE_EPOCH: 7,
+    StaleRouteError: class StaleRouteError extends Error {},
+    api: () => Promise.reject(new Error('authentication required')),
+  };
+  vm.runInNewContext(`${app.slice(start, end)}\nglobalThis.run = apiOptional;`, context);
+
+  await assert.rejects(
+    context.run('GET', '/api/optional-panel', [], 100),
+    /authentication required/
+  );
+});
+
 test('dashboard GET requests bypass HTTP cache validation for live API data', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('async function api(');

@@ -636,10 +636,10 @@ async function api(
 // restarted; the panel can simply render its empty state for this refresh.
 function apiOptional(method, url, fallback, timeoutMs = 2500) {
   const requestEpoch = ROUTE_EPOCH;
-  return Promise.race([
-    api(method, url),
-    new Promise(resolve => setTimeout(() => resolve(fallback), timeoutMs)),
-  ])
+  // Pass the short optional-panel deadline into api() itself so the fetch is
+  // aborted when we fall back. Racing a timer here returned promptly but left
+  // a redundant request alive until the much longer global API timeout.
+  return api(method, url, undefined, timeoutMs)
     .then(value => {
       if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
       return value;
