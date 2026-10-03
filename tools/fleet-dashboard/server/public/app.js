@@ -13892,14 +13892,36 @@ function applyExecutiveWorkspace(page) {
 let AGENT_RUNTIME_PRIMARY_CACHE = null;
 let AGENT_RUNTIME_AUX_CACHE = null;
 let AGENT_RUNTIME_AUX_LOAD = null;
+let AGENT_RUNTIME_RENDER_GENERATION = 0;
 
 async function loadAgentRuntimeAux() {
-  return api('GET', '/api/agent-runtime/inventory-summary');
+  if (AGENT_RUNTIME_AUX_CACHE && Date.now() - AGENT_RUNTIME_AUX_CACHE.at < 10000)
+    return AGENT_RUNTIME_AUX_CACHE.data;
+  if (AGENT_RUNTIME_AUX_LOAD) return AGENT_RUNTIME_AUX_LOAD;
+  let pending;
+  pending = api('GET', '/api/agent-runtime/inventory-summary')
+    .then(data => {
+      AGENT_RUNTIME_AUX_CACHE = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      if (AGENT_RUNTIME_AUX_LOAD === pending) AGENT_RUNTIME_AUX_LOAD = null;
+    });
+  AGENT_RUNTIME_AUX_LOAD = pending;
+  return pending;
 }
 
 async function renderAgentRuntime() {
   const app = $('#app');
+  const generation = ++AGENT_RUNTIME_RENDER_GENERATION;
   if (FRESH) app.innerHTML = '<div class="loading">Loading agent runtime…</div>';
+  // Start the extended inventory beside the primary summary. It is not needed
+  // for the first render, but overlapping the requests removes the waterfall
+  // before the coverage and governance panels can be filled in.
+  const auxWarmup = loadAgentRuntimeAux().then(
+    data => ({ data }),
+    error => ({ error })
+  );
   try {
     let primary =
       AGENT_RUNTIME_PRIMARY_CACHE && Date.now() - AGENT_RUNTIME_PRIMARY_CACHE.at < 10000
@@ -13910,10 +13932,8 @@ async function renderAgentRuntime() {
       AGENT_RUNTIME_PRIMARY_CACHE = { at: Date.now(), data: primary };
     }
     const { agents, runs, budgets, routines, watchdogs, evals, grants, workspaces } = primary;
-    const aux =
-      AGENT_RUNTIME_AUX_CACHE && Date.now() - AGENT_RUNTIME_AUX_CACHE.at < 10000
-        ? AGENT_RUNTIME_AUX_CACHE.data
-        : null;
+    const aux = AGENT_RUNTIME_AUX_CACHE?.data || null;
+    const auxRefreshing = Boolean(AGENT_RUNTIME_AUX_LOAD);
     const actor = aux?.actor || { actor: null };
     const inventoryCounts = aux?.counts || {};
     const users = aux?.users || { users: [] };
@@ -14115,22 +14135,18 @@ async function renderAgentRuntime() {
         }
       };
     });
-    if (!aux && !AGENT_RUNTIME_AUX_LOAD) {
-      const pending = loadAgentRuntimeAux();
-      AGENT_RUNTIME_AUX_LOAD = pending;
-      pending.then(data => {
-        if (AGENT_RUNTIME_AUX_LOAD !== pending) return;
-        AGENT_RUNTIME_AUX_CACHE = { at: Date.now(), data };
-        if (AGENT_RUNTIME_PRIMARY_CACHE) AGENT_RUNTIME_PRIMARY_CACHE.at = Date.now();
-        AGENT_RUNTIME_AUX_LOAD = null;
-        if (STATE.view === 'agent' && STATE.agent === 'executive' && STATE.agentPage === 'runtime') {
+    if (!aux || auxRefreshing) {
+      auxWarmup.then(({ error }) => {
+        if (generation !== AGENT_RUNTIME_RENDER_GENERATION) return;
+        if (STATE.view !== 'agent' || STATE.agent !== 'executive' || STATE.agentPage !== 'runtime')
+          return;
+        if (error) {
+          const status = $('#agent-runtime-inventory-status');
+          if (status)
+            status.textContent = `Extended inventory unavailable: ${error.message}. Use Refresh to retry.`;
+        } else {
           softRender();
         }
-      }).catch(error => {
-        if (AGENT_RUNTIME_AUX_LOAD !== pending) return;
-        AGENT_RUNTIME_AUX_LOAD = null;
-        const status = $('#agent-runtime-inventory-status');
-        if (status) status.textContent = `Extended inventory unavailable: ${error.message}. Use Refresh to retry.`;
       });
     }
   } catch (e) {
