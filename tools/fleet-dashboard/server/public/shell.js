@@ -229,16 +229,26 @@
     const requestId = (loadVitals.requestId || 0) + 1;
     loadVitals.requestId = requestId;
     try {
-      const [rRes, cRes] = await Promise.all([
-        fetch('/api/roles', { credentials: 'same-origin' }),
-        fetch('/api/containers', { credentials: 'same-origin' }),
+      const rolesRequest = fetch('/api/roles', {
+        credentials: 'same-origin',
+        cache: 'no-store',
+      });
+      const rolesData = rolesRequest.then(async response => {
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (requestId === loadVitals.requestId)
+          globalThis.__fdBootstrapRoles = { data, at: performance.now() };
+        return data;
+      });
+      const [roles, cRes] = await Promise.all([
+        rolesData,
+        fetch('/api/containers', { credentials: 'same-origin', cache: 'no-store' }),
       ]);
-      if (!rRes.ok || !cRes.ok) {
+      if (!roles || !cRes.ok) {
         rail.classList.remove('vitals-pending');
         rail.classList.add('hidden');
         return;
       }
-      const roles = await rRes.json();
       const allCts = await cRes.json();
       if (requestId !== loadVitals.requestId) return;
       const discoveredSites = roles.allSites || roles.sites || [];

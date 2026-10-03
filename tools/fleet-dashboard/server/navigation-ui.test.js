@@ -359,6 +359,49 @@ test('dashboard GET requests bypass HTTP cache validation for live API data', ()
   assert.match(app.slice(start, end), /if \(method === 'GET'\) opt\.cache = 'no-store'/);
 });
 
+test('initial route consumes a fresh role snapshot already fetched for fleet vitals', async () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  const start = app.indexOf('async function api(');
+  const end = app.indexOf('\n// Optional panels', start);
+  assert.ok(start >= 0 && end > start);
+  assert.match(
+    shell,
+    /const rolesData = rolesRequest\.then\(async response => \{[\s\S]*globalThis\.__fdBootstrapRoles = \{ data, at: performance\.now\(\) \}/
+  );
+
+  let fetches = 0;
+  const context = vm.createContext({
+    API_READ_TIMEOUT_MS: 20000,
+    API_TIMEOUT_MS: 60000,
+    AbortController,
+    clearTimeout,
+    clearTimeout,
+    fetch: async () => {
+      fetches++;
+      return { ok: true, status: 200, text: async () => '{"sites":[]}' };
+    },
+    performance: { now: () => 6000 },
+    setTimeout,
+  });
+  vm.runInContext(
+    `let ROUTE_EPOCH = 3;\nclass StaleRouteError extends Error {}\n${app.slice(start, end)}\n` +
+      `globalThis.readRoles = () => api('GET', '/api/roles');`,
+    context
+  );
+  const snapshot = { sites: [{ site: 'example.com' }] };
+  context.__fdBootstrapRoles = { data: snapshot, at: 5500 };
+  const result = await context.readRoles();
+  assert.equal(result.sites[0].site, 'example.com');
+  assert.equal(fetches, 0);
+  assert.equal(context.__fdBootstrapRoles, null);
+
+  context.__fdBootstrapRoles = { data: snapshot, at: 999 };
+  const refreshed = await context.readRoles();
+  assert.deepEqual(JSON.parse(JSON.stringify(refreshed)), { sites: [] });
+  assert.equal(fetches, 1, 'expired startup data must fall through to a live no-store read');
+});
+
 test('executive inbox and run history are bounded and disclose degraded telemetry', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /optional\(\s*'GET',\s*`\/api\/executive\/inbox\?limit=50/);

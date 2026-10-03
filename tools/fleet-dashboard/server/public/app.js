@@ -604,7 +604,20 @@ async function api(
     opt.body = JSON.stringify(body);
   }
   try {
-    const r = await fetch(url, opt);
+    const bootstrapRoles =
+      method === 'GET' && url === '/api/roles' ? globalThis.__fdBootstrapRoles : null;
+    let r;
+    if (
+      bootstrapRoles?.data &&
+      Number.isFinite(bootstrapRoles.at) &&
+      performance.now() - bootstrapRoles.at <= 5000
+    ) {
+      globalThis.__fdBootstrapRoles = null;
+      if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
+      return bootstrapRoles.data;
+    }
+    if (bootstrapRoles) globalThis.__fdBootstrapRoles = null;
+    r = await fetch(url, opt);
     if (r.status === 401) {
       showLogin();
       throw new Error('authentication required');
