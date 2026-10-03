@@ -231,49 +231,58 @@ function editorialTelemetry(cwd, role) {
   const log = logRe(role);
   let latest = null;
   let publication = null;
+  let deploy = null;
+  let entries = [];
   try {
-    for (const name of fs.readdirSync(dir)) {
-      if (!log.test(name)) continue;
-      const file = path.join(dir, name);
-      const stat = fs.statSync(file);
-      if (!latest || stat.mtimeMs > latest.mtime) {
-        const text = fs.readFileSync(file, 'utf8');
-        latest = { file: name, mtime: stat.mtimeMs, text };
+    entries = fs
+      .readdirSync(dir)
+      .flatMap(name => {
+        if (!log.test(name) && !/^deployer-/.test(name)) return [];
+        try {
+          const stat = fs.statSync(path.join(dir, name));
+          return stat.isFile() ? [{ name, mtime: stat.mtimeMs }] : [];
+        } catch {
+          return [];
+        }
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+    const roleEntries = entries.filter(entry => log.test(entry.name));
+    for (const entry of roleEntries) {
+      let text;
+      try {
+        text = fs.readFileSync(path.join(dir, entry.name), 'utf8');
+      } catch {
+        continue;
       }
-      const text = fs.readFileSync(file, 'utf8');
+      if (!latest) latest = { file: entry.name, mtime: entry.mtime, text };
       const matches = [
         ...text.matchAll(/Published\s+[`']?\/(?:news|articles)\/([a-z0-9-]+)/gi),
         ...text.matchAll(/claude wrote:\s*article=([a-z0-9-]+)/gi),
       ];
-      if (matches.length && (!publication || stat.mtimeMs > publication.at)) {
-        publication = { slug: matches.at(-1)[1], at: stat.mtimeMs, file: name };
+      if (matches.length) {
+        publication = { slug: matches.at(-1)[1], at: entry.mtime, file: entry.name };
+        break;
       }
     }
   } catch {
     /* site may not have logs yet */
   }
-  const deployDir = path.join(cwd, 'ops', 'logs');
-  let deploy = null;
-  try {
-    for (const name of fs.readdirSync(deployDir)) {
-      if (!/^deployer-/.test(name)) continue;
-      const file = path.join(deployDir, name);
-      const stat = fs.statSync(file);
-      if (!deploy || stat.mtimeMs > deploy.at) {
-        const text = fs.readFileSync(file, 'utf8');
-        deploy = {
-          at: stat.mtimeMs,
-          file: name,
-          state: /deploy SUCCESS/.test(text)
-            ? 'success'
-            : /deploy (?:FAIL|ERROR)|exit=[1-9]/i.test(text)
-              ? 'failed'
-              : 'unknown',
-        };
-      }
+  const newestDeploy = entries.find(entry => /^deployer-/.test(entry.name));
+  if (newestDeploy) {
+    try {
+      const text = fs.readFileSync(path.join(dir, newestDeploy.name), 'utf8');
+      deploy = {
+        at: newestDeploy.mtime,
+        file: newestDeploy.name,
+        state: /deploy SUCCESS/.test(text)
+          ? 'success'
+          : /deploy (?:FAIL|ERROR)|exit=[1-9]/i.test(text)
+            ? 'failed'
+            : 'unknown',
+      };
+    } catch {
+      /* deploy logs are optional */
     }
-  } catch {
-    /* deploy logs are optional */
   }
   const deployNeeded = fs.existsSync(path.join(cwd, '.deploy-needed'));
   const deployFailed = fs.existsSync(path.join(cwd, '.deploy-needed.failed'));

@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
 const roles = require('./roles');
@@ -35,6 +36,54 @@ test('editorial family exposes exact profiles and preserves site-level health ro
   ]);
   assert.ok(health.rows.every(row => row.editorial && row.editorial.deploy));
   assert.ok(Array.isArray(health.alerts));
+});
+
+test('role matrix reads only newest run, publication, and deploy logs', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-perf-'));
+  const site = path.join(root, 'sites', 'example.test');
+  const ops = path.join(site, 'ops');
+  const logs = path.join(ops, 'logs');
+  fs.mkdirSync(path.join(ops, 'docker'), { recursive: true });
+  fs.mkdirSync(logs, { recursive: true });
+  fs.writeFileSync(
+    path.join(ops, 'docker', 'crontab'),
+    '0 7 * * * bash ops/scripts/run-worker.sh update\n'
+  );
+  const fixtures = [
+    ['update-20261001.log', 'Published /articles/older-story', 2],
+    ['update-20261002.log', 'NO-OP: nothing published', 1],
+    ['deployer-20261001.log', 'deploy FAIL exit=1', 4],
+    ['deployer-20261002.log', 'deploy SUCCESS', 3],
+  ];
+  for (const [name, text, daysAgo] of fixtures) {
+    const file = path.join(logs, name);
+    fs.writeFileSync(file, text);
+    const stamp = new Date(Date.now() - daysAgo * 86400000);
+    fs.utimesSync(file, stamp, stamp);
+  }
+
+  const originalRead = fs.readFileSync;
+  const logReads = [];
+  fs.readFileSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
+    return originalRead.call(this, file, ...args);
+  };
+  try {
+    const matrix = await roles.matrix(root, ['example.test']);
+    const editorial = matrix.sites[0].cells.update.editorial;
+    assert.equal(editorial.attemptedFile, 'update-20261002.log');
+    assert.equal(editorial.noOp, true);
+    assert.equal(editorial.publication.slug, 'older-story');
+    assert.equal(editorial.deploy.state, 'success');
+    assert.deepEqual(logReads.sort(), [
+      'deployer-20261002.log',
+      'update-20261001.log',
+      'update-20261002.log',
+    ]);
+  } finally {
+    fs.readFileSync = originalRead;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('task routing uses the shared editorial family candidates', () => {
