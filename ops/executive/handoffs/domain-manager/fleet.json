@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:43:55.015Z",
+  "generated_at": "2026-10-03T22:51:38.950Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queue one bounded retry for the failed coin-trick delivery: the live surface is only a static COMING SOON page with no internal links, while the source contract promises complete trick guides. Keep booking, analytics, affiliate, and service activation out of scope.",
+        "summary": "The coin guide is already live at /tricks/coin-vanish/ (HTTP 200); route duplication is not warranted. Repair the failed production-verification/release prerequisite for the existing delivery case, preserving its failure evidence.",
         "requested_action": null,
         "proposal_id": null
       }
