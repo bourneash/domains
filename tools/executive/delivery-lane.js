@@ -158,37 +158,27 @@ function reconcile(store, root, now = Date.now()) {
     ...work,
     request: getRequests(store, work.site).find(row => row.action_key === work.action_key),
   }));
-  for (let index = 0; index < rows.length; index++) {
-    const row = rows[index];
+  const blockedSites = new Map();
+  for (const row of rows) {
     if (row.request) row.request = reconcilePublishedBranch(store, root, row.request);
     const run = row.request?.run_id ? store.getImprovement(row.request.run_id) : null;
-    if (run?.approval?.review_gate === 'failed' || run?.approval?.release?.status === 'failed')
-      return {
-        state: 'blocked',
+    if (blockedSites.has(row.site)) continue;
+    if (run?.approval?.review_gate === 'failed' || run?.approval?.release?.status === 'failed') {
+      blockedSites.set(row.site, {
         site: row.site,
         request_id: row.request.request_id,
         status:
           run.approval.review_gate === 'failed' ? 'review-check-failed' : 'connected-build-failed',
         detail_url:
           run.approval.review_checks?.worker_build_url || run.approval.pull_request?.url || null,
-        freeze_planning: true,
-      };
-    if (
-      index &&
-      (!ACCEPTED.has(rows[index - 1].request?.status) ||
-        !hasReviewPr(store, rows[index - 1].request))
-    ) {
-      return {
-        state: 'waiting-on-review-pr',
-        site: row.site,
-        prior_status: rows[index - 1].request?.status || null,
-        prior_request_id: rows[index - 1].request?.request_id || null,
-        freeze_planning: true,
-      };
+      });
+      continue;
     }
     if (!row.request) {
-      if (!siteHasOwner(root, row.site))
-        return { state: 'missing-site-owner', site: row.site, freeze_planning: true };
+      if (!siteHasOwner(root, row.site)) {
+        blockedSites.set(row.site, { site: row.site, status: 'missing-site-owner' });
+        continue;
+      }
       const request = changequeue.create(
         store,
         {
@@ -211,30 +201,51 @@ function reconcile(store, root, now = Date.now()) {
         state: 'queued',
         site: row.site,
         request_id: request.request_id,
-        freeze_planning: true,
+        freeze_planning: false,
+        blocked_sites: [...blockedSites.values()],
       };
     }
-    if (TERMINAL_PROBLEM.has(row.request.status))
-      return {
-        state: 'blocked',
+    if (TERMINAL_PROBLEM.has(row.request.status)) {
+      blockedSites.set(row.site, {
         site: row.site,
         request_id: row.request.request_id,
         status: row.request.status,
-        freeze_planning: true,
-      };
-    if (!ACCEPTED.has(row.request.status)) {
-      // Heartbeats update updated_at, so age must be measured from original
-      // queue admission or a live run could evade the no-artifact SLA forever.
-      const age = now - (Date.parse(row.request.created_at || '') || now);
-      return {
-        state: age >= STALE_MS ? 'stalled' : 'working',
+      });
+      continue;
+    }
+    if (!ACCEPTED.has(row.request.status) || !hasReviewPr(store, row.request)) {
+      blockedSites.set(row.site, {
         site: row.site,
         request_id: row.request.request_id,
-        status: row.request.status,
-        age_minutes: Math.floor(age / 60000),
-        freeze_planning: true,
-      };
+        status: row.request.status === 'committed' ? 'waiting-on-review-pr' : row.request.status,
+      });
+      continue;
     }
+  }
+  if (blockedSites.size) {
+    const blocker = blockedSites.values().next().value;
+    const waiting = blocker.request_id ? store.getChangeRequest(blocker.request_id) : null;
+    const age = waiting ? now - (Date.parse(waiting.created_at || '') || now) : null;
+    const state =
+      blocker.status === 'review-check-failed' || blocker.status === 'connected-build-failed'
+        ? 'blocked'
+        : blocker.status === 'missing-site-owner'
+          ? 'missing-site-owner'
+          : TERMINAL_PROBLEM.has(blocker.status)
+            ? 'blocked'
+            : waiting && !ACCEPTED.has(waiting.status)
+              ? age >= STALE_MS
+                ? 'stalled'
+                : 'working'
+              : 'waiting-on-review-pr';
+    return {
+      state,
+      ...blocker,
+      ...(state === 'stalled' || state === 'working'
+        ? { age_minutes: Math.floor(age / 60000) }
+        : {}),
+      freeze_planning: true,
+    };
   }
   return {
     state: 'backlog-exhausted',
