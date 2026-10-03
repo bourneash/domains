@@ -89,6 +89,11 @@ test('product managers are first-class Agents pages with durable queues', () => 
   assert.match(app, /api\/executive\/task-queue\?role=/);
   assert.match(app, /Executive presentations/);
   assert.match(app, /Open work queue/);
+  const start = app.indexOf('async function renderProductManager');
+  const end = app.indexOf('/* ===================== AGENT PAGE', start);
+  const productManager = app.slice(start, end);
+  assert.match(productManager, /api\('GET', `\/api\/executive\/product-manager-summary\?role=/);
+  assert.doesNotMatch(productManager, /\/api\/executive\/(?:messages|proposals|actions)\?/);
 });
 
 test('executive workbench is a first-class operator route', () => {

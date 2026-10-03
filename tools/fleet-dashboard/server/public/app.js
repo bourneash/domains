@@ -4612,12 +4612,10 @@ async function renderProductManager(role) {
   const app = $('#app');
   const label = agentLabel(role);
   if (FRESH) app.innerHTML = `<div class="loading">Loading ${esc(label)} queue…</div>`;
-  let messages, proposals, actions, workItems, taskQueue, runStatus;
+  let roleSummary, workItems, taskQueue, runStatus;
   try {
-    [messages, proposals, actions, workItems, taskQueue, runStatus] = await Promise.all([
-      api('GET', '/api/executive/messages?limit=200'),
-      api('GET', '/api/executive/proposals?limit=200'),
-      api('GET', `/api/executive/actions?actor=${encodeURIComponent(role)}&limit=100`),
+    [roleSummary, workItems, taskQueue, runStatus] = await Promise.all([
+      api('GET', `/api/executive/product-manager-summary?role=${encodeURIComponent(role)}`),
       api('GET', `/api/executive/work-items?owner=${encodeURIComponent(role)}&limit=200`),
       api('GET', `/api/executive/task-queue?role=${encodeURIComponent(role)}&limit=100`),
       apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
@@ -4626,9 +4624,10 @@ async function renderProductManager(role) {
     renderViewError(app, e.message);
     return;
   }
-  const allMessages = messages.messages || [];
-  const roleMessages = allMessages.filter(m => m.actor === role || m.metadata?.to === role);
-  const roleProposals = (proposals.proposals || []).filter(p => p.created_by === role);
+  const roleMessages = roleSummary.messages || [];
+  const roleMessageCount = roleSummary.message_count || 0;
+  const roleProposals = roleSummary.proposals || [];
+  const proposalCount = roleSummary.proposal_count || 0;
   const roleWork = workItems.work_items || [];
   const roleRequests = taskQueue.requests || [];
   const openWork = roleWork.filter(w => !['done', 'resolved', 'cancelled'].includes(w.status));
@@ -4668,12 +4667,12 @@ async function renderProductManager(role) {
     `<div class="ex-kpi"><b>${esc(value)}</b><span>${esc(text)}</span></div>`;
   app.innerHTML = `${breadcrumb(role)}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">PRODUCT MANAGEMENT / ${esc(role === 'product-manager-fleet' ? 'FLEET' : 'MANAGED SITES')}</div><h2 class="page-title">${esc(label)}</h2><p class="muted">Recurring product strategy, evidence, proposals, and implementation handoffs for the executive team.</p></div><div class="task-toolbar"><button class="btn" id="pm-open-executive">Executive overview →</button><button class="btn primary" id="pm-open-board">Open work queue →</button></div></header>
-    <section class="ex-kpis">${stat(openWork.length, 'open work items')}${stat(pendingProposals.length, 'pending proposals')}${stat(roleRequests.filter(r => ['queued', 'claimed', 'running', 'reviewing'].includes(r.status)).length, 'queued handoffs')}${stat(roleMessages.length, 'presentations / updates')}</section>
+    <section class="ex-kpis">${stat(openWork.length, 'open work items')}${stat(pendingProposals.length, 'pending proposals')}${stat(roleRequests.filter(r => ['queued', 'claimed', 'running', 'reviewing'].includes(r.status)).length, 'queued handoffs')}${stat(roleMessageCount, 'presentations / updates')}</section>
     <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">OPERATING RHYTHM</div><h3>Executive cadence</h3><p class="muted">${esc(runLabel)}. This page is the role’s durable inbox and outbox; proposals and updates are presented through the executive control plane.</p></div><span class="badge ${runStatus?.active ? 'b-blue' : 'b-green'}">${runStatus?.active ? 'working now' : 'scheduled'}</span></div></section>
     <details class="ex-disclosure" open><summary><span><b>Work queue</b><small>${openWork.length} active product decisions and discovery items</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Item</th><th>Context</th><th>Status</th><th>Updated</th></tr></thead><tbody>${workRows || '<tr><td colspan="4" class="muted">No active work items assigned to this role yet.</td></tr>'}</tbody></table></div></div></details>
-    <details class="ex-disclosure" open><summary><span><b>Product proposals</b><small>${roleProposals.length} proposals presented by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Updated</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals presented yet.</td></tr>'}</tbody></table></div></div></details>
+    <details class="ex-disclosure" open><summary><span><b>Product proposals</b><small>${proposalCount} proposals presented by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Proposal</th><th>Summary</th><th>Status</th><th>Updated</th></tr></thead><tbody>${proposalRows || '<tr><td colspan="4" class="muted">No proposals presented yet.</td></tr>'}</tbody></table></div></div></details>
     <details class="ex-disclosure"><summary><span><b>Implementation handoffs</b><small>${roleRequests.length} change requests assigned to this role</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body"><div class="table-wrap"><table class="tbl"><thead><tr><th>Request</th><th>Owner</th><th>Status</th><th>Updated</th></tr></thead><tbody>${requestRows || '<tr><td colspan="4" class="muted">No implementation handoffs assigned to this role.</td></tr>'}</tbody></table></div></div></details>
-    <details class="ex-disclosure"><summary><span><b>Executive presentations</b><small>${roleMessages.length} messages addressed to or sent by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive presentations yet.</div>'}</div></details>
+    <details class="ex-disclosure"><summary><span><b>Executive presentations</b><small>${roleMessageCount} messages addressed to or sent by this PM</small></span><span class="ex-chevron">›</span></summary><div class="ex-disclosure-body">${messageRows || '<div class="ex-empty">No executive presentations yet.</div>'}</div></details>
   </div>`;
   $('#pm-open-executive').onclick = () => go('agent', 'executive');
   $('#pm-open-board').onclick = () => go('workflow-board');

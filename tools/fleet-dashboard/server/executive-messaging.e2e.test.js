@@ -104,3 +104,44 @@ test('owner and executive team can complete a durable request/reply conversation
     throw error;
   }
 });
+
+test('Product Manager summary returns role messages and proposals in one scoped response', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-product-manager-summary-e2e-'));
+  const server = createApp({ root }).listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => new Promise(resolve => server.close(resolve)));
+
+  const store = eventstore.open(root);
+  store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'Product direction for fleet',
+    metadata: { to: 'product-manager-fleet' },
+  });
+  store.createExecutiveMessage({ actor: 'ceo', body: 'Unrelated large transcript'.repeat(500) });
+  store.createExecutiveProposal({
+    title: 'Fleet proposal',
+    summary: 'A role scoped proposal',
+    requested_action: 'Review the proposal',
+    created_by: 'product-manager-fleet',
+  });
+  store.createExecutiveProposal({
+    title: 'Sites proposal',
+    summary: 'A different role proposal',
+    requested_action: 'Review the proposal',
+    created_by: 'product-manager-sites',
+  });
+  store.close();
+
+  const response = await request(
+    server,
+    'GET',
+    '/api/executive/product-manager-summary?role=product-manager-fleet'
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.body.message_count, 1);
+  assert.equal(response.body.messages.length, 1);
+  assert.equal(response.body.messages[0].body, 'Product direction for fleet');
+  assert.equal(response.body.proposal_count, 1);
+  assert.equal(response.body.proposals[0].title, 'Fleet proposal');
+  assert.ok(Buffer.byteLength(JSON.stringify(response.body)) < 5000);
+});

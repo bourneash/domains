@@ -37,6 +37,46 @@ test('records and follows a durable causal chain', () => {
   store.close();
 });
 
+test('filters executive messages and proposals by Product Manager role', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-role-summary-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  store.createExecutiveMessage({
+    actor: 'product-manager-fleet',
+    body: 'Fleet strategy update',
+    created_at: '2026-10-01T12:00:00.000Z',
+  });
+  store.createExecutiveMessage({
+    actor: 'ceo',
+    body: 'Message for fleet product manager',
+    metadata: { to: 'product-manager-fleet' },
+    created_at: '2026-10-02T12:00:00.000Z',
+  });
+  store.createExecutiveMessage({ actor: 'ceo', body: 'Unrelated update' });
+  store.createExecutiveProposal({
+    title: 'Fleet proposal',
+    summary: 'A role scoped proposal',
+    requested_action: 'Review the proposal',
+    created_by: 'product-manager-fleet',
+  });
+  store.createExecutiveProposal({
+    title: 'Sites proposal',
+    summary: 'A different role proposal',
+    requested_action: 'Review the proposal',
+    created_by: 'product-manager-sites',
+  });
+
+  const messages = store.listExecutiveMessages({ actor: 'product-manager-fleet', limit: 1 });
+  assert.equal(store.countExecutiveMessages({ actor: 'product-manager-fleet' }), 2);
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].body, 'Message for fleet product manager');
+  assert.equal(
+    store.listExecutiveProposals({ created_by: 'product-manager-fleet' })[0].title,
+    'Fleet proposal'
+  );
+  assert.equal(store.countExecutiveProposals({ created_by: 'product-manager-fleet' }), 1);
+  store.close();
+});
+
 test('rejects unbounded event vocabulary', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-events-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });

@@ -4516,6 +4516,20 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/executive/product-manager-summary', (req, res) => {
+    try {
+      const role = String(req.query.role || '').trim();
+      if (!role) return res.status(400).json({ error: 'role is required' });
+      res.json({
+        messages: events.listExecutiveMessages({ actor: role, limit: 8 }),
+        message_count: events.countExecutiveMessages({ actor: role }),
+        proposals: events.listExecutiveProposals({ created_by: role, limit: 200 }),
+        proposal_count: events.countExecutiveProposals({ created_by: role }),
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.post('/api/executive/proposals/:id/decision', (req, res) => {
     try {
       res.json({

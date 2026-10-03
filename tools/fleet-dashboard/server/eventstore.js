@@ -113,6 +113,8 @@ function open(root, { file } = {}) {
       metadata_json TEXT NOT NULL DEFAULT '{}'
     );
     CREATE INDEX IF NOT EXISTS executive_messages_conversation ON executive_messages(conversation_id, created_at);
+    CREATE INDEX IF NOT EXISTS executive_messages_actor ON executive_messages(conversation_id, actor, created_at DESC);
+    CREATE INDEX IF NOT EXISTS executive_messages_recipient ON executive_messages(conversation_id, json_extract(metadata_json, '$.to'), created_at DESC);
     CREATE TABLE IF NOT EXISTS executive_notifications (
       notification_id TEXT PRIMARY KEY,
       recipient TEXT NOT NULL,
@@ -145,6 +147,7 @@ function open(root, { file } = {}) {
       linked_request_id TEXT
     );
     CREATE INDEX IF NOT EXISTS executive_proposals_status ON executive_proposals(status, updated_at DESC);
+    CREATE INDEX IF NOT EXISTS executive_proposals_creator ON executive_proposals(created_by, updated_at DESC);
     CREATE TABLE IF NOT EXISTS executive_actions (
       action_id TEXT PRIMARY KEY,
       actor TEXT NOT NULL,
@@ -1563,17 +1566,41 @@ function open(root, { file } = {}) {
     return row;
   }
 
-  function listExecutiveMessages({ conversation_id = 'executive', work_id, limit = 200 } = {}) {
+  function listExecutiveMessages({ conversation_id = 'executive', work_id, actor, limit = 200 } = {}) {
     const n = Math.max(1, Math.min(Number(limit) || 200, 1000));
+    const clauses = ['conversation_id = ?'];
+    const args = [String(conversation_id)];
+    if (work_id) {
+      clauses.push('work_id = ?');
+      args.push(String(work_id));
+    }
+    if (actor) {
+      clauses.push("(actor = ? OR json_extract(metadata_json, '$.to') = ?)");
+      args.push(String(actor), String(actor));
+    }
     return db
       .prepare(
-        `SELECT * FROM executive_messages WHERE conversation_id = ?${work_id ? ' AND work_id = ?' : ''}
+        `SELECT * FROM executive_messages WHERE ${clauses.join(' AND ')}
       ORDER BY created_at DESC LIMIT ?`
       )
-      .all(
-        ...(work_id ? [String(conversation_id), String(work_id), n] : [String(conversation_id), n])
-      )
+      .all(...args, n)
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
+  }
+
+  function countExecutiveMessages({ conversation_id = 'executive', work_id, actor } = {}) {
+    const clauses = ['conversation_id = ?'];
+    const args = [String(conversation_id)];
+    if (work_id) {
+      clauses.push('work_id = ?');
+      args.push(String(work_id));
+    }
+    if (actor) {
+      clauses.push("(actor = ? OR json_extract(metadata_json, '$.to') = ?)");
+      args.push(String(actor), String(actor));
+    }
+    return db
+      .prepare(`SELECT COUNT(*) AS count FROM executive_messages WHERE ${clauses.join(' AND ')}`)
+      .get(...args).count;
   }
 
   function purgeExecutiveTranscriptBefore(cutoff) {
@@ -1778,16 +1805,42 @@ function open(root, { file } = {}) {
     return row;
   }
 
-  function listExecutiveProposals({ status, limit = 100 } = {}) {
+  function listExecutiveProposals({ status, created_by, limit = 100 } = {}) {
     const n = Math.max(1, Math.min(Number(limit) || 100, 500));
-    const rows = status
-      ? db
-          .prepare(
-            `SELECT * FROM executive_proposals WHERE status = ? ORDER BY updated_at DESC LIMIT ?`
-          )
-          .all(String(status), n)
-      : db.prepare(`SELECT * FROM executive_proposals ORDER BY updated_at DESC LIMIT ?`).all(n);
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (created_by) {
+      clauses.push('created_by = ?');
+      args.push(String(created_by));
+    }
+    const rows = db
+      .prepare(
+        `SELECT * FROM executive_proposals${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(...args, n);
     return rows.map(decodeExecutiveProposal);
+  }
+
+  function countExecutiveProposals({ status, created_by } = {}) {
+    const clauses = [],
+      args = [];
+    if (status) {
+      clauses.push('status = ?');
+      args.push(String(status));
+    }
+    if (created_by) {
+      clauses.push('created_by = ?');
+      args.push(String(created_by));
+    }
+    return db
+      .prepare(
+        `SELECT COUNT(*) AS count FROM executive_proposals${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''}`
+      )
+      .get(...args).count;
   }
 
   function getExecutiveProposal(id) {
@@ -5906,6 +5959,7 @@ function open(root, { file } = {}) {
     updateExecutiveSettings,
     createExecutiveMessage,
     listExecutiveMessages,
+    countExecutiveMessages,
     purgeExecutiveTranscriptBefore,
     updateExecutiveMessage,
     createExecutiveNotification,
@@ -5916,6 +5970,7 @@ function open(root, { file } = {}) {
     updateExecutiveNotificationDelivery,
     createExecutiveProposal,
     listExecutiveProposals,
+    countExecutiveProposals,
     getExecutiveProposal,
     decideExecutiveProposal,
     linkExecutiveProposalRequest,
