@@ -24,6 +24,21 @@ const LOG_PREFIX = { deployer: ['deployer', 'deploy'] };
 // Staleness thresholds (seconds) by inferred cadence — a cell goes amber past
 // the threshold and red past 2×.
 const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
+const MATRIX_CACHE_TTL_MS = 2000;
+const matrixCache = new Map();
+const matrixPending = new Map();
+const matrixEpoch = new Map();
+
+function invalidateMatrix(root) {
+  const prefix = `${root}\0`;
+  matrixEpoch.set(root, (matrixEpoch.get(root) || 0) + 1);
+  for (const key of matrixCache.keys()) {
+    if (key.startsWith(prefix)) matrixCache.delete(key);
+  }
+  for (const key of matrixPending.keys()) {
+    if (key.startsWith(prefix)) matrixPending.delete(key);
+  }
+}
 const FLEET_EXECUTIVE_ROLES = [
   {
     role: 'product-manager-fleet',
@@ -328,6 +343,26 @@ function cellState(enabled, last, schedule, now) {
 // Build the site × role matrix from what's on disk: scheduled (crontab),
 // enabled (no ops/.<role>-disabled flag), and last-run (logs / pulse).
 async function matrix(root, slugs) {
+  const key = `${root}\0${slugs.join('\0')}`;
+  const cached = matrixCache.get(key);
+  if (cached && Date.now() - cached.at < MATRIX_CACHE_TTL_MS) return cached.data;
+  const pending = matrixPending.get(key);
+  if (pending) return pending;
+
+  const epoch = matrixEpoch.get(root) || 0;
+  const refresh = buildMatrix(root, slugs)
+    .then(data => {
+      if ((matrixEpoch.get(root) || 0) === epoch) matrixCache.set(key, { at: Date.now(), data });
+      return data;
+    })
+    .finally(() => {
+      if (matrixPending.get(key) === refresh) matrixPending.delete(key);
+    });
+  matrixPending.set(key, refresh);
+  return refresh;
+}
+
+async function buildMatrix(root, slugs) {
   const now = Date.now();
   const freq = {};
   // Per-site git state (branch / ahead / dirty), computed once and reused for
@@ -643,6 +678,7 @@ function setEnabled(root, slug, role, enabled) {
     // pausing doesn't create spurious content diffs.
     fs.writeFileSync(flag, '');
   }
+  invalidateMatrix(root);
   return { ok: true, role: r, enabled };
 }
 
