@@ -7,6 +7,8 @@ const { readLastRuns } = require('./cron/runinfo');
 
 const DAY = 86400000;
 const MINUTE = 60000;
+const SCHEDULE_CACHE_LIMIT = 256;
+const scheduleCache = new Map();
 
 function values(field, min, max) {
   const out = new Set();
@@ -23,29 +25,53 @@ function values(field, min, max) {
   return out;
 }
 
-function cronMatches(date, schedule) {
-  const fields = String(schedule || '')
-    .trim()
-    .split(/\s+/);
-  if (fields.length !== 5) return false;
-  const [minute, hour, dom, month, dow] = fields;
-  if (!values(minute, 0, 59).has(date.getMinutes())) return false;
-  if (!values(hour, 0, 23).has(date.getHours())) return false;
-  if (!values(month, 1, 12).has(date.getMonth() + 1)) return false;
-  const dayOfMonth = values(dom, 1, 31).has(date.getDate());
-  const dayOfWeek = values(dow, 0, 6).has(date.getDay());
-  const domRestricted = dom !== '*';
-  const dowRestricted = dow !== '*';
-  if (domRestricted && dowRestricted) return dayOfMonth || dayOfWeek;
+function compileSchedule(schedule) {
+  const source = String(schedule || '').trim();
+  if (scheduleCache.has(source)) return scheduleCache.get(source);
+  const fields = source.split(/\s+/);
+  let compiled = null;
+  if (fields.length === 5) {
+    const [minute, hour, dom, month, dow] = fields;
+    compiled = {
+      minute: values(minute, 0, 59),
+      hour: values(hour, 0, 23),
+      dom: values(dom, 1, 31),
+      month: values(month, 1, 12),
+      dow: values(dow, 0, 6),
+      domRestricted: dom !== '*',
+      dowRestricted: dow !== '*',
+    };
+  }
+  if (scheduleCache.size >= SCHEDULE_CACHE_LIMIT)
+    scheduleCache.delete(scheduleCache.keys().next().value);
+  scheduleCache.set(source, compiled);
+  return compiled;
+}
+
+function matchesCompiled(date, schedule) {
+  if (!schedule) return false;
+  if (!schedule.minute.has(date.getMinutes())) return false;
+  if (!schedule.hour.has(date.getHours())) return false;
+  if (!schedule.month.has(date.getMonth() + 1)) return false;
+  const dayOfMonth = schedule.dom.has(date.getDate());
+  const dayOfWeek = schedule.dow.has(date.getDay());
+  if (schedule.domRestricted && schedule.dowRestricted) return dayOfMonth || dayOfWeek;
   return dayOfMonth && dayOfWeek;
+}
+
+function cronMatches(date, schedule) {
+  return matchesCompiled(date, compileSchedule(schedule));
 }
 
 function expectedRuns(schedule, from, to) {
   const out = [];
-  const start = new Date(Math.ceil(from.getTime() / MINUTE) * MINUTE);
-  for (let t = start.getTime(); t <= to.getTime(); t += MINUTE) {
-    const date = new Date(t);
-    if (cronMatches(date, schedule)) out.push(t);
+  const compiled = compileSchedule(schedule);
+  if (!compiled) return out;
+  const start = Math.ceil(from.getTime() / MINUTE) * MINUTE;
+  const date = new Date(start);
+  for (let t = start; t <= to.getTime(); t += MINUTE) {
+    date.setTime(t);
+    if (matchesCompiled(date, compiled)) out.push(t);
   }
   return out;
 }

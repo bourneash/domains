@@ -13,6 +13,18 @@ test('cron matching handles steps and the cron day-of-month/day-of-week rule', (
   assert.equal(cronMatches(new Date(2026, 8, 20, 3, 15), '15 3 1 * 0'), true); // Sunday OR day 1
 });
 
+test('expected runs preserve cron matching and inclusive minute bounds', () => {
+  const from = new Date(2026, 8, 20, 1, 58);
+  const to = new Date(2026, 8, 22, 3, 16);
+  const schedule = '15,45 2-3 1-22 * 0,2';
+  const expected = [];
+  for (let at = Math.ceil(from.getTime() / 60000) * 60000; at <= to.getTime(); at += 60000) {
+    if (cronMatches(new Date(at), schedule)) expected.push(at);
+  }
+  assert.deepEqual(expectedRuns(schedule, from, to), expected);
+  assert.deepEqual(expectedRuns('invalid', from, to), []);
+});
+
 test('execution history distinguishes successful, missed, and failed expected slots', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-execution-'));
   const logs = path.join(root, 'sites', 'example.com', 'ops', 'logs');
