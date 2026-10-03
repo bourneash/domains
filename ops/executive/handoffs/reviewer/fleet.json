@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T02:01:12.764Z",
+  "generated_at": "2026-10-03T03:01:06.433Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject production proposals, unsupported revenue/ROI claims, unsafe tactics, and high-priority queue work. Preserve attribution, security, compliance, measurement, and active-work gates. Only the bounded read-only evidence request below is defensible; unresolved blockers remain with CTO and principal-engineer.",
+        "summary": "Reject new production, financial, high-priority, duplicate, and telemetry-request work. Preserve only the existing isolated preview-only scaffold work; no eligible queue action is available because ownership, launch/security evidence, attribution, and operations evidence remain incomplete. CTO must repair the failed handoff; principal-engineer must reconcile admission and repair dispositions. Do not claim revenue, ROI, lift, readiness, or security clearance.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net. Production publication, deployment, telemetry or affiliate activation, spending, credential/configuration changes, dependency additions, and revenue, ROI, causal-lift, security-clearance, or launch-readiness claims remain blocked. Existing measurement/review candidates stay unqueued until principal-engineer reconciles the admission ledger and release gates by 2026-10-03T17:00Z; unresolved blockers escalate to the owner.",
+        "summary": "Approve only three isolated, low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net, routed to engineer. No publication, deployment, telemetry or affiliate activation, spend, credential/configuration changes, dependency additions, or financial/readiness claims. Site-factory must confirm owner routing and attach dated preview QA by 2026-10-03T17:00Z; CTO owns the failed-handoff repair; principal-engineer owns admission and repair reconciliation. All production and high-priority candidates remain blocked pending launch, legal, security, attribution, operations, and measurement evidence; unresolved blockers escalate to the owner by 2026-10-03T17:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
