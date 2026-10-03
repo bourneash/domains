@@ -10,6 +10,8 @@ const { assignedRoleForType } = require('./task-routing');
 // some also have hold. We surface all four; missing dirs simply read empty and
 // are created on demand when a task is moved/created into them.
 const COLUMNS = ['backlog', 'in-progress', 'done', 'hold'];
+const TASK_CARD_CACHE_LIMIT = 5000;
+const taskCardCache = new Map();
 
 // Files that live in task dirs but are not tasks.
 const NON_TASK = new Set(['README.md', '.gitkeep']);
@@ -98,10 +100,17 @@ function readTaskCard(dir, col, name, slug) {
     return null;
   }
   if (!st.isFile()) return null;
+  const signature = `${st.ino}:${st.size}:${st.mtimeMs}:${st.ctimeMs}`;
+  const cached = taskCardCache.get(fp);
+  if (cached?.signature === signature) {
+    taskCardCache.delete(fp);
+    taskCardCache.set(fp, cached);
+    return cached.card;
+  }
   const { meta, body } = parseTask(fs.readFileSync(fp, 'utf8'));
   const excerpt = body.replace(/^#.*$/gm, '').replace(/\s+/g, ' ').trim().slice(0, 160);
   const prio = meta.priority;
-  return {
+  const card = {
     site: slug,
     file: name,
     column: col,
@@ -123,6 +132,10 @@ function readTaskCard(dir, col, name, slug) {
     mtime: st.mtimeMs,
     birthtime: st.birthtimeMs || st.ctimeMs || null,
   };
+  if (taskCardCache.size >= TASK_CARD_CACHE_LIMIT)
+    taskCardCache.delete(taskCardCache.keys().next().value);
+  taskCardCache.set(fp, { signature, card });
+  return card;
 }
 
 // List every task across all columns for one site (per-site board view).
