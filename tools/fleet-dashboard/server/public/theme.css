@@ -3431,6 +3431,16 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   border: 1px solid var(--border);
 }
 :root[data-theme="light"] .ex-decision-context strong { color: var(--text-hi); }
+:root[data-theme="light"] .ex-thread-activity {
+  background: rgba(109,75,178,.045);
+  border-color: rgba(109,75,178,.2);
+}
+:root[data-theme="light"] .ex-thread-activity summary,
+:root[data-theme="light"] .ex-thread-activity-row b { color: #563a8e; }
+:root[data-theme="light"] .ex-notification {
+  background: linear-gradient(135deg, rgba(138,90,0,.07), rgba(40,70,110,.015));
+  border-color: rgba(138,90,0,.2);
+}
 :root[data-theme="light"] .ex-workspace-tab.active small { color: var(--a1); }
 :root[data-theme="light"] .ex-kpi,
 :root[data-theme="light"] .ex-run-panel,

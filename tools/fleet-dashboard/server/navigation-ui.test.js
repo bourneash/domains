@@ -4162,6 +4162,18 @@ test('legacy agent and queue panels use light surfaces in light theme', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.ex-legend-response \{ color: #17623d; \}/);
   assert.match(
     theme,
+    /:root\[data-theme="light"\] \.ex-thread-activity \{[\s\S]*?background: rgba\(109,75,178,\.045\);[\s\S]*?border-color: rgba\(109,75,178,\.2\);/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.ex-thread-activity summary,[\s\S]*?\.ex-thread-activity-row b \{ color: #563a8e; \}/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.ex-notification \{[\s\S]*?background: linear-gradient\(135deg, rgba\(138,90,0,\.07\), rgba\(40,70,110,\.015\)\);/
+  );
+  assert.match(
+    theme,
     /:root\[data-theme="light"\] \.ex-legend-background,[\s\S]*?\.ex-run-log-tool \.ex-run-log-label \{ color: #68459b; \}/
   );
   assert.match(
