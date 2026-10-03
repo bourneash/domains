@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T13:01:06.623Z",
+  "generated_at": "2026-10-03T15:08:06.038Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject new production, high-priority, financial, revenue, ROI, margin, forecast, budget, and causal-lift work. Analytics coverage is zero; operations and fleet-doctor evidence are unavailable; revenue is aggregate/unattributed; and active measurement/review work blocks defensible comparison. Retain existing read-only security evidence and one bounded public inspection for the unresolved repair-disposition gap. No telemetry or production mutation is authorized.",
+        "summary": "Retain only the isolated RodHat CTA review. Revenue, ROI, attribution, causal-lift, security-clearance, and production-readiness claims remain blocked because attribution is incomplete, telemetry is low-volume, and operations/security evidence is unavailable. Keep preview-only with deterministic validation, existing telemetry, explicit unknowns, and rollback.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject production, high-priority queue, financial, revenue, ROI, margin, forecast, budget, and causal-lift work. Analytics coverage is zero; operations and fleet-doctor evidence are unavailable; affiliate revenue is aggregate/unattributed; and active measurement/review blocks defensible production comparison. Retain only six low-priority, metadata-only routing repairs plus one bounded public inspection. No telemetry, credentials, configuration, spend, deployment, or production mutation is authorized.",
+        "summary": "Approve four isolated, review-only pull requests: RodHat CTA review plus preview-only validation for complicated.work, deadlymaracas.com, and driveford.net. Reject deployment, publication, telemetry activation, monetization, spending, credential/configuration changes, dependencies, and unsupported financial, causal, security, or production claims. Active measurement/review conflicts remain blocked pending principal-engineer reconciliation by 2026-10-03T17:00:00Z.",
         "requested_action": null,
         "proposal_id": null
       }
