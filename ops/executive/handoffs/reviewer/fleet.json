@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T21:50:55.780Z",
+  "generated_at": "2026-10-03T22:12:35.235Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "No new implementation is safely queueable for howtofry.com. The only managed site has one committed high-priority task and one measuring print task through 2026-10-17; both block non-overlapping capacity. Delivery-lead must reclassify or resolve the committed task by 2026-10-04T21:50:00Z; escalate to CTO at that deadline if unresolved.",
+        "summary": "Approved one bounded implementation for seedstosauce.com. The scoped pass exposes one executable site; the fix has public browser evidence, no financial claim, no telemetry dependency, and a reversible rollback.",
         "requested_action": null,
         "proposal_id": null
       }

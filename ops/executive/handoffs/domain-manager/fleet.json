@@ -2,22 +2,17 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:10:00.178Z",
-  "summary": "six_hour domain-manager report for 61 managed sites",
+  "generated_at": "2026-10-03T22:12:35.234Z",
+  "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
-    "report_id": "2ff1959e-bda5-41df-95b6-1907536ea427",
-    "cadence": "six_hour",
-    "summary": {
-      "sites_considered": 61,
-      "sites_reported": 61,
-      "exceptions": 0,
-      "deep_dive_candidates": 61,
-      "global_exceptions": [
-        "analytics_source_error",
-        "datahub_health_source_error",
-        "datahub_sources_source_error",
-        "datahub_datasets_source_error"
-      ]
-    }
+    "items": [
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Queued a bounded accessibility fix for the consent-dismissal keyboard path on seedstosauce.com. Browser evidence shows focus falls to BODY and restarts at the skip link after dismissal.",
+        "requested_action": null,
+        "proposal_id": null
+      }
+    ]
   }
 }
