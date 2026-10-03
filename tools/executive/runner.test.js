@@ -3271,6 +3271,9 @@ test('site-scoped fallback cannot borrow unrelated fleet candidates or blockers'
 test('executive accessibility guidance requires actual broken interaction evidence', () => {
   const prompt = require('./runner').buildPrompt({ intelligence: {} });
   assert.match(prompt, /nonmodal consent banner/);
+  assert.match(prompt, /guessed or unlinked URL returning 404/);
+  assert.match(prompt, /actual inbound site link/);
+  assert.match(prompt, /single probe into a population failure rate/);
   assert.match(prompt, /does not require aria-modal or a focus trap/);
   assert.match(prompt, /Do not convert optional consent into a blocking modal/);
   assert.match(prompt, /guessed scripted completion rate is not a reproduced defect/);
