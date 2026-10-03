@@ -63,10 +63,22 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
   }
 
   const originalRead = fs.readFileSync;
+  const originalStat = fs.statSync;
+  const originalReaddir = fs.readdirSync;
   const logReads = [];
+  const logStats = [];
+  let logDirectoryReads = 0;
   fs.readFileSync = function (file, ...args) {
     if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
     return originalRead.call(this, file, ...args);
+  };
+  fs.statSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logStats.push(path.basename(String(file)));
+    return originalStat.call(this, file, ...args);
+  };
+  fs.readdirSync = function (directory, ...args) {
+    if (String(directory) === logs) logDirectoryReads++;
+    return originalReaddir.call(this, directory, ...args);
   };
   try {
     const matrix = await roles.matrix(root, ['example.test']);
@@ -80,8 +92,12 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
       'update-20261001.log',
       'update-20261002.log',
     ]);
+    assert.equal(logDirectoryReads, 1);
+    assert.deepEqual(logStats.sort(), fixtures.map(([name]) => name).sort());
   } finally {
     fs.readFileSync = originalRead;
+    fs.statSync = originalStat;
+    fs.readdirSync = originalReaddir;
     fs.rmSync(root, { recursive: true, force: true });
   }
 });

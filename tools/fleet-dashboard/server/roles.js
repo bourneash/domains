@@ -180,10 +180,58 @@ function cadenceClass(expr) {
   return frequent ? 'frequent' : 'daily';
 }
 
+function createLogIndex(cwd) {
+  const dir = path.join(cwd, 'ops', 'logs');
+  let names;
+  const stats = new Map();
+  const contents = new Map();
+  function listNames() {
+    if (names) return names;
+    try {
+      names = fs.readdirSync(dir);
+    } catch {
+      names = [];
+    }
+    return names;
+  }
+  function stat(name) {
+    if (stats.has(name)) return stats.get(name);
+    let entry = null;
+    try {
+      const value = fs.statSync(path.join(dir, name));
+      if (value.isFile()) entry = { name, mtime: value.mtimeMs };
+    } catch {
+      /* log may have rotated since the directory was listed */
+    }
+    stats.set(name, entry);
+    return entry;
+  }
+  return {
+    matching(predicate) {
+      return listNames()
+        .filter(name => predicate(name))
+        .map(stat)
+        .filter(Boolean)
+        .sort((a, b) => b.mtime - a.mtime);
+    },
+    read(name) {
+      if (contents.has(name)) return contents.get(name);
+      let text = null;
+      try {
+        text = fs.readFileSync(path.join(dir, name), 'utf8');
+      } catch {
+        /* log may have rotated since it was statted */
+      }
+      contents.set(name, text);
+      return text;
+    },
+  };
+}
+
 // Newest run signal for a role: the engineer pulse for engineers, else the
 // newest ops/logs/<prefix>-<date>… file (the `-\d` boundary keeps news-writer
 // from matching news-writer-local).
-function lastRun(cwd, role) {
+function lastRun(cwd, role, logIndex = createLogIndex(cwd)) {
   if (role === 'engineer') {
     try {
       return fs.statSync(path.join(cwd, 'ops', '.locks', 'engineer-status.json')).mtimeMs;
@@ -203,57 +251,25 @@ function lastRun(cwd, role) {
       /* fall through — sites not yet re-stamped with the pulse still judge by log mtime */
     }
   }
-  const re = logRe(role);
-  const dir = path.join(cwd, 'ops', 'logs');
-  let newest = 0;
-  try {
-    for (const f of fs.readdirSync(dir)) {
-      if (!re.test(f)) continue;
-      try {
-        const mt = fs.statSync(path.join(dir, f)).mtimeMs;
-        if (mt > newest) newest = mt;
-      } catch {
-        /* skip */
-      }
-    }
-  } catch {
-    /* no logs dir */
-  }
-  return newest || null;
+  return logIndex.matching(name => logRe(role).test(name))[0]?.mtime || null;
 }
 
 // Publishing evidence is deliberately derived from the site's existing logs
 // and deploy markers. It gives operators a useful editorial signal without
 // inventing a second state store that could drift from the site runner.
-function editorialTelemetry(cwd, role) {
+function editorialTelemetry(cwd, role, logIndex = createLogIndex(cwd)) {
   if (!familyForRole(role)) return null;
-  const dir = path.join(cwd, 'ops', 'logs');
   const log = logRe(role);
   let latest = null;
   let publication = null;
   let deploy = null;
   let entries = [];
   try {
-    entries = fs
-      .readdirSync(dir)
-      .flatMap(name => {
-        if (!log.test(name) && !/^deployer-/.test(name)) return [];
-        try {
-          const stat = fs.statSync(path.join(dir, name));
-          return stat.isFile() ? [{ name, mtime: stat.mtimeMs }] : [];
-        } catch {
-          return [];
-        }
-      })
-      .sort((a, b) => b.mtime - a.mtime);
+    entries = logIndex.matching(name => log.test(name) || /^deployer-/.test(name));
     const roleEntries = entries.filter(entry => log.test(entry.name));
     for (const entry of roleEntries) {
-      let text;
-      try {
-        text = fs.readFileSync(path.join(dir, entry.name), 'utf8');
-      } catch {
-        continue;
-      }
+      const text = logIndex.read(entry.name);
+      if (text === null) continue;
       if (!latest) latest = { file: entry.name, mtime: entry.mtime, text };
       const matches = [
         ...text.matchAll(/Published\s+[`']?\/(?:news|articles)\/([a-z0-9-]+)/gi),
@@ -269,8 +285,8 @@ function editorialTelemetry(cwd, role) {
   }
   const newestDeploy = entries.find(entry => /^deployer-/.test(entry.name));
   if (newestDeploy) {
-    try {
-      const text = fs.readFileSync(path.join(dir, newestDeploy.name), 'utf8');
+    const text = logIndex.read(newestDeploy.name);
+    if (text !== null) {
       deploy = {
         at: newestDeploy.mtime,
         file: newestDeploy.name,
@@ -280,8 +296,6 @@ function editorialTelemetry(cwd, role) {
             ? 'failed'
             : 'unknown',
       };
-    } catch {
-      /* deploy logs are optional */
     }
   }
   const deployNeeded = fs.existsSync(path.join(cwd, '.deploy-needed'));
@@ -399,11 +413,12 @@ async function buildMatrix(root, slugs) {
     .map(slug => {
       const cwd = siteDir(root, slug);
       const parsed = parsedBySlug.get(slug) || [];
+      const logIndex = createLogIndex(cwd);
       const cells = {};
       for (const { role, schedule, worker, commented } of parsed) {
         if (cells[role]) continue; // first schedule wins on dupes
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
-        const last = enabled ? lastRun(cwd, role) : null;
+        const last = enabled ? lastRun(cwd, role, logIndex) : null;
         let { state, age } = commented
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);
@@ -464,7 +479,7 @@ async function buildMatrix(root, slugs) {
           commented,
           deploy,
           cadence: cadenceClass(schedule),
-          editorial: editorialTelemetry(cwd, role),
+          editorial: editorialTelemetry(cwd, role, logIndex),
         };
         freq[role] = (freq[role] || 0) + 1;
       }
