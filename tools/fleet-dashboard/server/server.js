@@ -7671,7 +7671,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // successor to site-tracker's /tasks page. Client does facet/filter/group.
   app.get('/api/tasks', (_req, res) => {
     try {
-      res.json(tasks.listAll(root, discoverSites(root)));
+      res.json(tasks.listFleet(root, discoverSites(root)));
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

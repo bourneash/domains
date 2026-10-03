@@ -183,6 +183,24 @@ function listAll(root, slugs) {
   return all;
 }
 
+// The fleet Tasks view needs only the fields used for filtering and display.
+// Keep its response compact; per-site boards and internal consumers still use
+// listAll() with the complete task metadata.
+function listFleet(root, slugs) {
+  return listAll(root, slugs).map(task => ({
+    site: task.site,
+    file: task.file,
+    column: task.column,
+    title: task.title,
+    priority: task.priority,
+    type: task.type,
+    assigned_role: task.assigned_role,
+    created: task.created,
+    estimated_turns: task.estimated_turns,
+    blocked_on: task.blocked_on,
+  }));
+}
+
 // Find the canonical board item for a durable producer lineage. A task
 // filename is not an identity: retries can collide on the same title/date and
 // receive a -2 suffix while the improvement row still contains the original
@@ -337,6 +355,7 @@ module.exports = {
   COLUMNS,
   list,
   listAll,
+  listFleet,
   findAllBySourceId,
   findBySourceId,
   get,

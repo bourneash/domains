@@ -54,3 +54,34 @@ test('cross-fleet task listing reuses parsed cards and notices file changes', ()
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('fleet task response contains only the fields used by its table and filters', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-task-summary-'));
+  const backlog = path.join(root, 'sites', 'example.test', 'ops', 'tasks', 'backlog');
+  fs.mkdirSync(backlog, { recursive: true });
+  fs.writeFileSync(
+    path.join(backlog, 'first.md'),
+    '---\ntitle: First task\npriority: 2\ntype: performance\nassigned_role: engineer\ncreated: 2026-10-01\nestimated_turns: 3\n---\n\nTask body.\n'
+  );
+  try {
+    const [task] = tasks.listFleet(root, ['example.test']);
+    assert.deepEqual(Object.keys(task), [
+      'site',
+      'file',
+      'column',
+      'title',
+      'priority',
+      'type',
+      'assigned_role',
+      'created',
+      'estimated_turns',
+      'blocked_on',
+    ]);
+    assert.equal(task.title, 'First task');
+    assert.equal(task.blocked_on, '');
+    assert.ok(!('excerpt' in task));
+    assert.ok(!('source_id' in task));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
