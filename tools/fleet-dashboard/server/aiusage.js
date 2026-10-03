@@ -41,7 +41,7 @@ function fleet(root, filters = {}) {
   const existing = reportPending.get(key);
   if (existing) return existing;
 
-  const args = [scriptPath(root), '--root', root, '--json'];
+  const args = [scriptPath(root), '--root', root, '--json', '--compact-json'];
   if (from) args.push('--from', from);
   if (to) args.push('--to', to);
   if (granularity) args.push('--granularity', granularity);

@@ -417,6 +417,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--compact-json", action="store_true",
+                        help="emit compact JSON for machine consumers")
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--from", dest="start_day", type=date.fromisoformat,
                         help="inclusive UTC ledger date (YYYY-MM-DD)")
@@ -437,7 +439,10 @@ def main(argv: list[str] | None = None) -> None:
                      summary_only=args.summary_only, roles_only=args.roles_only)
 
     if args.json:
-        print(json.dumps(report, indent=2))
+        if args.compact_json:
+            print(json.dumps(report, separators=(",", ":")))
+        else:
+            print(json.dumps(report, indent=2))
         return
 
     summary = report["summary"]
