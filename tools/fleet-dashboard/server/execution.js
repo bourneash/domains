@@ -8,7 +8,9 @@ const { readLastRuns } = require('./cron/runinfo');
 const DAY = 86400000;
 const MINUTE = 60000;
 const SCHEDULE_CACHE_LIMIT = 256;
+const EXPECTED_RUN_CACHE_LIMIT = 64;
 const scheduleCache = new Map();
+const expectedRunCache = new Map();
 
 function values(field, min, max) {
   const out = new Set();
@@ -64,15 +66,26 @@ function cronMatches(date, schedule) {
 }
 
 function expectedRuns(schedule, from, to) {
+  const start = Math.ceil(from.getTime() / MINUTE) * MINUTE;
+  const end = Math.floor(to.getTime() / MINUTE) * MINUTE;
+  const key = `${String(schedule || '').trim()}\0${start}\0${end}`;
+  const cached = expectedRunCache.get(key);
+  if (cached) {
+    expectedRunCache.delete(key);
+    expectedRunCache.set(key, cached);
+    return cached;
+  }
   const out = [];
   const compiled = compileSchedule(schedule);
   if (!compiled) return out;
-  const start = Math.ceil(from.getTime() / MINUTE) * MINUTE;
   const date = new Date(start);
-  for (let t = start; t <= to.getTime(); t += MINUTE) {
+  for (let t = start; t <= end; t += MINUTE) {
     date.setTime(t);
     if (matchesCompiled(date, compiled)) out.push(t);
   }
+  if (expectedRunCache.size >= EXPECTED_RUN_CACHE_LIMIT)
+    expectedRunCache.delete(expectedRunCache.keys().next().value);
+  expectedRunCache.set(key, out);
   return out;
 }
 
