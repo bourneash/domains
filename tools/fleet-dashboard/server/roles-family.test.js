@@ -158,6 +158,10 @@ test('Agent health shares each role log read across stats, history, and telemetr
     path.join(logs, logName),
     `started at ${ranAt.toISOString()}\nfinished at ${ranAt.toISOString()} (exit=0)\nPublished /articles/current-story\n`
   );
+  fs.writeFileSync(
+    path.join(logs, `update-local-${ranAt.toISOString().slice(0, 10).replaceAll('-', '')}.log`),
+    'a different role family profile, not an update run'
+  );
   const originalRead = fs.readFileSync;
   const logReads = [];
   let crontabReads = 0;

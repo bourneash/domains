@@ -121,7 +121,7 @@ function familyForRole(role) {
 function logRe(role) {
   const prefixes = LOG_PREFIX[role] || [role];
   const alt = prefixes.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  return new RegExp('^(?:' + alt + ')(?:-\\d)?');
+  return new RegExp('^(?:' + alt + ')(?:-\\d)?(?=-20\\d{2}|$)');
 }
 
 function readFirst(cwd, rels) {
@@ -209,11 +209,11 @@ function createLogIndex(cwd) {
     return entry;
   }
   return {
-    matching(predicate) {
+    matching(predicate, sinceMs = null) {
       return listNames()
         .filter(name => predicate(name))
         .map(stat)
-        .filter(Boolean)
+        .filter(entry => entry && (sinceMs === null || entry.mtime >= sinceMs))
         .sort((a, b) => b.mtime - a.mtime);
     },
     read(name) {

@@ -67,6 +67,39 @@ test('execution history keeps nearest-run matching within the cron tolerance win
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test('execution history skips logs untouched before its bounded read window', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-execution-log-window-'));
+  const logs = path.join(root, 'sites', 'example.com', 'ops', 'logs');
+  fs.mkdirSync(logs, { recursive: true });
+  const oldLog = path.join(logs, 'promoter-2026-09-17-1000.log');
+  const recentLog = path.join(logs, 'promoter-2026-09-19-1000.log');
+  fs.writeFileSync(oldLog, 'old historical run');
+  fs.writeFileSync(
+    recentLog,
+    '=== role=promoter started at 2026-09-19T10:00:00Z ===\n=== role=promoter finished at 2026-09-19T10:00:02Z (exit=0) ===\n'
+  );
+  const oldTime = new Date('2026-09-17T10:00:00Z');
+  fs.utimesSync(oldLog, oldTime, oldTime);
+  let logReads = 0;
+  const originalRead = fs.readFileSync;
+  fs.readFileSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logReads++;
+    return originalRead.call(this, file, ...args);
+  };
+  try {
+    const history = executionHistory(root, 'example.com', 'promoter', '0 * * * *', {
+      from: new Date('2026-09-19T10:00:00Z'),
+      to: new Date('2026-09-19T10:00:00Z'),
+    });
+    assert.equal(history.observed, 1);
+    assert.equal(history.succeeded, 1);
+    assert.equal(logReads, 1);
+  } finally {
+    fs.readFileSync = originalRead;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('paused roles do not create missed execution slots', () => {
   const history = executionHistory('/does-not-exist', 'example.com', 'promoter', '*/5 * * * *', {
     from: new Date('2026-09-19T10:00:00Z'),

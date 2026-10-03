@@ -122,12 +122,27 @@ function collectObservedRuns(root, slug, role, from, to, { logIndex, lastRuns } 
   const cwd = siteDir(root, slug);
   const dir = path.join(cwd, 'ops', 'logs');
   const records = [];
+  // Run logs are append-written. Ignore files untouched well before the
+  // history window; their records cannot have been produced during it. Keep
+  // one day of grace for host clock skew and still validate record timestamps.
+  const logMtimeCutoff = from.getTime() - DAY;
   let files = [];
   if (logIndex) {
-    files = logIndex.matching(file => isRunLog(role, file)).map(entry => entry.name);
+    files = logIndex
+      .matching(file => isRunLog(role, file), logMtimeCutoff)
+      .map(entry => entry.name);
   } else {
     try {
-      files = fs.readdirSync(dir);
+      files = fs
+        .readdirSync(dir)
+        .filter(file => isRunLog(role, file))
+        .filter(file => {
+          try {
+            return fs.statSync(path.join(dir, file)).mtimeMs >= logMtimeCutoff;
+          } catch {
+            return false;
+          }
+        });
     } catch {
       files = [];
     }
