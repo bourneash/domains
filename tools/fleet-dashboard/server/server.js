@@ -7604,9 +7604,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
 
   // Containers: list domains-repo containers, lifecycle actions, logs, bounce.
-  app.get('/api/containers', async (_req, res) => {
+  app.get('/api/containers', async (req, res) => {
     try {
-      res.json(await containers.list(root));
+      res.json(await containers.list(root, { force: req.query.fresh === '1' }));
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

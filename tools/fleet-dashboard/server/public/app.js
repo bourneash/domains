@@ -4025,10 +4025,10 @@ function loadAgentRoleMatrix(role) {
 }
 
 let FLEET_CONTAINERS_PENDING = null;
-function loadFleetContainers() {
+function loadFleetContainers({ fresh = false } = {}) {
   if (FLEET_CONTAINERS_PENDING) return FLEET_CONTAINERS_PENDING;
   let pending;
-  pending = api('GET', '/api/containers').finally(() => {
+  pending = api('GET', `/api/containers${fresh ? '?fresh=1' : ''}`).finally(() => {
     if (FLEET_CONTAINERS_PENDING === pending) FLEET_CONTAINERS_PENDING = null;
   });
   FLEET_CONTAINERS_PENDING = pending;
@@ -5013,7 +5013,7 @@ async function renderContainers() {
   if (FRESH) app.innerHTML = '<div class="loading">Listing containers…</div>';
   let rows;
   try {
-    rows = await loadFleetContainers();
+    rows = await loadFleetContainers({ fresh: true });
   } catch (e) {
     renderViewError(app, `Container list failed: ${e.message}`);
     return;

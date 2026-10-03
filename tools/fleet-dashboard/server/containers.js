@@ -3,7 +3,10 @@
 const { execFile } = require('node:child_process');
 const { siteDir } = require('./sites');
 const scheduler = require('./scheduler');
-const LIST_CACHE_TTL_MS = 5000;
+// The shell reads container status every 30s. Keep one scan through two rail
+// refreshes; opening the Containers view uses the bounded fresh-read path.
+const LIST_CACHE_TTL_MS = 60000;
+const MIN_FORCED_REFRESH_INTERVAL_MS = 5000;
 const listCache = new Map();
 const listPending = new Map();
 const listEpoch = new Map();
@@ -52,9 +55,11 @@ const FIELDS = [
 // Every container whose compose working_dir is inside the domains repo. Running
 // ones, plus legacy cron containers even if down; adopted-site legacy cron rows
 // are filtered below because fleet-scheduler owns those schedules.
-async function list(root) {
+async function list(root, { force = false } = {}) {
   const cached = listCache.get(root);
-  if (cached && Date.now() - cached.at < LIST_CACHE_TTL_MS) return cached.rows;
+  const age = cached ? Date.now() - cached.at : Infinity;
+  if (cached && age < (force ? MIN_FORCED_REFRESH_INTERVAL_MS : LIST_CACHE_TTL_MS))
+    return cached.rows;
   if (cached) listCache.delete(root);
   const pending = listPending.get(root);
   if (pending) return pending;
@@ -63,8 +68,7 @@ async function list(root) {
   let refresh;
   refresh = scanList(root)
     .then(rows => {
-      if ((listEpoch.get(root) || 0) === epoch)
-        listCache.set(root, { at: Date.now(), rows });
+      if ((listEpoch.get(root) || 0) === epoch) listCache.set(root, { at: Date.now(), rows });
       return rows;
     })
     .finally(() => {
