@@ -343,16 +343,23 @@ test('Engineer health actions keep their role binding explicit', () => {
   assert.doesNotMatch(app, /ag-health-details"[^`]*data-role="\$\{esc\(role\)\}"/);
 });
 
-test('Engineer overview loads enrollment controls without waiting for the full role matrix', () => {
+test('Engineer overview skips the full role matrix and reuses data across repaints', () => {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = source.indexOf('async function renderEngineers()');
   const end = source.indexOf('// Jump from an engineer row', start);
   const engineerView = source.slice(start, end);
-  assert.match(engineerView, /\/api\/agents\/engineer\/enrollment/);
+  assert.match(engineerView, /loadEngineerOverviewData\(\)/);
   assert.match(engineerView, /const historyPromise = refreshHistory/);
   assert.match(engineerView, /ENGINEER_RENDER_GENERATION === generation/);
   assert.doesNotMatch(engineerView, /\[rows, hist, roleData\] = await Promise\.all/);
   assert.doesNotMatch(engineerView, /loadRoleMatrix\(/);
+  const dataStart = source.indexOf('function loadEngineerOverviewData()');
+  const dataEnd = source.indexOf('function invalidateEngineerOverviewData()', dataStart);
+  const engineerDataLoader = source.slice(dataStart, dataEnd);
+  assert.match(engineerDataLoader, /\/api\/fleet/);
+  assert.match(engineerDataLoader, /\/api\/agents\/engineer\/enrollment/);
+  assert.match(engineerDataLoader, /ENGINEER_DATA_PENDING/);
+  assert.match(engineerDataLoader, /ENGINEER_DATA_CACHE/);
   const renderStart = source.indexOf('function render() {');
   const renderEnd = source.indexOf('const NAV_ITEM_DESCRIPTIONS', renderStart);
   assert.doesNotMatch(source.slice(renderStart, renderEnd), /loadRoleMatrix\(\)\.catch\(\(\) => \{\}\)/);

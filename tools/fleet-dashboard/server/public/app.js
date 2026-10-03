@@ -30,6 +30,10 @@ const AGENT_HEALTH_GENERATION = new Map();
 const ENGINEER_HISTORY_TTL_MS = 30000;
 let ENGINEER_HISTORY_CACHE = null;
 let ENGINEER_HISTORY_PENDING = null;
+const ENGINEER_DATA_TTL_MS = 5000;
+let ENGINEER_DATA_CACHE = null;
+let ENGINEER_DATA_PENDING = null;
+let ENGINEER_DATA_EPOCH = 0;
 let ENGINEER_RENDER_GENERATION = 0;
 let ACCESS_LEVEL = 'operator';
 let AGENT_CATALOG_READY = false;
@@ -93,6 +97,34 @@ function loadEngineerHistory() {
   return pending;
 }
 
+function loadEngineerOverviewData() {
+  if (ENGINEER_DATA_CACHE && Date.now() - ENGINEER_DATA_CACHE.at < ENGINEER_DATA_TTL_MS)
+    return Promise.resolve(ENGINEER_DATA_CACHE.data);
+  if (ENGINEER_DATA_PENDING) return ENGINEER_DATA_PENDING;
+  const epoch = ENGINEER_DATA_EPOCH;
+  let pending;
+  pending = Promise.all([
+    api('GET', '/api/fleet'),
+    api('GET', '/api/agents/engineer/enrollment').catch(() => ({ sites: [] })),
+  ])
+    .then(([rows, roleData]) => {
+      const data = { rows, roleData };
+      if (ENGINEER_DATA_EPOCH === epoch) ENGINEER_DATA_CACHE = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      if (ENGINEER_DATA_PENDING === pending) ENGINEER_DATA_PENDING = null;
+    });
+  ENGINEER_DATA_PENDING = pending;
+  return pending;
+}
+
+function invalidateEngineerOverviewData() {
+  ENGINEER_DATA_EPOCH++;
+  ENGINEER_DATA_CACHE = null;
+  ENGINEER_DATA_PENDING = null;
+}
+
 function agentHealthLoading(role) {
   const error = AGENT_HEALTH_ERRORS.get(role);
   return `<div class="card muted" role="status">${error ? `Seven-day health unavailable: ${esc(error)} <button class="btn sm agent-health-retry" type="button" data-role="${esc(role)}">Retry</button>` : 'Loading seven-day health…'}</div>`;
@@ -139,6 +171,7 @@ function invalidateAgentRole(role) {
   AGENT_MATRIX_PENDING.clear();
   for (const [key, epoch] of AGENT_MATRIX_EPOCH) AGENT_MATRIX_EPOCH.set(key, epoch + 1);
   AGENT_HEALTH_CACHE.delete(role);
+  if (role === 'engineer') invalidateEngineerOverviewData();
   AGENT_HEALTH_ERRORS.delete(role);
   AGENT_HEALTH_GENERATION.set(role, (AGENT_HEALTH_GENERATION.get(role) || 0) + 1);
   AGENT_HEALTH_PENDING.delete(role);
@@ -700,10 +733,7 @@ async function renderEngineers() {
     ? loadEngineerHistory().then(() => true, () => false)
     : null;
   try {
-    [rows, roleData] = await Promise.all([
-      api('GET', '/api/fleet'),
-      api('GET', '/api/agents/engineer/enrollment').catch(() => ({ sites: [] })),
-    ]);
+    ({ rows, roleData } = await loadEngineerOverviewData());
     healthData = cachedAgentHealth('engineer');
   } catch (e) {
     renderViewError(app, `Audit failed: ${e.message}`);
@@ -16427,7 +16457,10 @@ async function boot() {
     if (!e.target.closest('#agents-dd')) closeAgentsMenu();
     if (!e.target.closest('.nav-group')) closeNavGroupMenus();
   });
-  $('#refresh').addEventListener('click', softRender);
+  $('#refresh').addEventListener('click', () => {
+    if (STATE.view === 'agent' && STATE.agent === 'engineer') invalidateEngineerOverviewData();
+    softRender();
+  });
   $('#density-toggle').addEventListener('click', toggleDensity);
   const ff = $('#fleet-filter');
   if (ff) {
