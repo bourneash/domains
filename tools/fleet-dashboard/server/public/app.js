@@ -2688,7 +2688,7 @@ async function renderAIUsage() {
     : `<span class="badge b-green">clean</span>`;
 
   app.innerHTML = `
-    <div class="page-head"><div><h2 class="page-title">AI Usage</h2><span class="muted">real token usage/cost captured by tools/scripts/claude-tracked.sh, aggregated fleet-wide</span></div><button type="button" class="btn" id="aiu-refresh">↻ Refresh</button></div>
+    <div class="page-head"><div><h2 class="page-title">AI Usage</h2><span class="muted">Tracked token usage and spend from AI runs across the fleet.</span></div><button type="button" class="btn" id="aiu-refresh">↻ Refresh</button></div>
     <div class="aiu-controls" aria-label="AI usage filters">
       <label>Time range
         <select id="aiu-quick-select">${AIU_PRESETS.map(
@@ -2726,7 +2726,7 @@ async function renderAIUsage() {
     </section>
     ${
       modelDriftCalls
-        ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> resolved to a different model family than requested this period (${fmtUSD(modelDriftCostUsd)} — see "Alerts &amp; coverage" below). Caught by claude-tracked.sh's requested-vs-actual model check.</div>`
+        ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ <strong>${modelDriftCalls} call${modelDriftCalls === 1 ? '' : 's'}</strong> used a different model family than requested this period (${fmtUSD(modelDriftCostUsd)}). See “Alerts &amp; coverage” for details.</div>`
         : ''
     }
     ${
@@ -2804,16 +2804,16 @@ async function renderAIUsage() {
         ${
           modelDriftRows.length
             ? `
-        <div class="task-toolbar aiu-subhead"><strong>Model drift by site &amp; role</strong><span class="muted">requested model resolved to a different family (opus/sonnet/haiku) than the CLI actually ran — see claude-tracked.sh</span></div>
+        <div class="task-toolbar aiu-subhead"><strong>Model drift by site &amp; role</strong><span class="muted">Requested and actual model families differ (Opus, Sonnet, or Haiku).</span></div>
         <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Role', 'Cron role that made the call.')}${aiuTh('Calls', 'Calls where the resolved model family differed from the requested one.')}${aiuTh('Cost', 'total_cost_usd reported by the CLI for these calls.')}</tr></thead><tbody>${modelDriftRowsHtml}</tbody></table></div>`
             : ''
         }
-        ${notWired.length ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ Has AI cron calls but NOT wired to claude-tracked.sh (${notWired.length}): ${notWired.map(esc).join(', ')}. See <span class="mono">tools/cron-roles/WIRING.md</span> Step 6.5.</div>` : ''}
+        ${notWired.length ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ AI usage tracking is not enabled for ${notWired.length} site${notWired.length === 1 ? '' : 's'} with scheduled AI calls: ${notWired.map(esc).join(', ')}.</div>` : ''}
         ${wiredAwaiting.length ? `<div class="aiu-notice" role="note">Wired, awaiting first cron fire (${wiredAwaiting.length}): ${wiredAwaiting.map(esc).join(', ')}.</div>` : ''}
         ${noAiRole.length ? `<div class="aiu-notice" role="note">No AI cron role at all — nothing to track (${noAiRole.length}): ${noAiRole.map(esc).join(', ')}.</div>` : ''}
         ${ledgerDiagnostics.malformed_json || ledgerDiagnostics.invalid_records ? `<div class="aiu-notice aiu-notice-danger" role="alert">⚠ Ledger quality: ${ledgerDiagnostics.malformed_json || 0} malformed JSON line${ledgerDiagnostics.malformed_json === 1 ? '' : 's'}, ${ledgerDiagnostics.invalid_records || 0} invalid record${ledgerDiagnostics.invalid_records === 1 ? '' : 's'} skipped.</div>` : ''}
         <div class="task-toolbar aiu-subhead aiu-subhead-late"><strong>Fleet tracking coverage</strong><span class="muted">Every site, including ones with no AI call path.</span></div>
-        <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI calls are wired to claude-tracked.sh and have ledger data — see tools/cron-roles/WIRING.md Step 6.5.')}</tr></thead><tbody>${coverageRows}</tbody></table></div>
+        <div class="table-wrap"><table><thead><tr>${aiuTh('Site', 'Site slug (sites/<name>).')}${aiuTh('Tracking status', 'Whether this site’s AI usage is included in tracked fleet totals.')}</tr></thead><tbody>${coverageRows}</tbody></table></div>
       </div>
     </details>`;
   const aiuFilterLabels = {

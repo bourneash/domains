@@ -3518,6 +3518,18 @@ test('AI Usage presents key metrics as a non-duplicated KPI strip', () => {
   assert.match(style, /\.aiu-summary \{[^}]*grid-template-columns/);
 });
 
+test('AI Usage operator copy explains tracking without exposing implementation paths', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderAIUsage(');
+  const end = app.indexOf('\nfunction ', start + 1);
+  assert.ok(start >= 0 && end > start, 'renderAIUsage implementation should be present');
+  const view = app.slice(start, end);
+  assert.match(view, /Tracked token usage and spend from AI runs across the fleet\./);
+  assert.match(view, /AI usage tracking is not enabled for/);
+  assert.match(view, /Whether this site’s AI usage is included in tracked fleet totals\./);
+  assert.doesNotMatch(view, /claude-tracked\.sh|tools\/cron-roles\/WIRING\.md/);
+});
+
 test('AI Usage period rows show compact UTC labels with machine-readable timestamps', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = app.indexOf('function aiuPeriodTime(value, bucket)');
