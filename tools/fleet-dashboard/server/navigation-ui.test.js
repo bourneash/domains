@@ -251,7 +251,7 @@ test('optional API reads do not hide authentication failures as empty data', () 
 
 test('dashboard GET requests bypass HTTP cache validation for live API data', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  const start = app.indexOf('async function api(method, url, body)');
+  const start = app.indexOf('async function api(method, url, body, timeoutMs = API_TIMEOUT_MS)');
   const end = app.indexOf('\n// Optional panels', start);
   assert.ok(start >= 0 && end > start);
   assert.match(app.slice(start, end), /if \(method === 'GET'\) opt\.cache = 'no-store'/);
@@ -309,6 +309,8 @@ test('site command centers are shareable first-class routes', () => {
   assert.match(siteView, /id="site-error-count">—<\/strong>/);
   assert.match(siteView, /Repository status unavailable · refresh to retry/);
   assert.match(siteView, /Activity evidence unavailable · refresh to retry/);
+  assert.match(app, /const SITE_DETAIL_REQUEST_TIMEOUT_MS = 10000/);
+  assert.match(siteView, /api\('GET', url, undefined, SITE_DETAIL_REQUEST_TIMEOUT_MS\)/);
   assert.match(siteView, /if \(!isCurrentSiteRender\(\)\) return;/);
 });
 

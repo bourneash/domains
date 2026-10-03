@@ -582,7 +582,7 @@ function safeHref(u) {
 }
 
 const API_TIMEOUT_MS = 60000;
-async function api(method, url, body) {
+async function api(method, url, body, timeoutMs = API_TIMEOUT_MS) {
   const requestEpoch = ROUTE_EPOCH;
   const opt = { method, headers: {} };
   // Dashboard APIs are live operational state, not static assets. Avoid
@@ -590,7 +590,7 @@ async function api(method, url, body) {
   // API failure by this helper (silently producing empty bootstrap data).
   if (method === 'GET') opt.cache = 'no-store';
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
-  const timeout = setTimeout(() => controller?.abort(), API_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller?.abort(), timeoutMs);
   if (controller) opt.signal = controller.signal;
   if (body !== undefined) {
     opt.headers['content-type'] = 'application/json';
@@ -617,8 +617,7 @@ async function api(method, url, body) {
     // successful one. In particular, a timeout from the previous view must
     // never replace the route the operator has navigated to since.
     if (requestEpoch !== ROUTE_EPOCH) throw new StaleRouteError();
-    if (e?.name === 'AbortError')
-      throw new Error(`Request timed out after ${API_TIMEOUT_MS / 1000}s`);
+    if (e?.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs / 1000}s`);
     throw e;
   } finally {
     clearTimeout(timeout);
@@ -18481,6 +18480,7 @@ function siteStatusLabel(value) {
   return label ? `${label[0].toUpperCase()}${label.slice(1)}` : 'Unknown';
 }
 
+const SITE_DETAIL_REQUEST_TIMEOUT_MS = 10000;
 let SITE_DETAIL_RENDER = 0;
 async function renderSiteDetail() {
   const app = $('#app');
@@ -18494,7 +18494,7 @@ async function renderSiteDetail() {
     STATE.view === 'site' &&
     STATE.siteSlug === site;
   const readSecondary = (url, fallback) =>
-    api('GET', url)
+    api('GET', url, undefined, SITE_DETAIL_REQUEST_TIMEOUT_MS)
       .then(data => ({ data, available: true }))
       .catch(error => ({ data: fallback, available: false, error }));
 
