@@ -10447,7 +10447,7 @@ async function renderDomains() {
       <div class="dom-stat"><strong>${(d.sites || []).length}</strong><span>Total checked-out sites</span></div>
       <div class="dom-stat"><strong>${jobs.length}</strong><span>Recent jobs</span></div>
       <div class="dom-stat ${activeJobs ? 'dom-stat-warn' : ''}"><strong>${activeJobs}</strong><span>Queued or running</span></div>
-      <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span>Failed jobs</span></div>
+      <div class="dom-stat ${failedJobs ? 'dom-stat-bad' : 'dom-stat-good'}"><strong>${failedJobs}</strong><span title="Failed jobs among the latest 60 retained jobs">Recent failures</span></div>
       <div class="dom-stat dom-stat-meta"><strong>${runnerLabel}</strong><span>Host runner</span></div>
     </section>
     ${runnerNote}

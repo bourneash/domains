@@ -2138,6 +2138,10 @@ test('Domains route separates command queueing from operational inventory', () =
   );
   assert.match(app, /class="dom-summary" aria-label="Domain operations summary"/);
   assert.match(app, /<span>Total checked-out sites<\/span>/);
+  assert.match(
+    app,
+    /<span title="Failed jobs among the latest 60 retained jobs">Recent failures<\/span>/
+  );
   assert.match(app, /<span class="muted">\$\{\(d\.sites \|\| \[\]\)\.length\} total<\/span>/);
   assert.match(app, /<th>Created<\/th>/);
   assert.match(app, /createdLabel/);
