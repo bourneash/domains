@@ -3497,7 +3497,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
   app.get('/api/executive/messages', (req, res) => {
     try {
-      res.json({ messages: events.listExecutiveMessages(req.query) });
+      const messages =
+        req.query.preview === '1'
+          ? events.listExecutiveMessagePreviews(req.query)
+          : events.listExecutiveMessages(req.query);
+      res.json({ messages });
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

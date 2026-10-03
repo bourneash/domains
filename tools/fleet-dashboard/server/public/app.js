@@ -14268,7 +14268,7 @@ async function renderExecutive() {
       cases,
       calendar,
     ] = await Promise.all([
-      api('GET', '/api/executive/messages?limit=100'),
+      api('GET', '/api/executive/messages?limit=100&preview=1'),
       conversationOnly
         ? Promise.resolve({ messages: [], retention_days: 90 })
         : apiOptional('GET', '/api/executive/transcript?limit=5', {

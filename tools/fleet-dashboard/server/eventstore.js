@@ -1590,6 +1590,16 @@ function open(root, { file } = {}) {
       .map(row => ({ ...row, metadata: safeJson(row.metadata_json), metadata_json: undefined }));
   }
 
+  function listExecutiveMessagePreviews({ conversation_id = 'executive', limit = 100 } = {}) {
+    const n = Math.max(1, Math.min(Number(limit) || 100, 500));
+    return db
+      .prepare(
+        `SELECT actor, body, created_at, work_id FROM executive_messages
+        WHERE conversation_id = ? ORDER BY created_at DESC LIMIT ?`
+      )
+      .all(String(conversation_id), n);
+  }
+
   function countExecutiveMessages({ conversation_id = 'executive', work_id, actor } = {}) {
     const clauses = ['conversation_id = ?'];
     const args = [String(conversation_id)];
@@ -6036,6 +6046,7 @@ function open(root, { file } = {}) {
     updateExecutiveSettings,
     createExecutiveMessage,
     listExecutiveMessages,
+    listExecutiveMessagePreviews,
     countExecutiveMessages,
     listExecutiveTranscript,
     countExecutiveTranscript,

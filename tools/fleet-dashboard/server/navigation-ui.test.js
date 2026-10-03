@@ -105,6 +105,11 @@ test('executive transcript loads bounded pages and fetches full text on demand',
   assert.match(app, /transcript\.has_more/);
 });
 
+test('executive conversation list requests only fields it renders', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /\/api\/executive\/messages\?limit=100&preview=1/);
+});
+
 test('executive workbench is a first-class operator route', () => {
   assert.equal(routeFor('#workbench').view, 'workbench');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

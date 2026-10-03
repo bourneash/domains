@@ -91,6 +91,13 @@ test('owner and executive team can complete a durable request/reply conversation
     assert.equal(followUp.status, 201);
     assert.equal(followUp.body.message.work_id, workId);
 
+    const previews = await request(server, 'GET', '/api/executive/messages?limit=10&preview=1');
+    assert.equal(previews.status, 200);
+    const preview = previews.body.messages.find(message => message.work_id === workId);
+    assert.ok(preview);
+    assert.equal(preview.body, 'Please include licensing, deployment, security, and a small proof-of-concept plan in the recommendation.');
+    assert.deepEqual(Object.keys(preview).sort(), ['actor', 'body', 'created_at', 'work_id']);
+
     const thread = await request(
       server,
       'GET',

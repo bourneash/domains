@@ -77,6 +77,24 @@ test('filters executive messages and proposals by Product Manager role', () => {
   store.close();
 });
 
+test('projects recent conversation rows without their unused scorecard metadata', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-message-preview-'));
+  const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
+  store.createExecutiveMessage({
+    actor: 'system',
+    body: 'Recent conversation text',
+    work_id: 'request-1',
+    metadata: { scorecard: 'large unused scorecard payload '.repeat(1000) },
+  });
+
+  const preview = store.listExecutiveMessagePreviews()[0];
+  assert.deepEqual(Object.keys(preview).sort(), ['actor', 'body', 'created_at', 'work_id']);
+  assert.equal(preview.body, 'Recent conversation text');
+  assert.equal(preview.work_id, 'request-1');
+  assert.ok(Buffer.byteLength(JSON.stringify(preview)) < 200);
+  store.close();
+});
+
 test('pages transcript messages in SQLite and returns only a bounded body preview', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-transcript-page-'));
   const store = eventstore.open(dir, { file: path.join(dir, 'events.sqlite') });
