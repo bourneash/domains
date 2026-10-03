@@ -11,6 +11,8 @@ const API =
     : 'http://127.0.0.1:4760');
 const CACHE_MS = 5 * 60 * 1000;
 let cache = null;
+let cacheGeneration = 0;
+const pending = new Map();
 
 async function getJson(pathname, fetchImpl = fetch, timeoutMs = 5000) {
   const ctrl = new AbortController();
@@ -743,13 +745,8 @@ function filedActionKeys(root, siteNames) {
   return keys;
 }
 
-async function buildSnapshot({
-  root,
-  fetchImpl = fetch,
-  days = 90,
-  now = new Date(),
-  force = false,
-} = {}) {
+function buildSnapshot(options = {}) {
+  const { root, days = 90, force = false, fetchImpl = fetch } = options;
   if (
     !force &&
     cache &&
@@ -757,7 +754,36 @@ async function buildSnapshot({
     cache.days === days &&
     Date.now() - cache.at < CACHE_MS
   )
-    return cache.value;
+    return Promise.resolve(cache.value);
+
+  // Priorities and Data Quality can be opened at the same time in separate
+  // tabs. Their route handlers need the same five-per-site analytics snapshot;
+  // share one read fan-out instead of having both pages queue identical Hub
+  // requests against the same SQLite-backed service.
+  const key = JSON.stringify([root, days]);
+  const existing = pending.get(key);
+  if (existing?.fetchImpl === fetchImpl) return existing.promise;
+
+  const generation = cacheGeneration;
+  let shared;
+  shared = computeSnapshot({ ...options, root, days, fetchImpl })
+    .then(value => {
+      if (cacheGeneration === generation) cache = { root, days, at: Date.now(), value };
+      return value;
+    })
+    .finally(() => {
+      if (pending.get(key)?.promise === shared) pending.delete(key);
+    });
+  pending.set(key, { fetchImpl, promise: shared });
+  return shared;
+}
+
+async function computeSnapshot({
+  root,
+  fetchImpl = fetch,
+  days = 90,
+  now = new Date(),
+} = {}) {
   const webVitals = readReport(root, 'tools/web-vitals/reports/latest.json');
   const linkRot = readReport(root, 'tools/link-rot/reports/latest.json');
   let health = { sites: {} };
@@ -935,12 +961,13 @@ async function buildSnapshot({
     sites: siteRows,
     actions,
   };
-  cache = { root, days, at: Date.now(), value };
   return value;
 }
 
 function clearCache() {
   cache = null;
+  cacheGeneration++;
+  pending.clear();
 }
 
 module.exports = {

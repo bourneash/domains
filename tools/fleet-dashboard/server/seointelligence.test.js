@@ -196,7 +196,9 @@ test('actionPlan provides concrete execution and verification steps', () => {
 
 test('buildSnapshot joins page sources and emits ranked plans', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-snapshot-'));
+  let fetchCalls = 0;
   const fetchImpl = async url => {
+    fetchCalls++;
     let payload;
     if (url.includes('/metrics/health'))
       payload = {
@@ -258,12 +260,18 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
     else throw new Error(`unexpected URL ${url}`);
     return { ok: true, status: 200, json: async () => payload };
   };
-  const snapshot = await seo.buildSnapshot({
+  const options = {
     root,
     fetchImpl,
     force: true,
     now: new Date('2026-09-01T12:00:00Z'),
-  });
+  };
+  const [snapshot, sharedSnapshot] = await Promise.all([
+    seo.buildSnapshot(options),
+    seo.buildSnapshot(options),
+  ]);
+  assert.strictEqual(sharedSnapshot, snapshot);
+  assert.equal(fetchCalls, 6, 'concurrent callers should share all six Hub reads');
   assert.equal(snapshot.totals.pagesMeasured, 1);
   assert.equal(snapshot.totals.conversions, 2);
   assert.equal(snapshot.sources.gscPageSites, 1);
