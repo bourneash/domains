@@ -15,7 +15,16 @@ function isAutomaticFailureDiagnosis(request) {
 }
 
 function failureText(request, run) {
-  return [request?.error, run?.outcome?.error, run?.validation?.policy?.summary, run?.agent?.error]
+  const failedChecks = Object.entries(run?.validation?.checks || {})
+    .filter(([, check]) => check?.status === 'fail')
+    .map(([name, check]) => `${name}: ${String(check.excerpt || check.error || '').slice(-4000)}`);
+  return [
+    request?.error,
+    run?.outcome?.error,
+    ...failedChecks,
+    run?.validation?.policy?.summary,
+    run?.agent?.error,
+  ]
     .filter(Boolean)
     .join(' ')
     .trim();
@@ -42,6 +51,16 @@ function classifyFailure(request, run) {
       summary: 'The approved evidence request did not produce a verified report artifact.',
       next_action:
         'CTO must inspect the worker log and either requeue a bounded report-only replacement or close the request with the missing evidence documented.',
+    };
+  }
+  if (/npm audit|severity.*vulnerabilit|no patched version/i.test(text)) {
+    return {
+      kind: 'security',
+      owner: 'security',
+      priority: 'high',
+      summary: 'A required dependency audit failed; the feature workspace is retained.',
+      next_action:
+        'Security must inspect the exact advisory and available patched versions, prepare a tested bounded remediation, or record the unpatched upstream dependency and next review date. Preserve the original feature and audit thresholds; do not repeat unchanged implementation work.',
     };
   }
   if (/reviewer rejected|automatic reviewer did not return pass/i.test(text)) {
@@ -132,7 +151,8 @@ function buildFollowup(request, run) {
 }
 
 function upsert(store, request, run) {
-  if (!store || !request || request.status !== 'failed') return { changed: false, item: null };
+  if (!store || !request || !['failed', 'needs_human_review'].includes(request.status))
+    return { changed: false, item: null };
   const payload = buildFollowup(request, run);
   const existing = store.getExecutiveWorkItem(payload.work_id);
   if (!existing)

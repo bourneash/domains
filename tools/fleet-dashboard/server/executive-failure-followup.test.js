@@ -72,3 +72,33 @@ test('creates one durable repair case for a failed report request', () => {
   assert.equal(created.kind, 'evidence');
   assert.equal(created.owner, 'cto');
 });
+
+test('exhausted review preserves exact failing audit in a security-owned case', () => {
+  const q = request({ status: 'needs_human_review', error: 'quality gates did not pass' });
+  const run = {
+    run_id: 'original',
+    state: 'failed',
+    validation: {
+      checks: {
+        ci: {
+          status: 'fail',
+          excerpt:
+            'npm audit --audit-level=high: http-cache-semantics high severity; no patched version',
+        },
+        build: { status: 'pass', excerpt: 'unrelated successful build' },
+      },
+    },
+  };
+  let saved;
+  const out = followup.upsert(
+    { getExecutiveWorkItem: () => null, createExecutiveWorkItem: p => (saved = p) },
+    q,
+    run
+  );
+  assert.equal(out.created, true);
+  assert.equal(saved.owner, 'security');
+  assert.equal(saved.kind, 'security');
+  assert.match(saved.summary, /http-cache-semantics/);
+  assert.doesNotMatch(saved.summary, /unrelated successful build/);
+  assert.match(saved.next_action, /do not repeat unchanged/);
+});

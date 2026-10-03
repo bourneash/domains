@@ -3240,3 +3240,30 @@ test('site requests never retain the fleet-only schema example action key', () =
   );
   assert.equal(plan.change_requests[0].action_key, undefined);
 });
+
+test('site-scoped fallback cannot borrow unrelated fleet candidates or blockers', () => {
+  const brief = {
+    generated_at: '2026-10-03T20:00:00Z',
+    domain_manager: { site: 'owned.example' },
+    action_mandate: {
+      candidates: [],
+      deferred_candidates: [{ site: 'other.example', deferred_reason: 'unrelated measurement' }],
+    },
+    productivity: {
+      blocked_fleet_sites: [
+        { site: 'owned.example', reason: 'preserved owner-blocked review' },
+        { site: 'other.example', reason: 'unrelated' },
+      ],
+      queue_ready_fleet_sites: ['other.example'],
+    },
+    proposal_execution: { approved_proposals_unexecuted: 5 },
+    work_items: [],
+  };
+  const out = runner.buildActionMandateFallback({}, brief);
+  assert.equal(out.change_requests.length, 0);
+  assert.equal(out.work_items.length, 1);
+  assert.equal(out.work_items[0].site, 'owned.example');
+  assert.equal(out.work_items[0].owner, 'domain-manager');
+  assert.match(out.work_items[0].summary, /preserved owner-blocked review/);
+  assert.doesNotMatch(JSON.stringify(out), /other.example|Drain 5/);
+});

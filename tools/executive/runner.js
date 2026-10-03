@@ -4024,8 +4024,14 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
     knowledge: [],
     ...plan,
   };
+  const assignedSite = String(
+    brief.operating_manager_task?.site || brief.domain_manager?.site || ''
+  ).toLowerCase();
+  const inScope = row => !assignedSite || String(row?.site || '').toLowerCase() === assignedSite;
+  if (assignedSite) basePlan.work_items = basePlan.work_items.filter(inScope);
+  const deferredCandidates = (brief.action_mandate?.deferred_candidates || []).filter(inScope);
   const candidates = Array.isArray(brief.action_mandate?.candidates)
-    ? brief.action_mandate.candidates
+    ? brief.action_mandate.candidates.filter(inScope)
     : [];
   const directCandidateSites = new Set(
     candidates
@@ -4049,17 +4055,21 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         )
       )
   );
-  const readiness = brief.productivity || {};
+  const readiness = { ...(brief.productivity || {}) };
+  if (assignedSite) {
+    readiness.blocked_fleet_sites = (readiness.blocked_fleet_sites || []).filter(inScope);
+    readiness.queue_ready_fleet_sites = (readiness.queue_ready_fleet_sites || []).filter(
+      site => String(site).toLowerCase() === assignedSite
+    );
+  }
   const hasFullFleetBlock =
     Array.isArray(readiness.blocked_fleet_sites) &&
     readiness.blocked_fleet_sites.length > 0 &&
     Array.isArray(readiness.queue_ready_fleet_sites) &&
     readiness.queue_ready_fleet_sites.length === 0;
-  const hasDeferredCandidate = Array.isArray(brief.action_mandate?.deferred_candidates)
-    ? brief.action_mandate.deferred_candidates.length > 0
-    : false;
+  const hasDeferredCandidate = deferredCandidates.length > 0;
   const hasApprovedUnexecuted =
-    Number(brief.proposal_execution?.approved_proposals_unexecuted || 0) > 0;
+    !assignedSite && Number(brief.proposal_execution?.approved_proposals_unexecuted || 0) > 0;
   if (!candidates.length && !hasFullFleetBlock && !hasDeferredCandidate && !hasApprovedUnexecuted)
     return basePlan;
 
@@ -4114,15 +4124,17 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
       blockedSites.length > 0 &&
       Array.isArray(readiness.queue_ready_fleet_sites) &&
       readiness.queue_ready_fleet_sites.length === 0;
-    const checkpointId = fullyBlocked
-      ? `executive-throughput-escalation:${day}`
-      : `executive-cycle-checkpoint:${day}`;
+    const checkpointId = assignedSite
+      ? `executive-site-blocker:${assignedSite}:${day}`
+      : fullyBlocked
+        ? `executive-throughput-escalation:${day}`
+        : `executive-cycle-checkpoint:${day}`;
     const existing = (brief.work_items || []).find(item => item.work_id === checkpointId);
     if (basePlan.work_items.some(item => item.work_id === checkpointId)) return basePlan;
-    const deferred = Array.isArray(brief.action_mandate?.deferred_candidates)
-      ? brief.action_mandate.deferred_candidates[0]
-      : null;
-    const approvedUnexecuted = Number(brief.proposal_execution?.approved_proposals_unexecuted || 0);
+    const deferred = deferredCandidates[0] || null;
+    const approvedUnexecuted = assignedSite
+      ? 0
+      : Number(brief.proposal_execution?.approved_proposals_unexecuted || 0);
     const blockedSummary = blockedSites
       .slice(0, 12)
       .map(
@@ -4136,18 +4148,20 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         ...basePlan.work_items,
         {
           work_id: checkpointId,
-          title: fullyBlocked
-            ? `Throughput escalation: no queue-ready fleet sites ${day}`
-            : deferred
-              ? `Unblock delivery for ${deferred.site} ${day}`
-              : approvedUnexecuted
-                ? `Drain ${approvedUnexecuted} approved implementation case(s) ${day}`
-                : `Executive delivery checkpoint ${day}`,
+          title: assignedSite
+            ? `Unblock managed site ${assignedSite} ${day}`
+            : fullyBlocked
+              ? `Throughput escalation: no queue-ready fleet sites ${day}`
+              : deferred
+                ? `Unblock delivery for ${deferred.site} ${day}`
+                : approvedUnexecuted
+                  ? `Drain ${approvedUnexecuted} approved implementation case(s) ${day}`
+                  : `Executive delivery checkpoint ${day}`,
           kind: 'implementation',
           status: 'in_progress',
           priority: 'high',
-          owner: 'delivery-lead',
-          site: 'fleet',
+          owner: assignedSite ? 'domain-manager' : 'delivery-lead',
+          site: assignedSite || 'fleet',
           actionability: 'blocker',
           summary: fullyBlocked
             ? `All discovered fleet sites are currently blocked by active work or measurement windows. Blockers: ${blockedSummary || 'see the authoritative queue readiness snapshot.'}`

@@ -1909,7 +1909,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   function reconcileFailedRequestErrors() {
     let changed = 0;
-    for (const request of events.listChangeRequests({ status: 'failed', limit: 1000 })) {
+    for (const request of events
+      .listChangeRequests({ limit: 'all' })
+      .filter(row => ['failed', 'needs_human_review'].includes(row.status))) {
       const run = request.run_id ? events.getImprovement(request.run_id) : null;
       try {
         const followup = executiveFailureFollowup.upsert(events, request, run);
