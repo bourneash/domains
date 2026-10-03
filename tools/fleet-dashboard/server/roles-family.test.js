@@ -203,6 +203,58 @@ test('Agent health shares each role log read across stats, history, and telemetr
   }
 });
 
+test('Agent health skips dated run logs outside the history scan window', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-health-window-'));
+  const logs = path.join(root, 'sites', 'example.test', 'ops', 'logs');
+  fs.mkdirSync(logs, { recursive: true });
+  const today = new Date();
+  const todayName = `planner-${today.toISOString().slice(0, 10).replaceAll('-', '')}.log`;
+  const oldName = 'planner-20260101.log';
+  fs.writeFileSync(
+    path.join(logs, todayName),
+    `started at ${today.toISOString()}\nfinished at ${today.toISOString()} (exit=0)\n`
+  );
+  fs.writeFileSync(path.join(logs, oldName), 'historical run');
+  const oldTime = new Date('2026-01-01T12:00:00Z');
+  fs.utimesSync(path.join(logs, oldName), oldTime, oldTime);
+  const originalRead = fs.readFileSync;
+  const originalStat = fs.statSync;
+  const logReads = [];
+  const logStats = [];
+  fs.readFileSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
+    return originalRead.call(this, file, ...args);
+  };
+  fs.statSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logStats.push(path.basename(String(file)));
+    return originalStat.call(this, file, ...args);
+  };
+  try {
+    const result = await roles.health(
+      root,
+      'planner',
+      ['example.test'],
+      {},
+      false,
+      {
+        sites: [
+          {
+            site: 'example.test',
+            cells: { planner: { schedule: '0 * * * *', enabled: true, state: 'fresh' } },
+          },
+        ],
+      }
+    );
+    assert.equal(result.rows[0].observed, 1);
+    assert.deepEqual(logReads, [todayName]);
+    assert.deepEqual(logStats, [todayName]);
+  } finally {
+    fs.readFileSync = originalRead;
+    fs.statSync = originalStat;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('task routing uses the shared editorial family candidates', () => {
   assert.equal(routing.assignedRoleForType('content', 'engineer'), 'content-writer');
   assert.equal(

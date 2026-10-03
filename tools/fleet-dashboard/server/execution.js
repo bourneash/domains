@@ -242,4 +242,10 @@ function executionHistory(
   };
 }
 
-module.exports = { cronMatches, expectedRuns, collectObservedRuns, executionHistory };
+module.exports = {
+  cronMatches,
+  expectedRuns,
+  collectObservedRuns,
+  executionHistory,
+  filenameTimestamp,
+};

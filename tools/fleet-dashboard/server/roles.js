@@ -27,6 +27,7 @@ const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
 // Match the browser's matrix cache window; role and automation mutations
 // invalidate this snapshot immediately.
 const MATRIX_CACHE_TTL_MS = 30000;
+const LOG_FILENAME_GRACE_MS = 2 * 86400000;
 const matrixCache = new Map();
 const matrixPending = new Map();
 const matrixEpoch = new Map();
@@ -212,6 +213,13 @@ function createLogIndex(cwd) {
     matching(predicate, sinceMs = null) {
       return listNames()
         .filter(name => predicate(name))
+        .filter(name => {
+          if (sinceMs === null) return true;
+          // Run-log names encode their start date; keep a two-day margin for
+          // daily logs and timezone skew before spending an fs.stat call.
+          const namedAt = execution.filenameTimestamp(name);
+          return namedAt === null || namedAt + LOG_FILENAME_GRACE_MS >= sinceMs;
+        })
         .map(stat)
         .filter(entry => entry && (sinceMs === null || entry.mtime >= sinceMs))
         .sort((a, b) => b.mtime - a.mtime);
@@ -535,9 +543,8 @@ function promptHash(cwd, role) {
 function recentRunStats(cwd, role, since, logIndex = createLogIndex(cwd)) {
   const re = logRe(role);
   const out = { observed: 0, succeeded: 0, failed: 0, unknown: 0, failures: [] };
-  for (const entry of logIndex.matching(file => re.test(file))) {
+  for (const entry of logIndex.matching(file => re.test(file), since)) {
     const { name: file, mtime } = entry;
-    if (mtime < since) continue;
     out.observed++;
     const text = logIndex.read(file);
     if (text === null) {
