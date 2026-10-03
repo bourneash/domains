@@ -13,6 +13,7 @@ const fleetdoctor = require('./fleetdoctor');
 const fleetregistry = require('./fleetregistry');
 const gatushealth = require('./gatushealth');
 const priorities = require('./priorities');
+const taskBoard = require('./tasks');
 const revenue = require('./revenue');
 const seoIntelligence = require('./seointelligence');
 const social = require('./social');
@@ -248,7 +249,56 @@ function compactUsage(data, managedSites) {
   };
 }
 
-function compactPriorities(data) {
+function compactPriorities(data, root) {
+  const routableTaskRepairs = new Map();
+  let taskTypes = null;
+  const taskTypeFor = (site, task) => {
+    if (task.task_type) return String(task.task_type).trim().toLowerCase();
+    if (!root) return '';
+    if (!taskTypes) {
+      taskTypes = new Map();
+      const sites = [...new Set((data?.items || []).map(item => item?.site).filter(Boolean))];
+      for (const card of taskBoard.listAll(root, sites)) {
+        taskTypes.set(
+          `${card.site}:${card.column}:${card.file}`,
+          String(card.type || '')
+            .trim()
+            .toLowerCase()
+        );
+      }
+    }
+    return taskTypes.get(`${site}:${task.column}:${task.file}`) || '';
+  };
+  for (const item of data?.items || []) {
+    const task = item?.task || {};
+    const taskType = taskTypeFor(item.site, task);
+    if (
+      item?.source !== 'task-routing-audit' ||
+      item?.state !== 'blocked' ||
+      !item.site ||
+      !task.file ||
+      !task.column ||
+      !task.expected_role ||
+      !['engineering', 'content', 'seo', 'design', 'marketing', 'sales', 'other'].includes(taskType)
+    )
+      continue;
+    const current = routableTaskRepairs.get(item.site);
+    if (!current || Number(item.score || 0) > Number(current.score || 0)) {
+      routableTaskRepairs.set(item.site, {
+        id: item.id,
+        site: item.site,
+        title: item.title,
+        evidence: item.evidence,
+        score: item.score,
+        task: {
+          file: task.file,
+          column: task.column,
+          type: taskType,
+          expected_role: task.expected_role,
+        },
+      });
+    }
+  }
   return {
     generated_at: data?.generated_at || null,
     value_basis: data?.value_basis || null,
@@ -276,6 +326,9 @@ function compactPriorities(data) {
       state: item.state,
       source: item.source,
     })),
+    // Separate, compact queue repairs retain verified task ownership metadata
+    // that the general top-20 priority sample intentionally omits.
+    routable_task_repairs: [...routableTaskRepairs.values()].slice(0, 40),
   };
 }
 
@@ -495,7 +548,7 @@ async function collect({ root, sites = [] } = {}) {
       revenue: safeRevenueData,
       ai_usage: compactUsage({ ...safeAiData, window: { from, to } }, managedSites),
       social: socialResult.data,
-      priorities: compactPriorities(priorityData),
+      priorities: compactPriorities(priorityData, root),
       operations: compactOperations(
         removeExcluded({
           deploy_health: deployhealth.all(),
@@ -519,4 +572,11 @@ async function collect({ root, sites = [] } = {}) {
   };
 }
 
-module.exports = { EXCLUDED_SITES, TOOL_CATALOG, removeExcluded, source, collect };
+module.exports = {
+  EXCLUDED_SITES,
+  TOOL_CATALOG,
+  removeExcluded,
+  source,
+  compactPriorities,
+  collect,
+};

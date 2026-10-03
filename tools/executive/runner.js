@@ -206,11 +206,45 @@ function actionCandidates(
         }))
     : [];
 
+  // A verified task-routing repair is the one exception to the rule that
+  // blocked priorities are not executable: these entries carry a concrete
+  // task card and an already-installed compatible role. They repair ownership
+  // only; they do not claim that the underlying site task has been completed.
+  const taskRoutingRepairs = Array.isArray(
+    intelligence?.decision_support?.priorities?.routable_task_repairs
+  )
+    ? intelligence.decision_support.priorities.routable_task_repairs
+        .filter(
+          item =>
+            allowed.has(item.site) &&
+            item.id &&
+            item.task?.file &&
+            item.task?.column &&
+            item.task?.expected_role &&
+            ['engineering', 'content', 'seo', 'design', 'marketing', 'sales', 'other'].includes(
+              String(item.task?.type || '').toLowerCase()
+            )
+        )
+        .map(item => ({
+          site: item.site,
+          key: item.id,
+          title: item.title,
+          type: String(item.task.type).toLowerCase(),
+          expected_role: item.task.expected_role,
+          task: item.task,
+          evidence: item.evidence,
+          score: item.score || 0,
+          recommendation:
+            'Correct only the assigned role on this existing task card. Preserve its task text and scope; leave execution to the installed owner role.',
+          metric: 'existing task accepted by its installed owner role',
+        }))
+    : [];
+
   // Keep the portfolio spread visible. The old planner sliced SEO findings
   // before considering the priorities feed, so one site could consume the
   // entire executive cycle while fleet-wide blockers remained hidden.
   const bySite = new Map();
-  for (const candidate of [...seoActions, ...priorityItems]) {
+  for (const candidate of [...seoActions, ...priorityItems, ...taskRoutingRepairs]) {
     const key = candidate.key ? String(candidate.key) : '';
     const titleKey = `${String(candidate.site || '')
       .trim()
@@ -218,9 +252,11 @@ function actionCandidates(
     if ((key && completed.keys.has(key)) || completed.titles.has(titleKey)) continue;
     const failed = completed.failed?.get(titleKey);
     if (failed && now < failed.until) continue;
-    const current = bySite.get(candidate.site);
-    if (!current || Number(candidate.score || 0) > Number(current.score || 0))
-      bySite.set(candidate.site, candidate);
+    const current = bySite.get(candidate.site) || [];
+    if (!current.some(row => row.key === candidate.key && row.title === candidate.title)) {
+      current.push(candidate);
+      bySite.set(candidate.site, current);
+    }
   }
 
   // When source-specific recommendations are sparse, rotate a small cohort of
@@ -263,6 +299,7 @@ function actionCandidates(
     });
   }
   return [...bySite.values()]
+    .flat()
     .sort(
       (a, b) =>
         Number(b.score || 0) - Number(a.score || 0) || String(a.site).localeCompare(String(b.site))
@@ -446,7 +483,29 @@ async function collectIntel(root, sites) {
   const cached =
     executiveSnapshot.readLatest(root, { sites }) ||
     executiveSnapshot.readLatest(root, { sites, allowStale: true });
-  const intelligence = cached ? cached.intelligence : await executiveIntel.collect({ root, sites });
+  let intelligence = cached ? cached.intelligence : await executiveIntel.collect({ root, sites });
+  // Older fresh snapshots predate the dedicated routable_task_repairs view.
+  // Rebuild just the deterministic priority layer from the current task board
+  // so those snapshots cannot hide already-owned queue repairs for up to 7h.
+  if (cached && !Array.isArray(intelligence.decision_support?.priorities?.routable_task_repairs)) {
+    const priorityBuilder = require('../fleet-dashboard/server/priorities');
+    const support = intelligence.decision_support || {};
+    const rebuilt = priorityBuilder.build({
+      root,
+      discoveredSites: sites,
+      seo: { actions: support.seo?.actions || [] },
+      revenue: support.revenue || {},
+      analyticsHealth: support.analytics || {},
+      aiUsage: support.ai_usage || {},
+    });
+    intelligence = {
+      ...intelligence,
+      decision_support: {
+        ...support,
+        priorities: executiveIntel.compactPriorities(rebuilt, root),
+      },
+    };
+  }
   const support = intelligence.decision_support || {};
   const health = support.analytics || {};
   const seo = support.seo || {};
@@ -3815,7 +3874,9 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         inferredCategory
       )
         ? inferredCategory
-        : 'engineering';
+        : ['sales', 'other'].includes(inferredCategory)
+          ? inferredCategory
+          : 'engineering';
       // Baseline/evidence candidates stay report-only. Concrete SEO actions
       // should become engineer work instead of defaulting to reports.
       const reportOnly =
@@ -3826,22 +3887,31 @@ function buildActionMandateFallback(plan = {}, brief = {}) {
         ? JSON.stringify(candidate.evidence)
         : 'See the executive intelligence snapshot.';
       const metric = candidate.metric || 'site-specific attributable outcome';
+      const taskRoutingRepair = candidate.key?.startsWith('task-routing:') && candidate.task;
       return {
         site: candidate.site,
         ...(typeof candidate.key === 'string' && candidate.key.trim()
           ? { action_key: candidate.key.trim() }
           : {}),
         title: candidate.title || `Bounded improvement for ${candidate.site}`,
-        body: [
-          `Evidence-backed candidate from the executive intelligence snapshot: ${evidence}`,
-          `Recommendation: ${candidate.recommendation || 'Inspect the existing site report and select the smallest reversible improvement.'}`,
-          `Primary metric: ${metric}. Record the baseline before changing anything and measure for 14 days or 100 new impressions.`,
-          'Acceptance: preserve existing behavior outside the requested change, run focused tests and the site build, and record the exact files or report artifact produced.',
-          'Rollback: revert only this bounded change if validation gates fail or the measured metric materially declines.',
-        ].join('\n'),
+        body: taskRoutingRepair
+          ? [
+              `Verified existing task ownership gap: ${evidence}`,
+              `Edit only the frontmatter assigned_role on ${candidate.task.column}/${candidate.task.file} to ${candidate.expected_role}.`,
+              'Do not change task title, body, acceptance criteria, scope, or create a replacement task. This request repairs routing only; the underlying task remains unfinished until its owner role completes it.',
+              'Acceptance: the task card is unchanged except for assigned_role, and the installed owner can see it in the original queue.',
+              'Rollback: restore the prior assigned_role if the task is not compatible with this installed role.',
+            ].join('\n')
+          : [
+              `Evidence-backed candidate from the executive intelligence snapshot: ${evidence}`,
+              `Recommendation: ${candidate.recommendation || 'Inspect the existing site report and select the smallest reversible improvement.'}`,
+              `Primary metric: ${metric}. Record the baseline before changing anything and measure for 14 days or 100 new impressions.`,
+              'Acceptance: preserve existing behavior outside the requested change, run focused tests and the site build, and record the exact files or report artifact produced.',
+              'Rollback: revert only this bounded change if validation gates fail or the measured metric materially declines.',
+            ].join('\n'),
         category,
         priority: 'low',
-        assigned_role: 'engineer',
+        assigned_role: candidate.expected_role || 'engineer',
         requested_by: 'ceo',
         provider: 'chatgpt',
         model: 'gpt-5.6-luna',

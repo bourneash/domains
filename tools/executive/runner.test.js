@@ -722,6 +722,83 @@ test('blocked intelligence priorities do not become executable candidates', () =
   );
 });
 
+test('verified task-routing repairs are executable while generic blocked priorities stay blocked', () => {
+  const candidates = runner.actionCandidates(
+    {
+      decision_support: {
+        priorities: {
+          items: [
+            {
+              site: 'blocked.example',
+              title: 'Needs owner credentials',
+              state: 'blocked',
+              score: 99,
+            },
+          ],
+          routable_task_repairs: [
+            {
+              id: 'task-routing:ready.example:backlog/task.md',
+              site: 'ready.example',
+              title: 'Reassign task to engineer: Fix existing bug',
+              evidence: 'engineer is installed for this site',
+              score: 96,
+              task: {
+                file: 'task.md',
+                column: 'backlog',
+                type: 'engineering',
+                expected_role: 'engineer',
+              },
+            },
+            {
+              id: 'task-routing:invalid.example:backlog/task.md',
+              site: 'invalid.example',
+              title: 'Incomplete route repair',
+              task: { file: 'task.md', column: 'backlog', type: 'engineering' },
+            },
+          ],
+        },
+      },
+    },
+    ['blocked.example', 'ready.example', 'invalid.example']
+  );
+  assert.deepEqual(
+    candidates.map(item => item.site),
+    ['ready.example']
+  );
+  assert.equal(candidates[0].expected_role, 'engineer');
+  assert.equal(candidates[0].type, 'engineering');
+});
+
+test('action mandate fallback creates a narrow repair request for the installed task role', () => {
+  const candidate = {
+    site: 'example.com',
+    key: 'task-routing:example.com:backlog/task.md',
+    title: 'Reassign task to content-writer: Write existing guide',
+    type: 'content',
+    expected_role: 'content-writer',
+    task: { file: 'backlog/task.md', column: 'backlog' },
+    evidence: 'content-writer is installed',
+  };
+  const plan = runner.buildActionMandateFallback(
+    {},
+    {
+      action_mandate: { candidates: [candidate] },
+      queue: [],
+      improvements: [],
+      active_delivery: { policy: { max_active_slots: 10, active_slots: 0, overflow_count: 0 } },
+    }
+  );
+  assert.equal(plan.change_requests.length, 1);
+  assert.equal(plan.change_requests[0].assigned_role, 'content-writer');
+  assert.equal(plan.change_requests[0].category, 'content');
+  assert.equal(plan.change_requests[0].action_key, candidate.key);
+  assert.match(
+    plan.change_requests[0].body,
+    /Do not change task title, body, acceptance criteria, scope/
+  );
+  assert.match(plan.change_requests[0].body, /underlying task remains unfinished/);
+});
+
 test('supports over-sampling candidates before capacity filtering', () => {
   const candidates = runner.actionCandidates(
     {
