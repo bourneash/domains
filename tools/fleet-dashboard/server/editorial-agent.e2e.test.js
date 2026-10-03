@@ -38,7 +38,7 @@ test(
     assert.equal(page.status, 200);
     assert.match(page.body, /app\.js/);
 
-    const response = await request(server, '/api/agents');
+    const response = await request(server, '/api/agent-roles');
     assert.equal(response.status, 200);
     const agents = JSON.parse(response.body);
     const family = agents.find(agent => agent.role === 'update');

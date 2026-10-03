@@ -504,7 +504,10 @@ function summarizeMatrix(data) {
 
 async function vitals(root, slugs) {
   const key = `${root}\0${slugs.join('\0')}`;
-  const fullKeys = [`${root}\0${slugs.join('\0')}\0*\0status`, `${root}\0${slugs.join('\0')}\0*\0editorial`];
+  const fullKeys = [
+    `${root}\0${slugs.join('\0')}\0*\0status`,
+    `${root}\0${slugs.join('\0')}\0*\0editorial`,
+  ];
   for (const fullKey of fullKeys) {
     const full = matrixCache.get(fullKey);
     if (full && Date.now() - full.at < MATRIX_CACHE_TTL_MS) return summarizeMatrix(full.data);
@@ -520,7 +523,8 @@ async function vitals(root, slugs) {
   const epoch = matrixEpoch.get(root) || 0;
   const refresh = buildMatrix(root, slugs, null, false, true)
     .then(summary => {
-      if ((matrixEpoch.get(root) || 0) === epoch) vitalsCache.set(key, { at: Date.now(), data: summary });
+      if ((matrixEpoch.get(root) || 0) === epoch)
+        vitalsCache.set(key, { at: Date.now(), data: summary });
       return summary;
     })
     .finally(() => {
@@ -530,10 +534,24 @@ async function vitals(root, slugs) {
   return refresh;
 }
 
-async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = true, summaryOnly = false) {
+async function buildMatrix(
+  root,
+  slugs,
+  onlyRoles = null,
+  includeEditorial = true,
+  summaryOnly = false
+) {
   const now = Date.now();
   const freq = {};
-  const summary = { siteCount: 0, roleCount: 0, total: 0, fresh: 0, stale: 0, overdue: 0, paused: 0 };
+  const summary = {
+    siteCount: 0,
+    roleCount: 0,
+    total: 0,
+    fresh: 0,
+    stale: 0,
+    overdue: 0,
+    paused: 0,
+  };
   const parsedBySlug = new Map();
   const deployerSlugs = [];
   const selected = onlyRoles ? new Set(onlyRoles) : null;
@@ -570,7 +588,8 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
         if (seenRoles.has(role)) continue; // first schedule wins on dupes
         seenRoles.add(role);
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
-        const last = enabled && !(summaryOnly && role === 'deployer') ? lastRun(cwd, role, logIndex) : null;
+        const last =
+          enabled && !(summaryOnly && role === 'deployer') ? lastRun(cwd, role, logIndex) : null;
         let { state, age } = commented
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);
@@ -612,13 +631,14 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
               deployedAt: bh.deployedAt,
               error: bh.error,
             };
-          if (!summaryOnly) deploy = {
-            ahead: g.ahead || 0,
-            dirty: g.dirty || 0,
-            branch: g.branch || null,
-            pushed,
-            build,
-          };
+          if (!summaryOnly)
+            deploy = {
+              ahead: g.ahead || 0,
+              dirty: g.dirty || 0,
+              branch: g.branch || null,
+              pushed,
+              build,
+            };
         }
         if (summaryOnly) {
           hasRows = true;
@@ -647,7 +667,7 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
       }
       return summaryOnly ? { site: slug, cells, hasRows } : { site: slug, cells };
     })
-    .filter(s => summaryOnly ? s.hasRows : Object.keys(s.cells).length);
+    .filter(s => (summaryOnly ? s.hasRows : Object.keys(s.cells).length));
   if (summaryOnly) {
     summary.siteCount = sites.length;
     summary.roleCount = Object.keys(freq).length;
@@ -824,10 +844,9 @@ async function health(
       failed: stats.failed,
       unknown: stats.unknown,
       failures: stats.failures.slice(0, 3),
-      editorial:
-        Object.hasOwn(cell, 'editorial')
-          ? cell.editorial
-          : editorialTelemetry(cwd, role, context.logIndex, cell.schedule),
+      editorial: Object.hasOwn(cell, 'editorial')
+        ? cell.editorial
+        : editorialTelemetry(cwd, role, context.logIndex, cell.schedule),
       costUsd: spend.get(site.site)?.total_cost_usd || 0,
       calls: spend.get(site.site)?.calls || 0,
       promptHash: prompt,
@@ -934,25 +953,23 @@ function setEnabled(root, slug, role, enabled) {
 // it's cheap to call on every nav render. New roles appear automatically.
 function agents(root, slugs) {
   const freq = {};
+  const rolesBySite = new Map();
   for (const slug of slugs) {
     const seen = new Set();
     for (const { role } of parseRoles(readFirst(siteDir(root, slug), CRONTABS), {
       includeCommented: true,
     })) {
-      if (!seen.has(role)) {
-        seen.add(role);
-        freq[role] = (freq[role] || 0) + 1;
-      }
+      seen.add(role);
+    }
+    rolesBySite.set(slug, seen);
+    for (const role of seen) {
+      freq[role] = (freq[role] || 0) + 1;
     }
   }
   const editorialProfiles = ROLE_FAMILIES.update.roles.filter(role => freq[role]);
   const editorialSites = new Set();
   for (const slug of slugs) {
-    const siteRoles = new Set(
-      parseRoles(readFirst(siteDir(root, slug), CRONTABS), { includeCommented: true }).map(
-        entry => entry.role
-      )
-    );
+    const siteRoles = rolesBySite.get(slug) || new Set();
     if (editorialProfiles.some(role => siteRoles.has(role))) editorialSites.add(slug);
   }
   const scheduled = Object.keys(freq)

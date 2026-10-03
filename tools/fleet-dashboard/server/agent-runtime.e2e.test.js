@@ -88,6 +88,9 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
   });
   assert.equal(created.status, 201);
   const agent = created.body.agent;
+  const listedAgents = await request(server, 'GET', '/api/agents');
+  assert.equal(listedAgents.status, 200);
+  assert.ok(listedAgents.body.agents.some(row => row.agent_id === agent.agent_id));
 
   const issueResponse = await request(server, 'POST', '/api/agent-issues', {
     title: 'Inventory projection check',

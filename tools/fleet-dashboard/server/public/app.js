@@ -268,7 +268,7 @@ function loadAgentCatalog() {
   if (AGENT_CATALOG_READY) return Promise.resolve(STATE.agents);
   if (AGENT_CATALOG_PENDING) return AGENT_CATALOG_PENDING;
   let pending;
-  pending = api('GET', '/api/agents')
+  pending = api('GET', '/api/agent-roles')
     .then(normalizeAgentList)
     .catch(() => [])
     .then(agents => {

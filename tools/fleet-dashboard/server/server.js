@@ -7340,7 +7340,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   });
 
   // Agent list for the nav dropdown (roles on ≥2 sites, engineer first).
-  app.get('/api/agents', (_req, res) => {
+  app.get('/api/agent-roles', (_req, res) => {
     try {
       res.json(roles.agents(root, discoverSites(root)));
     } catch (e) {
