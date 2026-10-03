@@ -5035,6 +5035,33 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  app.get('/api/agent-runtime/inventory-summary', (req, res) => {
+    try {
+      const limit = { limit: 100 };
+      res.json({
+        actor: req.platformActor ? { actor: req.platformActor } : { actor: null },
+        users: { users: events.listHumanUsers(limit) },
+        issues: { issues: events.listAgentIssues(limit) },
+        policies: { policies: events.listExecutionPolicies(limit) },
+        decisions: { decisions: events.listGovernanceDecisions(limit) },
+        suites: { suites: events.listEvalSuites(limit) },
+        evalRuns: { runs: events.listEvalRuns(limit) },
+        blobs: { blobs: events.listObjectBlobs(limit) },
+        plugins: { plugins: events.listRuntimePlugins(limit) },
+        connectors: { connectors: events.listRuntimeConnectors(limit) },
+        providers: { providers: events.listRuntimeProviders(limit) },
+        adapters: { adapters: events.listRuntimeAdapters(limit) },
+        delegations: { delegations: events.listAgentDelegations(limit) },
+        dispatches: { dispatches: events.listAgentDispatches(limit) },
+        artifacts: { artifacts: events.listAgentArtifacts(limit) },
+        skills: { skills: events.listAgentSkills(limit) },
+        memories: { memories: events.listAgentMemories(limit) },
+        productivityPilots: { pilots: events.listProductivityPilots({ limit: 20 }) },
+      });
+    } catch (e) {
+      res.status(e.httpStatus || 500).json({ error: e.message });
+    }
+  });
   app.get('/api/agents', (req, res) => {
     try {
       res.json({ agents: events.listAgents(req.query) });

@@ -13807,65 +13807,7 @@ let AGENT_RUNTIME_AUX_CACHE = null;
 let AGENT_RUNTIME_AUX_LOAD = null;
 
 async function loadAgentRuntimeAux() {
-  const [
-    actor,
-    users,
-    issues,
-    policies,
-    decisions,
-    suites,
-    evalRuns,
-    blobs,
-    plugins,
-    connectors,
-    providers,
-    adapters,
-    delegations,
-    dispatches,
-    artifacts,
-    skills,
-    memories,
-    productivityPilots,
-  ] = await Promise.all([
-    api('GET', '/api/platform/actor'),
-    api('GET', '/api/platform/users?limit=100'),
-    api('GET', '/api/agent-issues?limit=100'),
-    api('GET', '/api/execution-policies?limit=100'),
-    api('GET', '/api/governance-decisions?limit=100'),
-    api('GET', '/api/eval-suites?limit=100'),
-    api('GET', '/api/eval-runs?limit=100'),
-    api('GET', '/api/object-blobs?limit=100'),
-    api('GET', '/api/runtime-plugins?limit=100'),
-    api('GET', '/api/runtime-connectors?limit=100'),
-    api('GET', '/api/runtime-providers?limit=100'),
-    api('GET', '/api/runtime-adapters?limit=100'),
-    api('GET', '/api/agent-delegations?limit=100'),
-    api('GET', '/api/agent-dispatches?limit=100'),
-    api('GET', '/api/agent-artifacts?limit=100'),
-    api('GET', '/api/agent-skills?limit=100'),
-    api('GET', '/api/agent-memories?limit=100'),
-    api('GET', '/api/productivity/pilots?limit=20'),
-  ]);
-  return {
-    actor,
-    users,
-    issues,
-    policies,
-    decisions,
-    suites,
-    evalRuns,
-    blobs,
-    plugins,
-    connectors,
-    providers,
-    adapters,
-    delegations,
-    dispatches,
-    artifacts,
-    skills,
-    memories,
-    productivityPilots,
-  };
+  return api('GET', '/api/agent-runtime/inventory-summary');
 }
 
 async function renderAgentRuntime() {

@@ -50,6 +50,16 @@ test('agent runtime APIs support registry, runs, artifacts, and enforced budgets
     return new Promise(resolve => server.close(resolve));
   });
 
+  const inventory = await request(server, 'GET', '/api/agent-runtime/inventory-summary');
+  assert.equal(inventory.status, 200);
+  for (const key of [
+    'actor', 'users', 'issues', 'policies', 'decisions', 'suites', 'evalRuns', 'blobs',
+    'plugins', 'connectors', 'providers', 'adapters', 'delegations', 'dispatches',
+    'artifacts', 'skills', 'memories', 'productivityPilots',
+  ]) assert.ok(inventory.body[key], `inventory summary includes ${key}`);
+  assert.ok(Array.isArray(inventory.body.issues.issues));
+  assert.ok(Array.isArray(inventory.body.productivityPilots.pilots));
+
   const created = await request(server, 'POST', '/api/agents', {
     slug: 'runtime-ceo',
     name: 'Runtime CEO',
