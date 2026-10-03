@@ -321,6 +321,62 @@ async function roleStatus(root, slug) {
   };
 }
 
+// Compact row for the fleet Git table. The full status() call also reads the
+// last commit and changed-file details for each repo; the table needs neither.
+async function summaryStatus(root, slug) {
+  const cwd = siteDir(root, slug);
+  const result = await git(cwd, ['status', '--porcelain=v1', '--branch', '-z']);
+  if (!result.ok && !result.out) {
+    return {
+      slug,
+      isRepo: false,
+      error: result.err.trim() || 'not a git repository',
+      branch: null,
+      dirty: 0,
+      ahead: 0,
+      behind: 0,
+      needsPush: false,
+      needsPull: false,
+      localSha: null,
+      remoteSha: null,
+      syncState: 'no-upstream',
+      stashCount: 0,
+      remoteWebUrl: null,
+    };
+  }
+
+  const parsed = parsePorcelain(result.out);
+  const [shas, originUrl, stashRows] = await Promise.all([
+    git(cwd, ['rev-parse', '--short', 'HEAD', ...(parsed.upstream ? ['@{u}'] : [])]),
+    git(cwd, ['remote', 'get-url', 'origin']),
+    stashes(root, slug),
+  ]);
+  let [localSha = null, remoteSha = null] = shas.ok ? shas.out.trim().split('\n') : [];
+  if (!localSha) {
+    const local = await git(cwd, ['rev-parse', '--short', 'HEAD']);
+    if (local.ok) localSha = local.out.trim() || null;
+  }
+  return {
+    slug,
+    isRepo: true,
+    branch: parsed.branch,
+    dirty: parsed.files.filter(file => file.kind !== 'ignored').length,
+    ahead: parsed.ahead,
+    behind: parsed.behind,
+    needsPush: parsed.ahead > 0,
+    needsPull: parsed.behind > 0,
+    localSha,
+    remoteSha,
+    syncState: computeSyncState({
+      ahead: parsed.ahead,
+      behind: parsed.behind,
+      upstream: parsed.upstream,
+    }),
+    stashCount: stashRows.length,
+    remoteWebUrl: originUrl.ok ? remoteToWebUrl(originUrl.out.trim()) : null,
+  };
+}
+
 // ---- safe write ops ---------------------------------------------------------
 
 // Stage exactly the given paths and commit ONLY those (path-limited commit, so
@@ -837,28 +893,16 @@ async function pullAll(root, slugs) {
 
 // Cheap fleet-wide summary (one row per site) for the dashboard table.
 async function summaries(root, slugs) {
-  return Promise.all(
-    slugs.map(async slug => {
-      const s = await status(root, slug);
-      const stashList = s.isRepo ? await stashes(root, slug) : [];
-      return {
-        slug: s.slug,
-        isRepo: s.isRepo,
-        branch: s.branch,
-        dirty: s.dirty,
-        ahead: s.ahead,
-        behind: s.behind,
-        needsPush: s.needsPush,
-        needsPull: s.needsPull,
-        localSha: s.localSha,
-        remoteSha: s.remoteSha,
-        syncState: s.syncState,
-        stashCount: stashList.length,
-        remoteWebUrl: s.remoteWebUrl,
-        error: s.error || null,
-      };
-    })
-  );
+  const rows = new Array(slugs.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(10, slugs.length) }, async () => {
+    while (next < slugs.length) {
+      const index = next++;
+      rows[index] = await summaryStatus(root, slugs[index]);
+    }
+  });
+  await Promise.all(workers);
+  return rows;
 }
 
 module.exports = {

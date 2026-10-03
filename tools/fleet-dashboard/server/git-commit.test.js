@@ -46,6 +46,30 @@ function cleanup(root) {
   fs.rmSync(root, { recursive: true, force: true });
 }
 
+test('summaries returns the compact fields used by the fleet Git table', async () => {
+  const { root, cwd } = makeRepo();
+  try {
+    const origin = path.join(root, 'origin.git');
+    execFileSync('git', ['init', '--bare', '-q', origin], { env: CLEAN_ENV });
+    sh(cwd, ['remote', 'add', 'origin', origin]);
+    sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
+    fs.writeFileSync(path.join(cwd, 'dirty.txt'), 'pending\n');
+    const [row] = await git.summaries(root, ['example.com']);
+    assert.equal(row.slug, 'example.com');
+    assert.equal(row.isRepo, true);
+    assert.equal(row.dirty, 1);
+    assert.equal(row.ahead, 0);
+    assert.equal(row.behind, 0);
+    assert.match(row.localSha, /^[a-f0-9]+$/);
+    assert.equal(row.remoteSha, null);
+    assert.equal(row.syncState, 'synced');
+    assert.equal(row.stashCount, 0);
+    assert.equal(row.remoteWebUrl, null);
+  } finally {
+    cleanup(root);
+  }
+});
+
 /* ---- commit(): input validation before any git call ---- */
 test('commit() rejects an empty/invalid path list without touching git', async () => {
   const { root, cwd } = makeRepo();
