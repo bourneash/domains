@@ -62,6 +62,11 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
   }
   const installedRoles = new Map();
   const availableRoles = new Map();
+  const isRoleInstalled = (site, role) => {
+    const key = `${site}:${role}`;
+    if (!installedRoles.has(key)) installedRoles.set(key, roleInstalled(root, site, role));
+    return installedRoles.get(key);
+  };
   const rolesForSite = site => {
     if (availableRoles.has(site)) return availableRoles.get(site);
     const ops = require('node:path').join(root, 'sites', site, 'ops');
@@ -93,10 +98,7 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     // configuration boundary, not an executive action. Do not expose it as a
     // routing candidate for the model to regenerate on the next tick.
     if (taskRoleDisabled(task.site, task.assigned_role)) continue;
-    const key = `${task.site}:${task.assigned_role}`;
-    if (!installedRoles.has(key))
-      installedRoles.set(key, roleInstalled(root, task.site, task.assigned_role));
-    if (!installedRoles.get(key)) {
+    if (!isRoleInstalled(task.site, task.assigned_role)) {
       const effective = task.type
         ? assignedRoleForSite(task.type, task.assigned_role, rolesForSite(task.site))
         : null;
@@ -144,7 +146,7 @@ function build({ root, discoveredSites, seo, revenue, analyticsHealth = {}, aiUs
     // The missing-role pass above already emitted the owner-gap item when the
     // task's assigned role is not installed. Do not emit a second routing
     // action for the same task merely because its type has a canonical owner.
-    if (task.assigned_role && !roleInstalled(root, task.site, task.assigned_role)) continue;
+    if (task.assigned_role && !isRoleInstalled(task.site, task.assigned_role)) continue;
     const mismatch = ownershipMismatch(task.type, task.assigned_role);
     if (!mismatch) continue;
     const effective = assignedRoleForSite(
