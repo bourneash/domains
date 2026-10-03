@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
@@ -219,19 +220,24 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
                 "registry_default": s.enabled, "overridden": overridden}
 
     @app.get("/health")
-    def health():
-        us = probe_exit_ip(settings.proxy_us, client=vpn_client)
-        eu = probe_exit_ip(settings.proxy_eu, client=vpn_client)
+    def health(summary: bool = False):
+        with ThreadPoolExecutor(max_workers=2) as probes:
+            us_probe = probes.submit(probe_exit_ip, settings.proxy_us, client=vpn_client)
+            eu_probe = probes.submit(probe_exit_ip, settings.proxy_eu, client=vpn_client)
+            us = us_probe.result()
+            eu = eu_probe.result()
         states = store.get_sources_state(conn)
         item_count = conn.execute("SELECT COUNT(*) AS n FROM items").fetchone()["n"]
         skipped = [s for s in states if (s["status"] or "").startswith("skipped")]
-        return {
+        result = {
             "ok": bool(us or eu),
             "nodes": {"us": us, "eu": eu},
-            "sources": states,
             "counts": {"items": item_count, "skipped": len(skipped)},
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
+        if not summary:
+            result["sources"] = states
+        return result
 
     @app.get("/metrics/ga4")
     def metrics_ga4(request: Request, site: str, since: str | None = None, until: str | None = None,

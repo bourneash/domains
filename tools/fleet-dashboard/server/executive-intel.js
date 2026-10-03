@@ -381,7 +381,7 @@ async function collect({ root, sites = [] } = {}) {
   const aiResult = await settle('ai_usage', () => aiusage.fleet(root, { from, to }));
   const socialResult = source('social', social.summary(managedSites));
   const dataHubResults = await Promise.all([
-    settle('datahub_health', () => datahub.health()),
+    settle('datahub_health', () => datahub.health({ summary: true })),
     settle('datahub_sources', () => datahub.sources()),
     settle('datahub_datasets', () => datahub.datasets()),
   ]);

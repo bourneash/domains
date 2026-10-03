@@ -6349,7 +6349,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/version', (_req, res) => res.json({ version: assetVersion() }));
 
   // Data Hub routes — all static paths, no :param conflicts.
-  app.get('/api/datahub/health', async (_req, res) => res.json(await datahub.health()));
+  app.get('/api/datahub/health', async (_req, res) =>
+    res.json(await datahub.health({ summary: true }))
+  );
   app.get('/api/datahub/egress', async (req, res) => {
     const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 60, 300));
     res.json(await datahub.egress(limit));

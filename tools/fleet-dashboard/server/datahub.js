@@ -23,8 +23,8 @@ async function _get(pathname, timeoutMs = 3000) {
   }
 }
 
-async function health() {
-  return _get('/health');
+async function health({ summary = false } = {}) {
+  return _get(summary ? '/health?summary=1' : '/health');
 }
 async function egress(limit = 60) {
   const r = await _get(`/egress?limit=${encodeURIComponent(limit)}`);

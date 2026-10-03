@@ -1,4 +1,6 @@
 import httpx
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 from datahub.config import Source, Settings, Subscription, ItemsQuery
@@ -105,6 +107,33 @@ def test_health_reports_nodes_and_counts(db):
     assert body["counts"]["items"] == 2
     assert body["counts"]["skipped"] == 1
     assert any(s["source_id"] == "reuters" for s in body["sources"])
+
+    summary = c.get("/health", params={"summary": "true"}).json()
+    assert summary["nodes"] == body["nodes"]
+    assert summary["counts"] == body["counts"]
+    assert "sources" not in summary
+
+
+def test_health_probes_vpn_exits_concurrently(db, monkeypatch):
+    lock = threading.Lock()
+    active = 0
+    max_active = 0
+
+    def probe(proxy, client=None):
+        nonlocal active, max_active
+        with lock:
+            active += 1
+            max_active = max(max_active, active)
+        time.sleep(0.05)
+        with lock:
+            active -= 1
+        return proxy.rsplit(":", 1)[-1]
+
+    monkeypatch.setattr(api, "probe_exit_ip", probe)
+    response = _client(db).get("/health")
+
+    assert response.status_code == 200
+    assert max_active == 2
 
 
 def test_subscription_404_unknown_site(db):
