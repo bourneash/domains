@@ -5531,6 +5531,14 @@ test('light theme is wired into the shell and shared route surfaces', () => {
   assert.match(theme, /:root\[data-theme="light"\] \.wb-column/);
   assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card\s*\{[^}]*background: #fff/);
   assert.match(theme, /:root\[data-theme="light"\] \.nav-root-icon\s*\{[^}]*box-shadow:/);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.btn\.backlink-accent\s*\{[^}]*background: #fff2df;[^}]*color: #75410b/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.btn\.backlink-accent:hover\s*\{[^}]*background: #ffe7c2/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.wb-card/);
   assert.match(theme, /:root\[data-theme="light"\] \.wb-summary > div/);
   assert.match(theme, /:root\[data-theme="light"\] \.dh-panel/);

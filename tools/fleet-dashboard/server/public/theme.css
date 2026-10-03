@@ -217,6 +217,18 @@
 :root[data-theme="light"] .btn.primary:hover {
   background: #185497;
 }
+:root[data-theme="light"] .btn.backlink-accent {
+  background: #fff2df;
+  border-color: #d49342;
+  color: #75410b;
+  box-shadow: 0 3px 10px -7px rgba(140,79,13,.42);
+}
+:root[data-theme="light"] .btn.backlink-accent:hover {
+  color: #633606;
+  background: #ffe7c2;
+  border-color: #b96d18;
+  box-shadow: 0 5px 14px -8px rgba(140,79,13,.52);
+}
 :root[data-theme="light"] .btn:hover:not(.primary) {
   color: var(--text-hi);
   background-color: var(--control-bg-hover);
