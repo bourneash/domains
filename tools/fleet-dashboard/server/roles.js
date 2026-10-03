@@ -259,7 +259,7 @@ function lastRun(cwd, role, logIndex = createLogIndex(cwd)) {
 // Publishing evidence is deliberately derived from the site's existing logs
 // and deploy markers. It gives operators a useful editorial signal without
 // inventing a second state store that could drift from the site runner.
-function editorialTelemetry(cwd, role, logIndex = createLogIndex(cwd)) {
+function editorialTelemetry(cwd, role, logIndex = createLogIndex(cwd), schedule = null) {
   if (!familyForRole(role)) return null;
   const log = logRe(role);
   let latest = null;
@@ -309,11 +309,11 @@ function editorialTelemetry(cwd, role, logIndex = createLogIndex(cwd)) {
       ? { state: 'degraded', detail: 'source/cache reported an issue' }
       : { state: 'unknown', detail: 'no source/cache verdict in latest log' };
   const cadence = cadenceClass(
-    (
+    schedule ||
       parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true }).find(
         entry => entry.role === role
-      ) || {}
-    ).schedule || '* * * * *'
+      )?.schedule ||
+      '* * * * *'
   );
   const publicationAge = publication ? (Date.now() - publication.at) / 1000 : Infinity;
   const publicationLimit = THRESH[cadence] || THRESH.daily;
@@ -481,7 +481,7 @@ async function buildMatrix(root, slugs) {
           commented,
           deploy,
           cadence: cadenceClass(schedule),
-          editorial: editorialTelemetry(cwd, role, logIndex),
+          editorial: editorialTelemetry(cwd, role, logIndex, schedule),
         };
         freq[role] = (freq[role] || 0) + 1;
       }
@@ -650,7 +650,7 @@ async function health(
       failed: stats.failed,
       unknown: stats.unknown,
       failures: stats.failures.slice(0, 3),
-      editorial: editorialTelemetry(cwd, role, context.logIndex),
+      editorial: editorialTelemetry(cwd, role, context.logIndex, cell.schedule),
       costUsd: spend.get(site.site)?.total_cost_usd || 0,
       calls: spend.get(site.site)?.calls || 0,
       promptHash: prompt,

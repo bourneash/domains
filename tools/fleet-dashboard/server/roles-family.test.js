@@ -110,9 +110,11 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
   const originalReaddir = fs.readdirSync;
   const logReads = [];
   const logStats = [];
+  let crontabReads = 0;
   let logDirectoryReads = 0;
   fs.readFileSync = function (file, ...args) {
     if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
+    if (String(file).endsWith(path.join('ops', 'docker', 'crontab'))) crontabReads++;
     return originalRead.call(this, file, ...args);
   };
   fs.statSync = function (file, ...args) {
@@ -136,6 +138,7 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
       'update-20261002.log',
     ]);
     assert.equal(logDirectoryReads, 1);
+    assert.equal(crontabReads, 1);
     assert.deepEqual(logStats.sort(), fixtures.map(([name]) => name).sort());
   } finally {
     fs.readFileSync = originalRead;
@@ -157,8 +160,10 @@ test('Agent health shares each role log read across stats, history, and telemetr
   );
   const originalRead = fs.readFileSync;
   const logReads = [];
+  let crontabReads = 0;
   fs.readFileSync = function (file, ...args) {
     if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
+    if (String(file).includes(path.join('ops', 'docker', 'crontab'))) crontabReads++;
     return originalRead.call(this, file, ...args);
   };
   try {
@@ -182,6 +187,7 @@ test('Agent health shares each role log read across stats, history, and telemetr
     assert.equal(result.rows[0].succeeded, 1);
     assert.equal(result.rows[0].editorial.publication.slug, 'current-story');
     assert.deepEqual(logReads, [logName]);
+    assert.equal(crontabReads, 0);
   } finally {
     fs.readFileSync = originalRead;
     fs.rmSync(root, { recursive: true, force: true });
