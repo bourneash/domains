@@ -7147,7 +7147,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         aiusage.fleet(root, { from: day(from), to: day(now) }),
         roles.matrix(root, slugs),
       ]);
-      res.json(await roles.health(root, req.params.role, slugs, usage, false, matrix));
+      let health = await roles.health(root, req.params.role, slugs, usage, false, matrix);
+      if (req.query.compact === '1') health = roles.compactHealth(health);
+      res.json(health);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }

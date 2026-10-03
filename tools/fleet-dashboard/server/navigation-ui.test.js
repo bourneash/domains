@@ -309,6 +309,7 @@ test('Engineer overview loads enrollment controls without waiting for the full r
 
 test('Agent health details are inserted on first expansion, not during initial rendering', () => {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(source, /\/api\/agents\/\$\{encodeURIComponent\(role\)\}\/health\?compact=1/);
   const start = source.indexOf('function toggleHealthDetail(button)');
   const end = source.indexOf('function beginRoleEnrollment', start);
   const context = {

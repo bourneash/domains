@@ -85,7 +85,7 @@ function loadAgentHealth(role, { force = false } = {}) {
   if (existing) return existing;
   AGENT_HEALTH_ERRORS.delete(role);
   const generation = AGENT_HEALTH_GENERATION.get(role) || 0;
-  const pending = api('GET', `/api/agents/${encodeURIComponent(role)}/health`)
+  const pending = api('GET', `/api/agents/${encodeURIComponent(role)}/health?compact=1`)
     .then(data => {
       if ((AGENT_HEALTH_GENERATION.get(role) || 0) === generation) {
         AGENT_HEALTH_CACHE.set(role, { at: Date.now(), data });

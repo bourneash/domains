@@ -109,6 +109,25 @@ test('agent enrollment returns the same worker and enabled controls without buil
   }
 });
 
+test('compact Agent health keeps counts and recent detail while preserving the full result', () => {
+  const slots = Array.from({ length: 100 }, (_, index) => ({ at: index, status: 'ok' }));
+  const full = {
+    summary: { expected: 100, missed: 4 },
+    rows: [
+      {
+        site: 'example.test',
+        execution: { expected: 100, slots, extras: [{ at: 101, status: 'unknown' }] },
+      },
+    ],
+  };
+  const compact = roles.compactHealth(full);
+  assert.deepEqual(compact.summary, full.summary);
+  assert.equal(compact.rows[0].execution.expected, 100);
+  assert.deepEqual(compact.rows[0].execution.slots, slots.slice(-12));
+  assert.deepEqual(compact.rows[0].execution.extras, full.rows[0].execution.extras);
+  assert.equal(full.rows[0].execution.slots.length, 100);
+});
+
 test('role matrix reads only newest run, publication, and deploy logs', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-perf-'));
   const site = path.join(root, 'sites', 'example.test');

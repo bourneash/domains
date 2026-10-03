@@ -724,6 +724,26 @@ async function health(
   };
 }
 
+// The dashboard's expandable history renders only the most recent twelve
+// slots per site. Keep the full health() result available to other callers,
+// while allowing the UI to avoid transferring and parsing older detail rows.
+function compactHealth(data) {
+  return {
+    ...data,
+    rows: (data.rows || []).map(row =>
+      row.execution
+        ? {
+            ...row,
+            execution: {
+              ...row.execution,
+              slots: Array.isArray(row.execution.slots) ? row.execution.slots.slice(-12) : [],
+            },
+          }
+        : row
+    ),
+  };
+}
+
 // The parsed crontab entry for a role on a site (or null), for validation.
 function roleEntry(root, slug, role) {
   const r = String(role || '').toLowerCase();
@@ -819,6 +839,7 @@ module.exports = {
   matrix,
   invalidateMatrix,
   health,
+  compactHealth,
   roleLog,
   setEnabled,
   agents,
