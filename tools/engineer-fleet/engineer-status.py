@@ -154,8 +154,16 @@ def history_rows(days):
     EXPECTED_PER_DAY = 48                      # twice-hourly cadence
     out = []
     for d in sorted(p for p in SITES.iterdir() if p.is_dir() and not p.name.startswith("DISABLED-")):
-        logs = sorted((d / "ops" / "logs").glob("engineer-heartbeat-*.jsonl")) if (d / "ops" / "logs").is_dir() else []
-        logs = logs[-days:]
+        log_dir = d / "ops" / "logs"
+        if log_dir.is_dir():
+            with os.scandir(log_dir) as entries:
+                names = sorted(
+                    entry.name for entry in entries
+                    if entry.name.startswith("engineer-heartbeat-") and entry.name.endswith(".jsonl")
+                )
+            logs = [log_dir / name for name in names[-days:]]
+        else:
+            logs = []
         if not logs:
             continue
         recs = []
