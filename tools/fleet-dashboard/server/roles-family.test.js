@@ -122,9 +122,7 @@ test('compact Agent health keeps counts and recent detail while preserving the f
   };
   const compact = roles.compactHealth(full);
   assert.deepEqual(compact.summary, full.summary);
-  assert.equal(compact.rows[0].execution.expected, 100);
-  assert.deepEqual(compact.rows[0].execution.slots, slots.slice(-12));
-  assert.deepEqual(compact.rows[0].execution.extras, full.rows[0].execution.extras);
+  assert.deepEqual(compact.rows[0].execution, { slots: slots.slice(-12) });
   assert.equal(full.rows[0].execution.slots.length, 100);
 });
 
@@ -239,6 +237,47 @@ test('Agent health shares each role log read across stats, history, and telemetr
     assert.equal(result.rows[0].editorial.publication.slug, 'current-story');
     assert.deepEqual(logReads, [logName]);
     assert.equal(crontabReads, 0);
+  } finally {
+    fs.readFileSync = originalRead;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('Agent health reuses unchanged log contents across reports and reloads edited logs', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-health-content-cache-'));
+  const logs = path.join(root, 'sites', 'example.test', 'ops', 'logs');
+  fs.mkdirSync(logs, { recursive: true });
+  const ranAt = new Date();
+  const logName = `update-${ranAt.toISOString().slice(0, 10).replaceAll('-', '')}-0700.log`;
+  const logPath = path.join(logs, logName);
+  fs.writeFileSync(
+    logPath,
+    `started at ${ranAt.toISOString()}\nfinished at ${ranAt.toISOString()} (exit=0)\n`
+  );
+  const matrix = {
+    sites: [
+      {
+        site: 'example.test',
+        cells: { update: { schedule: '0 7 * * *', enabled: true, state: 'fresh', worker: true } },
+      },
+    ],
+  };
+  const originalRead = fs.readFileSync;
+  let logReads = 0;
+  fs.readFileSync = function (file, ...args) {
+    if (String(file) === logPath) logReads++;
+    return originalRead.call(this, file, ...args);
+  };
+  try {
+    const first = await roles.health(root, 'update', ['example.test'], {}, false, matrix);
+    const second = await roles.health(root, 'update', ['example.test'], {}, false, matrix);
+    assert.equal(first.rows[0].observed, second.rows[0].observed);
+    assert.equal(logReads, 1);
+
+    fs.writeFileSync(logPath, `${originalRead.call(fs, logPath, 'utf8')}updated contents\n`);
+    const edited = await roles.health(root, 'update', ['example.test'], {}, false, matrix);
+    assert.equal(edited.rows[0].observed, 1);
+    assert.equal(logReads, 2);
   } finally {
     fs.readFileSync = originalRead;
     fs.rmSync(root, { recursive: true, force: true });

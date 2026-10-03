@@ -28,11 +28,25 @@ const THRESH = { frequent: 2 * 3600, daily: 26 * 3600, weekly: 8 * 86400 };
 // invalidate this snapshot immediately.
 const MATRIX_CACHE_TTL_MS = 30000;
 const LOG_FILENAME_GRACE_MS = 2 * 86400000;
+// Agent health rereads thousands of append-written logs per report. Reuse
+// small unchanged contents across reports, while checking file metadata first.
+const LOG_CONTENT_CACHE_MAX_BYTES = 48 * 1024 * 1024;
+const LOG_CONTENT_CACHE_MAX_ENTRY_BYTES = 256 * 1024;
+const LOG_CONTENT_CACHE_MAX_ENTRIES = 20000;
 const matrixCache = new Map();
 const matrixPending = new Map();
 const vitalsCache = new Map();
 const vitalsPending = new Map();
 const matrixEpoch = new Map();
+const logContentCache = new Map();
+let logContentCacheBytes = 0;
+
+function removeCachedLog(key) {
+  const cached = logContentCache.get(key);
+  if (!cached) return;
+  logContentCache.delete(key);
+  logContentCacheBytes -= cached.bytes;
+}
 
 function invalidateMatrix(root) {
   const prefix = `${root}\0`;
@@ -236,7 +250,8 @@ function createLogIndex(cwd) {
     let entry = null;
     try {
       const value = fs.statSync(path.join(dir, name));
-      if (value.isFile()) entry = { name, mtime: value.mtimeMs };
+      if (value.isFile())
+        entry = { name, mtime: value.mtimeMs, ctime: value.ctimeMs, size: value.size };
     } catch {
       /* log may have rotated since the directory was listed */
     }
@@ -260,11 +275,45 @@ function createLogIndex(cwd) {
     },
     read(name) {
       if (contents.has(name)) return contents.get(name);
+      const filename = path.join(dir, name);
+      const metadata = stat(name);
+      const cached = logContentCache.get(filename);
+      if (
+        cached &&
+        metadata &&
+        cached.mtime === metadata.mtime &&
+        cached.ctime === metadata.ctime &&
+        cached.size === metadata.size
+      ) {
+        logContentCache.delete(filename);
+        logContentCache.set(filename, cached);
+        contents.set(name, cached.text);
+        return cached.text;
+      }
+      if (cached) removeCachedLog(filename);
       let text = null;
       try {
-        text = fs.readFileSync(path.join(dir, name), 'utf8');
+        text = fs.readFileSync(filename, 'utf8');
       } catch {
         /* log may have rotated since it was statted */
+      }
+      if (text !== null && metadata) {
+        const bytes = Buffer.byteLength(text, 'utf8');
+        if (bytes <= LOG_CONTENT_CACHE_MAX_ENTRY_BYTES) {
+          logContentCache.set(filename, {
+            mtime: metadata.mtime,
+            ctime: metadata.ctime,
+            size: metadata.size,
+            text,
+            bytes,
+          });
+          logContentCacheBytes += bytes;
+          while (
+            logContentCache.size > LOG_CONTENT_CACHE_MAX_ENTRIES ||
+            logContentCacheBytes > LOG_CONTENT_CACHE_MAX_BYTES
+          )
+            removeCachedLog(logContentCache.keys().next().value);
+        }
       }
       contents.set(name, text);
       return text;
