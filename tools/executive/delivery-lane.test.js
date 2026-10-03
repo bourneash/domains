@@ -104,6 +104,41 @@ test('a failed review on one site does not freeze the next approved site task', 
   store.close();
 });
 
+test('a site-local blocker does not freeze new fleet planning when the fixed backlog is exhausted', () => {
+  const { root, store } = fixture();
+  for (const [index, status] of [
+    [0, 'deployed'],
+    [1, 'deployed'],
+    [2, 'committed'],
+    [3, 'deployed'],
+  ]) {
+    const work = lane.WORK[index];
+    const request = store.createChangeRequest({
+      site: work.site,
+      title: work.title,
+      action_key: work.action_key,
+      delivery_mode: 'pull_request',
+      status,
+    });
+    if (index === 2) {
+      const run = store.createImprovement({
+        site: work.site,
+        source: 'test',
+        source_id: request.request_id,
+        title: work.title,
+        state: 'review',
+        approval: { review_gate: 'failed' },
+      });
+      store.updateChangeRequest(request.request_id, { run_id: run.run_id });
+    }
+  }
+  const state = lane.reconcile(store, root);
+  assert.equal(state.state, 'blocked');
+  assert.equal(state.site, 'howtofry.com');
+  assert.equal(state.freeze_planning, false);
+  store.close();
+});
+
 test('flags a four-hour no-artifact delay without blocking an independent site', () => {
   const { root, store } = fixture();
   const now = Date.now();

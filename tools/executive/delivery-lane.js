@@ -244,7 +244,9 @@ function reconcile(store, root, now = Date.now()) {
       ...(state === 'stalled' || state === 'working'
         ? { age_minutes: Math.floor(age / 60000) }
         : {}),
-      freeze_planning: true,
+      // Owner-lane blockers are isolated to their site. Do not let a failed
+      // review, missing role, or slow worker freeze unrelated fleet planning.
+      freeze_planning: false,
     };
   }
   return {
