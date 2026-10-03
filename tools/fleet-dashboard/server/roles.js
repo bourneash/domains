@@ -541,12 +541,13 @@ function recentRunStats(cwd, role, since) {
   return out;
 }
 
-async function health(root, role, slugs, usage = {}, skipFamily = false) {
+async function health(root, role, slugs, usage = {}, skipFamily = false, matrixData = null) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(String(role || ''))) throw httpErr(400, 'invalid role');
+  const data = matrixData || (await matrix(root, slugs));
   const family = ROLE_FAMILIES[role];
   if (family && !skipFamily) {
     const parts = await Promise.all(
-      family.roles.map(profile => health(root, profile, slugs, usage, true))
+      family.roles.map(profile => health(root, profile, slugs, usage, true, data))
     );
     const rows = parts.flatMap(part => part.rows);
     return {
@@ -573,7 +574,6 @@ async function health(root, role, slugs, usage = {}, skipFamily = false) {
       rows,
     };
   }
-  const data = await matrix(root, slugs);
   const cutoff = Date.now() - 7 * 86400 * 1000;
   const spend = new Map(
     (usage.by_site_role || []).filter(row => row.role === role).map(row => [row.site, row])

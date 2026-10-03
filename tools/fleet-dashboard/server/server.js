@@ -7107,8 +7107,12 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const now = new Date();
       const day = d => d.toISOString().slice(0, 10);
       const from = new Date(now.getTime() - 7 * 86400 * 1000);
-      const usage = await aiusage.fleet(root, { from: day(from), to: day(now) });
-      res.json(await roles.health(root, req.params.role, discoverSites(root), usage));
+      const slugs = discoverSites(root);
+      const [usage, matrix] = await Promise.all([
+        aiusage.fleet(root, { from: day(from), to: day(now) }),
+        roles.matrix(root, slugs),
+      ]);
+      res.json(await roles.health(root, req.params.role, slugs, usage, false, matrix));
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
