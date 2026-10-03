@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-02T23:19:02.405Z",
+  "generated_at": "2026-10-03T00:20:09.220Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Establish vibratorporn.com site baseline and route one admissible improvement",
-        "summary": "Analytics are not configured for vibratorporn.com, and no site-specific audience, SEO, revenue, health, or backlog evidence is available in the snapshot. Complete one bounded evidence pass before implementation admission.",
-        "requested_action": "Inspect the existing repository and public entry surface for audience positioning, navigation, accessibility, metadata, monetization surfaces, compliance signals, and visible defects. Record unavailable telemetry as unknown; do not add tracking, credentials, dependencies, configuration, or production changes.",
+        "title": "Reconcile active work before admitting the next rodhat.com improvement",
+        "summary": "rodhat.com is blocked from new implementation because the authoritative snapshot records existing queued, active, deployed, or measuring work. The exact conflicting item and release state are not available in the supplied site evidence.",
+        "requested_action": "Inspect the existing rodhat.com queue and improvement records, identify the canonical active item, and either finish, pause, or consolidate it. Only after capacity is clear, select one non-overlapping reversible implementation from the existing site report.",
         "proposal_id": null
       }
     ]
