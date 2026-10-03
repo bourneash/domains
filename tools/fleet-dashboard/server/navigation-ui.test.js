@@ -1104,6 +1104,14 @@ test('fleet vitals cards provide destinations and role-health context', () => {
   assert.match(app, /Fresh roles/);
 });
 
+test('fleet vitals avoid competing with initial non-Control page requests', () => {
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(shell, /function refreshVitalsAfter\(delayMs = 0\)/);
+  assert.match(shell, /if \(document\.body\.dataset\.view === 'control'\) refreshVitalsAfter\(\);\s*else refreshVitalsAfter\(2200\);/);
+  assert.match(shell, /else if \(previous === 'control'\) refreshVitalsAfter\(2200\)/);
+  assert.match(shell, /if \(enteringOrLeavingSocial \|\| v === 'control'\) refreshVitalsAfter\(\)/);
+});
+
 test('category cards share the sidebar icon system', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');

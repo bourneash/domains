@@ -374,6 +374,20 @@
     }
   }
 
+  let delayedVitalsTimer = null;
+  function refreshVitalsAfter(delayMs = 0) {
+    clearTimeout(delayedVitalsTimer);
+    if (!delayMs) {
+      delayedVitalsTimer = null;
+      loadVitals();
+      return;
+    }
+    delayedVitalsTimer = setTimeout(() => {
+      delayedVitalsTimer = null;
+      if (!document.hidden) loadVitals();
+    }, delayMs);
+  }
+
   /* -------------------------------------------------- 2. COMMAND PALETTE -- */
   const palette = document.createElement('div');
   palette.id = 'cmdk';
@@ -758,12 +772,13 @@
     new MutationObserver(() => {
       const v = document.body.dataset.view;
       if (v === last) return;
-      const enteringOrLeavingSocial = v === 'socialhub' || last === 'socialhub';
-      const enteringOrLeavingControl = v === 'control' || last === 'control';
+      const previous = last;
+      const enteringOrLeavingSocial = v === 'socialhub' || previous === 'socialhub';
       last = v;
       // The containers tile scopes to Social Hub — refetch immediately on
       // entering/leaving it instead of waiting up to 30s for the next poll.
-      if (enteringOrLeavingSocial || enteringOrLeavingControl) loadVitals();
+      if (enteringOrLeavingSocial || v === 'control') refreshVitalsAfter();
+      else if (previous === 'control') refreshVitalsAfter(2200);
       if (reduce) return;
       main.classList.remove('view-enter');
       void main.offsetWidth;
@@ -949,13 +964,16 @@
     applyFocusMode(focusOn);
 
     watchView();
-    loadVitals();
+    if (document.body.dataset.view === 'control') refreshVitalsAfter();
+    else refreshVitalsAfter(2200);
     clearInterval(vitalsTimer);
     vitalsTimer = setInterval(() => {
-      if (!document.hidden) loadVitals();
+      if (!document.hidden)
+        refreshVitalsAfter(document.body.dataset.view === 'control' ? 0 : 750);
     }, 30000);
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) loadVitals();
+      if (!document.hidden)
+        refreshVitalsAfter(document.body.dataset.view === 'control' ? 0 : 750);
     });
   }
 
