@@ -735,8 +735,13 @@ function compactHealth(data) {
         ? {
             ...row,
             execution: {
-              ...row.execution,
-              slots: Array.isArray(row.execution.slots) ? row.execution.slots.slice(-12) : [],
+              slots: Array.isArray(row.execution.slots)
+                ? row.execution.slots.slice(-12).map(({ at, status, observedAt }) => ({
+                    at,
+                    status,
+                    ...(observedAt === undefined ? {} : { observedAt }),
+                  }))
+                : [],
             },
           }
         : row
