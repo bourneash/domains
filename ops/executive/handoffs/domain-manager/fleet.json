@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T18:48:06.239Z",
+  "generated_at": "2026-10-03T21:22:48.500Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queued a bounded accessibility fix for unsupervisedmedia.com: interactive elements expose hover styling but no explicit keyboard focus styling in the reviewed source.",
+        "summary": "rc-9.com mobile-performance repair remains the strongest evidenced implementation task. Principal engineer should inspect the retained diagnosis, verify complete source files before editing, run focused validation/build checks, and record an explicit requeue-or-close disposition.",
         "requested_action": null,
         "proposal_id": null
       }

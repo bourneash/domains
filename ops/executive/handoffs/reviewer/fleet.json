@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T18:48:06.239Z",
+  "generated_at": "2026-10-03T21:22:48.500Z",
   "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approved one bounded accessibility improvement for unsupervisedmedia.com. It has source evidence, reversible scope, testable nonfinancial measurement, and no revenue claim or production-risk expansion.",
+        "summary": "No new implementation can be admitted: the sole scoped candidate overlaps an existing blocked principal-engineer repair and lacks the retained diagnosis, approved baseline, threshold, and complete release evidence. Principal engineer must review the diagnosis and requeue or close by 2026-10-03T22:00:00Z; unresolved status escalates to CTO.",
         "requested_action": null,
         "proposal_id": null
       }
