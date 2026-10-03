@@ -1023,22 +1023,21 @@ test('live version changes never force a document reload', () => {
   assert.match(app, /#update-pill.*location\.reload\(\)/s);
 });
 
-test('dashboard boot defers site and agent catalogs outside their dependent views', () => {
+test('dashboard boot loads site and agent catalogs only when a view needs them', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
-  const boot = app.slice(app.indexOf('async function boot()'));
+  const bootStart = app.indexOf('async function boot()');
+  const boot = app.slice(bootStart, app.indexOf('/* ===== GUARDRAILS ===== */', bootStart));
   const auth = boot.indexOf("api('GET', '/api/auth')");
-  const agentsRequest = boot.indexOf("api('GET', '/api/agents')");
-  const sitesRequest = boot.indexOf("api('GET', '/api/sites')");
-  assert.ok(auth >= 0 && sitesRequest > auth && agentsRequest > sitesRequest);
-  assert.match(boot, /const sitesPending = api\('GET', '\/api\/sites'\)[\s\S]*\.catch\(\(\) => \[\]\)/);
-  assert.match(boot, /const agentsPending = api\('GET', '\/api\/agents'\)\s*\.then\(normalizeAgentList\)\s*\.catch\(\(\) => \[\]\)/);
+  assert.ok(auth >= 0);
+  assert.doesNotMatch(boot, /api\('GET', '\/api\/(?:sites|agents)'\)/);
+  assert.match(app, /function loadSiteCatalog\(\)[\s\S]*?api\('GET', '\/api\/sites'\)/);
+  assert.match(app, /function loadAgentCatalog\(\)[\s\S]*?api\('GET', '\/api\/agents'\)/);
   assert.match(app, /const SITE_CATALOG_VIEWS = new Set\(\[[\s\S]*'agent'[\s\S]*'tasks'[\s\S]*'automation'/);
-  assert.match(app, /if \(SITE_CATALOG_VIEWS\.has\(STATE\.view\) && !SITE_CATALOG_READY\)/);
-  assert.match(boot, /if \(r\.view === 'agent'\) \{\s*STATE\.agents = await agentsPending/);
-  assert.match(boot, /r = parseHash\(\);\s*if \(r\.view === 'agent' && !AGENT_CATALOG_READY\)/);
-  assert.match(boot, /if \(!AGENT_CATALOG_READY\) \{\s*agentsPending\.then\(agents =>/);
-  assert.match(boot, /if \(!SITE_CATALOG_READY\) \{\s*sitesPending\.then\(sites =>/);
-  assert.match(boot, /if \(STATE\.view === 'agent' \|\| STATE\.view === 'agents'\) render\(\)/);
+  assert.doesNotMatch(app.match(/const SITE_CATALOG_VIEWS = new Set\(\[([\s\S]*?)\]\);/)?.[1] || '', /socialhub/);
+  const render = app.slice(app.indexOf('function render()'), app.indexOf('const NAV_ITEM_DESCRIPTIONS'));
+  assert.match(render, /if \(needsSites\) loadSiteCatalog\(\)/);
+  assert.match(render, /if \(needsAgents\) loadAgentCatalog\(\)/);
+  assert.match(boot, /if \(!AGENT_CATALOG_READY\) loadAgentCatalog\(\)/);
 });
 
 test('the self-update action confirms before reloading the workspace', () => {
