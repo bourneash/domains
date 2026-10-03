@@ -53,18 +53,48 @@ test('fleet supports a separately cached summary-only aggregation', async () => 
   const script = path.join(root, 'tools', 'ai-usage', 'aggregate.py');
   const calls = path.join(root, 'calls');
   fs.mkdirSync(path.dirname(script), { recursive: true });
-  fs.writeFileSync(script, [
-    'from pathlib import Path', 'import json, sys',
-    `p = Path(${JSON.stringify(calls)})`,
-    'p.write_text(p.read_text() + "S" if p.exists() else "S")',
-    'print(json.dumps({"summary_only": "--summary-only" in sys.argv}))', '',
-  ].join('\n'));
+  fs.writeFileSync(
+    script,
+    [
+      'from pathlib import Path',
+      'import json, sys',
+      `p = Path(${JSON.stringify(calls)})`,
+      'p.write_text(p.read_text() + "S" if p.exists() else "S")',
+      'print(json.dumps({"summary_only": "--summary-only" in sys.argv}))',
+      '',
+    ].join('\n')
+  );
   try {
     const full = await aiusage.fleet(root);
     const summary = await aiusage.fleet(root, { summaryOnly: true });
     assert.equal(full.summary_only, false);
     assert.equal(summary.summary_only, true);
     assert.equal(fs.readFileSync(calls, 'utf8'), 'SS');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('fleet supports a separately cached role-only usage aggregation', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aiusage-role-only-'));
+  const script = path.join(root, 'tools', 'ai-usage', 'aggregate.py');
+  const seen = path.join(root, 'args');
+  fs.mkdirSync(path.dirname(script), { recursive: true });
+  fs.writeFileSync(
+    script,
+    [
+      'from pathlib import Path',
+      'import json, sys',
+      `Path(${JSON.stringify(seen)}).write_text(" ".join(sys.argv[1:]))`,
+      'print(json.dumps({"args": sys.argv[1:]}))',
+      '',
+    ].join('\n')
+  );
+  try {
+    const data = await aiusage.fleet(root, { rolesOnly: ['update', 'engineer', 'update'] });
+    assert.deepEqual(data.args.slice(-4), ['--role', 'engineer', '--role', 'update']);
+    assert.match(fs.readFileSync(seen, 'utf8'), /--role engineer --role update$/);
+    assert.throws(() => aiusage.fleet(root, { rolesOnly: ['bad role'] }), /valid role names/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

@@ -25,9 +25,15 @@ function fleet(root, filters = {}) {
   if (from && to && from > to) throw new Error('from must not be after to');
   const granularity = filters.granularity || null;
   const summaryOnly = Boolean(filters.summaryOnly);
+  const rolesOnly = filters.rolesOnly == null ? null : [...new Set(filters.rolesOnly)].sort();
+  if (
+    rolesOnly &&
+    (!rolesOnly.length || rolesOnly.some(role => !/^[a-z0-9][a-z0-9-]{0,79}$/i.test(role)))
+  )
+    throw new Error('rolesOnly must contain valid role names');
   if (granularity && !['day', 'hour'].includes(granularity))
     throw new Error('granularity must be day or hour');
-  const key = JSON.stringify([path.resolve(root), from, to, granularity, summaryOnly]);
+  const key = JSON.stringify([path.resolve(root), from, to, granularity, summaryOnly, rolesOnly]);
   const now = Date.now();
   const cached = reportCache.get(key);
   if (cached && now - cached.at < CACHE_TTL_MS) return Promise.resolve(cached.report);
@@ -40,21 +46,17 @@ function fleet(root, filters = {}) {
   if (to) args.push('--to', to);
   if (granularity) args.push('--granularity', granularity);
   if (summaryOnly) args.push('--summary-only');
+  if (rolesOnly) for (const role of rolesOnly) args.push('--role', role);
   const request = new Promise((resolve, reject) => {
-    execFile(
-      'python3',
-      args,
-      { timeout: 30000, maxBuffer: 16 * 1024 * 1024 },
-      (err, stdout) => {
-        if (err) return reject(err);
-        try {
-          const report = JSON.parse(stdout);
-          resolve({ generated_at: new Date().toISOString(), ...report });
-        } catch (e) {
-          reject(new Error(`AI usage JSON parse failed: ${e.message}`));
-        }
+    execFile('python3', args, { timeout: 30000, maxBuffer: 16 * 1024 * 1024 }, (err, stdout) => {
+      if (err) return reject(err);
+      try {
+        const report = JSON.parse(stdout);
+        resolve({ generated_at: new Date().toISOString(), ...report });
+      } catch (e) {
+        reject(new Error(`AI usage JSON parse failed: ${e.message}`));
       }
-    );
+    });
   });
   let shared;
   shared = request

@@ -164,12 +164,13 @@ def read_ledger_records(ledger: Path) -> list[dict]:
 
 def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             end_day: str | None = None, granularity: str | None = None,
-            summary_only: bool = False) -> dict:
+            summary_only: bool = False, roles_only: list[str] | None = None) -> dict:
     """Build a report, optionally date-limited or reduced to fleet/site totals."""
     if start_day and end_day and start_day > end_day:
         raise ValueError("start_day must not be after end_day")
     if granularity not in (None, "day", "hour"):
         raise ValueError("granularity must be day or hour")
+    role_filter = set(roles_only) if roles_only is not None else None
     include_day = granularity in (None, "day")
     include_hour = granularity in (None, "hour")
     sites_dir = root / "sites"
@@ -212,6 +213,10 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
             for record in read_ledger_records(ledger):
                 site = record.get("site") or site_name
                 role = record.get("role") or "unknown"
+                if role_filter is not None:
+                    if role in role_filter:
+                        _add(by_site_role.setdefault((site, role), _empty_totals()), record)
+                    continue
                 instrumented_sites.add(site)
 
                 _add(by_site.setdefault(site, _empty_totals()), record)
@@ -267,6 +272,16 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                         "subtype": record.get("subtype"),
                         "total_cost_usd": record.get("total_cost_usd") or 0.0,
                     })
+
+    if role_filter is not None:
+        return {
+            "summary": {},
+            "by_site_role": [
+                {"site": site, "role": role, **totals,
+                 "cache_hit_ratio": _cache_hit_ratio(totals)}
+                for (site, role), totals in sorted(by_site_role.items())
+            ],
+        }
 
     site_rows = []
     for site, totals in sorted(by_site.items()):
@@ -411,13 +426,15 @@ def main(argv: list[str] | None = None) -> None:
                         help="include only one time-series resolution")
     parser.add_argument("--summary-only", action="store_true",
                         help="skip role, time-series, model, and alert breakdowns")
+    parser.add_argument("--role", action="append", dest="roles_only",
+                        help="aggregate only this role's per-site usage (repeatable)")
     args = parser.parse_args(argv)
     start_day = args.start_day.isoformat() if args.start_day else None
     end_day = args.end_day.isoformat() if args.end_day else None
     if start_day and end_day and start_day > end_day:
         parser.error("--from must not be after --to")
     report = collect(args.root.resolve(), start_day, end_day, args.granularity,
-                     summary_only=args.summary_only)
+                     summary_only=args.summary_only, roles_only=args.roles_only)
 
     if args.json:
         print(json.dumps(report, indent=2))

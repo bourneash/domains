@@ -3602,14 +3602,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/transcript', (req, res) => {
     try {
       const settings = events.getExecutiveSettings();
-      const days = Math.max(
-        1,
-        Math.min(3650, Number(settings.conversation_retention_days) || 90),
-      );
+      const days = Math.max(1, Math.min(3650, Number(settings.conversation_retention_days) || 90));
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-      const retentionResult = events.purgeExecutiveTranscriptBefore(
-        new Date(cutoff),
-      );
+      const retentionResult = events.purgeExecutiveTranscriptBefore(new Date(cutoff));
       const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 5, 20));
       const page = events.listExecutiveTranscript({
         beforeCreatedAt: req.query.before_at,
@@ -3637,10 +3632,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   app.get('/api/executive/transcript/:id', (req, res) => {
     try {
       const settings = events.getExecutiveSettings();
-      const days = Math.max(
-        1,
-        Math.min(3650, Number(settings.conversation_retention_days) || 90),
-      );
+      const days = Math.max(1, Math.min(3650, Number(settings.conversation_retention_days) || 90));
       const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
       const message = events.getExecutiveTranscriptMessage(req.params.id);
       if (!message || Date.parse(message.created_at) < cutoff)
@@ -4206,10 +4198,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
                 'output_tokens',
                 'cache_creation_input_tokens',
                 'cache_read_input_tokens',
-              ].reduce(
-                (tokens, key) => tokens + (Number(row[key]) || 0),
-                0
-              ),
+              ].reduce((tokens, key) => tokens + (Number(row[key]) || 0), 0),
             0
           )
         : null,
@@ -7370,8 +7359,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           const now = new Date();
           const day = d => d.toISOString().slice(0, 10);
           const from = new Date(now.getTime() - 7 * 86400 * 1000);
+          const family = roles.ROLE_FAMILIES[role];
+          const usageRoles = family?.roles || [role];
           pending = Promise.all([
-            aiusage.fleet(root, { from: day(from), to: day(now) }),
+            aiusage.fleet(root, {
+              from: day(from),
+              to: day(now),
+              rolesOnly: usageRoles,
+            }),
             // The health report only reads this role (or its family profiles).
             // Reuse the scoped Agent matrix instead of rebuilding every role's
             // editorial telemetry and checking every active deployer repository.

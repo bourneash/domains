@@ -73,6 +73,21 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(slim["alerts"], [])
         self.assertEqual(slim["coverage"], full["coverage"])
 
+    def test_role_only_keeps_requested_site_cost_rows(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(role="engineer", total_cost_usd=0.5),
+            record(role="watchdog", total_cost_usd=0.25),
+        ])
+
+        full = aggregate.collect(root)
+        selected = aggregate.collect(root, roles_only=["engineer"])
+
+        expected = [row for row in full["by_site_role"] if row["role"] == "engineer"]
+        self.assertEqual(selected["by_site_role"], expected)
+        self.assertEqual(selected["summary"], {})
+        self.assertNotIn("by_model", selected)
+
     def test_aggregates_by_site_role_and_day(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [
