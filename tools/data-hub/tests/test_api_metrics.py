@@ -161,6 +161,36 @@ def test_metrics_top_returns_pages_sorted_by_metric(db):
     assert top[0]["dim_key"] == "/b"
 
 
+def test_metrics_top_batch_reuses_rows_for_multiple_metrics_and_logs_each_pull(db):
+    site = "xxxtea.com"
+    day = _days_ago(1)
+    store.upsert_ga4_metrics(db, site, [
+        {**_ga4_row(day), "grain": "page", "dim_key": "/a", "sessions": 5,
+         "conversions": 8},
+        {**_ga4_row(day), "grain": "page", "dim_key": "/b", "sessions": 50,
+         "conversions": 1},
+    ])
+    store.upsert_gsc_metrics(db, site, [
+        {"date": day, "grain": "query", "dim_key": "tea", "clicks": 4,
+         "impressions": 40, "ctr": 0.1, "position": 5.0},
+        {"date": day, "grain": "query", "dim_key": "tea recipe", "clicks": 9,
+         "impressions": 50, "ctr": 0.18, "position": 4.0},
+    ])
+
+    client = _app(db)
+    r = client.get("/metrics/top-batch", params={
+        "site": site, "ga4": "sessions,conversions", "gsc": "clicks", "window": 28,
+    })
+    assert r.status_code == 200
+    top = r.json()["top"]
+    assert top["ga4"]["sessions"][0]["dim_key"] == "/b"
+    assert top["ga4"]["conversions"][0]["dim_key"] == "/a"
+    assert top["gsc"]["clicks"][0]["dim_key"] == "tea recipe"
+    pulls = store.query_pulls(db, limit=10, site=site)
+    assert len(pulls) == 3
+    assert all(row["endpoint"] == "metrics/top" for row in pulls)
+
+
 def test_metrics_top_rejects_unknown_metric(db):
     store.upsert_ga4_metrics(db, "xxxtea.com", [
         {**_ga4_row(_days_ago(1)), "grain": "page", "dim_key": "/a", "sessions": 5},

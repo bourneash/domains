@@ -58,6 +58,20 @@ test('topGsc(site, metric, window, limit) builds source=gsc querystring', async 
   assert.equal(calledUrl, `${an.API}/metrics/top?site=x.com&source=gsc&metric=clicks&window=28&limit=5`);
 });
 
+test('topBatch() requests several source metrics in one Data Hub call', async () => {
+  let calledUrl = null;
+  global.fetch = async url => {
+    calledUrl = new URL(url);
+    return { ok: true, status: 200, json: async () => ({ top: {} }) };
+  };
+  const result = await an.topBatch('x.com', { ga4: ['sessions', 'conversions'], gsc: ['clicks'] });
+  assert.equal(calledUrl.pathname, '/metrics/top-batch');
+  assert.equal(calledUrl.searchParams.get('site'), 'x.com');
+  assert.equal(calledUrl.searchParams.get('ga4'), 'sessions,conversions');
+  assert.equal(calledUrl.searchParams.get('gsc'), 'clicks');
+  assert.deepEqual(result, { top: {} });
+});
+
 test('topGa4()/topGsc() degrade to {top:[]} on failure', async () => {
   global.fetch = async () => { throw new Error('down'); };
   const ga4 = await an.topGa4('x.com', 'sessions');

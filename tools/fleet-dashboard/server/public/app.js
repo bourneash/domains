@@ -7683,20 +7683,12 @@ async function renderAnalytics() {
 
   let detailHtml = '<div class="muted">select a site</div>';
   if (ANALYTICS_SITE) {
-    const [summary, wow, topPages, topConvertingPages, topQueries] = await Promise.all([
+    const [summary, wow, topMetrics] = await Promise.all([
       api('GET', `/api/analytics/summary?site=${encodeURIComponent(ANALYTICS_SITE)}&window=28`),
       api('GET', `/api/analytics/wow?site=${encodeURIComponent(ANALYTICS_SITE)}`),
       api(
         'GET',
-        `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=ga4&metric=sessions&window=28&limit=10`
-      ),
-      api(
-        'GET',
-        `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=ga4&metric=conversions&window=28&limit=10`
-      ),
-      api(
-        'GET',
-        `/api/analytics/top?site=${encodeURIComponent(ANALYTICS_SITE)}&source=gsc&metric=clicks&window=28&limit=10`
+        `/api/analytics/top-batch?site=${encodeURIComponent(ANALYTICS_SITE)}&ga4=sessions,conversions&gsc=clicks&window=28&limit=10`
       ),
     ]);
 
@@ -7728,17 +7720,17 @@ async function renderAnalytics() {
       ${collapsiblePanel(
         'analytics.pages',
         'Top Pages (sessions)',
-        `<table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', topPages, 'sessions')}</tbody></table>`
+        `<table class="dh-datasets"><thead><tr><th>page</th><th>sessions</th></tr></thead><tbody>${topRows('page', { top: topMetrics.top?.ga4?.sessions || [] }, 'sessions')}</tbody></table>`
       )}
       ${collapsiblePanel(
         'analytics.converting-pages',
         'Affiliate Funnel — click origin pages',
-        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', topConvertingPages, 'conversions')}</tbody></table>`
+        `<p class="muted">Consent-observed clicks on first-party <code>/go/</code> links. This identifies which pages and offers create buying intent; Amazon orders and commission remain unavailable until the Associates earnings session is connected.</p><table class="dh-datasets"><thead><tr><th>page</th><th>affiliate clicks</th></tr></thead><tbody>${topRows('affiliate click', { top: topMetrics.top?.ga4?.conversions || [] }, 'conversions')}</tbody></table>`
       )}
       ${collapsiblePanel(
         'analytics.queries',
         'Top Queries (clicks)',
-        `<table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', topQueries, 'clicks')}</tbody></table>`
+        `<table class="dh-datasets"><thead><tr><th>query</th><th>clicks</th></tr></thead><tbody>${topRows('query', { top: topMetrics.top?.gsc?.clicks || [] }, 'clicks')}</tbody></table>`
       )}`;
   }
 

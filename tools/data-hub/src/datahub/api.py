@@ -338,6 +338,44 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
                           client_ip=_client_ip(request))
         return {"top": top}
 
+    @app.get("/metrics/top-batch")
+    def metrics_top_batch(request: Request, site: str, ga4: str | None = None,
+                          gsc: str | None = None, window: int = 28, limit: int = 10):
+        requested = {
+            source: list(dict.fromkeys(metric.strip() for metric in value.split(",") if metric.strip()))
+            for source, value in (("ga4", ga4), ("gsc", gsc))
+            if value
+        }
+        if not requested:
+            raise HTTPException(422, "provide at least one GA4 or GSC metric")
+        for source, metrics in requested.items():
+            invalid = set(metrics) - _TOP_METRICS[source]
+            if invalid:
+                raise HTTPException(422, f"{source} metrics must be selected from {sorted(_TOP_METRICS[source])}")
+
+        window = max(1, min(int(window), 400))
+        limit = max(1, min(int(limit), 50))
+        since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()
+        out = {}
+        for source, metrics in requested.items():
+            rows = (
+                store.query_ga4_metrics(conn, site, grain="page", since=since, limit=5000)
+                if source == "ga4"
+                else store.query_gsc_metrics(conn, site, grain="query", since=since, limit=5000)
+            )
+            out[source] = {}
+            for metric in metrics:
+                totals: dict[str, float] = {}
+                for row in rows:
+                    key = row["dim_key"]
+                    totals[key] = totals.get(key, 0) + (row.get(metric) or 0)
+                top = [{"dim_key": key, metric: value} for key, value in
+                       sorted(totals.items(), key=lambda item: item[1], reverse=True)[:limit]]
+                out[source][metric] = top
+                store.record_pull(conn, site=site, endpoint="metrics/top", item_count=len(top),
+                                  client_ip=_client_ip(request))
+        return {"top": out}
+
     @app.get("/metrics/health")
     def metrics_health(request: Request):
         states = {s["source_id"]: s for s in store.get_sources_state(conn)}

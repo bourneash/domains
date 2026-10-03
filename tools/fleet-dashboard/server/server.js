@@ -6254,6 +6254,23 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     const fn = req.query.source === 'gsc' ? analytics.topGsc : analytics.topGa4;
     res.json(await fn(req.query.site, req.query.metric, window, limit));
   });
+  app.get('/api/analytics/top-batch', async (req, res) => {
+    const window = Math.max(1, Math.min(parseInt(req.query.window, 10) || 28, 400));
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 10, 50));
+    const metrics = value =>
+      String(value || '')
+        .split(',')
+        .map(metric => metric.trim())
+        .filter(Boolean);
+    res.json(
+      await analytics.topBatch(
+        req.query.site,
+        { ga4: metrics(req.query.ga4), gsc: metrics(req.query.gsc) },
+        window,
+        limit
+      )
+    );
+  });
   app.get('/api/analytics/wow', async (req, res) => res.json(await analytics.wow(req.query.site)));
   app.get('/api/revenue/amazon', (_req, res) => res.json(revenue.amazonSummary(root)));
 

@@ -44,6 +44,25 @@ async function topGsc(site, metric, window = 28, limit = 10) {
   return r.ok === false ? { ...r, top: [] } : r;
 }
 
+async function topBatch(site, { ga4 = [], gsc = [] } = {}, window = 28, limit = 10) {
+  const params = new URLSearchParams({
+    site,
+    window: String(window),
+    limit: String(limit),
+  });
+  if (ga4.length) params.set('ga4', ga4.join(','));
+  if (gsc.length) params.set('gsc', gsc.join(','));
+  const r = await _get(`/metrics/top-batch?${params}`);
+  if (r.ok !== false) return r;
+  return {
+    ...r,
+    top: {
+      ga4: Object.fromEntries(ga4.map(metric => [metric, []])),
+      gsc: Object.fromEntries(gsc.map(metric => [metric, []])),
+    },
+  };
+}
+
 async function _series(site, kind, days) {
   const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
   const r = await _get(
@@ -104,6 +123,7 @@ module.exports = {
   summary,
   topGa4,
   topGsc,
+  topBatch,
   ga4Series,
   gscSeries,
   wow,
