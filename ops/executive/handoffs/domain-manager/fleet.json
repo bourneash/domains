@@ -2,15 +2,15 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T00:30:07.276Z",
+  "generated_at": "2026-10-03T01:31:22.583Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "proposal",
-        "title": "Reconcile newmomshop.com active work before admitting the next change",
-        "summary": "newmomshop.com has overlapping active delivery work and a measurement window, so no additional implementation can be safely queued without duplicating scope or invalidating comparison evidence.",
-        "requested_action": "Review the two existing newmomshop.com active items, record their exact pages/files, owners, states, baselines, measurement due dates, rollback points, and one non-overlapping next implementation candidate. Do not request duplicate telemetry, edit production, or create a second implementation.",
+        "title": "Reconcile newmomshop.com active work before admitting another change",
+        "summary": "newmomshop.com has two active improvements and a measurement window due 2026-10-11. Admit no overlapping implementation until those items are completed, paused, or consolidated.",
+        "requested_action": "Review the two existing newmomshop.com work records, attach their current status, baseline, metric, rollback point, and measurement disposition, then nominate exactly one non-overlapping implementation candidate only after clearance.",
         "proposal_id": null
       }
     ]
