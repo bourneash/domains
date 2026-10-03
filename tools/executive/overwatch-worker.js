@@ -275,6 +275,64 @@ function reconcileRecoveryResults(store) {
   return recovered;
 }
 
+// Reconcile a verified successor without rewriting the original failed attempt.
+// This receipt is supervision work, not credit for initiating the recovery.
+function reconcileDeliveryRecoveries(store) {
+  const reconciled = [];
+  for (const task of store.listExecutiveWorkItems({ limit: 1000 })) {
+    if (
+      !task.work_id.startsWith('delivery-recovery:') ||
+      ['done', 'cancelled'].includes(task.status)
+    )
+      continue;
+    const originalId = task.source_id || task.work_id.slice('delivery-recovery:'.length);
+    const original = store.getChangeRequest(originalId);
+    if (!original || original.status !== 'failed') continue;
+    const successor = workEvidence.linkedRequests(store, task).find(request => {
+      if (request.request_id === originalId || request.site !== original.site) return false;
+      const run = request.run_id && store.getImprovement(request.run_id);
+      return (
+        run &&
+        workEvidence.delivery(request, run).deployed &&
+        parseDate(run.outcome.deployment_verified_at) >= parseDate(task.created_at)
+      );
+    });
+    if (!successor) continue;
+    const run = store.getImprovement(successor.run_id);
+    const receipt = {
+      work_id: task.work_id,
+      original_request_id: originalId,
+      successor_request_id: successor.request_id,
+      commit: run.approval.release.merge_sha || run.validation.commit,
+      build_id: run.approval.release.build_id,
+      initiated_by: successor.requested_by || null,
+    };
+    store.updateExecutiveWorkItem(task.work_id, {
+      status: 'done',
+      waiting_on: null,
+      next_action:
+        'Verified linked successor repaired delivery; original failed attempt remains recorded.',
+      evidence: [
+        ...(task.evidence || []),
+        {
+          type: 'test',
+          label: 'Verified linked successor release',
+          detail: JSON.stringify(receipt),
+        },
+      ],
+    });
+    store.record({
+      event_type: 'overwatch.delivery_recovery_reconciled',
+      source: 'exec-overwatch',
+      entity_type: 'executive-work-item',
+      entity_id: task.work_id,
+      payload: receipt,
+    });
+    reconciled.push(receipt);
+  }
+  return reconciled;
+}
+
 function stoppedFingerprint(store) {
   const tasks = store
     .listExecutiveWorkItems({ source_type: 'operating-task', quiet: 0, limit: 1000 })
@@ -439,6 +497,7 @@ async function main() {
     store.close();
     return { skipped: true, reason: 'overwatch is paused or disabled' };
   }
+  const reconciledDeliveries = reconcileDeliveryRecoveries(store);
   const recovered = reconcileRecoveryResults(store);
   const stopFingerprint = stoppedFingerprint(store);
   const preflight = collectEvidence(store);
@@ -476,6 +535,7 @@ async function main() {
       skipped: true,
       reason: live ? 'execution already has a live path' : 'stopped work is unchanged',
       verified_recoveries: recovered,
+      reconciled_delivery_cases: reconciledDeliveries,
     };
   }
   const runId = crypto.randomUUID();
@@ -509,6 +569,7 @@ async function main() {
     repairs,
     stop_fingerprint: stopFingerprint,
     verified_recoveries: recovered,
+    reconciled_delivery_cases: reconciledDeliveries,
     required_output: [
       'Repair evidence-backed stuck or failed handoffs.',
       'Create or materially advance at least one bounded improvement when safe evidence supports it.',
@@ -551,6 +612,7 @@ async function main() {
     delivery_error: deliveryError,
     repairs,
     verified_recoveries: recovered,
+    reconciled_delivery_cases: reconciledDeliveries,
     stop_fingerprint: stopFingerprint,
     before: evidence,
     after: finalEvidence,
@@ -661,5 +723,6 @@ module.exports = {
   stoppedFingerprint,
   admitRecovery,
   reconcileRecoveryResults,
+  reconcileDeliveryRecoveries,
   main,
 };

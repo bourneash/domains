@@ -338,3 +338,52 @@ test('Overwatch credits only repaired original work reaching connected release',
   );
   store.close();
 });
+
+test('linked successor closes delivery case only after real release and preserves original failure', () => {
+  const { store } = fixture();
+  const original = store.createChangeRequest({
+    site: 'example.test',
+    title: 'Original',
+    status: 'failed',
+  });
+  const task = store.createExecutiveWorkItem({
+    work_id: 'delivery-recovery:' + original.request_id,
+    title: 'Recover original',
+    site: 'example.test',
+    source_id: original.request_id,
+    status: 'waiting',
+  });
+  const successor = store.createChangeRequest({
+    site: 'example.test',
+    title: 'Successor',
+    status: 'committed',
+    delivery_mode: 'pull_request',
+  });
+  store.createWorkflowLink({
+    from_type: 'work-item',
+    from_id: task.work_id,
+    to_type: 'request',
+    to_id: successor.request_id,
+    relation: 'related_to',
+  });
+  const reconcile = require('./overwatch-worker').reconcileDeliveryRecoveries;
+  assert.equal(reconcile(store).length, 0);
+  const run = store.createImprovement({
+    site: 'example.test',
+    title: 'Successor',
+    source: 'test',
+    deployment_id: 'merge',
+    validation: { passed: true, commit: 'head' },
+    approval: {
+      review_gate: 'passed',
+      release: { status: 'verified', commit: 'merge', build_id: 'connected-build' },
+    },
+    outcome: { deployment_verified_at: new Date(Date.now() + 1000).toISOString() },
+  });
+  store.updateChangeRequest(successor.request_id, { run_id: run.run_id, status: 'deployed' });
+  assert.equal(reconcile(store).length, 1);
+  assert.equal(store.getExecutiveWorkItem(task.work_id).status, 'done');
+  assert.equal(store.getChangeRequest(original.request_id).status, 'failed');
+  assert.equal(reconcile(store).length, 0);
+  store.close();
+});
