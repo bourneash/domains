@@ -148,17 +148,19 @@ test('executive conversation workspace behaves like an email inbox', () => {
 test('executive conversation route skips unrelated control-plane requests', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /const conversationOnly = STATE\.agentPage === 'conversation'/);
+  assert.match(app, /conversation: \['messages', 'requests', 'inbox'\]/);
+  assert.match(app, /const loadWorkspaceData = \(key, request, fallback\) =>\s*workspaceData\.includes\(key\) \? request\(\) : Promise\.resolve\(fallback\)/);
   assert.match(
     app,
     /conversationOnly\s*\? Promise\.resolve\(\{ messages: \[\], retention_days: 90 \}\)/
   );
   assert.match(
     app,
-    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*api\('GET', '\/api\/executive\/proposals\?limit=100'\)/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*proposals:\s*\[\]\s*\}\)\s*:\s*loadWorkspaceData\('proposals', \(\) => api\('GET', '\/api\/executive\/proposals\?limit=100'/
   );
   assert.match(
     app,
-    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*apiOptional\('GET', '\/api\/cases\?limit=300&summary=1'/
+    /conversationOnly\s*\?\s*Promise\.resolve\(\{\s*cases:\s*\[\]\s*\}\)\s*:\s*loadWorkspaceData\('cases', \(\) => apiOptional\('GET', '\/api\/cases\?limit=300&summary=1'/
   );
 });
 

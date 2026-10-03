@@ -14392,6 +14392,18 @@ async function renderExecutive() {
     cases,
     calendar;
   const conversationOnly = STATE.agentPage === 'conversation';
+  const workspace = STATE.agentPage || 'overview';
+  const workspaceData = {
+    overview: ['proposals', 'managerQueue', 'principalQueue', 'calendar'],
+    dashboard: ['proposals', 'managerQueue', 'principalQueue', 'calendar', 'runStatus'],
+    conversation: ['messages', 'requests', 'inbox'],
+    runs: ['actions', 'runStatus'],
+    work: ['requests', 'inbox', 'proposals', 'managerQueue', 'principalQueue', 'calendar', 'cases', 'transcript'],
+    decisions: ['proposals', 'actions'],
+    signals: ['revops', 'experiments', 'campaigns', 'reports', 'croLabRuns'],
+  }[workspace] || [];
+  const loadWorkspaceData = (key, request, fallback) =>
+    workspaceData.includes(key) ? request() : Promise.resolve(fallback);
   try {
     [
       messages,
@@ -14412,47 +14424,47 @@ async function renderExecutive() {
       cases,
       calendar,
     ] = await Promise.all([
-      api('GET', '/api/executive/messages?limit=100&preview=1'),
+      loadWorkspaceData('messages', () => api('GET', '/api/executive/messages?limit=100&preview=1'), { messages: [] }),
       conversationOnly
         ? Promise.resolve({ messages: [], retention_days: 90 })
-        : apiOptional('GET', '/api/executive/transcript?limit=5', {
+        : loadWorkspaceData('transcript', () => apiOptional('GET', '/api/executive/transcript?limit=5', {
             messages: [],
             retention_days: 90,
             total_count: 0,
-          }),
-      api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'),
-      api('GET', '/api/executive/inbox?limit=50'),
+          }), { messages: [], retention_days: 90, total_count: 0 }),
+      loadWorkspaceData('requests', () => api('GET', '/api/executive/work-items?source_type=owner-request&limit=50'), { work_items: [] }),
+      loadWorkspaceData('inbox', () => api('GET', '/api/executive/inbox?limit=50'), { requests: [], notifications: [] }),
       conversationOnly
         ? Promise.resolve({ proposals: [] })
-        : api('GET', '/api/executive/proposals?limit=100'),
+        : loadWorkspaceData('proposals', () => api('GET', '/api/executive/proposals?limit=100'), { proposals: [] }),
       conversationOnly
         ? Promise.resolve({ actions: [] })
-        : api('GET', '/api/executive/actions?limit=200&preview=1'),
-      conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
-      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
-      conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
-      conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
+        : loadWorkspaceData('actions', () => api('GET', '/api/executive/actions?limit=200&preview=1'), { actions: [] }),
+      loadWorkspaceData('settings', () => api('GET', '/api/executive/settings'), { settings: {} }),
+      loadWorkspaceData('revops', () => api('GET', '/api/revops/summary'), { summary: {} }),
+      loadWorkspaceData('experiments', () => api('GET', '/api/experiments'), { experiments: [] }),
+      loadWorkspaceData('campaigns', () => api('GET', '/api/campaigns/summary'), { summary: {} }),
       conversationOnly
         ? Promise.resolve({ reports: [] })
-        : api('GET', '/api/executive/reports?limit=20'),
+        : loadWorkspaceData('reports', () => api('GET', '/api/executive/reports?limit=20'), { reports: [] }),
       conversationOnly
         ? Promise.resolve({ queue: {} })
-        : api('GET', '/api/executive/domain-manager-queue'),
+        : loadWorkspaceData('managerQueue', () => api('GET', '/api/executive/domain-manager-queue'), { queue: {} }),
       conversationOnly
         ? Promise.resolve({ summary: {} })
-        : api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'),
+        : loadWorkspaceData('principalQueue', () => api('GET', '/api/executive/task-queue?role=principal-engineer&limit=100'), { summary: {} }),
       conversationOnly
         ? Promise.resolve({ runs: [] })
-        : apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }),
+        : loadWorkspaceData('croLabRuns', () => apiOptional('GET', '/api/executive/cro-lab/runs?limit=12', { runs: [] }), { runs: [] }),
       conversationOnly
         ? Promise.resolve({ active: null, latest: null, runs: [] })
-        : apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }),
+        : loadWorkspaceData('runStatus', () => apiOptional('GET', '/api/executive/run-status', { active: null, latest: null, runs: [] }), { active: null, latest: null, runs: [] }),
       conversationOnly
         ? Promise.resolve({ cases: [] })
-        : apiOptional('GET', '/api/cases?limit=300&summary=1', { cases: [] }),
+        : loadWorkspaceData('cases', () => apiOptional('GET', '/api/cases?limit=300&summary=1', { cases: [] }), { cases: [] }),
       conversationOnly
         ? Promise.resolve({ events: [], calendar: { events: [] } })
-        : apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }),
+        : loadWorkspaceData('calendar', () => apiOptional('GET', '/api/executive/calendar', { events: [], calendar: { events: [] } }), { events: [], calendar: { events: [] } }),
     ]);
   } catch (e) {
     renderViewError(app, `Executive control plane failed: ${e.message}`);
@@ -14617,7 +14629,7 @@ async function renderExecutive() {
     ? EXEC_CASE_UI.selected
     : filteredCases[0]?.case_id || null;
   EXEC_CASE_UI.selected = selectedCaseId;
-  const selectedCase = selectedCaseId
+  const selectedCase = workspaceData.includes('cases') && selectedCaseId
     ? await apiOptional('GET', `/api/cases/${encodeURIComponent(selectedCaseId)}`, null)
     : null;
   const caseRows = filteredCases
