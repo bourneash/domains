@@ -71,6 +71,17 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
     );
     const verification = latestCheck(checks.check_runs, 'verify');
     const mergeSha = pr.merged_at ? pr.merge_commit_sha : null;
+    const productionChecks = mergeSha
+      ? await api(root, repo, `/commits/${mergeSha}/check-runs?per_page=100`)
+      : null;
+    const productionVerification = latestCheck(productionChecks?.check_runs, 'verify');
+    const productionGate = !mergeSha
+      ? 'not-merged'
+      : productionVerification?.conclusion === 'failure'
+        ? 'failed'
+        : productionVerification?.conclusion === 'success'
+          ? 'passed'
+          : 'pending';
     const build = buildFor(builds, work.site, mergeSha);
     const gate =
       pr.mergeable === false && pr.mergeable_state === 'dirty'
@@ -83,9 +94,12 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
               ? 'passed'
               : 'pending';
     const release =
-      build?.outcome === 'success' && gate === 'passed' && run.validation?.passed === true
+      build?.outcome === 'success' &&
+      gate === 'passed' &&
+      productionGate === 'passed' &&
+      run.validation?.passed === true
         ? 'verified'
-        : build?.outcome === 'fail'
+        : productionGate === 'failed' || build?.outcome === 'fail'
           ? 'failed'
           : pr.merged_at
             ? 'awaiting-connected-build'
@@ -105,6 +119,11 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         verify: verification?.conclusion || null,
         workers_builds: workerCheck?.conclusion || null,
         worker_build_url: workerCheck?.details_url || null,
+      },
+      production_checks: {
+        verify: productionVerification?.conclusion || null,
+        gate: productionGate,
+        commit: mergeSha,
       },
       release: {
         status: release,
@@ -169,7 +188,7 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
         site: request.site,
         source_type: 'change-request',
         source_id: request.request_id,
-        summary: `Original PR ${number} at ${pr.head.sha} failed ${gate === 'failed' ? 'GitHub verification' : 'the connected production build'}. Preserve its request, run, branch and workspace.`,
+        summary: `Original PR ${number} at ${pr.head.sha} failed ${gate === 'failed' ? 'GitHub verification' : productionGate === 'failed' ? 'production GitHub verification' : 'the connected production build'}. Preserve its request, run, branch and workspace.`,
         next_action:
           'Inspect the failed check logs; repair the original isolated PR workspace and run the exact CI checks. Do not duplicate the implementation, disable checks, or merge a failed head.',
         due_at: new Date(Date.now() + 3600000).toISOString(),
@@ -187,7 +206,12 @@ async function reconcile(store, root, { api = githubPr.github, cache, alert = la
           state: 'blocked',
           site: work.site,
           request_id: request.request_id,
-          status: gate === 'failed' ? 'GitHub review check failed' : 'connected build failed',
+          status:
+            gate === 'failed'
+              ? 'GitHub review check failed'
+              : productionGate === 'failed'
+                ? 'production GitHub verification failed'
+                : 'connected build failed',
           detail_url: workerCheck?.details_url || pr.html_url,
         });
     }
