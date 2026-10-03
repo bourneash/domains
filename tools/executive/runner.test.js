@@ -3026,3 +3026,36 @@ test('model context omits repeated measurement observations and message report m
   assert.equal(compact.work_threads[0].messages[0].body, 'Continue same case');
   assert.ok(JSON.stringify(compact).length < 5000);
 });
+
+test('assigned operating case uses bounded site context and retains policy and blocker evidence', () => {
+  const brief = {
+    intelligence: {},
+    portfolio_policy: { excluded_sites: ['excluded.example'] },
+    operating_manager_task: {
+      site: 'target.example',
+      summary: 'Repair failed verification',
+      evidence: [{ url: 'https://github.com/org/repo/pull/4' }],
+    },
+    site_context: [
+      { site: 'target.example', installed_roles: ['engineer'] },
+      { site: 'other.example' },
+    ],
+    improvements: [
+      { site: 'target.example', run_id: 'original' },
+      { site: 'other.example', run_id: 'unrelated' },
+    ],
+    action_mandate: {
+      candidates: [
+        { site: 'target.example', key: 'repair' },
+        { site: 'other.example', key: 'unrelated' },
+      ],
+    },
+  };
+  const compact = runner.compactModelBrief(brief);
+  assert.deepEqual(compact.sites, ['target.example']);
+  assert.equal(compact.improvements[0].run_id, 'original');
+  assert.equal(compact.improvements.length, 1);
+  assert.equal(compact.action_mandate.candidates[0].key, 'repair');
+  assert.deepEqual(compact.portfolio_policy.excluded_sites, ['excluded.example']);
+  assert.match(compact.operating_manager_task.evidence[0].url, /pull\/4/);
+});

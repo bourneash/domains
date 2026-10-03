@@ -1501,6 +1501,42 @@ function compactModelBrief(brief) {
   }));
   compact.model_context_note =
     'Large historical arrays, raw repository listings, and duplicate report bodies are compacted here. The control plane retains the authoritative artifacts and source timestamps; do not treat omitted context as zero or proof of absence.';
+  if (brief.operating_manager_task?.site && brief.operating_manager_task.site !== 'fleet') {
+    const site = String(brief.operating_manager_task.site).toLowerCase();
+    const belongs = row => String(row.site || row.domain || '').toLowerCase() === site;
+    const focused = {
+      generated_at: compact.generated_at,
+      sites: [site],
+      portfolio_policy: compact.portfolio_policy,
+      owner_strategy: compact.owner_strategy,
+      tool_contract: compact.tool_contract,
+      operating_manager_task: compact.operating_manager_task,
+      site_context: (compact.site_context || []).filter(belongs),
+      action_mandate: {
+        ...compact.action_mandate,
+        candidates: (brief.action_mandate?.candidates || [])
+          .filter(belongs)
+          .map(row => compactModelValue(row)),
+        deferred_candidates: (brief.action_mandate?.deferred_candidates || [])
+          .filter(belongs)
+          .map(row => compactModelValue(row)),
+      },
+      improvements: compact.improvements.filter(belongs),
+      work_items: compact.work_items.filter(row => belongs(row) || isPendingOwnerRequest(row)),
+      handoffs: compact.handoffs.filter(belongs),
+      delivery_readiness: {
+        ...compact.delivery_readiness,
+        blocked_sites: (compact.delivery_readiness.blocked_sites || []).filter(belongs),
+      },
+      task_queue: Object.fromEntries(
+        Object.entries(compact.task_queue).map(([role, rows]) => [role, rows.filter(belongs)])
+      ),
+      launch_readiness: compactModelValue(brief.launch_readiness?.[site] || {}),
+      model_context_note:
+        'This is one assigned operating case. Fleet history is omitted; absence is not evidence of safety or availability. Preserve all host gates and target only the assigned site. Do not interpret fleet counts as scoped capacity.',
+    };
+    return focused;
+  }
   return compact;
 }
 
