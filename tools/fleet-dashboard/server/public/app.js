@@ -745,7 +745,7 @@ async function renderEngineers() {
       <td><div>${cover}</div><div class="agent-health-7d">${agentHealthCell(ah)}</div></td>
       <td>${flagHtml}</td>
       <td class="run-cell">${actions}</td>
-    </tr>${ah ? healthDetailRow(ah, 12) : ''}`;
+      </tr>`;
     })
     .join('');
 
@@ -974,9 +974,18 @@ function healthDetailRow(row, colspan = 10) {
 }
 
 function toggleHealthDetail(button) {
-  const row = $(
-    `tr.ag-health-detail[data-health-detail="${CSS.escape(`${button.dataset.site}:${button.dataset.role || ''}`)}"]`
-  );
+  const key = `${button.dataset.site}:${button.dataset.role || ''}`;
+  let row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(key)}"]`);
+  if (!row) {
+    const data = (AGENT_HEALTH?.rows || []).find(
+      item => item.site === button.dataset.site && (item.role || '') === (button.dataset.role || '')
+    );
+    const parent = button.closest('tr');
+    if (!data || !parent) return;
+    const columns = button.closest('table')?.querySelectorAll('thead th').length || 10;
+    parent.insertAdjacentHTML('afterend', healthDetailRow(data, columns));
+    row = $(`tr.ag-health-detail[data-health-detail="${CSS.escape(key)}"]`);
+  }
   if (!row) return;
   const open = row.classList.toggle('hidden') === false;
   button.textContent = open ? 'Collapse' : 'Expand';
@@ -4741,7 +4750,7 @@ async function renderGenericAgent(role) {
       <td>${editorialTelemetryCell(r.editorial, actualRole, secondary)}</td>
       <td>${agentHealthCell(h)}</td>
       <td class="cn-actions"><button class="btn sm ag-logs" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">📜 Logs</button> ${ctrl}${healthDetails} <button class="btn sm danger ag-remove" data-site="${esc(r.site)}" data-role="${esc(actualRole)}">Remove</button></td>
-    </tr>${h ? healthDetailRow(h, 7) : ''}
+    </tr>
     <tr class="ag-detail-row hidden" data-detail="${esc(r.site)}" data-rk="ag:${esc(r.site)}"><td colspan="7"><div class="cn-log-head muted">latest log · <span class="live-tag">live</span></div><pre class="cn-logs-box" id="al-${esc(r.site)}" data-rkh="ag:${esc(r.site)}"></pre></td></tr>`;
     })
     .join('');

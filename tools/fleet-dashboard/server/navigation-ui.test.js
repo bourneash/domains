@@ -307,6 +307,48 @@ test('Engineer overview loads enrollment controls without waiting for the full r
   assert.match(source.slice(renderStart, renderEnd), /STATE\.agent !== 'engineer'/);
 });
 
+test('Agent health details are inserted on first expansion, not during initial rendering', () => {
+  const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = source.indexOf('function toggleHealthDetail(button)');
+  const end = source.indexOf('function beginRoleEnrollment', start);
+  const context = {
+    AGENT_HEALTH: { rows: [{ site: 'example.test', role: 'engineer' }] },
+    CSS: { escape: value => value },
+    healthDetailRow: (row, columns) => `<tr colspan="${columns}">${row.site}</tr>`,
+  };
+  let inserted = false;
+  const detail = {
+    classList: { toggle: () => false },
+  };
+  context.$ = () => (inserted ? detail : null);
+  const parent = {
+    insertAdjacentHTML(position, html) {
+      assert.equal(position, 'afterend');
+      assert.match(html, /colspan="12"/);
+      inserted = true;
+    },
+  };
+  const button = {
+    dataset: { site: 'example.test', role: 'engineer' },
+    closest(selector) {
+      return selector === 'tr' ? parent : { querySelectorAll: () => Array.from({ length: 12 }) };
+    },
+    setAttribute(name, value) {
+      this[name] = value;
+    },
+  };
+  vm.runInNewContext(
+    `${source.slice(start, end)}\nglobalThis.toggle = toggleHealthDetail;`,
+    context
+  );
+  context.toggle(button);
+  assert.equal(inserted, true);
+  assert.equal(button.textContent, 'Collapse');
+  assert.equal(button['aria-expanded'], 'true');
+  assert.doesNotMatch(source, /healthDetailRow\(ah, 12\)/);
+  assert.doesNotMatch(source, /healthDetailRow\(h, 7\)/);
+});
+
 test('inline Workbench and Knowledge drafts protect unsaved content', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /function inlineDraftSnapshot\(panel\)/);
