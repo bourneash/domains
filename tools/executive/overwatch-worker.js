@@ -50,6 +50,9 @@ function parseDate(value) {
 
 function captureSnapshot(store) {
   return {
+    tracking_actions: new Set(
+      store.listExecutiveActions({ action_type: 'track', limit: 1000 }).map(row => row.action_id)
+    ),
     work: new Map(
       store.listExecutiveWorkItems({ limit: 1000, quiet: 0 }).map(item => [item.work_id, item])
     ),
@@ -192,7 +195,14 @@ function collectEvidence(store, { baseline = null, since = null } = {}) {
   };
 }
 
-function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = [] }) {
+function classifyOutcome({
+  sandboxCode,
+  modelStatus,
+  before,
+  after,
+  repairs = [],
+  expectedRecoveries = false,
+}) {
   const verified =
     after.real_work.verified_deliveries > 0 || after.real_work.verified_artifacts > 0;
   const queued =
@@ -214,6 +224,18 @@ function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = []
     return { status: 'failed', deliveryStatus: 'recovery_handoff_failed', verified, queued };
   if (sandboxCode !== 0 || modelStatus !== 'succeeded')
     return { status: 'failed', deliveryStatus: 'runner_failed', verified, queued };
+  if (
+    expectedRecoveries &&
+    !repairs.some(row =>
+      ['started_recovery_worker', 'queued_recovery_handoff'].includes(row.action)
+    )
+  )
+    return {
+      status: 'failed',
+      deliveryStatus: 'recovery_handoff_missing',
+      verified: false,
+      queued: false,
+    };
   if (verified)
     return { status: 'succeeded', deliveryStatus: 'verified_delivery', verified, queued };
   if (before.real_work.stale_eligible_direct_requests > 0)
@@ -640,6 +662,7 @@ async function main() {
     before: evidence,
     after: finalEvidence,
     repairs,
+    expectedRecoveries: recoveryCases.length > 0,
   });
   const { verified, queued, deliveryStatus } = outcome;
   const deliveryError =

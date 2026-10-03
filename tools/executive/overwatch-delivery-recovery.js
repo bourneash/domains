@@ -149,12 +149,23 @@ async function trackHandoffs(
     if (!task) continue;
     const queued = candidate.recovery_type === 'queued-backlog';
     const before = baseline.work?.get(task.work_id);
-    const approved =
+    const review =
       queued &&
-      task.status === 'in_progress' &&
-      before &&
-      task.next_action !== before.next_action &&
-      task.summary !== before.summary;
+      baseline.tracking_actions instanceof Set &&
+      (store.listExecutiveActions?.({ action_type: 'track', limit: 1000 }) || []).find(
+        row =>
+          !baseline.tracking_actions.has(row.action_id) &&
+          row.status === 'completed' &&
+          row.target_id === task.work_id &&
+          row.result?.source === 'executive-plan' &&
+          row.result.status === 'in_progress' &&
+          row.result.next_action &&
+          row.result.next_action !== before?.next_action &&
+          row.summary &&
+          row.summary !== before?.summary &&
+          row.result.evidence?.length
+      );
+    const approved = Boolean(review);
     const requests = (
       queued && approved
         ? [store.getChangeRequest(task.source_id)]
@@ -184,6 +195,7 @@ async function trackHandoffs(
       status: 'attempted',
       request_ids: requests.map(q => q.request_id),
       initiating_run_id: initiatingRunId,
+      review_action_id: review?.action_id || null,
     };
     store.updateAgent(agent.agent_id, {
       workspace: {
@@ -202,6 +214,7 @@ async function trackHandoffs(
         work_id: task.work_id,
         request_id: request.request_id,
         initiating_run_id: initiatingRunId,
+        review_action_id: review?.action_id || null,
         action: 'queued_recovery_handoff',
       };
       if (controlled) {
@@ -228,6 +241,6 @@ async function trackHandoffs(
 module.exports = {
   readyCases,
   trackHandoffs,
-  policyRevision: 'delivery-recovery/v3',
+  policyRevision: 'delivery-recovery/v4',
   ensureQueuedCases,
 };

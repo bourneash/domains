@@ -175,9 +175,16 @@ test('original queued work requires a substantive model review before normal pic
   f.requests.original.status = 'queued';
   f.task.next_action = 'Review original';
   const before = { ...f.task };
+  const actions = [];
+  f.store.listExecutiveActions = () => actions;
   const cases = readyCases(f.store);
   assert.equal(cases[0].recovery_type, 'queued-backlog');
   let picked = 0;
+  const baseline = {
+    requests: new Set(['original']),
+    work: new Map([[f.task.work_id, before]]),
+    tracking_actions: new Set(['old-review']),
+  };
   const options = {
     cases,
     controlled: true,
@@ -187,28 +194,41 @@ test('original queued work requires a substantive model review before normal pic
       return { run_id: 'original-worker' };
     },
   };
-  assert.deepEqual(
-    await trackHandoffs(
-      f.store,
-      f.agent,
-      { requests: new Set(['original']), work: new Map([[f.task.work_id, before]]) },
-      options
-    ),
-    []
-  );
-  f.task.status = 'in_progress';
-  f.task.summary = 'Reviewed exact measured labels, unchanged destinations and tests';
-  f.task.next_action = 'Start original worker through normal gates';
-  const results = await trackHandoffs(
-    f.store,
-    f.agent,
-    { requests: new Set(['original']), work: new Map([[f.task.work_id, before]]) },
-    options
-  );
+  assert.deepEqual(await trackHandoffs(f.store, f.agent, baseline, options), []);
+  actions.push({
+    action_id: 'old-review',
+    status: 'completed',
+    target_id: f.task.work_id,
+    summary: 'Prior review',
+    result: {
+      source: 'executive-plan',
+      status: 'in_progress',
+      next_action: 'Old pickup',
+      evidence: [{ type: 'source' }],
+    },
+  });
+  assert.deepEqual(await trackHandoffs(f.store, f.agent, baseline, options), []);
+  actions.push({
+    action_id: 'fresh-review',
+    status: 'completed',
+    target_id: f.task.work_id,
+    summary: 'Reviewed exact current source and all three observed labels',
+    result: {
+      source: 'executive-plan',
+      status: 'in_progress',
+      next_action: 'Start original worker through normal gates',
+      evidence: [{ type: 'measurement', label: 'actual lab' }],
+    },
+  });
+  const results = await trackHandoffs(f.store, f.agent, baseline, options);
   assert.equal(picked, 1);
   assert.equal(results[0].request_id, 'original');
   assert.equal(results[0].action, 'started_recovery_worker');
   assert.equal(f.requests.original.status, 'queued');
+  assert.equal(
+    f.agent.workspace.overwatch_recovery[f.task.work_id].review_action_id,
+    'fresh-review'
+  );
 });
 test('blocked original requests cannot become eligible queued recovery cases', () => {
   const f = fixture();
@@ -239,4 +259,20 @@ test('queued-case creation requires explicit controlled site and preserves origi
   assert.equal(created[0].source_id, 'original');
   assert.equal(f.requests.original.status, 'queued');
   assert.match(created[0].summary, /not a failed worker attempt/);
+});
+
+test('expected recovery cannot count passive observation as a successful handoff', () => {
+  const { classifyOutcome } = require('./overwatch-worker');
+  const result = classifyOutcome({
+    sandboxCode: 0,
+    modelStatus: 'succeeded',
+    before: {
+      cycles: [{ status: 'completed' }],
+      real_work: { new_active_direct_change_requests: 1 },
+    },
+    after: { real_work: {} },
+    expectedRecoveries: true,
+  });
+  assert.equal(result.status, 'failed');
+  assert.equal(result.deliveryStatus, 'recovery_handoff_missing');
 });
