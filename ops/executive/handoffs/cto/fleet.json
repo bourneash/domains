@@ -2,28 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:23:43.391Z",
-  "summary": "cto checked in 3 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:44:24.825Z",
+  "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the six isolated, reversible task-routing metadata repairs. Each change must modify ownership metadata only, preserve task text and scope, avoid site behavior, credentials, configuration, dependencies, production files, telemetry, spending, and external actions, and pass routing validation with an installed owner. Preserve the financial admission gate: aggregate affiliate commission remains unattributed, site revenue and ROI are unsupported, AI-usage coverage is incomplete, and cost-to-learn and budget exposure are not calculable. No production, monetization, or financial claims are authorized.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Technical review: the six routing repairs are feasible, isolated, low-effort, and reversible because they change only existing task ownership metadata. Queue admission is safe subject to installed-owner validation and rollback to the prior metadata value. Do not count owner acceptance, messages, or proposals as delivery until routing validation succeeds.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "No duplicate telemetry or finance work is required. Existing intelligence already records the 30-day aggregate affiliate totals and AI-usage coverage limitation; preserve those boundaries without allocating aggregate commission or inventing missing costs or outcomes.",
+        "summary": "Approve six isolated, zero-spend routing-only repairs with exact installed-owner alignment: 0daynews.com, arttogogh.com, eastcoastrappers.com, reviewtattoo.com, ultrarough.com, and weirdassstuff.com. Preserve each existing task's text and implementation scope. Acceptance is limited to focused routing validation and claimability by the assigned owner. These changes are reversible metadata edits and do not alter production behavior, credentials, configuration, dependencies, telemetry, schedules, spending, or domains. Do not treat routing acceptance as delivery, revenue, ROI, causal lift, security clearance, or production readiness. If a canonical task is dirty or validation fails, stop and preserve the task for repair rather than requeueing or duplicating it.",
         "requested_action": null,
         "proposal_id": null
       }

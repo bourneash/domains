@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cfo",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:23:43.390Z",
+  "generated_at": "2026-10-03T04:44:24.824Z",
   "summary": "cfo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: retain only the six reversible task-routing repairs and preserve the financial admission gate. For the 30-day Amazon window pulled 2026-10-02, reported activity was $5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items; the commission is aggregate and unattributed, so site revenue, contribution margin, ROI, causal lift, and forecasts are unsupported. AI usage for 2026-10-01 to 2026-10-02 was $54.5828597 across 359 calls with 22 errors, but only 28 of 40 expected sites are instrumented. Cost-to-learn is not calculable because period-aligned attributable outcomes and labor rates are absent. Budget exposure is not calculable because monthly limits, infrastructure/domain costs, and labor costs are blank. Minimum measurement: period-aligned site/content ledger linking registered affiliate IDs, attributable commission, AI and infrastructure cost, labor effort/rates, and outcome deltas. No money movement, billing changes, banking access, contracts, or financial claims are authorized.",
+        "summary": "Recommendation: retain only zero-spend, reversible routing repairs with exact installed-owner alignment; reject revenue, margin, ROI, cost-to-learn, budget, and forecast claims. The 30-day Amazon window pulled 2026-10-02 reports 5.20 commission, 5,992 clicks, 31 ordered items, and 7 shipped items, but all commission is aggregate and unattributed; site revenue and contribution margin are unsupported. AI spend was $54.5828597 across 359 calls from 2026-10-01 to 2026-10-02, with 22 errors and only 28 of 40 expected sites instrumented. Cost-to-learn is not calculable because these routing changes have no period-aligned financial outcome and no labor-rate ledger. Budget exposure is not calculable because monthly limits, infrastructure/domain costs, and labor costs are absent. Retain four routing-only changes that match the authoritative installed owner: 0daynews.com, arttogogh.com, eastcoastrappers.com, and reviewtattoo.com. Reject the americastrikes.com and totaljerks.com requests as assigned to engineer despite authoritative expected owners news-writer and guide-writer. Minimum finance measurement remains a period-aligned ledger linking each site/action to provider revenue, AI cost, infrastructure/domain cost, labor cost, and attributable outcome; until then, do not claim revenue, ROI, contribution margin, causal lift, or forecasted upside.",
         "requested_action": null,
         "proposal_id": null
       }

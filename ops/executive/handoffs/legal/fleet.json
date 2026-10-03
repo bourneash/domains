@@ -2,35 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:23:43.391Z",
-  "summary": "legal checked in 4 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:44:24.825Z",
+  "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: blocked for public launch, bounded public beta, monetization expansion, analytics activation, and production exposure; conditional for the six isolated task-routing metadata repairs. Evidence: compliance is technical-only at 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; revenue is aggregate and unattributed; AI-usage coverage is incomplete. Exact decision: retain only ownership-metadata repairs with routing validation and rollback to prior metadata. Preserve all launch gates. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and future affiliate or advertising use.",
+        "summary": "Risk disposition: conditional for the six zero-spend, reversible routing-only repairs; blocked for public launch, monetization expansion, analytics activation, and production exposure. Evidence supports metadata-only scope with no change to site behavior, credentials, configuration, dependencies, telemetry, schedules, domains, or spending. Compliance remains technical-only at 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; AI-usage coverage is incomplete; affiliate reporting includes $5.20 aggregate unattributed commission. Exact decision: retain all six routing repairs only if focused validation confirms exact installed-owner alignment, canonical task cleanliness, no duplication, and rollback metadata. Do not treat routing acceptance as delivery, revenue, ROI, causal lift, security clearance, or launch readiness. SearchWoot remains private pending rights, privacy, security, accuracy, measurement, counsel, and owner gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are evidenced complete and none may be closed. Next evidence action: attach one read-only bundle covering source rights/data flow, retention and deletion, consent and GA4 configuration, and logs/vendors/incident handling. Prepare but do not send the upstream permission request pending owner authorization and human-counsel review.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Data-use dispositions: Woot deal and price-history data is counsel_required because public terms conflict with proposed storage, derivatives, display, alerts, and commercial use; missing written permission and field-level rights, with the smallest next action being a draft permission request plus field matrix. User alert rules and sync results are evidence_needed pending inventory, retention, deletion/correction, processor, consent, and unsubscribe evidence; next action is a repository/configuration data-flow table. GA4 is evidence_needed pending deployed consent behavior, property/data-sharing settings, retention, vendor disclosure, and jurisdiction review; next action is read-only configuration capture. Operational logs and Cloudflare data are evidence_needed pending log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures; next action is a read-only vendor and log inventory.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "The six routing repairs do not change site content, tracking, credentials, configuration, monetization, or production behavior. They may proceed conditionally only if routing validation confirms an installed owner and rollback restores the prior ownership metadata. This does not clear any launch, security, analytics, attribution, or financial gate.",
+        "summary": "Launch-readiness tracking progress: 0 of 4 SearchWoot legal tasks are evidenced complete; keep all four open. Source-rights evidence confirms API access but not public redistribution, storage, derivatives, display, alerts, affiliate, or advertising rights; human counsel is required. Next evidence action: attach one read-only bundle containing the repository data-flow/retention table, consent and GA4 configuration capture, log/vendor inventory, and deletion/correction/notification workflow; prepare but do not send the Woot permission request pending owner authorization and counsel review.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,21 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:23:43.391Z",
-  "summary": "reviewer checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:44:24.825Z",
+  "summary": "reviewer checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the six isolated, reversible task-ownership metadata repairs. Reject the additional report-only security proposal as duplicative of existing evidence work. Preserve financial, production, launch, security, and telemetry gates: aggregate commission remains unattributed, AI-usage coverage is incomplete, and cost-to-learn, margin, ROI, causal lift, forecasts, and budget exposure are unsupported. Require installed-owner validation and rollback to prior metadata; no site behavior, credentials, configuration, dependencies, telemetry, spending, deployment, or external action.",
-        "requested_action": null,
-        "proposal_id": null
-      },
-      {
-        "kind": "message",
-        "title": null,
-        "summary": "Material concerns: operations and fleet-doctor evidence remain unavailable; compliance is 36 pass, 19 fail, and 6 unknown; launch and security-sensitive exposure remain blocked. Routing validation, installed-owner confirmation, and reversible metadata rollback are required before any repair is counted as delivered.",
+        "summary": "Approve only the six zero-spend, reversible routing-only repairs listed below. Scope is limited to owner metadata, focused validation, canonical-task cleanliness, no duplication, and rollback metadata. Reject revenue, ROI, causal-lift, security-clearance, launch-readiness, production, telemetry, credential/configuration, dependency, spending, schedule, and high-priority queue claims. If any task is dirty, duplicated, or validation fails, stop and preserve it for repair. Owner: attribution is aggregate, telemetry and operations evidence are incomplete, and routing acceptance is not delivery or financial evidence.",
         "requested_action": null,
         "proposal_id": null
       }
