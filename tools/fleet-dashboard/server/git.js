@@ -368,7 +368,14 @@ async function roleStatus(root, slug) {
 // last commit and changed-file details for each repo; the table needs neither.
 async function summaryStatus(root, slug) {
   const cwd = siteDir(root, slug);
-  const result = await git(cwd, ['status', '--porcelain=v2', '--branch', '--show-stash', '-z']);
+  const result = await git(cwd, [
+    '--no-optional-locks',
+    'status',
+    '--porcelain=v2',
+    '--branch',
+    '--show-stash',
+    '-z',
+  ]);
   if (!result.ok && !result.out) {
     return {
       slug,
