@@ -1023,19 +1023,22 @@ test('live version changes never force a document reload', () => {
   assert.match(app, /#update-pill.*location\.reload\(\)/s);
 });
 
-test('dashboard boot defers the agent catalog for non-agent routes', () => {
+test('dashboard boot defers site and agent catalogs outside their dependent views', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const boot = app.slice(app.indexOf('async function boot()'));
   const auth = boot.indexOf("api('GET', '/api/auth')");
   const agentsRequest = boot.indexOf("api('GET', '/api/agents')");
-  const sitesRequest = boot.indexOf("STATE.sites = await api('GET', '/api/sites')");
-  assert.ok(auth >= 0 && agentsRequest > auth && sitesRequest > agentsRequest);
+  const sitesRequest = boot.indexOf("api('GET', '/api/sites')");
+  assert.ok(auth >= 0 && sitesRequest > auth && agentsRequest > sitesRequest);
+  assert.match(boot, /const sitesPending = api\('GET', '\/api\/sites'\)[\s\S]*\.catch\(\(\) => \[\]\)/);
   assert.match(boot, /const agentsPending = api\('GET', '\/api\/agents'\)\s*\.then\(normalizeAgentList\)\s*\.catch\(\(\) => \[\]\)/);
-  assert.match(boot, /STATE\.sites = await api\('GET', '\/api\/sites'\)[\s\S]*let r = parseHash\(\)/);
+  assert.match(app, /const SITE_CATALOG_VIEWS = new Set\(\[[\s\S]*'agent'[\s\S]*'tasks'[\s\S]*'automation'/);
+  assert.match(app, /if \(SITE_CATALOG_VIEWS\.has\(STATE\.view\) && !SITE_CATALOG_READY\)/);
   assert.match(boot, /if \(r\.view === 'agent'\) \{\s*STATE\.agents = await agentsPending/);
   assert.match(boot, /r = parseHash\(\);\s*if \(r\.view === 'agent' && !AGENT_CATALOG_READY\)/);
   assert.match(boot, /if \(!AGENT_CATALOG_READY\) \{\s*agentsPending\.then\(agents =>/);
-  assert.match(app, /if \(STATE\.view === 'agent' && !AGENT_CATALOG_READY\)/);
+  assert.match(boot, /if \(!SITE_CATALOG_READY\) \{\s*sitesPending\.then\(sites =>/);
+  assert.match(boot, /if \(STATE\.view === 'agent' \|\| STATE\.view === 'agents'\) render\(\)/);
 });
 
 test('the self-update action confirms before reloading the workspace', () => {

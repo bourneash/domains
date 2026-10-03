@@ -29,6 +29,16 @@ const AGENT_HEALTH_ERRORS = new Map();
 const AGENT_HEALTH_GENERATION = new Map();
 let ACCESS_LEVEL = 'operator';
 let AGENT_CATALOG_READY = false;
+let SITE_CATALOG_READY = false;
+const SITE_CATALOG_VIEWS = new Set([
+  'agent',
+  'tasks',
+  'guides',
+  'socialhub',
+  'priorities',
+  'change-queue',
+  'automation',
+]);
 const EXEC_RUN = { poller: null };
 const EXEC_BRIEF_CACHE_TTL_MS = 30000;
 let EXEC_BRIEF_CACHE = null;
@@ -15642,6 +15652,10 @@ async function renderSiteDetail() {
 }
 
 function render() {
+  if (SITE_CATALOG_VIEWS.has(STATE.view) && !SITE_CATALOG_READY) {
+    if (FRESH) $('#app').innerHTML = '<div class="loading">Loading site catalog…</div>';
+    return;
+  }
   if (STATE.view === 'agent' && !AGENT_CATALOG_READY) {
     if (FRESH) $('#app').innerHTML = '<div class="loading">Loading agent catalog…</div>';
     return;
@@ -16186,15 +16200,25 @@ async function boot() {
     /* /api/auth is exempt; ignore transient errors */
   }
 
+  const sitesPending = api('GET', '/api/sites')
+    .then(sites => (Array.isArray(sites) ? sites : []))
+    .catch(() => []);
   const agentsPending = api('GET', '/api/agents')
     .then(normalizeAgentList)
     .catch(() => []);
-  try {
-    STATE.sites = await api('GET', '/api/sites');
-  } catch {
+  let r = parseHash();
+  if (SITE_CATALOG_VIEWS.has(r.view)) {
+    STATE.sites = await sitesPending;
+    SITE_CATALOG_READY = true;
+  } else {
     STATE.sites = [];
   }
-  let r = parseHash();
+  r = parseHash();
+  if (SITE_CATALOG_VIEWS.has(r.view) && !SITE_CATALOG_READY) {
+    STATE.sites = await sitesPending;
+    SITE_CATALOG_READY = true;
+  }
+  r = parseHash();
   if (r.view === 'agent') {
     STATE.agents = await agentsPending;
     AGENT_CATALOG_READY = true;
@@ -16205,6 +16229,11 @@ async function boot() {
   if (r.view === 'agent' && !AGENT_CATALOG_READY) {
     STATE.agents = await agentsPending;
     AGENT_CATALOG_READY = true;
+  }
+  r = parseHash();
+  if (SITE_CATALOG_VIEWS.has(r.view) && !SITE_CATALOG_READY) {
+    STATE.sites = await sitesPending;
+    SITE_CATALOG_READY = true;
   }
   r = parseHash();
   STATE.view = r.view;
@@ -16346,7 +16375,14 @@ async function boot() {
       STATE.agents = agents;
       AGENT_CATALOG_READY = true;
       buildAgentsMenu();
-      if (STATE.view === 'agent') render();
+      if (STATE.view === 'agent' || STATE.view === 'agents') render();
+    });
+  }
+  if (!SITE_CATALOG_READY) {
+    sitesPending.then(sites => {
+      STATE.sites = sites;
+      SITE_CATALOG_READY = true;
+      if (SITE_CATALOG_VIEWS.has(STATE.view)) render();
     });
   }
 }
