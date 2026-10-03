@@ -2,6 +2,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "aggregate.py"
@@ -157,6 +158,21 @@ class AggregateTests(unittest.TestCase):
         self.assertIn("legacy.com", s["sites_not_wired"])
         self.assertIn("no-role.com", s["sites_no_ai_role"])
         self.assertIn("no-ai.com", s["sites_no_ai_role"])
+
+    def test_collect_reuses_wiring_scan_and_skips_instrumented_sites(self):
+        root = self.root()
+        self.write_ledger(root, "reporting.com", "2026-07-29", [record(site="reporting.com")])
+        wired = root / "sites" / "wired-awaiting.com" / "ops" / "scripts"
+        wired.mkdir(parents=True)
+        (wired / "run-role.sh").write_text('"$CLAUDE_TRACKED" "$PROMPT"\n')
+
+        with patch.object(aggregate, "wiring_status", wraps=aggregate.wiring_status) as wiring:
+            report = aggregate.collect(root)
+
+        self.assertEqual(wiring.call_count, 1)
+        coverage = {row["site"]: row["status"] for row in report["coverage"]}
+        self.assertEqual(coverage["reporting.com"], "reporting")
+        self.assertEqual(coverage["wired-awaiting.com"], "wired_awaiting_first_run")
 
     def test_errors_counted_separately_from_calls(self):
         root = self.root()

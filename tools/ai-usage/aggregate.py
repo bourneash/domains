@@ -140,11 +140,14 @@ def wiring_status(site_dir: Path) -> str:
     return "no_ai_role"
 
 
-def coverage_row(site_dir: Path, has_ledger: bool) -> dict:
-    status = wiring_status(site_dir)
+def coverage_row(site_dir: Path, has_ledger: bool, status: str | None = None) -> dict:
+    if has_ledger:
+        status = "reporting"
+    elif status is None:
+        status = wiring_status(site_dir)
     return {
         "site": site_dir.name,
-        "status": "reporting" if has_ledger else status,
+        "status": status,
         "has_ledger": has_ledger,
     }
 
@@ -359,8 +362,10 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     wired_awaiting_first_run = []
     not_wired = []
     no_ai_role = []
+    wiring_by_site = {}
     for site_name in uninstrumented_sites:
         status = wiring_status(sites_dir / site_name)
+        wiring_by_site[site_name] = status
         if status == "wired_awaiting_first_run":
             wired_awaiting_first_run.append(site_name)
         elif status == "not_wired":
@@ -368,8 +373,14 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
         else:
             no_ai_role.append(site_name)
 
-    coverage = [coverage_row(sites_dir / site_name, site_name in instrumented_sites)
-                for site_name in all_sites]
+    coverage = [
+        coverage_row(
+            sites_dir / site_name,
+            site_name in instrumented_sites,
+            wiring_by_site.get(site_name),
+        )
+        for site_name in all_sites
+    ]
 
     return {
         "summary": {
