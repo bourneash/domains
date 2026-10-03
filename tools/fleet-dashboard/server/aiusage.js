@@ -24,9 +24,10 @@ function fleet(root, filters = {}) {
   const to = day(filters.to, 'to');
   if (from && to && from > to) throw new Error('from must not be after to');
   const granularity = filters.granularity || null;
+  const summaryOnly = Boolean(filters.summaryOnly);
   if (granularity && !['day', 'hour'].includes(granularity))
     throw new Error('granularity must be day or hour');
-  const key = JSON.stringify([path.resolve(root), from, to, granularity]);
+  const key = JSON.stringify([path.resolve(root), from, to, granularity, summaryOnly]);
   const now = Date.now();
   const cached = reportCache.get(key);
   if (cached && now - cached.at < CACHE_TTL_MS) return Promise.resolve(cached.report);
@@ -38,6 +39,7 @@ function fleet(root, filters = {}) {
   if (from) args.push('--from', from);
   if (to) args.push('--to', to);
   if (granularity) args.push('--granularity', granularity);
+  if (summaryOnly) args.push('--summary-only');
   const request = new Promise((resolve, reject) => {
     execFile(
       'python3',

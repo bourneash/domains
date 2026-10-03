@@ -55,6 +55,24 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(report["summary"]["sites_instrumented"], 1)
         self.assertIn("no-ledger.com", report["summary"]["sites_uninstrumented"])
 
+    def test_summary_only_preserves_site_totals_and_summary(self):
+        root = self.root()
+        self.write_ledger(root, "example.com", "2026-07-29", [
+            record(model_drift=True, total_cost_usd=0.5),
+            record(role="watchdog", model_drift_kind="mixed_compaction", total_cost_usd=0.25),
+        ])
+
+        full = aggregate.collect(root)
+        slim = aggregate.collect(root, summary_only=True)
+
+        self.assertEqual(slim["summary"], full["summary"])
+        self.assertEqual(slim["by_site"], full["by_site"])
+        self.assertEqual(slim["by_site_role"], [])
+        self.assertEqual(slim["by_day"], [])
+        self.assertEqual(slim["by_model"], [])
+        self.assertEqual(slim["alerts"], [])
+        self.assertEqual(slim["coverage"], full["coverage"])
+
     def test_aggregates_by_site_role_and_day(self):
         root = self.root()
         self.write_ledger(root, "example.com", "2026-07-29", [

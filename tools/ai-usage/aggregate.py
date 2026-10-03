@@ -163,8 +163,9 @@ def read_ledger_records(ledger: Path) -> list[dict]:
 
 
 def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
-            end_day: str | None = None, granularity: str | None = None) -> dict:
-    """Build a report, optionally limited to inclusive UTC ledger dates."""
+            end_day: str | None = None, granularity: str | None = None,
+            summary_only: bool = False) -> dict:
+    """Build a report, optionally date-limited or reduced to fleet/site totals."""
     if start_day and end_day and start_day > end_day:
         raise ValueError("start_day must not be after end_day")
     if granularity not in (None, "day", "hour"):
@@ -182,6 +183,8 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     by_requested_model: dict[str, dict] = {}
     by_site_role_drift: dict[tuple[str, str], dict] = {}
     by_site_role_mixed_compaction: dict[tuple[str, str], dict] = {}
+    model_drift_totals = _empty_totals()
+    mixed_compaction_totals = _empty_totals()
     alerts: list[dict] = []
     instrumented_sites: set[str] = set()
     all_sites: list[str] = []
@@ -212,6 +215,12 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
                 instrumented_sites.add(site)
 
                 _add(by_site.setdefault(site, _empty_totals()), record)
+                if summary_only:
+                    if record.get("model_drift"):
+                        _add(model_drift_totals, record)
+                    if record.get("model_drift_kind") == "mixed_compaction":
+                        _add(mixed_compaction_totals, record)
+                    continue
                 _add(by_site_role.setdefault((site, role), _empty_totals()), record)
                 if include_day:
                     _add(by_day.setdefault(day, _empty_totals()), record)
@@ -304,14 +313,26 @@ def collect(root: Path = DEFAULT_ROOT, start_day: str | None = None,
     model_drift_rows = []
     for (site, role), totals in sorted(by_site_role_drift.items()):
         model_drift_rows.append({"site": site, "role": role, **totals})
-    model_drift_calls = sum(row["calls"] for row in model_drift_rows)
-    model_drift_cost_usd = sum(row["total_cost_usd"] for row in model_drift_rows)
+    model_drift_calls = (
+        model_drift_totals["calls"] if summary_only
+        else sum(row["calls"] for row in model_drift_rows)
+    )
+    model_drift_cost_usd = (
+        model_drift_totals["total_cost_usd"] if summary_only
+        else sum(row["total_cost_usd"] for row in model_drift_rows)
+    )
     mixed_compaction_rows = [
         {"site": site, "role": role, **totals}
         for (site, role), totals in sorted(by_site_role_mixed_compaction.items())
     ]
-    mixed_compaction_calls = sum(row["calls"] for row in mixed_compaction_rows)
-    mixed_compaction_cost_usd = sum(row["total_cost_usd"] for row in mixed_compaction_rows)
+    mixed_compaction_calls = (
+        mixed_compaction_totals["calls"] if summary_only
+        else sum(row["calls"] for row in mixed_compaction_rows)
+    )
+    mixed_compaction_cost_usd = (
+        mixed_compaction_totals["total_cost_usd"] if summary_only
+        else sum(row["total_cost_usd"] for row in mixed_compaction_rows)
+    )
 
     fleet_totals = _empty_totals()
     for totals in by_site.values():
@@ -388,12 +409,15 @@ def main(argv: list[str] | None = None) -> None:
                         help="inclusive UTC ledger date (YYYY-MM-DD)")
     parser.add_argument("--granularity", choices=("day", "hour"),
                         help="include only one time-series resolution")
+    parser.add_argument("--summary-only", action="store_true",
+                        help="skip role, time-series, model, and alert breakdowns")
     args = parser.parse_args(argv)
     start_day = args.start_day.isoformat() if args.start_day else None
     end_day = args.end_day.isoformat() if args.end_day else None
     if start_day and end_day and start_day > end_day:
         parser.error("--from must not be after --to")
-    report = collect(args.root.resolve(), start_day, end_day, args.granularity)
+    report = collect(args.root.resolve(), start_day, end_day, args.granularity,
+                     summary_only=args.summary_only)
 
     if args.json:
         print(json.dumps(report, indent=2))

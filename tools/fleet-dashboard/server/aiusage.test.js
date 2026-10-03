@@ -48,6 +48,28 @@ test('fleet can return only the time-series granularity requested by the usage p
   );
 });
 
+test('fleet supports a separately cached summary-only aggregation', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aiusage-summary-'));
+  const script = path.join(root, 'tools', 'ai-usage', 'aggregate.py');
+  const calls = path.join(root, 'calls');
+  fs.mkdirSync(path.dirname(script), { recursive: true });
+  fs.writeFileSync(script, [
+    'from pathlib import Path', 'import json, sys',
+    `p = Path(${JSON.stringify(calls)})`,
+    'p.write_text(p.read_text() + "S" if p.exists() else "S")',
+    'print(json.dumps({"summary_only": "--summary-only" in sys.argv}))', '',
+  ].join('\n'));
+  try {
+    const full = await aiusage.fleet(root);
+    const summary = await aiusage.fleet(root, { summaryOnly: true });
+    assert.equal(full.summary_only, false);
+    assert.equal(summary.summary_only, true);
+    assert.equal(fs.readFileSync(calls, 'utf8'), 'SS');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('fleet report cache covers two dashboard refreshes and expires after thirty seconds', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aiusage-cache-'));
   const script = path.join(root, 'tools', 'ai-usage', 'aggregate.py');

@@ -6482,7 +6482,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const [seo, analyticsHealth, usage] = await Promise.all([
         seoIntelligence.buildSnapshot({ root }),
         analytics.health(),
-        aiusage.fleet(root),
+        aiusage.fleet(root, { summaryOnly: true }),
       ]);
       const builds = cloudflarebuilds.summarize(undefined, { days: 30, limit: 250 });
       const reg = require('./fleetregistry').read(root);
