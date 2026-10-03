@@ -92,29 +92,34 @@ function recordsFromText(text, fallback, file) {
     .filter(row => row.at);
 }
 
-function collectObservedRuns(root, slug, role, from, to) {
+function collectObservedRuns(root, slug, role, from, to, { logIndex, lastRuns } = {}) {
   const cwd = siteDir(root, slug);
   const dir = path.join(cwd, 'ops', 'logs');
   const records = [];
   let files = [];
-  try {
-    files = fs.readdirSync(dir);
-  } catch {
-    files = [];
+  if (logIndex) {
+    files = logIndex.matching(file => isRunLog(role, file)).map(entry => entry.name);
+  } else {
+    try {
+      files = fs.readdirSync(dir);
+    } catch {
+      files = [];
+    }
   }
   for (const file of files) {
     if (!isRunLog(role, file)) continue;
     const full = path.join(dir, file);
     let text;
     try {
-      text = fs.readFileSync(full, 'utf8');
+      text = logIndex ? logIndex.read(file) : fs.readFileSync(full, 'utf8');
     } catch {
       continue;
     }
+    if (text === null) continue;
     records.push(...recordsFromText(text, filenameTimestamp(file), file));
   }
-  const lastRuns = readLastRuns(path.join(cwd, 'ops'));
-  const latest = lastRuns[role];
+  const latestRuns = lastRuns || readLastRuns(path.join(cwd, 'ops'));
+  const latest = latestRuns[role];
   const latestAt = timestamp(latest?.at);
   if (latestAt)
     records.push({
@@ -131,10 +136,16 @@ function collectObservedRuns(root, slug, role, from, to) {
     );
 }
 
-function executionHistory(root, slug, role, schedule, { from, to, enabled = true } = {}) {
+function executionHistory(
+  root,
+  slug,
+  role,
+  schedule,
+  { from, to, enabled = true, logIndex, lastRuns } = {}
+) {
   const end = to || new Date();
   const start = from || new Date(end.getTime() - 7 * DAY);
-  const observed = collectObservedRuns(root, slug, role, start, end);
+  const observed = collectObservedRuns(root, slug, role, start, end, { logIndex, lastRuns });
   const expected = enabled ? expectedRuns(schedule, start, end) : [];
   const slots = [];
   const used = new Set();

@@ -7,7 +7,7 @@ const { siteDir } = require('./sites');
 const gitMod = require('./git');
 const deployhealth = require('./deployhealth');
 const { parseCrontab, uncommentLine } = require('./cron/parse');
-const { tailFile } = require('./cron/runinfo');
+const { readLastRuns, tailFile } = require('./cron/runinfo');
 const execution = require('./execution');
 
 function httpErr(status, msg) {
@@ -530,31 +530,15 @@ function promptHash(cwd, role) {
   }
 }
 
-function recentRunStats(cwd, role, since) {
-  const dir = path.join(cwd, 'ops', 'logs');
+function recentRunStats(cwd, role, since, logIndex = createLogIndex(cwd)) {
   const re = logRe(role);
   const out = { observed: 0, succeeded: 0, failed: 0, unknown: 0, failures: [] };
-  let files = [];
-  try {
-    files = fs.readdirSync(dir);
-  } catch {
-    return out;
-  }
-  for (const file of files) {
-    if (!re.test(file)) continue;
-    const full = path.join(dir, file);
-    let stat;
-    try {
-      stat = fs.statSync(full);
-    } catch {
-      continue;
-    }
-    if (stat.mtimeMs < since) continue;
+  for (const entry of logIndex.matching(file => re.test(file))) {
+    const { name: file, mtime } = entry;
+    if (mtime < since) continue;
     out.observed++;
-    let text = '';
-    try {
-      text = fs.readFileSync(full, 'utf8');
-    } catch {
+    const text = logIndex.read(file);
+    if (text === null) {
       out.unknown++;
       continue;
     }
@@ -563,7 +547,7 @@ function recentRunStats(cwd, role, since) {
       out.failed++;
       out.failures.push({
         file,
-        mtime: stat.mtimeMs,
+        mtime,
         summary: text.trim().split('\n').slice(-3).join(' ').slice(0, 300),
       });
     } else if (exit === 'exit=0' || /finished successfully|run complete|complete\./i.test(text))
@@ -572,7 +556,7 @@ function recentRunStats(cwd, role, since) {
       out.failed++;
       out.failures.push({
         file,
-        mtime: stat.mtimeMs,
+        mtime,
         summary: text.trim().split('\n').slice(-3).join(' ').slice(0, 300),
       });
     } else out.unknown++;
@@ -581,13 +565,21 @@ function recentRunStats(cwd, role, since) {
   return out;
 }
 
-async function health(root, role, slugs, usage = {}, skipFamily = false, matrixData = null) {
+async function health(
+  root,
+  role,
+  slugs,
+  usage = {},
+  skipFamily = false,
+  matrixData = null,
+  siteContexts = new Map()
+) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(String(role || ''))) throw httpErr(400, 'invalid role');
   const data = matrixData || (await matrix(root, slugs));
   const family = ROLE_FAMILIES[role];
   if (family && !skipFamily) {
     const parts = await Promise.all(
-      family.roles.map(profile => health(root, profile, slugs, usage, true, data))
+      family.roles.map(profile => health(root, profile, slugs, usage, true, data, siteContexts))
     );
     const rows = parts.flatMap(part => part.rows);
     return {
@@ -623,12 +615,23 @@ async function health(root, role, slugs, usage = {}, skipFamily = false, matrixD
   for (const site of data.sites) {
     const cell = site.cells[role];
     if (!cell) continue;
-    const stats = recentRunStats(siteDir(root, site.site), role, cutoff);
+    const cwd = siteDir(root, site.site);
+    let context = siteContexts.get(site.site);
+    if (!context) {
+      context = {
+        logIndex: createLogIndex(cwd),
+        lastRuns: readLastRuns(path.join(cwd, 'ops')),
+      };
+      siteContexts.set(site.site, context);
+    }
+    const stats = recentRunStats(cwd, role, cutoff, context.logIndex);
     const history = execution.executionHistory(root, site.site, role, cell.schedule, {
       from: new Date(cutoff),
       enabled: cell.enabled,
+      logIndex: context.logIndex,
+      lastRuns: context.lastRuns,
     });
-    const prompt = promptHash(siteDir(root, site.site), role);
+    const prompt = promptHash(cwd, role);
     const runner = cell.worker ? 'run-worker.sh' : 'dedicated-script';
     const key = `${runner}:${prompt || 'missing'}`;
     promptCounts[key] = (promptCounts[key] || 0) + 1;
@@ -645,7 +648,7 @@ async function health(root, role, slugs, usage = {}, skipFamily = false, matrixD
       failed: stats.failed,
       unknown: stats.unknown,
       failures: stats.failures.slice(0, 3),
-      editorial: editorialTelemetry(siteDir(root, site.site), role),
+      editorial: editorialTelemetry(cwd, role, context.logIndex),
       costUsd: spend.get(site.site)?.total_cost_usd || 0,
       calls: spend.get(site.site)?.calls || 0,
       promptHash: prompt,

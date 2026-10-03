@@ -102,6 +102,49 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
   }
 });
 
+test('Agent health shares each role log read across stats, history, and telemetry', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-health-perf-'));
+  const logs = path.join(root, 'sites', 'example.test', 'ops', 'logs');
+  fs.mkdirSync(logs, { recursive: true });
+  const ranAt = new Date();
+  const logName = `update-${ranAt.toISOString().slice(0, 10).replaceAll('-', '')}.log`;
+  fs.writeFileSync(
+    path.join(logs, logName),
+    `started at ${ranAt.toISOString()}\nfinished at ${ranAt.toISOString()} (exit=0)\nPublished /articles/current-story\n`
+  );
+  const originalRead = fs.readFileSync;
+  const logReads = [];
+  fs.readFileSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logReads.push(path.basename(String(file)));
+    return originalRead.call(this, file, ...args);
+  };
+  try {
+    const result = await roles.health(
+      root,
+      'update',
+      ['example.test'],
+      {},
+      false,
+      {
+        sites: [
+          {
+            site: 'example.test',
+            cells: { update: { schedule: '0 7 * * *', enabled: false, state: 'paused' } },
+          },
+        ],
+      }
+    );
+    assert.equal(result.rows.length, 1);
+    assert.equal(result.rows[0].observed, 1);
+    assert.equal(result.rows[0].succeeded, 1);
+    assert.equal(result.rows[0].editorial.publication.slug, 'current-story');
+    assert.deepEqual(logReads, [logName]);
+  } finally {
+    fs.readFileSync = originalRead;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('task routing uses the shared editorial family candidates', () => {
   assert.equal(routing.assignedRoleForType('content', 'engineer'), 'content-writer');
   assert.equal(
