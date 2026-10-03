@@ -76,8 +76,17 @@ async function reconcile(store, root, { api = githubPr.github, cache } = {}) {
       },
       release: { status: release, build_id: build?.uuid || null, merge_sha: mergeSha },
     };
-    if (JSON.stringify(next) !== JSON.stringify(run.approval))
-      store.updateImprovement(run.run_id, { approval: next });
+    const approvalChanged = JSON.stringify(next) !== JSON.stringify(run.approval);
+    // A successful connected production build completes the review run as
+    // well as its request. Leaving the run in `review` keeps the site busy in
+    // the queue scheduler and strands the next approved implementation.
+    if (approvalChanged || (release === 'verified' && run.state === 'review'))
+      store.updateImprovement(run.run_id, {
+        ...(approvalChanged ? { approval: next } : {}),
+        ...(release === 'verified' && run.state === 'review'
+          ? { state: 'deployed', deployment_id: build.uuid }
+          : {}),
+      });
     if (release === 'verified' && request.status === 'committed')
       store.updateChangeRequest(request.request_id, { status: 'deployed' });
     if (gate === 'failed' || release === 'failed')
