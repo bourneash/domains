@@ -375,10 +375,12 @@ async function collect({ root, sites = [] } = {}) {
     .slice(0, 10);
   const to = now.toISOString().slice(0, 10);
   const registry = fleetregistry.read(root);
-  const analyticsResult = await settle('analytics', () => analytics.health());
-  const seoResult = await settle('seo_intelligence', () => seoIntelligence.buildSnapshot({ root }));
+  const [analyticsResult, seoResult, aiResult] = await Promise.all([
+    settle('analytics', () => analytics.health()),
+    settle('seo_intelligence', () => seoIntelligence.buildSnapshot({ root })),
+    settle('ai_usage', () => aiusage.fleet(root, { from, to })),
+  ]);
   const revenueResult = source('revenue', revenue.amazonSummary(root));
-  const aiResult = await settle('ai_usage', () => aiusage.fleet(root, { from, to }));
   const socialResult = source('social', social.summary(managedSites));
   const dataHubResults = await Promise.all([
     settle('datahub_health', () => datahub.health({ summary: true })),
