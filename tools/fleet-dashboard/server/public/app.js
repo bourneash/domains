@@ -11107,21 +11107,20 @@ async function shRenderChannels() {
     shRenderChannels();
   });
 
-  let data;
-  let registryData = { accounts: [] };
-  try {
-    data = await api('GET', `/api/socialhub/channels?site=${encodeURIComponent(SH.site)}`);
-  } catch (e) {
+  const [channelsResult, registryResult] = await Promise.allSettled([
+    api('GET', `/api/socialhub/channels?site=${encodeURIComponent(SH.site)}`),
+    api('GET', `/api/social/accounts?site=${encodeURIComponent(SH.site)}`),
+  ]);
+  if (channelsResult.status === 'rejected') {
+    const e = channelsResult.reason;
     renderViewError($('#sh-channels-list'), `Social channels failed: ${e.message}`);
     return;
   }
+  const data = channelsResult.value;
   // Registry enrichment is optional; the Hub inventory must remain visible
   // even when the separate Fleet Social Registry endpoint is unavailable.
-  try {
-    registryData = await api('GET', `/api/social/accounts?site=${encodeURIComponent(SH.site)}`);
-  } catch {
-    registryData = { accounts: [] };
-  }
+  const registryData =
+    registryResult.status === 'fulfilled' ? registryResult.value : { accounts: [] };
   // Accept both the hub's normal envelope and the direct list shape returned
   // by a few older deployments.
   const hubChannels = (
