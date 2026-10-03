@@ -86,6 +86,29 @@ test('role matrix shares scans for thirty seconds and still honors explicit inva
   }
 });
 
+test('agent enrollment returns the same worker and enabled controls without building the full matrix', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-agent-enrollment-'));
+  const ops = path.join(root, 'sites', 'example.test', 'ops');
+  fs.mkdirSync(path.join(ops, 'docker'), { recursive: true });
+  fs.writeFileSync(
+    path.join(ops, 'docker', 'crontab'),
+    '*/10 * * * * bash ops/scripts/run-worker.sh engineer\n'
+  );
+  fs.writeFileSync(path.join(ops, '.engineer-disabled'), '');
+  try {
+    const enrollment = roles.enrollment(root, ['example.test', 'empty.test'], 'engineer');
+    assert.deepEqual(enrollment.allSites, ['example.test', 'empty.test']);
+    assert.deepEqual(enrollment.sites, [
+      {
+        site: 'example.test',
+        cells: { engineer: { scheduled: true, enabled: false, worker: true } },
+      },
+    ]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('role matrix reads only newest run, publication, and deploy logs', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-perf-'));
   const site = path.join(root, 'sites', 'example.test');

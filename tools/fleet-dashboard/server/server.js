@@ -7104,6 +7104,18 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  // Minimal enrollment state for Agent controls; the full matrix also scans
+  // role logs and Git state that this lookup does not need.
+  app.get('/api/agents/:role/enrollment', (req, res) => {
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/i.test(req.params.role))
+      return res.status(400).json({ error: 'invalid role' });
+    try {
+      res.json(roles.enrollment(root, discoverSites(root), req.params.role));
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Roles matrix: site × role status from crontab + disabled flags + logs.
   app.get('/api/roles', async (_req, res) => {
     try {

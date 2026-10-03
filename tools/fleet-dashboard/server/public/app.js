@@ -669,7 +669,7 @@ async function renderEngineers() {
     [rows, hist, roleData] = await Promise.all([
       api('GET', '/api/fleet'),
       api('GET', '/api/fleet/history?days=3').catch(() => []),
-      loadRoleMatrix().catch(() => ({ sites: [] })),
+      api('GET', '/api/agents/engineer/enrollment').catch(() => ({ sites: [] })),
     ]);
     healthData = cachedAgentHealth('engineer');
   } catch (e) {
@@ -15715,6 +15715,7 @@ function render() {
     if (needsAgents) loadAgentCatalog();
     if (
       STATE.view === 'agent' &&
+      STATE.agent !== 'engineer' &&
       !['executive', 'product-manager-fleet', 'product-manager-sites'].includes(STATE.agent)
     ) {
       loadRoleMatrix().catch(() => {});

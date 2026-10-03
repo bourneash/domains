@@ -295,6 +295,18 @@ test('Engineer health actions keep their role binding explicit', () => {
   assert.doesNotMatch(app, /ag-health-details"[^`]*data-role="\$\{esc\(role\)\}"/);
 });
 
+test('Engineer overview loads enrollment controls without waiting for the full role matrix', () => {
+  const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = source.indexOf('async function renderEngineers()');
+  const end = source.indexOf('// Jump from an engineer row', start);
+  const engineerView = source.slice(start, end);
+  assert.match(engineerView, /\/api\/agents\/engineer\/enrollment/);
+  assert.doesNotMatch(engineerView, /loadRoleMatrix\(/);
+  const renderStart = source.indexOf('function render() {');
+  const renderEnd = source.indexOf('const NAV_ITEM_DESCRIPTIONS', renderStart);
+  assert.match(source.slice(renderStart, renderEnd), /STATE\.agent !== 'engineer'/);
+});
+
 test('inline Workbench and Knowledge drafts protect unsaved content', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /function inlineDraftSnapshot\(panel\)/);

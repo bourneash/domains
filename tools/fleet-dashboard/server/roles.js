@@ -173,6 +173,32 @@ function parseRoles(crontab, { includeCommented = false } = {}) {
     .filter(entry => entry.role);
 }
 
+// Enrollment-only lookups power Agent pages that need role controls but not
+// the full site × role health matrix. Avoid scanning unrelated role logs,
+// editorial telemetry, and deployer Git state for these controls.
+function enrollment(root, slugs, role) {
+  const target = String(role || '');
+  const sites = [];
+  for (const slug of slugs) {
+    const cwd = siteDir(root, slug);
+    const entry = parseRoles(readFirst(cwd, CRONTABS), { includeCommented: true }).find(
+      item => item.role === target
+    );
+    if (!entry) continue;
+    sites.push({
+      site: slug,
+      cells: {
+        [target]: {
+          scheduled: true,
+          enabled: !entry.commented && !fs.existsSync(path.join(cwd, 'ops', `.${target}-disabled`)),
+          worker: entry.worker,
+        },
+      },
+    });
+  }
+  return { sites, allSites: [...slugs] };
+}
+
 // Coarse cadence from the cron schedule: sub-daily / daily / weekly.
 function cadenceClass(expr) {
   const f = expr.trim().split(/\s+/);
@@ -798,6 +824,7 @@ module.exports = {
   agents,
   roleEntry,
   parseRoles,
+  enrollment,
   cadenceClass,
   FLEET_EXECUTIVE_ROLES,
   ROLE_FAMILIES,
