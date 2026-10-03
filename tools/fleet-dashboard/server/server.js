@@ -455,6 +455,9 @@ function applyQualityPolicy(root, site, validation) {
 function createApp({ root = DEFAULT_ROOT } = {}) {
   const app = express();
   const events = eventstore.open(root);
+  const agentHealthCache = new Map();
+  const agentHealthPending = new Map();
+  const agentHealthTtlMs = 15000;
   auth.configureExternalAuthenticator(token => Boolean(events.authenticateApiCredential(token)));
   agentRuntime.ensureRegistry(events);
   const queueWorkerId = `${process.pid}:${crypto.randomUUID()}`;
@@ -7311,18 +7314,42 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // prompt/runner drift. The role matrix remains the enrollment source.
   app.get('/api/agents/:role/health', async (req, res) => {
     try {
-      const now = new Date();
-      const day = d => d.toISOString().slice(0, 10);
-      const from = new Date(now.getTime() - 7 * 86400 * 1000);
       const slugs = discoverSites(root);
-      const [usage, matrix] = await Promise.all([
-        aiusage.fleet(root, { from: day(from), to: day(now) }),
-        // The health report only reads this role (or its family profiles).
-        // Reuse the scoped Agent matrix instead of rebuilding every role's
-        // editorial telemetry and checking every active deployer repository.
-        roles.agentMatrix(root, slugs, req.params.role),
-      ]);
-      let health = await roles.health(root, req.params.role, slugs, usage, false, matrix);
+      const role = req.params.role;
+      const cacheKey = `${root}\0${role}`;
+      const cached = agentHealthCache.get(cacheKey);
+      let health = cached && Date.now() - cached.at < agentHealthTtlMs ? cached.data : null;
+      if (!health) {
+        let pending = agentHealthPending.get(cacheKey);
+        if (!pending) {
+          const now = new Date();
+          const day = d => d.toISOString().slice(0, 10);
+          const from = new Date(now.getTime() - 7 * 86400 * 1000);
+          pending = Promise.all([
+            aiusage.fleet(root, { from: day(from), to: day(now) }),
+            // The health report only reads this role (or its family profiles).
+            // Reuse the scoped Agent matrix instead of rebuilding every role's
+            // editorial telemetry and checking every active deployer repository.
+            roles.agentMatrix(root, slugs, role),
+          ])
+            .then(([usage, matrix]) => roles.health(root, role, slugs, usage, false, matrix))
+            .then(data => {
+              const storedAt = Date.now();
+              for (const [key, value] of agentHealthCache) {
+                if (storedAt - value.at >= agentHealthTtlMs) agentHealthCache.delete(key);
+              }
+              while (agentHealthCache.size >= 64)
+                agentHealthCache.delete(agentHealthCache.keys().next().value);
+              agentHealthCache.set(cacheKey, { at: storedAt, data });
+              return data;
+            })
+            .finally(() => {
+              if (agentHealthPending.get(cacheKey) === pending) agentHealthPending.delete(cacheKey);
+            });
+          agentHealthPending.set(cacheKey, pending);
+        }
+        health = await pending;
+      }
       if (req.query.compact === '1') health = roles.compactHealth(health);
       res.json(health);
     } catch (e) {
