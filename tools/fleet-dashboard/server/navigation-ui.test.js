@@ -4170,6 +4170,10 @@ test('legacy agent and queue panels use light surfaces in light theme', () => {
   );
   assert.match(
     theme,
+    /:root\[data-theme="light"\] \.ex-notification-read:hover,[\s\S]*?\.ex-notification-read:focus-visible \{ background: var\(--control-bg-hover\); \}/
+  );
+  assert.match(
+    theme,
     /:root\[data-theme="light"\] \.ex-notification \{[\s\S]*?background: linear-gradient\(135deg, rgba\(138,90,0,\.07\), rgba\(40,70,110,\.015\)\);/
   );
   assert.match(
