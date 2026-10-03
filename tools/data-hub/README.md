@@ -113,6 +113,7 @@ Base URL: `http://127.0.0.1:4760`
 | GET | `/reports/sources` | Fishing-report provenance and source freshness |
 | GET | `/reports/summary` | Report/source counts, freshest date, and species coverage |
 | GET | `/metrics/gsc-query-pages` | Exact daily GSC query→canonical-page metrics for a site; params `since`, `until`, `limit` |
+| GET | `/metrics/seo-snapshot` | Batch GSC query/site/page, GA4 page, and exact query→page reads for one site; params `site`, `since`, `site_since`, `page_since`, `query_page_since` |
 | POST | `/sources/{id}/enabled` | Runtime enable/disable override (`{"enabled": bool}`) |
 
 ### `/items` query params

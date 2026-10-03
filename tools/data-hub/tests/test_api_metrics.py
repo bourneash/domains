@@ -67,6 +67,45 @@ def test_metrics_gsc_query_pages_returns_exact_relationship(db):
     assert r.json()["records"][0]["page"] == "https://xxxtea.com/tea"
 
 
+def test_metrics_seo_snapshot_batches_site_reads_and_keeps_pull_audit(db):
+    site = "xxxtea.com"
+    day = _days_ago(1)
+    store.upsert_gsc_metrics(db, site, [
+        {"date": day, "grain": "query", "dim_key": "tea", "clicks": 2,
+         "impressions": 30, "ctr": 2 / 30, "position": 4.0},
+        {"date": day, "grain": "site", "dim_key": "", "clicks": 3,
+         "impressions": 50, "ctr": 0.06, "position": 5.0},
+        {"date": day, "grain": "page", "dim_key": "https://xxxtea.com/tea",
+         "clicks": 4, "impressions": 60, "ctr": 4 / 60, "position": 6.0},
+    ])
+    store.upsert_ga4_metrics(db, site, [
+        {**_ga4_row(day), "grain": "page", "dim_key": "/tea"},
+    ])
+    store.upsert_gsc_query_page_metrics(db, site, [{
+        "date": day, "query": "tea", "page": "https://xxxtea.com/tea",
+        "clicks": 1, "impressions": 20, "ctr": 0.05, "position": 7.0,
+    }])
+
+    client = _app(db)
+    r = client.get(
+        "/metrics/seo-snapshot",
+        params={"site": site, "since": day, "site_since": day,
+                "page_since": day, "query_page_since": day},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["query_records"][0]["dim_key"] == "tea"
+    assert body["site_records"][0]["clicks"] == 3
+    assert body["gsc_page_records"][0]["clicks"] == 4
+    assert body["ga4_page_records"][0]["sessions"] == 10
+    assert body["query_page_records"][0]["page"] == "https://xxxtea.com/tea"
+    pulls = store.query_pulls(db, limit=10, site=site)
+    assert sorted(row["endpoint"] for row in pulls) == [
+        "metrics/ga4", "metrics/gsc", "metrics/gsc", "metrics/gsc",
+        "metrics/gsc-query-pages",
+    ]
+
+
 def test_metrics_summary_flags_site_with_no_data_as_absent_not_zero(db):
     client = _app(db)
     r = client.get("/metrics/summary?site=nosuchsite.com")

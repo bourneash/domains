@@ -807,33 +807,30 @@ async function computeSnapshot({
   const ga4PageData = {};
   const queryPageData = {};
   // Data Hub records every pull in the same SQLite database it reads. Keep the
-  // portfolio fan-out serial so those tiny audit writes cannot contend with
-  // each other and turn otherwise healthy sources into transient HTTP 500s.
+  // portfolio fan-out serial to protect that connection, but fetch all five
+  // datasets for each site through one audited Hub request.
   await mapLimit(siteNames, 1, async site => {
-    const paths = [
-      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=query&since=${since}&limit=5000`,
-      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=site&since=${new Date(now.getTime() - 14 * 86400000).toISOString().slice(0, 10)}&limit=20`,
-      `/metrics/gsc?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
-      `/metrics/ga4?site=${encodeURIComponent(site)}&grain=page&since=${pageSince}&limit=10000`,
-      `/metrics/gsc-query-pages?site=${encodeURIComponent(site)}&since=${queryPageSince}&limit=25000`,
-    ];
-    const results = [];
-    for (const pathname of paths) {
-      try {
-        results.push({ status: 'fulfilled', value: await getJson(pathname, fetchImpl) });
-      } catch (reason) {
-        results.push({ status: 'rejected', reason });
-      }
+    const pathname =
+      `/metrics/seo-snapshot?site=${encodeURIComponent(site)}` +
+      `&since=${since}` +
+      `&site_since=${new Date(now.getTime() - 14 * 86400000).toISOString().slice(0, 10)}` +
+      `&page_since=${pageSince}` +
+      `&query_page_since=${queryPageSince}`;
+    try {
+      const data = await getJson(pathname, fetchImpl);
+      queryData[site] = data.query_records || [];
+      siteData[site] = data.site_records || [];
+      gscPageData[site] = data.gsc_page_records || [];
+      ga4PageData[site] = data.ga4_page_records || [];
+      queryPageData[site] = data.query_page_records || [];
+    } catch (error) {
+      queryData[site] = [];
+      siteData[site] = [];
+      gscPageData[site] = [];
+      ga4PageData[site] = [];
+      queryPageData[site] = [];
+      upstreamError ||= String(error.message || error);
     }
-    const records = index =>
-      results[index].status === 'fulfilled' ? results[index].value.records || [] : [];
-    queryData[site] = records(0);
-    siteData[site] = records(1);
-    gscPageData[site] = records(2);
-    ga4PageData[site] = records(3);
-    queryPageData[site] = records(4);
-    const failed = results.find(result => result.status === 'rejected');
-    if (failed) upstreamError ||= String(failed.reason?.message || failed.reason);
   });
 
   const siteValueScores = Object.fromEntries(

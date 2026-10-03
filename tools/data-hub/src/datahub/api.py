@@ -258,6 +258,36 @@ def create_app(settings: Settings, *, conn=None, sources: list[Source] | None = 
                           item_count=len(rows), client_ip=_client_ip(request))
         return {"records": rows}
 
+    @app.get("/metrics/seo-snapshot")
+    def metrics_seo_snapshot(request: Request, site: str, since: str, site_since: str,
+                             page_since: str, query_page_since: str):
+        """One-request form of the analytics reads used by Fleet Manager SEO views."""
+        query_rows = store.query_gsc_metrics(conn, site, grain="query", since=since, limit=5000)
+        site_rows = store.query_gsc_metrics(conn, site, grain="site", since=site_since, limit=20)
+        gsc_page_rows = store.query_gsc_metrics(
+            conn, site, grain="page", since=page_since, limit=10000)
+        ga4_page_rows = store.query_ga4_metrics(
+            conn, site, grain="page", since=page_since, limit=10000)
+        query_page_rows = store.query_gsc_query_page_metrics(
+            conn, site, since=query_page_since, limit=25000)
+        client_ip = _client_ip(request)
+        for endpoint, rows in (
+            ("metrics/gsc", query_rows),
+            ("metrics/gsc", site_rows),
+            ("metrics/gsc", gsc_page_rows),
+            ("metrics/ga4", ga4_page_rows),
+            ("metrics/gsc-query-pages", query_page_rows),
+        ):
+            store.record_pull(conn, site=site, endpoint=endpoint,
+                              item_count=len(rows), client_ip=client_ip)
+        return {
+            "query_records": query_rows,
+            "site_records": site_rows,
+            "gsc_page_records": gsc_page_rows,
+            "ga4_page_records": ga4_page_rows,
+            "query_page_records": query_page_rows,
+        }
+
     @app.get("/metrics/summary")
     def metrics_summary(request: Request, site: str, window: int = 28):
         since = (datetime.now(timezone.utc) - timedelta(days=window)).date().isoformat()

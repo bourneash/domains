@@ -206,22 +206,9 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
           'example.com': { gsc: { status: 'ok' }, ga4: { status: 'ok' } },
         },
       };
-    else if (url.includes('/metrics/gsc-query-pages'))
+    else if (url.includes('/metrics/seo-snapshot'))
       payload = {
-        records: [
-          {
-            date: '2026-08-31',
-            query: 'widget guide',
-            page: 'https://example.com/guide/',
-            clicks: 0,
-            impressions: 200,
-            position: 7,
-          },
-        ],
-      };
-    else if (url.includes('grain=query'))
-      payload = {
-        records: [
+        query_records: [
           {
             date: '2026-08-31',
             dim_key: 'widget guide',
@@ -230,11 +217,8 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
             position: 7,
           },
         ],
-      };
-    else if (url.includes('grain=site')) payload = { records: [] };
-    else if (url.includes('/metrics/gsc') && url.includes('grain=page'))
-      payload = {
-        records: [
+        site_records: [],
+        gsc_page_records: [
           {
             date: '2026-08-31',
             dim_key: 'https://example.com/guide/',
@@ -243,10 +227,7 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
             position: 7,
           },
         ],
-      };
-    else if (url.includes('/metrics/ga4') && url.includes('grain=page'))
-      payload = {
-        records: [
+        ga4_page_records: [
           {
             date: '2026-08-31',
             dim_key: '/guide',
@@ -254,6 +235,16 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
             views: 100,
             engaged_sessions: 50,
             conversions: 2,
+          },
+        ],
+        query_page_records: [
+          {
+            date: '2026-08-31',
+            query: 'widget guide',
+            page: 'https://example.com/guide/',
+            clicks: 0,
+            impressions: 200,
+            position: 7,
           },
         ],
       };
@@ -271,7 +262,7 @@ test('buildSnapshot joins page sources and emits ranked plans', async () => {
     seo.buildSnapshot(options),
   ]);
   assert.strictEqual(sharedSnapshot, snapshot);
-  assert.equal(fetchCalls, 6, 'concurrent callers should share all six Hub reads');
+  assert.equal(fetchCalls, 2, 'concurrent callers should share one health and one site read');
   assert.equal(snapshot.totals.pagesMeasured, 1);
   assert.equal(snapshot.totals.conversions, 2);
   assert.equal(snapshot.sources.gscPageSites, 1);
