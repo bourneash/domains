@@ -15,6 +15,7 @@ const runtime = require('./agent-runtime');
 const { alertConsecutiveFailures } = require('./overwatch-alert');
 const workEvidence = require('../fleet-dashboard/server/work-evidence');
 const deliveryReadiness = require('./delivery-readiness');
+const deliveryRecovery = require('./overwatch-delivery-recovery');
 
 const ROOT = process.env.FD_DOMAINS_ROOT || path.resolve(__dirname, '..', '..');
 const AGENT_SLUG = 'fleet-exec-overwatch';
@@ -196,12 +197,21 @@ function classifyOutcome({ sandboxCode, modelStatus, before, after, repairs = []
     after.real_work.verified_deliveries > 0 || after.real_work.verified_artifacts > 0;
   const queued =
     after.real_work.new_eligible_direct_change_requests > 0 ||
-    repairs.some(row => ['requeued_failed_handoff', 'requeued_stuck_manager'].includes(row.action));
+    repairs.some(row =>
+      [
+        'requeued_failed_handoff',
+        'requeued_stuck_manager',
+        'started_recovery_worker',
+        'queued_recovery_handoff',
+      ].includes(row.action)
+    );
   const recentExecutiveSuccess = before.cycles[0]?.status === 'completed';
   const activeDelivery =
     recentExecutiveSuccess &&
     (before.real_work.new_active_direct_change_requests > 0 ||
       before.real_work.recent_verified_deliveries > 0);
+  if (repairs.some(row => row.action === 'recovery_pickup_failed'))
+    return { status: 'failed', deliveryStatus: 'recovery_handoff_failed', verified, queued };
   if (sandboxCode !== 0 || modelStatus !== 'succeeded')
     return { status: 'failed', deliveryStatus: 'runner_failed', verified, queued };
   if (verified)
@@ -242,7 +252,7 @@ function reconcileRecoveryResults(store) {
   const recovered = [];
   for (const agent of store
     .listAgents({ limit: 1000 })
-    .filter(row => MANAGER_SLUGS.has(row.slug))) {
+    .filter(row => MANAGER_SLUGS.has(row.slug) || row.slug === AGENT_SLUG)) {
     const history = { ...(agent.workspace?.overwatch_recovery || {}) };
     let changed = false;
     for (const [workId, entry] of Object.entries(history)) {
@@ -253,6 +263,7 @@ function reconcileRecoveryResults(store) {
         const run = request.run_id && store.getImprovement(request.run_id);
         return (
           run &&
+          (!entry.request_ids || entry.request_ids.includes(request.request_id)) &&
           workEvidence.delivery(request, run).deployed &&
           parseDate(run.outcome.deployment_verified_at) >= parseDate(entry.attempted_at)
         );
@@ -264,7 +275,11 @@ function reconcileRecoveryResults(store) {
         verified_at: new Date().toISOString(),
         request_ids: requests.map(row => row.request_id),
       };
-      recovered.push({ work_id: workId, request_ids: history[workId].request_ids });
+      recovered.push({
+        work_id: workId,
+        request_ids: history[workId].request_ids,
+        initiating_run_id: entry.initiating_run_id || null,
+      });
       changed = true;
     }
     if (changed)
@@ -335,8 +350,12 @@ function reconcileDeliveryRecoveries(store) {
 
 function stoppedFingerprint(store) {
   const tasks = store
-    .listExecutiveWorkItems({ source_type: 'operating-task', quiet: 0, limit: 1000 })
-    .filter(task => !['done', 'cancelled'].includes(task.status));
+    .listExecutiveWorkItems({ quiet: 0, limit: 1000 })
+    .filter(
+      task =>
+        (task.source_type === 'operating-task' || task.work_id.startsWith('delivery-recovery:')) &&
+        !['done', 'cancelled'].includes(task.status)
+    );
   const requests = store
     .listChangeRequests({ limit: 1000 })
     .filter(row =>
@@ -501,6 +520,10 @@ async function main() {
   const recovered = reconcileRecoveryResults(store);
   const stopFingerprint = stoppedFingerprint(store);
   const preflight = collectEvidence(store);
+  const recoveryCases = deliveryRecovery.readyCases(store, {
+    site: process.env.EXECUTIVE_DOMAIN || null,
+    agent,
+  });
   const live =
     preflight.real_work.live_direct_change_requests > 0 ||
     preflight.manager_queue.queued > 0 ||
@@ -515,7 +538,10 @@ async function main() {
           /no executable work product/i.test(task.last_error || '') ||
           task.waiting_on === 'downstream-queue')
     );
-  if ((live && !stoppedTask) || agent.workspace?.overwatch_last_fingerprint === stopFingerprint) {
+  if (
+    (live && !stoppedTask && !recoveryCases.length) ||
+    agent.workspace?.overwatch_last_fingerprint === stopFingerprint
+  ) {
     if (recovered.length)
       store.createAgentEval({
         agent_id: agent.agent_id,
@@ -534,6 +560,7 @@ async function main() {
     return {
       skipped: true,
       reason: live ? 'execution already has a live path' : 'stopped work is unchanged',
+      delivery_recovery_cases: recoveryCases,
       verified_recoveries: recovered,
       reconciled_delivery_cases: reconciledDeliveries,
     };
@@ -568,6 +595,7 @@ async function main() {
     evidence,
     repairs,
     stop_fingerprint: stopFingerprint,
+    delivery_recovery_cases: recoveryCases,
     verified_recoveries: recovered,
     reconciled_delivery_cases: reconciledDeliveries,
     required_output: [
@@ -586,6 +614,13 @@ async function main() {
       fs.unlinkSync(taskFile);
     } catch {}
   }
+  repairs.push(
+    ...(await deliveryRecovery.trackHandoffs(store, agent, baseline, {
+      root: ROOT,
+      cases: recoveryCases,
+      initiatingRunId: started.run.run_id,
+    }))
+  );
   const finalEvidence = collectEvidence(store, { baseline, since: auditStartedAt });
   const completed = store.getAgentRun(started.run.run_id);
   const outcome = classifyOutcome({
@@ -611,6 +646,7 @@ async function main() {
     delivery_status: deliveryStatus,
     delivery_error: deliveryError,
     repairs,
+    delivery_recovery_cases: recoveryCases,
     verified_recoveries: recovered,
     reconciled_delivery_cases: reconciledDeliveries,
     stop_fingerprint: stopFingerprint,
