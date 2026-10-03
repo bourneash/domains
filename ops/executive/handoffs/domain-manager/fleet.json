@@ -2,17 +2,22 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T01:31:22.583Z",
-  "summary": "domain-manager checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:10:00.172Z",
+  "summary": "six_hour domain-manager report for 61 managed sites",
   "payload": {
-    "items": [
-      {
-        "kind": "proposal",
-        "title": "Reconcile newmomshop.com active work before admitting another change",
-        "summary": "newmomshop.com has two active improvements and a measurement window due 2026-10-11. Admit no overlapping implementation until those items are completed, paused, or consolidated.",
-        "requested_action": "Review the two existing newmomshop.com work records, attach their current status, baseline, metric, rollback point, and measurement disposition, then nominate exactly one non-overlapping implementation candidate only after clearance.",
-        "proposal_id": null
-      }
-    ]
+    "report_id": "652ae8d1-fe56-41db-b8e1-d584be0ee9d7",
+    "cadence": "six_hour",
+    "summary": {
+      "sites_considered": 61,
+      "sites_reported": 61,
+      "exceptions": 2,
+      "deep_dive_candidates": 61,
+      "global_exceptions": [
+        "analytics_source_error",
+        "datahub_health_source_error",
+        "datahub_sources_source_error",
+        "datahub_datasets_source_error"
+      ]
+    }
   }
 }
