@@ -3745,7 +3745,18 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
 .sch-run-outcome-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
 .sch-run-outcome-grid > div { display: grid; gap: 2px; min-width: 0; padding: 6px 7px; border-radius: 7px; background: var(--panel-2); }
 .sch-run-outcome-grid strong { color: var(--text-hi); font-size: 12px; font-variant-numeric: tabular-nums; }
+.sch-cap-controls { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 9px 14px; margin: 12px 0; padding: 11px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+.sch-cap-title { color: var(--text-hi); font-size: 12px; }
+.sch-cap-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sch-cap-fields label { display: grid; grid-template-columns: minmax(0, 1fr) 64px; align-items: center; gap: 8px; font-size: 11px; white-space: nowrap; }
+.sch-cap-fields input { width: 64px; min-width: 0; }
+.sch-cap-help { grid-column: 1 / -1; margin: 0; font-size: 10.5px; line-height: 1.45; }
 @media (max-width: 620px) {
   .sch-runtime-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sch-run-outcome-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sch-cap-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .sch-cap-title, .sch-cap-fields, .sch-cap-help, .sch-cap-controls #sch-caps-save { grid-column: 1 / -1; }
+  .sch-cap-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sch-cap-fields label { grid-template-columns: minmax(0, 1fr) 64px; white-space: normal; }
+  .sch-cap-controls #sch-caps-save { min-height: 40px; }
 }

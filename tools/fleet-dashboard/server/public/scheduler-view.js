@@ -182,20 +182,22 @@ async function renderScheduler() {
         <div class="sch-run-outcome-grid">${outcomeLabels.map(([key, label]) => `<div><strong>${Number(c[key] || 0).toLocaleString()}</strong><span>${label}</span></div>`).join('')}</div>
       </details>
     </section>
-    <div class="task-toolbar">
-      <span class="muted">Concurrency caps</span>
-      ${[
-        ['light_cap', 'light'],
-        ['heavy_cap', 'heavy'],
-        ['site_heavy_cap', 'heavy / site'],
-      ]
-        .map(
-          ([k, l]) =>
-            `<label class="muted">${l} <input class="sch-cap" data-k="${k}" type="number" min="1" style="width:64px" value="${esc(st.settings[k])}"></label>`
-        )
-        .join('')}
+    <section class="sch-cap-controls" aria-label="Scheduler concurrency limits">
+      <strong class="sch-cap-title">Concurrency caps</strong>
+      <div class="sch-cap-fields" role="group" aria-label="Maximum concurrent runs">
+        ${[
+          ['light_cap', 'Light jobs'],
+          ['heavy_cap', 'Heavy jobs'],
+          ['site_heavy_cap', 'Heavy jobs per site'],
+        ]
+          .map(
+            ([k, l]) =>
+              `<label class="muted">${l}<input class="sch-cap" data-k="${k}" type="number" min="1" aria-label="${l}" value="${esc(st.settings[k])}"></label>`
+          )
+          .join('')}
+      </div>
       <button type="button" class="btn sm" id="sch-caps-save">Save caps</button>
-      <span class="muted">Heavy = spawns a worker / runs Claude. Excess fires queue instead of all starting on one minute boundary.</span>
+      <p class="sch-cap-help muted">Heavy jobs spawn a worker or run Claude. Excess work queues instead of starting all at once.</p>
     </div>
 
     <h2 style="margin:14px 0 6px">Sites</h2>

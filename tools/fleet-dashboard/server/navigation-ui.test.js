@@ -1831,6 +1831,13 @@ test('Scheduler prioritizes incidents and bounds both large registers', () => {
   assert.match(scheduler, /aria-label="Scheduled jobs per page"/);
   assert.match(scheduler, /aria-label="Scheduler runs per page"/);
   assert.match(scheduler, /class="sch-runtime-panel" aria-label="Scheduler runtime health"/);
+  assert.match(scheduler, /class="sch-cap-controls" aria-label="Scheduler concurrency limits"/);
+  assert.match(
+    scheduler,
+    /class="sch-cap-fields" role="group" aria-label="Maximum concurrent runs"/
+  );
+  assert.match(scheduler, /\['site_heavy_cap', 'Heavy jobs per site'\]/);
+  assert.match(theme, /\.sch-cap-controls #sch-caps-save \{ min-height: 40px; \}/);
   assert.match(scheduler, /Run outcomes since process start/);
   assert.match(scheduler, /\['skipped_overlap', 'Overlap skipped'\]/);
   assert.match(theme, /\.sch-runtime-metrics \{[^}]*grid-template-columns: repeat\(4/);
