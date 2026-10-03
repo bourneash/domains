@@ -9,6 +9,7 @@
     "test": "NODE_PATH=node_modules NODE_ENV=test node --test server/*.test.js"
   },
   "dependencies": {
+    "compression": "^1.8.2",
     "cronstrue": "^2.59.0",
     "express": "^4.19.2",
     "js-yaml": "^4.1.0"

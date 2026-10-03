@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const compression = require('compression');
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
@@ -521,6 +522,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
 
   // Host allowlist for EVERY request (defeats DNS-rebinding — B3). Always on.
   app.use(auth.hostGuard);
+  // The dashboard's app.js is ~800 KB and is sent on every full load. Compress
+  // text responses here (including API JSON) so every route benefits; the
+  // compression filter leaves event streams and already-compressed content
+  // alone.
+  app.use(compression({ threshold: '1kb' }));
 
   // Structured request log (F11): one line per request with status + duration,
   // mutations flagged. Silent under test to keep `node --test` output clean.
