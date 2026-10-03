@@ -3338,3 +3338,76 @@ test('site-scoped model evidence retains actual fresh research and production fa
   );
   assert.doesNotMatch(JSON.stringify(compact), /other.example|unrelated/);
 });
+
+test('manager implementation evidence reads refreshed remote source without changing local checkout', async () => {
+  const { root, store } = db();
+  const prior = process.env.EXECUTIVE_DOMAIN;
+  const cwd = path.join(root, 'sites/example.com'),
+    remote = path.join(root, 'remote.git'),
+    peer = path.join(root, 'peer');
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))
+  );
+  const git = (dir, args) =>
+    require('node:child_process')
+      .execFileSync('git', ['-C', dir, ...args], {
+        encoding: 'utf8',
+        env,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+      .trim();
+  try {
+    process.env.EXECUTIVE_DOMAIN = 'example.com';
+    fs.mkdirSync(path.join(cwd, 'site/src/pages'), { recursive: true });
+    fs.writeFileSync(path.join(cwd, 'site/src/pages/index.astro'), '<h1>Old local source</h1>');
+    git(cwd, ['init', '-b', 'main']);
+    git(cwd, ['config', 'user.email', 'test@example.com']);
+    git(cwd, ['config', 'user.name', 'Test']);
+    git(cwd, ['add', '.']);
+    git(cwd, ['commit', '-m', 'old']);
+    git(root, ['init', '--bare', remote]);
+    git(cwd, ['remote', 'add', 'origin', remote]);
+    git(cwd, ['push', '-u', 'origin', 'main']);
+    git(root, ['clone', '--branch', 'main', remote, peer]);
+    git(peer, ['config', 'user.email', 'test@example.com']);
+    git(peer, ['config', 'user.name', 'Test']);
+    fs.mkdirSync(path.join(peer, 'site/src/components'), { recursive: true });
+    fs.writeFileSync(
+      path.join(peer, 'site/src/pages/index.astro'),
+      "---\nimport Header from '@/components/Header.astro';\n---\n<h1>Actual remote source</h1><Header />"
+    );
+    fs.writeFileSync(
+      path.join(peer, 'site/src/components/Header.astro'),
+      '<nav>Remote header</nav>'
+    );
+    fs.writeFileSync(path.join(peer, 'site/src/pages/shipped.astro'), '<h1>Already shipped</h1>');
+    git(peer, ['add', '.']);
+    git(peer, ['commit', '-m', 'shipped']);
+    git(peer, ['push']);
+    fs.writeFileSync(path.join(cwd, 'site/src/pages/index.astro'), '<h1>Unrelated local edit</h1>');
+    const receipt = await runner.refreshDomainSource(root, 'example.com');
+    assert.equal(receipt.status, 'fresh-remote-source');
+    const manager = runner.buildDomainManagerContext(root);
+    assert.equal(manager.source_revision.commit, receipt.commit);
+    assert.ok(manager.route_inventory.includes('site/src/pages/shipped.astro'));
+    assert.match(
+      manager.source_documents.find(x => x.path === 'site/src/pages/index.astro').excerpts.join(''),
+      /Actual remote source/
+    );
+    assert.match(
+      manager.source_documents
+        .find(x => x.path === 'site/src/components/Header.astro')
+        .excerpts.join(''),
+      /Remote header/
+    );
+    assert.equal(
+      fs.readFileSync(path.join(cwd, 'site/src/pages/index.astro'), 'utf8'),
+      '<h1>Unrelated local edit</h1>'
+    );
+  } finally {
+    if (prior === undefined) delete process.env.EXECUTIVE_DOMAIN;
+    else process.env.EXECUTIVE_DOMAIN = prior;
+    store.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

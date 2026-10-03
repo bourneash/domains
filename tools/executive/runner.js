@@ -483,6 +483,54 @@ function buildPortfolioInventory(root = ROOT) {
     });
 }
 
+const domainSourceCache = new Map();
+async function refreshDomainSource(root, focus) {
+  if (!focus || !executiveSites(root).includes(focus)) return null;
+  const cwd = path.join(root, 'sites', focus);
+  const key = `${root}\n${focus}`;
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))
+  );
+  const git = args =>
+    new Promise((resolve, reject) =>
+      require('node:child_process').execFile(
+        'git',
+        ['-C', cwd, ...args],
+        { encoding: 'utf8', env, timeout: 10000, maxBuffer: 262144 },
+        (error, stdout) => (error ? reject(error) : resolve(stdout.trim()))
+      )
+    );
+  try {
+    let ref;
+    try {
+      ref = await git(['symbolic-ref', 'refs/remotes/origin/HEAD']);
+    } catch {
+      ref = 'refs/remotes/origin/main';
+    }
+    if (!/^refs\/remotes\/origin\/[A-Za-z0-9_./-]+$/.test(ref))
+      throw Error('invalid remote default ref');
+    const branch = ref.slice('refs/remotes/origin/'.length);
+    await git(['fetch', '--no-tags', 'origin', `${branch}:${ref}`]);
+    const commit = await git(['rev-parse', `${ref}^{commit}`]);
+    const row = {
+      commit,
+      ref,
+      refreshed_at: new Date().toISOString(),
+      status: 'fresh-remote-source',
+    };
+    domainSourceCache.set(key, row);
+    return row;
+  } catch (error) {
+    const row = {
+      commit: null,
+      status: 'local-source-unverified',
+      error: 'Remote source refresh failed; local checkout may differ from production.',
+    };
+    domainSourceCache.set(key, row);
+    return row;
+  }
+}
+
 function buildDomainManagerContext(root = ROOT) {
   const focus = String(process.env.EXECUTIVE_DOMAIN || '')
     .trim()
@@ -490,6 +538,70 @@ function buildDomainManagerContext(root = ROOT) {
   if (!focus) return null;
   if (!executiveSites(root).includes(focus))
     throw new Error('EXECUTIVE_DOMAIN is not a managed site');
+  const sourceRevision = domainSourceCache.get(`${root}\n${focus}`) || {
+    commit: null,
+    status: 'local-source-unverified',
+  };
+  const siteRoot = path.join(root, 'sites', focus);
+  const readSource = relative => {
+    if (sourceRevision.commit && relative.startsWith('site/')) {
+      try {
+        return require('node:child_process').execFileSync(
+          'git',
+          ['-C', siteRoot, 'show', `${sourceRevision.commit}:${relative}`],
+          {
+            encoding: 'utf8',
+            timeout: 2000,
+            maxBuffer: 262144,
+            stdio: ['ignore', 'pipe', 'ignore'],
+            env: Object.fromEntries(
+              Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))
+            ),
+          }
+        );
+      } catch {
+        return null;
+      }
+    }
+    try {
+      return fs.readFileSync(path.join(siteRoot, relative), 'utf8');
+    } catch (error) {
+      if (error.code === 'ENOENT') return null;
+      throw error;
+    }
+  };
+  let routeInventory = [];
+  if (sourceRevision.commit) {
+    try {
+      routeInventory = require('node:child_process')
+        .execFileSync(
+          'git',
+          [
+            '-C',
+            siteRoot,
+            'ls-tree',
+            '-r',
+            '--name-only',
+            sourceRevision.commit,
+            '--',
+            'site/src/pages',
+          ],
+          {
+            encoding: 'utf8',
+            timeout: 2000,
+            maxBuffer: 262144,
+            stdio: ['ignore', 'pipe', 'ignore'],
+            env: Object.fromEntries(
+              Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))
+            ),
+          }
+        )
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .slice(0, 200);
+    } catch {}
+  }
   const backlogDir = path.join(root, 'sites', focus, 'ops/tasks/backlog');
   let backlogSources = [];
   try {
@@ -554,13 +666,8 @@ function buildDomainManagerContext(root = ROOT) {
         'site/src/layouts/BaseLayout.astro',
         'site/src/layouts/Base.astro',
       ].flatMap(relative => {
-        let source;
-        try {
-          source = fs.readFileSync(path.join(root, 'sites', focus, relative), 'utf8');
-        } catch (error) {
-          if (error.code === 'ENOENT') return [];
-          throw error;
-        }
+        const source = readSource(relative);
+        if (source === null) return [];
         return [
           ...source.matchAll(
             /from\s+['"]@\/(components|layouts)\/([a-zA-Z0-9_/-]+\.(?:astro|js|ts))(?:\?raw)?['"]/g
@@ -582,6 +689,9 @@ function buildDomainManagerContext(root = ROOT) {
   return {
     site: focus,
     role: 'domain-manager',
+    source_revision: sourceRevision,
+    route_inventory: routeInventory,
+    route_inventory_complete: Boolean(sourceRevision.commit) && routeInventory.length < 200,
     source_documents: [
       'CLAUDE.md',
       'site/CLAUDE.md',
@@ -607,10 +717,12 @@ function buildDomainManagerContext(root = ROOT) {
     ].flatMap(relative => {
       const file = path.join(root, 'sites', focus, relative);
       try {
-        const source = fs.readFileSync(file, 'utf8');
+        const source = readSource(relative);
+        if (source === null) return [];
         return [
           {
             path: relative,
+            source_commit: relative.startsWith('site/') ? sourceRevision.commit : null,
             candidate_key: relative.startsWith('ops/tasks/backlog/')
               ? `task-execution:${focus}:${path.basename(relative)}`
               : null,
@@ -789,6 +901,7 @@ async function buildBrief(store, root = ROOT) {
     }),
   };
   const sites = executiveSites(root);
+  await refreshDomainSource(root, String(process.env.EXECUTIVE_DOMAIN || '').toLowerCase());
   const intel = await collectIntel(root, sites);
   const actionability = executiveScorecard.buildScorecard(store);
   const portfolioInventory = buildPortfolioInventory(root);
@@ -1860,6 +1973,7 @@ function buildPrompt(brief) {
 
 Rules:
 - Use only evidence present in the brief; label uncertainty and propose research when evidence is missing.
+- Use source_revision and route_inventory to identify the actual remote implementation. Local-source-unverified documents may be stale and cannot establish a missing live feature. A merged request with failed production verification already shipped source; inspect its exact failed check and repair the release prerequisite instead of duplicating the original feature. Preserve original failed attempt evidence and link any bounded successor to its recovery case.
 - A guessed or unlinked URL returning 404 is not a reproduced user defect. Before proposing a route repair, establish an actual inbound site link, promised route, published sitemap entry, or specific user report pointing to that URL. Preserve deliberate not-found behavior for unknown paths; a successful fetch observation alone does not prove the path should exist. Do not turn a single probe into a population failure rate.
 - For accessibility tasks, identify the current interaction pattern and the actual broken user path before prescribing changes. A nonmodal consent banner may allow page navigation and does not require aria-modal or a focus trap. Do not convert optional consent into a blocking modal to manufacture a failure. Check existing accessible names and complete markup; absence of one preferred attribute or a guessed scripted completion rate is not a reproduced defect. Preserve working semantics and consent behavior; distinguish a verified failure from an optional enhancement.
 - Treat the owner_strategy as the operating contract. If it is empty, propose a concrete default strategy and ask for confirmation rather than inventing a budget or target.
@@ -5310,6 +5424,7 @@ module.exports = {
   discoverySites,
   buildSiteContext,
   buildDomainManagerContext,
+  refreshDomainSource,
   actionCandidates,
   candidateQueueCategory,
   siteFactoryCandidates,
