@@ -186,6 +186,18 @@
   body[data-view="scheduler"] #sch-jobs-table tbody tr:hover td:first-child,
   body[data-view="scheduler"] #sch-runs-table tbody tr:hover td:first-child { background: var(--panel-2); }
 
+  /* Keep the deployment's site identity visible while comparing build data. */
+  body[data-view="deploys"] .deploy-table .table-wrap th:first-child,
+  body[data-view="deploys"] .deploy-table .table-wrap td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: 1px 0 var(--border);
+  }
+  body[data-view="deploys"] .deploy-table .table-wrap thead th:first-child { z-index: 2; }
+  body[data-view="deploys"] .deploy-table .table-wrap tbody tr:hover td:first-child { background: var(--panel-2); }
+
   /* The Executive workspace has nine destinations. A horizontal tab rail
      keeps them directly available without pushing the active workspace below
      five rows of navigation cards on a phone. */
