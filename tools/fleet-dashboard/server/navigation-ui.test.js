@@ -184,6 +184,20 @@ test('change queue filters reuse fresh data and mutations invalidate it', () => 
   assert.match(app, /CHANGE_QUEUE_DATA_EPOCH\+\+/);
 });
 
+test('Data Hub renders its tables before the VPN health probe resolves', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const start = app.indexOf('async function renderDataHub()');
+  const end = app.indexOf('async function dhToggleSource', start);
+  assert.ok(start >= 0 && end > start);
+  const render = app.slice(start, end);
+  assert.match(render, /const healthPending = cachedHealth \? Promise\.resolve\(cachedHealth\) : loadDataHubHealth\(\)/);
+  assert.match(render, /const \[eg, src, ds, mtx, pl\] = await Promise\.all\(/);
+  assert.match(render, /Checking Data Hub health…/);
+  assert.match(render, /healthPending\s*\.then\(health =>/);
+  assert.match(app, /function loadDataHubHealth\(\)/);
+  assert.match(app, /function invalidateDataHubHealth\(\)/);
+});
+
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

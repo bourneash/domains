@@ -6815,11 +6815,53 @@ function dhPathBadge(policy, exitNode) {
   return `<span class="dh-path dh-vpn">vpn:${esc(exitNode || '?')}</span>`;
 }
 
+const DATA_HUB_HEALTH_TTL_MS = 10000;
+let DATA_HUB_HEALTH_CACHE = null;
+let DATA_HUB_HEALTH_PENDING = null;
+let DATA_HUB_RENDER_GENERATION = 0;
+let DATA_HUB_HEALTH_EPOCH = 0;
+
+function invalidateDataHubHealth() {
+  DATA_HUB_HEALTH_EPOCH++;
+  DATA_HUB_HEALTH_CACHE = null;
+  DATA_HUB_HEALTH_PENDING = null;
+}
+
+function loadDataHubHealth() {
+  if (DATA_HUB_HEALTH_CACHE && Date.now() - DATA_HUB_HEALTH_CACHE.at < DATA_HUB_HEALTH_TTL_MS)
+    return Promise.resolve(DATA_HUB_HEALTH_CACHE.data);
+  if (DATA_HUB_HEALTH_PENDING) return DATA_HUB_HEALTH_PENDING;
+  const epoch = DATA_HUB_HEALTH_EPOCH;
+  let pending;
+  pending = api('GET', '/api/datahub/health')
+    .then(data => {
+      if (DATA_HUB_HEALTH_EPOCH === epoch)
+        DATA_HUB_HEALTH_CACHE = { at: Date.now(), data };
+      return data;
+    })
+    .catch(error => {
+      const data = { ok: false, error: error.message };
+      if (DATA_HUB_HEALTH_EPOCH === epoch)
+        DATA_HUB_HEALTH_CACHE = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      if (DATA_HUB_HEALTH_PENDING === pending) DATA_HUB_HEALTH_PENDING = null;
+    });
+  DATA_HUB_HEALTH_PENDING = pending;
+  return pending;
+}
+
 async function renderDataHub() {
   const app = $('#app');
+  const generation = ++DATA_HUB_RENDER_GENERATION;
   if (FRESH) app.innerHTML = '<div class="muted">loading data hub…</div>';
-  const [health, eg, src, ds, mtx, pl] = await Promise.all([
-    api('GET', '/api/datahub/health'),
+  const cachedHealth = DATA_HUB_HEALTH_CACHE &&
+    Date.now() - DATA_HUB_HEALTH_CACHE.at < DATA_HUB_HEALTH_TTL_MS
+      ? DATA_HUB_HEALTH_CACHE.data
+      : null;
+  const healthPending = cachedHealth ? Promise.resolve(cachedHealth) : loadDataHubHealth();
+  const [eg, src, ds, mtx, pl] = await Promise.all([
     api('GET', '/api/datahub/egress?limit=80'),
     api('GET', '/api/datahub/sources'),
     api('GET', '/api/datahub/datasets'),
@@ -6827,28 +6869,24 @@ async function renderDataHub() {
     api('GET', '/api/datahub/pulls?limit=80'),
   ]);
 
-  const hubDown = health && health.ok === false;
   const HOME_IPS = ['24.55.143.75', '158.173.25.169'];
-
-  // ---- Panel 1: VPN Health ----
-  let healthHtml;
-  if (hubDown) {
-    healthHtml = `<div class="dh-down">⚠ Data hub API unreachable — ${esc(health.error || 'is the datahub-api container running?')}</div>`;
-  } else {
-    const nodes = health.nodes || {};
+  const healthHtml = health => {
+    if (health?.ok === false)
+      return `<div class="dh-down">⚠ Data hub API unreachable — ${esc(health.error || 'is the datahub-api container running?')}</div>`;
+    const nodes = health?.nodes || {};
     const nodeCell = (name, ip) => {
       const leak = ip && HOME_IPS.includes(ip);
       const cls = !ip ? 'dh-err' : leak ? 'dh-err' : 'dh-ok';
       const label = !ip ? 'down' : leak ? `${esc(ip)} ⚠ LEAK` : esc(ip);
       return `<div class="dh-node"><span class="dh-node-name">${esc(name)}</span> <span class="dh-b ${cls}">${label}</span></div>`;
     };
-    healthHtml = `
+    return `
       <div class="dh-health">
         ${nodeCell('US exit', nodes.us)}
         ${nodeCell('EU exit', nodes.eu)}
-        <div class="dh-counts">items <b>${esc(String((health.counts || {}).items ?? '—'))}</b> · skipped <b>${esc(String((health.counts || {}).skipped ?? '—'))}</b></div>
+        <div class="dh-counts">items <b>${esc(String((health?.counts || {}).items ?? '—'))}</b> · skipped <b>${esc(String((health?.counts || {}).skipped ?? '—'))}</b></div>
       </div>`;
-  }
+  };
 
   // ---- Panel 2: Outbound Connection Ledger ----
   const events = (eg && eg.events) || [];
@@ -6967,7 +7005,7 @@ async function renderDataHub() {
 
   app.innerHTML = `
     <div class="dh-grid">
-      <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${healthHtml}</section>
+      <section class="dh-panel" data-rk="dh-health"><h3>VPN Health</h3>${cachedHealth ? healthHtml(cachedHealth) : '<div class="muted" role="status">Checking Data Hub health…</div>'}</section>
       <section class="dh-panel dh-wide" data-rk="dh-egress"><h3>Outbound Connection Ledger <span class="live-tag">live</span></h3>${egressHtml}</section>
       <section class="dh-panel dh-wide" data-rk="dh-pulls"><h3>Site Pulls <span class="dh-sub-h">inbound — who consumed what</span> <span class="live-tag">live</span></h3>${pullsHtml}</section>
       <section class="dh-panel" data-rk="dh-sources"><h3>Source Freshness</h3>${srcHtml}</section>
@@ -6979,6 +7017,21 @@ async function renderDataHub() {
   $$('.dh-src-toggle').forEach(b =>
     b.addEventListener('click', () => dhToggleSource(b.dataset.id, b.dataset.enabled === '1', b))
   );
+
+  if (!cachedHealth) {
+    healthPending
+      .then(health => {
+        if (generation !== DATA_HUB_RENDER_GENERATION || STATE.view !== 'datahub') return;
+        const panel = document.querySelector('[data-rk="dh-health"]');
+        if (panel) panel.innerHTML = `<h3>VPN Health</h3>${healthHtml(health)}`;
+      })
+      .catch(error => {
+        if (generation !== DATA_HUB_RENDER_GENERATION || STATE.view !== 'datahub') return;
+        const panel = document.querySelector('[data-rk="dh-health"]');
+        if (panel)
+          panel.innerHTML = `<h3>VPN Health</h3><div class="dh-down">⚠ Data hub API unreachable — ${esc(error.message)}</div>`;
+      });
+  }
 
   if (!FRESH) applyUISnap();
 }
@@ -16507,6 +16560,7 @@ async function boot() {
   $('#refresh').addEventListener('click', () => {
     if (STATE.view === 'agent' && STATE.agent === 'engineer') invalidateEngineerOverviewData();
     if (STATE.view === 'change-queue') invalidateChangeQueueData();
+    if (STATE.view === 'datahub') invalidateDataHubHealth();
     softRender();
   });
   $('#density-toggle').addEventListener('click', toggleDensity);
