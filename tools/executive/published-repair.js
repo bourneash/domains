@@ -55,6 +55,9 @@ function begin(
       next_action:
         'Repair the original isolated branch, run canonical CI, review the diff, and update the same PR. Production release remains gated.',
     });
+    store.updateImprovement(run.run_id, {
+      agent: { ...run.agent, status: 'pending', phase: 'implementation', attempt_id: null },
+    });
     const repairRun = improvements.transition(store, run.run_id, {
       state: 'building',
       validation: {
@@ -91,6 +94,9 @@ function begin(
     });
     return { request, run: repairRun, item: updated, leaseOwner };
   } catch (error) {
+    const current = store.getImprovement(run.run_id);
+    if (current?.agent?.status === 'pending' && !current.agent.attempt_id)
+      store.updateImprovement(run.run_id, { agent: run.agent || {} });
     store.releaseExecutiveWorkItem(workId, leaseOwner, { last_error: error.message });
     throw error;
   }

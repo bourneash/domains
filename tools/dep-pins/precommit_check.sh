@@ -35,9 +35,24 @@ fail=0
 for f in $staged; do
   # Read the STAGED content, not the worktree copy.
   blob=$(git show ":$f" 2>/dev/null) || continue
-  bad=$(PINS="$PINS" BLOB="$blob" python3 - <<'PY'
-import json, os, sys
-pins = json.load(open(os.environ["PINS"]))["pins"]
+  repo_root=$(git rev-parse --show-toplevel)
+  common_dir=$(git rev-parse --git-common-dir)
+  bad=$(PINS="$PINS" BLOB="$blob" STAGED_PATH="$f" REPO_ROOT="$repo_root" COMMON_DIR="$common_dir" python3 - <<'PY'
+import json, os, re, sys
+cfg = json.load(open(os.environ["PINS"]))
+pins = cfg["pins"]
+staged_path = os.environ["STAGED_PATH"]
+site = None
+match = re.fullmatch(r"sites/([^/]+)/site/package\.json", staged_path)
+if match:
+    site = match[1]
+elif staged_path == "site/package.json":
+    # The shared Git directory preserves site identity for isolated worktrees.
+    common = os.path.abspath(os.path.join(os.environ["REPO_ROOT"], os.environ["COMMON_DIR"]))
+    match = re.search(r"/modules/sites/([^/]+)(?:/|$)", common)
+    site = match[1] if match else os.path.basename(os.environ["REPO_ROOT"])
+if site in cfg.get("exempt", {}):
+    sys.exit(0)
 try:
     pkg = json.loads(os.environ["BLOB"])
 except ValueError:

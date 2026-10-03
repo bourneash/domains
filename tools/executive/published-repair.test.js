@@ -59,6 +59,8 @@ test('published repair preserves request, run, workspace and PR and invalidates 
   assert.equal(result.run.workspace_path, f.run.workspace_path);
   assert.equal(result.run.approval.pull_request.url, f.run.approval.pull_request.url);
   assert.equal(result.run.validation.passed, false);
+  assert.equal(result.run.agent.status, 'pending');
+  assert.equal(result.run.agent.phase, 'implementation');
   assert.equal(f.store.getChangeRequest(f.requestId).status, 'committed');
   assert.equal(f.store.getExecutiveWorkItem(f.workId).lease_owner, 'owned-run');
   assert.throws(() => repair.begin(f.store, { ...f, leaseOwner: 'other-run' }), /original open PR/);
