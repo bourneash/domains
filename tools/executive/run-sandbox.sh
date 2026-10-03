@@ -121,6 +121,10 @@ NODE
 )"
 fi
 
+# Controlled runs need the same durable prompt/response evidence as scheduled runs.
+RUN_ACTION_ID="${RUN_ACTION_ID:-$RUNTIME_RUN_ID}"
+echo "executive runtime run: $RUNTIME_RUN_ID" >&2
+
 finish_runtime_run() {
   local status="$1"
   local error_message="${2:-}"

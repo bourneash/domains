@@ -63,6 +63,27 @@ function executiveTarget(root, site) {
   return site === 'fleet' || executiveSites(root).includes(site);
 }
 
+function discoverySites(
+  inventory = [],
+  rolesBySite = new Map(),
+  activeSites = new Set(),
+  candidateSites = []
+) {
+  const recommended = new Set(candidateSites);
+  return inventory
+    .filter(
+      row =>
+        row.lifecycle === 'live' &&
+        (rolesBySite.get(row.domain) || []).some(
+          role =>
+            ['engineer', 'principal-engineer'].includes(role) &&
+            !(row.disabled_task_roles || []).includes(role)
+        ) &&
+        !activeSites.has(row.domain)
+    )
+    .map(row => row.domain);
+}
+
 function installedSiteRoles(root, site) {
   if (!site || site === 'fleet') return [];
   try {
@@ -450,6 +471,7 @@ function buildPortfolioInventory(root = ROOT) {
         repo: row.repo,
         worker: row.worker,
         capabilities: row.capabilities,
+        disabled_task_roles: row.disabled_task_roles || [],
         registered_in: row.registered_in,
         parked: row.lifecycle === 'scaffold',
         parked_days: parkedRow?.days_parked ?? null,
@@ -468,14 +490,120 @@ function buildDomainManagerContext(root = ROOT) {
   if (!focus) return null;
   if (!executiveSites(root).includes(focus))
     throw new Error('EXECUTIVE_DOMAIN is not a managed site');
+  const backlogDir = path.join(root, 'sites', focus, 'ops/tasks/backlog');
+  let backlogSources = [];
+  try {
+    backlogSources = fs
+      .readdirSync(backlogDir)
+      .filter(name => name.endsWith('.md') && !/credential|secret|auth/i.test(name))
+      .sort((a, b) => Number(/^20\d\d-/.test(b)) - Number(/^20\d\d-/.test(a)) || b.localeCompare(a))
+      .slice(0, 100)
+      .filter(name => {
+        const text = fs.readFileSync(path.join(backlogDir, name), 'utf8').slice(0, 36000);
+        return (
+          /^type:\s*["']?(engineering|content|design|seo)["']?\s*$/m.test(text) &&
+          !/report.only|human.triage/i.test(text)
+        );
+      })
+      .slice(0, 3)
+      .map(name => `ops/tasks/backlog/${name}`);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  const backlogRoutes = [
+    ...new Set(
+      backlogSources.flatMap(relative => {
+        const text = fs
+          .readFileSync(path.join(root, 'sites', focus, relative), 'utf8')
+          .slice(0, 36000);
+        return [...text.matchAll(/\/([a-z0-9-]+)\//g)].map(
+          match => `site/src/pages/${match[1]}.astro`
+        );
+      })
+    ),
+  ].slice(0, 3);
+  const contentRoot = path.join(root, 'sites', focus, 'site/src/content');
+  let contentSources = [];
+  try {
+    const hints = backlogSources.join(' ');
+    contentSources = fs
+      .readdirSync(contentRoot, { recursive: true })
+      .filter(relative => /\.mdx?$/.test(relative))
+      .sort(
+        (a, b) =>
+          Number(hints.includes(b.split(path.sep)[0])) -
+            Number(hints.includes(a.split(path.sep)[0])) ||
+          path.basename(b).localeCompare(path.basename(a))
+      )
+      .slice(0, 3)
+      .map(relative => `site/src/content/${relative}`);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  const contentTemplates = [
+    ...new Set(contentSources.map(relative => relative.split('/')[3])),
+  ].flatMap(collection => [
+    `site/src/pages/${collection}/index.astro`,
+    `site/src/pages/${collection}/[slug].astro`,
+    `site/src/pages/${collection}/[...slug].astro`,
+  ]);
+  const componentSources = [
+    ...new Set(
+      [
+        'site/src/pages/index.astro',
+        'site/src/layouts/BaseLayout.astro',
+        'site/src/layouts/Base.astro',
+      ].flatMap(relative => {
+        let source;
+        try {
+          source = fs.readFileSync(path.join(root, 'sites', focus, relative), 'utf8');
+        } catch (error) {
+          if (error.code === 'ENOENT') return [];
+          throw error;
+        }
+        return [
+          ...source.matchAll(
+            /from\s+['"]@\/(components|layouts)\/([a-zA-Z0-9_/-]+\.(?:astro|js|ts))(?:\?raw)?['"]/g
+          ),
+        ]
+          .map(match => `site/src/${match[1]}/${match[2]}`)
+          .concat(
+            [
+              ...source.matchAll(
+                /from\s+['"](\.\.\/components\/[a-zA-Z0-9_/-]+\.(?:astro|js|ts))(?:\?raw)?['"]/g
+              ),
+            ].map(match =>
+              path.posix.normalize(path.posix.join(path.posix.dirname(relative), match[1]))
+            )
+          );
+      })
+    ),
+  ].slice(0, 8);
   return {
     site: focus,
     role: 'domain-manager',
     source_documents: [
       'CLAUDE.md',
+      'site/CLAUDE.md',
+      'site/src/styles/global.css',
       'site/src/pages/index.astro',
       'site/src/pages/reviews/index.astro',
       'site/src/layouts/BaseLayout.astro',
+      'site/index.html',
+      'site/src/main.tsx',
+      'site/src/Root.tsx',
+      'site/src/pages/Landing.tsx',
+      'site/src/ui/site/SiteLayout.tsx',
+      'site/src/ui/site/Header.tsx',
+      'site/src/ui/site/CookieBanner.tsx',
+      'site/privacy.html',
+      'site/terms.html',
+      'site/about.html',
+      ...backlogSources,
+      ...backlogRoutes,
+      ...contentSources,
+      ...contentTemplates,
+      ...componentSources,
     ].flatMap(relative => {
       const file = path.join(root, 'sites', focus, relative);
       try {
@@ -483,11 +611,14 @@ function buildDomainManagerContext(root = ROOT) {
         return [
           {
             path: relative,
+            candidate_key: relative.startsWith('ops/tasks/backlog/')
+              ? `task-execution:${focus}:${path.basename(relative)}`
+              : null,
             sha256: crypto.createHash('sha256').update(source).digest('hex'),
             bytes: Buffer.byteLength(source),
-            truncated: source.length > 10800,
+            truncated: source.length > 36000,
             excerpts: Array.from(
-              { length: Math.min(12, Math.ceil(source.length / 900)) },
+              { length: Math.min(40, Math.ceil(source.length / 900)) },
               (_, index) => source.slice(index * 900, (index + 1) * 900)
             ),
           },
@@ -767,6 +898,12 @@ async function buildBrief(store, root = ROOT) {
     }));
   return {
     generated_at: new Date().toISOString(),
+    execution_context: {
+      controlled_iteration: process.env.TEAM_ITERATION_RUN === '1',
+      manual_queue_authorized:
+        process.env.TEAM_ITERATION_RUN === '1' && process.env.EXECUTIVE_ALLOW_QUEUE === '1',
+      rule: 'An operator pause applies to automatic pickup. An explicitly authorized controlled run may admit bounded work through the ordinary host gates; it does not waive safety, ownership, capacity or measurement holds.',
+    },
     sites,
     site_context: buildSiteContext(root),
     portfolio_inventory: portfolioInventory,
@@ -858,7 +995,12 @@ async function buildBrief(store, root = ROOT) {
       rule: `Target six distinct executable change requests each cycle. The verified minimum for this brief is ${requiredActionCount}: queue all available evidence-backed candidates up to six and available capacity. Never count messages, proposals, research, report-only tasks, blocked/ownerless candidates, or duplicate-site requests as executable output. Maintain ten meaningful active implementation slots.`,
       candidates: executableActionCandidates,
       deferred_candidates: deferredActionCandidates,
-      executable_sites: [...new Set(executableActionCandidates.map(row => row.site))],
+      executable_sites: discoverySites(
+        portfolioInventory,
+        rolesBySite,
+        activeSites,
+        executableActionCandidates.map(row => row.site)
+      ),
       missing_owner_sites: [
         ...new Set(
           deferredActionCandidates
@@ -901,14 +1043,46 @@ async function buildBrief(store, root = ROOT) {
         delivery_mode,
       })
     ),
-    improvements: improvements.map(({ run_id, site, title, state, measurement_due, outcome }) => ({
-      run_id,
-      site,
-      title,
-      state,
-      measurement_due,
-      outcome,
-    })),
+    improvements: improvements.map(
+      ({ run_id, site, title, state, measurement_due, outcome, baseline, validation }) => {
+        let sourceDiff = null;
+        if (
+          site === process.env.EXECUTIVE_DOMAIN &&
+          /^[a-f0-9]{7,40}$/i.test(validation?.commit || '')
+        ) {
+          try {
+            sourceDiff = require('node:child_process')
+              .execFileSync(
+                'git',
+                [
+                  '-C',
+                  path.join(root, 'sites', site),
+                  'show',
+                  '--format=',
+                  '--no-ext-diff',
+                  validation.commit,
+                  '--',
+                  'site/src',
+                ],
+                { encoding: 'utf8', timeout: 5000, maxBuffer: 1024 * 1024 }
+              )
+              .slice(0, 5400);
+          } catch {
+            /* Missing source is uncertainty, never proof of independence. */
+          }
+        }
+        return {
+          run_id,
+          site,
+          title,
+          state,
+          measurement_due,
+          outcome,
+          baseline,
+          source_diff: sourceDiff ? sourceDiff.match(/[\s\S]{1,900}/g) : null,
+        };
+      }
+    ),
     proposals: proposals.map(
       ({ proposal_id, title, proposal_type, summary, status, requested_action }) => ({
         proposal_id,
@@ -1494,6 +1668,12 @@ function compactModelBrief(brief) {
     title: row.title,
     state: row.state,
     measurement_due: row.measurement_due,
+    source_diff: row.source_diff,
+    baseline: compactModelValue({
+      request_category: row.baseline?.request_category,
+      evidence: row.baseline?.evidence,
+      measurement_scope: row.baseline?.measurement_scope,
+    }),
     outcome: compactModelValue(
       Object.fromEntries(
         Object.entries(row.outcome || {}).filter(
@@ -1527,6 +1707,11 @@ function compactModelBrief(brief) {
   }));
   compact.model_context_note =
     'Large historical arrays, raw repository listings, and duplicate report bodies are compacted here. The control plane retains the authoritative artifacts and source timestamps; do not treat omitted context as zero or proof of absence.';
+  if (brief.domain_manager?.source_documents)
+    compact.domain_manager.source_documents = brief.domain_manager.source_documents.map(doc => ({
+      ...doc,
+      excerpts: (doc.excerpts || []).slice(0, 40).map(text => String(text).slice(0, 900)),
+    }));
   const assignedSite = brief.operating_manager_task?.site || brief.domain_manager?.site;
   if (assignedSite && assignedSite !== 'fleet') {
     const site = String(assignedSite).toLowerCase();
@@ -1534,6 +1719,7 @@ function compactModelBrief(brief) {
     const focused = {
       generated_at: compact.generated_at,
       sites: [site],
+      execution_context: compact.execution_context,
       portfolio_policy: compact.portfolio_policy,
       owner_strategy: compact.owner_strategy,
       tool_contract: compact.tool_contract,
@@ -1542,6 +1728,14 @@ function compactModelBrief(brief) {
       site_context: (compact.site_context || []).filter(belongs),
       action_mandate: {
         ...compact.action_mandate,
+        required_action_count: (brief.action_mandate?.executable_sites || []).includes(site)
+          ? 1
+          : 0,
+        executable_sites: (brief.action_mandate?.executable_sites || []).filter(
+          value => value === site
+        ),
+        instruction:
+          'This site-scoped pass may propose at most one implementation request. Select the strongest source-backed task; retain other ideas for later runs. Fleet-wide counts do not grant multiple active workers on this site.',
         candidates: (brief.action_mandate?.candidates || [])
           .filter(belongs)
           .map(row => compactModelValue(row)),
@@ -1630,7 +1824,7 @@ Rules:
 - Rank opportunities by expected attributable revenue, confidence, contribution margin, time-to-learn, and reversibility. Report the source and measurement window for every quantitative claim. Treat low-volume or missing affiliate attribution as a background measurement gap—not a blocker to higher-impact work—unless the evidence shows material revenue at stake.
 - Follow action_mandate every hourly cycle: maintain the ten-slot active_delivery portfolio. Queue exactly action_mandate.required_action_count direct, engineer-routable change_requests, up to the six-item target, across distinct queue-ready sites. This count already excludes missing-owner sites, active work, private launch gates, reports, and unavailable capacity. If six executable candidates are available, queue all six; if fewer are available, queue each one and name the concrete shortfall with its owner and due date. When three or more distinct actionable candidates are available, cover at least three distinct sites. Never duplicate a site that already has active work. Do not turn routine reversible implementation into an owner proposal or report; reserve proposals for material decisions, launch gates, spend, credentials, or scope changes. Reporting is subordinate to delivery: only create report-only work for a genuine blocker, required evidence gate, or owner decision, and do not generate another report while open delivery slots or unresolved delivery attention exist.
 - A queued request blocked by measurement or an execution gate is not an executable handoff. Inspect delivery_readiness; if your preferred site is blocked, select a distinct queue-ready candidate instead. Do not recreate the same blocked task with a new title. Advance a currently eligible request or create a non-overlapping direct implementation request; planning notes and blocked queue rows do not satisfy throughput.
-- Before proposing any site implementation, use action_mandate.executable_sites as the implementation target allowlist. Sites in action_mandate.missing_owner_sites have no claimable worker: route their setup to site-factory and do not spend a change_request slot on them. The host will reject ownerless requests even if you propose one.
+- Before proposing any site implementation, use action_mandate.executable_sites as the installed-worker target allowlist. Precomputed candidates are leads, not the only work you may discover: inspect source_documents on an allowed site and propose a concrete, independently scoped functional improvement with tests and rollback. Sites in action_mandate.missing_owner_sites have no claimable worker: route their setup to site-factory and do not spend a change_request slot on them. The host will reject ownerless requests even if you propose one.
 - Use intelligence.sources and intelligence.decision_support, including source freshness and errors, to create research proposals before making strong portfolio claims. Never interpret an unavailable source as a zero metric.
 - Read the complete intelligence bundle before asking for data. Analytics, SEO, revenue, AI usage, operations, RevOps, experiments, campaigns, social, Data Hub, compliance scan history, data-quality boundaries, priorities, and registry data are read-only inputs collected automatically. If a source is unavailable, report the gap in your owner message and use the recurring snapshot/report path; do not create a duplicate data-request proposal.
 - Treat specialist_inputs.cro_github_trends and specialist_inputs.cro_repo_lab_runs as lead evidence from the CRO. The repo lab is disposable and read-only; validate license, security, maintenance, fit, and measurable conversion/revenue upside before recommending adoption. Never install or deploy a discovered repository directly.
@@ -1706,9 +1900,9 @@ function buildPassPrompt(brief, role, candidate = null) {
                             : role === 'security'
                               ? 'You are the Security review pass for an autonomous domain-fleet executive. Inspect the read-only fleet-doctor security baseline plus intelligence.decision_support.security, operations, compliance, and data_quality. Lead with a security disposition and recommendation: clear, conditional, blocked, or evidence_needed. State the concrete evidence, risk severity, and the exact decision you recommend. This is read-only risk triage, not penetration testing or certification; never exploit targets, access credentials, or claim a clean bill of health from missing data. Triage authentication and access boundaries, secrets exposure, container isolation, release/deploy controls, TLS, dependency and supply-chain risk, data exposure, incident signals, and security.txt or disclosure readiness when evidence supports it. Do not block ordinary growth for optional hardening alone. Every proposal you retain must set created_by to security. For a go-live or security-sensitive proposal, include implementation.security_review with status approved or needs_owner, reviewed_by security, and a concise evidence-backed decision_note.'
                               : role === 'domain-manager'
-                                ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
-                                : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry should block unsupported financial claims and production work, but should not force a no-op: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
-  return `${base}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
+                                ? 'You are the accountable site manager for the managed site named in domain_manager. Own the site’s audience, design, usability, content, analytics, monetization, health, and backlog. Prioritize a demonstrated functional defect, accessibility failure, broken user path, missing useful capability, or a documented backlog task. Cosmetic label churn without an evidenced problem is not qualifying work. When source excerpts are truncated, do not claim complete-file counts or absence; require the worker to verify the complete file before editing. Your primary output is concrete, bounded, reversible implementation work that an engineer or specialist can start now: name the exact page/files/scope, acceptance criteria, tests, metric, baseline, due date, and rollback. Keep the site queue full without overlapping active work. Use report-only work only for a genuine evidence blocker or owner decision, and make the smallest next implementation step explicit. Do not expand scope to other sites or directly deploy. Every proposal you retain must set created_by to domain-manager and implementation.site to the exact managed site from domain_manager.'
+                                : 'You are the independent executive reviewer. Reject unsupported revenue claims, scope violations, unsafe tactics, high-priority queue work, and production proposals that lack a measurable outcome. Missing attribution or low-volume telemetry blocks unsupported financial claims. A bounded functional repair or usability improvement may proceed with a testable nonfinancial metric, source evidence, rollback, and a non-overlapping scope. Do not treat paused automatic pickup as a ban on an explicitly authorized controlled run. Preserve host safety and measurement gates. When implementation is genuinely blocked: preserve up to five bounded research_requests when each uses a public URL, answers a specific evidence gap, is read-only and reversible, does not duplicate the shared telemetry contract, and cannot change credentials, configuration, spending, schedules, or production. Keep only the smallest defensible plan and add a concise owner message explaining material concerns.';
+  return `${base}\n\n${PLAN_OUTPUT_CONTRACT}\n\nDo not mention or target any [excluded-site]. Do not invent telemetry. Put the full scope, acceptance criteria, tests, source evidence, baseline, metric, time-to-learn, and rollback in each change_request.body. For an existing backlog task, copy its supplied candidate_key as action_key so the host advances the original task card. Omit action_key and source_work_id when no actual identifier is supplied; descriptive schema placeholders are not identifiers. Use the existing site engineer; preserve valid requests from earlier passes unless a specific evidence-backed gate rejects them.\n\nFLEET BRIEF:\n${modelBriefJson}\n\nCANDIDATE PLAN TO REVIEW:\n${JSON.stringify(compactModelValue(candidate || {})).replaceAll('3boobs.com', '[excluded-site]')}`;
 }
 
 function extractJsonObject(text) {
@@ -1866,6 +2060,11 @@ function normalizeProviderProposalTypes(plan, { defaultActor = '', defaultSite =
     if (!item.body && (item.summary || item.description || item.recommendation))
       item.body = item.summary || item.description || item.recommendation;
     if (!item.category && (item.type || item.kind)) item.category = item.type || item.kind;
+    if (
+      item.site !== 'fleet' &&
+      /^publish-fleet-operating-baseline(?:\s|$)/.test(String(item.action_key || ''))
+    )
+      delete item.action_key;
     if (item.delivery_mode !== undefined)
       item.delivery_mode = normalizeDeliveryMode(item.delivery_mode, item.site);
   }
@@ -5046,6 +5245,7 @@ module.exports = {
   executiveSites,
   executiveTarget,
   installedSiteRoles,
+  discoverySites,
   buildSiteContext,
   buildDomainManagerContext,
   actionCandidates,

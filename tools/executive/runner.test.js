@@ -3120,3 +3120,123 @@ test('controlled model parsing reports dropped implementation requests for repai
     1
   );
 });
+
+test('source-discovered implementation can satisfy a baseline-only planning cohort', () => {
+  const brief = {
+    action_mandate: { candidates: [{ site: 'example.com', type: 'portfolio-baseline' }] },
+  };
+  assert.equal(
+    runner.actionMandateSatisfied(
+      {
+        change_requests: [
+          { site: 'example.com', delivery_mode: 'pull_request', title: 'Add tested search' },
+        ],
+      },
+      brief
+    ),
+    true
+  );
+  assert.equal(runner.actionMandateSatisfied({ change_requests: [] }, brief), false);
+  const prompt = runner.buildPassPrompt({ intelligence: {} }, 'reviewer');
+  assert.match(prompt, /testable nonfinancial metric/);
+  assert.doesNotMatch(
+    prompt,
+    /telemetry should block unsupported financial claims and production work/
+  );
+});
+
+test('discovery target availability does not depend on cached recommendations', () => {
+  const inventory = [
+    { domain: 'idle.example', lifecycle: 'live' },
+    { domain: 'busy.example', lifecycle: 'live' },
+    { domain: 'no-owner.example', lifecycle: 'live' },
+    { domain: 'disabled.example', lifecycle: 'live', disabled_task_roles: ['engineer'] },
+    { domain: 'scaffold.example', lifecycle: 'scaffold' },
+  ];
+  const roles = new Map(
+    inventory.map(row => [row.domain, row.domain === 'no-owner.example' ? [] : ['engineer']])
+  );
+  assert.deepEqual(runner.discoverySites(inventory, roles, new Set(['busy.example'])), [
+    'idle.example',
+  ]);
+  assert.deepEqual(
+    runner.discoverySites(inventory, roles, new Set(['busy.example']), ['busy.example']),
+    ['idle.example']
+  );
+});
+
+test('site-scoped planning respects one active implementation slot', () => {
+  const compact = runner.compactModelBrief({
+    intelligence: {},
+    domain_manager: { site: 'example.com' },
+    action_mandate: { required_action_count: 6, executable_sites: ['example.com', 'other.com'] },
+  });
+  assert.equal(compact.action_mandate.required_action_count, 1);
+  assert.deepEqual(compact.action_mandate.executable_sites, ['example.com']);
+  assert.match(compact.action_mandate.instruction, /at most one/);
+});
+
+test('scoped source evidence survives historical-array compaction', () => {
+  const excerpts = Array.from({ length: 24 }, (_, i) => `chunk ${i}`);
+  const compact = runner.compactModelBrief({
+    intelligence: {},
+    domain_manager: {
+      site: 'example.com',
+      source_documents: [{ path: 'site/src/pages/index.astro', excerpts }],
+    },
+  });
+  assert.equal(compact.domain_manager.source_documents[0].excerpts.length, 24);
+  assert.equal(compact.domain_manager.source_documents[0].excerpts[23], 'chunk 23');
+});
+
+test('manager evidence includes backlog routes, content templates and imported components', () => {
+  const { root, store } = db();
+  const prior = process.env.EXECUTIVE_DOMAIN;
+  try {
+    process.env.EXECUTIVE_DOMAIN = 'example.com';
+    const files = {
+      'site/src/pages/index.astro':
+        "---\nimport Header from '@/components/Header.astro';\n---\n<Header />",
+      'site/src/layouts/BaseLayout.astro':
+        "---\nimport Nav from '../components/Nav.astro';\n---\n<Nav /><slot />",
+      'site/src/components/Header.astro': '<nav>Actual header</nav>',
+      'site/src/components/Nav.astro': '<nav>Actual shared navigation</nav>',
+      'site/src/pages/how-it-works.astro': '<main>Existing explanation</main>',
+      'site/src/content/kits/sample.md': '---\ntitle: Sample\n---\nActual kit contents',
+      'site/src/pages/kits/[slug].astro': '<main>Existing kit template</main>',
+      'ops/tasks/backlog/2026-10-03-links.md':
+        '---\ntype: content\nassigned_role: content-writer\n---\nAdd tool links to /how-it-works/ using kits.',
+    };
+    for (const [relative, text] of Object.entries(files)) {
+      const file = path.join(root, 'sites/example.com', relative);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, text);
+    }
+    const manager = runner.buildDomainManagerContext(root),
+      paths = manager.source_documents.map(doc => doc.path);
+    for (const relative of Object.keys(files)) assert.ok(paths.includes(relative), relative);
+    assert.ok(manager.source_documents.every(doc => /^[a-f0-9]{64}$/.test(doc.sha256)));
+  } finally {
+    if (prior === undefined) delete process.env.EXECUTIVE_DOMAIN;
+    else process.env.EXECUTIVE_DOMAIN = prior;
+    store.close();
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('site requests never retain the fleet-only schema example action key', () => {
+  const plan = runner.parseOutput(
+    JSON.stringify({
+      change_requests: [
+        {
+          site: 'example.com',
+          title: 'Fix real navigation',
+          body: 'Concrete source-backed implementation',
+          action_key: 'publish-fleet-operating-baseline when site is fleet',
+        },
+      ],
+    }),
+    { sanitize: true, rejectDroppedRequests: true }
+  );
+  assert.equal(plan.change_requests[0].action_key, undefined);
+});

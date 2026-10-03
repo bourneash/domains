@@ -2884,6 +2884,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
     const reviewRequest = events.getChangeRequest(reviewRun.source_id);
     if (reviewRequest?.delivery_mode === 'pull_request') {
+      reviewRun = await require('./delivery-workspace').preparePublication(events, reviewRun);
       const published = await git.publishWorktree(
         root,
         reviewRun.site,
