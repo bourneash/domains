@@ -168,3 +168,75 @@ test('actual recovery pickup remains a handoff until its own verified release', 
   assert.equal(result.deliveryStatus, 'handoff_pending');
   assert.equal(result.verified, false);
 });
+
+test('original queued work requires a substantive model review before normal pickup', async () => {
+  const f = fixture();
+  f.task.work_id = 'queued-delivery:original';
+  f.requests.original.status = 'queued';
+  f.task.next_action = 'Review original';
+  const before = { ...f.task };
+  const cases = readyCases(f.store);
+  assert.equal(cases[0].recovery_type, 'queued-backlog');
+  let picked = 0;
+  const options = {
+    cases,
+    controlled: true,
+    initiatingRunId: 'watch-queue',
+    pickupImpl: async () => {
+      picked++;
+      return { run_id: 'original-worker' };
+    },
+  };
+  assert.deepEqual(
+    await trackHandoffs(
+      f.store,
+      f.agent,
+      { requests: new Set(['original']), work: new Map([[f.task.work_id, before]]) },
+      options
+    ),
+    []
+  );
+  f.task.status = 'in_progress';
+  f.task.summary = 'Reviewed exact measured labels, unchanged destinations and tests';
+  f.task.next_action = 'Start original worker through normal gates';
+  const results = await trackHandoffs(
+    f.store,
+    f.agent,
+    { requests: new Set(['original']), work: new Map([[f.task.work_id, before]]) },
+    options
+  );
+  assert.equal(picked, 1);
+  assert.equal(results[0].request_id, 'original');
+  assert.equal(results[0].action, 'started_recovery_worker');
+  assert.equal(f.requests.original.status, 'queued');
+});
+test('blocked original requests cannot become eligible queued recovery cases', () => {
+  const f = fixture();
+  f.task.work_id = 'queued-delivery:original';
+  for (const status of ['blocked_owner', 'failed', 'running']) {
+    f.requests.original.status = status;
+    assert.equal(readyCases(f.store).length, 0);
+  }
+  f.requests.original.status = 'queued';
+  f.requests.original.hold_condition = 'Owner measurement hold';
+  assert.equal(readyCases(f.store).length, 0);
+});
+test('queued-case creation requires explicit controlled site and preserves original request', () => {
+  const { ensureQueuedCases } = require('./overwatch-delivery-recovery'),
+    f = fixture();
+  f.requests.original.status = 'queued';
+  const created = [];
+  f.store.listChangeRequests = () => Object.values(f.requests);
+  f.store.getExecutiveWorkItem = () => null;
+  f.store.createExecutiveWorkItem = q => created.push(q);
+  f.store.createWorkflowLink = () => ({});
+  assert.deepEqual(ensureQueuedCases(f.store, { site: 'example.com', controlled: false }), []);
+  assert.deepEqual(ensureQueuedCases(f.store, { controlled: true }), []);
+  assert.equal(created.length, 0);
+  assert.deepEqual(ensureQueuedCases(f.store, { site: 'example.com', controlled: true }), [
+    'queued-delivery:original',
+  ]);
+  assert.equal(created[0].source_id, 'original');
+  assert.equal(f.requests.original.status, 'queued');
+  assert.match(created[0].summary, /not a failed worker attempt/);
+});

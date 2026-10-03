@@ -3107,7 +3107,23 @@ function recoveryHandoffs(requests = [], brief = {}) {
 
 function actionMandateSatisfied(plan = {}, brief = {}) {
   if (brief.overwatch_directive?.delivery_recovery_cases?.length)
-    return recoveryHandoffs(plan.change_requests || [], brief).length > 0;
+    return (
+      recoveryHandoffs(plan.change_requests || [], brief).length > 0 ||
+      (plan.tracking_updates || []).some(
+        update =>
+          update.status === 'in_progress' &&
+          update.summary &&
+          update.next_action &&
+          brief.overwatch_directive.delivery_recovery_cases.some(
+            task =>
+              task.recovery_type === 'queued-backlog' &&
+              task.work_id === update.work_id &&
+              task.original_request?.status === 'queued' &&
+              update.summary !== task.summary &&
+              update.next_action !== task.next_action
+          )
+      )
+    );
   if (scopedDiscoveryHandoffs(plan.change_requests || [], brief).length) return true;
   if (
     brief.domain_manager?.site &&

@@ -2,12 +2,63 @@
 const fs = require('node:fs'),
   path = require('node:path');
 const evidence = require('../fleet-dashboard/server/work-evidence');
+function ensureQueuedCases(
+  store,
+  { site = null, controlled = process.env.TEAM_ITERATION_RUN === '1' } = {}
+) {
+  if (!controlled || !site) return [];
+  const gates = require('../fleet-dashboard/server/execution-gates');
+  const cases = [];
+  for (const q of store
+    .listChangeRequests({ limit: 'all' })
+    .filter(
+      q =>
+        q.site === site &&
+        q.status === 'queued' &&
+        ['direct', 'pull_request'].includes(q.delivery_mode) &&
+        !gates.reason(q)
+    )
+    .slice(0, 1)) {
+    const id = 'queued-delivery:' + q.request_id;
+    if (!store.getExecutiveWorkItem(id))
+      store.createExecutiveWorkItem({
+        work_id: id,
+        title: 'Resume original queued implementation: ' + q.title,
+        kind: 'implementation',
+        status: 'ready',
+        priority: 'high',
+        owner: 'engineering-manager',
+        site: q.site,
+        source_type: 'change-request',
+        source_id: q.request_id,
+        created_by: 'exec-overwatch',
+        summary:
+          'Authorized controlled iteration has automatic pickup paused. This original executable request needs an explicit reviewed handoff; it is queued, not a failed worker attempt.',
+        next_action:
+          'Review the original scope and evidence, record a substantive in_progress tracking update on this exact case if safe, then use ordinary worker pickup. Do not duplicate the request or claim delivery before its verified release.',
+        evidence: [
+          { type: 'source', label: 'Original queued change request', detail: q.request_id },
+        ],
+      });
+    store.createWorkflowLink({
+      from_type: 'work-item',
+      from_id: id,
+      to_type: 'request',
+      to_id: q.request_id,
+      relation: 'related_to',
+      created_by: 'exec-overwatch',
+    });
+    cases.push(id);
+  }
+  return cases;
+}
 function readyCases(store, { site = null, agent = null } = {}) {
   return store
     .listExecutiveWorkItems({ limit: 1000 })
     .filter(task => {
+      const queued = task.work_id.startsWith('queued-delivery:');
       if (
-        !task.work_id.startsWith('delivery-recovery:') ||
+        (!queued && !task.work_id.startsWith('delivery-recovery:')) ||
         !['ready', 'open'].includes(task.status) ||
         (site && task.site !== site)
       )
@@ -16,13 +67,23 @@ function readyCases(store, { site = null, agent = null } = {}) {
         task.source_id || task.work_id.slice('delivery-recovery:'.length)
       );
       const run = original?.run_id && store.getImprovement(original.run_id);
-      if (original?.status !== 'failed' || run?.approval?.production_checks?.gate !== 'failed')
+      if (queued) {
+        if (
+          original?.status !== 'queued' ||
+          require('../fleet-dashboard/server/execution-gates').reason(original)
+        )
+          return false;
+      } else if (
+        original?.status !== 'failed' ||
+        run?.approval?.production_checks?.gate !== 'failed'
+      )
         return false;
       if (Number(agent?.workspace?.overwatch_recovery?.[task.work_id]?.attempt_count || 0) >= 2)
         return false;
-      return !evidence
-        .linkedRequests(store, task)
-        .some(q => !['failed', 'cancelled'].includes(q.status));
+      return (
+        queued ||
+        !evidence.linkedRequests(store, task).some(q => !['failed', 'cancelled'].includes(q.status))
+      );
     })
     .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
     .slice(0, 3)
@@ -35,8 +96,15 @@ function readyCases(store, { site = null, agent = null } = {}) {
       next_action: task.next_action,
       evidence: task.evidence,
       source_work_id: task.work_id,
-      instruction:
-        'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts. Distinguish warning annotations from the actual failing step: Node runtime deprecation and future runner migration warnings are not quota errors. Inspect the pinned workflow source and consumers. If archives have no required consumer, use the established fleet pattern: optional archive job, default disabled, requested failures visible; preserve every required install/audit/build/content check, command and version pin. Do not upgrade dependencies to silence unrelated warnings, waive checks, delete archives, change billing or redeploy the old SHA.',
+      recovery_type: task.work_id.startsWith('queued-delivery:')
+        ? 'queued-backlog'
+        : 'production-failure',
+      original_request: task.work_id.startsWith('queued-delivery:')
+        ? store.getChangeRequest(task.source_id)
+        : undefined,
+      instruction: task.work_id.startsWith('queued-delivery:')
+        ? 'Inspect the existing original request and fresh evidence. If its bounded scope is valid, record tracking_updates for this exact work_id with status in_progress, a substantive review summary, acceptance/testing disposition, and next_action ordinary worker pickup. Do not create another request. This resumes authorized original backlog while automatic pickup is paused; it is not a fabricated execution failure. No completed work credit until its actual release.'
+        : 'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts. Distinguish warning annotations from the actual failing step: Node runtime deprecation and future runner migration warnings are not quota errors. Inspect the pinned workflow source and consumers. If archives have no required consumer, use the established fleet pattern: optional archive job, default disabled, requested failures visible; preserve every required install/audit/build/content check, command and version pin. Do not upgrade dependencies to silence unrelated warnings, waive checks, delete archives, change billing or redeploy the old SHA.',
     }));
 }
 async function pickup(root, request) {
@@ -79,15 +147,30 @@ async function trackHandoffs(
   for (const candidate of cases) {
     const task = store.getExecutiveWorkItem(candidate.work_id);
     if (!task) continue;
-    const requests = evidence
-      .linkedRequests(store, task)
+    const queued = candidate.recovery_type === 'queued-backlog';
+    const before = baseline.work?.get(task.work_id);
+    const approved =
+      queued &&
+      task.status === 'in_progress' &&
+      before &&
+      task.next_action !== before.next_action &&
+      task.summary !== before.summary;
+    const requests = (
+      queued && approved
+        ? [store.getChangeRequest(task.source_id)]
+        : queued
+          ? []
+          : evidence.linkedRequests(store, task)
+    )
       .filter(
         q =>
-          !baseline.requests.has(q.request_id) &&
+          q &&
+          (!queued ? !baseline.requests.has(q.request_id) : true) &&
           q.status === 'queued' &&
           ['direct', 'pull_request'].includes(q.delivery_mode) &&
           q.site === task.site
-      );
+      )
+      .slice(0, 1);
     if (!requests.length) continue;
     const current = store.getAgent(agent.agent_id),
       history = current.workspace?.overwatch_recovery || {},
@@ -142,4 +225,9 @@ async function trackHandoffs(
   }
   return tracked;
 }
-module.exports = { readyCases, trackHandoffs, policyRevision: 'delivery-recovery/v2' };
+module.exports = {
+  readyCases,
+  trackHandoffs,
+  policyRevision: 'delivery-recovery/v3',
+  ensureQueuedCases,
+};

@@ -3572,3 +3572,36 @@ test('scoped managers can discover bounded current-source implementation beyond 
     false
   );
 });
+
+test('original queued recovery mandate requires a material review of the supplied original case', () => {
+  const task = {
+    work_id: 'queued-delivery:actual',
+    site: 'example.com',
+    recovery_type: 'queued-backlog',
+    original_request: { status: 'queued' },
+    summary: 'Original needs review',
+    next_action: 'Review',
+  };
+  const brief = {
+    overwatch_directive: { delivery_recovery_cases: [task] },
+    action_mandate: { candidates: [] },
+  };
+  const update = {
+    work_id: task.work_id,
+    status: 'in_progress',
+    summary: 'Reviewed actual source, audit and unchanged destinations',
+    next_action: 'Normal worker pickup; independent review and exact release required',
+  };
+  assert.equal(runner.actionMandateSatisfied({ tracking_updates: [update] }, brief), true);
+  for (const patch of [
+    { work_id: 'invented' },
+    { status: 'done' },
+    { summary: task.summary },
+    { next_action: task.next_action },
+  ])
+    assert.equal(
+      runner.actionMandateSatisfied({ tracking_updates: [{ ...update, ...patch }] }, brief),
+      false
+    );
+  assert.equal(runner.actionMandateSatisfied({ messages: [{ body: 'approved' }] }, brief), false);
+});

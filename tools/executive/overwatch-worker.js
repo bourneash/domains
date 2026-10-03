@@ -275,6 +275,13 @@ function reconcileRecoveryResults(store) {
         verified_at: new Date().toISOString(),
         request_ids: requests.map(row => row.request_id),
       };
+      if (workId.startsWith('queued-delivery:'))
+        store.updateExecutiveWorkItem(workId, {
+          status: 'done',
+          waiting_on: null,
+          next_action:
+            'Original reviewed backlog reached verified connected release; retain request and initiating run receipts.',
+        });
       recovered.push({
         work_id: workId,
         request_ids: history[workId].request_ids,
@@ -353,7 +360,9 @@ function stoppedFingerprint(store) {
     .listExecutiveWorkItems({ quiet: 0, limit: 1000 })
     .filter(
       task =>
-        (task.source_type === 'operating-task' || task.work_id.startsWith('delivery-recovery:')) &&
+        (task.source_type === 'operating-task' ||
+          task.work_id.startsWith('delivery-recovery:') ||
+          task.work_id.startsWith('queued-delivery:')) &&
         !['done', 'cancelled'].includes(task.status)
     );
   const requests = store
@@ -519,6 +528,7 @@ async function main() {
   }
   const reconciledDeliveries = reconcileDeliveryRecoveries(store);
   const recovered = reconcileRecoveryResults(store);
+  deliveryRecovery.ensureQueuedCases(store, { site: process.env.EXECUTIVE_DOMAIN || null });
   const stopFingerprint = stoppedFingerprint(store);
   const preflight = collectEvidence(store);
   const recoveryCases = deliveryRecovery.readyCases(store, {
