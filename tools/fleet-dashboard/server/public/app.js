@@ -17512,7 +17512,7 @@ async function renderExecutive() {
     .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
     ${delayedExecutiveSources.length ? `<div class="fd-stale-banner" role="status"><strong>Some data is delayed or unavailable:</strong> ${esc(delayedExecutiveSources.join(' and '))}. Other workspace data is available; refresh to retry.</div>` : ''}
-    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button" aria-label="Enable alerts" title="Enable executive browser alerts">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" aria-label="${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh" type="button" aria-label="Refresh" title="Refresh executive overview">↻ Refresh</button></div></header>
+    <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button" aria-label="Enable alerts" title="Enable executive browser alerts">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" aria-label="${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button></div></header>
     <section class="ex-kpis">${stat(pendingCount, 'owner decisions', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'internal reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
     <section class="ex-layout">
       <div class="ex-primary">
@@ -17544,7 +17544,6 @@ async function renderExecutive() {
       'beforeend',
       `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
     );
-  $('#ex-refresh').onclick = () => softRender();
   $('#ex-case-search').oninput = event => {
     EXEC_CASE_UI.q = event.target.value.trim();
     EXEC_CASE_UI.selected = null;

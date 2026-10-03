@@ -748,7 +748,11 @@ test('executive visible button labels match their accessible names', () => {
     app,
     /id="ex-notify-read"[^>]*aria-label="\$\{unreadNotifications\.length \? `Mark \$\{unreadNotifications\.length\} alert/
   );
-  assert.match(app, /id="ex-refresh"[^>]*aria-label="Refresh"/);
+  assert.doesNotMatch(app, /id="ex-refresh"/);
+  assert.match(
+    fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8'),
+    /id="refresh"[^>]*aria-label="Refresh dashboard data"/
+  );
   assert.match(app, /id="ex-calendar-new"[^>]*aria-label="＋ Schedule event"/);
 });
 
