@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:01:14.021Z",
+  "generated_at": "2026-10-03T04:23:43.391Z",
   "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject all new production, financial, high-priority, duplicate, and telemetry-request work. Revenue attribution, low-volume telemetry, operations, security, and launch evidence remain insufficient. Preserve existing preview-only gates; CTO must repair the invalid-status handoff and principal-engineer must reconcile the admission ledger without duplicating work. Unresolved blockers escalate by 2026-10-03T17:00Z.",
+        "summary": "Approve only the six isolated, reversible task-ownership metadata repairs. Reject the additional report-only security proposal as duplicative of existing evidence work. Preserve financial, production, launch, security, and telemetry gates: aggregate commission remains unattributed, AI-usage coverage is incomplete, and cost-to-learn, margin, ROI, causal lift, forecasts, and budget exposure are unsupported. Require installed-owner validation and rollback to prior metadata; no site behavior, credentials, configuration, dependencies, telemetry, spending, deployment, or external action.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Reject production, financial, high-priority, duplicate-telemetry, spend, credential, configuration, dependency, and deployment work. Revenue attribution, low-volume telemetry, operations, security, compliance, and launch evidence remain insufficient for those claims. Retain only three isolated low-priority preview implementations for complicated.work, deadlymaracas.com, and driveford.net; unresolved reachability, ownership, compliance, or readiness blockers must be recorded and escalated by 2026-10-03T17:00Z.",
+        "summary": "Material concerns: operations and fleet-doctor evidence remain unavailable; compliance is 36 pass, 19 fail, and 6 unknown; launch and security-sensitive exposure remain blocked. Routing validation, installed-owner confirmation, and reversible metadata rollback are required before any repair is counted as delivered.",
         "requested_action": null,
         "proposal_id": null
       }

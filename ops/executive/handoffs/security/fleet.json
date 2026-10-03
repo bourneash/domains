@@ -2,22 +2,29 @@
   "schema": "executive-handoff/v1",
   "role": "security",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:37:27.917Z",
-  "summary": "security checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:23:43.391Z",
+  "summary": "security checked in 3 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Security disposition: evidence_needed. Approve only isolated preview artifacts for complicated.work, deadlymaracas.com, and driveford.net. Block public launch, production deployment, monetization, analytics activation, credential/configuration changes, dependency additions, and security-sensitive exposure. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security sitefacts are unknown across 61 managed sites; authentication boundaries, secrets handling, runtime isolation, dependency provenance, release controls, monitoring, incident readiness, and security.txt/disclosure readiness are unevidenced. Compliance reports 36 passes, 19 fails, and 6 unknowns; complicated.work fails banner/accept/reject/GA4 checks; deadlymaracas.com is unreachable; analytics are unconfigured. No credential exposure or exploit is evidenced, but missing telemetry is not clearance. Severity: high for production admission, medium for isolated preview work. Exact decision: retain preview-only work with dated readiness artifacts and isolated rollback evidence; preserve all production gates and escalate unresolved evidence by 2026-10-03T17:00:00Z.",
+        "summary": "Security disposition: evidence_needed. Exact decision: approve only the six isolated task-routing metadata repairs, subject to installed-owner validation and rollback to prior metadata; block public launch, production deployment, monetization expansion, analytics activation, credential/configuration changes, dependency additions, and security-sensitive exposure. Evidence: fleet-doctor has no run or findings; operations deploy, uptime, and error sweeps have no results; security site facts are unknown across 61 managed sites; authentication boundaries, secrets handling, runtime isolation, release controls, dependency provenance, monitoring, incident readiness, and disclosure readiness are unevidenced. Compliance reports 36 passes, 19 fails, and 6 unknowns. No credential exposure or exploit is evidenced, but missing telemetry is not clearance. Severity: high for production admission; low for metadata-only routing repairs.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Routing repairs must remain ownership-metadata-only, preserve task text and scope, require validation that the target role is installed, and include rollback to the prior metadata value. They do not clear launch, release, access, secrets, isolation, TLS, dependency, monitoring, incident, or disclosure gates.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "proposal",
-        "title": "Retain security evidence gate for isolated preview work",
-        "summary": "Permit only isolated preview QA for complicated.work, deadlymaracas.com, and driveford.net while retaining blocked public launch, production deployment, monetization, analytics activation, and security-sensitive exposure gates.",
-        "requested_action": "Continue the three isolated preview-only change requests using existing assets and tooling. Require one dated readiness artifact per site covering access boundaries, secrets handling, runtime isolation, release controls, dependency provenance, TLS evidence, data exposure boundaries, monitoring, incident readiness, disclosure readiness, compliance blockers, measurement limits, and rollback. Do not claim security clearance or production readiness.",
+        "title": "Maintain evidence-needed fleet security disposition and conditional routing gate",
+        "summary": "Keep public launch, production deployment, monetization expansion, analytics activation, and security-sensitive exposure blocked because fleet-doctor and operations evidence are unavailable and material security controls remain unevidenced. Permit only the six isolated ownership-metadata repairs with installed-owner validation and rollback.",
+        "requested_action": "Use authorized read-only evidence only to document authentication and access boundaries, secrets handling, runtime isolation, release and deployment controls, TLS, dependency provenance, data exposure, monitoring, incident readiness, and security.txt or disclosure readiness. Do not retrieve credentials, access private containers, exploit targets, modify permissions or production configuration, add dependencies, deploy, or request duplicate telemetry.",
         "proposal_id": null
       }
     ]

@@ -2,21 +2,35 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:37:27.917Z",
-  "summary": "legal checked in 2 executive handoff item(s)",
+  "generated_at": "2026-10-03T04:23:43.391Z",
+  "summary": "legal checked in 4 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for isolated preview-only work; blocked for public launch, monetization, analytics activation, and production exposure. Evidence: compliance is technical-only with 36 passes, 19 fails, and 6 unknowns; complicated.work fails banner/accept/reject/GA4 checks; deadlymaracas.com is unreachable; analytics are unconfigured; operations and fleet-doctor evidence are unavailable; affiliate commission is aggregate and unattributed. Exact decision: retain the three isolated preview change requests only, with no publication, deployment, telemetry activation, affiliate setup, spend, dependency, credential, configuration, or schedule changes. Do not close the launch-readiness workstream or approve go-live. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and any future affiliate or advertising use.",
+        "summary": "Risk disposition: blocked for public launch, bounded public beta, monetization expansion, analytics activation, and production exposure; conditional for the six isolated task-routing metadata repairs. Evidence: compliance is technical-only at 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; revenue is aggregate and unattributed; AI-usage coverage is incomplete. Exact decision: retain only ownership-metadata repairs with routing validation and rollback to prior metadata. Preserve all launch gates. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and future affiliate or advertising use.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness progress: 0 of 4 legal tasks are evidenced as complete; none may be closed. Existing evidence confirms the Woot API access mechanism but not public redistribution, storage, derivative, display, alert, affiliate, or advertising rights. The next evidence action is to attach a read-only data-flow, retention, consent/configuration, and vendor/log evidence bundle to the checklist; separately prepare, but do not send, a Woot permission request pending owner authorization and human-counsel review.",
+        "summary": "Launch-readiness tracking remains active: 0 of 4 legal tasks are evidenced complete and none may be closed. Next evidence action: attach one read-only bundle covering source rights/data flow, retention and deletion, consent and GA4 configuration, and logs/vendors/incident handling. Prepare but do not send the upstream permission request pending owner authorization and human-counsel review.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Data-use dispositions: Woot deal and price-history data is counsel_required because public terms conflict with proposed storage, derivatives, display, alerts, and commercial use; missing written permission and field-level rights, with the smallest next action being a draft permission request plus field matrix. User alert rules and sync results are evidence_needed pending inventory, retention, deletion/correction, processor, consent, and unsubscribe evidence; next action is a repository/configuration data-flow table. GA4 is evidence_needed pending deployed consent behavior, property/data-sharing settings, retention, vendor disclosure, and jurisdiction review; next action is read-only configuration capture. Operational logs and Cloudflare data are evidence_needed pending log fields, retention/access controls, vendor terms or DPA coverage, and incident/request procedures; next action is a read-only vendor and log inventory.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "The six routing repairs do not change site content, tracking, credentials, configuration, monetization, or production behavior. They may proceed conditionally only if routing validation confirms an installed owner and rollback restores the prior ownership metadata. This does not clear any launch, security, analytics, attribution, or financial gate.",
         "requested_action": null,
         "proposal_id": null
       }
