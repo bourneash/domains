@@ -840,5 +840,16 @@
       "build": "9585963d-0005-4cc4-aea2-25c90ecd1baa",
       "outcome": "success"
     }
+  },
+  "rodhatAmazonOnlyFollowUp": {
+    "ownerInstruction": "Amazon is the only commercial program",
+    "commit": "ec9fe2da5c9c139b4a1732da472961b102c27c76",
+    "connectedBuild": "bfaa23e7-9fc8-4b39-beb9-33497c57f553",
+    "buildOutcome": "success",
+    "liveAmazonRoutes": 18,
+    "retiredVendorRoutes": 10,
+    "liveChecks": "passed",
+    "newShelf": "https://rodhat.com/books-and-gear/",
+    "dependencyAudit": "Existing upstream dependency findings remain unresolved; local build, source, SEO and Amazon-only guards passed. Audit checks were not disabled."
   }
 }

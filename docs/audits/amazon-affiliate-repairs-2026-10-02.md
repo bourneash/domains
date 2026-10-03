@@ -44,3 +44,9 @@ The screenshot below is cropped to country assignments only; blue means assigned
 ![Existing bank country assignments](amazon-global-payment-countries-2026-10-02.png)
 
 Sanitized evidence: `amazon-affiliate-repairs-2026-10-02.json`. No bank numbers, routing numbers, tax-interview URLs, credentials or session cookies are included. Repairs establish working attribution, not a guaranteed conversion uplift.
+
+## Subsequent owner instruction: Amazon only
+
+The owner clarified that Rodhat must use Amazon exclusively. Commit `ec9fe2d` removes the ten vendor entries, updates five affected articles with accurately described Amazon book recommendations, adds `/books-and-gear/` with 18 tagged commercial entries, and retires old vendor routes with a clear notice. Approved non-Amazon partner links are no longer requested or needed. Every build enforces the Amazon-only commercial policy. See `sites/rodhat.com/ops/reports/2026-10-02-amazon-only-commercial-links.md` for implementation and existing dependency-audit limitations.
+
+Connected Cloudflare build `bfaa23e7-9fc8-4b39-beb9-33497c57f553` succeeded for `ec9fe2d`. Production checks passed for all 18 Amazon commercial routes, all ten retirement notices, and the new shopping shelf. International payout settings remain unchanged; the six-country assignment confirmation is still open in CloakBrowser.
