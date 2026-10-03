@@ -164,6 +164,17 @@ test('executive conversation route skips unrelated control-plane requests', () =
   );
 });
 
+test('executive UI loads compact telemetry instead of the model brief', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /api\('GET', '\/api\/executive\/telemetry-summary'\)/);
+  assert.match(app, /telemetry\.analytics_sites/);
+  assert.match(app, /telemetry\.commission_income/);
+  assert.match(app, /telemetry\.ai_calls/);
+  assert.match(app, /telemetry\.ai_tokens/);
+  assert.match(app, /telemetry\.ai_cost/);
+  assert.doesNotMatch(app, /loadExecutiveBrief\(\)/);
+});
+
 test('knowledge shelf is a first-class operator route', () => {
   assert.equal(routeFor('#knowledge').view, 'knowledge');
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');

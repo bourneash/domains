@@ -49,30 +49,30 @@ const SITE_CATALOG_VIEWS = new Set([
   'automation',
 ]);
 const EXEC_RUN = { poller: null };
-const EXEC_BRIEF_CACHE_TTL_MS = 30000;
-let EXEC_BRIEF_CACHE = null;
-let EXEC_BRIEF_CACHE_AT = 0;
-let EXEC_BRIEF_PENDING = null;
+const EXEC_TELEMETRY_CACHE_TTL_MS = 30000;
+let EXEC_TELEMETRY_CACHE = null;
+let EXEC_TELEMETRY_CACHE_AT = 0;
+let EXEC_TELEMETRY_PENDING = null;
 let EXEC_BRIEF_GENERATION = 0;
 
-function loadExecutiveBrief() {
+function loadExecutiveTelemetry() {
   if (
-    EXEC_BRIEF_CACHE &&
-    Date.now() - EXEC_BRIEF_CACHE_AT < EXEC_BRIEF_CACHE_TTL_MS
+    EXEC_TELEMETRY_CACHE &&
+    Date.now() - EXEC_TELEMETRY_CACHE_AT < EXEC_TELEMETRY_CACHE_TTL_MS
   )
-    return Promise.resolve(EXEC_BRIEF_CACHE);
-  if (EXEC_BRIEF_PENDING) return EXEC_BRIEF_PENDING;
+    return Promise.resolve(EXEC_TELEMETRY_CACHE);
+  if (EXEC_TELEMETRY_PENDING) return EXEC_TELEMETRY_PENDING;
   let pending;
-  pending = api('GET', '/api/executive/brief')
+  pending = api('GET', '/api/executive/telemetry-summary')
     .then(data => {
-      EXEC_BRIEF_CACHE = data;
-      EXEC_BRIEF_CACHE_AT = Date.now();
+      EXEC_TELEMETRY_CACHE = data;
+      EXEC_TELEMETRY_CACHE_AT = Date.now();
       return data;
     })
     .finally(() => {
-      if (EXEC_BRIEF_PENDING === pending) EXEC_BRIEF_PENDING = null;
+      if (EXEC_TELEMETRY_PENDING === pending) EXEC_TELEMETRY_PENDING = null;
     });
-  EXEC_BRIEF_PENDING = pending;
+  EXEC_TELEMETRY_PENDING = pending;
   return pending;
 }
 
@@ -14896,7 +14896,7 @@ async function renderExecutive() {
       `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
     );
   $('#ex-refresh').onclick = () => {
-    EXEC_BRIEF_CACHE = null;
+    EXEC_TELEMETRY_CACHE = null;
     softRender();
   };
   $('#ex-case-search').oninput = event => {
@@ -15413,28 +15413,26 @@ async function renderExecutive() {
   wireCrumbs();
   stamp();
   if (!conversationOnly) {
-    loadExecutiveBrief()
-      .then(data => {
+    loadExecutiveTelemetry()
+      .then(telemetry => {
         const currentRoute = `${STATE.view}:${STATE.agent || ''}:${STATE.agentPage || ''}`;
         if (briefGeneration !== EXEC_BRIEF_GENERATION || currentRoute !== briefRoute) return;
-        const brief = data.brief || {};
-        const intel = brief.intelligence || {};
-        const usage = intel.ai_usage || {};
-        const calls = usage.summary?.calls;
-        const tokens = usage.summary?.total_tokens ?? usage.summary?.tokens ?? '—';
-        const cost = usage.summary?.total_cost_usd;
         const callsValue = $('#ex-ai-calls b');
         if (callsValue)
-          callsValue.textContent = calls == null ? '—' : Number(calls).toLocaleString();
+          callsValue.textContent =
+            telemetry.ai_calls == null ? '—' : Number(telemetry.ai_calls).toLocaleString();
         const generatedAt = $('#ex-fleet-signals-at');
-        if (generatedAt) generatedAt.textContent = fmtDate(brief.generated_at);
+        if (generatedAt) generatedAt.textContent = fmtDate(telemetry.generated_at);
         const miniGrid = $('#ex-fleet-signals .ex-mini-grid');
         if (miniGrid)
           miniGrid.innerHTML =
-            stat(intel.analytics?.configured_sites ?? '—', 'analytics sites') +
-            stat(intel.revenue?.commission_income ?? '—', 'commission income') +
-            stat(tokens, 'AI tokens') +
-            stat(cost == null ? '—' : `$${Number(cost).toFixed(2)}`, 'telemetry cost');
+            stat(telemetry.analytics_sites ?? '—', 'analytics sites') +
+            stat(telemetry.commission_income ?? '—', 'commission income') +
+            stat(telemetry.ai_tokens ?? '—', 'AI tokens') +
+            stat(
+              telemetry.ai_cost == null ? '—' : `$${Number(telemetry.ai_cost).toFixed(2)}`,
+              'telemetry cost'
+            );
       })
       .catch(() => {});
   }

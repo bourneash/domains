@@ -4171,6 +4171,51 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       res.status(e.httpStatus || 500).json({ error: e.message });
     }
   });
+  // Fleet Manager only needs a few small telemetry values for its Executive
+  // header. Keep this separate from the multi-megabyte model brief, which
+  // gathers decision evidence and remains available to executive workflows.
+  app.get('/api/executive/telemetry-summary', async (_req, res) => {
+    const now = new Date();
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+      .toISOString()
+      .slice(0, 10);
+    const to = now.toISOString().slice(0, 10);
+    const [analyticsResult, revenueResult, usageResult] = await Promise.allSettled([
+      analytics.health(),
+      Promise.resolve().then(() => revenue.amazonSummary(root)),
+      aiusage.fleet(root, { from, to }),
+    ]);
+    const analyticsData = analyticsResult.status === 'fulfilled' ? analyticsResult.value : null;
+    const revenueData = revenueResult.status === 'fulfilled' ? revenueResult.value : null;
+    const usageData = usageResult.status === 'fulfilled' ? usageResult.value : null;
+    const managedSites = new Set(executiveRunner.executiveSites(root));
+    const tokenRows = (usageData?.by_site || []).filter(
+      row => row.site === '_fleet' || managedSites.has(row.site)
+    );
+    res.json({
+      generated_at: now.toISOString(),
+      analytics_sites: analyticsData?.sites ? Object.keys(analyticsData.sites).length : null,
+      commission_income: revenueData?.commission_income ?? null,
+      ai_calls: usageData?.summary?.calls ?? null,
+      ai_tokens: usageData
+        ? tokenRows.reduce(
+            (total, row) =>
+              total +
+              [
+                'input_tokens',
+                'output_tokens',
+                'cache_creation_input_tokens',
+                'cache_read_input_tokens',
+              ].reduce(
+                (tokens, key) => tokens + (Number(row[key]) || 0),
+                0
+              ),
+            0
+          )
+        : null,
+      ai_cost: usageData?.summary?.total_cost_usd ?? null,
+    });
+  });
   // Shared read-only intelligence contract for CEO/CTO/CRO and UI diagnostics.
   app.get('/api/executive/intelligence', async (_req, res) => {
     try {

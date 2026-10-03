@@ -153,6 +153,27 @@ test('Product Manager summary returns role messages and proposals in one scoped 
   assert.ok(Buffer.byteLength(JSON.stringify(response.body)) < 5000);
 });
 
+test('executive telemetry summary stays compact and degrades missing sources safely', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-telemetry-e2e-'));
+  const server = createApp({ root }).listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => new Promise(resolve => server.close(resolve)));
+
+  const response = await request(server, 'GET', '/api/executive/telemetry-summary');
+  assert.equal(response.status, 200);
+  assert.equal(typeof response.body.generated_at, 'string');
+  assert.ok(
+    response.body.analytics_sites === null || typeof response.body.analytics_sites === 'number'
+  );
+  assert.ok(
+    response.body.commission_income === null || typeof response.body.commission_income === 'number'
+  );
+  assert.ok(response.body.ai_calls === null || typeof response.body.ai_calls === 'number');
+  assert.ok(response.body.ai_tokens === null || typeof response.body.ai_tokens === 'number');
+  assert.ok(response.body.ai_cost === null || typeof response.body.ai_cost === 'number');
+  assert.ok(Buffer.byteLength(JSON.stringify(response.body)) < 1000);
+});
+
 test('executive transcript pages events and loads full text only on request', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-executive-transcript-page-e2e-'));
   const server = createApp({ root }).listen(0, '127.0.0.1');
