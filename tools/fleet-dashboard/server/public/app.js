@@ -3892,6 +3892,19 @@ function loadRoleMatrix() {
   ROLEMATRIX_PENDING = pending;
   return pending;
 }
+globalThis.fleetLoadRoleMatrix = loadRoleMatrix;
+
+let FLEET_CONTAINERS_PENDING = null;
+function loadFleetContainers() {
+  if (FLEET_CONTAINERS_PENDING) return FLEET_CONTAINERS_PENDING;
+  let pending;
+  pending = api('GET', '/api/containers').finally(() => {
+    if (FLEET_CONTAINERS_PENDING === pending) FLEET_CONTAINERS_PENDING = null;
+  });
+  FLEET_CONTAINERS_PENDING = pending;
+  return pending;
+}
+globalThis.fleetLoadContainers = loadFleetContainers;
 
 // Live-follow: every few seconds, re-tail any open log surface (container log
 // panels on the Containers tab, and the role-log modal). Stops itself when the
@@ -4872,7 +4885,7 @@ async function renderContainers() {
   if (FRESH) app.innerHTML = '<div class="loading">Listing containers…</div>';
   let rows;
   try {
-    rows = await api('GET', '/api/containers');
+    rows = await loadFleetContainers();
   } catch (e) {
     renderViewError(app, `Container list failed: ${e.message}`);
     return;

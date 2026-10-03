@@ -213,16 +213,29 @@
 
   async function loadVitals() {
     try {
-      const [rRes, cRes] = await Promise.all([
-        fetch('/api/roles', { credentials: 'same-origin' }),
-        fetch('/api/containers', { credentials: 'same-origin' }),
+      const rolesPromise =
+        typeof globalThis.fleetLoadRoleMatrix === 'function'
+          ? globalThis.fleetLoadRoleMatrix()
+          : fetch('/api/roles', { credentials: 'same-origin' }).then(r => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json();
+            });
+      const containersPromise =
+        typeof globalThis.fleetLoadContainers === 'function'
+          ? globalThis.fleetLoadContainers()
+          : fetch('/api/containers', { credentials: 'same-origin' }).then(r => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json();
+            });
+      const [roles, containers] = await Promise.all([
+        rolesPromise,
+        containersPromise,
       ]);
-      if (!rRes.ok || !cRes.ok) {
+      if (!Array.isArray(containers)) {
         rail.classList.add('hidden');
         return;
       }
-      const roles = await rRes.json();
-      const allCts = await cRes.json();
+      const allCts = containers;
       // The containers tile is the one cell that gets scoped to whatever page
       // it's sitting above: on Social Hub it has no business showing the
       // fleet's 70+ containers (dev sandboxes, every site's crons, ...) when
