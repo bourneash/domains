@@ -30,6 +30,8 @@ const MATRIX_CACHE_TTL_MS = 30000;
 const LOG_FILENAME_GRACE_MS = 2 * 86400000;
 const matrixCache = new Map();
 const matrixPending = new Map();
+const vitalsCache = new Map();
+const vitalsPending = new Map();
 const matrixEpoch = new Map();
 
 function invalidateMatrix(root) {
@@ -40,6 +42,12 @@ function invalidateMatrix(root) {
   }
   for (const key of matrixPending.keys()) {
     if (key.startsWith(prefix)) matrixPending.delete(key);
+  }
+  for (const key of vitalsCache.keys()) {
+    if (key.startsWith(prefix)) vitalsCache.delete(key);
+  }
+  for (const key of vitalsPending.keys()) {
+    if (key.startsWith(prefix)) vitalsPending.delete(key);
   }
 }
 const FLEET_EXECUTIVE_ROLES = [
@@ -422,9 +430,61 @@ async function matrix(root, slugs, onlyRoles = null, { includeEditorial = true }
   return refresh;
 }
 
-async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = true) {
+function summarizeMatrix(data) {
+  const summary = {
+    siteCount: data.sites.length,
+    roleCount: data.roles.length,
+    total: 0,
+    fresh: 0,
+    stale: 0,
+    overdue: 0,
+    paused: 0,
+  };
+  for (const site of data.sites) {
+    for (const cell of Object.values(site.cells)) {
+      if (!cell?.scheduled) continue;
+      summary.total++;
+      if (cell.enabled === false) summary.paused++;
+      else if (cell.state === 'fresh') summary.fresh++;
+      else if (cell.state === 'stale') summary.stale++;
+      else if (cell.state === 'overdue') summary.overdue++;
+    }
+  }
+  return summary;
+}
+
+async function vitals(root, slugs) {
+  const key = `${root}\0${slugs.join('\0')}`;
+  const fullKeys = [`${root}\0${slugs.join('\0')}\0*\0status`, `${root}\0${slugs.join('\0')}\0*\0editorial`];
+  for (const fullKey of fullKeys) {
+    const full = matrixCache.get(fullKey);
+    if (full && Date.now() - full.at < MATRIX_CACHE_TTL_MS) return summarizeMatrix(full.data);
+  }
+  for (const fullKey of fullKeys) {
+    const pendingMatrix = matrixPending.get(fullKey);
+    if (pendingMatrix) return pendingMatrix.then(summarizeMatrix);
+  }
+  const cached = vitalsCache.get(key);
+  if (cached && Date.now() - cached.at < MATRIX_CACHE_TTL_MS) return cached.data;
+  const existing = vitalsPending.get(key);
+  if (existing) return existing;
+  const epoch = matrixEpoch.get(root) || 0;
+  const refresh = buildMatrix(root, slugs, null, false, true)
+    .then(summary => {
+      if ((matrixEpoch.get(root) || 0) === epoch) vitalsCache.set(key, { at: Date.now(), data: summary });
+      return summary;
+    })
+    .finally(() => {
+      if (vitalsPending.get(key) === refresh) vitalsPending.delete(key);
+    });
+  vitalsPending.set(key, refresh);
+  return refresh;
+}
+
+async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = true, summaryOnly = false) {
   const now = Date.now();
   const freq = {};
+  const summary = { siteCount: 0, roleCount: 0, total: 0, fresh: 0, stale: 0, overdue: 0, paused: 0 };
   const parsedBySlug = new Map();
   const deployerSlugs = [];
   const selected = onlyRoles ? new Set(onlyRoles) : null;
@@ -454,11 +514,14 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
       const parsed = parsedBySlug.get(slug) || [];
       const logIndex = createLogIndex(cwd);
       const cells = {};
+      const seenRoles = new Set();
+      let hasRows = false;
       for (const { role, schedule, worker, commented } of parsed) {
         if (selected && !selected.has(role)) continue;
-        if (cells[role]) continue; // first schedule wins on dupes
+        if (seenRoles.has(role)) continue; // first schedule wins on dupes
+        seenRoles.add(role);
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
-        const last = enabled ? lastRun(cwd, role, logIndex) : null;
+        const last = enabled && !(summaryOnly && role === 'deployer') ? lastRun(cwd, role, logIndex) : null;
         let { state, age } = commented
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);
@@ -486,7 +549,7 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
           } else if (bh && ['deploying', 'behind'].includes(bh.status)) {
             state = 'stale'; // pending/behind is attention, not confirmed failure
           } else state = 'fresh'; // in sync + (CF confirms live, or no CF data)
-          if (bh)
+          if (bh && !summaryOnly)
             build = {
               ok: bh.ok,
               live: bh.live,
@@ -500,13 +563,23 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
               deployedAt: bh.deployedAt,
               error: bh.error,
             };
-          deploy = {
+          if (!summaryOnly) deploy = {
             ahead: g.ahead || 0,
             dirty: g.dirty || 0,
             branch: g.branch || null,
             pushed,
             build,
           };
+        }
+        if (summaryOnly) {
+          hasRows = true;
+          summary.total++;
+          if (!enabled) summary.paused++;
+          else if (state === 'fresh') summary.fresh++;
+          else if (state === 'stale') summary.stale++;
+          else if (state === 'overdue') summary.overdue++;
+          freq[role] = (freq[role] || 0) + 1;
+          continue;
         }
         cells[role] = {
           scheduled: true,
@@ -523,9 +596,14 @@ async function buildMatrix(root, slugs, onlyRoles = null, includeEditorial = tru
         };
         freq[role] = (freq[role] || 0) + 1;
       }
-      return { site: slug, cells };
+      return summaryOnly ? { site: slug, cells, hasRows } : { site: slug, cells };
     })
-    .filter(s => Object.keys(s.cells).length);
+    .filter(s => summaryOnly ? s.hasRows : Object.keys(s.cells).length);
+  if (summaryOnly) {
+    summary.siteCount = sites.length;
+    summary.roleCount = Object.keys(freq).length;
+    return summary;
+  }
   const roles = Object.keys(freq).sort((a, b) => freq[b] - freq[a] || a.localeCompare(b));
   // Keep the canonical discovery set alongside the sparse matrix. The matrix
   // intentionally omits sites with no scheduled roles, but agent pages need
@@ -851,6 +929,7 @@ function agents(root, slugs) {
 
 module.exports = {
   matrix,
+  vitals,
   agentMatrix,
   invalidateMatrix,
   health,

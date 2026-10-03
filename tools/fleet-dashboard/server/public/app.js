@@ -111,6 +111,9 @@ function invalidateAgentRole(role) {
   ROLEMATRIX_AT = 0;
   ROLEMATRIX_EPOCH++;
   ROLEMATRIX_PENDING = null;
+  ROLE_VITALS_EPOCH++;
+  ROLE_VITALS_CACHE = null;
+  ROLE_VITALS_PENDING = null;
   AGENT_MATRIX_CACHE.clear();
   AGENT_MATRIX_PENDING.clear();
   for (const [key, epoch] of AGENT_MATRIX_EPOCH) AGENT_MATRIX_EPOCH.set(key, epoch + 1);
@@ -3885,6 +3888,9 @@ let ROLEMATRIX_AT = 0;
 let ROLEMATRIX_PENDING = null;
 let ROLEMATRIX_EPOCH = 0;
 let ROLE_OPEN = null; // {site, role} while the role-log modal is open (for live-follow)
+let ROLE_VITALS_CACHE = null;
+let ROLE_VITALS_PENDING = null;
+let ROLE_VITALS_EPOCH = 0;
 const AGENT_MATRIX_CACHE = new Map();
 const AGENT_MATRIX_PENDING = new Map();
 const AGENT_MATRIX_EPOCH = new Map();
@@ -3908,6 +3914,25 @@ function loadRoleMatrix() {
   return pending;
 }
 globalThis.fleetLoadRoleMatrix = loadRoleMatrix;
+
+function loadRoleVitals() {
+  if (ROLE_VITALS_CACHE && Date.now() - ROLE_VITALS_CACHE.at < 30000)
+    return Promise.resolve(ROLE_VITALS_CACHE.data);
+  if (ROLE_VITALS_PENDING) return ROLE_VITALS_PENDING;
+  const epoch = ROLE_VITALS_EPOCH;
+  let pending;
+  pending = api('GET', '/api/roles/vitals')
+    .then(data => {
+      if (ROLE_VITALS_EPOCH === epoch) ROLE_VITALS_CACHE = { at: Date.now(), data };
+      return data;
+    })
+    .finally(() => {
+      if (ROLE_VITALS_PENDING === pending) ROLE_VITALS_PENDING = null;
+    });
+  ROLE_VITALS_PENDING = pending;
+  return pending;
+}
+globalThis.fleetLoadRoleVitals = loadRoleVitals;
 
 function loadAgentRoleMatrix(role) {
   const cached = AGENT_MATRIX_CACHE.get(role);

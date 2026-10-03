@@ -192,6 +192,15 @@ test('sidebar category navigation and disclosure use separate controls', () => {
   assert.match(theme, /\.rail-folded \.rl-fold\s*\{[^}]*position:\s*absolute;[^}]*z-index:\s*3;/s);
 });
 
+test('fleet vitals use a compact role summary outside Domain Control', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
+  assert.match(app, /globalThis\.fleetLoadRoleVitals = loadRoleVitals/);
+  assert.match(shell, /const controlView = document\.body\.dataset\.view === 'control'/);
+  assert.match(shell, /globalThis\.fleetLoadRoleVitals\(\)/);
+  assert.match(shell, /\/api\/roles\/vitals/);
+});
+
 test('sidebar supports persistent favorites and reordering', () => {
   const shell = fs.readFileSync(path.join(publicDir, 'shell.js'), 'utf8');
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');

@@ -213,10 +213,17 @@
 
   async function loadVitals() {
     try {
-      const rolesPromise =
-        typeof globalThis.fleetLoadRoleMatrix === 'function'
+      const controlView = document.body.dataset.view === 'control';
+      const rolesPromise = controlView
+        ? typeof globalThis.fleetLoadRoleMatrix === 'function'
           ? globalThis.fleetLoadRoleMatrix()
           : fetch('/api/roles', { credentials: 'same-origin' }).then(r => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.json();
+            })
+        : typeof globalThis.fleetLoadRoleVitals === 'function'
+          ? globalThis.fleetLoadRoleVitals()
+          : fetch('/api/roles/vitals', { credentials: 'same-origin' }).then(r => {
               if (!r.ok) throw new Error(`HTTP ${r.status}`);
               return r.json();
             });
@@ -244,22 +251,27 @@
       const socialScoped = document.body.dataset.view === 'socialhub';
       const cts = socialScoped ? allCts.filter(c => /social-hub/i.test(c.name || '')) : allCts;
 
-      let fresh = 0,
-        stale = 0,
-        overdue = 0,
-        paused = 0,
-        total = 0;
-      for (const s of roles.sites || []) {
-        for (const c of Object.values(s.cells || {})) {
-          if (!c || !c.scheduled) continue;
-          total++;
-          if (c.enabled === false) {
-            paused++;
-            continue;
+      const matrix = Array.isArray(roles.sites);
+      let fresh = matrix ? 0 : roles.fresh,
+        stale = matrix ? 0 : roles.stale,
+        overdue = matrix ? 0 : roles.overdue,
+        paused = matrix ? 0 : roles.paused,
+        total = matrix ? 0 : roles.total;
+      const siteCount = matrix ? roles.sites.length : roles.siteCount;
+      const roleCount = matrix ? roles.roles.length : roles.roleCount;
+      if (matrix) {
+        for (const s of roles.sites) {
+          for (const c of Object.values(s.cells || {})) {
+            if (!c || !c.scheduled) continue;
+            total++;
+            if (c.enabled === false) {
+              paused++;
+              continue;
+            }
+            if (c.state === 'fresh') fresh++;
+            else if (c.state === 'stale') stale++;
+            else if (c.state === 'overdue') overdue++;
           }
-          if (c.state === 'fresh') fresh++;
-          else if (c.state === 'stale') stale++;
-          else if (c.state === 'overdue') overdue++;
         }
       }
       const live = total - paused || 1;
@@ -274,8 +286,8 @@
 
       setVal(
         'sites',
-        String((roles.sites || []).length),
-        `${(roles.roles || []).length} distinct roles`
+        String(siteCount),
+        `${roleCount} distinct roles`
       );
       setMeter('sites', 100);
 
@@ -747,10 +759,11 @@
       const v = document.body.dataset.view;
       if (v === last) return;
       const enteringOrLeavingSocial = v === 'socialhub' || last === 'socialhub';
+      const enteringOrLeavingControl = v === 'control' || last === 'control';
       last = v;
       // The containers tile scopes to Social Hub — refetch immediately on
       // entering/leaving it instead of waiting up to 30s for the next poll.
-      if (enteringOrLeavingSocial) loadVitals();
+      if (enteringOrLeavingSocial || enteringOrLeavingControl) loadVitals();
       if (reduce) return;
       main.classList.remove('view-enter');
       void main.offsetWidth;

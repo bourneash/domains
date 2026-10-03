@@ -7203,6 +7203,14 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   });
 
+  app.get('/api/roles/vitals', async (_req, res) => {
+    try {
+      res.json(await roles.vitals(root, discoverSites(root)));
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Agent overview pages need one role's site rows, not the full role matrix.
   app.get('/api/agents/:role/matrix', async (req, res) => {
     if (!/^[a-z0-9][a-z0-9-]{0,79}$/i.test(req.params.role))
