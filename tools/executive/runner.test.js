@@ -3381,6 +3381,11 @@ test('manager implementation evidence reads refreshed remote source without chan
       '<nav>Remote header</nav>'
     );
     fs.writeFileSync(path.join(peer, 'site/src/pages/shipped.astro'), '<h1>Already shipped</h1>');
+    fs.mkdirSync(path.join(peer, '.github/workflows'), { recursive: true });
+    fs.writeFileSync(
+      path.join(peer, '.github/workflows/security-and-build.yml'),
+      'name: Actual remote required workflow'
+    );
     git(peer, ['add', '.']);
     git(peer, ['commit', '-m', 'shipped']);
     git(peer, ['push']);
@@ -3400,6 +3405,11 @@ test('manager implementation evidence reads refreshed remote source without chan
         .excerpts.join(''),
       /Remote header/
     );
+    const workflow = manager.source_documents.find(
+      x => x.path === '.github/workflows/security-and-build.yml'
+    );
+    assert.equal(workflow.source_commit, receipt.commit);
+    assert.match(workflow.excerpts.join(''), /Actual remote required workflow/);
     assert.equal(
       fs.readFileSync(path.join(cwd, 'site/src/pages/index.astro'), 'utf8'),
       '<h1>Unrelated local edit</h1>'
@@ -3475,4 +3485,43 @@ test('owned release failures and recovery cases survive unrelated fleet history 
   const prompt = runner.buildPassPrompt(brief, 'domain-manager');
   assert.match(prompt, /Artifact storage quota/);
   assert.match(prompt, /original-recovery/);
+});
+
+test('Overwatch recovery mandate requires a same-site original-case implementation handoff', () => {
+  const brief = {
+    overwatch_directive: {
+      delivery_recovery_cases: [{ work_id: 'delivery-recovery:original', site: 'example.com' }],
+    },
+    action_mandate: {
+      candidates: [
+        {
+          site: 'other.com',
+          key: 'task-execution:other',
+          title: 'Unrelated task',
+          type: 'engineering',
+        },
+      ],
+    },
+  };
+  const q = {
+    site: 'example.com',
+    source_work_id: 'delivery-recovery:original',
+    title: 'Repair actual CI prerequisite',
+    delivery_mode: 'direct',
+  };
+  assert.equal(runner.actionMandateSatisfied({ change_requests: [q] }, brief), true);
+  assert.deepEqual(
+    runner.buildActionMandateFallback({ change_requests: [q] }, brief).change_requests,
+    [q]
+  );
+  for (const patch of [
+    { site: 'other.com' },
+    { source_work_id: 'invented' },
+    { delivery_mode: 'report_only' },
+  ])
+    assert.equal(
+      runner.actionMandateSatisfied({ change_requests: [{ ...q, ...patch }] }, brief),
+      false
+    );
+  assert.equal(runner.actionMandateSatisfied({ messages: [{ body: 'recovered' }] }, brief), false);
 });

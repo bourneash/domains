@@ -36,7 +36,7 @@ function readyCases(store, { site = null, agent = null } = {}) {
       evidence: task.evidence,
       source_work_id: task.work_id,
       instruction:
-        'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts.',
+        'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts. Distinguish warning annotations from the actual failing step: Node runtime deprecation and future runner migration warnings are not quota errors. Inspect the pinned workflow source and consumers. If archives have no required consumer, use the established fleet pattern: optional archive job, default disabled, requested failures visible; preserve every required install/audit/build/content check, command and version pin. Do not upgrade dependencies to silence unrelated warnings, waive checks, delete archives, change billing or redeploy the old SHA.',
     }));
 }
 async function pickup(root, request) {
@@ -142,4 +142,4 @@ async function trackHandoffs(
   }
   return tracked;
 }
-module.exports = { readyCases, trackHandoffs };
+module.exports = { readyCases, trackHandoffs, policyRevision: 'delivery-recovery/v2' };

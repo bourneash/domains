@@ -544,7 +544,10 @@ function buildDomainManagerContext(root = ROOT) {
   };
   const siteRoot = path.join(root, 'sites', focus);
   const readSource = relative => {
-    if (sourceRevision.commit && relative.startsWith('site/')) {
+    if (
+      sourceRevision.commit &&
+      (relative.startsWith('site/') || relative.startsWith('.github/workflows/'))
+    ) {
       try {
         return require('node:child_process').execFileSync(
           'git',
@@ -694,6 +697,8 @@ function buildDomainManagerContext(root = ROOT) {
     route_inventory_complete: Boolean(sourceRevision.commit) && routeInventory.length < 200,
     source_documents: [
       'CLAUDE.md',
+      '.github/workflows/security-and-build.yml',
+      'site/package.json',
       'site/CLAUDE.md',
       'site/src/styles/global.css',
       'site/src/pages/index.astro',
@@ -722,7 +727,10 @@ function buildDomainManagerContext(root = ROOT) {
         return [
           {
             path: relative,
-            source_commit: relative.startsWith('site/') ? sourceRevision.commit : null,
+            source_commit:
+              relative.startsWith('site/') || relative.startsWith('.github/workflows/')
+                ? sourceRevision.commit
+                : null,
             candidate_key: relative.startsWith('ops/tasks/backlog/')
               ? `task-execution:${focus}:${path.basename(relative)}`
               : null,
@@ -3056,7 +3064,23 @@ function isDirectActionCandidate(item = {}, brief = {}) {
   );
 }
 
+function recoveryHandoffs(requests = [], brief = {}) {
+  const cases = brief.overwatch_directive?.delivery_recovery_cases || [];
+  return requests.filter(
+    request =>
+      String(request.delivery_mode || '').toLowerCase() !== 'report_only' &&
+      cases.some(
+        task =>
+          task.work_id === request.source_work_id &&
+          task.site === request.site &&
+          task.work_id.startsWith('delivery-recovery:')
+      )
+  );
+}
+
 function actionMandateSatisfied(plan = {}, brief = {}) {
+  if (brief.overwatch_directive?.delivery_recovery_cases?.length)
+    return recoveryHandoffs(plan.change_requests || [], brief).length > 0;
   const candidates = brief.action_mandate?.candidates || [];
   const hasDirect = planHasDirectImplementation(plan);
   const hasBoundedBlocker = (plan.work_items || []).some(item =>
@@ -4245,6 +4269,7 @@ function drainFailureDiagnostics(store, { root = ROOT, maxQueue = 3 } = {}) {
 // silent no-op. This fallback uses only candidates already present in the
 // trusted brief and creates bounded, reversible queue work.
 function buildActionMandateFallback(plan = {}, brief = {}) {
+  if (recoveryHandoffs(plan.change_requests || [], brief).length) return plan;
   const basePlan = {
     messages: [],
     proposal_reviews: [],

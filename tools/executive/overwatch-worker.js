@@ -367,6 +367,7 @@ function stoppedFingerprint(store) {
     .createHash('sha256')
     .update(
       JSON.stringify({
+        recovery_policy_revision: deliveryRecovery.policyRevision,
         tasks: tasks.map(task => [task.work_id, workEvidence.fingerprint(store, task)]).sort(),
         requests: requests
           .map(row => [row.request_id, row.status, row.error, row.gate_clearance_revision])
