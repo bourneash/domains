@@ -98,6 +98,10 @@ test('wide mobile tables keep row identity visible while scrolling', () => {
   const mobile = fs.readFileSync(path.join(publicDir, 'mobile-polish.css'), 'utf8');
   assert.match(
     mobile,
+    /body\[data-view="aiinventory"\] #aii-inventory-table th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
+  );
+  assert.match(
+    mobile,
     /body\[data-view="errors"\] \.error-table \.table-wrap th:first-child,[\s\S]*?position: sticky;[^}]*left: 0;[^}]*background: var\(--panel\)/
   );
   assert.match(
