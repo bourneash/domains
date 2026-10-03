@@ -39,6 +39,7 @@ SOURCE_DIGEST="$({
     "$ROOT/tools/fleet-dashboard/server/eventstore.js" \
     "$ROOT/tools/fleet-dashboard/server/site-build-contract.js" \
     "$ROOT/tools/fleet-dashboard/server/execution-gates.js" \
+    "$ROOT/tools/fleet-dashboard/server/work-evidence.js" \
     "$ROOT/tools/fleet-dashboard/server/active-delivery.js" \
     "$ROOT/tools/fleet-dashboard/server/executive.js" \
     "$ROOT/tools/fleet-dashboard/server/changequeue.js" \

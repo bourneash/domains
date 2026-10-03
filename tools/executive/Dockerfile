@@ -9,6 +9,7 @@ COPY --chown=dev:dev tools/executive /app/tools/executive
 COPY --chown=dev:dev tools/fleet-dashboard/server/eventstore.js /app/tools/fleet-dashboard/server/eventstore.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/site-build-contract.js /app/tools/fleet-dashboard/server/site-build-contract.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/execution-gates.js /app/tools/fleet-dashboard/server/execution-gates.js
+COPY --chown=dev:dev tools/fleet-dashboard/server/work-evidence.js /app/tools/fleet-dashboard/server/work-evidence.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/active-delivery.js /app/tools/fleet-dashboard/server/active-delivery.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/executive.js /app/tools/fleet-dashboard/server/executive.js
 COPY --chown=dev:dev tools/fleet-dashboard/server/changequeue.js /app/tools/fleet-dashboard/server/changequeue.js
