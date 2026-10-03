@@ -333,3 +333,106 @@ test('new workers start from refreshed remote default branch without changing di
     cleanup(root);
   }
 });
+
+test('direct delivery preserves validated SHA and unrelated divergent local task commits', async () => {
+  const { root, cwd } = makeRepo();
+  const remote = path.join(root, 'origin.git');
+  try {
+    sh(root, ['init', '--bare', '-q', remote]);
+    sh(cwd, ['remote', 'add', 'origin', remote]);
+    sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
+    const work = await git.createWorktree(
+      root,
+      'example.com',
+      'abcdef12-abcd-1234-abcd-123456789012'
+    );
+    fs.writeFileSync(path.join(cwd, 'local-task.txt'), 'preserve local task history');
+    sh(cwd, ['add', 'local-task.txt']);
+    sh(cwd, ['commit', '-qm', 'task bookkeeping']);
+    const local = execFileSync('git', ['-C', cwd, 'rev-parse', 'HEAD'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    }).trim();
+    fs.writeFileSync(path.join(work.path, 'feature.txt'), 'validated feature');
+    await git.commitWorktree(work.path, 'feat: real feature');
+    const validated = execFileSync('git', ['-C', work.path, 'rev-parse', 'HEAD'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    }).trim();
+    const delivered = await git.deployWorktree(root, 'example.com', work.path, work.branch);
+    assert.equal(delivered.commit, validated);
+    assert.equal(delivered.checkout_updated, false);
+    assert.equal(
+      execFileSync('git', ['-C', cwd, 'rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).trim(),
+      local
+    );
+    assert.equal(
+      execFileSync('git', ['--git-dir=' + remote, 'rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).trim(),
+      validated
+    );
+    assert.equal(
+      execFileSync('git', ['--git-dir=' + remote, 'ls-tree', '--name-only', 'HEAD'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).includes('local-task.txt'),
+      false
+    );
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('direct delivery rejects moved remote without rewriting validated code', async () => {
+  const { root, cwd } = makeRepo();
+  const remote = path.join(root, 'origin.git'),
+    peer = path.join(root, 'peer');
+  try {
+    sh(root, ['init', '--bare', '-q', remote]);
+    sh(cwd, ['remote', 'add', 'origin', remote]);
+    sh(cwd, ['push', '-q', '-u', 'origin', 'HEAD']);
+    const work = await git.createWorktree(
+      root,
+      'example.com',
+      'abcdef13-abcd-1234-abcd-123456789012'
+    );
+    fs.writeFileSync(path.join(work.path, 'feature.txt'), 'validated');
+    await git.commitWorktree(work.path, 'feat: validated');
+    const validated = execFileSync('git', ['-C', work.path, 'rev-parse', 'HEAD'], {
+      encoding: 'utf8',
+      env: CLEAN_ENV,
+    }).trim();
+    sh(root, ['clone', '-q', remote, peer]);
+    sh(peer, ['config', 'user.email', 'test@example.com']);
+    sh(peer, ['config', 'user.name', 'Test']);
+    fs.writeFileSync(path.join(peer, 'moved.txt'), 'other source');
+    sh(peer, ['add', 'moved.txt']);
+    sh(peer, ['commit', '-qm', 'other delivery']);
+    sh(peer, ['push', '-q']);
+    await assert.rejects(
+      () => git.deployWorktree(root, 'example.com', work.path, work.branch),
+      e => e.httpStatus === 409 && /revalidate/.test(e.message)
+    );
+    assert.equal(
+      execFileSync('git', ['-C', work.path, 'rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).trim(),
+      validated
+    );
+    assert.equal(
+      execFileSync('git', ['--git-dir=' + remote, 'ls-tree', '--name-only', 'HEAD'], {
+        encoding: 'utf8',
+        env: CLEAN_ENV,
+      }).includes('feature.txt'),
+      false
+    );
+  } finally {
+    cleanup(root);
+  }
+});

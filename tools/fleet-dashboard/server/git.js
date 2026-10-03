@@ -682,26 +682,52 @@ async function deployWorktree(root, slug, workspacePath, branch) {
     if (work.dirty) throw httpErr(409, 'improvement worktree has uncommitted changes');
     if (work.branch !== branch)
       throw httpErr(409, 'improvement worktree is on an unexpected branch');
-    const before = canonical.localSha;
-    const rebase = await git(workspacePath, ['rebase', canonical.branch]);
-    if (!rebase.ok) {
-      await git(workspacePath, ['rebase', '--abort']);
+    const cwd = siteDir(root, slug);
+    const fetched = await git(cwd, [
+      'fetch',
+      '--no-tags',
+      'origin',
+      `${canonical.branch}:refs/remotes/origin/${canonical.branch}`,
+    ]);
+    if (!fetched.ok)
+      throw httpErr(
+        502,
+        'could not refresh production branch: ' + (fetched.err || fetched.out).trim()
+      );
+    const remote = await git(workspacePath, [
+      'rev-parse',
+      `refs/remotes/origin/${canonical.branch}`,
+    ]);
+    if (!remote.ok) throw httpErr(500, 'remote production commit could not be resolved');
+    const before = remote.out.trim();
+    const head = await git(workspacePath, ['rev-parse', 'HEAD']);
+    if (!head.ok) throw httpErr(500, 'validated improvement commit could not be resolved');
+    const commit = head.out.trim();
+    const ancestor = await git(workspacePath, ['merge-base', '--is-ancestor', before, commit]);
+    if (!ancestor.ok)
       throw httpErr(
         409,
-        (rebase.err || rebase.out).trim() || 'default branch moved; rebase conflicted'
+        'remote default branch moved; rebuild and revalidate the improvement before delivery'
       );
-    }
-    const merge = await git(siteDir(root, slug), ['merge', '--ff-only', branch]);
-    if (!merge.ok)
-      throw httpErr(
-        409,
-        (merge.err || merge.out).trim() || 'default branch moved; rebase required'
-      );
-    const pushed = await git(siteDir(root, slug), ['push']);
+    // Never rebase validated code or replay unrelated local task history.
+    // Git's ordinary fast-forward push also protects against a concurrent remote update.
+    const pushed = await git(workspacePath, [
+      'push',
+      'origin',
+      `HEAD:refs/heads/${canonical.branch}`,
+    ]);
     if (!pushed.ok)
-      throw httpErr(502, `merged locally but push failed: ${(pushed.err || pushed.out).trim()}`);
-    const after = await status(root, slug);
-    return { before, commit: after.localSha, branch: canonical.branch, pushed: true };
+      throw httpErr(502, 'validated source push failed: ' + (pushed.err || pushed.out).trim());
+    const compatible = await git(cwd, ['merge-base', '--is-ancestor', canonical.localSha, commit]);
+    let checkoutUpdated = false;
+    if (compatible.ok) checkoutUpdated = (await git(cwd, ['merge', '--ff-only', commit])).ok;
+    return {
+      before,
+      commit,
+      branch: canonical.branch,
+      pushed: true,
+      checkout_updated: checkoutUpdated,
+    };
   });
 }
 
