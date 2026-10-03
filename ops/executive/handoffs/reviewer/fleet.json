@@ -2,14 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "reviewer",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:44:24.825Z",
-  "summary": "reviewer checked in 1 executive handoff item(s)",
+  "generated_at": "2026-10-03T05:01:46.288Z",
+  "summary": "reviewer checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve only the six zero-spend, reversible routing-only repairs listed below. Scope is limited to owner metadata, focused validation, canonical-task cleanliness, no duplication, and rollback metadata. Reject revenue, ROI, causal-lift, security-clearance, launch-readiness, production, telemetry, credential/configuration, dependency, spending, schedule, and high-priority queue claims. If any task is dirty, duplicated, or validation fails, stop and preserve it for repair. Owner: attribution is aggregate, telemetry and operations evidence are incomplete, and routing acceptance is not delivery or financial evidence.",
+        "summary": "Retain only the five reversible task-routing metadata repairs. Reject the deeppenetrations.com SEO implementation because the site is already in review and release evidence is incomplete. Preserve financial, attribution, security, compliance, telemetry, production, and deployment gates; no revenue, ROI, causal-lift, readiness, or security-clearance claims are supported. Existing security evidence work may continue read-only without duplicate telemetry.",
+        "requested_action": null,
+        "proposal_id": null
+      },
+      {
+        "kind": "message",
+        "title": null,
+        "summary": "Route six isolated, reversible ownership-metadata repairs to engineer across six sites. Preserve all financial, production, security, launch, and telemetry gates: aggregate affiliate earnings remain unattributed, site revenue and ROI are unsupported, and no production or SEO implementation is admissible. The deeppenetrations.com SEO candidate remains blocked because the site is in review and release evidence is incomplete; principal-engineer must reconcile the admission ledger and release evidence by 2026-10-03T17:00Z or escalate to the owner.",
         "requested_action": null,
         "proposal_id": null
       }

@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "ceo",
   "site": "fleet",
-  "generated_at": "2026-10-02T20:59:07.553Z",
+  "generated_at": "2026-10-03T05:00:46.642Z",
   "summary": "ceo checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Recommendation: preserve the production gate and authorize only isolated preview validation for the already-approved scaffold candidates. Evidence: 0 eligible queued requests, 50 improvements measuring, 5 blocked queued requests, operations/fleet-doctor unavailable, and compliance at 36 pass/19 fail/6 unknown. Unknown: installed worker ownership and preview readiness for each scaffold. Smallest next step: site-factory confirms an installed owner and routes one preview artifact by 2026-10-03T17:00Z. Owner decision: approve preview-only continuation with no publication, telemetry, monetization, spend, or credential changes. Reference: EXEC_CONV_92FDD1C9.",
+        "summary": "Recommendation: execute the 6 highest-confidence reversible candidates already supported by the intelligence snapshot. The exact business result is not yet calculable; each task records a baseline, metric, and rollback so the next measurement gate can prove or reject it.",
         "requested_action": null,
         "proposal_id": null
       }

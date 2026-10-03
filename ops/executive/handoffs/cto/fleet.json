@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "cto",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:44:24.825Z",
+  "generated_at": "2026-10-03T05:01:46.287Z",
   "summary": "cto checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Approve six isolated, zero-spend routing-only repairs with exact installed-owner alignment: 0daynews.com, arttogogh.com, eastcoastrappers.com, reviewtattoo.com, ultrarough.com, and weirdassstuff.com. Preserve each existing task's text and implementation scope. Acceptance is limited to focused routing validation and claimability by the assigned owner. These changes are reversible metadata edits and do not alter production behavior, credentials, configuration, dependencies, telemetry, schedules, spending, or domains. Do not treat routing acceptance as delivery, revenue, ROI, causal lift, security clearance, or production readiness. If a canonical task is dirty or validation fails, stop and preserve the task for repair rather than requeueing or duplicating it.",
+        "summary": "Approve only the five isolated, reversible task-routing metadata repairs. Modify ownership metadata only; preserve task text, scope, and backlog state. Require installed-owner routing validation and rollback to prior metadata. Reject the SEO implementation because the site is already in review and operations evidence is unavailable. Preserve the financial gate: aggregate affiliate commission is unattributed, site revenue and ROI are unsupported, AI-usage coverage is incomplete, and no new telemetry, production, monetization, credentials, configuration, dependencies, spending, or external actions are authorized.",
         "requested_action": null,
         "proposal_id": null
       }

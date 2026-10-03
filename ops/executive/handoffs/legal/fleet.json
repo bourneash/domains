@@ -2,21 +2,21 @@
   "schema": "executive-handoff/v1",
   "role": "legal",
   "site": "fleet",
-  "generated_at": "2026-10-03T04:44:24.825Z",
+  "generated_at": "2026-10-03T05:01:46.288Z",
   "summary": "legal checked in 2 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Risk disposition: conditional for the six zero-spend, reversible routing-only repairs; blocked for public launch, monetization expansion, analytics activation, and production exposure. Evidence supports metadata-only scope with no change to site behavior, credentials, configuration, dependencies, telemetry, schedules, domains, or spending. Compliance remains technical-only at 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor evidence are unavailable; AI-usage coverage is incomplete; affiliate reporting includes $5.20 aggregate unattributed commission. Exact decision: retain all six routing repairs only if focused validation confirms exact installed-owner alignment, canonical task cleanliness, no duplication, and rollback metadata. Do not treat routing acceptance as delivery, revenue, ROI, causal lift, security clearance, or launch readiness. SearchWoot remains private pending rights, privacy, security, accuracy, measurement, counsel, and owner gates.",
+        "summary": "Risk disposition: conditional for the five reversible task-routing metadata repairs; blocked for the deeppenetrations.com SEO implementation and any production, monetization, analytics activation, or public launch. Exact decision: retain only the five ownership-metadata repairs because they change no site behavior, data collection, credentials, configuration, dependencies, spending, or external systems. Do not block ordinary growth solely for incomplete telemetry. Evidence: compliance is technical-only with 36 pass, 19 fail, and 6 unknown; operations and fleet-doctor sweeps have no results; security site facts are unknown; AI-usage coverage is incomplete; Amazon reported $5.20 aggregate unattributed commission, so site revenue, ROI, margin, forecasts, and causal lift are unsupported. The SEO item remains inadmissible because the site is already in review and lacks complete release evidence. Human counsel is required for upstream data rights, privacy/jurisdiction treatment, and future affiliate or advertising use. Launch-readiness remains keep_private; 0 of 4 legal tasks are evidenced complete and none may close.",
         "requested_action": null,
         "proposal_id": null
       },
       {
         "kind": "message",
         "title": null,
-        "summary": "Launch-readiness tracking progress: 0 of 4 SearchWoot legal tasks are evidenced complete; keep all four open. Source-rights evidence confirms API access but not public redistribution, storage, derivatives, display, alerts, affiliate, or advertising rights; human counsel is required. Next evidence action: attach one read-only bundle containing the repository data-flow/retention table, consent and GA4 configuration capture, log/vendor inventory, and deletion/correction/notification workflow; prepare but do not send the Woot permission request pending owner authorization and counsel review.",
+        "summary": "Launch-readiness tracking remains active. Progress: 0/4 legal tasks closed; existing API documentation confirms access mechanics only, not redistribution, storage, derivative, display, alert, affiliate, or advertising rights. Next evidence action: attach one read-only bundle containing the data-flow/retention table, consent and GA4 configuration capture, and log/vendor inventory; separately prepare but do not send the upstream permission request pending owner authorization and human-counsel review.",
         "requested_action": null,
         "proposal_id": null
       }
