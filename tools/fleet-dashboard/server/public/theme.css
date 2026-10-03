@@ -3247,6 +3247,14 @@ tbody tr:hover td.rcell.hot-overdue { background: rgba(255,107,107,.16); }
   border-color: var(--border);
   box-shadow: var(--sh-2);
 }
+:root[data-theme="light"] .site-kpi {
+  background: var(--grad-panel), #fff;
+  border-color: var(--border);
+}
+:root[data-theme="light"] .site-kpi.is-risk {
+  background: linear-gradient(145deg, rgba(181,38,61,.07), rgba(181,38,61,.025)), #fff;
+  border-color: rgba(181,38,61,.3);
+}
 :root[data-theme="light"] .aiu-granularity-btn.active {
   background: var(--control-bg-active);
   border-color: rgba(40,119,212,.45);

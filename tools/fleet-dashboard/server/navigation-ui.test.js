@@ -1700,11 +1700,11 @@ test('Scheduler prioritizes incidents and bounds both large registers', () => {
   );
   assert.match(
     scheduler,
-    /const siteJobs = siteQuery\s*\? jobs\.filter\(job => String\(job\.site \|\| ''\)\.toLowerCase\(\)\.includes\(siteQuery\)\)/
+    /const siteJobs = siteQuery\s*\? jobs\.filter\(job =>\s*String\(job\.site \|\| ''\)\s*\.toLowerCase\(\)\s*\.includes\(siteQuery\)\s*\)\s*:\s*jobs/
   );
   assert.match(
     scheduler,
-    /const siteRuns = siteQuery\s*\? runs\.filter\(run => String\(run\.site \|\| ''\)\.toLowerCase\(\)\.includes\(siteQuery\)\)/
+    /const siteRuns = siteQuery\s*\? runs\.filter\(run =>\s*String\(run\.site \|\| ''\)\s*\.toLowerCase\(\)\s*\.includes\(siteQuery\)\s*\)\s*:\s*runs/
   );
   assert.match(
     scheduler,
@@ -3865,6 +3865,18 @@ test('Agents landing cards use light surfaces in light theme', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
   assert.match(theme, /:root\[data-theme="light"\] \.nav-root-card \{[\s\S]*background: #fff/);
   assert.match(theme, /\.nav-root-card-copy strong \{ color: var\(--text-hi\);/);
+});
+
+test('site command center KPI cards use light surfaces, including risk state', () => {
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.site-kpi \{[^}]*background: var\(--grad-panel\), #fff;[^}]*border-color: var\(--border\)/
+  );
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.site-kpi\.is-risk \{[^}]*background: linear-gradient\(145deg, rgba\(181,38,61,\.07\), rgba\(181,38,61,\.025\)\), #fff;[^}]*border-color: rgba\(181,38,61,\.3\)/
+  );
 });
 
 test('Agents landing supports live role search with an accessible result count', () => {
