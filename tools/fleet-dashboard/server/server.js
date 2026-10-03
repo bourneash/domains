@@ -271,6 +271,26 @@ function hasDeterministicQualityFailure(validation) {
   );
 }
 
+function shouldRepairDeliveryQualityFailure(request, run, error) {
+  return (
+    request?.status === 'delivery_pending' &&
+    request.auto_review !== 0 &&
+    Number(request.review_attempts || 0) < MAX_AUTOMATIC_REVIEW_REPAIRS &&
+    ['building', 'review'].includes(run?.state) &&
+    run.agent?.status === 'completed' &&
+    !error?.noAutomaticRepair &&
+    !error?.roleScopeViolation &&
+    !Object.values(error?.validation?.checks || {}).some(
+      check =>
+        check?.status === 'fail' &&
+        /network request failed|EAI_AGAIN|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|spawn.*EAGAIN/i.test(
+          check.excerpt || check.error || ''
+        )
+    ) &&
+    hasDeterministicQualityFailure(error?.validation)
+  );
+}
+
 function validationInfrastructureBlock(validation) {
   if (!validation) return false;
   if (hasDeterministicQualityFailure(validation)) return false;
@@ -3363,6 +3383,11 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (run && ['reported', 'deployed', 'measuring', 'proven', 'inconclusive'].includes(run.state))
       return;
     const message = String(error.message || error);
+    if (
+      shouldRepairDeliveryQualityFailure(request, run, error) &&
+      (await startAutomaticReviewRepair(request, run, error))
+    )
+      return;
     if (error?.roleScopeViolation) {
       const failedRun = markImprovementFailed(run, error);
       const updated = changequeue.update(
@@ -9142,6 +9167,7 @@ module.exports = {
   reviewerProcessInfrastructureFailure,
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
+  shouldRepairDeliveryQualityFailure,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,

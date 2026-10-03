@@ -12,6 +12,7 @@ const {
   reviewerProcessInfrastructureFailure,
   isSubstantiveReviewerRejection,
   validationInfrastructureBlock,
+  shouldRepairDeliveryQualityFailure,
   shouldRetryQueueFailure,
   shouldPropagateCancelledRun,
   reportWasInvalidated,
@@ -588,4 +589,46 @@ test('preview infrastructure failures remain a review block, not a code failure'
   assert.equal(validation.passed, false);
   assert.equal(validation.policy.status.preview, 'fail');
   assert.equal(validation.policy.status.browser, 'fail');
+});
+
+test('delivery quality failures get bounded repair while infrastructure and exhausted attempts stop', () => {
+  const request = { status: 'delivery_pending', auto_review: 1, review_attempts: 0 };
+  const run = { state: 'building', agent: { status: 'completed' } };
+  const error = {
+    validation: {
+      passed: false,
+      checks: { ci: { status: 'fail', excerpt: '10 high severity vulnerabilities' } },
+    },
+  };
+  assert.equal(shouldRepairDeliveryQualityFailure(request, run, error), true);
+  assert.equal(
+    shouldRepairDeliveryQualityFailure({ ...request, review_attempts: 2 }, run, error),
+    false
+  );
+  assert.equal(
+    shouldRepairDeliveryQualityFailure({ ...request, auto_review: 0 }, run, error),
+    false
+  );
+  assert.equal(
+    shouldRepairDeliveryQualityFailure(request, { ...run, agent: { status: 'running' } }, error),
+    false
+  );
+  assert.equal(
+    shouldRepairDeliveryQualityFailure(request, run, { ...error, noAutomaticRepair: true }),
+    false
+  );
+  assert.equal(
+    shouldRepairDeliveryQualityFailure(request, run, { ...error, roleScopeViolation: true }),
+    false
+  );
+  assert.equal(
+    shouldRepairDeliveryQualityFailure(request, run, {
+      validation: {
+        passed: false,
+        checks: { ci: { status: 'fail', excerpt: 'network request failed' } },
+      },
+    }),
+    false
+  );
+  assert.equal(shouldRepairDeliveryQualityFailure(request, run, { message: 'push failed' }), false);
 });
