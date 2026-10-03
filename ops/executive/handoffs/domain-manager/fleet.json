@@ -2,14 +2,14 @@
   "schema": "executive-handoff/v1",
   "role": "domain-manager",
   "site": "fleet",
-  "generated_at": "2026-10-03T22:32:14.107Z",
+  "generated_at": "2026-10-03T22:43:55.015Z",
   "summary": "domain-manager checked in 1 executive handoff item(s)",
   "payload": {
     "items": [
       {
         "kind": "message",
         "title": null,
-        "summary": "Queue the failed coin-trick-guide task as a bounded, reversible engineer implementation on magicescorts.com; preserve truthful coming-soon and no-booking constraints.",
+        "summary": "Queue one bounded retry for the failed coin-trick delivery: the live surface is only a static COMING SOON page with no internal links, while the source contract promises complete trick guides. Keep booking, analytics, affiliate, and service activation out of scope.",
         "requested_action": null,
         "proposal_id": null
       }
