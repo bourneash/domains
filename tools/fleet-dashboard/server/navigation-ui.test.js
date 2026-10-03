@@ -22,6 +22,12 @@ test('light-mode secondary and danger button hover states keep legible ink', () 
 
 test('light-mode navigation and selected controls do not retain dark-theme ink or fills', () => {
   const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  const activeGroup = theme.match(/\.nav-group-btn\.active\s*\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(activeGroup, /background\s*:\s*#2b2b4a/i);
+  assert.match(
+    theme,
+    /:root\[data-theme="light"\] \.nav-group-btn\.active\s*\{[^}]*background:\s*var\(--control-bg-active\)/
+  );
   assert.match(theme, /:root\[data-theme="light"\] \.dd-item\.active\s*\{[^}]*color:\s*#174f92/);
   assert.match(
     theme,
@@ -39,6 +45,12 @@ test('light-mode navigation and selected controls do not retain dark-theme ink o
     theme,
     /:root\[data-theme="light"\] \.rail-folded \.rl-sec\[data-sec="pinned"\]\s*\{[^}]*border-bottom-color:\s*rgba\(61,86,120,.14\)/
   );
+});
+
+test('automatic refresh control names its current-view scope', () => {
+  const html = fs.readFileSync(path.join(publicDir, 'index.html'), 'utf8');
+  assert.match(html, /title="Automatic refresh for this view/);
+  assert.match(html, /id="auto-on" aria-label="Auto-refresh this view"/);
 });
 
 test('mobile header keeps all action controls visible without horizontal scrolling', () => {
@@ -853,6 +865,34 @@ test('Change Queue mobile filters retain usable search and select widths', () =>
   assert.match(theme, /\.cq-register-toolbar \.cm-input \{ width: 100%; min-width: 0; \}/);
 });
 
+test('Change Queue live-work empty state avoids repeating its inactive status', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(app, /working\.length \? `\$\{working\.length\} active` : '0 active'/);
+  assert.match(
+    app,
+    /<strong>No active work<\/strong><span>Worker and heartbeat details appear here after a request is claimed\.<\/span>/
+  );
+  assert.doesNotMatch(app, /No request is being worked right now/);
+});
+
+test('Change Queue does not repeat a blocked queue reason as its next action', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  const nextAction = app.slice(
+    app.indexOf('function cqNextAction('),
+    app.indexOf('function cqSiteContext(')
+  );
+  assert.match(nextAction, /if \(r\.queue_block\?\.blocked\) return ''/);
+  assert.match(app, /\$\{cqBlocker\(r\)\}\$\{nextAction \? `<div class="muted">/);
+});
+
+test('Change Queue override button accessible name starts with its visible label', () => {
+  const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
+  assert.match(
+    app,
+    /aria-label="Override window for \$\{esc\(r\.title\)\}"[^>]*>Override window<\/button>/
+  );
+});
+
 test('Work Board mobile hero does not inherit a desktop flex height', () => {
   const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
   assert.match(
@@ -1427,6 +1467,14 @@ test('Social Hub queue explains public-only empty results and enhances async tab
   assert.match(queue, /enhanceScrollableTables\(list\)/);
 });
 
+test('Social Hub content links meet the minimum touch target height', () => {
+  const style = fs.readFileSync(path.join(publicDir, 'style.css'), 'utf8');
+  assert.match(
+    style,
+    /@media \(max-width: 720px\) \{ body\[data-view="socialhub"\] \.sh-link \{ min-height: 24px; line-height: 24px; \} \}/
+  );
+});
+
 test('Social Hub exposes local refresh and accessible initial loading state', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const route = app.slice(
@@ -1595,11 +1643,18 @@ test('task deletion uses the shared recoverable confirmation surface', () => {
 test('Scheduler actions use the shared text and confirmation modals', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const scheduler = fs.readFileSync(path.join(publicDir, 'scheduler-view.js'), 'utf8');
+  const theme = fs.readFileSync(path.join(publicDir, 'theme.css'), 'utf8');
+  assert.equal((theme.match(/\.sch-runtime-panel\s*\{/g) || []).length, 1);
   assert.match(app, /globalThis\.fleetTextPrompt = requestModalText/);
   assert.match(scheduler, /globalThis\.fleetTextPrompt\?\.\(/);
   assert.match(scheduler, /globalThis\.fleetConfirm\?\.\(/);
   assert.match(scheduler, /confirmLabel: 'Adopt site'/);
   assert.match(scheduler, /confirmLabel: 'Release site'/);
+  assert.match(
+    scheduler,
+    /<button type="button" class="sch-site" data-site="\$\{esc\(s\.site\)\}" aria-label="Filter scheduler jobs for \$\{esc\(s\.site\)\}">\$\{esc\(s\.site\)\}<\/button>/
+  );
+  assert.doesNotMatch(scheduler, /<a href="#" class="sch-site"/);
   assert.match(
     scheduler,
     /class="table-wrap" tabindex="0" role="region" aria-label="Scheduled jobs and controls"><table class="tbl"/
@@ -2996,7 +3051,7 @@ test('Work Board keeps one authoritative renderer', () => {
   );
   assert.match(
     app,
-    /flagged · \$\{diagnosticGroups\.length\} unique · showing \$\{Math\.min\(3, diagnosticGroups\.length\)\}/
+    /title="At most 100 diagnostic records are loaded; the group count is calculated from this sample\."\>\$\{\(data\.diagnostics \|\| \[\]\)\.length\} loaded · \$\{diagnosticGroups\.length\} groups · \$\{Math\.min\(3, diagnosticGroups\.length\)\} shown/
   );
   assert.match(app, /const activityEvents = \(data\.actions \|\| \[\]\)\.slice\(0, 12\)/);
   assert.match(app, /const visibleActivity = activityGroups\.slice\(0, 3\)/);
@@ -3448,6 +3503,14 @@ test('Errors presents scan severity as a readable KPI strip', () => {
   assert.match(app, /Critical lines · 24h<\/span>/);
   assert.match(
     app,
+    /class="error-stat error-stat-meta"><strong>\$\{esc\(swept\)\}<\/strong><span>Last sweep<\/span>/
+  );
+  assert.doesNotMatch(
+    app,
+    /error-stat-meta"><strong>\$\{esc\(swept\)\}<\/strong><span>Last sweep · \$\{filtered\.length\} matching/
+  );
+  assert.match(
+    app,
     /Site filters narrow the log table; scan totals and Slack-delivery alerts remain fleet-wide\./
   );
   assert.match(
@@ -3565,6 +3628,12 @@ test('Deploys provides status hierarchy and scoped filtering', () => {
     /class="card deploy-table"><div class="matrix-scroll-hint" role="note">Swipe horizontally to compare deployment status, versions, and errors<\/div><div class="table-wrap" tabindex="0" role="region" aria-label="Deployment health by site"><table/
   );
   assert.match(app, /Deployment health by site/);
+  assert.match(
+    app,
+    /const detail = \['live', 'ops-only'\]\.includes\(status\) \? '—' : s\.reason \|\| s\.error \|\| '—'/
+  );
+  assert.match(app, /<th>Deployed at<\/th><th>Detail<\/th>/);
+  assert.doesNotMatch(app, /<th>Deployed at<\/th><th>Error<\/th>/);
   assert.match(app, /class="deploy-help"><summary>How deployment status is determined/);
   assert.match(theme, /\.deploy-summary-grid \{[^}]*grid-template-columns/);
   assert.match(theme, /\.deploy-table \{[^}]*overflow: hidden/);

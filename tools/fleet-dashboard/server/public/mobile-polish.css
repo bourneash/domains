@@ -1,6 +1,43 @@
 /* Compact the persistent mobile header without hiding controls behind a
    horizontally scrolling action strip. */
+.wb-detail-heading { margin: 14px 0 6px; font-size: 13px; }
+.wb-link-form { display: grid; gap: 7px; margin-top: 8px; }
+.wb-link-search { display: grid; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 650; }
+.wb-link-search input { width: 100%; }
+.wb-link-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) auto; gap: 6px; }
+.wb-link-controls select { min-width: 0; }
+.wb-link-status { min-height: 1.4em; font-size: 10px; }
+
+/* Focused Executive workspaces hide the secondary rail. Collapse its grid
+   track too, otherwise conversation and similar views waste a third of the
+   desktop canvas beside their primary content. */
+.ex-shell > .ex-layout:has(> .ex-secondary.ex-workspace-hidden) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 @media (max-width: 720px) {
+  .agent-table-wrap .agent-table th:first-child,
+  .agent-table-wrap .agent-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: inset -1px 0 0 var(--border);
+  }
+  .agent-table-wrap .agent-table thead th:first-child { z-index: 2; }
+
+  .fleet-filter-clear {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    min-height: 30px;
+    margin-left: -36px;
+  }
+  .fleet-filter-count { flex: 0 0 auto; min-width: max-content; overflow: visible; text-overflow: clip; }
+
+  .wb-link-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+  .wb-link-controls .btn { grid-column: 1 / -1; justify-self: end; }
+
   body[data-view="workbench"] .wb-pagination-top {
     margin-top: 0;
     margin-bottom: 12px;
@@ -63,14 +100,106 @@
   .topbar .actions #theme-toggle { order: 0; }
   .topbar .actions #density-toggle { order: 1; }
   .topbar .actions #refresh { order: 2; }
+  .topbar .actions #update-pill:not(.hidden) {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 7px 8px;
+    overflow: hidden;
+    font-size: 0;
+  }
+  .topbar .actions #update-pill:not(.hidden)::before { content: '↑'; font-size: 16px; }
   .topbar .actions .auto { order: 3; }
   .topbar .actions .access-badge { order: 4; }
-  .topbar .actions .view-saves { order: 5; flex: 0 0 100%; }
+  .topbar .actions .view-saves { order: 5; flex: 0 0 auto; }
   .topbar .actions .theme-toggle,
   .topbar .actions .density-toggle,
   .topbar .actions #refresh {
     width: 44px;
     min-width: 44px;
     min-height: 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  .error-pagination {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .error-pagination > .muted {
+    grid-column: 1 / -1;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .error-pagination .activity-page-count {
+    justify-self: center;
+    width: max-content;
+    min-width: 0;
+  }
+  .error-pagination .btn { min-height: 40px; }
+
+  /* The Executive workspace has nine destinations. A horizontal tab rail
+     keeps them directly available without pushing the active workspace below
+     five rows of navigation cards on a phone. */
+  .ex-workspace-nav {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 150px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .ex-workspace-tab {
+    min-height: 56px;
+    padding: 8px 10px;
+    text-align: left;
+    scroll-snap-align: start;
+  }
+
+  /* Preserve row identity while operators pan across the six-column Data
+     Quality contract register on narrow screens. */
+  body[data-view="dataquality"] .dq-contracts .tbl th:first-child,
+  body[data-view="dataquality"] .dq-contracts .tbl td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: 1px 0 var(--border);
+  }
+  body[data-view="dataquality"] .dq-contracts .tbl thead th:first-child { z-index: 2; }
+  body[data-view="dataquality"] .dq-contracts .tbl tbody tr:hover td:first-child { background: var(--panel-2); }
+
+  body[data-view="domains"] .table-wrap[aria-label="Checked-out domains and available actions"] th:first-child,
+  body[data-view="domains"] .table-wrap[aria-label="Checked-out domains and available actions"] td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: 1px 0 var(--border);
+  }
+  body[data-view="domains"] .table-wrap[aria-label="Checked-out domains and available actions"] thead th:first-child { z-index: 2; }
+  body[data-view="domains"] .table-wrap[aria-label="Checked-out domains and available actions"] tbody tr:hover td:first-child { background: var(--panel-2); }
+
+  body[data-view="site"] .table-wrap[aria-label="Installed roles"] th:first-child,
+  body[data-view="site"] .table-wrap[aria-label="Installed roles"] td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--panel);
+    box-shadow: 1px 0 var(--border);
+  }
+  body[data-view="site"] .table-wrap[aria-label="Installed roles"] thead th:first-child { z-index: 2; }
+  body[data-view="site"] .table-wrap[aria-label="Installed roles"] tbody tr:hover td:first-child { background: var(--panel-2); }
+}
+
+@media (max-width: 560px) {
+  /* Queue row actions sit in a horizontally scrollable register; enlarge
+     their hit areas without widening the surrounding page. */
+  body[data-view="change-queue"] .cq-table .btn {
+    min-height: 40px;
+    padding-block: 8px;
   }
 }

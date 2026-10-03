@@ -1691,10 +1691,7 @@
   }
 
   function normalizeKeyboardActions(root = document) {
-    $$(
-      '[role="button"][tabindex="0"]:not(.vt):not(.an-site-row), tr.err-row[tabindex="0"]',
-      root
-    ).forEach(action => {
+    $$('[role="button"][tabindex="0"]:not(.vt):not(.an-site-row)', root).forEach(action => {
       if (action.dataset.fdKeyboardAction === '1') return;
       action.dataset.fdKeyboardAction = '1';
       if (action.tagName === 'TR' && !action.getAttribute('role'))

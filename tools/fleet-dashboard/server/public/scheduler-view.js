@@ -100,8 +100,16 @@ async function renderScheduler() {
     return;
   }
   const q = SCH.text.trim().toLowerCase();
+  const siteQuery = ($('#fleet-filter')?.value || '').trim().toLowerCase();
+  const siteJobs = siteQuery
+    ? jobs.filter(job =>
+        String(job.site || '')
+          .toLowerCase()
+          .includes(siteQuery)
+      )
+    : jobs;
   const stateJobs = (
-    SCH.jobState === 'all' ? jobs : jobs.filter(j => schJobState(j) === SCH.jobState)
+    SCH.jobState === 'all' ? siteJobs : siteJobs.filter(j => schJobState(j) === SCH.jobState)
   )
     .slice()
     .sort((a, b) => {
@@ -119,12 +127,22 @@ async function renderScheduler() {
   SCH.page = Math.min(SCH.page, jobPageCount);
   const jobPageStart = (SCH.page - 1) * SCH.pageSize;
   const pageJobs = shown.slice(jobPageStart, jobPageStart + SCH.pageSize);
-  const runPageCount = Math.max(1, Math.ceil(runs.length / SCH.runPageSize));
+  const siteRuns = siteQuery
+    ? runs.filter(run =>
+        String(run.site || '')
+          .toLowerCase()
+          .includes(siteQuery)
+      )
+    : runs;
+  const runPageCount = Math.max(1, Math.ceil(siteRuns.length / SCH.runPageSize));
   SCH.runPage = Math.min(SCH.runPage, runPageCount);
   const runPageStart = (SCH.runPage - 1) * SCH.runPageSize;
-  const pageRuns = runs.slice(runPageStart, runPageStart + SCH.runPageSize);
+  const pageRuns = siteRuns.slice(runPageStart, runPageStart + SCH.runPageSize);
   if (SCH.openRun && !pageRuns.some(run => run.id === SCH.openRun)) SCH.openRun = null;
   const sites = schSiteOrder(st.sites || []);
+  const siteMatches = siteQuery
+    ? sites.filter(site => site.site.toLowerCase().includes(siteQuery))
+    : sites;
   const adoptedN = sites.filter(s => s.adopted).length;
   const failing = jobs.filter(
     j => j.active && j.last_run && ['failed', 'timeout', 'lost'].includes(j.last_run.status)
@@ -141,7 +159,7 @@ async function renderScheduler() {
 
   app.innerHTML = `
     <div id="sch-root">
-    <div class="page-head"><h1 class="sr-only">Scheduler</h1>
+    <div class="page-head">
       <div role="tablist" aria-label="Scheduler scope">
         <button type="button" role="tab" class="btn sm ${SCH.inst === 'scheduler' ? 'primary' : ''}" id="sch-tab-sites" aria-selected="${SCH.inst === 'scheduler'}" aria-controls="sch-panel" data-inst="scheduler">Sites</button>
         <button type="button" role="tab" class="btn sm ${SCH.inst === 'scheduler-fleet' ? 'primary' : ''}" id="sch-tab-fleet" aria-selected="${SCH.inst === 'scheduler-fleet'}" aria-controls="sch-panel" data-inst="scheduler-fleet">Fleet tools</button>
@@ -183,11 +201,13 @@ async function renderScheduler() {
     <h2 style="margin:14px 0 6px">Sites</h2>
     <div class="matrix-scroll-hint" role="note">Swipe horizontally to compare site adoption and scheduler status</div>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Scheduler sites and adoption status" style="max-height:260px">
-    <table class="tbl"><caption class="sr-only">Scheduler sites and adoption status</caption><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th>Actions</th></tr></thead><tbody>
-      ${sites
-        .map(
-          s => `<tr>
-        <td><a href="#" class="sch-site" data-site="${esc(s.site)}">${esc(s.site)}</a></td>
+    <table class="tbl" id="sch-sites-table"><caption class="sr-only">Scheduler sites and adoption status</caption><thead><tr><th>Site</th><th>Jobs</th><th>Mode</th><th>Actions</th></tr></thead><tbody>
+      ${
+        sites.length
+          ? sites
+              .map(
+                s => `<tr data-fleet-row data-fleet-unit="sites" data-site="${esc(s.site)}">
+        <td><button type="button" class="sch-site" data-site="${esc(s.site)}" aria-label="Filter scheduler jobs for ${esc(s.site)}">${esc(s.site)}</button></td>
         <td>${s.enabled}/${s.jobs}</td>
         <td>${s.adopted ? '<span class="badge b-green">scheduler</span>' : '<span class="badge b-gray">legacy cron container</span>'}</td>
         <td style="text-align:right">${
@@ -197,8 +217,11 @@ async function renderScheduler() {
               ? `<button type="button" class="btn sm" data-act="release" data-site="${esc(s.site)}" aria-label="Release → legacy for ${esc(s.site)}" title="Release ${esc(s.site)} to its legacy cron container">Release → legacy</button>`
               : `<button type="button" class="btn sm primary" data-act="adopt" data-site="${esc(s.site)}" aria-label="Adopt ${esc(s.site)} into scheduler" title="Adopt ${esc(s.site)} into the database-backed scheduler">Adopt</button>`
         }</td></tr>`
-        )
-        .join('')}
+              )
+              .join('')
+          : '<tr><td colspan="4" class="muted">No sites are registered with this scheduler.</td></tr>'
+      }
+      <tr id="sch-sites-no-matches" ${siteMatches.length ? 'hidden' : ''}><td colspan="4" class="muted">No sites match the current site filter.</td></tr>
     </tbody></table>
     </div>
 
@@ -207,13 +230,13 @@ async function renderScheduler() {
     <div class="task-toolbar" role="group" aria-label="Scheduler job views" style="margin-top:0">
       <span class="muted">Show</span>
       ${[
-        ['all', `All jobs (${jobs.length})`],
+        ['all', `All jobs (${siteJobs.length})`],
         [
           'attention',
-          `Needs attention (${jobs.filter(j => schJobState(j) === 'attention').length})`,
+          `Needs attention (${siteJobs.filter(j => schJobState(j) === 'attention').length})`,
         ],
-        ['running', `Running (${jobs.filter(j => schJobState(j) === 'running').length})`],
-        ['disabled', `Disabled (${jobs.filter(j => schJobState(j) === 'disabled').length})`],
+        ['running', `Running (${siteJobs.filter(j => schJobState(j) === 'running').length})`],
+        ['disabled', `Disabled (${siteJobs.filter(j => schJobState(j) === 'disabled').length})`],
       ]
         .map(
           ([key, label]) =>
@@ -230,7 +253,7 @@ async function renderScheduler() {
           ? pageJobs
               .map(
                 j => `<tr>
-        <td>${esc(j.site)}</td><td>${esc(j.name)}</td><td class="mono">${esc(j.schedule)}</td>
+        <td>${esc(j.site)}</td><td>${esc(j.name)}</td><td>${j.schedule_human ? `<span>${esc(j.schedule_human)}</span>` : ''}<div class="muted mono" title="Cron expression${j.tz ? ` · ${esc(j.tz)}` : ''}">${esc(j.schedule)}${j.tz ? ` · ${esc(j.tz)}` : ''}</div></td>
         <td>${esc(j.class)}</td>
         <td>${j.enabled ? (j.active ? '<span class="badge b-green">on</span>' : '<span class="badge b-gray">idle (site not adopted)</span>') : '<span class="badge b-yellow">disabled</span>'}</td>
         <td>${j.active ? schFmtNext(j.next_fire) : '—'}</td>
@@ -245,8 +268,8 @@ async function renderScheduler() {
       }
     </tbody></table></div>
 
-    <h2 style="margin:18px 0 6px">Recent runs <span class="muted">${runs.length} loaded</span></h2>
-    ${runPageCount > 1 ? `<nav class="sch-pagination" aria-label="Recent run pages"><span class="muted" id="sch-run-page-status" role="status" aria-live="polite">Showing runs ${runPageStart + 1}–${Math.min(runPageStart + SCH.runPageSize, runs.length)} of ${runs.length}</span><label>Rows <select id="sch-run-page-size" aria-label="Scheduler runs per page">${[10, 25, 50].map(size => `<option value="${size}" ${size === SCH.runPageSize ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="sch-run-prev" aria-label="Previous scheduler run page" ${SCH.runPage <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="sch-run-next" aria-label="Next scheduler run page" ${SCH.runPage >= runPageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
+    <h2 style="margin:18px 0 6px">Recent runs <span class="muted">${siteRuns.length} matching</span></h2>
+    ${runPageCount > 1 ? `<nav class="sch-pagination" aria-label="Recent run pages"><span class="muted" id="sch-run-page-status" role="status" aria-live="polite">Showing runs ${runPageStart + 1}–${Math.min(runPageStart + SCH.runPageSize, siteRuns.length)} of ${siteRuns.length}</span><label>Rows <select id="sch-run-page-size" aria-label="Scheduler runs per page">${[10, 25, 50].map(size => `<option value="${size}" ${size === SCH.runPageSize ? 'selected' : ''}>${size}</option>`).join('')}</select></label><button type="button" class="btn sm" id="sch-run-prev" aria-label="Previous scheduler run page" ${SCH.runPage <= 1 ? 'disabled' : ''}>← Previous</button><button type="button" class="btn sm" id="sch-run-next" aria-label="Next scheduler run page" ${SCH.runPage >= runPageCount ? 'disabled' : ''}>Next →</button></nav>` : ''}
     <div class="matrix-scroll-hint" role="note">Swipe horizontally to inspect scheduler run history and details</div>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Recent scheduler runs"><table class="tbl" id="sch-runs-table"><caption class="sr-only">Recent scheduler runs</caption><thead><tr><th>Queued</th><th>Site</th><th>Job</th><th>Status</th><th>Exit</th><th>Took</th><th>Note</th></tr></thead><tbody>
       ${
@@ -268,6 +291,7 @@ async function renderScheduler() {
 
   wireScheduler();
   if (SCH.openRun) loadSchRun(SCH.openRun);
+  applyFleetFilter();
   stamp();
 }
 
@@ -295,6 +319,22 @@ async function schAct(fn, okMsg) {
 
 function wireScheduler() {
   const root = $('#sch-root');
+  if (!wireScheduler._siteFilterBound) {
+    const siteFilter = $('#fleet-filter');
+    if (siteFilter) {
+      siteFilter.addEventListener('input', () => {
+        if (STATE.view !== 'scheduler') return;
+        clearTimeout(wireScheduler._siteTimer);
+        wireScheduler._siteTimer = setTimeout(() => {
+          SCH.page = 1;
+          SCH.runPage = 1;
+          SCH.openRun = null;
+          renderScheduler();
+        }, 250);
+      });
+      wireScheduler._siteFilterBound = true;
+    }
+  }
   $('#sch-pause').addEventListener('click', () => {
     const paused = $('#sch-pause').textContent.startsWith('Resume');
     schAct(
@@ -371,10 +411,9 @@ function wireScheduler() {
       renderScheduler();
       return;
     }
-    const siteLink = e.target.closest('.sch-site');
-    if (siteLink) {
-      e.preventDefault();
-      SCH.site = siteLink.dataset.site;
+    const siteFilter = e.target.closest('.sch-site');
+    if (siteFilter) {
+      SCH.site = siteFilter.dataset.site;
       SCH.page = 1;
       SCH.runPage = 1;
       renderScheduler();

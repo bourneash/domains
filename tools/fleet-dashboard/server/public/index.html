@@ -18,6 +18,7 @@
         const theme = saved === 'light' || saved === 'dark' ? saved : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f4f7fb' : '#070910');
       } catch {}
     })();
   </script>
@@ -72,10 +73,10 @@
       <span class="fd-network-status" role="status" aria-live="polite" hidden></span>
       <span class="access-badge is-operator">Operator</span>
       <span id="updated" class="muted" role="status" aria-live="polite"></span>
-      <button id="update-pill" type="button" class="btn sm hidden" title="A new dashboard version is available" aria-label="↻ Update ready — new dashboard version available">↻ Update ready</button>
-      <div class="auto" title="Automatic refresh — updates in place; preserves scroll, open rows and filters. Paused while a task editor is open or the tab is hidden.">
+      <button id="update-pill" type="button" class="btn sm hidden" title="A new dashboard version is available" aria-label="↑ Update ready — reload for the latest dashboard version">↑ Update ready</button>
+      <div class="auto" title="Automatic refresh for this view — updates in place; preserves scroll, open rows and filters. Paused while a task editor is open or the tab is hidden.">
         <label class="auto-toggle">
-          <input type="checkbox" id="auto-on" />
+          <input type="checkbox" id="auto-on" aria-label="Auto-refresh this view" />
           <span class="auto-track"></span>
           <span class="auto-label">Auto</span>
         </label>
@@ -89,9 +90,9 @@
         </select>
         <span id="auto-next" class="muted auto-next"></span>
       </div>
-      <button id="refresh" class="btn" type="button" aria-label="Refresh dashboard data">↻ Refresh</button>
+      <button id="refresh" class="btn" type="button" aria-label="Refresh dashboard data" title="Refresh this view and preserve filters and scroll">↻ Refresh</button>
       <button id="density-toggle" class="btn density-toggle" type="button" title="Change dashboard information density" aria-label="Switch dashboard density" aria-pressed="false">Density: Comfortable</button>
-      <button id="theme-toggle" class="btn theme-toggle" type="button" title="Switch color theme" aria-label="Switch color theme" aria-pressed="false">☼ Light</button>
+  <button id="theme-toggle" class="btn theme-toggle" type="button" title="Switch color theme" aria-label="☼ Light — switch to dark theme">☼ Light</button>
     </div>
   </header>
 
@@ -105,9 +106,9 @@
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><span id="toast-message"></span><button id="toast-close" type="button" aria-label="Dismiss notification" title="Dismiss notification">×</button></div>
 
   <!-- Auth gate (F1): shown only when the server requires a token and we lack one. -->
-  <div id="login-overlay" class="login-overlay hidden" role="dialog" aria-modal="true">
+  <div id="login-overlay" class="login-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="login-title">
     <form id="login-form" class="login-card">
-      <h2>Domain Fleet Manager</h2>
+      <h2 id="login-title">Domain Fleet Manager</h2>
       <p class="muted">This dashboard requires an access token.</p>
       <input type="text" name="username" value="owner" autocomplete="username" tabindex="-1" aria-hidden="true" class="sr-only" />
       <input id="login-token" type="password" class="cm-input" placeholder="Access token" autocomplete="current-password" spellcheck="false" />
@@ -183,8 +184,8 @@
   </div>
 
   <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});</script>
-  <script src="scheduler-view.js"></script>
-  <script src="app.js"></script>
-  <script src="shell.js"></script>
+  <script src="scheduler-view.js" defer></script>
+  <script src="app.js" defer></script>
+  <script src="shell.js" defer></script>
 </body>
 </html>
