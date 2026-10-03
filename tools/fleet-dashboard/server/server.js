@@ -7936,9 +7936,15 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
   // Tasks CRUD ------------------------------------------------------------
   // Cross-fleet aggregate (every site's tasks, flat) — the integrated
   // successor to site-tracker's /tasks page. Client does facet/filter/group.
-  app.get('/api/tasks', (_req, res) => {
+  app.get('/api/tasks', (req, res) => {
     try {
-      res.json(tasks.listFleet(root, discoverSites(root)));
+      const sites = discoverSites(root);
+      const columns = req.query.stages
+        ? String(req.query.stages)
+            .split(',')
+            .filter(column => tasks.COLUMNS.includes(column))
+        : tasks.COLUMNS;
+      res.json(tasks.listFleetPage(root, sites, columns));
     } catch (e) {
       res.status(500).json({ error: e.message });
     }

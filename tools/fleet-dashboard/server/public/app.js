@@ -5298,6 +5298,8 @@ const TASK = {
   mode: 'fleet', // 'fleet' | 'board'
   view: 'tree', // fleet sub-view: 'tree' | 'table'
   all: [], // every task across the fleet
+  facets: { types: [], roles: [], sites: [] },
+  loadedStages: new Set(),
   f: {
     priority: new Set(),
     stage: new Set(['backlog', 'in-progress']),
@@ -5447,7 +5449,11 @@ function renderFleetControls() {
 async function loadFleet() {
   const content = $('#task-content');
   try {
-    TASK.all = await api('GET', '/api/tasks');
+    const initialStages = ['backlog', 'in-progress'];
+    const data = await api('GET', `/api/tasks?stages=${initialStages.join(',')}`);
+    TASK.all = data.tasks;
+    TASK.facets = data.facets;
+    TASK.loadedStages = new Set(initialStages);
   } catch (e) {
     renderViewError(content, e.message);
     return;
@@ -5483,10 +5489,7 @@ function pill(group, val, label, extraCls = '') {
 
 function renderFleet() {
   const content = $('#task-content');
-  const all = TASK.all;
-  const types = [...new Set(all.map(t => t.type).filter(Boolean))].sort();
-  const roles = [...new Set(all.map(t => t.assigned_role).filter(Boolean))].sort();
-  const sites = [...new Set(all.map(t => t.site))].sort();
+  const { types, roles, sites } = TASK.facets;
   const rows = fleetFiltered();
   const counts = {
     total: rows.length,
@@ -5541,7 +5544,7 @@ function renderFleet() {
     clr.addEventListener('click', () => {
       for (const k of ['priority', 'stage', 'type', 'role', 'site']) TASK.f[k].clear();
       TASK.f.blocked = '';
-      renderFleet();
+      loadFleetStages();
     });
   $$('.tree-task, .ttr').forEach(el =>
     el.addEventListener('click', () =>
@@ -5571,7 +5574,26 @@ function togglePill(group, val) {
     const s = TASK.f[group];
     s.has(val) ? s.delete(val) : s.add(val);
   }
-  renderFleet();
+  if (group === 'stage') loadFleetStages();
+  else renderFleet();
+}
+
+async function loadFleetStages() {
+  const requested = TASK.f.stage.size ? [...TASK.f.stage] : COLS;
+  const missing = requested.filter(stage => !TASK.loadedStages.has(stage));
+  if (!missing.length) return renderFleet();
+  const content = $('#task-content');
+  content.setAttribute('aria-busy', 'true');
+  try {
+    const data = await api('GET', `/api/tasks?stages=${missing.join(',')}`);
+    TASK.all.push(...data.tasks);
+    for (const stage of missing) TASK.loadedStages.add(stage);
+    renderFleet();
+  } catch (e) {
+    renderViewError(content, e.message);
+  } finally {
+    content.removeAttribute('aria-busy');
+  }
 }
 
 function fleetTree(rows) {

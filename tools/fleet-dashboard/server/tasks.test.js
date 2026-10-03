@@ -86,6 +86,37 @@ test('fleet task response contains only the fields used by its table and filters
   }
 });
 
+test('fleet task stage slices retain fleet-wide filter facets', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-task-stages-'));
+  for (const [column, name, metadata] of [
+    ['backlog', 'open.md', 'type: performance\nassigned_role: engineer'],
+    ['done', 'closed.md', 'type: research\nassigned_role: analyst'],
+  ]) {
+    const dir = path.join(root, 'sites', 'example.test', 'ops', 'tasks', column);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, name), `---\ntitle: ${name}\n${metadata}\n---\nBody.\n`);
+  }
+  try {
+    assert.deepEqual(
+      tasks.listFleet(root, ['example.test'], ['backlog']).map(row => row.file),
+      ['open.md']
+    );
+    assert.deepEqual(tasks.listFleetFacets(root, ['example.test']), {
+      types: ['performance', 'research'],
+      roles: ['analyst', 'engineer'],
+      sites: ['example.test'],
+    });
+    const page = tasks.listFleetPage(root, ['example.test'], ['backlog']);
+    assert.deepEqual(
+      page.tasks.map(row => row.file),
+      ['open.md']
+    );
+    assert.deepEqual(page.facets.types, ['performance', 'research']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('locate resolves a task board column without reading the task body', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-task-locate-'));
   const file = 'run-task.md';

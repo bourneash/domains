@@ -186,8 +186,15 @@ function listAll(root, slugs) {
 // The fleet Tasks view needs only the fields used for filtering and display.
 // Keep its response compact; per-site boards and internal consumers still use
 // listAll() with the complete task metadata.
-function listFleet(root, slugs) {
-  return listAll(root, slugs).map(task => ({
+function listFleet(root, slugs, columns = COLUMNS) {
+  const included = new Set(columns.filter(isValidColumn));
+  return listAll(root, slugs)
+    .filter(task => included.has(task.column))
+    .map(fleetRow);
+}
+
+function fleetRow(task) {
+  return {
     site: task.site,
     file: task.file,
     column: task.column,
@@ -198,7 +205,28 @@ function listFleet(root, slugs) {
     created: task.created,
     estimated_turns: task.estimated_turns,
     blocked_on: task.blocked_on,
-  }));
+  };
+}
+
+function listFleetFacets(root, slugs) {
+  return fleetFacets(listAll(root, slugs));
+}
+
+function fleetFacets(all) {
+  return {
+    types: [...new Set(all.map(task => task.type).filter(Boolean))].sort(),
+    roles: [...new Set(all.map(task => task.assigned_role).filter(Boolean))].sort(),
+    sites: [...new Set(all.map(task => task.site))].sort(),
+  };
+}
+
+function listFleetPage(root, slugs, columns = COLUMNS) {
+  const all = listAll(root, slugs);
+  const included = new Set(columns.filter(isValidColumn));
+  return {
+    tasks: all.filter(task => included.has(task.column)).map(fleetRow),
+    facets: fleetFacets(all),
+  };
 }
 
 // Find the canonical board item for a durable producer lineage. A task
@@ -366,6 +394,8 @@ module.exports = {
   list,
   listAll,
   listFleet,
+  listFleetFacets,
+  listFleetPage,
   findAllBySourceId,
   findBySourceId,
   get,
