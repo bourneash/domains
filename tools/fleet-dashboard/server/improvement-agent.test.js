@@ -161,3 +161,17 @@ test('review compares the whole original diff against its immutable fresh worksp
     /malicious/
   );
 });
+
+test('implementation validation bounds local tooling retries and preserves all host gates', () => {
+  const instructions = agent.implementationValidationInstructions();
+  assert.match(instructions, /existing workspace preview service/);
+  assert.match(instructions, /same bounded invocation/);
+  assert.match(instructions, /explicit timeout on CDP/);
+  assert.match(instructions, /one unsuccessful local browser-tooling setup attempt/);
+  assert.match(instructions, /checks still unvalidated/);
+  assert.match(
+    instructions,
+    /does not waive required tests, security audits, acceptance criteria, or release gates/
+  );
+  assert.match(instructions, /never report an unexecuted or failed browser check as passing/);
+});

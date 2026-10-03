@@ -207,6 +207,7 @@ function launch({
         `Do not deploy, push, or switch branches. Do not modify files outside the workspace. Do not modify ops/tasks unless the request explicitly requires ` +
         `a task, assignment, or queue metadata change; when it does, edit the existing task in place and record rollback metadata. Implement the task, run focused checks, ` +
         `and leave all changes uncommitted for dashboard review. You are acting as the ${selectedRole} role. ` +
+        implementationValidationInstructions() +
         `For monetization, affiliate, advertising, analytics, or credential-related work, never invent or infer tags, IDs, accounts, approvals, registries, or active-program status. If authoritative evidence is absent, make no activation change and document the exact owner-supplied prerequisite instead.\n\nTask:\n${String(taskBody || run.title).slice(0, 30000)}`;
   const container = run.sandbox.container || `dd-${run.sandbox.instance}`;
   const selectedModel = model ? String(model) : '';
@@ -400,6 +401,15 @@ function reviewDiffInstructions(run) {
   return `Resolve the improvement merge base against refs/remotes/origin/HEAD (or refs/remotes/origin/main/master when remote HEAD is absent), inspect git diff <resolved-merge-base>...HEAD, plus any uncommitted git diff HEAD. Never compare against the local main/master branch; it may be older than production. `;
 }
 
+function implementationValidationInstructions() {
+  return (
+    'Use the existing workspace preview service when reachable before starting another dev server. ' +
+    'Keep a temporary browser and its inspection in the same bounded invocation, and put an explicit timeout on CDP commands. ' +
+    'After one unsuccessful local browser-tooling setup attempt, record the exact infrastructure error and the checks still unvalidated, then leave the implementation for authoritative host review and validation instead of repeatedly debugging browser plumbing. ' +
+    'This does not waive required tests, security audits, acceptance criteria, or release gates. A failed source check remains blocking; never report an unexecuted or failed browser check as passing. '
+  );
+}
+
 function start(options) {
   return launch(options);
 }
@@ -479,6 +489,7 @@ function httpErr(status, message) {
 }
 
 module.exports = {
+  implementationValidationInstructions,
   reviewDiffInstructions,
   start,
   startReview,

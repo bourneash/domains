@@ -3267,3 +3267,11 @@ test('site-scoped fallback cannot borrow unrelated fleet candidates or blockers'
   assert.match(out.work_items[0].summary, /preserved owner-blocked review/);
   assert.doesNotMatch(JSON.stringify(out), /other.example|Drain 5/);
 });
+
+test('executive accessibility guidance requires actual broken interaction evidence', () => {
+  const prompt = require('./runner').buildPrompt({ intelligence: {} });
+  assert.match(prompt, /nonmodal consent banner/);
+  assert.match(prompt, /does not require aria-modal or a focus trap/);
+  assert.match(prompt, /Do not convert optional consent into a blocking modal/);
+  assert.match(prompt, /guessed scripted completion rate is not a reproduced defect/);
+});
