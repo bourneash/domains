@@ -29,6 +29,32 @@ const AGENT_HEALTH_ERRORS = new Map();
 const AGENT_HEALTH_GENERATION = new Map();
 let ACCESS_LEVEL = 'operator';
 const EXEC_RUN = { poller: null };
+const EXEC_BRIEF_CACHE_TTL_MS = 30000;
+let EXEC_BRIEF_CACHE = null;
+let EXEC_BRIEF_CACHE_AT = 0;
+let EXEC_BRIEF_PENDING = null;
+let EXEC_BRIEF_GENERATION = 0;
+
+function loadExecutiveBrief() {
+  if (
+    EXEC_BRIEF_CACHE &&
+    Date.now() - EXEC_BRIEF_CACHE_AT < EXEC_BRIEF_CACHE_TTL_MS
+  )
+    return Promise.resolve(EXEC_BRIEF_CACHE);
+  if (EXEC_BRIEF_PENDING) return EXEC_BRIEF_PENDING;
+  let pending;
+  pending = api('GET', '/api/executive/brief')
+    .then(data => {
+      EXEC_BRIEF_CACHE = data;
+      EXEC_BRIEF_CACHE_AT = Date.now();
+      return data;
+    })
+    .finally(() => {
+      if (EXEC_BRIEF_PENDING === pending) EXEC_BRIEF_PENDING = null;
+    });
+  EXEC_BRIEF_PENDING = pending;
+  return pending;
+}
 
 function cachedAgentHealth(role) {
   return AGENT_HEALTH_CACHE.get(role)?.data || null;
@@ -14171,6 +14197,8 @@ async function renderExecutiveSetup() {
 async function renderExecutive() {
   if (STATE.agentPage === 'runtime') return renderAgentRuntime();
   if (STATE.agentPage === 'setup') return renderExecutiveSetup();
+  const briefGeneration = ++EXEC_BRIEF_GENERATION;
+  const briefRoute = `${STATE.view}:${STATE.agent || ''}:${STATE.agentPage || ''}`;
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="loading">Loading executive control plane…</div>';
   let messages,
@@ -14180,7 +14208,6 @@ async function renderExecutive() {
     proposals,
     actions,
     settings,
-    brief,
     revops,
     experiments,
     campaigns,
@@ -14201,7 +14228,6 @@ async function renderExecutive() {
       proposals,
       actions,
       settings,
-      brief,
       revops,
       experiments,
       campaigns,
@@ -14226,7 +14252,6 @@ async function renderExecutive() {
         ? Promise.resolve({ actions: [] })
         : api('GET', '/api/executive/actions?limit=200'),
       conversationOnly ? Promise.resolve({ settings: {} }) : api('GET', '/api/executive/settings'),
-      conversationOnly ? Promise.resolve({ brief: {} }) : api('GET', '/api/executive/brief'),
       conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/revops/summary'),
       conversationOnly ? Promise.resolve({ experiments: [] }) : api('GET', '/api/experiments'),
       conversationOnly ? Promise.resolve({ summary: {} }) : api('GET', '/api/campaigns/summary'),
@@ -14516,13 +14541,10 @@ async function renderExecutive() {
     )
     .join('');
   const s = settings.settings || {};
-  const intel = brief.brief?.intelligence || {};
   const executiveBreadcrumb = STATE.view === 'agent' ? breadcrumb('executive') : '';
   const pendingCount = (proposals.proposals || []).filter(
     p => ['proposed', 'feedback'].includes(p.status) && !isCROHandoff(p)
   ).length;
-  const fleetCost = intel.ai_usage?.summary?.total_cost_usd;
-  const fleetCalls = intel.ai_usage?.summary?.calls;
   const revopsSummary = revops.summary || {};
   const experimentRows = experiments.experiments || [];
   const campaignSummary = campaigns.summary || {};
@@ -14666,7 +14688,7 @@ async function renderExecutive() {
     .join('');
   app.innerHTML = `${executiveBreadcrumb}<div class="ex-shell">
     <header class="ex-hero"><div><div class="ex-eyebrow">FLEET CONTROL PLANE</div><h2 class="page-title">Executive overview</h2><p class="muted">Decisions, risks, and work needing attention. Detailed telemetry is tucked below.</p><span class="sr-only">Executive Leadership · Fleet Executive Office · CEO, CTO, CRO, CFO · fleet AI spend telemetry</span></div><div class="ex-hero-actions"><button class="btn" id="ex-notify-enable" type="button">Enable alerts</button><button class="btn" id="ex-notify-read" type="button" ${unreadNotifications.length ? '' : 'disabled'}>${unreadNotifications.length ? `Mark ${unreadNotifications.length} alert${unreadNotifications.length === 1 ? '' : 's'} read` : 'No unread alerts'}</button><button class="btn" id="ex-refresh">↻ Refresh</button></div></header>
-    <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}${stat(fleetCalls == null ? '—' : Number(fleetCalls).toLocaleString(), 'AI calls')}</section>
+    <section class="ex-kpis">${stat(pendingCount, 'owner approvals', pendingCount ? 'warn' : 'good')}${stat(reviewCount, 'CRO reviews', reviewCount ? 'info' : 'good')}${stat(queueTotal, 'queued work')}<div class="ex-kpi" id="ex-ai-calls"><b>—</b><span>AI calls</span></div></section>
     <section class="ex-layout">
       <div class="ex-primary">
         <section class="ex-panel ex-run-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">EXECUTIVE RUN QUEUE</div><h3>Executive team run</h3><p class="muted">Scheduled and operator-triggered runs share this live audit stream. A run remains visible here when it fails, including the provider or validation reason.</p></div><span class="badge ${runStatusClass}">${esc(runStatusLabel)}</span></div><div class="ex-run-controls"><button class="btn primary" id="ex-run-team" ${activeRun ? 'disabled' : ''}>${activeRun ? '⏳ Team running…' : '▶ Run executive team'}</button><span class="muted">${esc(runDetails)}</span></div>${runOutput}<div class="ex-run-queue"><div class="ex-run-queue-head"><b>Run history</b><span class="muted">${runQueueFiltered.length} matching · ${runQueue.length} recorded</span></div>${runQueueToolbar}<div class="table-wrap"><table class="tbl"><thead><tr><th>${runSortButton('status', 'Status')}</th><th>${runSortButton('source', 'Source / started')}</th><th>${runSortButton('result', 'Result')}</th><th>${runSortButton('id', 'ID / log')}</th></tr></thead><tbody>${runQueueRows || '<tr><td colspan="4" class="muted">No runs match these filters.</td></tr>'}</tbody></table></div><div class="activity-pagination"><span class="muted">${runQueueFiltered.length ? `Showing ${runPageStart + 1}–${Math.min(runPageStart + EXEC_RUN_UI.pageSize, runQueueFiltered.length)} of ${runQueueFiltered.length}` : 'Showing 0 runs'}</span><button class="btn sm" id="ex-run-prev" type="button" ${EXEC_RUN_UI.page <= 1 ? 'disabled' : ''}>← Previous</button><span class="activity-page-count">Page ${EXEC_RUN_UI.page} of ${runPageCount}</span><button class="btn sm" id="ex-run-next" type="button" ${EXEC_RUN_UI.page >= runPageCount ? 'disabled' : ''}>Next →</button></div></div></section>
@@ -14679,7 +14701,7 @@ async function renderExecutive() {
         <section class="ex-panel ex-transcript-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">RUN TRANSCRIPT</div><h3>Conversation &amp; background work</h3><p class="muted">Operator-visible requests, structured responses, and pass milestones across the executive team. Private chain-of-thought is never collected.</p></div><span class="badge b-blue">${transcriptMessages.length} events</span></div><div class="ex-transcript-legend"><span class="ex-legend-prompt">Model request</span><span class="ex-legend-response">Model response</span><span class="ex-legend-background">Background work</span><span class="muted">Retained ${esc(String(transcript.retention_days || 90))} days</span></div><div class="ex-transcript-list">${transcriptRows || '<div class="ex-empty">No run transcript yet. Start an executive team run to populate it.</div>'}</div></section>
       </div>
       <aside class="ex-secondary">
-        <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">FLEET SIGNALS</div><h3>At a glance</h3></div><span class="muted">${esc(fmtDate(brief.brief?.generated_at))}</span></div><div class="ex-mini-grid">${stat(intel.analytics?.configured_sites ?? '—', 'analytics sites')}${stat(intel.revenue?.commission_income ?? '—', 'commission income')}${stat(intel.ai_usage?.summary?.total_tokens ?? intel.ai_usage?.summary?.tokens ?? '—', 'AI tokens')}${stat(fleetCost == null ? '—' : `$${Number(fleetCost).toFixed(2)}`, 'telemetry cost')}</div><p class="muted ex-footnote">Telemetry only; no per-run executive cost is inferred.</p></section>
+        <section class="ex-panel" id="ex-fleet-signals"><div class="ex-panel-head"><div><div class="ex-eyebrow">FLEET SIGNALS</div><h3>At a glance</h3></div><span class="muted" id="ex-fleet-signals-at">Loading telemetry…</span></div><div class="ex-mini-grid"><div class="ex-kpi"><b>—</b><span>analytics sites</span></div><div class="ex-kpi"><b>—</b><span>commission income</span></div><div class="ex-kpi"><b>—</b><span>AI tokens</span></div><div class="ex-kpi"><b>—</b><span>telemetry cost</span></div></div><p class="muted ex-footnote">Telemetry only; no per-run executive cost is inferred.</p></section>
         <section class="ex-panel"><div class="ex-panel-head"><div><div class="ex-eyebrow">OPERATIONS</div><h3>Queues</h3></div><a href="#change-queue" class="muted">open queue →</a></div><div class="ex-queue-row"><span>Domain manager</span><b>${esc(managerQueueSummary.queued ?? 0)} queued</b><span class="muted">${esc(managerQueueSummary.running ?? 0)} running</span></div><div class="ex-queue-row"><span>Principal engineer</span><b>${esc(principalQueueSummary.queued ?? 0)} queued</b><span class="muted">${esc(principalQueueSummary.review ?? 0)} review</span></div></section>
       </aside>
     </section>
@@ -14697,7 +14719,10 @@ async function renderExecutive() {
       'beforeend',
       `<label>Transcript retention (days)<input id="ex-transcript-retention" class="cm-input" value="${esc(s.conversation_retention_days || '90')}" type="number" min="1" max="3650"><small class="muted">Operator-visible run transcript only.</small></label>`
     );
-  $('#ex-refresh').onclick = () => softRender();
+  $('#ex-refresh').onclick = () => {
+    EXEC_BRIEF_CACHE = null;
+    softRender();
+  };
   $('#ex-case-search').oninput = event => {
     EXEC_CASE_UI.q = event.target.value.trim();
     EXEC_CASE_UI.selected = null;
@@ -15152,6 +15177,32 @@ async function renderExecutive() {
   };
   wireCrumbs();
   stamp();
+  if (!conversationOnly) {
+    loadExecutiveBrief()
+      .then(data => {
+        const currentRoute = `${STATE.view}:${STATE.agent || ''}:${STATE.agentPage || ''}`;
+        if (briefGeneration !== EXEC_BRIEF_GENERATION || currentRoute !== briefRoute) return;
+        const brief = data.brief || {};
+        const intel = brief.intelligence || {};
+        const usage = intel.ai_usage || {};
+        const calls = usage.summary?.calls;
+        const tokens = usage.summary?.total_tokens ?? usage.summary?.tokens ?? '—';
+        const cost = usage.summary?.total_cost_usd;
+        const callsValue = $('#ex-ai-calls b');
+        if (callsValue)
+          callsValue.textContent = calls == null ? '—' : Number(calls).toLocaleString();
+        const generatedAt = $('#ex-fleet-signals-at');
+        if (generatedAt) generatedAt.textContent = fmtDate(brief.generated_at);
+        const miniGrid = $('#ex-fleet-signals .ex-mini-grid');
+        if (miniGrid)
+          miniGrid.innerHTML =
+            stat(intel.analytics?.configured_sites ?? '—', 'analytics sites') +
+            stat(intel.revenue?.commission_income ?? '—', 'commission income') +
+            stat(tokens, 'AI tokens') +
+            stat(cost == null ? '—' : `$${Number(cost).toFixed(2)}`, 'telemetry cost');
+      })
+      .catch(() => {});
+  }
 }
 
 const WORKBENCH_UI = { status: 'open,in_progress,blocked,waiting', owner: '', kind: '' };
