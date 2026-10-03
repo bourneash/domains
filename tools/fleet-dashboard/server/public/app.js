@@ -7641,7 +7641,11 @@ async function renderAnalytics() {
   const app = $('#app');
   if (FRESH) app.innerHTML = '<div class="muted">loading analytics…</div>';
 
-  const sitesResp = await api('GET', '/api/sites');
+  const [sitesResp, health, amazonRevenue] = await Promise.all([
+    api('GET', '/api/sites'),
+    api('GET', '/api/analytics/health'),
+    api('GET', '/api/revenue/amazon'),
+  ]);
   const sites = (sitesResp && sitesResp.sites) || sitesResp || [];
   const siteNames = sites
     .map(s => (typeof s === 'string' ? s : s.domain || s.name))
@@ -7649,8 +7653,6 @@ async function renderAnalytics() {
     .sort();
   if (!ANALYTICS_SITE || !siteNames.includes(ANALYTICS_SITE)) ANALYTICS_SITE = siteNames[0] || null;
 
-  const health = await api('GET', '/api/analytics/health');
-  const amazonRevenue = await api('GET', '/api/revenue/amazon');
   const healthSites = (health && health.sites) || {};
 
   const healthRows = Object.keys(healthSites)
