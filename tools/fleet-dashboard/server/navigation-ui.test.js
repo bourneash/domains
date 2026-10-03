@@ -28,7 +28,7 @@ test('agent navigation tolerates both bare-list and enveloped API responses', ()
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /function normalizeAgentList\(value\)/);
   assert.match(app, /if \(Array\.isArray\(value\?\.agents\)\) return value\.agents/);
-  assert.match(app, /api\('GET', '\/api\/agents'\)\.then\(normalizeAgentList\)/);
+  assert.match(app, /api\('GET', '\/api\/agents'\)\s*\.then\(normalizeAgentList\)/);
 });
 
 test('site command centers are shareable first-class routes', () => {
@@ -1023,14 +1023,19 @@ test('live version changes never force a document reload', () => {
   assert.match(app, /#update-pill.*location\.reload\(\)/s);
 });
 
-test('dashboard boot loads sites and agents concurrently after the auth gate', () => {
+test('dashboard boot defers the agent catalog for non-agent routes', () => {
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const boot = app.slice(app.indexOf('async function boot()'));
   const auth = boot.indexOf("api('GET', '/api/auth')");
-  const startupReads = boot.indexOf('const [sites, agents] = await Promise.all([');
-  assert.ok(auth >= 0 && startupReads > auth);
-  assert.match(boot.slice(startupReads, startupReads + 240), /api\('GET', '\/api\/sites'\)\.catch\(\(\) => \[\]\)/);
-  assert.match(boot.slice(startupReads, startupReads + 240), /api\('GET', '\/api\/agents'\)\.then\(normalizeAgentList\)\.catch\(\(\) => \[\]\)/);
+  const agentsRequest = boot.indexOf("api('GET', '/api/agents')");
+  const sitesRequest = boot.indexOf("STATE.sites = await api('GET', '/api/sites')");
+  assert.ok(auth >= 0 && agentsRequest > auth && sitesRequest > agentsRequest);
+  assert.match(boot, /const agentsPending = api\('GET', '\/api\/agents'\)\s*\.then\(normalizeAgentList\)\s*\.catch\(\(\) => \[\]\)/);
+  assert.match(boot, /STATE\.sites = await api\('GET', '\/api\/sites'\)[\s\S]*let r = parseHash\(\)/);
+  assert.match(boot, /if \(r\.view === 'agent'\) \{\s*STATE\.agents = await agentsPending/);
+  assert.match(boot, /r = parseHash\(\);\s*if \(r\.view === 'agent' && !AGENT_CATALOG_READY\)/);
+  assert.match(boot, /if \(!AGENT_CATALOG_READY\) \{\s*agentsPending\.then\(agents =>/);
+  assert.match(app, /if \(STATE\.view === 'agent' && !AGENT_CATALOG_READY\)/);
 });
 
 test('the self-update action confirms before reloading the workspace', () => {

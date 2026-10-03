@@ -28,6 +28,7 @@ const AGENT_HEALTH_PENDING = new Map();
 const AGENT_HEALTH_ERRORS = new Map();
 const AGENT_HEALTH_GENERATION = new Map();
 let ACCESS_LEVEL = 'operator';
+let AGENT_CATALOG_READY = false;
 const EXEC_RUN = { poller: null };
 const EXEC_BRIEF_CACHE_TTL_MS = 30000;
 let EXEC_BRIEF_CACHE = null;
@@ -15641,6 +15642,10 @@ async function renderSiteDetail() {
 }
 
 function render() {
+  if (STATE.view === 'agent' && !AGENT_CATALOG_READY) {
+    if (FRESH) $('#app').innerHTML = '<div class="loading">Loading agent catalog…</div>';
+    return;
+  }
   $$('.tab[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === STATE.view));
   const ddBtn = $('#agents-btn');
   if (ddBtn) ddBtn.classList.toggle('active', STATE.view === 'agent');
@@ -16181,13 +16186,27 @@ async function boot() {
     /* /api/auth is exempt; ignore transient errors */
   }
 
-  const [sites, agents] = await Promise.all([
-    api('GET', '/api/sites').catch(() => []),
-    api('GET', '/api/agents').then(normalizeAgentList).catch(() => []),
-  ]);
-  STATE.sites = sites;
-  STATE.agents = agents;
-  const r = parseHash();
+  const agentsPending = api('GET', '/api/agents')
+    .then(normalizeAgentList)
+    .catch(() => []);
+  try {
+    STATE.sites = await api('GET', '/api/sites');
+  } catch {
+    STATE.sites = [];
+  }
+  let r = parseHash();
+  if (r.view === 'agent') {
+    STATE.agents = await agentsPending;
+    AGENT_CATALOG_READY = true;
+  } else {
+    STATE.agents = [];
+  }
+  r = parseHash();
+  if (r.view === 'agent' && !AGENT_CATALOG_READY) {
+    STATE.agents = await agentsPending;
+    AGENT_CATALOG_READY = true;
+  }
+  r = parseHash();
   STATE.view = r.view;
   STATE.agent = r.agent;
   STATE.agentPage = r.agentPage || null;
@@ -16322,6 +16341,14 @@ async function boot() {
   FRESH = true;
   render();
   scheduleAuto();
+  if (!AGENT_CATALOG_READY) {
+    agentsPending.then(agents => {
+      STATE.agents = agents;
+      AGENT_CATALOG_READY = true;
+      buildAgentsMenu();
+      if (STATE.view === 'agent') render();
+    });
+  }
 }
 
 /* ===== GUARDRAILS ===== */
