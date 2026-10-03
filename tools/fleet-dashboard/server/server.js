@@ -7317,7 +7317,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
       const slugs = discoverSites(root);
       const [usage, matrix] = await Promise.all([
         aiusage.fleet(root, { from: day(from), to: day(now) }),
-        roles.matrix(root, slugs),
+        // The health report only reads this role (or its family profiles).
+        // Reuse the scoped Agent matrix instead of rebuilding every role's
+        // editorial telemetry and checking every active deployer repository.
+        roles.agentMatrix(root, slugs, req.params.role),
       ]);
       let health = await roles.health(root, req.params.role, slugs, usage, false, matrix);
       if (req.query.compact === '1') health = roles.compactHealth(health);
