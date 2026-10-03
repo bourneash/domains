@@ -62,7 +62,10 @@ test('connected release collector requires exact commit, successful default bran
     state: 'deployed',
     deployment_id: 'sha',
     validation: { passed: true, commit: 'sha' },
-    approval: { approved_at: new Date(now).toISOString() },
+    approval: {
+      approved_at: new Date(now).toISOString(),
+      production_checks: { gate: 'passed', commit: 'sha' },
+    },
   };
   let saved;
   const store = {
@@ -121,7 +124,10 @@ test('abbreviated deployment SHA resolves uniquely and persists the full build c
     state: 'deployed',
     deployment_id: full.slice(0, 7),
     validation: { passed: true, commit: full },
-    approval: { approved_at: new Date(now).toISOString() },
+    approval: {
+      approved_at: new Date(now).toISOString(),
+      production_checks: { gate: 'passed', commit: full },
+    },
   };
   let saved;
   const store = {
@@ -164,4 +170,51 @@ test('abbreviated deployment SHA resolves uniquely and persists the full build c
     }),
     []
   );
+});
+
+test('direct connected release waits for passing verification of the same production commit', () => {
+  const { recordConnectedReleases } = require('./work-evidence');
+  const now = 100000,
+    run = {
+      run_id: 'run',
+      source_id: 'request',
+      site: 'example.test',
+      state: 'deployed',
+      deployment_id: 'sha',
+      validation: { passed: true, commit: 'sha' },
+      approval: { approved_at: 'actual' },
+    };
+  const store = {
+    listImprovements: () => [run],
+    getChangeRequest: () => ({ delivery_mode: 'direct' }),
+    updateImprovement: () => {},
+  };
+  const health = () => ({
+    live: true,
+    version: 2,
+    worker: 'example',
+    checkedAt: now,
+    deployedAt: now / 1000,
+  });
+  const builds = [
+    {
+      worker: 'example',
+      uuid: 'build',
+      branch: 'main',
+      commitHash: 'sha',
+      outcome: 'success',
+      stoppedOn: new Date(now - 1000).toISOString(),
+    },
+  ];
+  for (const receipt of [
+    undefined,
+    { gate: 'waiting', commit: 'sha' },
+    { gate: 'failed', commit: 'sha' },
+    { gate: 'passed', commit: 'other' },
+  ]) {
+    run.approval.production_checks = receipt;
+    assert.deepEqual(recordConnectedReleases(store, { now, health, builds }), []);
+  }
+  run.approval.production_checks = { gate: 'passed', commit: 'sha' };
+  assert.deepEqual(recordConnectedReleases(store, { now, health, builds }), ['run']);
 });

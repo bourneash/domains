@@ -6784,6 +6784,10 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     }
   }
   const queuePulse = setInterval(() => {
+    void require('./production-verification')
+      .reconcile(events, root)
+      .then(() => require('./work-evidence').recordConnectedReleases(events))
+      .catch(error => console.error('Production verification evidence:', error.message));
     try {
       require('./work-evidence').recordConnectedReleases(events);
     } catch (error) {

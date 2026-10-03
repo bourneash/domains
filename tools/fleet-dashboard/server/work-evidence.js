@@ -161,6 +161,12 @@ function recordConnectedReleases(
     if (!build) continue;
     const request = run.source_id && store.getChangeRequest(run.source_id);
     if (
+      request?.delivery_mode === 'direct' &&
+      (run.approval?.production_checks?.gate !== 'passed' ||
+        run.approval.production_checks.commit !== build.commitHash)
+    )
+      continue;
+    if (
       !delivery(request || {}, {
         ...run,
         deployment_id: build.commitHash,
