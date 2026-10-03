@@ -139,11 +139,20 @@ function recordConnectedReleases(
       live.checkedAt > now
     )
       continue;
-    const build = builds.find(
+    const matching = builds.filter(
       row =>
         row.worker === live.worker &&
-        row.commitHash === run.deployment_id &&
         ['main', 'master'].includes(row.branch) &&
+        (row.commitHash === run.deployment_id ||
+          (/^[a-f0-9]{7,39}$/i.test(run.deployment_id) &&
+            /^[a-f0-9]{40}$/i.test(row.commitHash) &&
+            row.commitHash.startsWith(run.deployment_id.toLowerCase())))
+    );
+    // Git stores abbreviated deployment SHAs in older runs. Resolve only a
+    // unique full hash; an ambiguous prefix is not release evidence.
+    if (new Set(matching.map(row => row.commitHash)).size !== 1) continue;
+    const build = matching.find(
+      row =>
         row.uuid &&
         row.outcome === 'success' &&
         row.stoppedOn &&
@@ -154,6 +163,7 @@ function recordConnectedReleases(
     if (
       !delivery(request || {}, {
         ...run,
+        deployment_id: build.commitHash,
         approval: {
           ...run.approval,
           release: { status: 'verified', build_id: build.uuid, commit: build.commitHash },
@@ -163,6 +173,7 @@ function recordConnectedReleases(
     )
       continue;
     store.updateImprovement(run.run_id, {
+      deployment_id: build.commitHash,
       approval: {
         ...run.approval,
         release: {

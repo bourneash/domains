@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$ROOT/tools/executive/iteration-guard.sh"
 SLOTS="${OPERATING_WORKER_SLOTS:-3}"
 [[ "$SLOTS" =~ ^[1-9][0-9]*$ ]] || { echo "invalid OPERATING_WORKER_SLOTS" >&2; exit 2; }
 export FD_DOMAINS_ROOT="$ROOT"

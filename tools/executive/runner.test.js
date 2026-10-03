@@ -2993,3 +2993,36 @@ test('a delivered repair closes its case even when a diagnosis also exists', () 
     'repair'
   );
 });
+
+test('model context omits repeated measurement observations and message report metadata', () => {
+  const brief = {
+    intelligence: {},
+    improvements: [
+      {
+        run_id: 'run',
+        state: 'measuring',
+        outcome: {
+          deployment_verified_at: '2026-10-03',
+          measurement_observations: [{ body: 'x'.repeat(20000) }],
+        },
+      },
+    ],
+    conversation: [
+      { actor: 'cto', body: 'Inspect failed build', metadata: { report: 'x'.repeat(20000) } },
+    ],
+    work_threads: [
+      {
+        work_id: 'case',
+        messages: [
+          { actor: 'cto', body: 'Continue same case', metadata: { report: 'x'.repeat(20000) } },
+        ],
+      },
+    ],
+  };
+  const compact = runner.compactModelBrief(brief);
+  assert.equal(compact.improvements[0].outcome.deployment_verified_at, '2026-10-03');
+  assert.equal(compact.improvements[0].outcome.measurement_observations, undefined);
+  assert.equal(compact.conversation[0].metadata, undefined);
+  assert.equal(compact.work_threads[0].messages[0].body, 'Continue same case');
+  assert.ok(JSON.stringify(compact).length < 5000);
+});

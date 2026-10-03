@@ -1459,6 +1459,46 @@ function compactModelBrief(brief) {
     generated_at: request.generated_at,
     artifact: request.artifact,
   }));
+  // Measurement observations and nested conversation metadata repeat large
+  // reports on every specialist pass. Keep lifecycle evidence and source IDs;
+  // the authoritative artifacts remain available to the host.
+  compact.improvements = (brief.improvements || []).slice(0, 50).map(row => ({
+    run_id: row.run_id,
+    site: row.site,
+    title: row.title,
+    state: row.state,
+    measurement_due: row.measurement_due,
+    outcome: compactModelValue(
+      Object.fromEntries(
+        Object.entries(row.outcome || {}).filter(
+          ([key]) =>
+            ![
+              'measurement_observations',
+              'analytics',
+              'revenue',
+              'log',
+              'stdout',
+              'stderr',
+            ].includes(key)
+        )
+      )
+    ),
+  }));
+  const compactMessage = row => ({
+    actor: row.actor,
+    body: compactModelValue(row.body),
+    work_id: row.work_id,
+    reply_to: row.reply_to,
+    message_type: row.message_type,
+    created_at: row.created_at,
+  });
+  compact.conversation = (brief.conversation || []).slice(0, 12).map(compactMessage);
+  compact.work_threads = (brief.work_threads || []).slice(0, 8).map(row => ({
+    work_id: row.work_id,
+    title: row.title,
+    owner: row.owner,
+    messages: (row.messages || []).slice(-4).map(compactMessage),
+  }));
   compact.model_context_note =
     'Large historical arrays, raw repository listings, and duplicate report bodies are compacted here. The control plane retains the authoritative artifacts and source timestamps; do not treat omitted context as zero or proof of absence.';
   return compact;

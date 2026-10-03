@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$ROOT/tools/executive/iteration-guard.sh"
 node - "$ROOT" <<'NODE'
 const root = process.argv[2];
 const dispatcher = require(`${root}/tools/fleet-dashboard/server/domain-dispatcher`);

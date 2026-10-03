@@ -4,6 +4,7 @@ set -euo pipefail
 # One-shot scheduler entrypoint. The fleet scheduler runs this every ten minutes;
 # the sandbox wrapper supplies the single-flight lock and bounded container.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$ROOT/tools/executive/iteration-guard.sh"
 LOG_DIR="$ROOT/tools/executive/logs"
 mkdir -p "$LOG_DIR"
 exec >>"$LOG_DIR/scheduled.log" 2>&1

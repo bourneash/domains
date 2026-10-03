@@ -109,3 +109,59 @@ test('connected release collector requires exact commit, successful default bran
   ]);
   assert.equal(delivery({ delivery_mode: 'direct' }, { ...run, ...saved }).deployed, true);
 });
+
+test('abbreviated deployment SHA resolves uniquely and persists the full build commit', () => {
+  const { recordConnectedReleases } = require('./work-evidence');
+  const now = Date.parse('2026-10-03T12:00:00Z');
+  const full = 'abcdef0' + '1'.repeat(33);
+  const run = {
+    run_id: 'run',
+    source_id: 'request',
+    site: 'example.test',
+    state: 'deployed',
+    deployment_id: full.slice(0, 7),
+    validation: { passed: true, commit: full },
+    approval: { approved_at: new Date(now).toISOString() },
+  };
+  let saved;
+  const store = {
+    listImprovements: () => [run],
+    getChangeRequest: () => ({ delivery_mode: 'direct' }),
+    updateImprovement: (id, patch) => {
+      saved = patch;
+    },
+  };
+  const live = {
+    live: true,
+    version: 2,
+    worker: 'example',
+    checkedAt: now,
+    deployedAt: now / 1000,
+  };
+  const build = {
+    worker: 'example',
+    uuid: 'build',
+    branch: 'main',
+    commitHash: full,
+    outcome: 'success',
+    stoppedOn: new Date(now - 1000).toISOString(),
+  };
+  assert.deepEqual(recordConnectedReleases(store, { now, health: () => live, builds: [build] }), [
+    'run',
+  ]);
+  assert.equal(saved.deployment_id, full);
+  assert.equal(delivery({ delivery_mode: 'direct' }, { ...run, ...saved }).deployed, true);
+  const ambiguous = { ...build, uuid: 'other', commitHash: full.slice(0, 7) + 'f'.repeat(33) };
+  assert.deepEqual(
+    recordConnectedReleases(store, { now, health: () => live, builds: [build, ambiguous] }),
+    []
+  );
+  assert.deepEqual(
+    recordConnectedReleases(store, {
+      now,
+      health: () => live,
+      builds: [{ ...build, outcome: 'failed' }],
+    }),
+    []
+  );
+});

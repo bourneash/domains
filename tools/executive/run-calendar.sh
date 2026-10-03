@@ -4,6 +4,7 @@ set -euo pipefail
 # Durable calendar dispatcher. Claims are atomic and leased; only the fixed
 # action registry in executive-calendar.js can launch a process.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$ROOT/tools/executive/iteration-guard.sh"
 LOCK_FILE="$ROOT/tools/executive/data/calendar-dispatch.lock"
 mkdir -p "$(dirname "$LOCK_FILE")"
 exec 9>"$LOCK_FILE"
