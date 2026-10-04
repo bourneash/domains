@@ -3129,9 +3129,11 @@ function actionMandateSatisfied(plan = {}, brief = {}) {
           update.next_action &&
           brief.overwatch_directive.delivery_recovery_cases.some(
             task =>
-              task.recovery_type === 'queued-backlog' &&
+              ['queued-backlog', 'failed-startup'].includes(task.recovery_type) &&
               task.work_id === update.work_id &&
-              task.original_request?.status === 'queued' &&
+              (task.original_request?.status === 'queued' ||
+                (task.recovery_type === 'failed-startup' &&
+                  task.original_request?.status === 'failed')) &&
               update.summary !== task.summary &&
               update.next_action !== task.next_action
           )

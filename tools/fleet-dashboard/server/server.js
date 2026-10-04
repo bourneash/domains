@@ -1111,7 +1111,16 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
           `chore: queue ${claimed.title}`
         );
       }
+      changequeue.update(events, claimed.request_id, { run_id: created.run.run_id });
       const worktree = await git.createWorktree(root, claimed.site, created.run.run_id);
+      createdRun = events.updateImprovement(created.run.run_id, {
+        workspace_path: worktree.path,
+        baseline: {
+          ...created.run.baseline,
+          workspace_base_commit:
+            worktree.base_commit || created.run.baseline?.workspace_base_commit || null,
+        },
+      });
       const sandbox = await devsandbox.startImprovement(
         root,
         claimed.site,
@@ -2445,6 +2454,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     if (!run || run.source !== 'fleet-dashboard' || !run.source_id) return null;
     const request = events.getChangeRequest(run.source_id);
     if (!request || request.status === 'cancelled') return request;
+    // Only the request's current linked attempt may project workflow state.
+    if (request.run_id !== run.run_id) return request;
     if (reportWasInvalidated(run)) return request;
     let target = preferredStatus;
     if (!target) {

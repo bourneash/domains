@@ -276,3 +276,67 @@ test('expected recovery cannot count passive observation as a successful handoff
   assert.equal(result.status, 'failed');
   assert.equal(result.deliveryStatus, 'recovery_handoff_missing');
 });
+
+test('only concrete failed port startup admits bounded retry of original waiting case', async () => {
+  const f = fixture();
+  f.task.work_id = 'queued-delivery:original';
+  f.task.status = 'waiting';
+  f.requests.original.error =
+    'Docker failed to bind host port 127.0.0.1:8828/tcp: address already in use';
+  f.agent.workspace.overwatch_recovery = {
+    [f.task.work_id]: { attempt_count: 1, fingerprint: 'prior' },
+  };
+  const cases = readyCases(f.store, { agent: f.agent });
+  assert.equal(cases.length, 1);
+  assert.equal(cases[0].recovery_type, 'failed-startup');
+  f.store.listExecutiveActions = () => [
+    {
+      action_id: 'new-review',
+      status: 'completed',
+      target_id: f.task.work_id,
+      summary: 'Verified infrastructure correction and retained original scope',
+      result: {
+        source: 'executive-plan',
+        status: 'in_progress',
+        next_action: 'Retry original request normally',
+        evidence: [{ type: 'test', label: 'port collision regression' }],
+      },
+    },
+  ];
+  let picked = [];
+  const receipts = await trackHandoffs(
+    f.store,
+    f.agent,
+    {
+      requests: new Set(['original']),
+      work: new Map([[f.task.work_id, { ...f.task }]]),
+      tracking_actions: new Set(),
+    },
+    {
+      cases,
+      controlled: true,
+      pickupImpl: async (root, q) => {
+        picked.push(q.request_id);
+        return { run_id: 'retry-run' };
+      },
+    }
+  );
+  assert.deepEqual(picked, ['original']);
+  assert.equal(receipts[0].action, 'started_recovery_worker');
+  assert.equal(f.agent.workspace.overwatch_recovery[f.task.work_id].attempt_count, 2);
+  assert.equal(f.requests.original.status, 'failed');
+  assert.deepEqual(readyCases(f.store, { agent: f.agent }), []);
+});
+test('startup retry cannot reopen cancellation or arbitrary failure', () => {
+  const f = fixture();
+  f.task.work_id = 'queued-delivery:original';
+  f.task.status = 'waiting';
+  for (const [status, error] of [
+    ['cancelled', 'failed to bind host port: address already in use'],
+    ['failed', 'review failed'],
+    ['failed', 'address already in use'],
+  ]) {
+    Object.assign(f.requests.original, { status, error });
+    assert.deepEqual(readyCases(f.store), []);
+  }
+});

@@ -543,12 +543,21 @@ async function start(root, site, options = {}) {
     args.push('--mount', `type=bind,src=${codexAuthHost},dst=/host-codex-ro/auth.json,readonly`);
   args.push(IMAGE);
 
-  const r = await docker(args);
-  if (r.code !== 0) {
+  const started = await require('./sandbox-port-retry').runWithPortRetry({
+    args,
+    name: containerName(instance),
+    ports: { ttyd: ttydPort, dev: devPort },
+    run: docker,
+    allocate: async reserved =>
+      allocPorts(instance, {
+        reservedHostPorts: new Set([...reserved, ...(await runningPublishedPorts())]),
+      }),
+  });
+  if (started.result.code !== 0) {
     await removeSandboxNetwork(instance);
-    throw httpErr(500, `docker run failed: ${r.stderr.trim()}`);
+    throw httpErr(500, `docker run failed: ${started.result.stderr.trim()}`);
   }
-  return { started: true, ports: { ttyd: ttydPort, dev: devPort }, network };
+  return { started: true, ports: started.ports, port_conflicts: started.port_conflicts, network };
 }
 
 function improvementInstance(runId) {

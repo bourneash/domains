@@ -2,6 +2,12 @@
 const fs = require('node:fs'),
   path = require('node:path');
 const evidence = require('../fleet-dashboard/server/work-evidence');
+function failedStartup(q) {
+  return (
+    q?.status === 'failed' &&
+    /failed to bind host port[^\n]*address already in use/i.test(q.error || '')
+  );
+}
 function ensureQueuedCases(
   store,
   { site = null, controlled = process.env.TEAM_ITERATION_RUN === '1' } = {}
@@ -14,7 +20,7 @@ function ensureQueuedCases(
     .filter(
       q =>
         q.site === site &&
-        q.status === 'queued' &&
+        (q.status === 'queued' || failedStartup(q)) &&
         ['direct', 'pull_request'].includes(q.delivery_mode) &&
         !gates.reason(q)
     )
@@ -59,7 +65,7 @@ function readyCases(store, { site = null, agent = null } = {}) {
       const queued = task.work_id.startsWith('queued-delivery:');
       if (
         (!queued && !task.work_id.startsWith('delivery-recovery:')) ||
-        !['ready', 'open'].includes(task.status) ||
+        !['ready', 'open', 'waiting'].includes(task.status) ||
         (site && task.site !== site)
       )
         return false;
@@ -67,9 +73,10 @@ function readyCases(store, { site = null, agent = null } = {}) {
         task.source_id || task.work_id.slice('delivery-recovery:'.length)
       );
       const run = original?.run_id && store.getImprovement(original.run_id);
+      if (task.status === 'waiting' && !failedStartup(original)) return false;
       if (queued) {
         if (
-          original?.status !== 'queued' ||
+          (original?.status !== 'queued' && !failedStartup(original)) ||
           require('../fleet-dashboard/server/execution-gates').reason(original)
         )
           return false;
@@ -98,7 +105,9 @@ function readyCases(store, { site = null, agent = null } = {}) {
       evidence: task.evidence,
       source_work_id: task.work_id,
       recovery_type: task.work_id.startsWith('queued-delivery:')
-        ? 'queued-backlog'
+        ? failedStartup(store.getChangeRequest(task.source_id))
+          ? 'failed-startup'
+          : 'queued-backlog'
         : 'production-failure',
       original_request: task.work_id.startsWith('queued-delivery:')
         ? store.getChangeRequest(task.source_id)
@@ -106,7 +115,7 @@ function readyCases(store, { site = null, agent = null } = {}) {
       instruction_prefix:
         'Use this supplied case_ref as tracking_updates.work_id or change_requests.source_work_id. The host resolves only exact supplied aliases; never recopy or invent UUIDs.',
       instruction: task.work_id.startsWith('queued-delivery:')
-        ? 'Inspect the existing original request and fresh evidence. If its bounded scope is valid, record tracking_updates for this exact work_id with status in_progress, a substantive review summary, acceptance/testing disposition, and next_action ordinary worker pickup. Do not create another request. This resumes authorized original backlog while automatic pickup is paused; it is not a fabricated execution failure. No completed work credit until its actual release.'
+        ? 'Inspect the existing original request and fresh evidence. If its bounded scope is valid, record tracking_updates for this exact work_id with status in_progress, a substantive review summary, acceptance/testing disposition, and next_action ordinary worker pickup. Do not create another request. If this original request has the supplied verified failed-startup status, approve retry of the same request through ordinary pickup after the infrastructure correction; do not create a successor or erase the original failure. This resumes authorized original backlog while automatic pickup is paused; it is not a fabricated execution failure. No completed work credit until its actual release.'
         : 'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts. Distinguish warning annotations from the actual failing step: Node runtime deprecation and future runner migration warnings are not quota errors. Inspect the pinned workflow source and consumers. If archives have no required consumer, use the established fleet pattern: optional archive job, default disabled, requested failures visible; preserve every required install/audit/build/content check, command and version pin. Do not upgrade dependencies to silence unrelated warnings, waive checks, delete archives, change billing or redeploy the old SHA.',
     }));
 }
@@ -150,7 +159,7 @@ async function trackHandoffs(
   for (const candidate of cases) {
     const task = store.getExecutiveWorkItem(candidate.work_id);
     if (!task) continue;
-    const queued = candidate.recovery_type === 'queued-backlog';
+    const queued = ['queued-backlog', 'failed-startup'].includes(candidate.recovery_type);
     const before = baseline.work?.get(task.work_id);
     const review =
       queued &&
@@ -180,7 +189,7 @@ async function trackHandoffs(
         q =>
           q &&
           (!queued ? !baseline.requests.has(q.request_id) : true) &&
-          q.status === 'queued' &&
+          (q.status === 'queued' || (queued && failedStartup(q))) &&
           ['direct', 'pull_request'].includes(q.delivery_mode) &&
           q.site === task.site
       )
@@ -244,6 +253,6 @@ async function trackHandoffs(
 module.exports = {
   readyCases,
   trackHandoffs,
-  policyRevision: 'delivery-recovery/v5',
+  policyRevision: 'delivery-recovery/v6',
   ensureQueuedCases,
 };

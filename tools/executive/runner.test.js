@@ -3649,3 +3649,26 @@ test('provider parser preserves supplied recovery aliases for trusted host resol
   });
   assert.equal(parsed.tracking_updates[0].work_id, 'RECOVERY_1');
 });
+
+test('verified failed-startup mandate reviews the same original request without inventing a successor', () => {
+  const task = {
+    work_id: 'queued-delivery:original',
+    recovery_type: 'failed-startup',
+    original_request: { status: 'failed' },
+    summary: 'Previous port collision',
+    next_action: 'Review corrected startup',
+  };
+  const brief = {
+    overwatch_directive: { delivery_recovery_cases: [task] },
+    action_mandate: { candidates: [] },
+  };
+  const update = {
+    work_id: task.work_id,
+    status: 'in_progress',
+    summary: 'Verified bounded infrastructure fix and original unchanged scope',
+    next_action: 'Retry same request through ordinary pickup',
+  };
+  assert.equal(runner.actionMandateSatisfied({ tracking_updates: [update] }, brief), true);
+  task.original_request.status = 'cancelled';
+  assert.equal(runner.actionMandateSatisfied({ tracking_updates: [update] }, brief), false);
+});
