@@ -13,18 +13,23 @@ const { createApp } = require('./server');
 const roles = require('./roles');
 const aiusage = require('./aiusage');
 
-function request(server) {
+function request(server, compact = true) {
   return new Promise((resolve, reject) => {
-    http.get(
-      `http://127.0.0.1:${server.address().port}/api/agents/engineer/health?compact=1`,
-      response => {
-        const chunks = [];
-        response.on('data', chunk => chunks.push(chunk));
-        response.on('end', () =>
-          resolve({ status: response.statusCode, body: JSON.parse(Buffer.concat(chunks).toString()) })
-        );
-      }
-    ).on('error', reject);
+    http
+      .get(
+        `http://127.0.0.1:${server.address().port}/api/agents/engineer/health${compact ? '?compact=1' : ''}`,
+        response => {
+          const chunks = [];
+          response.on('data', chunk => chunks.push(chunk));
+          response.on('end', () =>
+            resolve({
+              status: response.statusCode,
+              body: JSON.parse(Buffer.concat(chunks).toString()),
+            })
+          );
+        }
+      )
+      .on('error', reject);
   });
 }
 
@@ -36,6 +41,7 @@ test('agent health shares a fresh report across requests', async t => {
   let usageCalls = 0;
   let matrixCalls = 0;
   let healthCalls = 0;
+  let compactMode = false;
   aiusage.fleet = async () => {
     usageCalls++;
     return { by_site_role: [] };
@@ -44,8 +50,9 @@ test('agent health shares a fresh report across requests', async t => {
     matrixCalls++;
     return { sites: [] };
   };
-  roles.health = async () => {
+  roles.health = async (...args) => {
     healthCalls++;
+    compactMode = args[7];
     return { role: 'engineer', summary: { enrolled: 0 }, rows: [] };
   };
   const server = createApp({ root }).listen(0, '127.0.0.1');
@@ -66,4 +73,11 @@ test('agent health shares a fresh report across requests', async t => {
   assert.equal(usageCalls, 1);
   assert.equal(matrixCalls, 1);
   assert.equal(healthCalls, 1);
+  assert.equal(compactMode, true);
+  const full = await request(server, false);
+  assert.equal(full.status, 200);
+  assert.equal(healthCalls, 2);
+  assert.equal(compactMode, false);
+  await request(server, false);
+  assert.equal(healthCalls, 2);
 });

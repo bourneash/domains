@@ -225,7 +225,7 @@ function executionHistory(
   slug,
   role,
   schedule,
-  { from, to, enabled = true, logIndex, lastRuns } = {}
+  { from, to, enabled = true, logIndex, lastRuns, compact = false } = {}
 ) {
   const end = to || new Date();
   const start = from || new Date(end.getTime() - 7 * DAY);
@@ -233,6 +233,7 @@ function executionHistory(
   const expected = enabled ? expectedRuns(schedule, start, end) : [];
   const slots = [];
   const used = new Set();
+  const counts = {};
   const tolerance = Math.max(
     5 * MINUTE,
     expected.length > 1 ? Math.min(30 * MINUTE, (expected[1] - expected[0]) * 0.45) : 15 * MINUTE
@@ -253,24 +254,27 @@ function executionHistory(
         distance = d;
       }
     }
-    if (best === -1) slots.push({ at, status: 'missed' });
+    let slot;
+    if (best === -1) slot = { at, status: 'missed' };
     else {
       used.add(best);
-      slots.push({
+      slot = {
         at,
         status: observed[best].status,
         observedAt: observed[best].at,
         file: observed[best].file,
-      });
+      };
+    }
+    counts[slot.status] = (counts[slot.status] || 0) + 1;
+    if (!compact || slots.length < 12) slots.push(slot);
+    else {
+      slots.shift();
+      slots.push(slot);
     }
   }
-  const extras = observed
-    .filter((_row, index) => !used.has(index))
-    .map(row => ({ ...row, extra: true }));
-  const counts = slots.reduce((out, row) => {
-    out[row.status] = (out[row.status] || 0) + 1;
-    return out;
-  }, {});
+  const extras = compact
+    ? []
+    : observed.filter((_row, index) => !used.has(index)).map(row => ({ ...row, extra: true }));
   return {
     from: start.toISOString(),
     to: end.toISOString(),
@@ -280,7 +284,7 @@ function executionHistory(
     failed: counts.failed || 0,
     missed: counts.missed || 0,
     unknown: counts.unknown || 0,
-    slots: slots.slice(-100),
+    slots: compact ? slots : slots.slice(-100),
     extras: extras.slice(-20),
   };
 }

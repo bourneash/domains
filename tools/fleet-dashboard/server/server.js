@@ -7404,7 +7404,8 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
     try {
       const slugs = discoverSites(root);
       const role = req.params.role;
-      const cacheKey = `${root}\0${role}`;
+      const compact = req.query.compact === '1';
+      const cacheKey = `${root}\0${role}\0${compact ? 'compact' : 'full'}`;
       const cached = agentHealthCache.get(cacheKey);
       let health = cached && Date.now() - cached.at < agentHealthTtlMs ? cached.data : null;
       if (!health) {
@@ -7426,7 +7427,9 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
             // editorial telemetry and checking every active deployer repository.
             roles.agentMatrix(root, slugs, role),
           ])
-            .then(([usage, matrix]) => roles.health(root, role, slugs, usage, false, matrix))
+            .then(([usage, matrix]) =>
+              roles.health(root, role, slugs, usage, false, matrix, new Map(), compact)
+            )
             .then(data => {
               const storedAt = Date.now();
               for (const [key, value] of agentHealthCache) {
@@ -7444,7 +7447,7 @@ function createApp({ root = DEFAULT_ROOT } = {}) {
         }
         health = await pending;
       }
-      if (req.query.compact === '1') health = roles.compactHealth(health);
+      if (compact) health = roles.compactHealth(health);
       res.json(health);
     } catch (e) {
       res.status(e.httpStatus || 500).json({ error: e.message });

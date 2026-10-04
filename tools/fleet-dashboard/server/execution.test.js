@@ -109,3 +109,24 @@ test('paused roles do not create missed execution slots', () => {
   assert.equal(history.expected, 0);
   assert.equal(history.missed, 0);
 });
+
+test('compact execution history preserves counts and the final twelve visible slots', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fleet-execution-compact-'));
+  const from = new Date('2026-09-01T00:00:00Z');
+  const to = new Date('2026-09-03T00:00:00Z');
+  try {
+    const full = executionHistory(root, 'example.com', 'promoter', '0 * * * *', { from, to });
+    const compact = executionHistory(root, 'example.com', 'promoter', '0 * * * *', {
+      from,
+      to,
+      compact: true,
+    });
+    for (const key of ['expected', 'observed', 'succeeded', 'failed', 'missed', 'unknown'])
+      assert.equal(compact[key], full[key], key);
+    assert.deepEqual(compact.slots, full.slots.slice(-12));
+    assert.deepEqual(compact.extras, []);
+    assert.equal(full.slots.length, 49);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

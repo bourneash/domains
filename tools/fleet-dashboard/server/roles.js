@@ -791,14 +791,17 @@ async function health(
   usage = {},
   skipFamily = false,
   matrixData = null,
-  siteContexts = new Map()
+  siteContexts = new Map(),
+  compact = false
 ) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(String(role || ''))) throw httpErr(400, 'invalid role');
   const data = matrixData || (await matrix(root, slugs));
   const family = ROLE_FAMILIES[role];
   if (family && !skipFamily) {
     const parts = await Promise.all(
-      family.roles.map(profile => health(root, profile, slugs, usage, true, data, siteContexts))
+      family.roles.map(profile =>
+        health(root, profile, slugs, usage, true, data, siteContexts, compact)
+      )
     );
     const rows = parts.flatMap(part => part.rows);
     return {
@@ -849,6 +852,7 @@ async function health(
       enabled: cell.enabled,
       logIndex: context.logIndex,
       lastRuns: context.lastRuns,
+      compact,
     });
     const prompt = promptHash(cwd, role);
     const runner = cell.worker ? 'run-worker.sh' : 'dedicated-script';
