@@ -259,6 +259,22 @@ function createLogIndex(cwd) {
     return entry;
   }
   return {
+    latestFromRecord(role, record) {
+      if (!record || typeof record.log !== 'string') return null;
+      const recordedName = path.basename(record.log);
+      const matching = listNames().filter(name => logRe(role).test(name));
+      if (!matching.includes(recordedName)) return null;
+      const recordedAt = execution.filenameTimestamp(recordedName);
+      if (recordedAt === null) return null;
+      // last-run.json is written by the runner after each execution. When it
+      // points at the newest dated log, stat only that log; otherwise retain
+      // the full mtime scan (older records are common on partially migrated sites).
+      const newestAt = Math.max(
+        ...matching.map(name => execution.filenameTimestamp(name) ?? -Infinity)
+      );
+      if (recordedAt < newestAt) return null;
+      return stat(recordedName);
+    },
     matching(predicate, sinceMs = null) {
       return listNames()
         .filter(name => predicate(name))
@@ -324,7 +340,7 @@ function createLogIndex(cwd) {
 // Newest run signal for a role: the engineer pulse for engineers, else the
 // newest ops/logs/<prefix>-<date>… file (the `-\d` boundary keeps news-writer
 // from matching news-writer-local).
-function lastRun(cwd, role, logIndex = createLogIndex(cwd)) {
+function lastRun(cwd, role, logIndex = createLogIndex(cwd), lastRuns = null) {
   if (role === 'engineer') {
     try {
       return fs.statSync(path.join(cwd, 'ops', '.locks', 'engineer-status.json')).mtimeMs;
@@ -344,7 +360,11 @@ function lastRun(cwd, role, logIndex = createLogIndex(cwd)) {
       /* fall through — sites not yet re-stamped with the pulse still judge by log mtime */
     }
   }
-  return logIndex.matching(name => logRe(role).test(name))[0]?.mtime || null;
+  const latest = logIndex.latestFromRecord(
+    role,
+    (lastRuns || readLastRuns(path.join(cwd, 'ops')))[role]
+  );
+  return (latest || logIndex.matching(name => logRe(role).test(name))[0])?.mtime || null;
 }
 
 // Publishing evidence is deliberately derived from the site's existing logs
@@ -580,6 +600,7 @@ async function buildMatrix(
       const cwd = siteDir(root, slug);
       const parsed = parsedBySlug.get(slug) || [];
       const logIndex = createLogIndex(cwd);
+      const lastRuns = readLastRuns(path.join(cwd, 'ops'));
       const cells = {};
       const seenRoles = new Set();
       let hasRows = false;
@@ -589,7 +610,9 @@ async function buildMatrix(
         seenRoles.add(role);
         const enabled = !commented && !fs.existsSync(path.join(cwd, 'ops', `.${role}-disabled`));
         const last =
-          enabled && !(summaryOnly && role === 'deployer') ? lastRun(cwd, role, logIndex) : null;
+          enabled && !(summaryOnly && role === 'deployer')
+            ? lastRun(cwd, role, logIndex, lastRuns)
+            : null;
         let { state, age } = commented
           ? { state: 'paused', age: null }
           : cellState(enabled, last, schedule, now);

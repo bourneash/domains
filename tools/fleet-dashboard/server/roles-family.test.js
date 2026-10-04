@@ -193,6 +193,43 @@ test('role matrix reads only newest run, publication, and deploy logs', async ()
   }
 });
 
+test('role matrix uses a current last-run record to stat only its newest dated log', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-matrix-last-run-'));
+  const ops = path.join(root, 'sites', 'example.test', 'ops');
+  const logs = path.join(ops, 'logs');
+  fs.mkdirSync(path.join(ops, 'docker'), { recursive: true });
+  fs.mkdirSync(path.join(ops, 'board'), { recursive: true });
+  fs.mkdirSync(logs, { recursive: true });
+  fs.writeFileSync(
+    path.join(ops, 'docker', 'crontab'),
+    '*/10 * * * * bash ops/scripts/run-worker.sh planner\n'
+  );
+  const newest = 'planner-20261003.log';
+  fs.writeFileSync(path.join(logs, newest), 'current run');
+  for (let day = 1; day <= 20; day++)
+    fs.writeFileSync(path.join(logs, `planner-202609${String(day).padStart(2, '0')}.log`), 'old');
+  fs.writeFileSync(
+    path.join(ops, 'board', 'last-run.json'),
+    JSON.stringify({
+      planner: { at: new Date().toISOString(), exit: 0, log: `/work/ops/logs/${newest}` },
+    })
+  );
+  const originalStat = fs.statSync;
+  const logStats = [];
+  fs.statSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logStats.push(path.basename(String(file)));
+    return originalStat.call(this, file, ...args);
+  };
+  try {
+    await roles.matrix(root, ['example.test']);
+    assert.deepEqual(logStats, [newest]);
+  } finally {
+    fs.statSync = originalStat;
+    roles.invalidateMatrix(root);
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('Agent health shares each role log read across stats, history, and telemetry', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-health-perf-'));
   const logs = path.join(root, 'sites', 'example.test', 'ops', 'logs');
