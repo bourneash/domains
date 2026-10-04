@@ -230,6 +230,76 @@ test('role matrix uses a current last-run record to stat only its newest dated l
   }
 });
 
+test('role log uses a current last-run record and falls back when the record is stale', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-log-last-run-'));
+  const ops = path.join(root, 'sites', 'example.test', 'ops');
+  const logs = path.join(ops, 'logs');
+  fs.mkdirSync(path.join(ops, 'board'), { recursive: true });
+  fs.mkdirSync(logs, { recursive: true });
+  const newest = 'planner-20261003.log';
+  fs.writeFileSync(path.join(logs, newest), 'newest role output\n');
+  for (let day = 1; day <= 20; day++) {
+    const file = path.join(logs, `planner-202609${String(day).padStart(2, '0')}.log`);
+    fs.writeFileSync(file, 'old');
+    const stamp = new Date(Date.UTC(2026, 8, day));
+    fs.utimesSync(file, stamp, stamp);
+  }
+  const recordPath = path.join(ops, 'board', 'last-run.json');
+  fs.writeFileSync(
+    recordPath,
+    JSON.stringify({ planner: { at: new Date().toISOString(), exit: 0, log: `/work/ops/logs/${newest}` } })
+  );
+  const originalStat = fs.statSync;
+  const logStats = [];
+  fs.statSync = function (file, ...args) {
+    if (String(file).startsWith(logs + path.sep)) logStats.push(path.basename(String(file)));
+    return originalStat.call(this, file, ...args);
+  };
+  try {
+    const fast = roles.roleLog(root, 'example.test', 'planner', 10);
+    assert.equal(fast.file, newest);
+    assert.equal(fast.log, 'newest role output');
+    assert.deepEqual(logStats, [newest]);
+
+    logStats.length = 0;
+    fs.writeFileSync(
+      recordPath,
+      JSON.stringify({
+        planner: {
+          at: '2026-09-01T00:00:00Z',
+          exit: 0,
+          log: '/work/ops/logs/planner-20260901.log',
+        },
+      })
+    );
+    const fallback = roles.roleLog(root, 'example.test', 'planner', 10);
+    assert.equal(fallback.file, newest);
+    assert.equal(logStats.length, 21);
+
+    logStats.length = 0;
+    fs.writeFileSync(
+      recordPath,
+      JSON.stringify({
+        planner: {
+          at: new Date().toISOString(),
+          exit: 0,
+          log: `/work/ops/logs/${newest}`,
+        },
+      })
+    );
+    const undated = path.join(logs, 'planner-2026.log');
+    fs.writeFileSync(undated, 'undated but newer');
+    const future = new Date(Date.now() + 10000);
+    fs.utimesSync(undated, future, future);
+    const undatedFallback = roles.roleLog(root, 'example.test', 'planner', 10);
+    assert.equal(undatedFallback.file, 'planner-2026.log');
+    assert.equal(logStats.length, 22);
+  } finally {
+    fs.statSync = originalStat;
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('Agent health shares each role log read across stats, history, and telemetry', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'roles-health-perf-'));
   const logs = path.join(root, 'sites', 'example.test', 'ops', 'logs');

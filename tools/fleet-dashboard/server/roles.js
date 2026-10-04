@@ -268,10 +268,13 @@ function createLogIndex(cwd) {
       if (recordedAt === null) return null;
       // last-run.json is written by the runner after each execution. When it
       // points at the newest dated log, stat only that log; otherwise retain
-      // the full mtime scan (older records are common on partially migrated sites).
-      const newestAt = Math.max(
-        ...matching.map(name => execution.filenameTimestamp(name) ?? -Infinity)
-      );
+      // the full mtime scan (older records and undated logs are common on partially migrated sites).
+      let newestAt = -Infinity;
+      for (const name of matching) {
+        const at = execution.filenameTimestamp(name);
+        if (at === null) return null;
+        newestAt = Math.max(newestAt, at);
+      }
       if (recordedAt < newestAt) return null;
       return stat(recordedName);
     },
@@ -716,26 +719,14 @@ function agentMatrix(root, slugs, role) {
 // Tail of a role's newest log (for the cell drill-down).
 function roleLog(root, slug, role, tail) {
   const cwd = siteDir(root, slug);
-  const re = logRe(role);
   const dir = path.join(cwd, 'ops', 'logs');
-  let best = null,
-    bestMt = 0;
-  try {
-    for (const f of fs.readdirSync(dir)) {
-      if (!re.test(f)) continue;
-      const mt = fs.statSync(path.join(dir, f)).mtimeMs;
-      if (mt > bestMt) {
-        bestMt = mt;
-        best = f;
-      }
-    }
-  } catch {
-    /* none */
-  }
+  const logIndex = createLogIndex(cwd);
+  const latest = logIndex.latestFromRecord(role, readLastRuns(path.join(cwd, 'ops'))[role]);
+  const best = latest || logIndex.matching(name => logRe(role).test(name))[0];
   if (!best) return { file: null, log: '(no log files found for this role)' };
   const n = Math.max(1, Math.min(parseInt(tail, 10) || 200, 2000));
   // Bounded tail — never slurps the whole (potentially multi-MB) log into memory.
-  return { file: best, mtime: bestMt, log: tailFile(path.join(dir, best), n) };
+  return { file: best.name, mtime: best.mtime, log: tailFile(path.join(dir, best.name), n) };
 }
 
 function promptHash(cwd, role) {
