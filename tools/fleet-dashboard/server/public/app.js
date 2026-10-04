@@ -731,14 +731,12 @@ async function renderEngineers() {
   const refreshHistory =
     !ENGINEER_HISTORY_CACHE ||
     Date.now() - ENGINEER_HISTORY_CACHE.at >= ENGINEER_HISTORY_TTL_MS;
-  const historyPromise = refreshHistory
-    ? loadEngineerHistory().then(() => true, () => false)
-    : null;
   try {
     ({ rows, roleData } = await loadEngineerOverviewData());
     healthData = cachedAgentHealth('engineer');
   } catch (e) {
     renderViewError(app, `Audit failed: ${e.message}`);
+    if (refreshHistory) loadEngineerHistory().catch(() => {});
     return;
   }
   const histBy = Object.fromEntries(hist.map(h => [h.site, h]));
@@ -972,16 +970,18 @@ async function renderEngineers() {
   const healthCache = AGENT_HEALTH_CACHE.get('engineer');
   if ((!healthCache || Date.now() - healthCache.at >= AGENT_HEALTH_TTL_MS) && !AGENT_HEALTH_ERRORS.has('engineer'))
     loadAgentHealth('engineer');
-  if (historyPromise)
-    historyPromise.then(updated => {
-      if (
-        updated &&
-        ENGINEER_RENDER_GENERATION === generation &&
-        STATE.view === 'agent' &&
-        STATE.agent === 'engineer'
-      )
-        softRender();
-    });
+  if (refreshHistory)
+    loadEngineerHistory().then(
+      () => {
+        if (
+          ENGINEER_RENDER_GENERATION === generation &&
+          STATE.view === 'agent' &&
+          STATE.agent === 'engineer'
+        )
+          softRender();
+      },
+      () => {}
+    );
 }
 
 // Jump from an engineer row straight to that site's task board.

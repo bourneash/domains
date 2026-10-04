@@ -28,7 +28,7 @@ test('agent navigation tolerates both bare-list and enveloped API responses', ()
   const app = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   assert.match(app, /function normalizeAgentList\(value\)/);
   assert.match(app, /if \(Array\.isArray\(value\?\.agents\)\) return value\.agents/);
-  assert.match(app, /api\('GET', '\/api\/agents'\)\s*\.then\(normalizeAgentList\)/);
+  assert.match(app, /api\('GET', '\/api\/agent-roles'\)\s*\.then\(normalizeAgentList\)/);
 });
 
 test('site command centers are shareable first-class routes', () => {
@@ -397,13 +397,17 @@ test('Engineer health actions keep their role binding explicit', () => {
   assert.doesNotMatch(app, /ag-health-details"[^`]*data-role="\$\{esc\(role\)\}"/);
 });
 
-test('Engineer overview skips the full role matrix and reuses data across repaints', () => {
+test('Engineer overview renders its audit before refreshing history', () => {
   const source = fs.readFileSync(path.join(publicDir, 'app.js'), 'utf8');
   const start = source.indexOf('async function renderEngineers()');
   const end = source.indexOf('// Jump from an engineer row', start);
   const engineerView = source.slice(start, end);
   assert.match(engineerView, /loadEngineerOverviewData\(\)/);
-  assert.match(engineerView, /const historyPromise = refreshHistory/);
+  assert.ok(
+    engineerView.indexOf('await loadEngineerOverviewData()') <
+      engineerView.indexOf('loadEngineerHistory()')
+  );
+  assert.ok(engineerView.indexOf('stamp();') < engineerView.lastIndexOf('loadEngineerHistory()'));
   assert.match(engineerView, /ENGINEER_RENDER_GENERATION === generation/);
   assert.doesNotMatch(engineerView, /\[rows, hist, roleData\] = await Promise\.all/);
   assert.doesNotMatch(engineerView, /loadRoleMatrix\(/);
@@ -1229,7 +1233,7 @@ test('dashboard boot loads site and agent catalogs only when a view needs them',
   assert.ok(auth >= 0);
   assert.doesNotMatch(boot, /api\('GET', '\/api\/(?:sites|agents)'\)/);
   assert.match(app, /function loadSiteCatalog\(\)[\s\S]*?api\('GET', '\/api\/sites'\)/);
-  assert.match(app, /function loadAgentCatalog\(\)[\s\S]*?api\('GET', '\/api\/agents'\)/);
+  assert.match(app, /function loadAgentCatalog\(\)[\s\S]*?api\('GET', '\/api\/agent-roles'\)/);
   assert.match(app, /const SITE_CATALOG_VIEWS = new Set\(\[[\s\S]*'agent'[\s\S]*'tasks'[\s\S]*'automation'/);
   assert.doesNotMatch(app.match(/const SITE_CATALOG_VIEWS = new Set\(\[([\s\S]*?)\]\);/)?.[1] || '', /socialhub/);
   const render = app.slice(app.indexOf('function render()'), app.indexOf('const NAV_ITEM_DESCRIPTIONS'));
