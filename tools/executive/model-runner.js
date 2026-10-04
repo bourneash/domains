@@ -111,6 +111,14 @@ function mergePassPlans(previous, next) {
   return merged;
 }
 
+function buildRepairDirective(brief) {
+  if (brief.overwatch_directive?.delivery_recovery_cases?.length)
+    return 'Review only the supplied original recovery cases. For queued-backlog or failed-startup, return a material in_progress tracking update using the exact supplied case_ref, with review evidence and ordinary pickup next_action. Do not create a duplicate request. Preserve all failure and release gates.';
+  if (brief.domain_manager?.site)
+    return 'This is one assigned site. Return at most one source-backed engineer implementation for this site, preserving independent measurement holds. Use delivery_mode direct or pull_request, never site_change. Cite the exact supplied full source commit and existing source path in body. Preserve acceptance, tests, metric and rollback. A passive update does not satisfy the implementation mandate.';
+  return 'Route up to six high-confidence reversible implementations across available sites, without duplicating work or overlapping measurement holds. Preserve acceptance, tests, metric and rollback. Evidence-backed blockers require an exact owner, unblock action and deadline.';
+}
+
 function buildModelPrompt(brief, role, plan) {
   const overwatchDirective = brief.overwatch_directive
     ? `\n\nEXEC OVERWATCH DIRECTIVE:\nYou are the independent execution-improvement controller. Evaluate the supplied evidence from the last four 15-minute cycles. Repair stuck or failed handoffs first. Then produce concrete, bounded, evidence-backed improvements to prompts, routing, process, or implementation work. A status update, unchanged checkpoint, duplicate, or report-only item is not an improvement. If no safe change can be made, state the exact blocker, owner, and next action.\n${JSON.stringify(brief.overwatch_directive)}`
@@ -119,7 +127,19 @@ function buildModelPrompt(brief, role, plan) {
     ? `\n\nOPERATING MANAGER TASK:\nYou are executing this specific durable manager task now. Produce concrete downstream work for it or an explicit evidence-backed blocker. Do not merely acknowledge it, repeat it, or create generic fleet commentary. This task is under delivery accountability; its prior attempts, labels, and last error are included below. A no-op result is a failed delivery and repeated failures pause this manager lane. For implementation, content, design, SEO, or engineering work, the required output is an executable change_request with a concrete site, scope, acceptance criteria, tests, metric, rollback, and assigned_role. A message, proposal, tracking update, capacity note, report-only item, or generic blocker does not count as delivery. Use a blocker only when the evidence names the owner, unblock action, and deadline.\n${JSON.stringify(brief.operating_manager_task)}`
     : '';
 
-  return `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}${overwatchDirective}`;
+  const manager = brief.domain_manager;
+  const sourcePin =
+    manager?.source_revision?.status === 'fresh-remote-source' &&
+    /^[a-f0-9]{40}$/i.test(manager.source_revision.commit || '')
+      ? '\n\nEXACT IMPLEMENTATION SOURCE: Copy this full commit unchanged into change_request.body: ' +
+        manager.source_revision.commit +
+        '. Existing source paths: ' +
+        JSON.stringify((manager.source_documents || []).map(doc => doc.path)) +
+        '. Do not insert spaces into the commit, shorten it or replace it with a descriptive placeholder.'
+      : '';
+  const contract =
+    '\n\nDELIVERY CONTRACT: Site implementation delivery_mode must be direct or pull_request. report_only is diagnosis; fleet_report is the fleet reporting operation. site_change is invalid. Omit optional action_key/source_work_id unless supplied. For inline links, a persistent underline is a non-color distinction; do not demand 3:1 contrast against adjacent text as well as an underline. Preserve required text-to-background contrast and verify the actual affected user path.';
+  return `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}${overwatchDirective}${sourcePin}${contract}`;
 }
 
 async function main() {
@@ -280,7 +300,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${buildModelPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, report-only request, or unchanged checkpoint does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state the exact owner, dated unblock action, and escalation deadline. Keep routine pass-through reporting internal and silent.`;
+    const repairPrompt = `${buildModelPrompt(brief, 'reviewer', plan)}\n\nACTION MANDATE REPAIR: Return the complete plan as strict JSON. ${buildRepairDirective(brief)}`;
     const repairedOutput = await runTracked(
       repairPrompt,
       usage,
@@ -325,7 +345,7 @@ async function main() {
       });
     }
     if (!runner.actionMandateSatisfied(plan, brief)) {
-      const finalRepairPrompt = `${buildModelPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, report-only request, or unchanged checkpoint for routine reversible implementation. If every candidate is genuinely blocked, create or materially advance one high-priority delivery-lead blocker with the exact owner, dated unblock action, evidence, and escalation deadline.`;
+      const finalRepairPrompt = `${buildModelPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: Return the complete plan as strict JSON. ${buildRepairDirective(brief)}`;
       const finalRepairOutput = await runTracked(
         finalRepairPrompt,
         usage,
@@ -411,4 +431,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { mergePassPlans, buildModelPrompt };
+module.exports = { mergePassPlans, buildModelPrompt, buildRepairDirective };

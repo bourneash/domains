@@ -86,3 +86,34 @@ test('initial and repair prompts retain exact original recovery context and alia
     assert.match(prompt, /Exact reviewed three-link repair/);
   }
 });
+
+test('scoped repair preserves exact source and actual delivery enum without fleet expansion', () => {
+  const { buildModelPrompt, buildRepairDirective } = require('./model-runner');
+  const sha = 'd'.repeat(40);
+  const brief = {
+    intelligence: {},
+    sites: ['example.com'],
+    task_queue: {},
+    improvements: [],
+    work_items: [],
+    domain_manager: {
+      site: 'example.com',
+      source_revision: { status: 'fresh-remote-source', commit: sha },
+      source_documents: [{ path: 'site/src/pages/index.astro' }],
+    },
+  };
+  const prompt = buildModelPrompt(brief, 'ceo', {});
+  assert.ok(prompt.includes('Copy this full commit unchanged into change_request.body: ' + sha));
+  assert.match(prompt, /site_change is invalid/);
+  assert.match(prompt, /persistent underline is a non-color distinction/);
+  const directive = buildRepairDirective(brief);
+  assert.match(directive, /at most one/);
+  assert.doesNotMatch(directive, /six|three eligible/);
+  const recovery = buildRepairDirective({
+    ...brief,
+    overwatch_directive: { delivery_recovery_cases: [{ case_ref: 'RECOVERY_1' }] },
+  });
+  assert.match(recovery, /original recovery cases/);
+  assert.match(recovery, /Do not create a duplicate/);
+  assert.doesNotMatch(recovery, /one source-backed engineer implementation/);
+});
