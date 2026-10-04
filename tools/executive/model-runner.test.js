@@ -53,5 +53,36 @@ test('provider plan sanitization drops only excluded items and preserves safe wo
     proposals: [],
   });
   assert.deepEqual(sanitized.messages, [{ actor: 'ceo', body: 'Safe recommendation.' }]);
-  assert.deepEqual(sanitized.change_requests, [{ site: 'safe.example', title: 'Safe bounded task' }]);
+  assert.deepEqual(sanitized.change_requests, [
+    { site: 'safe.example', title: 'Safe bounded task' },
+  ]);
+});
+
+test('initial and repair prompts retain exact original recovery context and aliases', () => {
+  const { buildModelPrompt } = require('./model-runner');
+  const brief = {
+    generated_at: '2026-10-03',
+    sites: ['example.com'],
+    intelligence: {},
+    task_queue: {},
+    improvements: [],
+    work_items: [],
+    overwatch_directive: {
+      delivery_recovery_cases: [
+        {
+          case_ref: 'RECOVERY_1',
+          work_id: 'queued-delivery:original',
+          site: 'example.com',
+          original_request: { request_id: 'original', body: 'Exact reviewed three-link repair' },
+        },
+      ],
+    },
+  };
+  for (const role of ['reviewer', 'ceo']) {
+    const prompt = buildModelPrompt(brief, role, {});
+    assert.match(prompt, /EXEC OVERWATCH DIRECTIVE/);
+    assert.match(prompt, /RECOVERY_1/);
+    assert.match(prompt, /queued-delivery:original/);
+    assert.match(prompt, /Exact reviewed three-link repair/);
+  }
 });

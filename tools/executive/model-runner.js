@@ -111,6 +111,17 @@ function mergePassPlans(previous, next) {
   return merged;
 }
 
+function buildModelPrompt(brief, role, plan) {
+  const overwatchDirective = brief.overwatch_directive
+    ? `\n\nEXEC OVERWATCH DIRECTIVE:\nYou are the independent execution-improvement controller. Evaluate the supplied evidence from the last four 15-minute cycles. Repair stuck or failed handoffs first. Then produce concrete, bounded, evidence-backed improvements to prompts, routing, process, or implementation work. A status update, unchanged checkpoint, duplicate, or report-only item is not an improvement. If no safe change can be made, state the exact blocker, owner, and next action.\n${JSON.stringify(brief.overwatch_directive)}`
+    : '';
+  const operatingDirective = brief.operating_manager_task
+    ? `\n\nOPERATING MANAGER TASK:\nYou are executing this specific durable manager task now. Produce concrete downstream work for it or an explicit evidence-backed blocker. Do not merely acknowledge it, repeat it, or create generic fleet commentary. This task is under delivery accountability; its prior attempts, labels, and last error are included below. A no-op result is a failed delivery and repeated failures pause this manager lane. For implementation, content, design, SEO, or engineering work, the required output is an executable change_request with a concrete site, scope, acceptance criteria, tests, metric, rollback, and assigned_role. A message, proposal, tracking update, capacity note, report-only item, or generic blocker does not count as delivery. Use a blocker only when the evidence names the owner, unblock action, and deadline.\n${JSON.stringify(brief.operating_manager_task)}`
+    : '';
+
+  return `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}${overwatchDirective}`;
+}
+
 async function main() {
   const brief = JSON.parse(fs.readFileSync('/input/brief.json', 'utf8'));
   const requestedPasses = String(process.env.EXECUTIVE_PASSES || 'adaptive')
@@ -202,14 +213,9 @@ async function main() {
     }
   });
   const proposalReviews = new Map();
+
   for (const role of passes) {
-    const operatingDirective = brief.operating_manager_task
-      ? `\n\nOPERATING MANAGER TASK:\nYou are executing this specific durable manager task now. Produce concrete downstream work for it or an explicit evidence-backed blocker. Do not merely acknowledge it, repeat it, or create generic fleet commentary. This task is under delivery accountability; its prior attempts, labels, and last error are included below. A no-op result is a failed delivery and repeated failures pause this manager lane. For implementation, content, design, SEO, or engineering work, the required output is an executable change_request with a concrete site, scope, acceptance criteria, tests, metric, rollback, and assigned_role. A message, proposal, tracking update, capacity note, report-only item, or generic blocker does not count as delivery. Use a blocker only when the evidence names the owner, unblock action, and deadline.\n${JSON.stringify(brief.operating_manager_task)}`
-      : '';
-    const overwatchDirective = brief.overwatch_directive
-      ? `\n\nEXEC OVERWATCH DIRECTIVE:\nYou are the independent execution-improvement controller. Evaluate the supplied evidence from the last four 15-minute cycles. Repair stuck or failed handoffs first. Then produce concrete, bounded, evidence-backed improvements to prompts, routing, process, or implementation work. A status update, unchanged checkpoint, duplicate, or report-only item is not an improvement. If no safe change can be made, state the exact blocker, owner, and next action.\n${JSON.stringify(brief.overwatch_directive)}`
-      : '';
-    const prompt = `${runner.buildPassPrompt(brief, role, plan)}${operatingDirective}${overwatchDirective}`;
+    const prompt = buildModelPrompt(brief, role, plan);
     let output = await runTracked(prompt, usage, role, false, transcript);
     let repaired = false;
     try {
@@ -219,7 +225,7 @@ async function main() {
         sanitize: true,
         rejectDroppedRequests: true,
       });
-      plan = mergeProviderPlan(nextPlan);
+      plan = runner.resolveRecoveryReferences(mergeProviderPlan(nextPlan), brief);
     } catch (error) {
       // Formatting failures never reach the trusted host application path.
       // Allow one bounded correction attempt, then fail closed.
@@ -253,7 +259,7 @@ async function main() {
         });
         nextPlan = runner.emptyPlan();
       }
-      plan = mergeProviderPlan(nextPlan);
+      plan = runner.resolveRecoveryReferences(mergeProviderPlan(nextPlan), brief);
     }
     audit.push({
       role,
@@ -274,7 +280,7 @@ async function main() {
   // select or explicitly reject a candidate, fail closed before the trusted
   // host can apply the plan.
   if (!runner.actionMandateSatisfied(plan, brief)) {
-    const repairPrompt = `${runner.buildPassPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, report-only request, or unchanged checkpoint does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state the exact owner, dated unblock action, and escalation deadline. Keep routine pass-through reporting internal and silent.`;
+    const repairPrompt = `${buildModelPrompt(brief, 'reviewer', plan)}\n\nThe portfolio action mandate was not satisfied. Return the complete plan again and route a small batch of up to six highest-confidence, low-risk, reversible implementation candidates to engineer across distinct sites, covering at least three sites when three or more actionable candidates are available, with acceptance, tests, metric, and rollback criteria. A message, proposal, research request, report-only request, or unchanged checkpoint does not satisfy the mandate. Only leave a candidate unqueued when it is explicitly blocked by launch, legal, security, credential, spend, or missing-evidence constraints, and state the exact owner, dated unblock action, and escalation deadline. Keep routine pass-through reporting internal and silent.`;
     const repairedOutput = await runTracked(
       repairPrompt,
       usage,
@@ -298,7 +304,7 @@ async function main() {
       });
       repairedPlan = runner.emptyPlan();
     }
-    plan = mergeProviderPlan(repairedPlan);
+    plan = runner.resolveRecoveryReferences(mergeProviderPlan(repairedPlan), brief);
     for (const review of plan.proposal_reviews || [])
       proposalReviews.set(review.proposal_id, review);
     audit.push({
@@ -319,7 +325,7 @@ async function main() {
       });
     }
     if (!runner.actionMandateSatisfied(plan, brief)) {
-      const finalRepairPrompt = `${runner.buildPassPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, report-only request, or unchanged checkpoint for routine reversible implementation. If every candidate is genuinely blocked, create or materially advance one high-priority delivery-lead blocker with the exact owner, dated unblock action, evidence, and escalation deadline.`;
+      const finalRepairPrompt = `${buildModelPrompt(brief, 'ceo', plan)}\n\nFINAL IMPLEMENTATION REPAIR: The prior plan still failed the action mandate. Return the complete plan as strict JSON. Preserve useful existing work, but include engineer-routable change_requests for the highest-confidence actionable candidates, with concrete site/scope, acceptance criteria, tests, metric, and rollback. Cover at least three distinct sites when three or more actionable sites exist. Do not substitute a maintenance update, proposal, question, research request, report-only request, or unchanged checkpoint for routine reversible implementation. If every candidate is genuinely blocked, create or materially advance one high-priority delivery-lead blocker with the exact owner, dated unblock action, evidence, and escalation deadline.`;
       const finalRepairOutput = await runTracked(
         finalRepairPrompt,
         usage,
@@ -343,7 +349,7 @@ async function main() {
         });
         finalPlan = runner.emptyPlan();
       }
-      plan = mergeProviderPlan(finalPlan);
+      plan = runner.resolveRecoveryReferences(mergeProviderPlan(finalPlan), brief);
       audit.push({
         role: 'decision-memo-repair',
         repaired: true,
@@ -405,4 +411,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { mergePassPlans };
+module.exports = { mergePassPlans, buildModelPrompt };

@@ -3605,3 +3605,47 @@ test('original queued recovery mandate requires a material review of the supplie
     );
   assert.equal(runner.actionMandateSatisfied({ messages: [{ body: 'approved' }] }, brief), false);
 });
+
+test('recovery references resolve only exact trusted aliases and preserve unknown identities', () => {
+  const id = 'queued-delivery:actual-original',
+    brief = {
+      overwatch_directive: {
+        delivery_recovery_cases: [{ case_ref: 'RECOVERY_1', work_id: id, site: 'example.com' }],
+      },
+    };
+  const plan = {
+    tracking_updates: [{ work_id: 'RECOVERY_1', status: 'in_progress' }, { work_id: 'RECOVERY_9' }],
+    messages: [{ work_id: 'RECOVERY_1' }],
+    change_requests: [
+      { source_work_id: 'RECOVERY_1' },
+      { source_work_id: 'queued-delivery:typo-original' },
+    ],
+  };
+  assert.equal(runner.resolveRecoveryReferences(plan, brief), plan);
+  assert.equal(plan.tracking_updates[0].work_id, id);
+  assert.equal(plan.messages[0].work_id, id);
+  assert.equal(plan.change_requests[0].source_work_id, id);
+  assert.equal(plan.tracking_updates[1].work_id, 'RECOVERY_9');
+  assert.equal(plan.change_requests[1].source_work_id, 'queued-delivery:typo-original');
+});
+
+test('provider parser preserves supplied recovery aliases for trusted host resolution', () => {
+  const plan = {
+    ...runner.emptyPlan(),
+    tracking_updates: [
+      {
+        work_id: 'RECOVERY_1',
+        actor: 'reviewer',
+        summary: 'Reviewed original source and measured labels',
+        status: 'in_progress',
+        next_action: 'Ordinary worker pickup',
+        evidence: [{ type: 'source', label: 'Actual original request' }],
+      },
+    ],
+  };
+  const parsed = runner.parseOutput(JSON.stringify(plan), {
+    sanitize: true,
+    rejectDroppedRequests: true,
+  });
+  assert.equal(parsed.tracking_updates[0].work_id, 'RECOVERY_1');
+});

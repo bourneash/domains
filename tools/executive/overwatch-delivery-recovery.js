@@ -87,7 +87,8 @@ function readyCases(store, { site = null, agent = null } = {}) {
     })
     .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
     .slice(0, 3)
-    .map(task => ({
+    .map((task, index) => ({
+      case_ref: 'RECOVERY_' + (index + 1),
       work_id: task.work_id,
       site: task.site,
       owner: task.owner,
@@ -102,6 +103,8 @@ function readyCases(store, { site = null, agent = null } = {}) {
       original_request: task.work_id.startsWith('queued-delivery:')
         ? store.getChangeRequest(task.source_id)
         : undefined,
+      instruction_prefix:
+        'Use this supplied case_ref as tracking_updates.work_id or change_requests.source_work_id. The host resolves only exact supplied aliases; never recopy or invent UUIDs.',
       instruction: task.work_id.startsWith('queued-delivery:')
         ? 'Inspect the existing original request and fresh evidence. If its bounded scope is valid, record tracking_updates for this exact work_id with status in_progress, a substantive review summary, acceptance/testing disposition, and next_action ordinary worker pickup. Do not create another request. This resumes authorized original backlog while automatic pickup is paused; it is not a fabricated execution failure. No completed work credit until its actual release.'
         : 'Repair this original failed production prerequisite; use this exact source_work_id for the successor. Preserve already shipped implementation and all failed receipts. Distinguish warning annotations from the actual failing step: Node runtime deprecation and future runner migration warnings are not quota errors. Inspect the pinned workflow source and consumers. If archives have no required consumer, use the established fleet pattern: optional archive job, default disabled, requested failures visible; preserve every required install/audit/build/content check, command and version pin. Do not upgrade dependencies to silence unrelated warnings, waive checks, delete archives, change billing or redeploy the old SHA.',
@@ -241,6 +244,6 @@ async function trackHandoffs(
 module.exports = {
   readyCases,
   trackHandoffs,
-  policyRevision: 'delivery-recovery/v4',
+  policyRevision: 'delivery-recovery/v5',
   ensureQueuedCases,
 };

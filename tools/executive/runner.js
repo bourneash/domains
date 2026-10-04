@@ -3091,6 +3091,19 @@ function scopedDiscoveryHandoffs(requests = [], brief = {}) {
   );
 }
 
+function resolveRecoveryReferences(plan = {}, brief = {}) {
+  const aliases = new Map(
+    (brief.overwatch_directive?.delivery_recovery_cases || [])
+      .filter(task => /^RECOVERY_[1-3]$/.test(task.case_ref || '') && task.work_id && task.site)
+      .map(task => [task.case_ref, task.work_id])
+  );
+  for (const item of plan.change_requests || [])
+    if (aliases.has(item.source_work_id)) item.source_work_id = aliases.get(item.source_work_id);
+  for (const item of [...(plan.tracking_updates || []), ...(plan.messages || [])])
+    if (aliases.has(item.work_id)) item.work_id = aliases.get(item.work_id);
+  return plan;
+}
+
 function recoveryHandoffs(requests = [], brief = {}) {
   const cases = brief.overwatch_directive?.delivery_recovery_cases || [];
   return requests.filter(
@@ -5611,6 +5624,7 @@ module.exports = {
   planFingerprint,
   normalizeDirectChangeRequest,
   actionMandateSatisfied,
+  resolveRecoveryReferences,
   isBoundedAccountabilityWorkItem,
   reconcileApprovedProposalFollowThrough,
   approvedProposalQueuePriority,
